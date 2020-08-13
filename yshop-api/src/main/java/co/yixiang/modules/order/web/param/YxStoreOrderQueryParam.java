@@ -11,11 +11,11 @@ import lombok.EqualsAndHashCode;
  * </p>
  *
  * @author hupeng
- * @date 2019-10-27
+ * @date 2020-08-13
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@ApiModel(value="YxStoreOrderQueryParam对象", description="订单表查询参数")
+@ApiModel(value = "YxStoreOrderQueryParam对象", description = "订单表查询参数")
 public class YxStoreOrderQueryParam extends QueryParam {
     private static final long serialVersionUID = 1L;
 

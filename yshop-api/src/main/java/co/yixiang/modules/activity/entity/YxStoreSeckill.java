@@ -106,4 +106,9 @@ public class YxStoreSeckill extends BaseEntity {
 
     private Date startTimeDate;
 
+    @ApiModelProperty(value = "佣金")
+    private BigDecimal commission;
+
+    @ApiModelProperty(value = "时间段id")
+    private Integer timeId;
 }

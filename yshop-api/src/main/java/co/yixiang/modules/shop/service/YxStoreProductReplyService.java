@@ -1,11 +1,3 @@
-/**
- * Copyright (C) 2018-2020
- * All rights reserved, Designed By www.yixiang.co
- * 注意：
- * 本软件为www.yixiang.co开发研制，未经购买不得使用
- * 购买后可获得全部源代码（禁止转卖、分享、上传到码云、github等开源平台）
- * 一经发现盗用、分享等行为，将追究法律责任，后果自负
- */
 package co.yixiang.modules.shop.service;
 
 import co.yixiang.common.service.BaseService;
@@ -24,7 +16,7 @@ import java.util.List;
  * </p>
  *
  * @author hupeng
- * @since 2019-10-23
+ * @since 2020-08-13
  */
 public interface YxStoreProductReplyService extends BaseService<YxStoreProductReply> {
 
@@ -34,18 +26,19 @@ public interface YxStoreProductReplyService extends BaseService<YxStoreProductRe
 
     YxStoreProductReplyQueryVo getReply(int productId);
 
-    List<YxStoreProductReplyQueryVo> getReplyList(int productId,int type,int page, int limit);
+    List<YxStoreProductReplyQueryVo> getReplyList(int productId, int type, int page, int limit);
 
-    int getInfoCount(Integer oid,String unique);
+    int getInfoCount(Integer oid, String unique);
 
     int replyCount(String unique);
 
     int productReplyCount(int productId);
 
-    String doReply(int productId,int count);
+    String doReply(int productId, int count);
 
     /**
      * 根据ID获取查询对象
+     *
      * @param id
      * @return
      */
@@ -53,6 +46,7 @@ public interface YxStoreProductReplyService extends BaseService<YxStoreProductRe
 
     /**
      * 获取分页对象
+     *
      * @param yxStoreProductReplyQueryParam
      * @return
      */

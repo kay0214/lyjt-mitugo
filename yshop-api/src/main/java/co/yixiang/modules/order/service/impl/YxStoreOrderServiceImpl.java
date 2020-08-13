@@ -1,11 +1,3 @@
-/**
- * Copyright (C) 2018-2020
- * All rights reserved, Designed By www.yixiang.co
- * 注意：
- * 本软件为www.yixiang.co开发研制，未经购买不得使用
- * 购买后可获得全部源代码（禁止转卖、分享、上传到码云、github等开源平台）
- * 一经发现盗用、分享等行为，将追究法律责任，后果自负
- */
 package co.yixiang.modules.order.service.impl;
 
 import cn.hutool.core.date.DateUtil;
@@ -19,11 +11,7 @@ import co.yixiang.constant.ShopConstants;
 import co.yixiang.constant.SystemConfigConstants;
 import co.yixiang.enums.*;
 import co.yixiang.exception.ErrorRequestException;
-import co.yixiang.modules.activity.service.YxStoreBargainService;
-import co.yixiang.modules.activity.service.YxStoreBargainUserService;
-import co.yixiang.modules.activity.service.YxStoreCombinationService;
-import co.yixiang.modules.activity.service.YxStorePinkService;
-import co.yixiang.modules.activity.service.YxStoreSeckillService;
+import co.yixiang.modules.activity.service.*;
 import co.yixiang.modules.manage.service.YxExpressService;
 import co.yixiang.modules.manage.web.dto.ChartDataDTO;
 import co.yixiang.modules.manage.web.dto.OrderDataDTO;
@@ -40,12 +28,7 @@ import co.yixiang.modules.order.mapping.OrderMap;
 import co.yixiang.modules.order.service.YxStoreOrderCartInfoService;
 import co.yixiang.modules.order.service.YxStoreOrderService;
 import co.yixiang.modules.order.service.YxStoreOrderStatusService;
-import co.yixiang.modules.order.web.dto.CacheDTO;
-import co.yixiang.modules.order.web.dto.ComputeDTO;
-import co.yixiang.modules.order.web.dto.OrderCountDTO;
-import co.yixiang.modules.order.web.dto.OtherDTO;
-import co.yixiang.modules.order.web.dto.PriceGroupDTO;
-import co.yixiang.modules.order.web.dto.StatusDTO;
+import co.yixiang.modules.order.web.dto.*;
 import co.yixiang.modules.order.web.param.OrderParam;
 import co.yixiang.modules.order.web.param.RefundParam;
 import co.yixiang.modules.order.web.param.YxStoreOrderQueryParam;
@@ -60,11 +43,7 @@ import co.yixiang.modules.shop.web.vo.YxSystemStoreQueryVo;
 import co.yixiang.modules.user.entity.YxUser;
 import co.yixiang.modules.user.entity.YxUserBill;
 import co.yixiang.modules.user.entity.YxWechatUser;
-import co.yixiang.modules.user.service.YxUserAddressService;
-import co.yixiang.modules.user.service.YxUserBillService;
-import co.yixiang.modules.user.service.YxUserLevelService;
-import co.yixiang.modules.user.service.YxUserService;
-import co.yixiang.modules.user.service.YxWechatUserService;
+import co.yixiang.modules.user.service.*;
 import co.yixiang.modules.user.web.vo.YxUserAddressQueryVo;
 import co.yixiang.modules.user.web.vo.YxUserQueryVo;
 import co.yixiang.modules.user.web.vo.YxWechatUserQueryVo;
@@ -94,12 +73,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 //import co.yixiang.common.rocketmq.MqProducer;
@@ -112,9 +86,8 @@ import java.util.concurrent.TimeUnit;
  * </p>
  *
  * @author hupeng
- * @since 2019-10-27
+ * @since 2020-08-13
  */
-
 @Slf4j
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -188,36 +161,37 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
 
     /**
      * 订单退款
+     *
      * @param param
      */
     @Override
     public void orderRefund(OrderRefundParam param) {
 
-        YxStoreOrderQueryVo orderQueryVo = getOrderInfo(param.getOrderId(),0);
-        if(ObjectUtil.isNull(orderQueryVo)) throw new ErrorRequestException("订单不存在");
+        YxStoreOrderQueryVo orderQueryVo = getOrderInfo(param.getOrderId(), 0);
+        if (ObjectUtil.isNull(orderQueryVo)) throw new ErrorRequestException("订单不存在");
 
         YxUserQueryVo userQueryVo = userService.getYxUserById(orderQueryVo.getUid());
-        if(ObjectUtil.isNull(userQueryVo)) throw new ErrorRequestException("用户不存在");
+        if (ObjectUtil.isNull(userQueryVo)) throw new ErrorRequestException("用户不存在");
 
-        if(param.getPrice() > orderQueryVo.getPayPrice().doubleValue()) throw new ErrorRequestException("退款金额不正确");
+        if (param.getPrice() > orderQueryVo.getPayPrice().doubleValue()) throw new ErrorRequestException("退款金额不正确");
 
         YxStoreOrder storeOrder = new YxStoreOrder();
         //修改状态
         storeOrder.setId(orderQueryVo.getId());
 
-        if(param.getType() == 2){
+        if (param.getType() == 2) {
             storeOrder.setRefundStatus(OrderInfoEnum.REFUND_STATUS_0.getValue());
             yxStoreOrderMapper.updateById(storeOrder);
             return;
         }
 
         //根据支付类型不同退款不同
-        if(orderQueryVo.getPayType().equals("yue")){
+        if (orderQueryVo.getPayType().equals("yue")) {
             storeOrder.setRefundStatus(OrderInfoEnum.REFUND_STATUS_2.getValue());
             storeOrder.setRefundPrice(BigDecimal.valueOf(param.getPrice()));
             yxStoreOrderMapper.updateById(storeOrder);
             //退款到余额
-            userService.incMoney(orderQueryVo.getUid(),param.getPrice());
+            userService.incMoney(orderQueryVo.getUid(), param.getPrice());
 
             //增加流水
             YxUserBill userBill = new YxUserBill();
@@ -228,37 +202,37 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
             userBill.setCategory("now_money");
             userBill.setType("pay_product_refund");
             userBill.setNumber(BigDecimal.valueOf(param.getPrice()));
-            userBill.setBalance(NumberUtil.add(param.getPrice(),userQueryVo.getNowMoney()));
+            userBill.setBalance(NumberUtil.add(param.getPrice(), userQueryVo.getNowMoney()));
             userBill.setMark("订单退款到余额");
             userBill.setAddTime(OrderUtil.getSecondTimestampTwo());
             userBill.setStatus(BillEnum.STATUS_1.getValue());
             billService.save(userBill);
 
 
-            orderStatusService.create(orderQueryVo.getId(),"order_edit","退款给用户："+param.getPrice() +"元");
-        }else{
+            orderStatusService.create(orderQueryVo.getId(), "order_edit", "退款给用户：" + param.getPrice() + "元");
+        } else {
             BigDecimal bigDecimal = new BigDecimal("100");
             try {
-                if(OrderInfoEnum.PAY_CHANNEL_1.getValue().equals(orderQueryVo.getIsChannel())){
+                if (OrderInfoEnum.PAY_CHANNEL_1.getValue().equals(orderQueryVo.getIsChannel())) {
                     miniPayService.refundOrder(param.getOrderId(),
                             bigDecimal.multiply(orderQueryVo.getPayPrice()).intValue());
-                }else{
+                } else {
                     payService.refundOrder(param.getOrderId(),
                             bigDecimal.multiply(orderQueryVo.getPayPrice()).intValue());
                 }
 
             } catch (WxPayException e) {
-                log.info("refund-error:{}",e.getMessage());
+                log.info("refund-error:{}", e.getMessage());
             }
         }
 
         //模板消息通知
-        YxWechatUserQueryVo wechatUser =  wechatUserService.getYxWechatUserById(orderQueryVo.getUid());
-        if(ObjectUtil.isNotNull(wechatUser)){
+        YxWechatUserQueryVo wechatUser = wechatUserService.getYxWechatUserById(orderQueryVo.getUid());
+        if (ObjectUtil.isNotNull(wechatUser)) {
             //公众号与小程序打通统一公众号模板通知
-            if(StrUtil.isNotBlank(wechatUser.getOpenid())){
+            if (StrUtil.isNotBlank(wechatUser.getOpenid())) {
                 templateService.refundSuccessNotice(orderQueryVo.getOrderId(),
-                        orderQueryVo.getPayPrice().toString(),wechatUser.getOpenid(),
+                        orderQueryVo.getPayPrice().toString(), wechatUser.getOpenid(),
                         OrderUtil.stampToDate(orderQueryVo.getAddTime().toString()));
             }
 
@@ -269,21 +243,22 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
 
     /**
      * 订单发货
+     *
      * @param param
      */
     @Override
     public void orderDelivery(OrderDeliveryParam param) {
-        YxStoreOrderQueryVo orderQueryVo = getOrderInfo(param.getOrderId(),0);
-        if(ObjectUtil.isNull(orderQueryVo)) throw new ErrorRequestException("订单不存在");
+        YxStoreOrderQueryVo orderQueryVo = getOrderInfo(param.getOrderId(), 0);
+        if (ObjectUtil.isNull(orderQueryVo)) throw new ErrorRequestException("订单不存在");
 
-        if(!orderQueryVo.getStatus().equals(OrderInfoEnum.STATUS_0.getValue()) ||
-                orderQueryVo.getPaid().equals(OrderInfoEnum.PAY_STATUS_0.getValue())){
+        if (!orderQueryVo.getStatus().equals(OrderInfoEnum.STATUS_0.getValue()) ||
+                orderQueryVo.getPaid().equals(OrderInfoEnum.PAY_STATUS_0.getValue())) {
             throw new ErrorRequestException("订单状态错误");
         }
 
         YxExpressQueryVo expressQueryVo = expressService
                 .getYxExpressById(Integer.valueOf(param.getDeliveryName()));
-        if(ObjectUtil.isNull(expressQueryVo)) throw new ErrorRequestException("请后台先添加快递公司");
+        if (ObjectUtil.isNull(expressQueryVo)) throw new ErrorRequestException("请后台先添加快递公司");
 
         YxStoreOrder storeOrder = new YxStoreOrder();
         storeOrder.setId(orderQueryVo.getId());
@@ -296,23 +271,23 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
         yxStoreOrderMapper.updateById(storeOrder);
 
         //增加状态
-        orderStatusService.create(orderQueryVo.getId(),"delivery_goods",
-                "已发货 快递公司："+expressQueryVo.getName()+"快递单号：" +param.getDeliveryId());
+        orderStatusService.create(orderQueryVo.getId(), "delivery_goods",
+                "已发货 快递公司：" + expressQueryVo.getName() + "快递单号：" + param.getDeliveryId());
 
         //模板消息通知
-        YxWechatUserQueryVo wechatUser =  wechatUserService.getYxWechatUserById(orderQueryVo.getUid());
-        if(ObjectUtil.isNotNull(wechatUser)){
+        YxWechatUserQueryVo wechatUser = wechatUserService.getYxWechatUserById(orderQueryVo.getUid());
+        if (ObjectUtil.isNotNull(wechatUser)) {
             ////公众号与小程序打通统一公众号模板通知
-            if(StrUtil.isNotBlank(wechatUser.getOpenid())){
+            if (StrUtil.isNotBlank(wechatUser.getOpenid())) {
                 templateService.deliverySuccessNotice(storeOrder.getOrderId(),
-                        expressQueryVo.getName(),param.getDeliveryId(),wechatUser.getOpenid());
+                        expressQueryVo.getName(), param.getDeliveryId(), wechatUser.getOpenid());
             }
 
         }
 
         //加入redis，7天后自动确认收货
         String redisKey = String.valueOf(StrUtil.format("{}{}",
-                ShopConstants.REDIS_ORDER_OUTTIME_UNCONFIRM,orderQueryVo.getId()));
+                ShopConstants.REDIS_ORDER_OUTTIME_UNCONFIRM, orderQueryVo.getId()));
         redisTemplate.opsForValue().set(redisKey, orderQueryVo.getOrderId(),
                 ShopConstants.ORDER_OUTTIME_UNCONFIRM, TimeUnit.DAYS);
 
@@ -320,16 +295,17 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
 
     /**
      * 修改订单价格
+     *
      * @param param
      */
     @Override
     public void editOrderPrice(OrderPriceParam param) {
-        YxStoreOrderQueryVo orderQueryVo = getOrderInfo(param.getOrderId(),0);
-        if(ObjectUtil.isNull(orderQueryVo)) throw new ErrorRequestException("订单不存在");
+        YxStoreOrderQueryVo orderQueryVo = getOrderInfo(param.getOrderId(), 0);
+        if (ObjectUtil.isNull(orderQueryVo)) throw new ErrorRequestException("订单不存在");
 
-        if(orderQueryVo.getPayPrice().doubleValue() == param.getPrice()) return;
+        if (orderQueryVo.getPayPrice().doubleValue() == param.getPrice()) return;
 
-        if(orderQueryVo.getPaid() > 0) throw new ErrorRequestException("订单状态错误");
+        if (orderQueryVo.getPaid() > 0) throw new ErrorRequestException("订单状态错误");
 
 
         YxStoreOrder storeOrder = new YxStoreOrder();
@@ -338,9 +314,9 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
 
         //判断金额是否有变动,生成一个额外订单号去支付
 
-        int res = NumberUtil.compare(orderQueryVo.getPayPrice().doubleValue(),param.getPrice());
-        if(res != 0){
-            String orderSn = IdUtil.getSnowflake(0,0).nextIdStr();
+        int res = NumberUtil.compare(orderQueryVo.getPayPrice().doubleValue(), param.getPrice());
+        if (res != 0) {
+            String orderSn = IdUtil.getSnowflake(0, 0).nextIdStr();
             storeOrder.setExtendOrderId(orderSn);
         }
 
@@ -348,48 +324,50 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
         yxStoreOrderMapper.updateById(storeOrder);
 
         //增加状态
-        orderStatusService.create(storeOrder.getId(),"order_edit","修改实际支付金额");
+        orderStatusService.create(storeOrder.getId(), "order_edit", "修改实际支付金额");
 
 
     }
 
     /**
      * 获取拼团订单
+     *
      * @param pid
      * @param uid
      * @param type
      * @return
      */
     @Override
-    public YxStoreOrder getOrderPink(int pid, int uid,int type) {
+    public YxStoreOrder getOrderPink(int pid, int uid, int type) {
         QueryWrapper<YxStoreOrder> wrapper = new QueryWrapper<>();
-        wrapper.eq("is_del",0).eq("uid",uid).eq("pink_id",pid);
-        if(type == 0) wrapper.eq("refund_status",0);
+        wrapper.eq("is_del", 0).eq("uid", uid).eq("pink_id", pid);
+        if (type == 0) wrapper.eq("refund_status", 0);
         return yxStoreOrderMapper.selectOne(wrapper);
     }
 
     /**
      * 退回优惠券
+     *
      * @param order
      */
     @Override
     public void regressionCoupon(YxStoreOrderQueryVo order) {
-        if(order.getPaid() > 0 || order.getStatus() == -2 || order.getIsDel() ==1){
+        if (order.getPaid() > 0 || order.getStatus() == -2 || order.getIsDel() == 1) {
             return;
         }
 
-        QueryWrapper<YxStoreCouponUser> wrapper= new QueryWrapper<>();
-        if(order.getCouponId() > 0){
-            wrapper.eq("id",order.getCouponId()).eq("status",1).eq("uid",order.getUid());
+        QueryWrapper<YxStoreCouponUser> wrapper = new QueryWrapper<>();
+        if (order.getCouponId() > 0) {
+            wrapper.eq("id", order.getCouponId()).eq("status", 1).eq("uid", order.getUid());
             YxStoreCouponUser couponUser = yxStoreCouponUserMapper.selectOne(wrapper);
 
-            if(ObjectUtil.isNotNull(couponUser)){
+            if (ObjectUtil.isNotNull(couponUser)) {
                 YxStoreCouponUser storeCouponUser = new YxStoreCouponUser();
-                QueryWrapper<YxStoreCouponUser> wrapperT= new QueryWrapper<>();
-                wrapperT.eq("id",order.getCouponId()).eq("uid",order.getUid());
+                QueryWrapper<YxStoreCouponUser> wrapperT = new QueryWrapper<>();
+                wrapperT.eq("id", order.getCouponId()).eq("uid", order.getUid());
                 storeCouponUser.setStatus(0);
                 storeCouponUser.setUseTime(0);
-                yxStoreCouponUserMapper.update(storeCouponUser,wrapperT);
+                yxStoreCouponUserMapper.update(storeCouponUser, wrapperT);
             }
         }
 
@@ -397,29 +375,30 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
 
     /**
      * 退回库存
+     *
      * @param order
      */
     @Override
     public void regressionStock(YxStoreOrderQueryVo order) {
-        if(order.getPaid() > 0 || order.getStatus() == -2 || order.getIsDel() ==1){
+        if (order.getPaid() > 0 || order.getStatus() == -2 || order.getIsDel() == 1) {
             return;
         }
-        QueryWrapper<YxStoreOrderCartInfo> wrapper= new QueryWrapper<>();
+        QueryWrapper<YxStoreOrderCartInfo> wrapper = new QueryWrapper<>();
         wrapper.in("cart_id", Arrays.asList(order.getCartId().split(",")));
 
-        List<YxStoreOrderCartInfo> cartInfoList =  orderCartInfoService.list(wrapper);
+        List<YxStoreOrderCartInfo> cartInfoList = orderCartInfoService.list(wrapper);
         for (YxStoreOrderCartInfo cartInfo : cartInfoList) {
             YxStoreCartQueryVo cart = JSONObject.parseObject(cartInfo.getCartInfo()
-                    ,YxStoreCartQueryVo.class);
-            if(order.getCombinationId() > 0){//拼团
-                combinationService.incStockDecSales(cart.getCartNum(),order.getCombinationId());
-            }else if(order.getSeckillId() > 0){//秒杀
-                storeSeckillService.incStockDecSales(cart.getCartNum(),order.getSeckillId());
-            }else if(order.getBargainId() > 0){//砍价
-                storeBargainService.incStockDecSales(cart.getCartNum(),order.getBargainId());
-            }else{
-                productService.incProductStock(cart.getCartNum(),cart.getProductId()
-                        ,cart.getProductAttrUnique());
+                    , YxStoreCartQueryVo.class);
+            if (order.getCombinationId() > 0) {//拼团
+                combinationService.incStockDecSales(cart.getCartNum(), order.getCombinationId());
+            } else if (order.getSeckillId() > 0) {//秒杀
+                storeSeckillService.incStockDecSales(cart.getCartNum(), order.getSeckillId());
+            } else if (order.getBargainId() > 0) {//砍价
+                storeBargainService.incStockDecSales(cart.getCartNum(), order.getBargainId());
+            } else {
+                productService.incProductStock(cart.getCartNum(), cart.getProductId()
+                        , cart.getProductAttrUnique());
             }
 
         }
@@ -427,18 +406,19 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
 
     /**
      * 退回积分
+     *
      * @param order
      */
     @Override
     public void regressionIntegral(YxStoreOrderQueryVo order) {
-        if(order.getPaid() > 0 || order.getStatus() == -2 || order.getIsDel() ==1){
+        if (order.getPaid() > 0 || order.getStatus() == -2 || order.getIsDel() == 1) {
             return;
         }
-        if(order.getUseIntegral().doubleValue() <= 0) return;
+        if (order.getUseIntegral().doubleValue() <= 0) return;
 
-        if(order.getStatus() != -2 && order.getRefundStatus() != 2
+        if (order.getStatus() != -2 && order.getRefundStatus() != 2
                 && ObjectUtil.isNotNull(order.getBackIntegral())
-                && order.getBackIntegral().doubleValue() >= order.getUseIntegral().doubleValue()){
+                && order.getBackIntegral().doubleValue() >= order.getUseIntegral().doubleValue()) {
             return;
         }
 
@@ -446,7 +426,7 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
                 .getYxUserById(order.getUid());
 
         //增加积分
-        userService.incIntegral(order.getUid(),order.getUseIntegral().doubleValue());
+        userService.incIntegral(order.getUid(), order.getUseIntegral().doubleValue());
 
         //增加流水
         YxUserBill userBill = new YxUserBill();
@@ -472,14 +452,15 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
 
     /**
      * 未付款取消订单
+     *
      * @param orderId
      * @param uid
      */
     @Override
     public void cancelOrder(String orderId, int uid) {
-        YxStoreOrderQueryVo order = getOrderInfo(orderId,uid);
-        if(ObjectUtil.isNull(order)) throw new ErrorRequestException("订单不存在");
-        if(order.getIsDel().equals(OrderInfoEnum.CANCEL_STATUS_1.getValue()))throw new ErrorRequestException("订单已取消");
+        YxStoreOrderQueryVo order = getOrderInfo(orderId, uid);
+        if (ObjectUtil.isNull(order)) throw new ErrorRequestException("订单不存在");
+        if (order.getIsDel().equals(OrderInfoEnum.CANCEL_STATUS_1.getValue())) throw new ErrorRequestException("订单已取消");
         regressionIntegral(order);
 
         regressionStock(order);
@@ -494,6 +475,7 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
 
     /**
      * 系统自动主动取消未付款取消订单
+     *
      * @param orderId
      */
     @Override
@@ -502,9 +484,9 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
         try {
             order = getYxStoreOrderById(orderId);
 
-            if(ObjectUtil.isNull(order)) throw new ErrorRequestException("订单不存在");
+            if (ObjectUtil.isNull(order)) throw new ErrorRequestException("订单不存在");
 
-            if(order.getIsDel() == OrderInfoEnum.CANCEL_STATUS_1.getValue())throw new ErrorRequestException("订单已取消");
+            if (order.getIsDel() == OrderInfoEnum.CANCEL_STATUS_1.getValue()) throw new ErrorRequestException("订单已取消");
 
             regressionIntegral(order);
 
@@ -524,11 +506,12 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
 
     /**
      * 奖励积分
+     *
      * @param order
      */
     @Override
     public void gainUserIntegral(YxStoreOrderQueryVo order) {
-        if(order.getGainIntegral().intValue() > 0){
+        if (order.getGainIntegral().intValue() > 0) {
             YxUserQueryVo userQueryVo = userService
                     .getYxUserById(order.getUid());
 
@@ -559,15 +542,16 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
 
     /**
      * 删除订单
+     *
      * @param orderId
      * @param uid
      */
     @Override
     public void removeOrder(String orderId, int uid) {
-        YxStoreOrderQueryVo order = getOrderInfo(orderId,uid);
-        if(ObjectUtil.isNull(order)) throw new ErrorRequestException("订单不存在");
+        YxStoreOrderQueryVo order = getOrderInfo(orderId, uid);
+        if (ObjectUtil.isNull(order)) throw new ErrorRequestException("订单不存在");
         order = handleOrder(order);
-        if(!order.get_status().get_type().equals("0") &&
+        if (!order.get_status().get_type().equals("0") &&
                 !order.get_status().get_type().equals("-2") &&
                 !order.get_status().get_type().equals("4")) {
             throw new ErrorRequestException("该订单无法删除");
@@ -579,21 +563,22 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
         yxStoreOrderMapper.updateById(storeOrder);
 
         //增加状态
-        orderStatusService.create(order.getId(),"remove_order","删除订单");
+        orderStatusService.create(order.getId(), "remove_order", "删除订单");
     }
 
     /**
      * 订单确认收货
+     *
      * @param orderId
      * @param uid
      */
-    @CacheEvict(cacheNames = ShopConstants.YSHOP_REDIS_INDEX_KEY,allEntries = true)
+    @CacheEvict(cacheNames = ShopConstants.YSHOP_REDIS_INDEX_KEY, allEntries = true)
     @Override
     public void takeOrder(String orderId, int uid) {
-        YxStoreOrderQueryVo order = getOrderInfo(orderId,uid);
-        if(ObjectUtil.isNull(order)) throw new ErrorRequestException("订单不存在");
+        YxStoreOrderQueryVo order = getOrderInfo(orderId, uid);
+        if (ObjectUtil.isNull(order)) throw new ErrorRequestException("订单不存在");
         order = handleOrder(order);
-        if(!order.get_status().get_type().equals("2")) throw new ErrorRequestException("订单状态错误");
+        if (!order.get_status().get_type().equals("2")) throw new ErrorRequestException("订单状态错误");
 
         YxStoreOrder storeOrder = new YxStoreOrder();
         storeOrder.setStatus(OrderInfoEnum.STATUS_2.getValue());
@@ -601,7 +586,7 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
         yxStoreOrderMapper.updateById(storeOrder);
 
         //增加状态
-        orderStatusService.create(order.getId(),"user_take_delivery","用户已收货");
+        orderStatusService.create(order.getId(), "user_take_delivery", "用户已收货");
 
         //奖励积分
         gainUserIntegral(order);
@@ -615,12 +600,13 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
 
     /**
      * 核销订单
+     *
      * @param orderId
      */
     @Override
     public void verificOrder(String orderId) {
-        YxStoreOrderQueryVo order = getOrderInfo(orderId,0);
-        if(ObjectUtil.isNull(order)) throw new ErrorRequestException("订单不存在");
+        YxStoreOrderQueryVo order = getOrderInfo(orderId, 0);
+        if (ObjectUtil.isNull(order)) throw new ErrorRequestException("订单不存在");
 
         YxStoreOrder storeOrder = new YxStoreOrder();
         storeOrder.setStatus(OrderInfoEnum.STATUS_2.getValue());
@@ -628,7 +614,7 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
         yxStoreOrderMapper.updateById(storeOrder);
 
         //增加状态
-        orderStatusService.create(order.getId(),"user_take_delivery","已核销");
+        orderStatusService.create(order.getId(), "user_take_delivery", "已核销");
 
         //奖励积分
         gainUserIntegral(order);
@@ -642,16 +628,17 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
 
     /**
      * 申请退款
+     *
      * @param param
      * @param uid
      */
     @Override
     public void orderApplyRefund(RefundParam param, int uid) {
-        YxStoreOrderQueryVo order = getOrderInfo(param.getUni(),uid);
-        if(ObjectUtil.isNull(order)) throw new ErrorRequestException("订单不存在");
-        if(order.getRefundStatus() == 2) throw new ErrorRequestException("订单已退款");
-        if(order.getRefundStatus() == 1) throw new ErrorRequestException("正在申请退款中");
-        if(order.getStatus() == 1 ) throw new ErrorRequestException("订单当前无法退款");
+        YxStoreOrderQueryVo order = getOrderInfo(param.getUni(), uid);
+        if (ObjectUtil.isNull(order)) throw new ErrorRequestException("订单不存在");
+        if (order.getRefundStatus() == 2) throw new ErrorRequestException("订单已退款");
+        if (order.getRefundStatus() == 1) throw new ErrorRequestException("正在申请退款中");
+        if (order.getStatus() == 1) throw new ErrorRequestException("订单当前无法退款");
 
         YxStoreOrder storeOrder = new YxStoreOrder();
         storeOrder.setRefundStatus(OrderInfoEnum.REFUND_STATUS_1.getValue());
@@ -663,13 +650,14 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
         yxStoreOrderMapper.updateById(storeOrder);
 
         //增加状态
-        orderStatusService.create(order.getId(),"apply_refund","用户申请退款，原因："+param.getText());
+        orderStatusService.create(order.getId(), "apply_refund", "用户申请退款，原因：" + param.getText());
 
         //todo 推送
     }
 
     /**
      * 订单列表
+     *
      * @param uid
      * @param type
      * @param page
@@ -678,45 +666,45 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
      */
     @Override
     public List<YxStoreOrderQueryVo> orderList(int uid, int type, int page, int limit) {
-        QueryWrapper<YxStoreOrder> wrapper= new QueryWrapper<>();
-        if(uid > 0) {
-            wrapper.eq("uid",uid);
-        }else{
+        QueryWrapper<YxStoreOrder> wrapper = new QueryWrapper<>();
+        if (uid > 0) {
+            wrapper.eq("uid", uid);
+        } else {
             wrapper.eq("shipping_type", OrderInfoEnum.SHIPPIING_TYPE_1.getValue());
         }
-        wrapper.eq("is_del",CommonEnum.DEL_STATUS_0.getValue()).orderByDesc("add_time");
+        wrapper.eq("is_del", CommonEnum.DEL_STATUS_0.getValue()).orderByDesc("add_time");
 
-        switch (OrderStatusEnum.toType(type)){
+        switch (OrderStatusEnum.toType(type)) {
             case STATUS_0://未支付
-                wrapper.eq("paid",0).eq("refund_status",0).eq("status",0);
+                wrapper.eq("paid", 0).eq("refund_status", 0).eq("status", 0);
                 break;
             case STATUS_1://待发货
-                wrapper.eq("paid",1).eq("refund_status",0).eq("status",0);
+                wrapper.eq("paid", 1).eq("refund_status", 0).eq("status", 0);
                 break;
             case STATUS_2://待收货
-                wrapper.eq("paid",1).eq("refund_status",0).eq("status",1);
+                wrapper.eq("paid", 1).eq("refund_status", 0).eq("status", 1);
                 break;
             case STATUS_3://待评价
-                wrapper.eq("paid",1).eq("refund_status",0).eq("status",2);
+                wrapper.eq("paid", 1).eq("refund_status", 0).eq("status", 2);
                 break;
             case STATUS_4://已完成
-                wrapper.eq("paid",1).eq("refund_status",0).eq("status",3);
+                wrapper.eq("paid", 1).eq("refund_status", 0).eq("status", 3);
                 break;
             case STATUS_MINUS_1://退款中
-                wrapper.eq("paid",1).eq("refund_status",1);
+                wrapper.eq("paid", 1).eq("refund_status", 1);
                 break;
             case STATUS_MINUS_2://已退款
-                wrapper.eq("paid",0).eq("refund_status",2);
+                wrapper.eq("paid", 0).eq("refund_status", 2);
                 break;
             case STATUS_MINUS_3://退款
-                String[] strs = {"1","2"};
-                wrapper.eq("paid",1).in("refund_status",Arrays.asList(strs));
+                String[] strs = {"1", "2"};
+                wrapper.eq("paid", 1).in("refund_status", Arrays.asList(strs));
                 break;
         }
 
         Page<YxStoreOrder> pageModel = new Page<>(page, limit);
 
-        IPage<YxStoreOrder> pageList = yxStoreOrderMapper.selectPage(pageModel,wrapper);
+        IPage<YxStoreOrder> pageList = yxStoreOrderMapper.selectPage(pageModel, wrapper);
         List<YxStoreOrderQueryVo> list = orderMap.toDto(pageList.getRecords());
         List<YxStoreOrderQueryVo> newList = new ArrayList<>();
         for (YxStoreOrderQueryVo order : list) {
@@ -729,12 +717,13 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
 
     /**
      * chart图标统计
+     *
      * @param cate
      * @param type
      * @return
      */
     @Override
-    public Map<String,Object> chartCount(int cate,int type) {
+    public Map<String, Object> chartCount(int cate, int type) {
         int today = OrderUtil.dateToTimestampT(DateUtil.beginOfDay(new Date()));
         int yesterday = OrderUtil.dateToTimestampT(DateUtil.beginOfDay(DateUtil.
                 yesterday()));
@@ -744,38 +733,39 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
         double price = 0d;
         List<ChartDataDTO> list = null;
         QueryWrapper<YxStoreOrder> wrapper = new QueryWrapper<>();
-        wrapper.eq("paid",1).eq("refund_status",0).eq("is_del",0);
+        wrapper.eq("paid", 1).eq("refund_status", 0).eq("is_del", 0);
 
-        switch (OrderCountEnum.toType(cate)){
+        switch (OrderCountEnum.toType(cate)) {
             case TODAY: //今天
-                wrapper.ge("pay_time",today);
+                wrapper.ge("pay_time", today);
                 break;
             case YESTERDAY: //昨天
-                wrapper.lt("pay_time",today).ge("pay_time",yesterday);
+                wrapper.lt("pay_time", today).ge("pay_time", yesterday);
                 break;
             case WEEK: //上周
-                wrapper.ge("pay_time",lastWeek);
+                wrapper.ge("pay_time", lastWeek);
                 break;
             case MONTH: //本月
-                wrapper.ge("pay_time",nowMonth);
+                wrapper.ge("pay_time", nowMonth);
                 break;
         }
-        if(type == 1){
+        if (type == 1) {
             list = yxStoreOrderMapper.chartList(wrapper);
             price = yxStoreOrderMapper.todayPrice(wrapper);
-        }else{
+        } else {
             list = yxStoreOrderMapper.chartListT(wrapper);
             price = yxStoreOrderMapper.selectCount(wrapper).doubleValue();
         }
 
-        Map<String,Object> map = new LinkedHashMap<>();
-        map.put("chart",list);
-        map.put("time",price);
+        Map<String, Object> map = new LinkedHashMap<>();
+        map.put("chart", list);
+        map.put("time", price);
         return map;
     }
 
     /**
      * 获取 今日 昨日 本月 订单金额
+     *
      * @return
      */
     @Override
@@ -790,24 +780,24 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
 
         //今日成交额
         QueryWrapper<YxStoreOrder> wrapperOne = new QueryWrapper<>();
-        wrapperOne.ge("pay_time",today).eq("paid",1)
-                .eq("refund_status",0).eq("is_del",0);
+        wrapperOne.ge("pay_time", today).eq("paid", 1)
+                .eq("refund_status", 0).eq("is_del", 0);
         orderTimeDataDTO.setTodayPrice(yxStoreOrderMapper.todayPrice(wrapperOne));
         //今日订单数
         orderTimeDataDTO.setTodayCount(yxStoreOrderMapper.selectCount(wrapperOne));
 
         //昨日成交额
         QueryWrapper<YxStoreOrder> wrapperTwo = new QueryWrapper<>();
-        wrapperTwo.lt("pay_time",today).ge("pay_time",yesterday).eq("paid",1)
-                .eq("refund_status",0).eq("is_del",0);
+        wrapperTwo.lt("pay_time", today).ge("pay_time", yesterday).eq("paid", 1)
+                .eq("refund_status", 0).eq("is_del", 0);
         orderTimeDataDTO.setProPrice(yxStoreOrderMapper.todayPrice(wrapperTwo));
         //昨日订单数
         orderTimeDataDTO.setProCount(yxStoreOrderMapper.selectCount(wrapperTwo));
 
         //本月成交额
         QueryWrapper<YxStoreOrder> wrapperThree = new QueryWrapper<>();
-        wrapperThree.ge("pay_time",nowMonth).eq("paid",1)
-                .eq("refund_status",0).eq("is_del",0);
+        wrapperThree.ge("pay_time", nowMonth).eq("paid", 1)
+                .eq("refund_status", 0).eq("is_del", 0);
         orderTimeDataDTO.setMonthPrice(yxStoreOrderMapper.todayPrice(wrapperThree));
         //本月订单数
         orderTimeDataDTO.setMonthCount(yxStoreOrderMapper.selectCount(wrapperThree));
@@ -818,6 +808,7 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
 
     /**
      * 订单每月统计数据
+     *
      * @param page
      * @param limit
      * @return
@@ -830,6 +821,7 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
 
     /**
      * 获取某个用户的订单统计数据
+     *
      * @param uid uid>0 取用户 否则取所有
      * @return
      */
@@ -839,8 +831,8 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
         OrderCountDTO countDTO = new OrderCountDTO();
         //订单支付没有退款 数量
         QueryWrapper<YxStoreOrder> wrapperOne = new QueryWrapper<>();
-        if(uid > 0 ) wrapperOne.eq("uid",uid);
-        wrapperOne.eq("is_del",0).eq("paid",1).eq("refund_status",0);
+        if (uid > 0) wrapperOne.eq("uid", uid);
+        wrapperOne.eq("is_del", 0).eq("paid", 1).eq("refund_status", 0);
         countDTO.setOrderCount(yxStoreOrderMapper.selectCount(wrapperOne));
 
         //订单支付没有退款 支付总金额
@@ -848,45 +840,45 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
 
         //订单待支付 数量
         QueryWrapper<YxStoreOrder> wrapperTwo = new QueryWrapper<>();
-        if(uid > 0 ) wrapperTwo.eq("uid",uid);
-        wrapperTwo.eq("is_del",0).eq("paid",0)
-                .eq("refund_status",0).eq("status",0);
+        if (uid > 0) wrapperTwo.eq("uid", uid);
+        wrapperTwo.eq("is_del", 0).eq("paid", 0)
+                .eq("refund_status", 0).eq("status", 0);
         countDTO.setUnpaidCount(yxStoreOrderMapper.selectCount(wrapperTwo));
 
         //订单待发货 数量
         QueryWrapper<YxStoreOrder> wrapperThree = new QueryWrapper<>();
-        if(uid > 0 ) wrapperThree.eq("uid",uid);
-        wrapperThree.eq("is_del",0).eq("paid",1)
-                .eq("refund_status",0).eq("status",0);
+        if (uid > 0) wrapperThree.eq("uid", uid);
+        wrapperThree.eq("is_del", 0).eq("paid", 1)
+                .eq("refund_status", 0).eq("status", 0);
         countDTO.setUnshippedCount(yxStoreOrderMapper.selectCount(wrapperThree));
 
         //订单待收货 数量
         QueryWrapper<YxStoreOrder> wrapperFour = new QueryWrapper<>();
-        if(uid > 0 ) wrapperFour.eq("uid",uid);
-        wrapperFour.eq("is_del",0).eq("paid",1)
-                .eq("refund_status",0).eq("status",1);
+        if (uid > 0) wrapperFour.eq("uid", uid);
+        wrapperFour.eq("is_del", 0).eq("paid", 1)
+                .eq("refund_status", 0).eq("status", 1);
         countDTO.setReceivedCount(yxStoreOrderMapper.selectCount(wrapperFour));
 
         //订单待评价 数量
         QueryWrapper<YxStoreOrder> wrapperFive = new QueryWrapper<>();
-        if(uid > 0 ) wrapperFive.eq("uid",uid);
-        wrapperFive.eq("is_del",0).eq("paid",1)
-                .eq("refund_status",0).eq("status",2);
+        if (uid > 0) wrapperFive.eq("uid", uid);
+        wrapperFive.eq("is_del", 0).eq("paid", 1)
+                .eq("refund_status", 0).eq("status", 2);
         countDTO.setEvaluatedCount(yxStoreOrderMapper.selectCount(wrapperFive));
 
         //订单已完成 数量
-        QueryWrapper<YxStoreOrder> wrapperSix= new QueryWrapper<>();
-        if(uid > 0 ) wrapperSix.eq("uid",uid);
-        wrapperSix.eq("is_del",0).eq("paid",1)
-                .eq("refund_status",0).eq("status",3);
+        QueryWrapper<YxStoreOrder> wrapperSix = new QueryWrapper<>();
+        if (uid > 0) wrapperSix.eq("uid", uid);
+        wrapperSix.eq("is_del", 0).eq("paid", 1)
+                .eq("refund_status", 0).eq("status", 3);
         countDTO.setCompleteCount(yxStoreOrderMapper.selectCount(wrapperSix));
 
         //订单退款
-        QueryWrapper<YxStoreOrder> wrapperSeven= new QueryWrapper<>();
-        if(uid > 0 ) wrapperSeven.eq("uid",uid);
-        String[] strArr = {"1","2"};
-        wrapperSeven.eq("is_del",0).eq("paid",1)
-                .in("refund_status",Arrays.asList(strArr));
+        QueryWrapper<YxStoreOrder> wrapperSeven = new QueryWrapper<>();
+        if (uid > 0) wrapperSeven.eq("uid", uid);
+        String[] strArr = {"1", "2"};
+        wrapperSeven.eq("is_del", 0).eq("paid", 1)
+                .in("refund_status", Arrays.asList(strArr));
         countDTO.setRefundCount(yxStoreOrderMapper.selectCount(wrapperSeven));
 
 
@@ -895,18 +887,19 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
 
     /**
      * 处理订单返回的状态
+     *
      * @param order order
      * @return
      */
     @Override
     public YxStoreOrderQueryVo handleOrder(YxStoreOrderQueryVo order) {
         QueryWrapper<YxStoreOrderCartInfo> wrapper = new QueryWrapper<>();
-        wrapper.eq("oid",order.getId());
+        wrapper.eq("oid", order.getId());
         List<YxStoreOrderCartInfo> cartInfos = orderCartInfoService.list(wrapper);
 
         List<YxStoreCartQueryVo> cartInfo = new ArrayList<>();
         for (YxStoreOrderCartInfo info : cartInfos) {
-            YxStoreCartQueryVo cartQueryVo = JSON.parseObject(info.getCartInfo(),YxStoreCartQueryVo.class);
+            YxStoreCartQueryVo cartQueryVo = JSON.parseObject(info.getCartInfo(), YxStoreCartQueryVo.class);
             cartQueryVo.setUnique(info.getUnique());
             //新增是否评价字段
             cartQueryVo.setIsReply(storeProductReplyService.replyCount(info.getUnique()));
@@ -914,44 +907,44 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
         }
         order.setCartInfo(cartInfo);
         StatusDTO statusDTO = new StatusDTO();
-        if(order.getPaid() == 0){
+        if (order.getPaid() == 0) {
             //计算未支付到自动取消订 时间
-            long time = ShopConstants.ORDER_OUTTIME_UNPAY *60 + Long.valueOf(order.getAddTime());
+            long time = ShopConstants.ORDER_OUTTIME_UNPAY * 60 + Long.valueOf(order.getAddTime());
             statusDTO.set_class("nobuy");
-            statusDTO.set_msg(StrUtil.format("请在{}前完成支付",OrderUtil.stampToDate(String.valueOf(time))));
+            statusDTO.set_msg(StrUtil.format("请在{}前完成支付", OrderUtil.stampToDate(String.valueOf(time))));
             statusDTO.set_type("0");
             statusDTO.set_title("未支付");
-        }else if(order.getRefundStatus() == 1){
+        } else if (order.getRefundStatus() == 1) {
             statusDTO.set_class("state-sqtk");
             statusDTO.set_msg("商家审核中,请耐心等待");
             statusDTO.set_type("-1");
             statusDTO.set_title("申请退款中");
-        }else if(order.getRefundStatus() == 2){
+        } else if (order.getRefundStatus() == 2) {
             statusDTO.set_class("state-sqtk");
             statusDTO.set_msg("已为您退款,感谢您的支持");
             statusDTO.set_type("-2");
             statusDTO.set_title("已退款");
-        }else if(order.getStatus() == 0){
+        } else if (order.getStatus() == 0) {
             // 拼团
-            if(order.getPinkId() > 0){
-                if(pinkService.pinkIngCount(order.getPinkId()) > 0){
+            if (order.getPinkId() > 0) {
+                if (pinkService.pinkIngCount(order.getPinkId()) > 0) {
                     statusDTO.set_class("state-nfh");
                     statusDTO.set_msg("待其他人参加拼团");
                     statusDTO.set_type("1");
                     statusDTO.set_title("拼团中");
-                }else{
+                } else {
                     statusDTO.set_class("state-nfh");
                     statusDTO.set_msg("商家未发货,请耐心等待");
                     statusDTO.set_type("1");
                     statusDTO.set_title("未发货");
                 }
-            }else{
-                if(OrderInfoEnum.SHIPPIING_TYPE_1.getValue().equals(order.getShippingType())){
+            } else {
+                if (OrderInfoEnum.SHIPPIING_TYPE_1.getValue().equals(order.getShippingType())) {
                     statusDTO.set_class("state-nfh");
                     statusDTO.set_msg("商家未发货,请耐心等待");
                     statusDTO.set_type("1");
                     statusDTO.set_title("未发货");
-                }else{
+                } else {
                     statusDTO.set_class("state-nfh");
                     statusDTO.set_msg("待核销,请到核销点进行核销");
                     statusDTO.set_type("1");
@@ -959,26 +952,26 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
                 }
             }
 
-        }else if(order.getStatus() == 1){
+        } else if (order.getStatus() == 1) {
             statusDTO.set_class("state-ysh");
             statusDTO.set_msg("服务商已发货");
             statusDTO.set_type("2");
             statusDTO.set_title("待收货");
-        }else if(order.getStatus() == 2){
+        } else if (order.getStatus() == 2) {
             statusDTO.set_class("state-ypj");
             statusDTO.set_msg("已收货,快去评价一下吧");
             statusDTO.set_type("3");
             statusDTO.set_title("待评价");
-        }else if(order.getStatus() == 3){
+        } else if (order.getStatus() == 3) {
             statusDTO.set_class("state-ytk");
             statusDTO.set_msg("交易完成,感谢您的支持");
             statusDTO.set_type("4");
             statusDTO.set_title("交易完成");
         }
 
-        if(order.getPayType().equals("weixin")){
+        if (order.getPayType().equals("weixin")) {
             statusDTO.set_payType("微信支付");
-        }else{
+        } else {
             statusDTO.set_payType("余额支付");
         }
 
@@ -990,41 +983,42 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
 
     /**
      * 支付成功后操作
+     *
      * @param orderId 订单号
      * @param payType 支付方式
      */
     @Override
     public void paySuccess(String orderId, String payType) {
-        YxStoreOrderQueryVo orderInfo = getOrderInfo(orderId,0);
+        YxStoreOrderQueryVo orderInfo = getOrderInfo(orderId, 0);
 
         //更新订单状态
         QueryWrapper<YxStoreOrder> wrapper = new QueryWrapper<>();
-        wrapper.eq("order_id",orderId);
+        wrapper.eq("order_id", orderId);
         YxStoreOrder storeOrder = new YxStoreOrder();
         storeOrder.setPaid(OrderInfoEnum.PAY_STATUS_1.getValue());
         storeOrder.setPayType(payType);
         storeOrder.setPayTime(OrderUtil.getSecondTimestampTwo());
-        yxStoreOrderMapper.update(storeOrder,wrapper);
+        yxStoreOrderMapper.update(storeOrder, wrapper);
 
         //增加用户购买次数
         userService.incPayCount(orderInfo.getUid());
         //增加状态
-        orderStatusService.create(orderInfo.getId(),"pay_success","用户付款成功");
+        orderStatusService.create(orderInfo.getId(), "pay_success", "用户付款成功");
         //拼团
-        if(orderInfo.getCombinationId() > 0) pinkService.createPink(orderInfo);
+        if (orderInfo.getCombinationId() > 0) pinkService.createPink(orderInfo);
 
         //砍价
-        if(orderInfo.getBargainId() > 0) {
+        if (orderInfo.getBargainId() > 0) {
             storeBargainUserService.setBargainUserStatus(orderInfo.getBargainId(),
                     orderInfo.getUid());
         }
         //模板消息推送
-        YxWechatUserQueryVo wechatUser =  wechatUserService.getYxWechatUserById(orderInfo.getUid());
-        if(ObjectUtil.isNotNull(wechatUser)){
+        YxWechatUserQueryVo wechatUser = wechatUserService.getYxWechatUserById(orderInfo.getUid());
+        if (ObjectUtil.isNotNull(wechatUser)) {
             ////公众号与小程序打通统一公众号模板通知
-            if(StrUtil.isNotBlank(wechatUser.getOpenid())){
+            if (StrUtil.isNotBlank(wechatUser.getOpenid())) {
                 templateService.paySuccessNotice(orderInfo.getOrderId(),
-                        orderInfo.getPayPrice().toString(),wechatUser.getOpenid());
+                        orderInfo.getPayPrice().toString(), wechatUser.getOpenid());
             }
         }
 
@@ -1033,76 +1027,81 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
 
     /**
      * 支付宝支付
+     *
      * @param orderId,支付宝支付 本系统已经集成，请自行根据下面找到代码整合下即可
      * @return
      */
     @Override
     public String aliPay(String orderId) throws Exception {
         AlipayConfig alipay = alipayService.find();
-        if(ObjectUtil.isNull(alipay)) throw new ErrorRequestException("请先配置支付宝");
-        YxStoreOrderQueryVo orderInfo = getOrderInfo(orderId,0);
-        if(ObjectUtil.isNull(orderInfo)) throw new ErrorRequestException("订单不存在");
-        if(orderInfo.getPaid() == 1) throw new ErrorRequestException("该订单已支付");
+        if (ObjectUtil.isNull(alipay)) throw new ErrorRequestException("请先配置支付宝");
+        YxStoreOrderQueryVo orderInfo = getOrderInfo(orderId, 0);
+        if (ObjectUtil.isNull(orderInfo)) throw new ErrorRequestException("订单不存在");
+        if (orderInfo.getPaid() == 1) throw new ErrorRequestException("该订单已支付");
 
-        if(orderInfo.getPayPrice().doubleValue() <= 0) throw new ErrorRequestException("该支付无需支付");
+        if (orderInfo.getPayPrice().doubleValue() <= 0) throw new ErrorRequestException("该支付无需支付");
         TradeVo trade = new TradeVo();
         trade.setOutTradeNo(orderId);
-        String payUrl = alipayService.toPayAsWeb(alipay,trade);
+        String payUrl = alipayService.toPayAsWeb(alipay, trade);
         return payUrl;
     }
 
     /**
      * 微信APP支付
+     *
      * @param orderId
      * @return
      * @throws WxPayException
      */
     @Override
     public WxPayAppOrderResult appPay(String orderId) throws WxPayException {
-        YxStoreOrderQueryVo orderInfo = getOrderInfo(orderId,0);
-        if(ObjectUtil.isNull(orderInfo)) throw new ErrorRequestException("订单不存在");
-        if(orderInfo.getPaid().equals(OrderInfoEnum.PAY_STATUS_1.getValue())) throw new ErrorRequestException("该订单已支付");
+        YxStoreOrderQueryVo orderInfo = getOrderInfo(orderId, 0);
+        if (ObjectUtil.isNull(orderInfo)) throw new ErrorRequestException("订单不存在");
+        if (orderInfo.getPaid().equals(OrderInfoEnum.PAY_STATUS_1.getValue()))
+            throw new ErrorRequestException("该订单已支付");
 
-        if(orderInfo.getPayPrice().doubleValue() <= 0) throw new ErrorRequestException("该支付无需支付");
+        if (orderInfo.getPayPrice().doubleValue() <= 0) throw new ErrorRequestException("该支付无需支付");
 
         YxUser wechatUser = userService.getById(orderInfo.getUid());
-        if(ObjectUtil.isNull(wechatUser)) throw new ErrorRequestException("用户错误");
+        if (ObjectUtil.isNull(wechatUser)) throw new ErrorRequestException("用户错误");
 
-        if(StrUtil.isNotEmpty(orderInfo.getExtendOrderId())){
+        if (StrUtil.isNotEmpty(orderInfo.getExtendOrderId())) {
             orderId = orderInfo.getExtendOrderId();
         }
 
         BigDecimal bigDecimal = new BigDecimal(100);
 
-        return payService.appPay(orderId,"app商品购买",
+        return payService.appPay(orderId, "app商品购买",
                 bigDecimal.multiply(orderInfo.getPayPrice()).intValue(),
                 BillDetailEnum.TYPE_3.getValue());
     }
 
     /**
      * 微信H5支付
+     *
      * @param orderId
      * @return
      * @throws WxPayException
      */
     @Override
     public WxPayMwebOrderResult wxH5Pay(String orderId) throws WxPayException {
-        YxStoreOrderQueryVo orderInfo = getOrderInfo(orderId,0);
-        if(ObjectUtil.isNull(orderInfo)) throw new ErrorRequestException("订单不存在");
-        if(orderInfo.getPaid().equals(OrderInfoEnum.PAY_STATUS_1.getValue())) throw new ErrorRequestException("该订单已支付");
+        YxStoreOrderQueryVo orderInfo = getOrderInfo(orderId, 0);
+        if (ObjectUtil.isNull(orderInfo)) throw new ErrorRequestException("订单不存在");
+        if (orderInfo.getPaid().equals(OrderInfoEnum.PAY_STATUS_1.getValue()))
+            throw new ErrorRequestException("该订单已支付");
 
-        if(orderInfo.getPayPrice().doubleValue() <= 0) throw new ErrorRequestException("该支付无需支付");
+        if (orderInfo.getPayPrice().doubleValue() <= 0) throw new ErrorRequestException("该支付无需支付");
 
         YxUser wechatUser = userService.getById(orderInfo.getUid());
-        if(ObjectUtil.isNull(wechatUser)) throw new ErrorRequestException("用户错误");
+        if (ObjectUtil.isNull(wechatUser)) throw new ErrorRequestException("用户错误");
 
-        if(StrUtil.isNotEmpty(orderInfo.getExtendOrderId())){
+        if (StrUtil.isNotEmpty(orderInfo.getExtendOrderId())) {
             orderId = orderInfo.getExtendOrderId();
         }
 
         BigDecimal bigDecimal = new BigDecimal(100);
 
-        return payService.wxH5Pay(orderId,"H5商品购买",
+        return payService.wxH5Pay(orderId, "H5商品购买",
                 bigDecimal.multiply(orderInfo.getPayPrice()).intValue(),
                 BillDetailEnum.TYPE_3.getValue());
     }
@@ -1110,28 +1109,30 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
 
     /**
      * 小程序支付
+     *
      * @param orderId
      * @return
      * @throws WxPayException
      */
     @Override
     public WxPayMpOrderResult wxAppPay(String orderId) throws WxPayException {
-        YxStoreOrderQueryVo orderInfo = getOrderInfo(orderId,0);
-        if(ObjectUtil.isNull(orderInfo)) throw new ErrorRequestException("订单不存在");
-        if(orderInfo.getPaid().equals(OrderInfoEnum.PAY_STATUS_1.getValue())) throw new ErrorRequestException("该订单已支付");
+        YxStoreOrderQueryVo orderInfo = getOrderInfo(orderId, 0);
+        if (ObjectUtil.isNull(orderInfo)) throw new ErrorRequestException("订单不存在");
+        if (orderInfo.getPaid().equals(OrderInfoEnum.PAY_STATUS_1.getValue()))
+            throw new ErrorRequestException("该订单已支付");
 
-        if(orderInfo.getPayPrice().doubleValue() <= 0) throw new ErrorRequestException("该支付无需支付");
+        if (orderInfo.getPayPrice().doubleValue() <= 0) throw new ErrorRequestException("该支付无需支付");
 
         YxWechatUser wechatUser = wechatUserService.getById(orderInfo.getUid());
-        if(ObjectUtil.isNull(wechatUser)) throw new ErrorRequestException("用户错误");
+        if (ObjectUtil.isNull(wechatUser)) throw new ErrorRequestException("用户错误");
 
-        if(StrUtil.isNotEmpty(orderInfo.getExtendOrderId())){
+        if (StrUtil.isNotEmpty(orderInfo.getExtendOrderId())) {
             orderId = orderInfo.getExtendOrderId();
         }
 
         BigDecimal bigDecimal = new BigDecimal(100);
 
-        return miniPayService.wxPay(orderId,wechatUser.getRoutineOpenid(),"小程序商品购买",
+        return miniPayService.wxPay(orderId, wechatUser.getRoutineOpenid(), "小程序商品购买",
                 bigDecimal.multiply(orderInfo.getPayPrice()).intValue(),
                 BillDetailEnum.TYPE_3.getValue());
     }
@@ -1139,50 +1140,53 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
 
     /**
      * 微信支付
+     *
      * @param orderId
      */
     @Override
     public WxPayMpOrderResult wxPay(String orderId) throws WxPayException {
-        YxStoreOrderQueryVo orderInfo = getOrderInfo(orderId,0);
-        if(ObjectUtil.isNull(orderInfo)) throw new ErrorRequestException("订单不存在");
-        if(orderInfo.getPaid().equals(OrderInfoEnum.PAY_STATUS_1.getValue())) throw new ErrorRequestException("该订单已支付");
+        YxStoreOrderQueryVo orderInfo = getOrderInfo(orderId, 0);
+        if (ObjectUtil.isNull(orderInfo)) throw new ErrorRequestException("订单不存在");
+        if (orderInfo.getPaid().equals(OrderInfoEnum.PAY_STATUS_1.getValue()))
+            throw new ErrorRequestException("该订单已支付");
 
-        if(orderInfo.getPayPrice().doubleValue() <= 0) throw new ErrorRequestException("该支付无需支付");
+        if (orderInfo.getPayPrice().doubleValue() <= 0) throw new ErrorRequestException("该支付无需支付");
 
         YxWechatUser wechatUser = wechatUserService.getById(orderInfo.getUid());
-        if(ObjectUtil.isNull(wechatUser)) throw new ErrorRequestException("用户错误");
-        if(StrUtil.isNotEmpty(orderInfo.getExtendOrderId())){
+        if (ObjectUtil.isNull(wechatUser)) throw new ErrorRequestException("用户错误");
+        if (StrUtil.isNotEmpty(orderInfo.getExtendOrderId())) {
             orderId = orderInfo.getExtendOrderId();
         }
         BigDecimal bigDecimal = new BigDecimal(100);
 
-        return payService.wxPay(orderId,wechatUser.getOpenid(),"公众号商品购买",
+        return payService.wxPay(orderId, wechatUser.getOpenid(), "公众号商品购买",
                 bigDecimal.multiply(orderInfo.getPayPrice()).intValue(),
                 BillDetailEnum.TYPE_3.getValue());
 
     }
 
 
-
     /**
      * 余额支付
+     *
      * @param orderId 订单号
-     * @param uid 用户id
+     * @param uid     用户id
      */
     @Override
     public void yuePay(String orderId, int uid) {
-        YxStoreOrderQueryVo orderInfo = getOrderInfo(orderId,uid);
-        if(ObjectUtil.isNull(orderInfo)) throw new ErrorRequestException("订单不存在");
+        YxStoreOrderQueryVo orderInfo = getOrderInfo(orderId, uid);
+        if (ObjectUtil.isNull(orderInfo)) throw new ErrorRequestException("订单不存在");
 
-        if(orderInfo.getPaid().equals(OrderInfoEnum.PAY_STATUS_1.getValue())) throw new ErrorRequestException("该订单已支付");
+        if (orderInfo.getPaid().equals(OrderInfoEnum.PAY_STATUS_1.getValue()))
+            throw new ErrorRequestException("该订单已支付");
 
         YxUserQueryVo userInfo = userService.getYxUserById(uid);
 
-        if(userInfo.getNowMoney().doubleValue() < orderInfo.getPayPrice().doubleValue()){
+        if (userInfo.getNowMoney().doubleValue() < orderInfo.getPayPrice().doubleValue()) {
             throw new ErrorRequestException("余额不足");
         }
 
-        userService.decPrice(uid,orderInfo.getPayPrice().doubleValue());
+        userService.decPrice(uid, orderInfo.getPayPrice().doubleValue());
 
         YxUserBill userBill = new YxUserBill();
         userBill.setUid(uid);
@@ -1199,14 +1203,15 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
         billService.save(userBill);
 
         //支付成功后处理
-        paySuccess(orderInfo.getOrderId(),"yue");
+        paySuccess(orderInfo.getOrderId(), "yue");
 
     }
 
     /**
      * 创建订单
-     * @param uid uid
-     * @param key key
+     *
+     * @param uid   uid
+     * @param key   key
      * @param param param
      * @return
      */
@@ -1214,25 +1219,25 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
     @Transactional(rollbackFor = Exception.class)
     public YxStoreOrder createOrder(int uid, String key, OrderParam param) {
         YxUserQueryVo userInfo = userService.getYxUserById(uid);
-        if(ObjectUtil.isNull(userInfo)) throw new ErrorRequestException("用户不存在");
+        if (ObjectUtil.isNull(userInfo)) throw new ErrorRequestException("用户不存在");
 
-        CacheDTO cacheDTO = getCacheOrderInfo(uid,key);
-        if(ObjectUtil.isNull(cacheDTO)){
+        CacheDTO cacheDTO = getCacheOrderInfo(uid, key);
+        if (ObjectUtil.isNull(cacheDTO)) {
             throw new ErrorRequestException("订单已过期,请刷新当前页面");
         }
 
         List<YxStoreCartQueryVo> cartInfo = cacheDTO.getCartInfo();
-        Double totalPrice =  cacheDTO.getPriceGroup().getTotalPrice();
+        Double totalPrice = cacheDTO.getPriceGroup().getTotalPrice();
         Double payPrice = cacheDTO.getPriceGroup().getTotalPrice();
         Double payPostage = cacheDTO.getPriceGroup().getStorePostage();
         OtherDTO other = cacheDTO.getOther();
         YxUserAddressQueryVo userAddress = null;
-        if(OrderInfoEnum.SHIPPIING_TYPE_1.getValue().equals(param.getShippingType())){
-            if(StrUtil.isEmpty(param.getAddressId())) throw new ErrorRequestException("请选择收货地址");
+        if (OrderInfoEnum.SHIPPIING_TYPE_1.getValue().equals(param.getShippingType())) {
+            if (StrUtil.isEmpty(param.getAddressId())) throw new ErrorRequestException("请选择收货地址");
             userAddress = userAddressService.getYxUserAddressById(param.getAddressId());
-            if(ObjectUtil.isNull(userAddress)) throw new ErrorRequestException("地址选择有误");
-        }else{ //门店
-            if(StrUtil.isBlank(param.getRealName()) || StrUtil.isBlank(param.getPhone())) {
+            if (ObjectUtil.isNull(userAddress)) throw new ErrorRequestException("地址选择有误");
+        } else { //门店
+            if (StrUtil.isBlank(param.getRealName()) || StrUtil.isBlank(param.getPhone())) {
                 throw new ErrorRequestException("请填写姓名和电话");
             }
             userAddress = new YxUserAddressQueryVo();
@@ -1252,8 +1257,8 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
         int bargainId = 0;
 
         for (YxStoreCartQueryVo cart : cartInfo) {
-            yxStoreCartService.checkProductStock(uid,cart.getProductId(),cart.getCartNum(),
-                    cart.getProductAttrUnique(), cart.getCombinationId(),cart.getSeckillId(),cart.getBargainId());
+            yxStoreCartService.checkProductStock(uid, cart.getProductId(), cart.getCartNum(),
+                    cart.getProductAttrUnique(), cart.getCombinationId(), cart.getSeckillId(), cart.getBargainId());
 
 
             combinationId = cart.getCombinationId();
@@ -1263,12 +1268,12 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
             totalNum += cart.getCartNum();
             //计算积分
             BigDecimal cartInfoGainIntegral = BigDecimal.ZERO;
-            if(combinationId == 0 && seckillId == 0 && bargainId == 0){//拼团等活动不参与积分
-                if(cart.getProductInfo().getGiveIntegral().intValue() > 0){
-                    cartInfoGainIntegral = NumberUtil.mul(cart.getCartNum(),cart.
+            if (combinationId == 0 && seckillId == 0 && bargainId == 0) {//拼团等活动不参与积分
+                if (cart.getProductInfo().getGiveIntegral().intValue() > 0) {
+                    cartInfoGainIntegral = NumberUtil.mul(cart.getCartNum(), cart.
                             getProductInfo().getGiveIntegral());
                 }
-                gainIntegral = NumberUtil.add(gainIntegral,cartInfoGainIntegral).intValue();
+                gainIntegral = NumberUtil.add(gainIntegral, cartInfoGainIntegral).intValue();
             }
 
         }
@@ -1276,15 +1281,15 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
 
         //门店
 
-        if(OrderInfoEnum.SHIPPIING_TYPE_1.getValue().equals(param.getShippingType())){
-            payPrice = NumberUtil.add(payPrice,payPostage);
-        }else{
+        if (OrderInfoEnum.SHIPPIING_TYPE_1.getValue().equals(param.getShippingType())) {
+            payPrice = NumberUtil.add(payPrice, payPostage);
+        } else {
             payPostage = 0d;
         }
 
         //优惠券
         int couponId = 0;
-        if(ObjectUtil.isNotEmpty(param.getCouponId())){
+        if (ObjectUtil.isNotEmpty(param.getCouponId())) {
             couponId = param.getCouponId().intValue();
         }
 
@@ -1292,20 +1297,20 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
 
         boolean deduction = false;//拼团等
         //拼团等不参与抵扣
-        if(combinationId > 0 || seckillId > 0 || bargainId > 0) deduction = true;
-        if(deduction){
+        if (combinationId > 0 || seckillId > 0 || bargainId > 0) deduction = true;
+        if (deduction) {
             couponId = 0;
             useIntegral = 0;
         }
         double couponPrice = 0; //优惠券金额
-        if(couponId > 0){//使用优惠券
-            YxStoreCouponUser couponUser = couponUserService.getCoupon(couponId,uid);
-            if(ObjectUtil.isNull(couponUser)) throw new ErrorRequestException("使用优惠劵失败");
+        if (couponId > 0) {//使用优惠券
+            YxStoreCouponUser couponUser = couponUserService.getCoupon(couponId, uid);
+            if (ObjectUtil.isNull(couponUser)) throw new ErrorRequestException("使用优惠劵失败");
 
-            if(couponUser.getUseMinPrice().doubleValue() > payPrice){
+            if (couponUser.getUseMinPrice().doubleValue() > payPrice) {
                 throw new ErrorRequestException("不满足优惠劵的使用条件");
             }
-            payPrice = NumberUtil.sub(payPrice,couponUser.getCouponPrice()).doubleValue();
+            payPrice = NumberUtil.sub(payPrice, couponUser.getCouponPrice()).doubleValue();
 
             couponUserService.useCoupon(couponId);//更新优惠券状态
 
@@ -1317,24 +1322,24 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
         double usedIntegral = 0; //使用的积分
 
         //积分抵扣开始
-        if(useIntegral > 0 && userInfo.getIntegral().doubleValue() > 0){
+        if (useIntegral > 0 && userInfo.getIntegral().doubleValue() > 0) {
             Double integralMax = Double.valueOf(cacheDTO.getOther().getIntegralMax());
             Double integralFull = Double.valueOf(cacheDTO.getOther().getIntegralFull());
             Double integralRatio = Double.valueOf(cacheDTO.getOther().getIntegralRatio());
-            if(totalPrice >= integralFull){
+            if (totalPrice >= integralFull) {
                 Double userIntegral = userInfo.getIntegral().doubleValue();
-                if(integralMax > 0 && userIntegral >= integralMax) userIntegral = integralMax;
+                if (integralMax > 0 && userIntegral >= integralMax) userIntegral = integralMax;
                 deductionPrice = NumberUtil.mul(userIntegral, integralRatio);
-                if(deductionPrice < payPrice){
-                    payPrice = NumberUtil.sub(payPrice.doubleValue(),deductionPrice);
+                if (deductionPrice < payPrice) {
+                    payPrice = NumberUtil.sub(payPrice.doubleValue(), deductionPrice);
                     usedIntegral = userIntegral;
-                }else{
+                } else {
                     deductionPrice = payPrice;
                     usedIntegral = NumberUtil.div(payPrice,
                             Double.valueOf(cacheDTO.getOther().getIntegralRatio()));
                     payPrice = 0d;
                 }
-                userService.decIntegral(uid,usedIntegral);
+                userService.decIntegral(uid, usedIntegral);
                 //积分流水
                 YxUserBill userBill = new YxUserBill();
                 userBill.setUid(uid);
@@ -1354,19 +1359,19 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
 
         }
 
-        if(payPrice <= 0) payPrice = 0d;
+        if (payPrice <= 0) payPrice = 0d;
 
         //生成分布式唯一值
-        String orderSn = IdUtil.getSnowflake(0,0).nextIdStr();
+        String orderSn = IdUtil.getSnowflake(0, 0).nextIdStr();
         //组合数据
         YxStoreOrder storeOrder = new YxStoreOrder();
         storeOrder.setUid(uid);
         storeOrder.setOrderId(orderSn);
         storeOrder.setRealName(userAddress.getRealName());
         storeOrder.setUserPhone(userAddress.getPhone());
-        storeOrder.setUserAddress(userAddress.getProvince()+" "+userAddress.getCity()+
-                " "+userAddress.getDistrict()+" "+userAddress.getDetail());
-        storeOrder.setCartId(StrUtil.join(",",cartIds));
+        storeOrder.setUserAddress(userAddress.getProvince() + " " + userAddress.getCity() +
+                " " + userAddress.getDistrict() + " " + userAddress.getDetail());
+        storeOrder.setCartId(StrUtil.join(",", cartIds));
         storeOrder.setTotalNum(totalNum);
         storeOrder.setTotalPrice(BigDecimal.valueOf(totalPrice));
         storeOrder.setTotalPostage(BigDecimal.valueOf(payPostage));
@@ -1385,55 +1390,55 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
         storeOrder.setSeckillId(seckillId);
         storeOrder.setBargainId(bargainId);
         storeOrder.setCost(BigDecimal.valueOf(cacheDTO.getPriceGroup().getCostPrice()));
-        if(AppFromEnum.ROUNTINE.getValue().equals(param.getFrom())){
+        if (AppFromEnum.ROUNTINE.getValue().equals(param.getFrom())) {
             storeOrder.setIsChannel(OrderInfoEnum.PAY_CHANNEL_1.getValue());
-        }else{
+        } else {
             storeOrder.setIsChannel(OrderInfoEnum.PAY_CHANNEL_0.getValue());
         }
         storeOrder.setAddTime(OrderUtil.getSecondTimestampTwo());
         storeOrder.setUnique(key);
         storeOrder.setShippingType(param.getShippingType());
         //处理门店
-        if(OrderInfoEnum.SHIPPIING_TYPE_2.getValue().equals(param.getShippingType())){
+        if (OrderInfoEnum.SHIPPIING_TYPE_2.getValue().equals(param.getShippingType())) {
             YxSystemStoreQueryVo systemStoreQueryVo = systemStoreService.getYxSystemStoreById(param.getStoreId());
-            if(systemStoreQueryVo == null ) throw new ErrorRequestException("暂无门店无法选择门店自提");
-            storeOrder.setVerifyCode(StrUtil.sub(orderSn,orderSn.length(),-12));
+            if (systemStoreQueryVo == null) throw new ErrorRequestException("暂无门店无法选择门店自提");
+            storeOrder.setVerifyCode(StrUtil.sub(orderSn, orderSn.length(), -12));
             storeOrder.setStoreId(systemStoreQueryVo.getId());
         }
 
         boolean res = save(storeOrder);
-        if(!res) throw new ErrorRequestException("订单生成失败");
+        if (!res) throw new ErrorRequestException("订单生成失败");
 
         //减库存加销量
         for (YxStoreCartQueryVo cart : cartInfo) {
-            if(combinationId > 0){
-                combinationService.decStockIncSales(cart.getCartNum(),combinationId);
-            }else if(seckillId > 0){
-                storeSeckillService.decStockIncSales(cart.getCartNum(),seckillId);
-            }else if(bargainId > 0){
-                storeBargainService.decStockIncSales(cart.getCartNum(),bargainId);
+            if (combinationId > 0) {
+                combinationService.decStockIncSales(cart.getCartNum(), combinationId);
+            } else if (seckillId > 0) {
+                storeSeckillService.decStockIncSales(cart.getCartNum(), seckillId);
+            } else if (bargainId > 0) {
+                storeBargainService.decStockIncSales(cart.getCartNum(), bargainId);
             } else {
-                productService.decProductStock(cart.getCartNum(),cart.getProductId(),
+                productService.decProductStock(cart.getCartNum(), cart.getProductId(),
                         cart.getProductAttrUnique());
             }
 
         }
 
         //保存购物车商品信息
-        orderCartInfoService.saveCartInfo(storeOrder.getId(),cartInfo);
+        orderCartInfoService.saveCartInfo(storeOrder.getId(), cartInfo);
 
         //购物车状态修改
         QueryWrapper<YxStoreCart> wrapper = new QueryWrapper<>();
-        wrapper.in("id",cartIds);
+        wrapper.in("id", cartIds);
         YxStoreCart cartObj = new YxStoreCart();
         cartObj.setIsPay(1);
-        storeCartMapper.update(cartObj,wrapper);
+        storeCartMapper.update(cartObj, wrapper);
 
         //删除缓存
-        delCacheOrderInfo(uid,key);
+        delCacheOrderInfo(uid, key);
 
         //增加状态
-        orderStatusService.create(storeOrder.getId(),"cache_key_create_order","订单生成");
+        orderStatusService.create(storeOrder.getId(), "cache_key_create_order", "订单生成");
 
 
         //使用MQ延时消息
@@ -1443,7 +1448,7 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
         //加入redis，30分钟自动取消
         String redisKey = String.valueOf(StrUtil.format("{}{}",
                 ShopConstants.REDIS_ORDER_OUTTIME_UNPAY, storeOrder.getId()));
-        redisTemplate.opsForValue().set(redisKey, storeOrder.getOrderId() ,
+        redisTemplate.opsForValue().set(redisKey, storeOrder.getOrderId(),
                 ShopConstants.ORDER_OUTTIME_UNPAY, TimeUnit.MINUTES);
 
         return storeOrder;
@@ -1451,6 +1456,7 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
 
     /**
      * 计算价格
+     *
      * @param key
      * @param couponId
      * @param useIntegral
@@ -1461,9 +1467,9 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
     public ComputeDTO computedOrder(int uid, String key, int couponId,
                                     int useIntegral, int shippingType) {
         YxUserQueryVo userInfo = userService.getYxUserById(uid);
-        if(ObjectUtil.isNull(userInfo)) throw new ErrorRequestException("用户不存在");
-        CacheDTO cacheDTO = getCacheOrderInfo(uid,key);
-        if(ObjectUtil.isNull(cacheDTO)){
+        if (ObjectUtil.isNull(userInfo)) throw new ErrorRequestException("用户不存在");
+        CacheDTO cacheDTO = getCacheOrderInfo(uid, key);
+        if (ObjectUtil.isNull(cacheDTO)) {
             throw new ErrorRequestException("订单已过期,请刷新当前页面");
         }
         ComputeDTO computeDTO = new ComputeDTO();
@@ -1472,9 +1478,9 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
         Double payPostage = cacheDTO.getPriceGroup().getStorePostage();
 
         //1-配送 2-到店
-        if(shippingType == 1){
-            payPrice = NumberUtil.add(payPrice,payPostage);
-        }else{
+        if (shippingType == 1) {
+            payPrice = NumberUtil.add(payPrice, payPostage);
+        } else {
             payPostage = 0d;
         }
 
@@ -1489,22 +1495,22 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
             bargainId = cart.getBargainId();
         }
         //拼团等不参与抵扣
-        if(combinationId > 0 || seckillId > 0 || bargainId > 0) deduction = true;
+        if (combinationId > 0 || seckillId > 0 || bargainId > 0) deduction = true;
 
 
-        if(deduction){
+        if (deduction) {
             couponId = 0;
             useIntegral = 0;
         }
         double couponPrice = 0;
-        if(couponId > 0){//使用优惠券
-            YxStoreCouponUser couponUser = couponUserService.getCoupon(couponId,uid);
-            if(ObjectUtil.isNull(couponUser)) throw new ErrorRequestException("使用优惠劵失败");
+        if (couponId > 0) {//使用优惠券
+            YxStoreCouponUser couponUser = couponUserService.getCoupon(couponId, uid);
+            if (ObjectUtil.isNull(couponUser)) throw new ErrorRequestException("使用优惠劵失败");
 
-            if(couponUser.getUseMinPrice().doubleValue() > payPrice){
+            if (couponUser.getUseMinPrice().doubleValue() > payPrice) {
                 throw new ErrorRequestException("不满足优惠劵的使用条件");
             }
-            payPrice = NumberUtil.sub(payPrice,couponUser.getCouponPrice()).doubleValue();
+            payPrice = NumberUtil.sub(payPrice, couponUser.getCouponPrice()).doubleValue();
 
             couponPrice = couponUser.getCouponPrice().doubleValue();
 
@@ -1512,25 +1518,25 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
 
         // 积分抵扣
         double deductionPrice = 0;
-        System.out.println("a:"+userInfo.getIntegral().doubleValue());
-        if(useIntegral > 0 && userInfo.getIntegral().doubleValue() > 0){
+        System.out.println("a:" + userInfo.getIntegral().doubleValue());
+        if (useIntegral > 0 && userInfo.getIntegral().doubleValue() > 0) {
             Double integralMax = Double.valueOf(cacheDTO.getOther().getIntegralMax());
             Double integralFull = Double.valueOf(cacheDTO.getOther().getIntegralFull());
             Double integralRatio = Double.valueOf(cacheDTO.getOther().getIntegralRatio());
-            if(computeDTO.getTotalPrice() >= integralFull){
+            if (computeDTO.getTotalPrice() >= integralFull) {
                 Double userIntegral = userInfo.getIntegral().doubleValue();
-                if(integralMax > 0 && userIntegral >= integralMax) userIntegral = integralMax;
+                if (integralMax > 0 && userIntegral >= integralMax) userIntegral = integralMax;
                 deductionPrice = NumberUtil.mul(userIntegral, integralRatio);
-                if(deductionPrice < payPrice){
-                    payPrice = NumberUtil.sub(payPrice.doubleValue(),deductionPrice);
-                }else{
+                if (deductionPrice < payPrice) {
+                    payPrice = NumberUtil.sub(payPrice.doubleValue(), deductionPrice);
+                } else {
                     deductionPrice = payPrice;
                     payPrice = 0d;
                 }
             }
         }
 
-        if(payPrice <= 0) payPrice = 0d;
+        if (payPrice <= 0) payPrice = 0d;
 
         computeDTO.setPayPrice(payPrice);
         computeDTO.setPayPostage(payPostage);
@@ -1542,17 +1548,18 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
 
     /**
      * 订单信息
+     *
      * @param unique
      * @param uid
      * @return
      */
     @Override
-    public YxStoreOrderQueryVo getOrderInfo(String unique,int uid) {
+    public YxStoreOrderQueryVo getOrderInfo(String unique, int uid) {
         QueryWrapper<YxStoreOrder> wrapper = new QueryWrapper<>();
-        wrapper.eq("is_del",0).and(
-                i->i.eq("order_id",unique).or().eq("`unique`",unique).or()
-                        .eq("extend_order_id",unique));
-        if(uid > 0) wrapper.eq("uid",uid);
+        wrapper.eq("is_del", 0).and(
+                i -> i.eq("order_id", unique).or().eq("`unique`", unique).or()
+                        .eq("extend_order_id", unique));
+        if (uid > 0) wrapper.eq("uid", uid);
 
         return orderMap.toDto(yxStoreOrderMapper.selectOne(wrapper));
     }
@@ -1560,20 +1567,21 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
     @Override
     public CacheDTO getCacheOrderInfo(int uid, String key) {
 
-        return (CacheDTO)redisService.getObj("user_order_"+uid+key);
+        return (CacheDTO) redisService.getObj("user_order_" + uid + key);
     }
 
     @Override
     public void delCacheOrderInfo(int uid, String key) {
-        redisService.delete("user_order_"+uid+key);
+        redisService.delete("user_order_" + uid + key);
     }
 
     /**
      * 缓存订单
-     * @param uid uid
-     * @param cartInfo cartInfo
+     *
+     * @param uid        uid
+     * @param cartInfo   cartInfo
      * @param priceGroup priceGroup
-     * @param other other
+     * @param other      other
      * @return
      */
     @Override
@@ -1583,12 +1591,13 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
         cacheDTO.setCartInfo(cartInfo);
         cacheDTO.setPriceGroup(priceGroup);
         cacheDTO.setOther(other);
-        redisService.saveCode("user_order_"+uid+key,cacheDTO,600L);
+        redisService.saveCode("user_order_" + uid + key, cacheDTO, 600L);
         return key;
     }
 
     /**
      * 获取订单价格
+     *
      * @param cartInfo
      * @return
      */
@@ -1597,23 +1606,23 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
 
         String storePostageStr = systemConfigService.getData(SystemConfigConstants.STORE_POSTAGE);//邮费基础价
         Double storePostage = 0d;
-        if(StrUtil.isNotEmpty(storePostageStr)) storePostage = Double.valueOf(storePostageStr);
+        if (StrUtil.isNotEmpty(storePostageStr)) storePostage = Double.valueOf(storePostageStr);
 
         String storeFreePostageStr = systemConfigService.getData(SystemConfigConstants.STORE_FREE_POSTAGE);//满额包邮
         Double storeFreePostage = 0d;
-        if(StrUtil.isNotEmpty(storeFreePostageStr)) storeFreePostage = Double.valueOf(storeFreePostageStr);
+        if (StrUtil.isNotEmpty(storeFreePostageStr)) storeFreePostage = Double.valueOf(storeFreePostageStr);
 
         Double totalPrice = getOrderSumPrice(cartInfo, "truePrice");//获取订单总金额
         Double costPrice = getOrderSumPrice(cartInfo, "costPrice");//获取订单成本价
         Double vipPrice = getOrderSumPrice(cartInfo, "vipTruePrice");//获取订单会员优惠金额
 
-        if(storeFreePostage == 0){//包邮
+        if (storeFreePostage == 0) {//包邮
             storePostage = 0d;
-        }else{
+        } else {
             for (YxStoreCartQueryVo storeCart : cartInfo) {
-                if(storeCart.getProductInfo().getIsPostage() == 0){//不包邮
+                if (storeCart.getProductInfo().getIsPostage() == 0) {//不包邮
                     storePostage = NumberUtil.add(storePostage
-                            ,storeCart.getProductInfo().getPostage()).doubleValue();
+                            , storeCart.getProductInfo().getPostage()).doubleValue();
                 }
             }
             //如果总价大于等于满额包邮 邮费等于0
@@ -1632,6 +1641,7 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
 
     /**
      * 获取某字段价格
+     *
      * @param cartInfo
      * @param key
      * @return
@@ -1640,19 +1650,19 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
     public Double getOrderSumPrice(List<YxStoreCartQueryVo> cartInfo, String key) {
         BigDecimal sumPrice = BigDecimal.ZERO;
 
-        if(key.equals("truePrice")){
+        if (key.equals("truePrice")) {
             for (YxStoreCartQueryVo storeCart : cartInfo) {
-                sumPrice = NumberUtil.add(sumPrice,NumberUtil.mul(storeCart.getCartNum(),storeCart.getTruePrice()));
+                sumPrice = NumberUtil.add(sumPrice, NumberUtil.mul(storeCart.getCartNum(), storeCart.getTruePrice()));
             }
-        }else if(key.equals("costPrice")){
+        } else if (key.equals("costPrice")) {
             for (YxStoreCartQueryVo storeCart : cartInfo) {
                 sumPrice = NumberUtil.add(sumPrice,
-                        NumberUtil.mul(storeCart.getCartNum(),storeCart.getCostPrice()));
+                        NumberUtil.mul(storeCart.getCartNum(), storeCart.getCostPrice()));
             }
-        }else if(key.equals("vipTruePrice")){
+        } else if (key.equals("vipTruePrice")) {
             for (YxStoreCartQueryVo storeCart : cartInfo) {
                 sumPrice = NumberUtil.add(sumPrice,
-                        NumberUtil.mul(storeCart.getCartNum(),storeCart.getVipTruePrice()));
+                        NumberUtil.mul(storeCart.getCartNum(), storeCart.getVipTruePrice()));
             }
         }
 
@@ -1661,14 +1671,14 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
     }
 
     @Override
-    public YxStoreOrderQueryVo getYxStoreOrderById(Serializable id) throws Exception{
+    public YxStoreOrderQueryVo getYxStoreOrderById(Serializable id) throws Exception {
         return yxStoreOrderMapper.getYxStoreOrderById(id);
     }
 
     @Override
-    public Paging<YxStoreOrderQueryVo> getYxStoreOrderPageList(YxStoreOrderQueryParam yxStoreOrderQueryParam) throws Exception{
-        Page page = setPageParam(yxStoreOrderQueryParam,OrderItem.desc("create_time"));
-        IPage<YxStoreOrderQueryVo> iPage = yxStoreOrderMapper.getYxStoreOrderPageList(page,yxStoreOrderQueryParam);
+    public Paging<YxStoreOrderQueryVo> getYxStoreOrderPageList(YxStoreOrderQueryParam yxStoreOrderQueryParam) throws Exception {
+        Page page = setPageParam(yxStoreOrderQueryParam, OrderItem.desc("create_time"));
+        IPage<YxStoreOrderQueryVo> iPage = yxStoreOrderMapper.getYxStoreOrderPageList(page, yxStoreOrderQueryParam);
         return new Paging(iPage);
     }
 

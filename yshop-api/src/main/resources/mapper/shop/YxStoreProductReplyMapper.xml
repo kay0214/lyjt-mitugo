@@ -4,7 +4,7 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, uid, oid, `unique`, product_id, reply_type, product_score, service_score, comment, pics, add_time, merchant_reply_content, merchant_reply_time, is_del, is_reply
+        id, uid, oid, unique, product_id, reply_type, product_score, service_score, comment, pics, add_time, merchant_reply_content, merchant_reply_time, is_del, is_reply, mer_id
     </sql>
 
     <select id="getYxStoreProductReplyById" resultType="co.yixiang.modules.shop.web.vo.YxStoreProductReplyQueryVo">
