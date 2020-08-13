@@ -86,6 +86,16 @@ public class CodeGenerator {
         dsc.setDriverName(DRIVER_NAME);
         dsc.setUsername(USER_NAME);
         dsc.setPassword(PASSWORD);
+        dsc.setTypeConvert(new MySqlTypeConvert() {
+            @Override
+            public IColumnType processTypeConvert(GlobalConfig globalConfig, String fieldType) {
+                // tinyint转换成Integer
+                if (fieldType.toLowerCase().contains("tinyint")) {
+                    return DbColumnType.INTEGER;
+                }
+                return super.processTypeConvert(globalConfig, fieldType);
+            }
+        });
         mpg.setDataSource(dsc);
 
         // 包配置
