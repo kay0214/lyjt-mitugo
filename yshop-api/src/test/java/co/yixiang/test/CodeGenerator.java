@@ -27,12 +27,12 @@ import java.util.Map;
  */
 public class CodeGenerator {
 
-    private static final String USER_NAME = "root";
+    private static final String USER_NAME = "tomcat";
 
-    private static final String PASSWORD = "root";
+    private static final String PASSWORD = "aAR!Q23AUP!ogk$J";
     private static final String DRIVER_NAME = "com.mysql.cj.jdbc.Driver";
 
-    private static final String DRIVER_URL = "jdbc:mysql://localhost:3306/yxshop?autoReconnect=true&useUnicode=true&characterEncoding=utf8&serverTimezone=GMT%2B8";
+    private static final String DRIVER_URL = "jdbc:mysql://39.98.146.255:33306/mitu_test?autoReconnect=true&useUnicode=true&characterEncoding=utf8&serverTimezone=GMT%2B8";
 
     private static final String PARENT_PACKAGE = "co.yixiang";
     private static final String SUPER_ENTITY = PARENT_PACKAGE + ".common.entity.BaseEntity";
