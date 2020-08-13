@@ -6,14 +6,12 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.core.toolkit.StringPool;
 import com.baomidou.mybatisplus.generator.AutoGenerator;
 import com.baomidou.mybatisplus.generator.InjectionConfig;
-import com.baomidou.mybatisplus.generator.config.DataSourceConfig;
-import com.baomidou.mybatisplus.generator.config.FileOutConfig;
-import com.baomidou.mybatisplus.generator.config.GlobalConfig;
-import com.baomidou.mybatisplus.generator.config.PackageConfig;
-import com.baomidou.mybatisplus.generator.config.StrategyConfig;
-import com.baomidou.mybatisplus.generator.config.TemplateConfig;
+import com.baomidou.mybatisplus.generator.config.*;
+import com.baomidou.mybatisplus.generator.config.converts.MySqlTypeConvert;
 import com.baomidou.mybatisplus.generator.config.po.TableInfo;
 import com.baomidou.mybatisplus.generator.config.rules.DateType;
+import com.baomidou.mybatisplus.generator.config.rules.DbColumnType;
+import com.baomidou.mybatisplus.generator.config.rules.IColumnType;
 import com.baomidou.mybatisplus.generator.config.rules.NamingStrategy;
 import org.apache.commons.lang3.StringUtils;
 
@@ -113,33 +111,33 @@ public class CodeGenerator {
                 Map<String, Object> map = new HashMap<String, Object>();
                 map.put("customField", "Hello " + this.getConfig().getGlobalConfig().getAuthor());
                 // 查询参数包路径
-                map.put("queryParamPath",PARENT_PACKAGE2 + StringPool.DOT + pc.getModuleName() + ".web.param." + underlineToPascal(TABLE_NAME) + "QueryParam");
+                map.put("queryParamPath", PARENT_PACKAGE2 + StringPool.DOT + pc.getModuleName() + ".web.param." + underlineToPascal(TABLE_NAME) + "QueryParam");
                 // 查询参数共公包路径
-                map.put("queryParamCommonPath",PARENT_PACKAGE + StringPool.DOT + "common.web.param." + "QueryParam");
+                map.put("queryParamCommonPath", PARENT_PACKAGE + StringPool.DOT + "common.web.param." + "QueryParam");
                 // 查询参数共公包路径
-                map.put("idParamPath",PARENT_PACKAGE + StringPool.DOT  + "common.web.param." + "IdParam");
+                map.put("idParamPath", PARENT_PACKAGE + StringPool.DOT + "common.web.param." + "IdParam");
                 // 响应结果包路径
-                map.put("queryVoPath",PARENT_PACKAGE2 + StringPool.DOT + pc.getModuleName() + ".web.vo." + underlineToPascal(TABLE_NAME) + "QueryVo");
+                map.put("queryVoPath", PARENT_PACKAGE2 + StringPool.DOT + pc.getModuleName() + ".web.vo." + underlineToPascal(TABLE_NAME) + "QueryVo");
                 // 实体对象名称
-                map.put("entityObjectName",underlineToCamel(TABLE_NAME));
+                map.put("entityObjectName", underlineToCamel(TABLE_NAME));
                 // service对象名称
-                map.put("serviceObjectName",underlineToCamel(TABLE_NAME) + "Service");
+                map.put("serviceObjectName", underlineToCamel(TABLE_NAME) + "Service");
                 // mapper对象名称
-                map.put("mapperObjectName",underlineToCamel(TABLE_NAME) + "Mapper");
+                map.put("mapperObjectName", underlineToCamel(TABLE_NAME) + "Mapper");
                 // 主键ID列名
-                map.put("pkIdColumnName",PK_ID_COLUMN_NAME);
+                map.put("pkIdColumnName", PK_ID_COLUMN_NAME);
                 // 主键ID驼峰名称
-                map.put("pkIdCamelName",underlineToCamel(PK_ID_COLUMN_NAME));
+                map.put("pkIdCamelName", underlineToCamel(PK_ID_COLUMN_NAME));
                 // 导入分页类
-                map.put("paging",PARENT_PACKAGE + ".common.web.vo.Paging");
+                map.put("paging", PARENT_PACKAGE + ".common.web.vo.Paging");
                 // 导入排序枚举
-                map.put("orderEnum",PARENT_PACKAGE + ".common.enums.OrderEnum");
+                map.put("orderEnum", PARENT_PACKAGE + ".common.enums.OrderEnum");
                 // 分页列表查询是否排序
-                map.put("pageListOrder",PAGE_LIST_ORDER);
+                map.put("pageListOrder", PAGE_LIST_ORDER);
                 // 导入排序查询参数类
-                map.put("orderQueryParamPath",PARENT_PACKAGE + StringPool.DOT + "common.web.param." + "OrderQueryParam");
+                map.put("orderQueryParamPath", PARENT_PACKAGE + StringPool.DOT + "common.web.param." + "OrderQueryParam");
                 // 代码生成策略
-                map.put("generatorStrategy",GENERATOR_STRATEGY);
+                map.put("generatorStrategy", GENERATOR_STRATEGY);
                 this.setMap(map);
             }
         };
@@ -157,7 +155,7 @@ public class CodeGenerator {
         focList.add(new FileOutConfig("/templates/queryParam.java.vm") {
             @Override
             public String outputFile(TableInfo tableInfo) {
-                return projectPath + "/yshop-api/src/main/java/"+ PROJECT_PACKAGE_PATH +"/modules/" + pc.getModuleName() + "/web/param/" + tableInfo.getEntityName() + "QueryParam" + StringPool.DOT_JAVA;
+                return projectPath + "/yshop-api/src/main/java/" + PROJECT_PACKAGE_PATH + "/modules/" + pc.getModuleName() + "/web/param/" + tableInfo.getEntityName() + "QueryParam" + StringPool.DOT_JAVA;
             }
         });
 
@@ -165,7 +163,7 @@ public class CodeGenerator {
         focList.add(new FileOutConfig("/templates/queryVo.java.vm") {
             @Override
             public String outputFile(TableInfo tableInfo) {
-                return projectPath + "/yshop-api/src/main/java/"+ PROJECT_PACKAGE_PATH +"/modules/" + pc.getModuleName() + "/web/vo/" + tableInfo.getEntityName() + "QueryVo" + StringPool.DOT_JAVA;
+                return projectPath + "/yshop-api/src/main/java/" + PROJECT_PACKAGE_PATH + "/modules/" + pc.getModuleName() + "/web/vo/" + tableInfo.getEntityName() + "QueryVo" + StringPool.DOT_JAVA;
             }
         });
 
@@ -197,15 +195,15 @@ public class CodeGenerator {
         mpg.execute();
     }
 
-    public static String underlineToCamel(String underline){
-        if (StringUtils.isNotBlank(underline)){
+    public static String underlineToCamel(String underline) {
+        if (StringUtils.isNotBlank(underline)) {
             return NamingStrategy.underlineToCamel(underline);
         }
         return null;
     }
 
-    public static String underlineToPascal(String underline){
-        if (StringUtils.isNotBlank(underline)){
+    public static String underlineToPascal(String underline) {
+        if (StringUtils.isNotBlank(underline)) {
             return NamingStrategy.capitalFirst(NamingStrategy.underlineToCamel(underline));
         }
         return null;
