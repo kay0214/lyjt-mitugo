@@ -19,6 +19,7 @@
         <module>yshop-mp</module>
         <module>yshop-shop</module>
         <module>yshop-mproot</module>
+        <module>yshop-coupon</module>
     </modules>
 
     <name>YSHOP商城管理系统</name>
