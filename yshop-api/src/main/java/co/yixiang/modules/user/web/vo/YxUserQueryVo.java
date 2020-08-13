@@ -15,7 +15,7 @@ import java.math.BigDecimal;
  * </p>
  *
  * @author hupeng
- * @date 2019-10-16
+ * @date 2020-08-13
  */
 @Data
 @ApiModel(value = "YxUserQueryVo对象", description = "用户表查询参数")
@@ -31,29 +31,11 @@ public class YxUserQueryVo implements Serializable {
     @ApiModelProperty(value = "用户账号")
     private String account;
 
-    private Integer couponCount = 0;
+/*@ApiModelProperty(value = "用户密码（跟pwd）")
+private String password;
 
-    private OrderCountDTO orderStatusNum;
-
-    private Integer statu;
-
-    private Integer sumSignDay;
-
-    private Boolean isDaySign;
-
-    private Boolean isYesterDaySign;
-
-    private Boolean checkStatus;
-
-
-
-//    @ApiModelProperty(value = "用户密码（跟pwd）")
-//    @JsonIgnore
-//    private String password;
-//
-//    @ApiModelProperty(value = "用户密码")
-//    @JsonIgnore
-//    private String pwd;
+@ApiModelProperty(value = "用户密码")
+private String pwd;*/
 
     @ApiModelProperty(value = "真实姓名")
     private String realName;
@@ -69,11 +51,9 @@ public class YxUserQueryVo implements Serializable {
     private String mark;
 
     @ApiModelProperty(value = "合伙人id")
-    @JsonIgnore
     private Integer partnerId;
 
     @ApiModelProperty(value = "用户分组id")
-    @JsonIgnore
     private Integer groupId;
 
     @ApiModelProperty(value = "用户昵称")
@@ -110,7 +90,7 @@ public class YxUserQueryVo implements Serializable {
     private Integer signNum;
 
     @ApiModelProperty(value = "1为正常，0为禁止")
-    private Boolean status;
+    private Integer status;
 
     @ApiModelProperty(value = "等级")
     private Integer level;
@@ -145,6 +125,37 @@ public class YxUserQueryVo implements Serializable {
     @ApiModelProperty(value = "用户登陆类型，h5,wechat,routine")
     private String loginType;
 
+    @ApiModelProperty(value = "提现银行")
+    private Integer bankName;
+
+    @ApiModelProperty(value = "银行卡号")
+    private String bankNo;
+
+    @ApiModelProperty(value = "角色：0->普通会员,1->分销客")
+    private Integer userRole;
+
+    @ApiModelProperty(value = "推荐用二维码地址")
+    private String qrCodeUrl;
+
+    @ApiModelProperty(value = "推荐人用户ID")
+    private Integer parentId;
+
+    @ApiModelProperty(value = "推荐人类型:1商户;2合伙人;3用户")
+    private Integer parentType;
+
+    private Integer couponCount = 0;
+
+    private OrderCountDTO orderStatusNum;
+
+    private Integer statu;
+
+    private Integer sumSignDay;
+
+    private Boolean isDaySign;
+
+    private Boolean isYesterDaySign;
+
+    private Boolean checkStatus;
     private Boolean vip;
 
     private Integer vipId;

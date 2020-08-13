@@ -1,11 +1,11 @@
 package co.yixiang.modules.shop.mapper;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import co.yixiang.modules.shop.entity.YxStoreProduct;
 import co.yixiang.modules.shop.web.param.YxStoreProductQueryParam;
 import co.yixiang.modules.shop.web.vo.YxStoreProductQueryVo;
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Update;
 import org.springframework.stereotype.Repository;
@@ -18,7 +18,7 @@ import java.io.Serializable;
  * </p>
  *
  * @author hupeng
- * @since 2019-10-19
+ * @since 2020-08-13
  */
 @Repository
 public interface YxStoreProductMapper extends BaseMapper<YxStoreProduct> {

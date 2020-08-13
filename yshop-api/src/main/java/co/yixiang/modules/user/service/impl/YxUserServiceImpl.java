@@ -1,11 +1,3 @@
-/**
- * Copyright (C) 2018-2020
- * All rights reserved, Designed By www.yixiang.co
- * 注意：
- * 本软件为www.yixiang.co开发研制，未经购买不得使用
- * 购买后可获得全部源代码（禁止转卖、分享、上传到码云、github等开源平台）
- * 一经发现盗用、分享等行为，将追究法律责任，后果自负
- */
 package co.yixiang.modules.user.service.impl;
 
 import cn.binarywang.wx.miniapp.api.WxMaService;
@@ -32,17 +24,9 @@ import co.yixiang.modules.security.service.OnlineUserService;
 import co.yixiang.modules.shop.service.YxStoreCouponUserService;
 import co.yixiang.modules.shop.service.YxSystemConfigService;
 import co.yixiang.modules.shop.service.YxSystemStoreStaffService;
-import co.yixiang.modules.user.entity.YxSystemUserLevel;
-import co.yixiang.modules.user.entity.YxUser;
-import co.yixiang.modules.user.entity.YxUserBill;
-import co.yixiang.modules.user.entity.YxUserLevel;
-import co.yixiang.modules.user.entity.YxWechatUser;
+import co.yixiang.modules.user.entity.*;
 import co.yixiang.modules.user.mapper.YxUserMapper;
-import co.yixiang.modules.user.service.YxSystemUserLevelService;
-import co.yixiang.modules.user.service.YxUserBillService;
-import co.yixiang.modules.user.service.YxUserLevelService;
-import co.yixiang.modules.user.service.YxUserService;
-import co.yixiang.modules.user.service.YxWechatUserService;
+import co.yixiang.modules.user.service.*;
 import co.yixiang.modules.user.web.dto.PromUserDTO;
 import co.yixiang.modules.user.web.param.PromParam;
 import co.yixiang.modules.user.web.param.YxUserQueryParam;
@@ -74,11 +58,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.servlet.http.HttpServletRequest;
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -88,7 +68,7 @@ import java.util.stream.Collectors;
  * </p>
  *
  * @author hupeng
- * @since 2019-10-16
+ * @since 2020-08-13
  */
 @Slf4j
 @Service
@@ -97,7 +77,6 @@ public class YxUserServiceImpl extends BaseServiceImpl<YxUserMapper, YxUser> imp
 
     @Autowired
     private YxUserMapper yxUserMapper;
-
     @Autowired
     private YxStoreOrderService orderService;
     @Autowired
@@ -508,7 +487,7 @@ public class YxUserServiceImpl extends BaseServiceImpl<YxUserMapper, YxUser> imp
 
     @Override
     public Paging<YxUserQueryVo> getYxUserPageList(YxUserQueryParam yxUserQueryParam) throws Exception{
-        Page page = setPageParam(yxUserQueryParam,OrderItem.desc("add_time"));
+        Page page = setPageParam(yxUserQueryParam,OrderItem.desc("create_time"));
         IPage<YxUserQueryVo> iPage = yxUserMapper.getYxUserPageList(page,yxUserQueryParam);
         return new Paging(iPage);
     }

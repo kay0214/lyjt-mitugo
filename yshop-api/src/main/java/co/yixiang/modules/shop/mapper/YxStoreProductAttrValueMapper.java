@@ -19,7 +19,7 @@ import java.io.Serializable;
  * </p>
  *
  * @author hupeng
- * @since 2019-10-23
+ * @since 2020-08-13
  */
 @Repository
 public interface YxStoreProductAttrValueMapper extends BaseMapper<YxStoreProductAttrValue> {

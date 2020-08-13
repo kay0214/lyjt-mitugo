@@ -1,9 +1,10 @@
 package co.yixiang.modules.user.web.param;
 
-import co.yixiang.common.web.param.QueryParam;
 import io.swagger.annotations.ApiModel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+
+import co.yixiang.common.web.param.QueryParam;
 
 /**
  * <p>
@@ -11,7 +12,7 @@ import lombok.EqualsAndHashCode;
  * </p>
  *
  * @author hupeng
- * @date 2019-10-16
+ * @date 2020-08-13
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
