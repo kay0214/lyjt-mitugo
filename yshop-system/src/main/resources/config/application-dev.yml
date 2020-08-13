@@ -6,9 +6,9 @@ spring:
     druid:
       type: com.alibaba.druid.pool.DruidDataSource
       driverClassName: net.sf.log4jdbc.sql.jdbcapi.DriverSpy
-      url: jdbc:log4jdbc:mysql://localhost:3306/yxshop?serverTimezone=Asia/Shanghai&characterEncoding=utf8&useSSL=false&zeroDateTimeBehavior=convertToNull
-      username: root
-      password: root
+      url: jdbc:log4jdbc:mysql://39.98.146.255:33306/mitu_test?serverTimezone=Asia/Shanghai&characterEncoding=utf8&useSSL=false&zeroDateTimeBehavior=convertToNull
+      username: dbwrite
+      password: aAR!Q23AUP!ogk$J
 
       # 初始化配置
       initial-size: 3
@@ -39,9 +39,9 @@ spring:
   redis:
     #数据库索引
     database: 0
-    host: 127.0.0.1
+    host: 39.101.200.141
     port: 6379
-    password:
+    password: monster123
     #连接超时时间
     timeout: 5000
 
