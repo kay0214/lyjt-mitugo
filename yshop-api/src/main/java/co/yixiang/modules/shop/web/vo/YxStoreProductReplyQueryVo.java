@@ -14,7 +14,7 @@ import java.io.Serializable;
  * </p>
  *
  * @author hupeng
- * @date 2019-10-23
+ * @date 2020-08-13
  */
 @Data
 @ApiModel(value = "YxStoreProductReplyQueryVo对象", description = "评论表查询参数")
@@ -24,6 +24,14 @@ public class YxStoreProductReplyQueryVo implements Serializable {
     @ApiModelProperty(value = "评论ID")
     private Integer id;
 
+    @ApiModelProperty(value = "用户ID")
+    private Integer uid;
+
+    @ApiModelProperty(value = "订单ID")
+    private Integer oid;
+
+    @ApiModelProperty(value = "唯一id")
+    private String unique;
 
     @ApiModelProperty(value = "产品id")
     private Integer productId;
@@ -48,9 +56,9 @@ public class YxStoreProductReplyQueryVo implements Serializable {
     private String[] picturesArr;
 
     public String[] getPicturesArr() {
-        if(StrUtil.isNotEmpty(pictures)){
+        if (StrUtil.isNotEmpty(pictures)) {
             return pictures.split(",");
-        }else{
+        } else {
             return new String[]{};
         }
 
@@ -65,6 +73,14 @@ public class YxStoreProductReplyQueryVo implements Serializable {
     @ApiModelProperty(value = "管理员回复时间")
     private Integer merchantReplyTime;
 
+    @ApiModelProperty(value = "0未删除1已删除")
+    private Integer isDel;
+
+    @ApiModelProperty(value = "0未回复1已回复")
+    private Integer isReply;
+
+    @ApiModelProperty(value = "商户id")
+    private Integer merId;
 
     private String star;
 
@@ -75,10 +91,8 @@ public class YxStoreProductReplyQueryVo implements Serializable {
     private String suk;
 
 
-
     @JsonIgnore
     private String cartInfo;
-
 
 
 }

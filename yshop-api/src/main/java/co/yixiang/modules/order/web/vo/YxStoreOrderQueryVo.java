@@ -17,7 +17,7 @@ import java.util.List;
  * </p>
  *
  * @author hupeng
- * @date 2019-10-27
+ * @date 2020-08-13
  */
 @Data
 @ApiModel(value = "YxStoreOrderQueryVo对象", description = "订单表查询参数")
@@ -30,7 +30,7 @@ public class YxStoreOrderQueryVo implements Serializable {
     @ApiModelProperty(value = "订单号")
     private String orderId;
 
-
+    @ApiModelProperty(value = "额外订单号")
     private String extendOrderId;
 
     @ApiModelProperty(value = "用户id")
@@ -47,10 +47,6 @@ public class YxStoreOrderQueryVo implements Serializable {
 
     @ApiModelProperty(value = "购物车id")
     private String cartId;
-
-    private List<YxStoreCartQueryVo> cartInfo;
-
-    private StatusDTO _status;
 
     @ApiModelProperty(value = "运费金额")
     private BigDecimal freightPrice;
@@ -115,10 +111,11 @@ public class YxStoreOrderQueryVo implements Serializable {
     @ApiModelProperty(value = "退款金额")
     private BigDecimal refundPrice;
 
+    @ApiModelProperty(value = "快递公司编号")
+    private String deliverySn;
+
     @ApiModelProperty(value = "快递名称/送货人姓名")
     private String deliveryName;
-
-    private String deliverySn;
 
     @ApiModelProperty(value = "发货类型")
     private String deliveryType;
@@ -183,6 +180,21 @@ public class YxStoreOrderQueryVo implements Serializable {
 
     private Integer isSystemDel;
 
+    @ApiModelProperty(value = "推荐人用户ID")
+    private Integer parentId;
+
+    @ApiModelProperty(value = "推荐人类型:1商户;2合伙人;3用户")
+    private Integer parentType;
+
+    @ApiModelProperty(value = "分享人的推荐人用户ID")
+    private Integer shareParentId;
+
+    @ApiModelProperty(value = "分享人的推荐人类型:1商户;2合伙人;3用户")
+    private Integer shareParentType;
+
+    private List<YxStoreCartQueryVo> cartInfo;
+
+    private StatusDTO _status;
     private String code;
 
     private String mapKey;

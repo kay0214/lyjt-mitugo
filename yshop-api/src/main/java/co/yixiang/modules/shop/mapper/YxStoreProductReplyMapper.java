@@ -19,7 +19,7 @@ import java.util.List;
  * </p>
  *
  * @author hupeng
- * @since 2019-10-23
+ * @since 2020-08-13
  */
 @Repository
 public interface YxStoreProductReplyMapper extends BaseMapper<YxStoreProductReply> {
@@ -43,12 +43,13 @@ public interface YxStoreProductReplyMapper extends BaseMapper<YxStoreProductRepl
             " where A.product_id=#{productId} and A.is_del=0 and A.reply_type='product' " +
             "<if test='type == 1'>and A.product_score = 5</if>" +
             "<if test='type == 2'>and A.product_score &lt; 5 and A.product_score &gt; 2</if>" +
-            "<if test='type == 3'>and A.product_score &lt; 2</if>"+
+            "<if test='type == 3'>and A.product_score &lt; 2</if>" +
             " order by A.add_time DESC</script>")
-    List<YxStoreProductReplyQueryVo> selectReplyList(Page page, @Param("productId") int productId,@Param("type") int type);
+    List<YxStoreProductReplyQueryVo> selectReplyList(Page page, @Param("productId") int productId, @Param("type") int type);
 
     /**
      * 根据ID获取查询对象
+     *
      * @param id
      * @return
      */
@@ -56,6 +57,7 @@ public interface YxStoreProductReplyMapper extends BaseMapper<YxStoreProductRepl
 
     /**
      * 获取分页对象
+     *
      * @param page
      * @param yxStoreProductReplyQueryParam
      * @return

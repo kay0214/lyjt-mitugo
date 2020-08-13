@@ -4,7 +4,7 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, product_id, suk, stock, sales, price, image, `unique`, cost
+        id, product_id, suk, stock, sales, price, image, unique, cost, commission
     </sql>
 
     <select id="getYxStoreProductAttrValueById" resultType="co.yixiang.modules.shop.web.vo.YxStoreProductAttrValueQueryVo">

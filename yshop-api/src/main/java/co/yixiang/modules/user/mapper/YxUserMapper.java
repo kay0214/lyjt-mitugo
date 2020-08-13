@@ -21,7 +21,7 @@ import java.util.List;
  * </p>
  *
  * @author hupeng
- * @since 2019-10-16
+ * @since 2020-08-13
  */
 @Repository
 public interface YxUserMapper extends BaseMapper<YxUser> {

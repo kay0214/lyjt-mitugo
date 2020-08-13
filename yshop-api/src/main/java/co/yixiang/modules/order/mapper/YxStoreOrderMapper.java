@@ -23,7 +23,7 @@ import java.util.List;
  * </p>
  *
  * @author hupeng
- * @since 2019-10-27
+ * @since 2020-08-13
  */
 @Repository
 public interface YxStoreOrderMapper extends BaseMapper<YxStoreOrder> {

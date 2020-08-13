@@ -17,7 +17,7 @@ import javax.validation.constraints.NotBlank;
  * </p>
  *
  * @author hupeng
- * @since 2019-10-23
+ * @since 2020-08-13
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -73,5 +73,8 @@ public class YxStoreProductReply extends BaseEntity {
 
     @ApiModelProperty(value = "0未回复1已回复")
     private Integer isReply;
+
+    @ApiModelProperty(value = "商户id")
+    private Integer merId;
 
 }

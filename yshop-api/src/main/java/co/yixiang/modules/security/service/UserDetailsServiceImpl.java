@@ -39,7 +39,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         if (user == null) {
             throw new BadRequestException("账号不存在");
         } else {
-            if (!user.getStatus()) {
+            if (0==user.getStatus()) {
                 throw new ErrorRequestException("账号未激活");
             }
             return createJwtUser(user);
@@ -47,6 +47,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     }
 
     private UserDetails createJwtUser(YxUser user) {
+        boolean status = user.getStatus()==1?true:false;
         return new JwtUser(
                 Long.valueOf(user.getUid()),
                 user.getUsername(),
@@ -55,7 +56,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
                 user.getAvatar(),
                 user.getPhone(),
                 permissionService.mapToGrantedAuthorities(user),
-                user.getStatus(),
+                status,
                 user.getAddTime()
         );
     }

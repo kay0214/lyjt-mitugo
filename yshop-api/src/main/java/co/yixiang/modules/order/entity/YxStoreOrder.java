@@ -2,7 +2,6 @@ package co.yixiang.modules.order.entity;
 
 import co.yixiang.common.entity.BaseEntity;
 import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -17,7 +16,7 @@ import java.math.BigDecimal;
  * </p>
  *
  * @author hupeng
- * @since 2019-10-27
+ * @since 2020-08-13
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -113,10 +112,11 @@ public class YxStoreOrder extends BaseEntity {
     @ApiModelProperty(value = "退款金额")
     private BigDecimal refundPrice;
 
+    @ApiModelProperty(value = "快递公司编号")
+    private String deliverySn;
+
     @ApiModelProperty(value = "快递名称/送货人姓名")
     private String deliveryName;
-
-    private String deliverySn;
 
     @ApiModelProperty(value = "发货类型")
     private String deliveryType;
@@ -140,7 +140,6 @@ public class YxStoreOrder extends BaseEntity {
     private Integer isDel;
 
     @ApiModelProperty(value = "唯一id(md5加密)类似id")
-    @TableField(value = "`unique`")
     private String unique;
 
     @ApiModelProperty(value = "管理员备注")
@@ -181,5 +180,17 @@ public class YxStoreOrder extends BaseEntity {
     private Integer isRemind;
 
     private Integer isSystemDel;
+
+    @ApiModelProperty(value = "推荐人用户ID")
+    private Integer parentId;
+
+    @ApiModelProperty(value = "推荐人类型:1商户;2合伙人;3用户")
+    private Integer parentType;
+
+    @ApiModelProperty(value = "分享人的推荐人用户ID")
+    private Integer shareParentId;
+
+    @ApiModelProperty(value = "分享人的推荐人类型:1商户;2合伙人;3用户")
+    private Integer shareParentType;
 
 }
