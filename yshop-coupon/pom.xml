@@ -21,6 +21,18 @@
     <dependencies>
 
 
+        <dependency>
+            <groupId>co.yixiang</groupId>
+            <artifactId>yshop-common</artifactId>
+            <version>2.2</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>co.yixiang</groupId>
+            <artifactId>yshop-logging</artifactId>
+            <version>2.2</version>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
 
 
