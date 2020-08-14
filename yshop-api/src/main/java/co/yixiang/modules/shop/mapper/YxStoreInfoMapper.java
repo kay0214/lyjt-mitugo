@@ -17,7 +17,7 @@ import java.io.Serializable;
  * </p>
  *
  * @author hupeng
- * @since 2020-08-13
+ * @since 2020-08-14
  */
 @Repository
 public interface YxStoreInfoMapper extends BaseMapper<YxStoreInfo> {

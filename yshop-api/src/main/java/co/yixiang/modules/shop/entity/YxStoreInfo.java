@@ -18,7 +18,7 @@ import java.util.Date;
  * </p>
  *
  * @author hupeng
- * @since 2020-08-13
+ * @since 2020-08-14
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -60,17 +60,17 @@ private BigDecimal perCapita;
 @ApiModelProperty(value = "行业类别")
 private Integer industryCategory;
 
-@ApiModelProperty(value = "店铺图片")
-private String imgUrl;
-
 @ApiModelProperty(value = "店铺省市区")
 private String storeProvince;
 
 @ApiModelProperty(value = "店铺详细地址")
 private String storeAddress;
 
-@ApiModelProperty(value = "地图坐标经纬度")
-private String coordinate;
+@ApiModelProperty(value = "地图坐标经度")
+private String coordinateX;
+
+@ApiModelProperty(value = "地图坐标纬度")
+private String coordinateY;
 
 @ApiModelProperty(value = "是否删除（0：未删除，1：已删除）")
 private Integer delFlag;
