@@ -1,26 +1,33 @@
-package co.yixiang.modules.manage.web.vo;
+package co.yixiang.modules.manage.entity;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import co.yixiang.common.entity.BaseEntity;
+import java.util.Date;
+import com.baomidou.mybatisplus.annotation.TableId;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-import java.io.Serializable;
+import lombok.EqualsAndHashCode;
 
 import java.util.Date;
 
 /**
  * <p>
- * 系统用户 查询结果对象
+ * 系统用户
  * </p>
  *
  * @author hupeng
- * @date 2020-08-13
+ * @since 2020-08-13
  */
 @Data
-@ApiModel(value="UserQueryVo对象", description="系统用户查询参数")
-public class UserQueryVo implements Serializable{
+@EqualsAndHashCode(callSuper = true)
+@ApiModel(value="User对象", description="系统用户")
+public class SystemUser extends BaseEntity {
+
     private static final long serialVersionUID = 1L;
 
 @ApiModelProperty(value = "ID")
+@TableId(value = "id", type = IdType.AUTO)
 private Long id;
 
 @ApiModelProperty(value = "头像")

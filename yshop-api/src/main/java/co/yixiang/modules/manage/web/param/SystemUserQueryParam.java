@@ -17,6 +17,6 @@ import co.yixiang.common.web.param.QueryParam;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ApiModel(value="UserQueryParam对象", description="系统用户查询参数")
-public class UserQueryParam extends QueryParam {
+public class SystemUserQueryParam extends QueryParam {
     private static final long serialVersionUID = 1L;
 }

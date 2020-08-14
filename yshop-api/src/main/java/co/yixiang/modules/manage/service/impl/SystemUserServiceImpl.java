@@ -1,10 +1,10 @@
 package co.yixiang.modules.manage.service.impl;
 
-import co.yixiang.modules.manage.entity.User;
-import co.yixiang.modules.manage.mapper.UserMapper;
-import co.yixiang.modules.manage.service.UserService;
-import co.yixiang.modules.manage.web.param.UserQueryParam;
-import co.yixiang.modules.manage.web.vo.UserQueryVo;
+import co.yixiang.modules.manage.entity.SystemUser;
+import co.yixiang.modules.manage.mapper.SystemUserMapper;
+import co.yixiang.modules.manage.service.SystemUserService;
+import co.yixiang.modules.manage.web.param.SystemUserQueryParam;
+import co.yixiang.modules.manage.web.vo.SystemUserQueryVo;
 import co.yixiang.common.service.impl.BaseServiceImpl;
 import co.yixiang.common.web.vo.Paging;
 import lombok.extern.slf4j.Slf4j;
@@ -29,20 +29,20 @@ import java.io.Serializable;
 @Slf4j
 @Service
 @Transactional(rollbackFor = Exception.class)
-public class UserServiceImpl extends BaseServiceImpl<UserMapper, User> implements UserService {
+public class SystemUserServiceImpl extends BaseServiceImpl<SystemUserMapper, SystemUser> implements SystemUserService {
 
     @Autowired
-    private UserMapper userMapper;
+    private SystemUserMapper userMapper;
 
     @Override
-    public UserQueryVo getUserById(Serializable id) throws Exception{
+    public SystemUserQueryVo getUserById(Serializable id) throws Exception{
         return userMapper.getUserById(id);
     }
 
     @Override
-    public Paging<UserQueryVo> getUserPageList(UserQueryParam userQueryParam) throws Exception{
+    public Paging<SystemUserQueryVo> getUserPageList(SystemUserQueryParam userQueryParam) throws Exception{
         Page page = setPageParam(userQueryParam,OrderItem.desc("create_time"));
-        IPage<UserQueryVo> iPage = userMapper.getUserPageList(page,userQueryParam);
+        IPage<SystemUserQueryVo> iPage = userMapper.getUserPageList(page,userQueryParam);
         return new Paging(iPage);
     }
 

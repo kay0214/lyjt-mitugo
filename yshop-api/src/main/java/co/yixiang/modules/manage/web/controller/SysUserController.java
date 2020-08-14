@@ -1,9 +1,9 @@
 package co.yixiang.modules.manage.web.controller;
 
-import co.yixiang.modules.manage.entity.User;
-import co.yixiang.modules.manage.service.UserService;
-import co.yixiang.modules.manage.web.param.UserQueryParam;
-import co.yixiang.modules.manage.web.vo.UserQueryVo;
+import co.yixiang.modules.manage.entity.SystemUser;
+import co.yixiang.modules.manage.service.SystemUserService;
+import co.yixiang.modules.manage.web.param.SystemUserQueryParam;
+import co.yixiang.modules.manage.web.vo.SystemUserQueryVo;
 import co.yixiang.common.web.controller.BaseController;
 import co.yixiang.common.api.ApiResult;
 import io.swagger.annotations.Api;
@@ -32,17 +32,17 @@ import co.yixiang.common.web.param.IdParam;
 @RestController
 @RequestMapping("/user")
 @Api("系统用户 API")
-public class UserController extends BaseController {
+public class SysUserController extends BaseController {
 
     @Autowired
-    private UserService userService;
+    private SystemUserService userService;
 
     /**
     * 添加系统用户
     */
     @PostMapping("/add")
     @ApiOperation(value = "添加User对象",notes = "添加系统用户",response = ApiResult.class)
-    public ApiResult<Boolean> addUser(@Valid @RequestBody User user) throws Exception{
+    public ApiResult<Boolean> addUser(@Valid @RequestBody SystemUser user) throws Exception{
         boolean flag = userService.save(user);
         return ApiResult.result(flag);
     }
@@ -52,7 +52,7 @@ public class UserController extends BaseController {
     */
     @PostMapping("/update")
     @ApiOperation(value = "修改User对象",notes = "修改系统用户",response = ApiResult.class)
-    public ApiResult<Boolean> updateUser(@Valid @RequestBody User user) throws Exception{
+    public ApiResult<Boolean> updateUser(@Valid @RequestBody SystemUser user) throws Exception{
         boolean flag = userService.updateById(user);
         return ApiResult.result(flag);
     }
@@ -71,9 +71,9 @@ public class UserController extends BaseController {
     * 获取系统用户
     */
     @PostMapping("/info")
-    @ApiOperation(value = "获取User对象详情",notes = "查看系统用户",response = UserQueryVo.class)
-    public ApiResult<UserQueryVo> getUser(@Valid @RequestBody IdParam idParam) throws Exception{
-        UserQueryVo userQueryVo = userService.getUserById(idParam.getId());
+    @ApiOperation(value = "获取User对象详情",notes = "查看系统用户",response = SystemUserQueryVo.class)
+    public ApiResult<SystemUserQueryVo> getUser(@Valid @RequestBody IdParam idParam) throws Exception{
+        SystemUserQueryVo userQueryVo = userService.getUserById(idParam.getId());
         return ApiResult.ok(userQueryVo);
     }
 
@@ -81,9 +81,9 @@ public class UserController extends BaseController {
      * 系统用户分页列表
      */
     @PostMapping("/getPageList")
-    @ApiOperation(value = "获取User分页列表",notes = "系统用户分页列表",response = UserQueryVo.class)
-    public ApiResult<Paging<UserQueryVo>> getUserPageList(@Valid @RequestBody(required = false) UserQueryParam userQueryParam) throws Exception{
-        Paging<UserQueryVo> paging = userService.getUserPageList(userQueryParam);
+    @ApiOperation(value = "获取User分页列表",notes = "系统用户分页列表",response = SystemUserQueryVo.class)
+    public ApiResult<Paging<SystemUserQueryVo>> getUserPageList(@Valid @RequestBody(required = false) SystemUserQueryParam userQueryParam) throws Exception{
+        Paging<SystemUserQueryVo> paging = userService.getUserPageList(userQueryParam);
         return ApiResult.ok(paging);
     }
 
