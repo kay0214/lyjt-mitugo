@@ -39,9 +39,9 @@ public class ${className}Dto implements Serializable {
     @JsonSerialize(using= ToStringSerializer.class)
     </#if>
     </#if>
-    <#if column.changeColumnName != 'delFlag'>
+
     private ${column.columnType} ${column.changeColumnName};
-    </#if>
+
     </#list>
 </#if>
 }
