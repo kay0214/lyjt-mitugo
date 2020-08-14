@@ -60,7 +60,7 @@ public class GeneratorController {
     public ResponseEntity<Object> getTables(@RequestParam(defaultValue = "") String name,
                                     @RequestParam(defaultValue = "0")Integer page,
                                     @RequestParam(defaultValue = "10")Integer size){
-        return new ResponseEntity<>(generatorService.getTables(name, page, size), HttpStatus.OK);
+        return new ResponseEntity<>(generatorService.getTables(name, page + 1, size), HttpStatus.OK);
     }
 
     @ApiOperation("查询字段数据")
