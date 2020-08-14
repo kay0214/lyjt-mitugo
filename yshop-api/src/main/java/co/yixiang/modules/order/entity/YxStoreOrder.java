@@ -184,6 +184,9 @@ public class YxStoreOrder extends BaseEntity {
     @ApiModelProperty(value = "推荐人用户ID")
     private Integer parentId;
 
+    @ApiModelProperty(value = "分享人用户ID")
+    private Integer shareId;
+
     @ApiModelProperty(value = "推荐人类型:1商户;2合伙人;3用户")
     private Integer parentType;
 
