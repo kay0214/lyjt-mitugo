@@ -12,15 +12,8 @@ import co.yixiang.common.service.impl.BaseServiceImpl;
 import co.yixiang.common.utils.QueryHelpPlus;
 import co.yixiang.dozer.service.IGenerator;
 import co.yixiang.exception.BadRequestException;
-import co.yixiang.modules.shop.domain.YxStoreProduct;
-import co.yixiang.modules.shop.domain.YxStoreProductAttr;
-import co.yixiang.modules.shop.domain.YxStoreProductAttrResult;
-import co.yixiang.modules.shop.domain.YxStoreProductAttrValue;
-import co.yixiang.modules.shop.service.YxStoreCategoryService;
-import co.yixiang.modules.shop.service.YxStoreProductAttrResultService;
-import co.yixiang.modules.shop.service.YxStoreProductAttrService;
-import co.yixiang.modules.shop.service.YxStoreProductAttrValueService;
-import co.yixiang.modules.shop.service.YxStoreProductService;
+import co.yixiang.modules.shop.domain.*;
+import co.yixiang.modules.shop.service.*;
 import co.yixiang.modules.shop.service.dto.DetailDto;
 import co.yixiang.modules.shop.service.dto.FromatDetailDto;
 import co.yixiang.modules.shop.service.dto.ProductFormatDto;
@@ -36,6 +29,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.github.pagehelper.PageInfo;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -64,15 +58,19 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<StoreProductMappe
 
     private final IGenerator generator;
 
-    private final StoreProductMapper storeProductMapper;
+    @Autowired
+    private StoreProductMapper storeProductMapper;
+    @Autowired
+    private YxStoreCategoryService yxStoreCategoryService;
+    @Autowired
+    private YxStoreProductAttrService yxStoreProductAttrService;
+    @Autowired
+    private YxStoreProductAttrValueService yxStoreProductAttrValueService;
+    @Autowired
+    private YxStoreProductAttrResultService yxStoreProductAttrResultService;
+    @Autowired
+    private YxStoreInfoService yxStoreInfoService;
 
-    private final YxStoreCategoryService yxStoreCategoryService;
-
-    private final YxStoreProductAttrService yxStoreProductAttrService;
-
-    private final YxStoreProductAttrValueService yxStoreProductAttrValueService;
-
-    private final YxStoreProductAttrResultService yxStoreProductAttrResultService;
     @Override
     //@Cacheable
     public Map<String, Object> queryAll(YxStoreProductQueryCriteria criteria, Pageable pageable) {
@@ -91,6 +89,9 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<StoreProductMappe
         List<YxStoreProduct> yxStoreProductList = baseMapper.selectList(QueryHelpPlus.getPredicate(YxStoreProduct.class, criteria));
         yxStoreProductList.forEach(yxStoreProduct ->{
             yxStoreProduct.setStoreCategory(yxStoreCategoryService.getById(yxStoreProduct.getCateId()));
+        });
+        yxStoreProductList.forEach(yxStoreProduct ->{
+            yxStoreProduct.setStore(yxStoreInfoService.getById(yxStoreProduct.getStoreId()));
         });
         return yxStoreProductList;
     }
@@ -177,7 +178,7 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<StoreProductMappe
         YxStoreProductDto yxStoreProductDTO = generator.convert(this.getById(id), YxStoreProductDto.class);
         DetailDto detailDTO = attrFormat(jsonStr);
         List<ProductFormatDto> newList = new ArrayList<>();
-        for (Map<String, Map<String, String>> map : detailDTO.getRes()) {
+        for (LinkedHashMap<String, Map<String, String>> map : detailDTO.getRes()) {
             ProductFormatDto productFormatDTO = new ProductFormatDto();
             productFormatDTO.setDetail(map.get("detail"));
             List<String> stringList = productFormatDTO.getDetail().values()
@@ -248,6 +249,8 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<StoreProductMappe
             yxStoreProductAttrValue.setStock(productFormatDTO.getSales());
             yxStoreProductAttrValue.setUnique(IdUtil.simpleUUID());
             yxStoreProductAttrValue.setImage(productFormatDTO.getPic());
+            //佣金
+            yxStoreProductAttrValue.setCommission(BigDecimal.valueOf(productFormatDTO.getCommission()));
 
             valueGroup.add(yxStoreProductAttrValue);
         }
@@ -354,7 +357,7 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<StoreProductMappe
         List<FromatDetailDto> fromatDetailDTOList = JSON.parseArray(jsonObject.get("items").toString(),
                 FromatDetailDto.class);
         List<String> data = new ArrayList<>();
-        List<Map<String,Map<String,String>>> res =new ArrayList<>();
+        List<LinkedHashMap<String,Map<String,String>>> res =new ArrayList<>();
         if(fromatDetailDTOList.size() > 1){
             for (int i=0; i < fromatDetailDTOList.size() - 1;i++){
                 if(i == 0) data = fromatDetailDTOList.get(i).getDetail();
@@ -371,7 +374,7 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<StoreProductMappe
                         }
                         tmp.add(rep2);
                         if(i == fromatDetailDTOList.size() - 2){
-                            Map<String,Map<String,String>> rep4 = new LinkedHashMap<>();
+                            LinkedHashMap<String,Map<String,String>> rep4 = new LinkedHashMap<>();
                             Map<String,String> reptemp = new LinkedHashMap<>();
                             for (String h : Arrays.asList(rep2.split("-"))) {
                                 List<String> rep3 = Arrays.asList(h.split("_"));
@@ -398,7 +401,7 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<StoreProductMappe
             for (FromatDetailDto fromatDetailDTO : fromatDetailDTOList) {
 
                 for (String str : fromatDetailDTO.getDetail()) {
-                    Map<String,Map<String,String>> map2 = new LinkedHashMap<>();
+                    LinkedHashMap<String,Map<String,String>> map2 = new LinkedHashMap<>();
                     //List<Map<String,String>> list1 = new ArrayList<>();
                     dataArr.add(fromatDetailDTO.getValue()+"_"+str);
                     Map<String,String> map1 = new LinkedHashMap<>();
@@ -416,4 +419,36 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<StoreProductMappe
         detailDTO.setRes(res);
         return detailDTO;
     }
+
+    /**
+     *
+     * @param id
+     * @param changeStatus
+     * @param changeType 1:促销单品(优惠),2:精品推荐(是否精品),3:热销榜单(是否热卖),4:首发新品(是否新品):
+     */
+    @Override
+    public void changeStatus(Integer id, int changeStatus,String changeType) {
+        YxStoreProduct yxStoreProduct = this.getById(id);
+        // 0:是，1：否
+        int statusFlg = 0;
+        if(changeStatus == 0){
+            statusFlg = 1;
+        }
+        switch (changeType){
+            case "benefit":
+                yxStoreProduct.setIsBenefit(statusFlg);
+                break;
+            case "best":
+                yxStoreProduct.setIsBest(statusFlg);
+                break;
+            case "hot":
+                yxStoreProduct.setIsHot(statusFlg);
+                break;
+            case "new":
+                yxStoreProduct.setIsNew(statusFlg);
+                break;
+        }
+        this.updateProduct(yxStoreProduct);
+    }
+
 }

@@ -65,4 +65,13 @@ public interface YxStoreProductService  extends BaseService<YxStoreProduct>{
     void updateProduct(YxStoreProduct resources);
 
     void delete(Integer id);
+
+    /**
+     *
+     * @param id
+     * @param changeStatus
+     * @param changeType 1:促销单品(优惠),2:精品推荐(是否精品),3:热销榜单(是否热卖),4:首发新品(是否新品):
+     */
+
+    void changeStatus(Integer id, int changeStatus,String changeType);
 }

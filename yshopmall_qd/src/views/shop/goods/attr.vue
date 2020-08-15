@@ -73,6 +73,10 @@
                 <span :class="attr.check ? 'check':''">成本价:</span>&nbsp;
                 <el-input v-model="attr.cost" placeholder="成本价" style="width: 60%" :number="true" />
               </el-col>
+              <el-col :span="4">
+                <span :class="attr.check ? 'check':''">佣金:</span>&nbsp;
+                <el-input v-model="attr.commission" placeholder="佣金" style="width: 60%" :number="true" />
+              </el-col>
               <el-col :span="3" style="margin-right: 2px">
                 <div class="demo-upload">
                   <!--<img :src="attr.pic">-->

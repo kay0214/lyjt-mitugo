@@ -107,7 +107,7 @@ public class YxStoreProduct implements Serializable {
 
     /** 库存 */
     @NotNull(message = "请输入库存")
-    @Min(message = "库存不能小于0",value = 1)
+//    @Min(message = "库存不能小于0",value = 1)
     private Integer stock;
 
 
@@ -191,10 +191,19 @@ public class YxStoreProduct implements Serializable {
 
     /** 淘宝京东1688类型 */
     private String soureLink;
+    // 店铺id
+    private Integer storeId;
+    //平台结算
+    @NotNull(message = "请输入平台结算")
+    @DecimalMin(value="0.00", message = "平台结算不在合法范围内" )
+    @DecimalMax(value="99999999.99", message = "平台结算不在合法范围内")
+    private BigDecimal settlement;
 
     @TableField(exist = false)
     private YxStoreCategory storeCategory;
 
+    @TableField(exist = false)
+    private YxStoreInfo store;
 
     public void copy(YxStoreProduct source){
         BeanUtil.copyProperties(source,this, CopyOptions.create().setIgnoreNullValue(true));

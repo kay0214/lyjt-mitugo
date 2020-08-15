@@ -7,6 +7,7 @@ package co.yixiang.modules.shop.service.dto;
 
 import lombok.Data;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -21,5 +22,5 @@ public class DetailDto {
 
     //private List<Map<String,List<Map<String,String>>>> res;
 
-    private List<Map<String,Map<String,String>>> res;
+    private List<LinkedHashMap<String,Map<String,String>>> res;
 }

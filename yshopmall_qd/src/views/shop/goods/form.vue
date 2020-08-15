@@ -4,6 +4,7 @@
       <el-form-item style="margin-bottom: 0px;" label="商品分类">
         <treeselect v-model="form.storeCategory.id" :options="cates" style="width: 370px;" placeholder="选择商品分类" />
       </el-form-item>
+
       <el-form-item label="商品名称">
         <el-input v-model="form.storeName" style="width: 500px;" />
       </el-form-item>
@@ -28,54 +29,43 @@
       <el-form-item label="产品描述">
         <editor v-model="form.description" />
       </el-form-item>
-      <el-form-item label="商品价格">
+      <el-form-item label="销售价">
         <el-input v-model="form.price" />
       </el-form-item>
-      <el-form-item label="市场价">
+      <el-form-item label="原价">
         <el-input v-model="form.otPrice" />
       </el-form-item>
-      <el-form-item label="成本价">
+     <!-- <el-form-item label="成本价">
         <el-input v-model="form.cost" />
+      </el-form-item>-->
+      <el-form-item label="平台结算价">
+        <el-input v-model="form.settlement" />
       </el-form-item>
-      <el-form-item label="邮费">
-        <el-input v-model="form.postage" />
-      </el-form-item>
+
       <el-form-item label="排序">
         <el-input v-model="form.sort" />
       </el-form-item>
-      <el-form-item label="销量">
+     <!-- <el-form-item label="销量">
         <el-input v-model="form.sales" />
-      </el-form-item>
+      </el-form-item>-->
+
       <el-form-item label="库存">
-        <el-input v-model="form.stock" />
-      </el-form-item>
-      <el-form-item label="热卖单品">
-        <el-radio v-model="form.isHot" :label="1">是</el-radio>
-        <el-radio v-model="form.isHot" :label="0" style="width: 200px;">否</el-radio>
-      </el-form-item>
-      <el-form-item label="促销单品">
-        <el-radio v-model="form.isBenefit" :label="1">是</el-radio>
-        <el-radio v-model="form.isBenefit" :label="0" style="width: 200px;">否</el-radio>
-      </el-form-item>
-      <el-form-item label="精品推荐">
-        <el-radio v-model="form.isBest" :label="1">是</el-radio>
-        <el-radio v-model="form.isBest" :label="0" style="width: 200px;">否</el-radio>
-      </el-form-item>
-      <el-form-item label="首发新品">
-        <el-radio v-model="form.isNew" :label="1">是</el-radio>
-        <el-radio v-model="form.isNew" :label="0" style="width: 200px;">否</el-radio>
+        <el-input v-model="form.stock" disabled="disabled" />
       </el-form-item>
       <el-form-item label="是否包邮">
         <el-radio v-model="form.isPostage" :label="1">是</el-radio>
         <el-radio v-model="form.isPostage" :label="0" style="width: 200px;">否</el-radio>
       </el-form-item>
-      <el-form-item label="优品推荐">
+      <el-form-item label="邮费">
+        <el-input v-model="form.postage" />
+      </el-form-item>
+     <!-- <el-form-item label="优品推荐">
         <el-radio v-model="form.isGood" :label="1">是</el-radio>
         <el-radio v-model="form.isGood" :label="0" style="width: 200px;">否</el-radio>
-      </el-form-item>
-      <el-form-item label="获得积分">
+      </el-form-item>-->
+      <!--<el-form-item label="获得积分">
         <el-input v-model="form.giveIntegral" />
-      </el-form-item>
+      </el-form-item>-->
       <el-form-item label="虚拟销量">
         <el-input v-model="form.ficti" />
       </el-form-item>
@@ -140,6 +130,7 @@ export default {
         merUse: 0,
         giveIntegral: 0,
         cost: 0,
+        settlement: 0,
         isSeckill: 0,
         isBargain: 0,
         isGood: 0,

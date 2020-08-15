@@ -26,6 +26,8 @@ public class ProductFormatDto {
 
     private String pic;
 
+    private Double commission;
+
    // private Map<String, List<Map<String,String>>> detail;
 
     //private List<Map<String, String>> detail;

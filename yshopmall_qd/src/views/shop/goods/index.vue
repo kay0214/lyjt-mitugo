@@ -40,6 +40,7 @@
           <a :href="scope.row.image" style="color: #42b983" target="_blank"><img :src="scope.row.image" alt="点击打开" class="el-avatar"></a>
         </template>
       </el-table-column>
+      <el-table-column prop="store.storeName" label="商铺名称" />
       <el-table-column prop="storeName" label="商品名称" />
       <el-table-column prop="storeCategory.cateName" label="分类名称" />
       <el-table-column prop="price" label="商品价格" />
@@ -86,6 +87,13 @@
                   size="mini"
                   type="success"
                   @click="editC(scope.row)"
+                >促销单品</el-button>
+              </el-dropdown-item>
+              <!--<el-dropdown-item>
+                <el-button
+                  size="mini"
+                  type="success"
+                  @click="editC(scope.row)"
                 >开启拼团</el-button>
               </el-dropdown-item>
               <el-dropdown-item>
@@ -101,7 +109,7 @@
                   type="warning"
                   @click="editE(scope.row)"
                 >开启砍价</el-button>
-              </el-dropdown-item>
+              </el-dropdown-item>-->
             </el-dropdown-menu>
           </el-dropdown>
         </template>
@@ -252,7 +260,8 @@ export default {
       const _this = this.$refs.form3
       _this.form = {
         productId: data.id,
-        merId: data.merId,
+        isBenefit: data.isBenefit,
+        /*merId: data.merId,
         image: data.image,
         images: data.sliderImage,
         imageArr: data.image.split(','),
@@ -265,8 +274,8 @@ export default {
         sales: data.sales,
         stock: data.stock,
         isShow: data.isShow,
-        isHost: data.isHot,
-        description: data.description,
+        isHost: data.isHot,*/
+        /*description: data.description,
         isPostage: data.isPostage,
         people: 0,
         price: 0,
@@ -274,7 +283,7 @@ export default {
         combination: 1,
         cost: data.cost,
         isDel: 0,
-        browse: 0
+        browse: 0*/
       }
       _this.dialog = true
     },

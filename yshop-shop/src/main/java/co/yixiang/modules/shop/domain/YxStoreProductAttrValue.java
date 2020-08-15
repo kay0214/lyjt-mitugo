@@ -60,6 +60,10 @@ public class YxStoreProductAttrValue implements Serializable {
     /** 成本价 */
     private BigDecimal cost;
 
+    private BigDecimal commission;
+
+
+
 
     public void copy(YxStoreProductAttrValue source){
         BeanUtil.copyProperties(source,this, CopyOptions.create().setIgnoreNullValue(true));

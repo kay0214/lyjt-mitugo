@@ -5,6 +5,7 @@
  */
 package co.yixiang.modules.shop.service.dto;
 
+import co.yixiang.modules.shop.domain.YxStoreInfo;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -125,5 +126,11 @@ public class YxStoreProductDto implements Serializable {
     /** 淘宝京东1688类型 */
     private String soureLink;
 
+    private Integer storeId;
+
+    private BigDecimal settlement;
+
     private YxStoreCategorySmallDto storeCategory;
+
+    private YxStoreInfo store;
 }
