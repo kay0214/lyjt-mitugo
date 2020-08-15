@@ -418,7 +418,8 @@ public class GenUtil {
     private static String getFrontFilePath(String templateName, String apiPath, String path, String apiName) {
 
         if ("api".equals(templateName)) {
-            return apiPath + File.separator + apiName + ".js";
+            // TODO: 2020/8/14 this is keng
+            return "yshopmall_qd/src/api/" + apiName + ".js";
         }
 
         if ("index".equals(templateName)) {
