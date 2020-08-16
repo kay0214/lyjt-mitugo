@@ -8,7 +8,7 @@
     </sql>
 
     <select id="getYxUserById" resultType="co.yixiang.modules.user.web.vo.YxUserQueryVo">
-        select <include refid="Base_Column_List"/> from yx_user where id = #{id}
+        select <include refid="Base_Column_List"/> from yx_user where uid = #{id}
     </select>
 
     <select id="getYxUserPageList" resultType="co.yixiang.modules.user.web.vo.YxUserQueryVo">
