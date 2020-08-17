@@ -420,33 +420,27 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<StoreProductMappe
 
     /**
      *
-     * @param id
-     * @param changeStatus
-     * @param changeType 1:促销单品(优惠),2:精品推荐(是否精品),3:热销榜单(是否热卖),4:首发新品(是否新品):
+     * @param request
      */
     @Override
-    public void changeStatus(Integer id, int changeStatus,String changeType) {
-        YxStoreProduct yxStoreProduct = this.getById(id);
+    public void changeStatus(YxStoreProductChange request) {
+        YxStoreProduct yxStoreProduct = this.getById(request.getId());
         // 0:是，1：否
-        int statusFlg = 0;
-        if(changeStatus == 0){
-            statusFlg = 1;
-        }
-        switch (changeType){
+        switch (request.getChangeType()){
             case "benefit":
-                yxStoreProduct.setIsBenefit(statusFlg);
+                yxStoreProduct.setIsBenefit(request.getChangeStatus());
                 break;
             case "best":
-                yxStoreProduct.setIsBest(statusFlg);
+                yxStoreProduct.setIsBest(request.getChangeStatus());
                 break;
             case "hot":
-                yxStoreProduct.setIsHot(statusFlg);
+                yxStoreProduct.setIsHot(request.getChangeStatus());
                 break;
             case "new":
-                yxStoreProduct.setIsNew(statusFlg);
+                yxStoreProduct.setIsNew(request.getChangeStatus());
                 break;
         }
-        this.updateProduct(yxStoreProduct);
+        this.updateById(yxStoreProduct);
     }
 
 }
