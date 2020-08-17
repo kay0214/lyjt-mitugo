@@ -82,7 +82,7 @@ swagger:
 file:
   path: /home/yshop/file/
   avatar: /home/yshop/avatar/
-  # 文件大小 /M
+  # 文件大小/M
   maxSize: 100
   avatarMaxSize: 5
   localUrl: http://39.98.139.163:8000
