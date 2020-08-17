@@ -45,24 +45,6 @@ rsa:
 smms:
   token: 1oOP3ykFDI0K6ifmtvU7c8Y1eTWZSlyl
 
-yshop:
-  # 快鸟物流查询配置
-  express:
-    enable: true
-    appId: 1607734
-    appKey: 81f43a2e-f504-45c4-9b54-2637d59f8190
-  apiUrl: http://127.0.0.1:8009/api
-
-mybatis-plus:
-  check-config-location: true
-  configuration:
-    map-underscore-to-camel-case: true
-  global-config:
-    db-config:
-      id-type: auto
-      logic-delete-value: 1
-      logic-not-delete-value: 0
-      mapper-locations: classpath*:mapper/**/*Mapper.xml
 # PageHelper分页插件
 pagehelper:
   helperDialect: mysql
