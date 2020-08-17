@@ -89,8 +89,6 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<StoreProductMappe
         List<YxStoreProduct> yxStoreProductList = baseMapper.selectList(QueryHelpPlus.getPredicate(YxStoreProduct.class, criteria));
         yxStoreProductList.forEach(yxStoreProduct ->{
             yxStoreProduct.setStoreCategory(yxStoreCategoryService.getById(yxStoreProduct.getCateId()));
-        });
-        yxStoreProductList.forEach(yxStoreProduct ->{
             yxStoreProduct.setStore(yxStoreInfoService.getById(yxStoreProduct.getStoreId()));
         });
         return yxStoreProductList;

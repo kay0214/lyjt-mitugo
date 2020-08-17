@@ -90,6 +90,11 @@ public class YxStoreProductReply implements Serializable {
     @TableField(exist = false)
     private YxUser user;
 
+    private Integer merId;
+
+    @TableField(exist = false)
+    private User sysUser;
+
     public void copy(YxStoreProductReply source){
         BeanUtil.copyProperties(source,this, CopyOptions.create().setIgnoreNullValue(true));
     }

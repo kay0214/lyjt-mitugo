@@ -9,16 +9,14 @@ import co.yixiang.common.service.impl.BaseServiceImpl;
 import co.yixiang.common.utils.QueryHelpPlus;
 import co.yixiang.dozer.service.IGenerator;
 import co.yixiang.modules.shop.domain.YxStoreProductReply;
-import co.yixiang.modules.shop.service.YxStoreProductReplyService;
-import co.yixiang.modules.shop.service.YxStoreProductService;
-import co.yixiang.modules.shop.service.YxUserService;
+import co.yixiang.modules.shop.service.*;
 import co.yixiang.modules.shop.service.dto.YxStoreProductReplyDto;
 import co.yixiang.modules.shop.service.dto.YxStoreProductReplyQueryCriteria;
 import co.yixiang.modules.shop.service.mapper.StoreProductReplyMapper;
 import co.yixiang.utils.FileUtil;
 import com.github.pagehelper.PageInfo;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -30,7 +28,6 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 // 默认不使用缓存
 //import org.springframework.cache.annotation.CacheConfig;
@@ -47,11 +44,14 @@ import java.util.stream.Collectors;
 @Transactional(propagation = Propagation.SUPPORTS, readOnly = true, rollbackFor = Exception.class)
 public class YxStoreProductReplyServiceImpl extends BaseServiceImpl<StoreProductReplyMapper, YxStoreProductReply> implements YxStoreProductReplyService {
 
-    private final IGenerator generator;
-
-    private final YxUserService yxUserService;
-
-    private final YxStoreProductService yxStoreProductService;
+    @Autowired
+    private IGenerator generator;
+    @Autowired
+    private YxUserService yxUserService;
+    @Autowired
+    private YxStoreProductService yxStoreProductService;
+    @Autowired
+    private UserService userService;
 
     @Override
     //@Cacheable
@@ -72,6 +72,7 @@ public class YxStoreProductReplyServiceImpl extends BaseServiceImpl<StoreProduct
         storeProductReplyList.forEach(yxStoreProductReply->{
             yxStoreProductReply.setUser(yxUserService.getById(yxStoreProductReply.getUid()));;
             yxStoreProductReply.setStoreProduct(yxStoreProductService.getById(yxStoreProductReply.getProductId()));
+            yxStoreProductReply.setSysUser(userService.getById(yxStoreProductReply.getMerId()));
         });
         return storeProductReplyList;
     }

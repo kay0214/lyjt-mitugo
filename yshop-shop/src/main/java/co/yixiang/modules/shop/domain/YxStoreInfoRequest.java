@@ -45,12 +45,12 @@ public class YxStoreInfoRequest implements Serializable {
 
 
     /** 商户id */
-    @NotNull
+//    @NotNull
     private Integer merId;
 
 
     /** 合伙人id */
-    @NotNull
+//    @NotNull
     private Integer partnerId;
 
 
@@ -65,7 +65,7 @@ public class YxStoreInfoRequest implements Serializable {
 
 
     /** 状态：0：上架，1：下架 */
-    @NotNull
+//    @NotNull
     private Integer status;
 
 
@@ -87,11 +87,6 @@ public class YxStoreInfoRequest implements Serializable {
     private String storeAddress;
 
 
-    /** 是否删除（0：未删除，1：已删除） */
-    @NotNull
-    @TableLogic
-    @TableField(fill=FieldFill.INSERT_UPDATE)
-    private Boolean delFlag;
 
 
     /** 创建人 */
@@ -103,12 +98,10 @@ public class YxStoreInfoRequest implements Serializable {
 
 
     /** 创建时间 */
-    @NotNull
     private Timestamp createTime;
 
 
     /** 更新时间 */
-    @NotNull
     private Timestamp updateTime;
 
 
@@ -123,9 +116,10 @@ public class YxStoreInfoRequest implements Serializable {
     /** 地图坐标纬度 */
     private String coordinateY;
 
-    private String img;
-    // 轮播图
-    private String rotationImg;
+    //图片
+    private String imageArr;
+    //轮播图
+    private String sliderImageArr;
 
     //营业时间
     private String openDay;

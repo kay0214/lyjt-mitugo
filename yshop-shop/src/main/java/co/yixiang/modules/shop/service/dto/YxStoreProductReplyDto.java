@@ -5,6 +5,7 @@
  */
 package co.yixiang.modules.shop.service.dto;
 
+import co.yixiang.modules.shop.domain.User;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -65,4 +66,8 @@ public class YxStoreProductReplyDto implements Serializable {
 
     // 0未回复1已回复
     private Integer isReply;
+
+    private Integer merId;
+
+    private User sysUser;
 }

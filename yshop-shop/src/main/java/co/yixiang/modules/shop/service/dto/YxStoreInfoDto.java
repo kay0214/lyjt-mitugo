@@ -78,9 +78,9 @@ public class YxStoreInfoDto implements Serializable {
 
     /** 地图坐标纬度 */
     private String coordinateY;
-    //图片
-    //轮播图
+
     //店铺服务
+    private String stroeService;
     //营业时间
 
 

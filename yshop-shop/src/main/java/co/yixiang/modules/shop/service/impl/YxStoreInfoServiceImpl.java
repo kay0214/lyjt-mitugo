@@ -14,6 +14,7 @@ import co.yixiang.common.service.impl.BaseServiceImpl;
 import co.yixiang.modules.shop.service.mapper.YxImageInfoMapper;
 import co.yixiang.modules.shop.service.mapper.YxStoreAttributeMapper;
 import co.yixiang.utils.BeanUtils;
+import co.yixiang.utils.StringUtils;
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
@@ -112,38 +113,61 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
         yxImageInfo.setTypeId(yxStoreInfo.getId());
         yxImageInfo.setImgType(ShopConstants.IMG_TYPE_STORE);
         yxImageInfo.setImgCategory(ShopConstants.IMG_CATEGORY_PIC);
-        yxImageInfo.setImgUrl(request.getImg());
+        yxImageInfo.setImgUrl(request.getImageArr());
         yxImageInfo.setDelFlag(false);
         yxImageInfoList.add(yxImageInfo);
-        String [] images = request.getOpenTime().split(",");
-        if(images.length>0){
-            for(int i=0;i<images.length;i++){
-                YxImageInfo yxImageInfos = new YxImageInfo();
-                yxImageInfos.setTypeId(yxStoreInfo.getId());
-                yxImageInfos.setImgType(ShopConstants.IMG_TYPE_STORE);
-                yxImageInfos.setImgCategory(ShopConstants.IMG_CATEGORY_ROTATION1);
-                yxImageInfos.setImgUrl(images[i]);
-                yxImageInfos.setDelFlag(false);
-                yxImageInfoList.add(yxImageInfos);
+        if(StringUtils.isNotBlank(request.getSliderImageArr())){
+            String [] images = request.getOpenTime().split(",");
+            if(images.length>0){
+                for(int i=0;i<images.length;i++){
+                    YxImageInfo yxImageInfos = new YxImageInfo();
+                    yxImageInfos.setTypeId(yxStoreInfo.getId());
+                    yxImageInfos.setImgType(ShopConstants.IMG_TYPE_STORE);
+                    yxImageInfos.setImgCategory(ShopConstants.IMG_CATEGORY_ROTATION1);
+                    yxImageInfos.setImgUrl(images[i]);
+                    yxImageInfos.setDelFlag(false);
+                    yxImageInfoList.add(yxImageInfos);
+                }
             }
+            yxImageInfoService.saveBatch(yxImageInfoList,yxImageInfoList.size());
         }
-        yxImageInfoService.saveBatch(yxImageInfoList,yxImageInfoList.size());
+
 
         //保存属性信息
         //店铺服务
         List<YxStoreAttribute> storeAttributeList = new ArrayList<YxStoreAttribute>();
-        String[] service = request.getStoreService().split(",");
-        if(service.length>0){
-            for(int i=0;i<service.length;i++){
-                YxStoreAttribute yxStoreattribute = new YxStoreAttribute();
-                //0：运营时间，1：店铺服务
-                yxStoreattribute.setAttributeType(1);
-                yxStoreattribute.setStoreId(yxStoreInfo.getId());
-                yxStoreattribute.setAttributeValue1(service[i]);
-                storeAttributeList.add(yxStoreattribute);
+
+        if(StringUtils.isNotBlank(request.getStoreService())){
+            String[] service = request.getStoreService().split(",");
+            if(service.length>0){
+                for(int i=0;i<service.length;i++){
+                    YxStoreAttribute yxStoreattribute = new YxStoreAttribute();
+                    //0：运营时间，1：店铺服务
+                    yxStoreattribute.setAttributeType(1);
+                    yxStoreattribute.setStoreId(yxStoreInfo.getId());
+                    yxStoreattribute.setAttributeValue1(service[i]);
+                    storeAttributeList.add(yxStoreattribute);
+                }
             }
-            yxStoreAttributeService.saveBatch(storeAttributeList);
         }
+
+        //营业时间
+        if(StringUtils.isNotBlank(request.getOpenTime())){
+            //
+            String[] openTime = request.getOpenTime().split(",");
+            if(openTime.length>0){
+                for(int i=0;i<openTime.length;i++){
+                    YxStoreAttribute yxStoreattribute = new YxStoreAttribute();
+                    //0：运营时间，1：店铺服务
+                    yxStoreattribute.setAttributeType(0);
+                    yxStoreattribute.setStoreId(yxStoreInfo.getId());
+                    yxStoreattribute.setAttributeValue1(openTime[i]);
+                    storeAttributeList.add(yxStoreattribute);
+                }
+            }
+        }
+        yxStoreAttributeService.saveBatch(storeAttributeList);
+
         if(!isUpd){
             throw new RuntimeException("店铺修改信息，更新失败！");
         }

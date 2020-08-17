@@ -5,10 +5,11 @@
       <!--如果想在工具栏加入更多按钮，可以使用插槽方式， slot = 'left' or 'right'-->
       <crudOperation :permission="permission" />
       <!--表单组件-->
-      <el-dialog :close-on-click-modal="false" :before-close="crud.cancelCU" :visible.sync="crud.status.cu > 0" :title="crud.status.title" width="500px">
-        <el-form ref="form" :model="form" :rules="rules" size="small" label-width="80px">
+      <el-dialog :close-on-click-modal="false" :before-close="crud.cancelCU" :visible.sync="crud.status.cu > 0" :title="crud.status.title" width="900px">
+<!--        <el-form ref="form" :model="form" :rules="rules" size="small" label-width="80px">-->
+        <el-form ref="form" :model="form" :inline="true" :rules="rules" size="small" label-width="80px">
           <el-form-item label="店铺编号" prop="storeNid">
-            <el-input v-model="form.storeNid" style="width: 370px;" disabled="true" />
+            <el-input v-model="form.storeNid" style="width: 370px;" disabled="disabled" />
           </el-form-item>
           <el-form-item label="店铺名称" prop="storeName">
             <el-input v-model="form.storeName" style="width: 370px;" />
@@ -22,22 +23,23 @@
           <el-form-item label="店铺电话" prop="storeMobile">
             <el-input v-model="form.storeMobile" style="width: 370px;" />
           </el-form-item>
+
           <el-form-item label="人均消费">
             <el-input v-model="form.perCapita" style="width: 370px;" />
           </el-form-item>
           <el-form-item label="行业类别">
-<!--            <el-select v-model="form.industryCategory" style="width: 370px;" />-->
-            <el-select v-model="form.industryCategory" placeholder="行业类别" style="width: 370px;" >
-              <el-option v-for="item in dict.dict.industry_category" :key="item.value" :label="item.label" :value="item.value" />
-            </el-select>
+            <el-select v-model="form.industryCategory" style="width: 370px;" />
           </el-form-item>
           <el-form-item label="店铺服务">
-            <!--            <el-select v-model="form.industryCategory" style="width: 370px;" />-->
-            <el-select v-model="form.industryCategory" placeholder="店铺服务" style="width: 370px;" >
-              <!-- <el-option v-for="item in dict.dict.industry_category" :key="item.value" :label="item.label" :value="item.value" />-->
-            </el-select>
+            <!--<el-checkbox></el-checkbox>-->
+            <!--<el-input v-model="form.stroeService" style="width: 370px;" />-->
           </el-form-item>
-
+          <el-form-item label="店铺图片">
+            <MaterialList v-model="form.imageArr" style="width: 500px" type="image" :num="1" :width="150" :height="150" />
+          </el-form-item>
+          <el-form-item label="轮播图">
+            <MaterialList v-model="form.sliderImageArr" style="width: 500px" type="image" :num="4" :width="150" :height="150" />
+          </el-form-item>
           <el-form-item label="店铺省市区" prop="storeProvince">
             <el-input v-model="form.storeProvince" style="width: 370px;" />
           </el-form-item>
@@ -45,7 +47,7 @@
             <el-input v-model="form.storeAddress" style="width: 370px;" />
           </el-form-item>
           <el-form-item label="店铺介绍">
-            <el-input v-model="form.introduction" style="width: 370px;" />
+            <editor v-model="form.introduction" />
           </el-form-item>
           <el-form-item label="地图坐标经度">
             <el-input v-model="form.coordinateX" style="width: 370px;" />
@@ -102,13 +104,15 @@
       </el-table>
       <!--分页组件-->
       <pagination />
-      <eForm :industry_category="dict.industry_category" />
     </div>
   </div>
 </template>
 
 <script>
 import crudYxStoreInfo from '@/api/yxStoreInfo'
+import editor from '../../components/Editor'
+import picUpload from '@/components/pic-upload'
+import mulpicUpload from '@/components/mul-pic-upload'
 import CRUD, { presenter, header, form, crud } from '@crud/crud'
 import rrOperation from '@crud/RR.operation'
 import crudOperation from '@crud/CRUD.operation'
@@ -121,7 +125,8 @@ const defaultCrud = CRUD({ title: '店铺表', url: 'api/yxStoreInfo', sort: 'id
 const defaultForm = { id: null, storeNid: null, storeName: null, manageUserName: null, merId: null, partnerId: null, manageMobile: null, storeMobile: null, status: null, perCapita: null, industryCategory: null, storeProvince: null, storeAddress: null, delFlag: null, createUserId: null, updateUserId: null, createTime: null, updateTime: null, introduction: null, coordinateX: null, coordinateY: null }
 export default {
   name: 'YxStoreInfo',
-  components: { pagination, crudOperation, rrOperation, udOperation ,MaterialList},
+  // components: { pagination, crudOperation, rrOperation, udOperation ,MaterialList},
+  components: {editor, picUpload, mulpicUpload,pagination, crudOperation, rrOperation, udOperation ,MaterialList},
   mixins: [presenter(defaultCrud), header(), form(defaultForm), crud()],
   data() {
     return {

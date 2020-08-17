@@ -18,6 +18,7 @@
     <el-table v-loading="loading" :data="data" size="small" style="width: 100%;">
       <el-table-column prop="id" label="ID" />
       <el-table-column prop="user.nickname" label="用户" />
+      <el-table-column prop="sysUser.username" label="所在商户" />
       <el-table-column prop="storeProduct.storeName" label="商品信息" />
       <el-table-column prop="productScore" label="商品分数" />
       <el-table-column prop="serviceScore" label="服务分数" />
