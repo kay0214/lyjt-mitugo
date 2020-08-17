@@ -39,14 +39,14 @@
         <el-select v-model="query.type" clearable placeholder="类型" class="filter-item" style="width: 130px">
           <el-option v-for="item in queryTypeOptions" :key="item.key" :label="item.display_name" :value="item.key" />
         </el-select>
-        <el-select v-model="orderType" clearable placeholder="订单类型" class="filter-item" style="width: 130px">
+        <!--<el-select v-model="orderType" clearable placeholder="订单类型" class="filter-item" style="width: 130px">
           <el-option
             v-for="item in typeOptions"
             :key="item.value"
             :label="item.label"
             :value="item.value"
           />
-        </el-select>
+        </el-select>-->
         <el-date-picker
           v-model="createTime"
           :default-time="['00:00:00','23:59:59']"
@@ -155,7 +155,7 @@
                 </el-dropdown-item>
                 <el-dropdown-item>
                   <el-button
-                    v-if="scope.row._status == 2"
+                    v-if="scope.row.status == 0"
                     v-permission="['admin','YXSTOREORDER_ALL','YXSTOREORDER_EDIT']"
                     size="mini"
                     type="primary"
@@ -165,7 +165,7 @@
                 </el-dropdown-item>
                 <el-dropdown-item>
                   <el-button
-                    v-if="scope.row._status == 3"
+                    v-if="scope.row.status == 3"
                     v-permission="['admin','YXSTOREORDER_ALL','YXSTOREORDER_EDIT']"
                     size="mini"
                     type="primary"
@@ -173,7 +173,7 @@
                   >
                     立刻退款</el-button>
                 </el-dropdown-item>
-                <el-dropdown-item v-if="scope.row._status == 1">
+                <el-dropdown-item v-if="scope.row.status == 1">
                   <el-button
                     v-permission="['admin','YXSTOREORDER_ALL','YXSTOREORDER_EDIT']"
                     size="mini"
@@ -182,7 +182,7 @@
                   >
                     修改订单</el-button>
                 </el-dropdown-item>
-                <el-dropdown-item v-if="scope.row._status == 1">
+                <el-dropdown-item v-if="scope.row.status == 1">
                   <el-popover
                     :ref="scope.row.id"
                     v-permission="['admin','YXSTOREORDER_ALL','YXSTOREORDER_DELETE']"
@@ -273,13 +273,13 @@
           { value: '-2', label: '已退款' },
           { value: '-4', label: '已删除' }
         ],
-        typeOptions: [
+        /*typeOptions: [
           { value: '0', label: '所有订单' },
           { value: '1', label: '普通订单' },
           { value: '2', label: '拼团订单' },
           { value: '3', label: '秒杀订单' },
           { value: '4', label: '砍价订单' }
-        ],
+        ],*/
         handleOptions: [
           {value: '', label: '批量操作'},
           {value: '0', label: '批量打印'},

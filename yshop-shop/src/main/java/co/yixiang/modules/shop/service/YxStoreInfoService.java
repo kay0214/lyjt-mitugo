@@ -10,10 +10,10 @@ package co.yixiang.modules.shop.service;
 import co.yixiang.common.service.BaseService;
 import co.yixiang.modules.shop.domain.YxStoreInfo;
 import co.yixiang.modules.shop.domain.YxStoreInfoRequest;
+import co.yixiang.modules.shop.domain.YxStoreInfoResponse;
 import co.yixiang.modules.shop.service.dto.YxStoreInfoDto;
 import co.yixiang.modules.shop.service.dto.YxStoreInfoQueryCriteria;
 import org.springframework.data.domain.Pageable;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Map;
 import java.util.List;
@@ -55,4 +55,8 @@ public interface YxStoreInfoService  extends BaseService<YxStoreInfo>{
      * @return
      */
     boolean updateStoreInfo(YxStoreInfoRequest request);
+
+    void onSale(Integer id, int status);
+
+    YxStoreInfoResponse getStoreInfo(int storeId);
 }

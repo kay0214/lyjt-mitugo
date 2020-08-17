@@ -8,44 +8,39 @@
 */
 package co.yixiang.modules.shop.service.impl;
 
-import co.yixiang.constant.ShopConstants;
-import co.yixiang.modules.shop.domain.*;
 import co.yixiang.common.service.impl.BaseServiceImpl;
-import co.yixiang.modules.shop.service.mapper.YxImageInfoMapper;
-import co.yixiang.modules.shop.service.mapper.YxStoreAttributeMapper;
-import co.yixiang.utils.BeanUtils;
-import co.yixiang.utils.StringUtils;
-import com.baomidou.mybatisplus.core.conditions.Wrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import lombok.AllArgsConstructor;
-import co.yixiang.dozer.service.IGenerator;
-import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
 import co.yixiang.common.utils.QueryHelpPlus;
-import co.yixiang.utils.ValidationUtil;
-import co.yixiang.utils.FileUtil;
+import co.yixiang.constant.ShopConstants;
+import co.yixiang.dozer.service.IGenerator;
+import co.yixiang.modules.shop.domain.*;
 import co.yixiang.modules.shop.service.YxStoreInfoService;
 import co.yixiang.modules.shop.service.dto.YxStoreInfoDto;
 import co.yixiang.modules.shop.service.dto.YxStoreInfoQueryCriteria;
+import co.yixiang.modules.shop.service.mapper.YxImageInfoMapper;
+import co.yixiang.modules.shop.service.mapper.YxStoreAttributeMapper;
 import co.yixiang.modules.shop.service.mapper.YxStoreInfoMapper;
+import co.yixiang.utils.BeanUtils;
+import co.yixiang.utils.FileUtil;
+import co.yixiang.utils.StringUtils;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.github.pagehelper.PageInfo;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.*;
+
 // 默认不使用缓存
 //import org.springframework.cache.annotation.CacheConfig;
 //import org.springframework.cache.annotation.CacheEvict;
 //import org.springframework.cache.annotation.Cacheable;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-
-import java.security.Timestamp;
-import java.time.LocalDateTime;
-import java.util.*;
-import java.io.IOException;
-import javax.servlet.http.HttpServletResponse;
 
 /**
 * @author nxl
@@ -101,7 +96,7 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
         BeanUtils.copyProperties(request,yxStoreInfo);
         //
        boolean isUpd = this.updateById(yxStoreInfo);
-        List<YxImageInfo> imageInfoList = yxImageInfoService.list(new QueryWrapper<YxImageInfo>().eq("type_id",yxStoreInfo.getId()).eq("img_type",ShopConstants.IMG_TYPE_STORE));
+        List<YxImageInfo> imageInfoList = yxImageInfoService.list(new QueryWrapper<YxImageInfo>().eq("type_id",yxStoreInfo.getId()).eq("img_type",ShopConstants.IMG_TYPE_STORE).eq("del_flag",false));
 
         if(CollectionUtils.isNotEmpty(imageInfoList)){
             yxImageInfoService.remove(new QueryWrapper<YxImageInfo>().eq("type_id",yxStoreInfo.getId()).eq("img_type",ShopConstants.IMG_TYPE_STORE));
@@ -117,7 +112,7 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
         yxImageInfo.setDelFlag(false);
         yxImageInfoList.add(yxImageInfo);
         if(StringUtils.isNotBlank(request.getSliderImageArr())){
-            String [] images = request.getOpenTime().split(",");
+            String [] images = request.getSliderImageArr().split(",");
             if(images.length>0){
                 for(int i=0;i<images.length;i++){
                     YxImageInfo yxImageInfos = new YxImageInfo();
@@ -152,16 +147,34 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
         }
 
         //营业时间
-        if(StringUtils.isNotBlank(request.getOpenTime())){
+        /*if(StringUtils.isNotBlank(request.getOpenDays())){
             //
-            String[] openTime = request.getOpenTime().split(",");
-            if(openTime.length>0){
-                for(int i=0;i<openTime.length;i++){
+            JSONObject jsonObject = JSON.parseObject(request.getOpenDays());
+            List<Map<String,String>> valueList = JSON.parseObject(jsonObject.toString(),List.class);
+            if(CollectionUtils.isNotEmpty(valueList)){
+                for(int i=0;i<valueList.size();i++){
+                    Map<String,String> mapParam = valueList.get(i);
                     YxStoreAttribute yxStoreattribute = new YxStoreAttribute();
-                    //0：运营时间，1：店铺服务
                     yxStoreattribute.setAttributeType(0);
                     yxStoreattribute.setStoreId(yxStoreInfo.getId());
-                    yxStoreattribute.setAttributeValue1(openTime[i]);
+                    yxStoreattribute.setAttributeValue1(mapParam.get("openDay"));
+                    yxStoreattribute.setAttributeValue2(mapParam.get("openTime"));
+                    storeAttributeList.add(yxStoreattribute);
+                }
+            }
+        }*/
+        if(CollectionUtils.isNotEmpty(request.getOpenDays())){
+            //
+//            JSONObject jsonObject = JSON.parseObject(request.getOpenDays());
+            List<Map<String,String>> valueList = request.getOpenDays();
+            if(CollectionUtils.isNotEmpty(valueList)){
+                for(int i=0;i<valueList.size();i++){
+                    Map<String,String> mapParam = valueList.get(i);
+                    YxStoreAttribute yxStoreattribute = new YxStoreAttribute();
+                    yxStoreattribute.setAttributeType(0);
+                    yxStoreattribute.setStoreId(yxStoreInfo.getId());
+                    yxStoreattribute.setAttributeValue1(mapParam.get("openDay"));
+                    yxStoreattribute.setAttributeValue2(mapParam.get("openTime"));
                     storeAttributeList.add(yxStoreattribute);
                 }
             }
@@ -181,8 +194,8 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
             map.put("店铺编号", yxStoreInfo.getStoreNid());
             map.put("店铺名称", yxStoreInfo.getStoreName());
             map.put("管理人用户名", yxStoreInfo.getManageUserName());
-            map.put("商户id", yxStoreInfo.getMerId());
-            map.put("合伙人id", yxStoreInfo.getPartnerId());
+          /*  map.put("商户id", yxStoreInfo.getMerId());
+            map.put("合伙人id", yxStoreInfo.getPartnerId());*/
             map.put("管理人电话", yxStoreInfo.getManageMobile());
             map.put("店铺电话", yxStoreInfo.getStoreMobile());
             map.put("状态:", yxStoreInfo.getStatus()==0?"上架":"下架");
@@ -190,15 +203,87 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
             map.put("行业类别", yxStoreInfo.getIndustryCategory());
             map.put("店铺省市区", yxStoreInfo.getStoreProvince());
             map.put("店铺详细地址", yxStoreInfo.getStoreAddress());
-            map.put("创建人", yxStoreInfo.getCreateUserId());
-            map.put("修改人", yxStoreInfo.getUpdateUserId());
+            /*map.put("创建人", yxStoreInfo.getCreateUserId());
+            map.put("修改人", yxStoreInfo.getUpdateUserId());*/
             map.put("创建时间", yxStoreInfo.getCreateTime());
-            map.put("更新时间", yxStoreInfo.getUpdateTime());
+//            map.put("更新时间", yxStoreInfo.getUpdateTime());
             map.put("店铺介绍", yxStoreInfo.getIntroduction());
             map.put("地图坐标经度", yxStoreInfo.getCoordinateX());
             map.put("地图坐标纬度", yxStoreInfo.getCoordinateY());
             list.add(map);
         }
         FileUtil.downloadExcel(list, response);
+    }
+    @Override
+    public void onSale(Integer id, int status) {
+        if(status == 1){
+            status = 0;
+        }else{
+            status = 1;
+        }
+        yxStoreInfoMapper.updateOnsale(status,id);
+    }
+
+    /**
+     * 获取店铺编辑信息
+     * @param storeId
+     * @return
+     */
+    @Override
+    public YxStoreInfoResponse getStoreInfo(int storeId){
+        YxStoreInfoResponse response = new YxStoreInfoResponse();
+        YxStoreInfo storeInfo = this.getById(storeId);
+        BeanUtils.copyProperties(storeInfo, response);
+        // 图片
+        response.setImageArr(yxImageInfoService.selectImgByParam(storeId,ShopConstants.IMG_TYPE_STORE,ShopConstants.IMG_CATEGORY_PIC));
+        //轮播图
+        response.setSliderImageArr(yxImageInfoService.selectImgByParam(storeId,ShopConstants.IMG_TYPE_STORE,ShopConstants.IMG_CATEGORY_ROTATION1));
+        //店铺服务
+        response.setStoreService(selectAttributeByParam((storeId)));
+        //营业时间
+        response.setOpenTime(selectAttributeListByParam(storeId));
+
+        return response;
+    }
+
+    /**
+     * 店铺服务
+     * @param storeId
+     * @return
+     */
+    private String selectAttributeByParam(int storeId) {
+        YxStoreAttribute yxStoreAttributeParam = new YxStoreAttribute();
+        yxStoreAttributeParam.setStoreId(storeId);
+        yxStoreAttributeParam.setAttributeType(1);
+        String strAttribute ="";
+        List<YxStoreAttribute> attributeList = yxStoreAttributeService.list(Wrappers.query(yxStoreAttributeParam));
+        if(CollectionUtils.isNotEmpty(attributeList)){
+            for(YxStoreAttribute attribute:attributeList){
+                strAttribute = strAttribute+ attribute.getAttributeValue1() + ",";
+            }
+        }
+        return strAttribute;
+    }
+
+    /**
+     * 营业时间
+     * @param storeId
+     * @return
+     */
+    private List<Map<String,Object>> selectAttributeListByParam(int storeId) {
+        YxStoreAttribute yxStoreAttributeParam = new YxStoreAttribute();
+        yxStoreAttributeParam.setStoreId(storeId);
+        yxStoreAttributeParam.setAttributeType(0);
+        List<Map<String,Object>> mapList= new ArrayList<Map<String,Object>>();
+        List<YxStoreAttribute> attributeList = yxStoreAttributeService.list(Wrappers.query(yxStoreAttributeParam));
+        if(CollectionUtils.isNotEmpty(attributeList)){
+            for(YxStoreAttribute attribute:attributeList){
+                Map<String,Object> mapValue = new HashMap<String,Object>();
+                mapValue.put("openDay",attribute.getAttributeValue1());
+                mapValue.put("openTime",attribute.getAttributeValue2());
+                mapList.add(mapValue);
+            }
+        }
+        return mapList;
     }
 }
