@@ -28,6 +28,7 @@ import co.yixiang.utils.SecurityUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import me.chanjar.weixin.common.error.WxErrorException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
@@ -42,6 +43,7 @@ import java.util.Map;
  * @author hupeng
  * @date 2020/02/07
  */
+@Slf4j
 @RestController
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 @Api(value = "微信其他", tags = "微信:微信其他", description = "微信其他")
@@ -110,7 +112,7 @@ public class WxMaUserController {
         try {
             WxMaJscode2SessionResult session = wxMaService.getUserService()
                     .getSessionInfo(param.getCode());
-
+            log.info("小程序绑定手机号SessionKey：{};EncryptedData:{}; Iv:{}",session.getSessionKey(),param.getEncryptedData(), param.getIv());
             // 解密
             WxMaPhoneNumberInfo phoneNoInfo = wxMaService.getUserService()
                     .getPhoneNoInfo(session.getSessionKey(), param.getEncryptedData(), param.getIv());
