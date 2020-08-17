@@ -95,7 +95,7 @@ file:
   # 文件大小 /M
   maxSize: 100
   avatarMaxSize: 5
-  localUrl:
+  localUrl: http://localhost:8000
 
 yshop:
   # 快鸟物流查询配置
@@ -103,9 +103,9 @@ yshop:
     enable: true
     appId: 1607734
     appKey: 81f43a2e-f504-45c4-9b54-2637d59f8190
-  apiUrl: http://127.0.0.1:8009/api
-  hApi: https://127.0.0.1:8000
-  wechatCode: http://127.0.0.1:8000/upload/qrcode_for_gh_2ac8f422a79f_258.jpg
+  apiUrl: http://localhost:8009/api
+  hApi: https://localhost:8000
+  wechatCode: http://localhost:8000/upload/qrcode_for_gh_2ac8f422a79f_258.jpg
   miniAppID:
 
 mybatis-plus:
