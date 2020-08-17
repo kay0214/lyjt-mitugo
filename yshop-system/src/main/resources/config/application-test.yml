@@ -80,12 +80,12 @@ swagger:
 #  2.如果想文件存在本地，并通过本地代理出去请填写localUrl： http://127.0.0.1:8000为本服务的ip+端口号
 #     线上的地址就是你通过nginx代理http://127.0.0.1:8000出来的地址。鉴于群里很多问的这里做个说明不在赘述
 file:
-  path: D:\yshop\file\
-  avatar: D:\yshop\avatar\
-  # 文件大小 /M
+  path: /home/yshop/file/
+  avatar: /home/yshop/avatar/
+  # 文件大小/M
   maxSize: 100
   avatarMaxSize: 5
-  localUrl: http://127.0.0.1:8000
+  localUrl: http://39.98.139.163:8000
 
 
 yshop:
@@ -94,7 +94,7 @@ yshop:
     enable: true
     appId: 1607734
     appKey: 81f43a2e-f504-45c4-9b54-2637d59f8190
-  apiUrl: http://127.0.0.1:8009/api
+  apiUrl: http://localhost:8009/api
 
 mybatis-plus:
   check-config-location: true

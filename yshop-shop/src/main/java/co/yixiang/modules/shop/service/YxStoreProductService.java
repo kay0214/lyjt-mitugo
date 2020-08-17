@@ -7,6 +7,7 @@ package co.yixiang.modules.shop.service;
 
 import co.yixiang.common.service.BaseService;
 import co.yixiang.modules.shop.domain.YxStoreProduct;
+import co.yixiang.modules.shop.domain.YxStoreProductChange;
 import co.yixiang.modules.shop.service.dto.ProductFormatDto;
 import co.yixiang.modules.shop.service.dto.YxStoreProductDto;
 import co.yixiang.modules.shop.service.dto.YxStoreProductQueryCriteria;
@@ -68,10 +69,7 @@ public interface YxStoreProductService  extends BaseService<YxStoreProduct>{
 
     /**
      *
-     * @param id
-     * @param changeStatus
-     * @param changeType 1:促销单品(优惠),2:精品推荐(是否精品),3:热销榜单(是否热卖),4:首发新品(是否新品):
+     * @param request
      */
-
-    void changeStatus(Integer id, int changeStatus,String changeType);
+    void changeStatus(YxStoreProductChange request);
 }

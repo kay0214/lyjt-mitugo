@@ -13,6 +13,7 @@ import co.yixiang.tools.service.QiNiuService;
 import co.yixiang.tools.service.dto.LocalStorageDto;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,6 +30,7 @@ import java.util.Map;
  * @author hupeng
  * @date 2020-01-09
  */
+@Slf4j
 @Api(tags = "上传统一管理")
 @RestController
 @RequestMapping("/api/upload")
@@ -58,6 +60,8 @@ public class UploadController {
                 LocalStorageDto localStorageDTO = localStorageService.create(name, file);
                 if ("".equals(url.toString())) {
                     url = url.append(localUrl + "/file/" + localStorageDTO.getType() + "/" + localStorageDTO.getRealName());
+                    log.info("localUrl:{}",localUrl);
+                    log.info("url:{}",url);
                 } else {
                     url = url.append(","+localUrl + "/file/" + localStorageDTO.getType() + "/" + localStorageDTO.getRealName());
                 }

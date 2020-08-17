@@ -12,10 +12,13 @@ import co.yixiang.dozer.service.IGenerator;
 import co.yixiang.logging.aop.log.Log;
 import co.yixiang.modules.shop.domain.YxStoreInfo;
 import co.yixiang.modules.shop.domain.YxStoreInfoRequest;
+import co.yixiang.modules.shop.domain.YxStoreInfoResponse;
 import co.yixiang.modules.shop.service.YxStoreInfoService;
 import co.yixiang.modules.shop.service.dto.YxStoreInfoDto;
 import co.yixiang.modules.shop.service.dto.YxStoreInfoQueryCriteria;
 import co.yixiang.utils.BeanUtils;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.AllArgsConstructor;
@@ -52,6 +55,7 @@ public class YxStoreInfoController {
     @GetMapping(value = "/download")
     @PreAuthorize("@el.check('admin','yxStoreInfo:list')")
     public void download(HttpServletResponse response, YxStoreInfoQueryCriteria criteria) throws IOException {
+        criteria.setDelFlag(false);
         yxStoreInfoService.download(generator.convert(yxStoreInfoService.queryAll(criteria), YxStoreInfoDto.class), response);
     }
 
@@ -60,6 +64,7 @@ public class YxStoreInfoController {
     @ApiOperation("查询店铺表")
     @PreAuthorize("@el.check('admin','yxStoreInfo:list')")
     public ResponseEntity<Object> getYxStoreInfos(YxStoreInfoQueryCriteria criteria, Pageable pageable) {
+        criteria.setDelFlag(false);
         return new ResponseEntity<>(yxStoreInfoService.queryAll(criteria, pageable), HttpStatus.OK);
     }
 
@@ -73,12 +78,11 @@ public class YxStoreInfoController {
         return new ResponseEntity<>(yxStoreInfoService.save(yxStoreInfo), HttpStatus.CREATED);
     }
 
-    @PutMapping
+    @PutMapping(value = "/updateStoreInfo")
     @Log("修改店铺表")
     @ApiOperation("修改店铺表")
     @PreAuthorize("@el.check('admin','yxStoreInfo:edit')")
     public ResponseEntity<Object> update(@Validated @RequestBody YxStoreInfoRequest resources) {
-//        yxStoreInfoService.updateById(resources);
         yxStoreInfoService.updateStoreInfo(resources);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
@@ -94,21 +98,23 @@ public class YxStoreInfoController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @PostMapping(value = "/changeStatus")
+    @PostMapping(value = "/changeStatus/{id}")
     @Log("店铺上下架")
     @ApiOperation("店铺上下架")
     @PreAuthorize("@el.check('admin','yxStoreInfo:edit')")
-    public ResponseEntity<Object> changeStatus(@Validated @RequestBody YxStoreInfoRequest resources) {
-//        yxStoreInfoService.updateById(resources);
-        YxStoreInfo yxStoreInfo = yxStoreInfoService.getById(resources.getId());
-        if(yxStoreInfo.getStatus()==1){
-            //下架->上架
-            yxStoreInfo.setStatus(0);
-        }else{
-            //上架->下架
-            yxStoreInfo.setStatus(1);
-        }
-        yxStoreInfoService.updateById(yxStoreInfo);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    public ResponseEntity<Object> changeStatus(@PathVariable Integer id,@RequestBody String jsonStr) {
+        JSONObject jsonObject = JSON.parseObject(jsonStr);
+        int status = Integer.valueOf(jsonObject.get("status").toString());
+        yxStoreInfoService.onSale(id,status);
+        return new ResponseEntity(HttpStatus.OK);
+    }
+
+    @PostMapping(value = "/getStoreInfoById/{id}")
+    @Log("获取店铺信息")
+    @ApiOperation("获取店铺信息")
+    @PreAuthorize("@el.check('admin','yxStoreInfo:edit')")
+    public ResponseEntity<Object> getStoreInfoById(@PathVariable Integer id) {
+        YxStoreInfoResponse yxStoreInfoResponse = yxStoreInfoService.getStoreInfo(id);
+        return new ResponseEntity<>(yxStoreInfoResponse, HttpStatus.OK);
     }
 }

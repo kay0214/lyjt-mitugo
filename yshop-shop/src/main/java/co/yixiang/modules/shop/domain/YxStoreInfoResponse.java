@@ -10,11 +10,8 @@ package co.yixiang.modules.shop.domain;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.bean.copier.CopyOptions;
-import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
@@ -26,48 +23,40 @@ import java.util.Map;
  * @date 2020-08-14
  */
 @Data
-public class YxStoreInfoRequest implements Serializable {
+public class YxStoreInfoResponse implements Serializable {
 
     private Integer id;
 
 
     /** 店铺编号 */
-//    @NotBlank
     private String storeNid;
 
 
     /** 店铺名称 */
-//    @NotBlank
     private String storeName;
 
 
     /** 管理人用户名 */
-//    @NotBlank
     private String manageUserName;
 
 
     /** 商户id */
-//    @NotNull
     private Integer merId;
 
 
     /** 合伙人id */
-//    @NotNull
     private Integer partnerId;
 
 
     /** 管理人电话 */
-//    @NotBlank
     private String manageMobile;
 
 
     /** 店铺电话 */
-//    @NotBlank
     private String storeMobile;
 
 
     /** 状态：0：上架，1：下架 */
-//    @NotNull
     private Integer status;
 
 
@@ -80,12 +69,10 @@ public class YxStoreInfoRequest implements Serializable {
 
 
     /** 店铺省市区 */
-//    @NotBlank
     private String storeProvince;
 
 
     /** 店铺详细地址 */
-//    @NotBlank
     private String storeAddress;
 
 
@@ -122,13 +109,12 @@ public class YxStoreInfoRequest implements Serializable {
     private String sliderImageArr;
 
     //营业时间
-//    private List<Map<String, Object>> openTime;
-    private List<Map<String,String>> openDays;
+    private List<Map<String, Object>> openTime;
     //店铺服务
     private String storeService;
 
 
-    public void copy(YxStoreInfoRequest source) {
+    public void copy(YxStoreInfoResponse source) {
         BeanUtil.copyProperties(source, this, CopyOptions.create().setIgnoreNullValue(true));
     }
 }

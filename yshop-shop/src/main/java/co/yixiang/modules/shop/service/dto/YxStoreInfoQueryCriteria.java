@@ -18,4 +18,9 @@ import co.yixiang.annotation.Query;
 */
 @Data
 public class YxStoreInfoQueryCriteria{
+    /** 店铺名称 */
+    @Query(type = Query.Type.INNER_LIKE)
+    private String storeName;
+
+    private Boolean delFlag;
 }

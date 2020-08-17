@@ -11,6 +11,8 @@ package co.yixiang.modules.shop.service.mapper;
 import co.yixiang.common.mapper.CoreMapper;
 import co.yixiang.modules.shop.domain.YxStoreInfo;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Update;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -20,5 +22,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 @Mapper
 public interface YxStoreInfoMapper extends CoreMapper<YxStoreInfo> {
-
+    @Update("update yx_store_info set status = #{status} where id = #{id}")
+    void updateOnsale(@Param("status")int status, @Param("id")Integer id);
 }

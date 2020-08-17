@@ -18,10 +18,16 @@ export function del(ids) {
 
 export function edit(data) {
   return request({
-    url: 'api/yxStoreInfo',
+    url: 'api/yxStoreInfo/updateStoreInfo',
     method: 'put',
     data
   })
 }
-
+export function onsale(id, data) {
+  return request({
+    url: 'api/yxStoreInfo/changeStatus/' + id,
+    method: 'post',
+    data
+  })
+}
 export default { add, edit, del }
