@@ -155,7 +155,7 @@
                 </el-dropdown-item>
                 <el-dropdown-item>
                   <el-button
-                    v-if="scope.row.status == 0"
+                    v-if="scope.row._status == 2"
                     v-permission="['admin','YXSTOREORDER_ALL','YXSTOREORDER_EDIT']"
                     size="mini"
                     type="primary"
@@ -165,7 +165,7 @@
                 </el-dropdown-item>
                 <el-dropdown-item>
                   <el-button
-                    v-if="scope.row.status == 3"
+                    v-if="scope.row._status == 3"
                     v-permission="['admin','YXSTOREORDER_ALL','YXSTOREORDER_EDIT']"
                     size="mini"
                     type="primary"
@@ -173,7 +173,7 @@
                   >
                     立刻退款</el-button>
                 </el-dropdown-item>
-                <el-dropdown-item v-if="scope.row.status == 1">
+                <el-dropdown-item v-if="scope.row._status == 1">
                   <el-button
                     v-permission="['admin','YXSTOREORDER_ALL','YXSTOREORDER_EDIT']"
                     size="mini"
@@ -182,7 +182,7 @@
                   >
                     修改订单</el-button>
                 </el-dropdown-item>
-                <el-dropdown-item v-if="scope.row.status == 1">
+                <el-dropdown-item v-if="scope.row._status == 1">
                   <el-popover
                     :ref="scope.row.id"
                     v-permission="['admin','YXSTOREORDER_ALL','YXSTOREORDER_DELETE']"
