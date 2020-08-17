@@ -95,7 +95,7 @@ file:
   # 文件大小 /M
   maxSize: 100
   avatarMaxSize: 5
-  localUrl: http://localhost:8000
+  localUrl: http://39.98.139.163:8000
 
 yshop:
   # 快鸟物流查询配置
