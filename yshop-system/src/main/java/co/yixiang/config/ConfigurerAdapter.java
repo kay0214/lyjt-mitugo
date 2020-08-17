@@ -15,6 +15,8 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import java.io.File;
+
 /**
  * WebMvcConfigurer
  *
@@ -50,5 +52,14 @@ public class ConfigurerAdapter implements WebMvcConfigurer {
         registry.addResourceHandler("/avatar/**").addResourceLocations(avatarUtl).setCachePeriod(0);
         registry.addResourceHandler("/file/**").addResourceLocations(pathUtl).setCachePeriod(0);
         registry.addResourceHandler("/**").addResourceLocations("classpath:/META-INF/resources/").setCachePeriod(0);
+        registry.addResourceHandler("swagger-ui.html")
+                .addResourceLocations("classpath:"+ File.separator+"META-INF"+ File.separator+"resources"+ File.separator);
+
+        registry.addResourceHandler("/webjars/**")
+                .addResourceLocations("classpath:"+ File.separator+"META-INF"+ File.separator+"resources"+ File.separator+"webjars"+ File.separator);
+
+        registry.addResourceHandler("/templates/**")
+                .addResourceLocations("classpath:"+ File.separator+"templates"+ File.separator);
+        registry.addResourceHandler("doc.html").addResourceLocations("classpath:/META-INF/resources/");
     }
 }
