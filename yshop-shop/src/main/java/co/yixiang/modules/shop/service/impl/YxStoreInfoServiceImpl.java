@@ -21,6 +21,7 @@ import co.yixiang.modules.shop.service.mapper.YxStoreAttributeMapper;
 import co.yixiang.modules.shop.service.mapper.YxStoreInfoMapper;
 import co.yixiang.utils.BeanUtils;
 import co.yixiang.utils.FileUtil;
+import co.yixiang.utils.SecurityUtils;
 import co.yixiang.utils.StringUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
@@ -95,7 +96,8 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
         YxStoreInfo yxStoreInfo = new YxStoreInfo();
         BeanUtils.copyProperties(request,yxStoreInfo);
         //
-       boolean isUpd = this.updateById(yxStoreInfo);
+        yxStoreInfo.setUpdateUserId(SecurityUtils.getUserId().intValue());
+        boolean isUpd = this.updateById(yxStoreInfo);
         List<YxImageInfo> imageInfoList = yxImageInfoService.list(new QueryWrapper<YxImageInfo>().eq("type_id",yxStoreInfo.getId()).eq("img_type",ShopConstants.IMG_TYPE_STORE).eq("del_flag",false));
 
         if(CollectionUtils.isNotEmpty(imageInfoList)){
@@ -121,6 +123,8 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
                     yxImageInfos.setImgCategory(ShopConstants.IMG_CATEGORY_ROTATION1);
                     yxImageInfos.setImgUrl(images[i]);
                     yxImageInfos.setDelFlag(false);
+                    yxImageInfos.setUpdateUserId(SecurityUtils.getUserId().intValue());
+                    yxImageInfos.setCreateUserId(SecurityUtils.getUserId().intValue());
                     yxImageInfoList.add(yxImageInfos);
                 }
             }
@@ -130,9 +134,14 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
 
         //保存属性信息
         //店铺服务
+        List<YxStoreAttribute> serviceAttribute = yxStoreAttributeService.list(new QueryWrapper<YxStoreAttribute>().eq("store_id",yxStoreInfo.getId()).eq("attribute_type",1).eq("del_flag",false));
+        if(CollectionUtils.isNotEmpty(serviceAttribute)){
+            yxStoreAttributeService.remove(new QueryWrapper<YxStoreAttribute>().eq("store_id",yxStoreInfo.getId()).eq("attribute_type",1));
+        }
         List<YxStoreAttribute> storeAttributeList = new ArrayList<YxStoreAttribute>();
 
         if(StringUtils.isNotBlank(request.getStoreService())){
+            //删除之前的
             String[] service = request.getStoreService().split(",");
             if(service.length>0){
                 for(int i=0;i<service.length;i++){
@@ -141,6 +150,8 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
                     yxStoreattribute.setAttributeType(1);
                     yxStoreattribute.setStoreId(yxStoreInfo.getId());
                     yxStoreattribute.setAttributeValue1(service[i]);
+                    yxStoreattribute.setUpdateUserId(SecurityUtils.getUserId().intValue());
+                    yxStoreattribute.setCreateUserId(SecurityUtils.getUserId().intValue());
                     storeAttributeList.add(yxStoreattribute);
                 }
             }
@@ -163,6 +174,11 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
                 }
             }
         }*/
+        List<YxStoreAttribute> openAttribute = yxStoreAttributeService.list(new QueryWrapper<YxStoreAttribute>().eq("store_id",yxStoreInfo.getId()).eq("attribute_type",0).eq("del_flag",false));
+
+        if(CollectionUtils.isNotEmpty(openAttribute)){
+            yxStoreAttributeService.remove(new QueryWrapper<YxStoreAttribute>().eq("store_id",yxStoreInfo.getId()).eq("attribute_type",0));
+        }
         if(CollectionUtils.isNotEmpty(request.getOpenDays())){
             //
 //            JSONObject jsonObject = JSON.parseObject(request.getOpenDays());
@@ -175,6 +191,8 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
                     yxStoreattribute.setStoreId(yxStoreInfo.getId());
                     yxStoreattribute.setAttributeValue1(mapParam.get("openDay"));
                     yxStoreattribute.setAttributeValue2(mapParam.get("openTime"));
+                    yxStoreattribute.setUpdateUserId(SecurityUtils.getUserId().intValue());
+                    yxStoreattribute.setCreateUserId(SecurityUtils.getUserId().intValue());
                     storeAttributeList.add(yxStoreattribute);
                 }
             }
