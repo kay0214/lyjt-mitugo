@@ -117,6 +117,9 @@ public class YxCouponOrder extends BaseEntity {
     @ApiModelProperty(value = "下单时的佣金")
     private BigDecimal commission;
 
+    @ApiModelProperty(value = "分佣状态")
+    private Integer rebateStatus;
+
     @ApiModelProperty(value = "是否删除（0：未删除，1：已删除）")
     private Integer delFlag;
 

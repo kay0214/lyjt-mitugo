@@ -201,4 +201,9 @@ public class YxStoreOrder extends BaseEntity {
 
     @ApiModelProperty(value = "下单时的佣金")
     private BigDecimal commission;
+
+    @ApiModelProperty(value = "分佣状态")
+    private Integer rebateStatus;
+
+
 }
