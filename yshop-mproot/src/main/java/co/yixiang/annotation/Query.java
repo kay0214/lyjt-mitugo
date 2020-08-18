@@ -23,7 +23,7 @@ public @interface Query {
     // Dong ZhaoYang 2017/8/7 查询方式
     Type type() default Type.EQUAL;
     // zhangyunkai   排序方式
-    Order order() default Order.DESC;
+    Order order() default Order.NOT_ORDER;
 
     /**
      * 多字段模糊搜索，仅支持String类型字段，多个用逗号隔开, 如@Query(blurry = "email,username")
@@ -63,6 +63,8 @@ public @interface Query {
          DESC
         // 升序
         ,ASC
+        // 不限制
+        ,NOT_ORDER
     }
 
 }
