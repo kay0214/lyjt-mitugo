@@ -22,5 +22,5 @@ public class YxStoreInfoQueryCriteria{
     @Query(type = Query.Type.INNER_LIKE)
     private String storeName;
 
-    private Boolean delFlag;
+    private Integer delFlag;
 }
