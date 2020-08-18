@@ -51,7 +51,7 @@ public class YxStoreAttribute implements Serializable {
     @NotNull
     @TableLogic
     @TableField(fill= FieldFill.INSERT_UPDATE)
-    private Boolean delFlag;
+    private Integer delFlag;
 
 
     /** 创建人 */

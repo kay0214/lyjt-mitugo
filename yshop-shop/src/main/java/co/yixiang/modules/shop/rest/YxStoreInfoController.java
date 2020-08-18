@@ -1,10 +1,5 @@
 /**
  * Copyright (C) 2018-2020
- * All rights reserved, Designed By www.yixiang.co
- * 注意：
- * 本软件为www.yixiang.co开发研制，未经购买不得使用
- * 购买后可获得全部源代码（禁止转卖、分享、上传到码云、github等开源平台）
- * 一经发现盗用、分享等行为，将追究法律责任，后果自负
  */
 package co.yixiang.modules.shop.rest;
 
@@ -55,7 +50,7 @@ public class YxStoreInfoController {
     @GetMapping(value = "/download")
     @PreAuthorize("@el.check('admin','yxStoreInfo:list')")
     public void download(HttpServletResponse response, YxStoreInfoQueryCriteria criteria) throws IOException {
-        criteria.setDelFlag(false);
+        criteria.setDelFlag(0);
         yxStoreInfoService.download(generator.convert(yxStoreInfoService.queryAll(criteria), YxStoreInfoDto.class), response);
     }
 
@@ -64,7 +59,7 @@ public class YxStoreInfoController {
     @ApiOperation("查询店铺表")
     @PreAuthorize("@el.check('admin','yxStoreInfo:list')")
     public ResponseEntity<Object> getYxStoreInfos(YxStoreInfoQueryCriteria criteria, Pageable pageable) {
-        criteria.setDelFlag(false);
+        criteria.setDelFlag(0);
         return new ResponseEntity<>(yxStoreInfoService.queryAll(criteria, pageable), HttpStatus.OK);
     }
 
@@ -93,7 +88,7 @@ public class YxStoreInfoController {
     @DeleteMapping
     public ResponseEntity<Object> deleteAll(@RequestBody Integer[] ids) {
         Arrays.asList(ids).forEach(id -> {
-            yxStoreInfoService.removeById(id);
+            yxStoreInfoService.updateDelFlg(id);
         });
         return new ResponseEntity<>(HttpStatus.OK);
     }

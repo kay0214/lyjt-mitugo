@@ -59,4 +59,6 @@ public interface YxStoreInfoService  extends BaseService<YxStoreInfo>{
     void onSale(Integer id, int status);
 
     YxStoreInfoResponse getStoreInfo(int storeId);
+
+    void updateDelFlg(Integer id);
 }
