@@ -99,6 +99,12 @@ public class CommissionConsumer implements RocketMQListener<String>, RocketMQPus
     private void updateOrderInfo(String OrderId){
         //根据订单号查询订单信息，获取推荐人、分享人、分享人的推荐人ID
         YxStoreOrder yxStoreOrder = yxStoreOrderMapper.selectOne(new QueryWrapper<YxStoreOrder>().lambda().eq(YxStoreOrder::getOrderId, OrderId));
+        if(yxStoreOrder.getRebateStatus()==1){
+            log.info("分佣失败，该订单重复分佣,订单号：{}",OrderId);
+            return;
+        }
+        yxStoreOrder.setRebateStatus(1);
+        yxStoreOrderMapper.updateById(yxStoreOrder);
         OrderInfo orderInfo = new OrderInfo();
         BeanUtils.copyProperties(yxStoreOrder,orderInfo);
         updateaccount(orderInfo);
@@ -110,6 +116,12 @@ public class CommissionConsumer implements RocketMQListener<String>, RocketMQPus
      */
     private void updateCouponInfo(String OrderId){
         YxCouponOrder yxCouponOrder= yxCouponOrderMapper.selectOne(new QueryWrapper<YxCouponOrder>().lambda().eq(YxCouponOrder::getOrderId, OrderId));
+        if(yxCouponOrder.getRebateStatus().equals(1)){
+            log.info("分佣失败，该订单重复分佣,订单号：{}",OrderId);
+            return;
+        }
+        yxCouponOrder.setRebateStatus(1);
+        yxCouponOrderMapper.updateById(yxCouponOrder);
         OrderInfo orderInfo = new OrderInfo();
         BeanUtils.copyProperties(yxCouponOrder,orderInfo);
         orderInfo.setPayPrice(yxCouponOrder.getCouponPrice());
