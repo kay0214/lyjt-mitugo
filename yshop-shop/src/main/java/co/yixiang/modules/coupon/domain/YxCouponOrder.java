@@ -88,6 +88,7 @@ public class YxCouponOrder implements Serializable {
 
     /** 订单状态（0:待支付 1:已过期 2:待发放3:支付失败4:待使用5:已使用6:已核销7:退款中8:已退款9:退款驳回 */
     @NotNull
+    @TableField(value = "`status`")
     private Integer status;
 
 

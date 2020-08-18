@@ -2,6 +2,7 @@ package co.yixiang.modules.user.entity;
 
 import co.yixiang.common.entity.BaseEntity;
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -45,6 +46,7 @@ public class YxUserLevel extends BaseEntity {
     private Integer merId;
 
     @ApiModelProperty(value = "0:禁止,1:正常")
+    @TableField(value = "`status`")
     private Integer status;
 
     @ApiModelProperty(value = "备注")

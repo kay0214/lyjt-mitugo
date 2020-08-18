@@ -3,6 +3,7 @@ package co.yixiang.modules.user.entity;
 import java.math.BigDecimal;
 import com.baomidou.mybatisplus.annotation.IdType;
 import co.yixiang.common.entity.BaseEntity;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -94,6 +95,7 @@ private BigDecimal integral;
 private Integer signNum;
 
 @ApiModelProperty(value = "1为正常，0为禁止")
+@TableField(value = "`status`")
 private Integer status;
 
 @ApiModelProperty(value = "等级")

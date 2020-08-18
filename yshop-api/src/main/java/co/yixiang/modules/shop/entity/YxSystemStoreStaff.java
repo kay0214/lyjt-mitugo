@@ -2,6 +2,7 @@ package co.yixiang.modules.shop.entity;
 
 import co.yixiang.common.entity.BaseEntity;
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -49,6 +50,7 @@ public class YxSystemStoreStaff extends BaseEntity {
     private Integer verifyStatus;
 
     @ApiModelProperty(value = "状态")
+    @TableField(value = "`status`")
     private Integer status;
 
     @ApiModelProperty(value = "添加时间")

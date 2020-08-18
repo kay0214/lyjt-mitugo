@@ -65,6 +65,7 @@ public class YxStoreInfo implements Serializable {
 
     /** 状态：0：上架，1：下架 */
     @NotNull
+    @TableField(value = "`status`")
     private Integer status;
 
 

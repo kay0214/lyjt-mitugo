@@ -7,6 +7,7 @@ import co.yixiang.common.entity.BaseEntity;
 
 import java.util.Date;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -71,6 +72,7 @@ public class YxCouponOrder extends BaseEntity {
     private Integer usedCount;
 
     @ApiModelProperty(value = "订单状态（0:待支付 1:已过期 2:待发放3:支付失败4:待使用5:已使用6:已核销7:退款中8:已退款9:退款驳回")
+    @TableField(value = "`status`")
     private Integer status;
 
     @ApiModelProperty(value = "0 未退款 1 申请中 2 已退款")

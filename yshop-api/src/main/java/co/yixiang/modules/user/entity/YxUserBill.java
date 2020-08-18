@@ -3,6 +3,7 @@ package co.yixiang.modules.user.entity;
 import java.math.BigDecimal;
 import com.baomidou.mybatisplus.annotation.IdType;
 import co.yixiang.common.entity.BaseEntity;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -61,6 +62,7 @@ private String mark;
 private Integer addTime;
 
 @ApiModelProperty(value = "0 = 带确定 1 = 有效 -1 = 无效")
+@TableField(value = "`status`")
 private Integer status;
 
 @ApiModelProperty(value = "订单商品所属商户id")

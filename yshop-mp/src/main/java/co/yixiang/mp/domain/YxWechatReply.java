@@ -41,6 +41,7 @@ public class YxWechatReply implements Serializable {
 
 
     /** 0=不可用  1 =可用 */
+    @TableField(value = "`status`")
     private Integer status;
 
 

@@ -2,6 +2,7 @@ package co.yixiang.modules.user.entity;
 
 import co.yixiang.common.entity.BaseEntity;
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -61,6 +62,7 @@ public class YxUserExtract extends BaseEntity {
     private Integer addTime;
 
     @ApiModelProperty(value = "-1 未通过 0 审核中 1 已提现")
+    @TableField(value = "`status`")
     private Integer status;
 
     @ApiModelProperty(value = "微信号")
