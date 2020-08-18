@@ -5,17 +5,17 @@ import cn.hutool.core.date.DateTime;
 import co.yixiang.logging.aop.log.Log;
 import co.yixiang.modules.coupon.domain.CouponsCategoryAddRequest;
 import co.yixiang.modules.coupon.domain.CouponsCategoryModifyRequest;
+import co.yixiang.modules.coupon.domain.CouponsCategoryRequest;
 import co.yixiang.modules.coupon.domain.YxCouponsCategory;
 import co.yixiang.modules.coupon.service.YxCouponsCategoryService;
-import co.yixiang.modules.coupon.service.dto.YxCouponsCategoryQueryCriteria;
 import co.yixiang.modules.shop.domain.YxImageInfo;
 import co.yixiang.modules.shop.service.YxImageInfoService;
 import co.yixiang.utils.SecurityUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.AllArgsConstructor;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -42,8 +42,9 @@ public class CouponsCategoryController {
     @Log("查询卡券分类表")
     @ApiOperation("查询卡券分类表")
     @PreAuthorize("@el.check('admin','yxCouponsCategory:list')")
-    public ResponseEntity<Object> getYxCouponsCategorys(YxCouponsCategoryQueryCriteria criteria, Pageable pageable){
-        return new ResponseEntity<>(yxCouponsCategoryService.queryAll(criteria,pageable),HttpStatus.OK);
+    public ResponseEntity<Object> getYxCouponsCategorys(CouponsCategoryRequest request){
+        IPage<YxCouponsCategory> allList = yxCouponsCategoryService.getAllList(request);
+        return new ResponseEntity<>(allList, HttpStatus.OK);
     }
 
     @PostMapping("/add")
