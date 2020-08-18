@@ -16,8 +16,8 @@ import java.util.List;
 import java.util.Set;
 
 /**
-* @author hupeng
-* @date 2020-05-14
+* @author liusy
+* @date 2020-08-18
 */
 @Data
 public class UserQueryCriteria{

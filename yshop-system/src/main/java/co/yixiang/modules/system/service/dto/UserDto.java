@@ -11,19 +11,19 @@ package co.yixiang.modules.system.service.dto;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-
+import java.sql.Timestamp;
 import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.Set;
 
 /**
-* @author hupeng
-* @date 2020-05-14
+* @author liusy
+* @date 2020-08-18
 */
 @Data
 public class UserDto implements Serializable {
 
-
+    /** ID */
     @ApiModelProperty(hidden = true)
     private Long id;
 
@@ -31,16 +31,21 @@ public class UserDto implements Serializable {
 
     private String nickName;
 
+    /** 头像 */
+    private Long avatarId;
+
     private String sex;
 
     private String avatar;
 
+    /** 邮箱 */
     private String email;
 
     private String phone;
 
     private Boolean enabled;
 
+    /** 密码 */
     @JsonIgnore
     private String password;
 
@@ -52,9 +57,57 @@ public class UserDto implements Serializable {
     @ApiModelProperty(hidden = true)
     private JobSmallDto job;
 
-    private DeptSmallDto dept;
+
+    /** 部门名称 */
 
     private Long deptId;
 
+    /** 岗位名称 */
+
+    private Long jobId;
+
+
+    /** 创建日期 */
+
     private Timestamp createTime;
+
+    /** 用户角色：0->平台运营,1->合伙人,2->商户 */
+
+    private Integer userRole;
+
+
+    /** 商户联系人 */
+
+    private String merchantsContact;
+
+
+    /** 联系电话 */
+
+    private String contactPhone;
+
+
+    /** 商户状态：0->启用,1->禁用 */
+
+    private Integer merchantsStatus;
+
+
+    /** 总积分 */
+
+    private Integer totalScore;
+
+
+    /** 推荐用二维码地址 */
+
+    private String qrCodeUrl;
+
+
+    /** 上级id */
+
+    private Integer parentId;
+
+
+    /** 商户是否认证通过 0:未认证 1：已认证 */
+
+    private Integer examineStatus;
+
 }

@@ -7,24 +7,19 @@
 * 一经发现盗用、分享等行为，将追究法律责任，后果自负
 */
 package co.yixiang.modules.system.domain;
-
+import lombok.Data;
+import com.baomidou.mybatisplus.annotation.*;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.bean.copier.CopyOptions;
-import com.baomidou.mybatisplus.annotation.FieldFill;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
-import lombok.Data;
-
-import javax.validation.constraints.NotBlank;
-import java.io.Serializable;
+import javax.validation.constraints.*;
 import java.sql.Timestamp;
+import java.io.Serializable;
 import java.util.Objects;
 import java.util.Set;
 
 /**
-* @author hupeng
-* @date 2020-05-14
+* @author liusy
+* @date 2020-08-18
 */
 @Data
 @TableName("user")
@@ -102,6 +97,25 @@ public class User implements Serializable {
 
     public @interface Update {}
 
+    /** 用户角色：0->平台运营,1->合伙人,2->商户 */
+    @NotNull
+    private Integer userRole;
+
+
+    /** 商户联系人 */
+    @NotBlank
+    private String merchantsContact;
+
+
+    /** 联系电话 */
+    @NotBlank
+    private String contactPhone;
+
+
+    /** 商户状态：0->启用,1->禁用 */
+    @NotNull
+    private Integer merchantsStatus;
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -114,6 +128,22 @@ public class User implements Serializable {
         return Objects.equals(id, user.id) &&
                 Objects.equals(username, user.username);
     }
+
+    /** 总积分 */
+    private Integer totalScore;
+
+
+    /** 推荐用二维码地址 */
+    private String qrCodeUrl;
+
+
+    /** 上级id */
+    private Integer parentId;
+
+
+    /** 商户是否认证通过 0:未认证 1：已认证 */
+    private Integer examineStatus;
+
 
     @Override
     public int hashCode() {
