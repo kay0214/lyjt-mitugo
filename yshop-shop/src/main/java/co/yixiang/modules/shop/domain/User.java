@@ -79,6 +79,13 @@ public class User implements Serializable {
     @NotNull
     private Integer userRole;
 
+    /** 上级id */
+    private Integer parentId;
+
+
+    /** 商户是否认证通过 0:未认证 1：已认证 */
+    private Integer examineStatus;
+
 
     /** 商户联系人 */
     @NotBlank
