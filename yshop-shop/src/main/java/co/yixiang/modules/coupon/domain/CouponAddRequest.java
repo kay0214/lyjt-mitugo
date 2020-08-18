@@ -1,51 +1,32 @@
-/**
-* Copyright (C) 2018-2020
-* All rights reserved, Designed By www.yixiang.co
-* 注意：
-* 本软件为www.yixiang.co开发研制，未经购买不得使用
-* 购买后可获得全部源代码（禁止转卖、分享、上传到码云、github等开源平台）
-* 一经发现盗用、分享等行为，将追究法律责任，后果自负
-*/
 package co.yixiang.modules.coupon.domain;
+
 import lombok.Data;
-import com.baomidou.mybatisplus.annotation.*;
-import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.core.bean.copier.CopyOptions;
-import javax.validation.constraints.*;
-import java.sql.Timestamp;
-import java.math.BigDecimal;
+
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
+import java.math.BigDecimal;
+import java.sql.Timestamp;
 
 /**
-* @author huiy
-* @date 2020-08-14
-*/
+ * 卡券添加实体
+ * @Author : huanghui
+ */
 @Data
-@TableName("yx_coupons")
-public class YxCoupons implements Serializable {
-
-    /** 卡券主键 */
-    @TableId(type = IdType.AUTO)
-    private Integer id;
-
-
-    /** 卡券编号 */
-    @NotBlank
-    private String couponNum;
-
+public class CouponAddRequest implements Serializable {
 
     /** 卡券名称 */
-    @NotBlank
+    @NotBlank(message = "卡券名称不可为空")
     private String couponName;
 
 
     /** 卡券类型;1:代金券, 2:折扣券, 3:满减券 */
-    @NotNull
+    @NotNull(message = "卡券类型不可为空")
     private Integer couponType;
 
 
     /** 卡券所属分类 */
-    @NotNull
+    @NotNull(message = "请选择卡券类别")
     private Integer couponCategory;
 
 
@@ -66,32 +47,31 @@ public class YxCoupons implements Serializable {
 
 
     /** 销售价格 */
-    @NotNull
+    @NotNull(message = "销售价格不可为空")
     private BigDecimal sellingPrice;
 
 
     /** 原价 */
-    @NotNull
+    @NotNull(message = "原价不可为空")
     private BigDecimal originalPrice;
 
 
     /** 平台结算价 */
-    @NotNull
+    @NotNull(message = "平台结算价不可为空")
     private BigDecimal settlementPrice;
 
 
     /** 佣金 */
-    @NotNull
     private BigDecimal commission;
 
 
     /** 每人限购数量 */
-    @NotNull
+    @NotNull(message = "请输入每人限购数量")
     private Integer quantityLimit;
 
 
     /** 库存 */
-    @NotNull
+    @NotNull(message = "请输入库存数量")
     private Integer inventory;
 
 
@@ -104,21 +84,22 @@ public class YxCoupons implements Serializable {
 
 
     /** 核销次数 */
-    @NotNull
+    @NotNull(message = "请输入卡券核销次数")
     private Integer writeOff;
 
 
     /** 有效期始 */
-    @NotNull
+    @NotNull(message = "请输入有效期起期")
     private Timestamp expireDateStart;
 
 
     /** 有效期止 */
-    @NotNull
+    @NotNull(message = "请输入有效期止期")
     private Timestamp expireDateEnd;
 
 
     /** 热门优惠; 1:是, 0否 */
+    @NotNull(message = "请选择是否热门优惠")
     private Integer isHot;
 
 
@@ -139,53 +120,21 @@ public class YxCoupons implements Serializable {
 
 
     /** 使用条件 描述 */
-    @NotBlank
+    @NotBlank(message = "使用条件不可为空")
     private String useCondition;
 
 
     /** 可用时间始 */
-    @NotBlank
+    @NotBlank(message = "可用时间起期不可为空")
     private String availableTimeStart;
 
 
     /** 可用时间止 */
-    @NotBlank
+    @NotBlank(message = "可用时间止期不可为空")
     private String availableTimeEnd;
 
-
-    /** 是否删除（0：未删除，1：已删除） */
-    @NotNull
-    @TableLogic
-    @TableField(fill=FieldFill.INSERT_UPDATE)
-    private Integer delFlag;
-
-
-    /** 创建人 根据创建人关联店铺 */
-    private Integer createUserId;
-
-
-    /** 修改人 */
-    private Integer updateUserId;
-
-
-    /** 创建时间 */
-    @NotNull
-    @TableField(fill= FieldFill.INSERT)
-    private Timestamp createTime;
-
-
-    /** 更新时间 */
-    @NotNull
-    @TableField(fill= FieldFill.INSERT_UPDATE)
-    private Timestamp updateTime;
-
-
     /** 卡券详情 */
-    @NotBlank
+    @NotBlank(message = "请输入卡券详情")
     private String content;
 
-
-    public void copy(YxCoupons source){
-        BeanUtil.copyProperties(source,this, CopyOptions.create().setIgnoreNullValue(true));
-    }
 }
