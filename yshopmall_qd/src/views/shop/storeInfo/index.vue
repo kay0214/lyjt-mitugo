@@ -109,7 +109,12 @@
   import {onsale} from '@/api/yxStoreInfo'
 
   // crud交由presenter持有
-  const defaultCrud = CRUD({ title: '店铺表', url: 'api/yxStoreInfo', sort: 'id,desc', crudMethod: { ...crudYxStoreInfo }})
+  const defaultCrud = CRUD({ title: '店铺表', url: 'api/yxStoreInfo', sort: 'id,desc',optShow: {
+      add: false,
+      edit: false,
+      del: false,
+      download: false
+    }, crudMethod: { ...crudYxStoreInfo }})
   const defaultForm = { id: null, storeNid: null, storeName: null, manageUserName: null, merId: null, partnerId: null, manageMobile: null, storeMobile: null, status: null, perCapita: null, industryCategory: null, storeProvince: null, storeAddress: null, delFlag: null, createUserId: null, updateUserId: null, createTime: null, updateTime: null, introduction: null, coordinateX: null, coordinateY: null }
   export default {
     name: 'YxStoreInfo',
