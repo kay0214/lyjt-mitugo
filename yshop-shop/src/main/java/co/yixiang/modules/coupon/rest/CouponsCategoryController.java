@@ -98,7 +98,7 @@ public class CouponsCategoryController {
                 for (YxImageInfo imageInfo : imageInfoList){
                     YxImageInfo delImageInfo = new YxImageInfo();
                     delImageInfo.setId(imageInfo.getId());
-                    delImageInfo.setDelFlag(true);
+                    delImageInfo.setDelFlag(1);
                     delImageInfo.setUpdateUserId(loginUserId);
                     delImageInfo.setUpdateTime(DateTime.now().toTimestamp());
                     yxImageInfoService.updateById(delImageInfo);
@@ -112,7 +112,7 @@ public class CouponsCategoryController {
             imageInfo.setImgType(5);
             imageInfo.setImgCategory(1);
             imageInfo.setImgUrl(categoryAddRequest.getPath());
-            imageInfo.setDelFlag(false);
+            imageInfo.setDelFlag(0);
             imageInfo.setCreateUserId(loginUserId);
             imageInfo.setUpdateUserId(loginUserId);
             imageInfo.setCreateTime(DateTime.now().toTimestamp());
@@ -165,7 +165,7 @@ public class CouponsCategoryController {
                 for (YxImageInfo imageInfo : imageInfoList){
                     YxImageInfo delImageInfo = new YxImageInfo();
                     delImageInfo.setId(imageInfo.getId());
-                    delImageInfo.setDelFlag(true);
+                    delImageInfo.setDelFlag(1);
                     delImageInfo.setUpdateUserId(loginUserId);
                     delImageInfo.setUpdateTime(DateTime.now().toTimestamp());
                     yxImageInfoService.updateById(delImageInfo);
@@ -179,7 +179,7 @@ public class CouponsCategoryController {
             imageInfo.setImgType(5);
             imageInfo.setImgCategory(1);
             imageInfo.setImgUrl(request.getPath());
-            imageInfo.setDelFlag(false);
+            imageInfo.setDelFlag(0);
             imageInfo.setCreateUserId(loginUserId);
             imageInfo.setUpdateUserId(loginUserId);
             imageInfo.setCreateTime(DateTime.now().toTimestamp());
