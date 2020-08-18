@@ -16,8 +16,6 @@ import co.yixiang.modules.shop.domain.*;
 import co.yixiang.modules.shop.service.YxStoreInfoService;
 import co.yixiang.modules.shop.service.dto.YxStoreInfoDto;
 import co.yixiang.modules.shop.service.dto.YxStoreInfoQueryCriteria;
-import co.yixiang.modules.shop.service.mapper.YxImageInfoMapper;
-import co.yixiang.modules.shop.service.mapper.YxStoreAttributeMapper;
 import co.yixiang.modules.shop.service.mapper.YxStoreInfoMapper;
 import co.yixiang.utils.BeanUtils;
 import co.yixiang.utils.FileUtil;
@@ -58,10 +56,6 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
     @Autowired
     private YxStoreInfoMapper yxStoreInfoMapper;
     @Autowired
-    private YxImageInfoMapper yxImageInfoMapper;
-    @Autowired
-    private YxStoreAttributeMapper yxStoreAttributeMapper;
-    @Autowired
     private YxImageInfoServiceImpl yxImageInfoService;
     @Autowired
     private YxStoreAttributeServiceImpl yxStoreAttributeService;
@@ -98,7 +92,7 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
         //
         yxStoreInfo.setUpdateUserId(SecurityUtils.getUserId().intValue());
         boolean isUpd = this.updateById(yxStoreInfo);
-        List<YxImageInfo> imageInfoList = yxImageInfoService.list(new QueryWrapper<YxImageInfo>().eq("type_id",yxStoreInfo.getId()).eq("img_type",ShopConstants.IMG_TYPE_STORE).eq("del_flag",false));
+        List<YxImageInfo> imageInfoList = yxImageInfoService.list(new QueryWrapper<YxImageInfo>().eq("type_id",yxStoreInfo.getId()).eq("img_type",ShopConstants.IMG_TYPE_STORE));
 
         if(CollectionUtils.isNotEmpty(imageInfoList)){
             yxImageInfoService.remove(new QueryWrapper<YxImageInfo>().eq("type_id",yxStoreInfo.getId()).eq("img_type",ShopConstants.IMG_TYPE_STORE));
@@ -111,7 +105,7 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
         yxImageInfo.setImgType(ShopConstants.IMG_TYPE_STORE);
         yxImageInfo.setImgCategory(ShopConstants.IMG_CATEGORY_PIC);
         yxImageInfo.setImgUrl(request.getImageArr());
-        yxImageInfo.setDelFlag(false);
+        yxImageInfo.setDelFlag(0);
         yxImageInfoList.add(yxImageInfo);
         if(StringUtils.isNotBlank(request.getSliderImageArr())){
             String [] images = request.getSliderImageArr().split(",");
@@ -122,7 +116,6 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
                     yxImageInfos.setImgType(ShopConstants.IMG_TYPE_STORE);
                     yxImageInfos.setImgCategory(ShopConstants.IMG_CATEGORY_ROTATION1);
                     yxImageInfos.setImgUrl(images[i]);
-                    yxImageInfos.setDelFlag(false);
                     yxImageInfos.setUpdateUserId(SecurityUtils.getUserId().intValue());
                     yxImageInfos.setCreateUserId(SecurityUtils.getUserId().intValue());
                     yxImageInfoList.add(yxImageInfos);
@@ -134,7 +127,7 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
 
         //保存属性信息
         //店铺服务
-        List<YxStoreAttribute> serviceAttribute = yxStoreAttributeService.list(new QueryWrapper<YxStoreAttribute>().eq("store_id",yxStoreInfo.getId()).eq("attribute_type",1).eq("del_flag",false));
+        List<YxStoreAttribute> serviceAttribute = yxStoreAttributeService.list(new QueryWrapper<YxStoreAttribute>().eq("store_id",yxStoreInfo.getId()).eq("attribute_type",1));
         if(CollectionUtils.isNotEmpty(serviceAttribute)){
             yxStoreAttributeService.remove(new QueryWrapper<YxStoreAttribute>().eq("store_id",yxStoreInfo.getId()).eq("attribute_type",1));
         }
@@ -303,5 +296,10 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
             }
         }
         return mapList;
+    }
+
+    @Override
+    public void updateDelFlg(Integer id){
+        yxStoreInfoMapper.updateDelFlg(id);
     }
 }

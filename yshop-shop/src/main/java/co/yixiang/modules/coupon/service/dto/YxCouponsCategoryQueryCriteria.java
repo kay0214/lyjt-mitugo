@@ -8,6 +8,7 @@
 */
 package co.yixiang.modules.coupon.service.dto;
 
+import com.sun.deploy.panel.AndOrRadioPropertyGroup;
 import lombok.Data;
 import java.util.List;
 import co.yixiang.annotation.Query;
@@ -18,4 +19,13 @@ import co.yixiang.annotation.Query;
 */
 @Data
 public class YxCouponsCategoryQueryCriteria{
+
+    /** 分类名模糊查询 */
+    @Query(type = Query.Type.INNER_LIKE)
+    private String cateName;
+
+    @Query(blurry = "order asc")
+    private Integer sort;
+
+
 }

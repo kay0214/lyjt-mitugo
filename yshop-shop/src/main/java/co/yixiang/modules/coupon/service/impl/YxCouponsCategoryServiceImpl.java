@@ -49,10 +49,21 @@ public class YxCouponsCategoryServiceImpl extends BaseServiceImpl<YxCouponsCateg
 
     private final IGenerator generator;
 
+    /**
+     * 写入 ()
+     * @param yxCouponsCategory
+     * @return
+     */
+    @Override
+    public int insCouponCate(YxCouponsCategory yxCouponsCategory) {
+        return baseMapper.insert(yxCouponsCategory);
+    }
+
     @Override
     //@Cacheable
     public Map<String, Object> queryAll(YxCouponsCategoryQueryCriteria criteria, Pageable pageable) {
         getPage(pageable);
+
         PageInfo<YxCouponsCategory> page = new PageInfo<>(queryAll(criteria));
         Map<String, Object> map = new LinkedHashMap<>(2);
         map.put("content", generator.convert(page.getList(), YxCouponsCategoryDto.class));

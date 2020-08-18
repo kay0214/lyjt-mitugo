@@ -7,35 +7,14 @@
       <!--表单组件-->
       <el-dialog :close-on-click-modal="false" :before-close="crud.cancelCU" :visible.sync="crud.status.cu > 0" :title="crud.status.title" width="500px">
         <el-form ref="form" :model="form" :rules="rules" size="small" label-width="80px">
-          <el-form-item label="券分类主键">
-            <el-input v-model="form.id" style="width: 370px;" />
-          </el-form-item>
-          <el-form-item label="父id" prop="pid">
-            <el-input v-model="form.pid" style="width: 370px;" />
-          </el-form-item>
           <el-form-item label="分类名称" prop="cateName">
             <el-input v-model="form.cateName" style="width: 370px;" />
           </el-form-item>
-          <el-form-item label="排序" prop="sort">
-            <el-input v-model="form.sort" style="width: 370px;" />
-          </el-form-item>
-          <el-form-item label="是否推荐. 0:不推荐, 1:推荐" prop="isShow">
+          <el-form-item label="是否推荐" prop="isShow">
             <el-input v-model="form.isShow" style="width: 370px;" />
           </el-form-item>
-          <el-form-item label="是否删除（0：未删除，1：已删除）" prop="delFlag">
-            <el-input v-model="form.delFlag" style="width: 370px;" />
-          </el-form-item>
-          <el-form-item label="创建人">
-            <el-input v-model="form.createUserId" style="width: 370px;" />
-          </el-form-item>
-          <el-form-item label="修改人">
-            <el-input v-model="form.updateUserId" style="width: 370px;" />
-          </el-form-item>
-          <el-form-item label="创建时间" prop="createTime">
-            <el-input v-model="form.createTime" style="width: 370px;" />
-          </el-form-item>
-          <el-form-item label="更新时间" prop="updateTime">
-            <el-input v-model="form.updateTime" style="width: 370px;" />
+          <el-form-item label="排序" prop="sort">
+            <el-input v-model="form.sort" style="width: 370px;" />
           </el-form-item>
         </el-form>
         <div slot="footer" class="dialog-footer">
@@ -46,24 +25,9 @@
       <!--表格渲染-->
       <el-table ref="table" v-loading="crud.loading" :data="crud.data" size="small" style="width: 100%;" @selection-change="crud.selectionChangeHandler">
         <el-table-column type="selection" width="55" />
-        <el-table-column v-if="columns.visible('id')" prop="id" label="券分类主键" />
-        <el-table-column v-if="columns.visible('pid')" prop="pid" label="父id" />
         <el-table-column v-if="columns.visible('cateName')" prop="cateName" label="分类名称" />
+        <el-table-column v-if="columns.visible('isShow')" prop="isShow" label="是否推荐" />
         <el-table-column v-if="columns.visible('sort')" prop="sort" label="排序" />
-        <el-table-column v-if="columns.visible('isShow')" prop="isShow" label="是否推荐. 0:不推荐, 1:推荐" />
-        <el-table-column v-if="columns.visible('delFlag')" prop="delFlag" label="是否删除（0：未删除，1：已删除）" />
-        <el-table-column v-if="columns.visible('createUserId')" prop="createUserId" label="创建人" />
-        <el-table-column v-if="columns.visible('updateUserId')" prop="updateUserId" label="修改人" />
-        <el-table-column v-if="columns.visible('createTime')" prop="createTime" label="创建时间">
-          <template slot-scope="scope">
-            <span>{{ parseTime(scope.row.createTime) }}</span>
-          </template>
-        </el-table-column>
-        <el-table-column v-if="columns.visible('updateTime')" prop="updateTime" label="更新时间">
-          <template slot-scope="scope">
-            <span>{{ parseTime(scope.row.updateTime) }}</span>
-          </template>
-        </el-table-column>
         <el-table-column v-permission="['admin','yxCouponsCategory:edit','yxCouponsCategory:del']" label="操作" width="150px" align="center">
           <template slot-scope="scope">
             <udOperation
@@ -97,16 +61,13 @@ export default {
   mixins: [presenter(defaultCrud), header(), form(defaultForm), crud()],
   data() {
     return {
-      
+
       permission: {
         add: ['admin', 'yxCouponsCategory:add'],
         edit: ['admin', 'yxCouponsCategory:edit'],
         del: ['admin', 'yxCouponsCategory:del']
       },
       rules: {
-        pid: [
-          { required: true, message: '父id不能为空', trigger: 'blur' }
-        ],
         cateName: [
           { required: true, message: '分类名称不能为空', trigger: 'blur' }
         ],
@@ -115,17 +76,9 @@ export default {
         ],
         isShow: [
           { required: true, message: '是否推荐. 0:不推荐, 1:推荐不能为空', trigger: 'blur' }
-        ],
-        delFlag: [
-          { required: true, message: '是否删除（0：未删除，1：已删除）不能为空', trigger: 'blur' }
-        ],
-        createTime: [
-          { required: true, message: '创建时间不能为空', trigger: 'blur' }
-        ],
-        updateTime: [
-          { required: true, message: '更新时间不能为空', trigger: 'blur' }
         ]
-      }    }
+      }
+    }
   },
   watch: {
   },
