@@ -22,6 +22,8 @@ public @interface Query {
     String propName() default "";
     // Dong ZhaoYang 2017/8/7 查询方式
     Type type() default Type.EQUAL;
+    // zhangyunkai   排序方式
+    Order order() default Order.DESC;
 
     /**
      * 多字段模糊搜索，仅支持String类型字段，多个用逗号隔开, 如@Query(blurry = "email,username")
@@ -43,6 +45,7 @@ public @interface Query {
         , RIGHT_LIKE
         // Dong ZhaoYang 2017/8/7 小于
         , LESS_THAN_NQ
+
         // jie 2019/6/4 包含
         , IN
         // 不等于
@@ -53,6 +56,13 @@ public @interface Query {
         ,NOT_NULL
         // 查询时间
         ,UNIX_TIMESTAMP
+    }
+
+    enum Order {
+         // 倒叙
+         DESC
+        // 升序
+        ,ASC
     }
 
 }

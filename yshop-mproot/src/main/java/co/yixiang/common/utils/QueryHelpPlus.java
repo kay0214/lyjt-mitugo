@@ -113,6 +113,17 @@ public class QueryHelpPlus {
                         default:
                             break;
                     }
+                    switch (q.order()) {
+                        case DESC:
+                            queryWrapper.orderByDesc(finalAttributeName);
+                            break;
+
+                        case ASC:
+                            queryWrapper.orderByAsc(finalAttributeName);
+                            break;
+                        default:
+                            break;
+                    }
                 }
                 field.setAccessible(accessible);
             }
