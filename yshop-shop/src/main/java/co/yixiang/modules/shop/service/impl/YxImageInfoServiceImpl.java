@@ -91,15 +91,15 @@ public class YxImageInfoServiceImpl extends BaseServiceImpl<YxImageInfoMapper, Y
     /**
      * 查询图片
      *
-     * @param storeId
+     * @param typeId
      * @param imgType
      * @param cateTypeId
      * @return
      */
     @Override
-    public String selectImgByParam(int storeId, Integer imgType, Integer cateTypeId) {
+    public String selectImgByParam(int typeId, Integer imgType, Integer cateTypeId) {
         YxImageInfo imageInfoParam = new YxImageInfo();
-        imageInfoParam.setTypeId(storeId);
+        imageInfoParam.setTypeId(typeId);
         imageInfoParam.setImgType(imgType);
         imageInfoParam.setImgCategory(cateTypeId);
         String strImg = "";

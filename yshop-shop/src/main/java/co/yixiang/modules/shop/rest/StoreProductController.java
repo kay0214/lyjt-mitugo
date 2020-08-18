@@ -9,13 +9,14 @@ import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import co.yixiang.constant.ShopConstants;
 import co.yixiang.logging.aop.log.Log;
-import co.yixiang.modules.shop.domain.YxImageInfo;
 import co.yixiang.modules.shop.domain.YxStoreInfo;
 import co.yixiang.modules.shop.domain.YxStoreProduct;
+import co.yixiang.modules.shop.domain.YxStoreProductChange;
 import co.yixiang.modules.shop.service.YxStoreInfoService;
 import co.yixiang.modules.shop.service.YxStoreProductService;
 import co.yixiang.modules.shop.service.dto.YxStoreProductQueryCriteria;
 import co.yixiang.utils.OrderUtil;
+import co.yixiang.utils.SecurityUtils;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -28,17 +29,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
-import java.sql.Wrapper;
 
 /**
 * @author hupeng
@@ -74,7 +67,8 @@ public class StoreProductController {
     public ResponseEntity create(@Validated @RequestBody YxStoreProduct resources){
         //if(StrUtil.isNotEmpty("22")) throw new BadRequestException("演示环境禁止操作");
         //
-        YxStoreInfo store = yxStoreInfoService.getOne(new QueryWrapper<YxStoreInfo>().eq("mer_id", 1));
+        int sysUserId = SecurityUtils.getUserId().intValue();
+        YxStoreInfo store = yxStoreInfoService.getOne(new QueryWrapper<YxStoreInfo>().eq("mer_id", sysUserId));
         resources.setStoreId(store.getId());
         resources.setAddTime(OrderUtil.getSecondTimestampTwo());
         resources.setMerId(store.getMerId());
@@ -159,13 +153,10 @@ public class StoreProductController {
     }
 
     @ApiOperation(value = "商品促销修改")
-    @CacheEvict(cacheNames = ShopConstants.YSHOP_REDIS_INDEX_KEY,allEntries = true)
-    @PostMapping(value = "/yxStoreProduct/changeStatus/{id}")
-    public ResponseEntity onBenefit(@PathVariable Integer id,@RequestBody String jsonStr){
-        JSONObject jsonObject = JSON.parseObject(jsonStr);
-        int changeStatus = Integer.valueOf(jsonObject.get("changeStatus").toString());
-        String changeType = jsonObject.get("changeType").toString();
-        yxStoreProductService.changeStatus(id,changeStatus,changeType);
+    //@CacheEvict(cacheNames = ShopConstants.YSHOP_REDIS_INDEX_KEY,allEntries = true)
+    @PostMapping(value = "/yxStoreProduct/changeStatus")
+    public ResponseEntity onBenefit(@RequestBody YxStoreProductChange request){
+        yxStoreProductService.changeStatus(request);
         return new ResponseEntity(HttpStatus.OK);
     }
 
