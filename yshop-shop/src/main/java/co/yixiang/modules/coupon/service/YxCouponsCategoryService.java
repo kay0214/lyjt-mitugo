@@ -23,6 +23,13 @@ import javax.servlet.http.HttpServletResponse;
 */
 public interface YxCouponsCategoryService  extends BaseService<YxCouponsCategory>{
 
+    /**
+     * 写入
+     * @param yxCouponsCategory
+     * @return
+     */
+    int insCouponCate(YxCouponsCategory yxCouponsCategory);
+
 /**
     * 查询数据分页
     * @param criteria 条件
