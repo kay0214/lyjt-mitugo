@@ -21,6 +21,10 @@ public class YxStoreInfoQueryCriteria{
     /** 店铺名称 */
     @Query(type = Query.Type.INNER_LIKE)
     private String storeName;
-
+    @Query
     private Integer delFlag;
+
+    @Query
+    private Integer merId;
+
 }

@@ -16,6 +16,8 @@ import co.yixiang.modules.shop.domain.*;
 import co.yixiang.modules.shop.service.YxStoreInfoService;
 import co.yixiang.modules.shop.service.dto.YxStoreInfoDto;
 import co.yixiang.modules.shop.service.dto.YxStoreInfoQueryCriteria;
+import co.yixiang.modules.shop.service.mapper.YxImageInfoMapper;
+import co.yixiang.modules.shop.service.mapper.YxStoreAttributeMapper;
 import co.yixiang.modules.shop.service.mapper.YxStoreInfoMapper;
 import co.yixiang.utils.BeanUtils;
 import co.yixiang.utils.FileUtil;
@@ -92,10 +94,10 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
         //
         yxStoreInfo.setUpdateUserId(SecurityUtils.getUserId().intValue());
         boolean isUpd = this.updateById(yxStoreInfo);
-        List<YxImageInfo> imageInfoList = yxImageInfoService.list(new QueryWrapper<YxImageInfo>().eq("type_id",yxStoreInfo.getId()).eq("img_type",ShopConstants.IMG_TYPE_STORE));
+        List<YxImageInfo> imageInfoList = yxImageInfoService.list(new QueryWrapper<YxImageInfo>().eq("type_id",yxStoreInfo.getId()).eq("img_type",ShopConstants.IMG_TYPE_STORE).eq("del_flag",0));
 
         if(CollectionUtils.isNotEmpty(imageInfoList)){
-            yxImageInfoService.remove(new QueryWrapper<YxImageInfo>().eq("type_id",yxStoreInfo.getId()).eq("img_type",ShopConstants.IMG_TYPE_STORE));
+            yxImageInfoService.remove(new QueryWrapper<YxImageInfo>().eq("type_id",yxStoreInfo.getId()).eq("img_type",ShopConstants.IMG_TYPE_STORE).eq("del_flag",0));
         }
         //批量保存图片信息
         List<YxImageInfo> yxImageInfoList = new ArrayList<YxImageInfo>();
@@ -116,6 +118,7 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
                     yxImageInfos.setImgType(ShopConstants.IMG_TYPE_STORE);
                     yxImageInfos.setImgCategory(ShopConstants.IMG_CATEGORY_ROTATION1);
                     yxImageInfos.setImgUrl(images[i]);
+                    yxImageInfos.setDelFlag(0);
                     yxImageInfos.setUpdateUserId(SecurityUtils.getUserId().intValue());
                     yxImageInfos.setCreateUserId(SecurityUtils.getUserId().intValue());
                     yxImageInfoList.add(yxImageInfos);
@@ -127,7 +130,7 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
 
         //保存属性信息
         //店铺服务
-        List<YxStoreAttribute> serviceAttribute = yxStoreAttributeService.list(new QueryWrapper<YxStoreAttribute>().eq("store_id",yxStoreInfo.getId()).eq("attribute_type",1));
+        List<YxStoreAttribute> serviceAttribute = yxStoreAttributeService.list(new QueryWrapper<YxStoreAttribute>().eq("store_id",yxStoreInfo.getId()).eq("attribute_type",1).eq("del_flag",0));
         if(CollectionUtils.isNotEmpty(serviceAttribute)){
             yxStoreAttributeService.remove(new QueryWrapper<YxStoreAttribute>().eq("store_id",yxStoreInfo.getId()).eq("attribute_type",1));
         }
@@ -145,36 +148,18 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
                     yxStoreattribute.setAttributeValue1(service[i]);
                     yxStoreattribute.setUpdateUserId(SecurityUtils.getUserId().intValue());
                     yxStoreattribute.setCreateUserId(SecurityUtils.getUserId().intValue());
+                    yxStoreattribute.setDelFlag(0);
                     storeAttributeList.add(yxStoreattribute);
                 }
             }
         }
-
-        //营业时间
-        /*if(StringUtils.isNotBlank(request.getOpenDays())){
-            //
-            JSONObject jsonObject = JSON.parseObject(request.getOpenDays());
-            List<Map<String,String>> valueList = JSON.parseObject(jsonObject.toString(),List.class);
-            if(CollectionUtils.isNotEmpty(valueList)){
-                for(int i=0;i<valueList.size();i++){
-                    Map<String,String> mapParam = valueList.get(i);
-                    YxStoreAttribute yxStoreattribute = new YxStoreAttribute();
-                    yxStoreattribute.setAttributeType(0);
-                    yxStoreattribute.setStoreId(yxStoreInfo.getId());
-                    yxStoreattribute.setAttributeValue1(mapParam.get("openDay"));
-                    yxStoreattribute.setAttributeValue2(mapParam.get("openTime"));
-                    storeAttributeList.add(yxStoreattribute);
-                }
-            }
-        }*/
-        List<YxStoreAttribute> openAttribute = yxStoreAttributeService.list(new QueryWrapper<YxStoreAttribute>().eq("store_id",yxStoreInfo.getId()).eq("attribute_type",0).eq("del_flag",false));
+        List<YxStoreAttribute> openAttribute = yxStoreAttributeService.list(new QueryWrapper<YxStoreAttribute>().eq("store_id",yxStoreInfo.getId()).eq("attribute_type",0).eq("del_flag",0));
 
         if(CollectionUtils.isNotEmpty(openAttribute)){
-            yxStoreAttributeService.remove(new QueryWrapper<YxStoreAttribute>().eq("store_id",yxStoreInfo.getId()).eq("attribute_type",0));
+            yxStoreAttributeService.remove(new QueryWrapper<YxStoreAttribute>().eq("store_id",yxStoreInfo.getId()).eq("attribute_type",0).eq("del_flag",0));
         }
         if(CollectionUtils.isNotEmpty(request.getOpenDays())){
             //
-//            JSONObject jsonObject = JSON.parseObject(request.getOpenDays());
             List<Map<String,String>> valueList = request.getOpenDays();
             if(CollectionUtils.isNotEmpty(valueList)){
                 for(int i=0;i<valueList.size();i++){
@@ -186,6 +171,7 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
                     yxStoreattribute.setAttributeValue2(mapParam.get("openTime"));
                     yxStoreattribute.setUpdateUserId(SecurityUtils.getUserId().intValue());
                     yxStoreattribute.setCreateUserId(SecurityUtils.getUserId().intValue());
+                    yxStoreattribute.setDelFlag(0);
                     storeAttributeList.add(yxStoreattribute);
                 }
             }
