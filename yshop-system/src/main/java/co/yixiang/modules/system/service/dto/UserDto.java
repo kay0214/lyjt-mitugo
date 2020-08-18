@@ -101,8 +101,8 @@ public class UserDto implements Serializable {
     private String qrCodeUrl;
 
 
+    private DeptSmallDto dept;
     /** 上级id */
-
     private Integer parentId;
 
 

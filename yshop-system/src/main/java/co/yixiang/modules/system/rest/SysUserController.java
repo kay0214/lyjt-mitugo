@@ -35,15 +35,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
@@ -131,6 +123,8 @@ public class SysUserController {
     public ResponseEntity<Object> create(@Validated @RequestBody User resources){
         //if(StrUtil.isNotEmpty("22")) throw new BadRequestException("演示环境禁止操作");
         checkLevel(resources);
+        int uid = SecurityUtils.getUserId().intValue();
+        resources.setParentId(uid);
         // 默认密码 123456
         resources.setPassword(passwordEncoder.encode("123456"));
         return new ResponseEntity<>(userService.create(resources),HttpStatus.CREATED);
