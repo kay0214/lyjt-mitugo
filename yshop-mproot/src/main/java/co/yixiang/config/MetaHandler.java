@@ -54,8 +54,12 @@ public class MetaHandler implements MetaObjectHandler {
                 this.setFieldValByName("updateDate", time, metaObject);
             }
             if (metaObject.hasSetter("delFlag")) {
-                log.debug("自动插入 delFlag");
-                this.setFieldValByName("delFlag", false, metaObject);
+                Class delFlag = metaObject.getSetterType("delFlag");
+                if (!delFlag.equals(Integer.class)){
+                    log.debug("自动插入 delFlag");
+                    this.setFieldValByName("delFlag", false, metaObject);
+                }
+
             }
         } catch (Exception e) {
             log.error("自动注入失败:{}", e);

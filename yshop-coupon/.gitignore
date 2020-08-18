@@ -1,7 +1,0 @@
-*.classpath
-*.project
-*.iml
-*.factorypath
-target
-.idea/
-*.log

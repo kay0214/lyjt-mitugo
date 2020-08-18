@@ -34,6 +34,11 @@
             <artifactId>yshop-shop</artifactId>
             <version>2.2</version>
         </dependency>
+<!--        <dependency>-->
+<!--            <groupId>co.yixiang</groupId>-->
+<!--            <artifactId>yshop-coupon</artifactId>-->
+<!--            <version>2.2</version>-->
+<!--        </dependency>-->
         <dependency>
             <groupId>co.yixiang</groupId>
             <artifactId>yshop-mproot</artifactId>
