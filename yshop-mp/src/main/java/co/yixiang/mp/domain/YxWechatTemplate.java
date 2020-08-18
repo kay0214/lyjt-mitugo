@@ -50,6 +50,7 @@ public class YxWechatTemplate implements Serializable {
 
 
     /** 状态 */
+    @TableField(value = "`status`")
     private Integer status;
 
 

@@ -2,6 +2,7 @@ package co.yixiang.modules.activity.entity;
 
 import co.yixiang.common.entity.BaseEntity;
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -70,6 +71,7 @@ public class YxStorePink extends BaseEntity {
     private Integer isRefund;
 
     @ApiModelProperty(value = "状态1进行中2已完成3未完成")
+    @TableField(value = "`status`")
     private Integer status;
 
 }

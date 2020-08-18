@@ -2,6 +2,7 @@ package co.yixiang.modules.order.entity;
 
 import co.yixiang.common.entity.BaseEntity;
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -89,6 +90,7 @@ public class YxStoreOrder extends BaseEntity {
     private Integer addTime;
 
     @ApiModelProperty(value = "订单状态（-1 : 申请退款 -2 : 退货成功 0：待发货；1：待收货；2：已收货；3：待评价；-1：已退款）")
+    @TableField(value = "`status`")
     private Integer status;
 
     @ApiModelProperty(value = "0 未退款 1 申请中 2 已退款")
@@ -140,6 +142,7 @@ public class YxStoreOrder extends BaseEntity {
     private Integer isDel;
 
     @ApiModelProperty(value = "唯一id(md5加密)类似id")
+    @TableField(value = "`unique`")
     private String unique;
 
     @ApiModelProperty(value = "管理员备注")
@@ -198,4 +201,9 @@ public class YxStoreOrder extends BaseEntity {
 
     @ApiModelProperty(value = "下单时的佣金")
     private BigDecimal commission;
+
+    @ApiModelProperty(value = "分佣状态")
+    private Integer rebateStatus;
+
+
 }

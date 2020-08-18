@@ -3,6 +3,7 @@ package co.yixiang.modules.shop.entity;
 import java.math.BigDecimal;
 import com.baomidou.mybatisplus.annotation.IdType;
 import co.yixiang.common.entity.BaseEntity;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -46,6 +47,7 @@ private BigDecimal price;
 private String image;
 
 @ApiModelProperty(value = "唯一值")
+@TableField(value = "`unique`")
 private String unique;
 
 @ApiModelProperty(value = "成本价")

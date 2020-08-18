@@ -114,6 +114,7 @@ public class YxUser implements Serializable {
 
 
     /** 1为正常，0为禁止 */
+    @TableField(value = "`status`")
     private Integer status;
 
 

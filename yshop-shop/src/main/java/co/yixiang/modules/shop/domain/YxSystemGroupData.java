@@ -7,6 +7,7 @@ package co.yixiang.modules.shop.domain;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.bean.copier.CopyOptions;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
@@ -44,6 +45,7 @@ public class YxSystemGroupData implements Serializable {
 
 
     /** 状态（1：开启；2：关闭；） */
+    @TableField(value = "`status`")
     private Integer status;
 
 

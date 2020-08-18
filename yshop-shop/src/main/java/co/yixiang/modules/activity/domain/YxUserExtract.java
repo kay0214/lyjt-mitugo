@@ -7,6 +7,7 @@ package co.yixiang.modules.activity.domain;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.bean.copier.CopyOptions;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
@@ -71,6 +72,7 @@ public class YxUserExtract implements Serializable {
 
 
     /** -1 未通过 0 审核中 1 已提现 */
+    @TableField(value = "`status`")
     private Integer status;
 
 

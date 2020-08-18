@@ -7,6 +7,7 @@ package co.yixiang.modules.activity.domain;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.bean.copier.CopyOptions;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
@@ -115,6 +116,7 @@ public class YxStoreSeckill implements Serializable {
 
 
     /** 产品状态 */
+    @TableField(value = "`status`")
     private Integer status;
 
 

@@ -72,6 +72,7 @@ public class YxUserBill implements Serializable {
 
 
     /** 0 = 带确定 1 = 有效 -1 = 无效 */
+    @TableField(value = "`status`")
     private Integer status;
 
 

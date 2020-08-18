@@ -110,6 +110,7 @@ public class YxStoreOrder implements Serializable {
 
 
     /** 订单状态（-1 : 申请退款 -2 : 退货成功 0：待发货；1：待收货；2：已收货；3：待评价；-1：已退款） */
+    @TableField(value = "`status`")
     private Integer status;
 
 

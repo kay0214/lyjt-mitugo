@@ -2,6 +2,7 @@ package co.yixiang.modules.shop.entity;
 
 import co.yixiang.common.entity.BaseEntity;
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -57,6 +58,7 @@ public class YxStoreCouponUser extends BaseEntity {
     private String type;
 
     @ApiModelProperty(value = "状态（0：未使用，1：已使用, 2:已过期）")
+    @TableField(value = "`status`")
     private Integer status;
 
     @ApiModelProperty(value = "是否有效")

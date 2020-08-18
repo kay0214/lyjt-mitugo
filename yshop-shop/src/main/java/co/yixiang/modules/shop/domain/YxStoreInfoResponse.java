@@ -5,6 +5,7 @@ package co.yixiang.modules.shop.domain;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.bean.copier.CopyOptions;
+import com.baomidou.mybatisplus.annotation.TableField;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -52,6 +53,7 @@ public class YxStoreInfoResponse implements Serializable {
 
 
     /** 状态：0：上架，1：下架 */
+    @TableField(value = "`status`")
     private Integer status;
 
 

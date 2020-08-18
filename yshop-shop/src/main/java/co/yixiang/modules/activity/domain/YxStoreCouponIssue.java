@@ -7,6 +7,7 @@ package co.yixiang.modules.activity.domain;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.bean.copier.CopyOptions;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
@@ -55,6 +56,7 @@ public class YxStoreCouponIssue implements Serializable {
 
 
     /** 1 正常 0 未开启 -1 已无效 */
+    @TableField(value = "`status`")
     private Integer status;
 
 

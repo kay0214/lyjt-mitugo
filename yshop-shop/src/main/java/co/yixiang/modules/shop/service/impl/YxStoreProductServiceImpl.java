@@ -22,6 +22,7 @@ import co.yixiang.modules.shop.service.dto.YxStoreProductQueryCriteria;
 import co.yixiang.modules.shop.service.mapper.StoreProductMapper;
 import co.yixiang.utils.FileUtil;
 import co.yixiang.utils.OrderUtil;
+import co.yixiang.utils.SecurityUtils;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -70,6 +71,8 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<StoreProductMappe
     private YxStoreProductAttrResultService yxStoreProductAttrResultService;
     @Autowired
     private YxStoreInfoService yxStoreInfoService;
+    @Autowired
+    private UserService userService;
 
     @Override
     //@Cacheable
@@ -79,6 +82,15 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<StoreProductMappe
         Map<String, Object> map = new LinkedHashMap<>(2);
         map.put("content", generator.convert(page.getList(), YxStoreProductDto.class));
         map.put("totalElements", page.getTotal());
+        int sysUserId = SecurityUtils.getUserId().intValue();
+        User userSys = userService.getById(sysUserId);
+        int showFlg =0;
+        if(userSys.getUserRole().equals(1)){
+            //平台用户
+            showFlg = 1;
+        }
+        map.put("showFlg",showFlg);
+
         return map;
     }
 

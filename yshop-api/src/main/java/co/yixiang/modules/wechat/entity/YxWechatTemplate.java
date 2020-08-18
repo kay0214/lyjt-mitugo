@@ -2,6 +2,7 @@ package co.yixiang.modules.wechat.entity;
 
 import co.yixiang.common.entity.BaseEntity;
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -43,6 +44,7 @@ public class YxWechatTemplate extends BaseEntity {
     private String addTime;
 
     @ApiModelProperty(value = "状态")
+    @TableField(value = "`status`")
     private Integer status;
 
 }
