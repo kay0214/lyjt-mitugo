@@ -107,7 +107,7 @@ public class WxMaUserController {
         try {
             WxMaJscode2SessionResult session = wxMaService.getUserService()
                     .getSessionInfo(param.getCode());
-            log.info("小程序绑定手机号SessionKey：{};EncryptedData:{}; Iv:{}",session.getSessionKey(),param.getEncryptedData(), param.getIv());
+            //log.info("小程序绑定手机号SessionKey：{};EncryptedData:{}; Iv:{}",session.getSessionKey(),param.getEncryptedData(), param.getIv());
             // 解密
             WxMaPhoneNumberInfo phoneNoInfo = wxMaService.getUserService()
                     .getPhoneNoInfo(session.getSessionKey(), param.getEncryptedData(), param.getIv());
