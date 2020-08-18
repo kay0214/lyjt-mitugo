@@ -50,7 +50,7 @@ public class YxStoreInfoController {
     @GetMapping(value = "/download")
     @PreAuthorize("@el.check('admin','yxStoreInfo:list')")
     public void download(HttpServletResponse response, YxStoreInfoQueryCriteria criteria) throws IOException {
-        criteria.setDelFlag(false);
+        criteria.setDelFlag(0);
         yxStoreInfoService.download(generator.convert(yxStoreInfoService.queryAll(criteria), YxStoreInfoDto.class), response);
     }
 
@@ -59,7 +59,7 @@ public class YxStoreInfoController {
     @ApiOperation("查询店铺表")
     @PreAuthorize("@el.check('admin','yxStoreInfo:list')")
     public ResponseEntity<Object> getYxStoreInfos(YxStoreInfoQueryCriteria criteria, Pageable pageable) {
-        criteria.setDelFlag(false);
+        criteria.setDelFlag(0);
         return new ResponseEntity<>(yxStoreInfoService.queryAll(criteria, pageable), HttpStatus.OK);
     }
 
@@ -88,7 +88,7 @@ public class YxStoreInfoController {
     @DeleteMapping
     public ResponseEntity<Object> deleteAll(@RequestBody Integer[] ids) {
         Arrays.asList(ids).forEach(id -> {
-            yxStoreInfoService.removeById(id);
+            yxStoreInfoService.updateDelFlg(id);
         });
         return new ResponseEntity<>(HttpStatus.OK);
     }
