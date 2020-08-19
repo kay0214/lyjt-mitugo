@@ -14,7 +14,7 @@ import co.yixiang.annotation.Query;
 
 /**
 * @author liusy
-* @date 2020-08-17
+* @date 2020-08-19
 */
 @Data
 public class YxExamineLogQueryCriteria{

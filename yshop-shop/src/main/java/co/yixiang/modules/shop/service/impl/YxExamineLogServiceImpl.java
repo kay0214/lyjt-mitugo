@@ -39,7 +39,7 @@ import java.util.LinkedHashMap;
 
 /**
 * @author liusy
-* @date 2020-08-17
+* @date 2020-08-19
 */
 @Service
 @AllArgsConstructor
@@ -82,6 +82,8 @@ public class YxExamineLogServiceImpl extends BaseServiceImpl<YxExamineLogMapper,
             map.put("修改人", yxExamineLog.getUpdateUserId());
             map.put("创建时间", yxExamineLog.getCreateTime());
             map.put("更新时间", yxExamineLog.getUpdateTime());
+            map.put("冗余字段：被审核人id", yxExamineLog.getUid());
+            map.put("冗余字段：被审核人信息", yxExamineLog.getUsername());
             list.add(map);
         }
         FileUtil.downloadExcel(list, response);

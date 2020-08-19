@@ -14,7 +14,7 @@ import java.io.Serializable;
 
 /**
 * @author liusy
-* @date 2020-08-17
+* @date 2020-08-19
 */
 @Data
 public class YxExamineLogDto implements Serializable {
@@ -67,5 +67,15 @@ public class YxExamineLogDto implements Serializable {
     /** 更新时间 */
 
     private Timestamp updateTime;
+
+
+    /** 冗余字段：被审核人id */
+
+    private Integer uid;
+
+
+    /** 冗余字段：被审核人信息 */
+
+    private String username;
 
 }
