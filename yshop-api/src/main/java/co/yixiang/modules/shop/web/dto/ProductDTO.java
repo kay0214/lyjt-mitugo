@@ -2,10 +2,7 @@ package co.yixiang.modules.shop.web.dto;
 
 import co.yixiang.common.web.param.QueryParam;
 import co.yixiang.modules.shop.entity.YxStoreProductAttrValue;
-import co.yixiang.modules.shop.web.vo.YxStoreProductAttrQueryVo;
-import co.yixiang.modules.shop.web.vo.YxStoreProductQueryVo;
-import co.yixiang.modules.shop.web.vo.YxStoreProductReplyQueryVo;
-import co.yixiang.modules.shop.web.vo.YxSystemStoreQueryVo;
+import co.yixiang.modules.shop.web.vo.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -55,8 +52,10 @@ public class ProductDTO extends QueryParam {
     private String mapKey;
 
     //门店
-    private YxSystemStoreQueryVo systemStore;
+//    private YxSystemStoreQueryVo systemStore;
 
     private Integer uid = 0;
+
+    private YxStoreInfoQueryVo systemStore;
 
 }

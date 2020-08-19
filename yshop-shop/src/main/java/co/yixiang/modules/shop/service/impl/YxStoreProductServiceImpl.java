@@ -19,6 +19,7 @@ import co.yixiang.modules.shop.service.dto.FromatDetailDto;
 import co.yixiang.modules.shop.service.dto.ProductFormatDto;
 import co.yixiang.modules.shop.service.dto.YxStoreProductDto;
 import co.yixiang.modules.shop.service.dto.YxStoreProductQueryCriteria;
+import co.yixiang.modules.shop.service.mapper.StoreProductAttrMapper;
 import co.yixiang.modules.shop.service.mapper.StoreProductMapper;
 import co.yixiang.utils.FileUtil;
 import co.yixiang.utils.OrderUtil;
@@ -29,7 +30,6 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.github.pagehelper.PageInfo;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -74,6 +74,8 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<StoreProductMappe
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private StoreProductAttrMapper storeProductAttrMapper;
     @Override
     //@Cacheable
     public Map<String, Object> queryAll(YxStoreProductQueryCriteria criteria, Pageable pageable) {
@@ -203,6 +205,7 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<StoreProductMappe
                     productFormatDTO.setPrice(getProductAttrValue.getPrice().doubleValue());
                     productFormatDTO.setSales(getProductAttrValue.getStock());
                     productFormatDTO.setPic(getProductAttrValue.getImage());
+                    productFormatDTO.setCommission(getProductAttrValue.getCommission().doubleValue());
                     productFormatDTO.setCheck(false);
                 }else{
                     sku="";
@@ -212,7 +215,9 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<StoreProductMappe
                 productFormatDTO.setCost(yxStoreProductDTO.getCost().doubleValue());
                 productFormatDTO.setPrice(yxStoreProductDTO.getPrice().doubleValue());
                 productFormatDTO.setPic(yxStoreProductDTO.getImage());
-                productFormatDTO.setSales(yxStoreProductDTO.getStock());
+//                productFormatDTO.setSales(yxStoreProductDTO.getStock());
+                productFormatDTO.setCommission(yxStoreProductDTO.getCommission().doubleValue());
+
                 productFormatDTO.setCheck(false);
             }
             newList.add(productFormatDTO);
@@ -231,8 +236,7 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<StoreProductMappe
         List<ProductFormatDto> valueList = JSON.parseArray(
                 jsonObject.get("attrs").toString(),
                 ProductFormatDto.class);
-
-
+        YxStoreProduct yxStoreProductParam = this.getById(id);
         List<YxStoreProductAttr> attrGroup = new ArrayList<>();
         for (FromatDetailDto fromatDetailDTO : attrList) {
             YxStoreProductAttr  yxStoreProductAttr = new YxStoreProductAttr();
@@ -285,16 +289,20 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<StoreProductMappe
                 .reduce(Integer::sum)
                 .orElse(0);
 
-        YxStoreProduct yxStoreProduct = YxStoreProduct.builder()
+        //
+        YxStoreProduct yxStoreProduct = this.getById(id);
+        if(stock>yxStoreProduct.getStock()){
+            throw new BadRequestException("库存不能大于产品库存数"+yxStoreProduct.getStock()+"！");
+        }
+        /*YxStoreProduct yxStoreProduct = YxStoreProduct.builder()
                 .stock(stock)
                 .price(minPrice)
                 .id(id)
-                .build();
+                .build();*/
         this.updateById(yxStoreProduct);
 
         //插入之前清空
         clearProductAttr(id,false);
-
 
         //保存属性
         yxStoreProductAttrService.saveOrUpdateBatch(attrGroup);
@@ -332,6 +340,10 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<StoreProductMappe
 
     @Override
     public void updateProduct(YxStoreProduct resources) {
+        int sumStock = storeProductAttrMapper.getStocketByProductId(resources.getId());
+        if(resources.getStock()<sumStock){
+            throw new BadRequestException("库存数不能小于规格库存总数！");
+        }
         if(resources.getStoreCategory() == null || resources.getStoreCategory().getId() == null) throw new BadRequestException("请选择分类");
         boolean check = yxStoreCategoryService
                 .checkProductCategory(resources.getStoreCategory().getId());

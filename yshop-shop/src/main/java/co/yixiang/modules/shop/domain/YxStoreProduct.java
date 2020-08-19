@@ -11,6 +11,7 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.*;
+import sun.plugin2.message.Message;
 
 import javax.validation.constraints.*;
 import java.io.Serializable;
@@ -107,7 +108,8 @@ public class YxStoreProduct implements Serializable {
 
     /** 库存 */
     @NotNull(message = "请输入库存")
-//    @Min(message = "库存不能小于0",value = 1)
+    @Min(message = "库存不能小于0",value = 1)
+    @Max(message ="库存不能超过16777215",value = 16777215)
     private Integer stock;
 
 
@@ -198,6 +200,12 @@ public class YxStoreProduct implements Serializable {
     @DecimalMin(value="0.00", message = "平台结算不在合法范围内" )
     @DecimalMax(value="99999999.99", message = "平台结算不在合法范围内")
     private BigDecimal settlement;
+
+    @NotNull(message = "请输入佣金")
+    @DecimalMin(value="0.00", message = "佣金不在合法范围内" )
+    @DecimalMax(value="99999999.99", message = "佣金不在合法范围内")
+    private BigDecimal commission;
+
 
     @TableField(exist = false)
     private YxStoreCategory storeCategory;

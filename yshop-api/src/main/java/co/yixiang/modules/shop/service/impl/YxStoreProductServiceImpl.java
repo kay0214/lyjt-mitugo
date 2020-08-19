@@ -8,6 +8,7 @@ import co.yixiang.enums.ProductEnum;
 import co.yixiang.exception.ErrorRequestException;
 import co.yixiang.modules.shop.entity.YxStoreProduct;
 import co.yixiang.modules.shop.entity.YxStoreProductAttrValue;
+import co.yixiang.modules.shop.mapper.YxStoreInfoMapper;
 import co.yixiang.modules.shop.mapper.YxStoreProductAttrValueMapper;
 import co.yixiang.modules.shop.mapper.YxStoreProductMapper;
 import co.yixiang.modules.shop.mapping.YxStoreProductMap;
@@ -70,6 +71,8 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
 
     @Autowired
     private YxStoreProductMap storeProductMap;
+    @Autowired
+    private YxStoreInfoMapper storeInfoMapper;
 
 
 
@@ -165,7 +168,8 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
         productDTO.setReplyChance(replyService.doReply(id,replyCount));//百分比
 
         //门店
-        productDTO.setSystemStore(systemStoreService.getStoreInfo(latitude,longitude));
+//        productDTO.setSystemStore(systemStoreService.getStoreInfo(latitude,longitude));
+//        productDTO.setSystemStore(storeInfoMapper.getYxStoreInfoById(2));
         productDTO.setMapKey(RedisUtil.get(ShopKeyUtils.getTengXunMapKey()));
 
         return productDTO;

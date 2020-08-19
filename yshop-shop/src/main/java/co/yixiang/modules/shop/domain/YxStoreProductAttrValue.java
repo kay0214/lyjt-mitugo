@@ -12,6 +12,10 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
+import javax.validation.constraints.DecimalMax;
+import javax.validation.constraints.DecimalMin;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.math.BigDecimal;
 
@@ -37,6 +41,8 @@ public class YxStoreProductAttrValue implements Serializable {
 
 
     /** 属性对应的库存 */
+    @NotNull(message = "请输入库存")
+    @Min(message = "库存不能小于0",value = 1)
     private Integer stock;
 
 
@@ -58,8 +64,14 @@ public class YxStoreProductAttrValue implements Serializable {
 
 
     /** 成本价 */
+    @NotNull(message = "请输入商品价格")
+    @DecimalMin(value="0.00", message = "商品价格不在合法范围内" )
+    @DecimalMax(value="99999999.99", message = "商品价格不在合法范围内")
     private BigDecimal cost;
 
+    @NotNull(message = "请输入佣金")
+    @DecimalMin(value="0.00", message = "佣金不在合法范围内" )
+    @DecimalMax(value="99999999.99", message = "佣金不在合法范围内")
     private BigDecimal commission;
 
 
