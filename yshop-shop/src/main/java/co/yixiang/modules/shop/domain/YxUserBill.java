@@ -33,6 +33,8 @@ public class YxUserBill implements Serializable {
     /** 用户uid */
     private Integer uid;
 
+    /** 用户名 */
+    private String username;
 
     /** 关联id */
     private String linkId;

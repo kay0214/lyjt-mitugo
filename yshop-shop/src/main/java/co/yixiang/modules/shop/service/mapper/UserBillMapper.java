@@ -1,8 +1,3 @@
-/**
- * Copyright (C) 2018-2020
- * All rights reserved, Designed By www.yixiang.co
-
- */
 package co.yixiang.modules.shop.service.mapper;
 
 import co.yixiang.common.mapper.CoreMapper;
@@ -25,8 +20,9 @@ public interface UserBillMapper extends CoreMapper<YxUserBill> {
 
     @Select("<script> select b.title,b.pm,b.category,b.type,b.number,b.add_time ,u.nickname " +
             "from yx_user_bill b left join yx_user u on u.uid=b.uid  where 1=1  "  +
-            "<if test =\"category !=''\">and b.category=#{category}</if> " +
-            "<if test =\"type !=''\">and b.type=#{type}</if> " +
-            "<if test =\"nickname !=''\">and u.nickname LIKE CONCAT('%',#{nickname},'%')</if> </script> ")
-    List<YxUserBillDto> findAllByQueryCriteria(@Param("category") String category, @Param("type") String type, @Param("nickname") String nickname);
+            "<if test =\"pm !='' and pm != null\">and b.pm=#{pm}</if> " +
+            "<if test =\"username !='' and username != null\">and b.username LIKE CONCAT('%',#{username},'%')</if>" +
+            "<if test =\"title != '' and title != null\">and b.title LIKE CONCAT('%',#{title},'%')</if> " +
+            "<if test = \"startTime != '' and startTime != null\"> and b.add_time BETWEEN #{startTime} AND #{endTime}</if> </script>")
+    List<YxUserBillDto> findAllByQueryCriteria(@Param("username") String username, @Param("title") String title, @Param("pm") Integer pm, @Param("startTime") Integer startTime, @Param("endTime") Integer endTime);
 }
