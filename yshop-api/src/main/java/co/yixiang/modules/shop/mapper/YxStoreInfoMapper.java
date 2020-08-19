@@ -1,5 +1,6 @@
 package co.yixiang.modules.shop.mapper;
 
+import co.yixiang.common.mybatis.GeoPoint;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
@@ -10,6 +11,7 @@ import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 
 /**
  * <p>
@@ -37,4 +39,12 @@ public interface YxStoreInfoMapper extends BaseMapper<YxStoreInfo> {
      */
     IPage<YxStoreInfoQueryVo> getYxStoreInfoPageList(@Param("page") Page page, @Param("param") YxStoreInfoQueryParam yxStoreInfoQueryParam);
 
+
+    /**
+     * 根据经纬度查询
+     * @param lnt
+     * @param lat
+     * @return
+     */
+    YxStoreInfoQueryVo getYxStoreInfoByPoint(BigDecimal lnt,BigDecimal lat);
 }

@@ -10,67 +10,67 @@
           <el-form-item label="id">
             <el-input v-model="form.id" style="width: 370px;" />
           </el-form-item>
-          <el-form-item label="用户id" prop="uid">
+          <el-form-item label="用户id">
             <el-input v-model="form.uid" style="width: 370px;" />
           </el-form-item>
-          <el-form-item label="审批状态：0->待审核,1->通过,2->驳回" prop="examineStatus">
+          <el-form-item label="审批状态：0->待审核,1->通过,2->驳回">
             <el-input v-model="form.examineStatus" style="width: 370px;" />
           </el-form-item>
-          <el-form-item label="商户地址" prop="address">
+          <el-form-item label="商户地址">
             <el-input v-model="form.address" style="width: 370px;" />
           </el-form-item>
-          <el-form-item label="联系人" prop="contacts">
+          <el-form-item label="联系人">
             <el-input v-model="form.contacts" style="width: 370px;" />
           </el-form-item>
-          <el-form-item label="联系电话" prop="contactMobile">
+          <el-form-item label="联系电话">
             <el-input v-model="form.contactMobile" style="width: 370px;" />
           </el-form-item>
-          <el-form-item label="邮箱" prop="mailbox">
+          <el-form-item label="邮箱">
             <el-input v-model="form.mailbox" style="width: 370px;" />
           </el-form-item>
-          <el-form-item label="认证类型：0->个人,1->企业,2->个体商户" prop="merchantsType">
+          <el-form-item label="认证类型：0->个人,1->企业,2->个体商户">
             <el-input v-model="form.merchantsType" style="width: 370px;" />
           </el-form-item>
-          <el-form-item label="银行账号" prop="bankNo">
+          <el-form-item label="银行账号">
             <el-input v-model="form.bankNo" style="width: 370px;" />
           </el-form-item>
-          <el-form-item label="开户省市" prop="openAccountProvince">
+          <el-form-item label="开户省市">
             <el-input v-model="form.openAccountProvince" style="width: 370px;" />
           </el-form-item>
-          <el-form-item label="银行卡信息：0->对私账号,1->对公账号" prop="bankType">
+          <el-form-item label="银行卡信息：0->对私账号,1->对公账号">
             <el-input v-model="form.bankType" style="width: 370px;" />
           </el-form-item>
-          <el-form-item label="开户名称" prop="openAccountName">
+          <el-form-item label="开户名称">
             <el-input v-model="form.openAccountName" style="width: 370px;" />
           </el-form-item>
-          <el-form-item label="开户行" prop="openAccountBank">
+          <el-form-item label="开户行">
             <el-input v-model="form.openAccountBank" style="width: 370px;" />
           </el-form-item>
-          <el-form-item label="开户支行" prop="openAccountSubbranch">
+          <el-form-item label="开户支行">
             <el-input v-model="form.openAccountSubbranch" style="width: 370px;" />
           </el-form-item>
-          <el-form-item label="企业所在省市区" prop="companyProvince">
+          <el-form-item label="企业所在省市区">
             <el-input v-model="form.companyProvince" style="width: 370px;" />
           </el-form-item>
-          <el-form-item label="企业所在详细地址" prop="companyAddress">
+          <el-form-item label="企业所在详细地址">
             <el-input v-model="form.companyAddress" style="width: 370px;" />
           </el-form-item>
-          <el-form-item label="公司名称" prop="companyName">
+          <el-form-item label="公司名称">
             <el-input v-model="form.companyName" style="width: 370px;" />
           </el-form-item>
-          <el-form-item label="法定代表人" prop="companyLegalPerson">
+          <el-form-item label="法定代表人">
             <el-input v-model="form.companyLegalPerson" style="width: 370px;" />
           </el-form-item>
-          <el-form-item label="公司电话" prop="companyPhone">
+          <el-form-item label="公司电话">
             <el-input v-model="form.companyPhone" style="width: 370px;" />
           </el-form-item>
-          <el-form-item label="经营类目" prop="businessCategory">
+          <el-form-item label="经营类目">
             <el-input v-model="form.businessCategory" style="width: 370px;" />
           </el-form-item>
-          <el-form-item label="主体资质类型" prop="qualificationsType">
+          <el-form-item label="主体资质类型">
             <el-input v-model="form.qualificationsType" style="width: 370px;" />
           </el-form-item>
-          <el-form-item label="是否删除（0：未删除，1：已删除）" prop="delFlag">
+          <el-form-item label="是否删除（0：未删除，1：已删除）">
             <el-input v-model="form.delFlag" style="width: 370px;" />
           </el-form-item>
           <el-form-item label="创建人">
@@ -84,6 +84,9 @@
           </el-form-item>
           <el-form-item label="更新时间">
             <el-input v-model="form.updateTime" style="width: 370px;" />
+          </el-form-item>
+          <el-form-item label="商户名称" prop="merchantsName">
+            <el-input v-model="form.merchantsName" style="width: 370px;" />
           </el-form-item>
         </el-form>
         <div slot="footer" class="dialog-footer">
@@ -132,6 +135,7 @@
             <span>{{ parseTime(scope.row.updateTime) }}</span>
           </template>
         </el-table-column>
+        <el-table-column v-if="columns.visible('merchantsName')" prop="merchantsName" label="商户名称" />
         <el-table-column v-permission="['admin','yxMerchantsDetail:edit','yxMerchantsDetail:del']" label="操作" width="150px" align="center">
           <template slot-scope="scope">
             <udOperation
@@ -157,8 +161,8 @@ import pagination from '@crud/Pagination'
 import MaterialList from "@/components/material";
 
 // crud交由presenter持有
-const defaultCrud = CRUD({ title: '商户详情表', url: 'api/yxMerchantsDetail/getYxMerchantsDetailsList', sort: 'id,desc', crudMethod: { ...crudYxMerchantsDetail }})
-const defaultForm = { id: null, uid: null, examineStatus: null, address: null, contacts: null, contactMobile: null, mailbox: null, merchantsType: null, bankNo: null, openAccountProvince: null, bankType: null, openAccountName: null, openAccountBank: null, openAccountSubbranch: null, companyProvince: null, companyAddress: null, companyName: null, companyLegalPerson: null, companyPhone: null, businessCategory: null, qualificationsType: null, delFlag: null, createUserId: null, updateUserId: null, createTime: null, updateTime: null }
+const defaultCrud = CRUD({ title: '商户详情表', url: 'api/yxMerchantsDetail', sort: 'id,desc', crudMethod: { ...crudYxMerchantsDetail }})
+const defaultForm = { id: null, uid: null, examineStatus: null, address: null, contacts: null, contactMobile: null, mailbox: null, merchantsType: null, bankNo: null, openAccountProvince: null, bankType: null, openAccountName: null, openAccountBank: null, openAccountSubbranch: null, companyProvince: null, companyAddress: null, companyName: null, companyLegalPerson: null, companyPhone: null, businessCategory: null, qualificationsType: null, delFlag: null, createUserId: null, updateUserId: null, createTime: null, updateTime: null, merchantsName: null }
 export default {
   name: 'YxMerchantsDetail',
   components: { pagination, crudOperation, rrOperation, udOperation ,MaterialList},
@@ -166,72 +170,15 @@ export default {
   dicts: ['merchants_status'],
   data() {
     return {
-
+      
       permission: {
         add: ['admin', 'yxMerchantsDetail:add'],
         edit: ['admin', 'yxMerchantsDetail:edit'],
         del: ['admin', 'yxMerchantsDetail:del']
       },
       rules: {
-        uid: [
-          { required: true, message: '用户id不能为空', trigger: 'blur' }
-        ],
-        examineStatus: [
-          { required: true, message: '审批状态：0->待审核,1->通过,2->驳回不能为空', trigger: 'blur' }
-        ],
-        address: [
-          { required: true, message: '商户地址不能为空', trigger: 'blur' }
-        ],
-        contacts: [
-          { required: true, message: '联系人不能为空', trigger: 'blur' }
-        ],
-        contactMobile: [
-          { required: true, message: '联系电话不能为空', trigger: 'blur' }
-        ],
-        mailbox: [
-          { required: true, message: '邮箱不能为空', trigger: 'blur' }
-        ],
-        merchantsType: [
-          { required: true, message: '认证类型：0->个人,1->企业,2->个体商户不能为空', trigger: 'blur' }
-        ],
-        bankNo: [
-          { required: true, message: '银行账号不能为空', trigger: 'blur' }
-        ],
-        openAccountProvince: [
-          { required: true, message: '开户省市不能为空', trigger: 'blur' }
-        ],
-        bankType: [
-          { required: true, message: '银行卡信息：0->对私账号,1->对公账号不能为空', trigger: 'blur' }
-        ],
-        openAccountName: [
-          { required: true, message: '开户名称不能为空', trigger: 'blur' }
-        ],
-        openAccountBank: [
-          { required: true, message: '开户行不能为空', trigger: 'blur' }
-        ],
-        openAccountSubbranch: [
-          { required: true, message: '开户支行不能为空', trigger: 'blur' }
-        ],
-        companyProvince: [
-          { required: true, message: '企业所在省市区不能为空', trigger: 'blur' }
-        ],
-        companyAddress: [
-          { required: true, message: '企业所在详细地址不能为空', trigger: 'blur' }
-        ],
-        companyName: [
-          { required: true, message: '公司名称不能为空', trigger: 'blur' }
-        ],
-        companyLegalPerson: [
-          { required: true, message: '法定代表人不能为空', trigger: 'blur' }
-        ],
-        companyPhone: [
-          { required: true, message: '公司电话不能为空', trigger: 'blur' }
-        ],
-        businessCategory: [
-          { required: true, message: '经营类目不能为空', trigger: 'blur' }
-        ],
-        qualificationsType: [
-          { required: true, message: '主体资质类型不能为空', trigger: 'blur' }
+        merchantsName: [
+          { required: true, message: '商户名称不能为空', trigger: 'blur' }
         ]
       }    }
   },

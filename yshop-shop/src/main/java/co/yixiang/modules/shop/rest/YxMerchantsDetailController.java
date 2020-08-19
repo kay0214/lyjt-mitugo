@@ -21,9 +21,9 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 /**
- * @author liusy
- * @date 2020-08-15
- */
+* @author liusy
+* @date 2020-08-19
+*/
 @AllArgsConstructor
 @Api(tags = "商户详情表管理")
 @RestController
@@ -42,7 +42,6 @@ public class YxMerchantsDetailController {
     public ResponseEntity<Object> getYxMerchantsDetailsList(YxMerchantsDetailQueryCriteria criteria, Pageable pageable) {
         return new ResponseEntity<>(yxMerchantsDetailService.queryAll(criteria, pageable), HttpStatus.OK);
     }
-
 
     @GetMapping(value = "/getYxMerchantsDetailsInfo/{id}")
     @Log("查询商户详情信息")
