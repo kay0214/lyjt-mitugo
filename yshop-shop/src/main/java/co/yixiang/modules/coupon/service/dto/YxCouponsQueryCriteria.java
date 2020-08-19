@@ -18,4 +18,20 @@ import co.yixiang.annotation.Query;
 */
 @Data
 public class YxCouponsQueryCriteria{
+
+    /** 卡券名模糊查询 */
+    @Query(type = Query.Type.INNER_LIKE)
+    private String couponName;
+
+    /** 查找指定卡券类型 */
+    @Query(type = Query.Type.EQUAL)
+    private Integer couponType;
+
+    /** 查找是否上架 */
+    @Query(type = Query.Type.EQUAL)
+    private Integer isShow;
+
+    /** 查找是否热销 */
+    @Query(type = Query.Type.EQUAL)
+    private Integer isHot;
 }

@@ -5,13 +5,16 @@ package co.yixiang.modules.shop.rest;
 
 import co.yixiang.dozer.service.IGenerator;
 import co.yixiang.logging.aop.log.Log;
+import co.yixiang.modules.shop.domain.User;
 import co.yixiang.modules.shop.domain.YxStoreInfo;
 import co.yixiang.modules.shop.domain.YxStoreInfoRequest;
 import co.yixiang.modules.shop.domain.YxStoreInfoResponse;
+import co.yixiang.modules.shop.service.UserService;
 import co.yixiang.modules.shop.service.YxStoreInfoService;
 import co.yixiang.modules.shop.service.dto.YxStoreInfoDto;
 import co.yixiang.modules.shop.service.dto.YxStoreInfoQueryCriteria;
 import co.yixiang.utils.BeanUtils;
+import co.yixiang.utils.SecurityUtils;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import io.swagger.annotations.Api;
@@ -26,7 +29,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
-import javax.websocket.server.PathParam;
 import java.io.IOException;
 import java.util.Arrays;
 
@@ -43,6 +45,8 @@ public class YxStoreInfoController {
     @Autowired
     private YxStoreInfoService yxStoreInfoService;
     private final IGenerator generator;
+    @Autowired
+    private UserService userService;
 
 
     @Log("导出数据")
@@ -51,6 +55,12 @@ public class YxStoreInfoController {
     @PreAuthorize("@el.check('admin','yxStoreInfo:list')")
     public void download(HttpServletResponse response, YxStoreInfoQueryCriteria criteria) throws IOException {
         criteria.setDelFlag(0);
+        int sysUserId = SecurityUtils.getUserId().intValue();
+        User userSys = userService.getById(sysUserId);
+        if(userSys.getUserRole().equals(2)){
+            //登录用户角色=商户
+            criteria.setMerId(sysUserId);
+        }
         yxStoreInfoService.download(generator.convert(yxStoreInfoService.queryAll(criteria), YxStoreInfoDto.class), response);
     }
 
@@ -60,6 +70,12 @@ public class YxStoreInfoController {
     @PreAuthorize("@el.check('admin','yxStoreInfo:list')")
     public ResponseEntity<Object> getYxStoreInfos(YxStoreInfoQueryCriteria criteria, Pageable pageable) {
         criteria.setDelFlag(0);
+        int sysUserId = SecurityUtils.getUserId().intValue();
+        User userSys = userService.getById(sysUserId);
+        if(userSys.getUserRole().equals(2)){
+            //登录用户角色=商户
+            criteria.setMerId(sysUserId);
+        }
         return new ResponseEntity<>(yxStoreInfoService.queryAll(criteria, pageable), HttpStatus.OK);
     }
 
@@ -79,7 +95,7 @@ public class YxStoreInfoController {
     @PreAuthorize("@el.check('admin','yxStoreInfo:edit')")
     public ResponseEntity<Object> update(@Validated @RequestBody YxStoreInfoRequest resources) {
         yxStoreInfoService.updateStoreInfo(resources);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @Log("删除店铺表")

@@ -1,11 +1,6 @@
 /**
-* Copyright (C) 2018-2020
-* All rights reserved, Designed By www.yixiang.co
-* 注意：
-* 本软件为www.yixiang.co开发研制，未经购买不得使用
-* 购买后可获得全部源代码（禁止转卖、分享、上传到码云、github等开源平台）
-* 一经发现盗用、分享等行为，将追究法律责任，后果自负
-*/
+ * Copyright (C) 2018-2020
+ */
 package co.yixiang.modules.system.service.impl;
 
 import cn.hutool.core.date.DateUtil;
@@ -17,22 +12,15 @@ import co.yixiang.modules.system.domain.Role;
 import co.yixiang.modules.system.domain.User;
 import co.yixiang.modules.system.domain.UserAvatar;
 import co.yixiang.modules.system.domain.UsersRoles;
-import co.yixiang.modules.system.service.DeptService;
-import co.yixiang.modules.system.service.JobService;
-import co.yixiang.modules.system.service.UserAvatarService;
-import co.yixiang.modules.system.service.UserService;
-import co.yixiang.modules.system.service.UsersRolesService;
+import co.yixiang.modules.system.service.*;
 import co.yixiang.modules.system.service.dto.UserDto;
 import co.yixiang.modules.system.service.dto.UserQueryCriteria;
 import co.yixiang.modules.system.service.mapper.RoleMapper;
 import co.yixiang.modules.system.service.mapper.SysUserMapper;
-import co.yixiang.utils.FileUtil;
-import co.yixiang.utils.RedisUtils;
-import co.yixiang.utils.SecurityUtils;
-import co.yixiang.utils.StringUtils;
-import co.yixiang.utils.ValidationUtil;
+import co.yixiang.utils.*;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.github.pagehelper.PageInfo;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -43,12 +31,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 // 默认不使用缓存
 //import org.springframework.cache.annotation.CacheConfig;
@@ -56,9 +39,9 @@ import java.util.Set;
 //import org.springframework.cache.annotation.Cacheable;
 
 /**
-* @author hupeng
-* @date 2020-05-14
-*/
+ * @author hupeng
+ * @date 2020-05-14
+ */
 @Service
 //@AllArgsConstructor
 //@CacheConfig(cacheNames = "user")
@@ -76,8 +59,10 @@ public class SysUserServiceImpl extends BaseServiceImpl<SysUserMapper, User> imp
     private final RoleMapper roleMapper;
     private final RedisUtils redisUtils;
     private final UsersRolesService usersRolesService;
+    @Autowired
+    private RoleService roleService;
 
-    public SysUserServiceImpl(IGenerator generator, SysUserMapper userMapper, UserAvatarService userAvatarService, JobService jobService, DeptService deptService,  RoleMapper roleMapper, RedisUtils redisUtils, UsersRolesService usersRolesService) {
+    public SysUserServiceImpl(IGenerator generator, SysUserMapper userMapper, UserAvatarService userAvatarService, JobService jobService, DeptService deptService, RoleMapper roleMapper, RedisUtils redisUtils, UsersRolesService usersRolesService) {
         this.generator = generator;
         this.userMapper = userMapper;
         this.userAvatarService = userAvatarService;
@@ -102,14 +87,14 @@ public class SysUserServiceImpl extends BaseServiceImpl<SysUserMapper, User> imp
 
     @Override
     //@Cacheable
-    public List<User> queryAll(UserQueryCriteria criteria){
-       List<User> userList =  baseMapper.selectList(QueryHelpPlus.getPredicate(User.class, criteria));
+    public List<User> queryAll(UserQueryCriteria criteria) {
+        List<User> userList = baseMapper.selectList(QueryHelpPlus.getPredicate(User.class, criteria));
         for (User user : userList) {
             user.setJob(jobService.getById(user.getJobId()));
             user.setDept(deptService.getById(user.getDeptId()));
             user.setRoles(roleMapper.findByUsers_Id(user.getId()));
         }
-       return userList;
+        return userList;
     }
 
 
@@ -117,7 +102,7 @@ public class SysUserServiceImpl extends BaseServiceImpl<SysUserMapper, User> imp
     public void download(List<UserDto> all, HttpServletResponse response) throws IOException {
         List<Map<String, Object>> list = new ArrayList<>();
         for (UserDto user : all) {
-            Map<String,Object> map = new LinkedHashMap<>();
+            Map<String, Object> map = new LinkedHashMap<>();
             map.put("邮箱", user.getEmail());
             map.put("状态：1启用、0禁用", user.getEnabled());
             map.put("密码", user.getPassword());
@@ -141,12 +126,12 @@ public class SysUserServiceImpl extends BaseServiceImpl<SysUserMapper, User> imp
      */
     @Override
     public UserDto findByName(String userName) {
-      User user =  userMapper.findByName(userName);
+        User user = userMapper.findByName(userName);
         //用户所属岗位
         user.setJob(jobService.getById(user.getJobId()));
         //用户所属部门
         user.setDept(deptService.getById(user.getDeptId()));
-        return generator.convert(user,UserDto.class);
+        return generator.convert(user, UserDto.class);
     }
 
     /**
@@ -157,7 +142,7 @@ public class SysUserServiceImpl extends BaseServiceImpl<SysUserMapper, User> imp
      */
     @Override
     public void updatePass(String username, String encryptPassword) {
-        userMapper.updatePass(encryptPassword, DateUtil.format(new Date(),"yyyy-MM-dd HH:mm:ss"),username);
+        userMapper.updatePass(encryptPassword, DateUtil.format(new Date(), "yyyy-MM-dd HH:mm:ss"), username);
     }
 
     /**
@@ -168,11 +153,11 @@ public class SysUserServiceImpl extends BaseServiceImpl<SysUserMapper, User> imp
     @Override
     public void updateAvatar(MultipartFile multipartFile) {
         User user = this.getOne(new QueryWrapper<User>().lambda()
-                .eq(User::getUsername,SecurityUtils.getUsername()));
-        UserAvatar userAvatar =  userAvatarService.getOne(new QueryWrapper<UserAvatar>().lambda()
-                .eq(UserAvatar::getId,user.getAvatarId()));
+                .eq(User::getUsername, SecurityUtils.getUsername()));
+        UserAvatar userAvatar = userAvatarService.getOne(new QueryWrapper<UserAvatar>().lambda()
+                .eq(UserAvatar::getId, user.getAvatarId()));
         String oldPath = "";
-        if(userAvatar != null){
+        if (userAvatar != null) {
             oldPath = userAvatar.getPath();
         } else {
             userAvatar = new UserAvatar();
@@ -185,7 +170,7 @@ public class SysUserServiceImpl extends BaseServiceImpl<SysUserMapper, User> imp
         userAvatarService.saveOrUpdate(userAvatar);
         user.setAvatarId(userAvatar.getId());
         this.saveOrUpdate(user);
-        if(StringUtils.isNotBlank(oldPath)){
+        if (StringUtils.isNotBlank(oldPath)) {
             FileUtil.del(oldPath);
         }
     }
@@ -212,24 +197,43 @@ public class SysUserServiceImpl extends BaseServiceImpl<SysUserMapper, User> imp
     @Transactional(rollbackFor = Exception.class)
     public boolean create(User resources) {
         User userName = this.getOne(new QueryWrapper<User>().lambda()
-                .eq(User::getUsername,resources.getUsername()));
-        if(userName != null){
-            throw new EntityExistException(User.class,"username",resources.getUsername());
+                .eq(User::getUsername, resources.getUsername()));
+        if (userName != null) {
+            throw new EntityExistException(User.class, "username", resources.getUsername());
         }
         User userEmail = this.getOne(new QueryWrapper<User>().lambda()
-                .eq(User::getEmail,resources.getEmail()));
-        if(userEmail != null){
-            throw new EntityExistException(User.class,"email",resources.getEmail());
+                .eq(User::getEmail, resources.getEmail()));
+        if (userEmail != null) {
+            throw new EntityExistException(User.class, "email", resources.getEmail());
         }
+        // 设定部门
         resources.setDeptId(resources.getDept().getId());
         resources.setJobId(resources.getJob().getId());
-        boolean result = this.save(resources);
+        // 组装
         UsersRoles usersRoles = new UsersRoles();
-        usersRoles.setUserId(resources.getId());
         Set<Role> set = resources.getRoles();
-        for (Role roleIds : set ) {
+        boolean isPartner = false;
+        boolean isMer = false;
+        for (Role roleIds : set) {
             usersRoles.setRoleId(roleIds.getId());
+            Role role = this.roleService.getById(roleIds.getId());
+            if (2 == role.getLevel()) {
+                isPartner = true;
+            }
+            if (3 == role.getLevel()) {
+                isMer = true;
+            }
         }
+        // 根据用户的角色设定用户user表里用户的角色
+        if (isMer) {
+            resources.setUserRole(2);
+        }
+        if (isPartner) {
+            resources.setUserRole(1);
+        }
+        boolean result = this.save(resources);
+
+        usersRoles.setUserId(resources.getId());
         if (result) {
             usersRolesService.save(usersRoles);
         }
@@ -246,19 +250,19 @@ public class SysUserServiceImpl extends BaseServiceImpl<SysUserMapper, User> imp
     @Transactional(rollbackFor = Exception.class)
     public void update(User resources) {
         User user = this.getOne(new QueryWrapper<User>().lambda()
-                .eq(User::getId,resources.getId()));
-        ValidationUtil.isNull(user.getId(),"User","id",resources.getId());
+                .eq(User::getId, resources.getId()));
+        ValidationUtil.isNull(user.getId(), "User", "id", resources.getId());
         User user1 = this.getOne(new QueryWrapper<User>().lambda()
-                .eq(User::getUsername,resources.getUsername()));
+                .eq(User::getUsername, resources.getUsername()));
         User user2 = this.getOne(new QueryWrapper<User>().lambda()
-                .eq(User::getEmail,resources.getEmail()));
+                .eq(User::getEmail, resources.getEmail()));
 
-        if(user1 !=null&&!user.getId().equals(user1.getId())){
-            throw new EntityExistException(User.class,"username",resources.getUsername());
+        if (user1 != null && !user.getId().equals(user1.getId())) {
+            throw new EntityExistException(User.class, "username", resources.getUsername());
         }
 
-        if(user2!=null&&!user.getId().equals(user2.getId())){
-            throw new EntityExistException(User.class,"email",resources.getEmail());
+        if (user2 != null && !user.getId().equals(user2.getId())) {
+            throw new EntityExistException(User.class, "email", resources.getEmail());
         }
         user.setUsername(resources.getUsername());
         user.setEmail(resources.getEmail());
@@ -269,11 +273,11 @@ public class SysUserServiceImpl extends BaseServiceImpl<SysUserMapper, User> imp
         user.setNickName(resources.getNickName());
         user.setSex(resources.getSex());
         boolean result = this.saveOrUpdate(user);
-        usersRolesService.lambdaUpdate().eq(UsersRoles ::getUserId,resources.getId()).remove();
+        usersRolesService.lambdaUpdate().eq(UsersRoles::getUserId, resources.getId()).remove();
         UsersRoles usersRoles = new UsersRoles();
         usersRoles.setUserId(resources.getId());
         Set<Role> set = resources.getRoles();
-        for (Role roleIds : set ) {
+        for (Role roleIds : set) {
             usersRoles.setRoleId(roleIds.getId());
         }
         if (result) {
@@ -293,7 +297,7 @@ public class SysUserServiceImpl extends BaseServiceImpl<SysUserMapper, User> imp
     @Transactional(rollbackFor = Exception.class)
     public void delete(Set<Long> ids) {
         for (Long id : ids) {
-            usersRolesService.lambdaUpdate().eq(UsersRoles ::getUserId,id).remove();
+            usersRolesService.lambdaUpdate().eq(UsersRoles::getUserId, id).remove();
         }
         this.removeByIds(ids);
     }
