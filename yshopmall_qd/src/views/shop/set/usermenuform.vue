@@ -7,10 +7,7 @@
       <el-form-item label="跳转url">
         <el-input v-model="form.url" style="width: 300px;" />
       </el-form-item>
-      <el-form-item label="uniapp路由">
-        <el-input v-model="form.uniapp_url" style="width: 300px;" />
-      </el-form-item>
-      <el-form-item label="图标(52*52)">
+      <el-form-item label="图标">
         <MaterialList v-model="form.imageArr" style="width: 300px" type="image" :num="1" :width="150" :height="150" />
       </el-form-item>
       <el-form-item label="排序">
@@ -46,11 +43,10 @@ export default {
       loading: false, dialog: false,
       form: {
         id: '',
-        groupName: 'yshop_my_menus',
+        groupName: 'shop_my_menus',
         name: '',
         url: '',
         wxapp_url: '',
-        uniapp_url: '',
         pic: '',
         imageArr: [],
         sort: 0,
@@ -112,11 +108,10 @@ export default {
       this.$refs['form'].resetFields()
       this.form = {
         id: '',
-        groupName: 'yshop_my_menus',
+        groupName: 'shop_my_menus',
         name: '',
         url: '',
         wxapp_url: '',
-        uniapp_url: '',
         pic: '',
         imageArr: [],
         sort: 0,

@@ -1,13 +1,13 @@
 <template>
   <el-dialog :append-to-body="true" :close-on-click-modal="false" :before-close="cancel" :visible.sync="dialog" :title="isAdd ? '新增' : '编辑'" width="500px">
     <el-form ref="form" :model="form" :rules="rules" size="small" label-width="140px">
-      <el-form-item label="分类名称">
+      <el-form-item label="标题">
         <el-input v-model="form.name" style="width: 300px;" />
       </el-form-item>
       <el-form-item label="小程序跳转page">
         <el-input v-model="form.url" style="width: 300px;" />
       </el-form-item>
-      <el-form-item label="分类图标">
+      <el-form-item label="图片">
         <MaterialList v-model="form.imageArr" style="width: 300px" type="image" :num="1" :width="150" :height="150" />
       </el-form-item>
       <el-form-item label="排序">
@@ -43,7 +43,7 @@ export default {
       loading: false, dialog: false,
       form: {
         id: '',
-        groupName: 'shop_home_menus',
+        groupName: 'local_live_carousel',
         name: '',
         url: '',
         wxapp_url: '',
@@ -108,7 +108,7 @@ export default {
       this.$refs['form'].resetFields()
       this.form = {
         id: '',
-        groupName: 'shop_home_menus',
+        groupName: 'local_live_carousel',
         name: '',
         url: '',
         wxapp_url: '',
