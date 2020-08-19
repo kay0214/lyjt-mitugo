@@ -15,4 +15,22 @@
         select <include refid="Base_Column_List"/> from yx_store_info
     </select>
 
+    <select id="getYxStoreInfoByPoint" resultType="co.yixiang.modules.shop.web.vo.YxStoreInfoQueryVo">
+        SELECT
+        *,
+        ST_Distance_Sphere (
+        POINT(#{lnt},#{lat}),
+        coordinate
+        ) a
+        FROM
+        yx_store_info
+        WHERE
+        ST_Distance_Sphere (
+        POINT(#{lnt},#{lat}),
+        coordinate
+        ) <![CDATA[ <= ]]> 1000
+        order by a
+    </select>
+
+
 </mapper>

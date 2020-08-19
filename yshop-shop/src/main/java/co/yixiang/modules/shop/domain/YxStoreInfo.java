@@ -7,14 +7,20 @@
 * 一经发现盗用、分享等行为，将追究法律责任，后果自负
 */
 package co.yixiang.modules.shop.domain;
-import com.baomidou.mybatisplus.annotation.*;
-import lombok.Data;
+
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.bean.copier.CopyOptions;
-import javax.validation.constraints.*;
-import java.sql.Timestamp;
-import java.math.BigDecimal;
+import co.yixiang.modules.mybatis.GeoPoint;
+import com.baomidou.mybatisplus.annotation.*;
+import lombok.Data;
+
+import javax.persistence.Column;
+import javax.persistence.Id;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
+import java.math.BigDecimal;
+import java.sql.Timestamp;
 
 /**
 * @author nxl
@@ -23,8 +29,8 @@ import java.io.Serializable;
 @Data
 @TableName("yx_store_info")
 public class YxStoreInfo implements Serializable {
-
-    @TableId
+    @Id
+    @TableId(value = "id", type = IdType.AUTO)
     private Integer id;
 
 
@@ -116,6 +122,9 @@ public class YxStoreInfo implements Serializable {
 
     /** 店铺介绍 */
     private String introduction;
+
+    @Column
+    private GeoPoint coordinate;
 
 
     /** 地图坐标经度 */
