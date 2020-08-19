@@ -17,8 +17,8 @@ import java.util.List;
  * 商品表 查询结果对象
  * </p>
  *
- * @author hupeng
- * @date 2020-08-13
+ * @author nxl
+ * @date 2020-08-19
  */
 @Data
 @ApiModel(value="YxStoreProductQueryVo对象", description="商品表查询参数")
@@ -39,6 +39,9 @@ private String sliderImage;
 
 @ApiModelProperty(value = "商品名称")
 private String storeName;
+
+@ApiModelProperty(value = "佣金")
+private BigDecimal commission;
 
 @ApiModelProperty(value = "商品简介")
 private String storeInfo;
