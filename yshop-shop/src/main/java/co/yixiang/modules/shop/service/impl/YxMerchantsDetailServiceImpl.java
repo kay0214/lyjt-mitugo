@@ -33,9 +33,9 @@ import java.util.*;
 //import org.springframework.cache.annotation.Cacheable;
 
 /**
- * @author liusy
- * @date 2020-08-15
- */
+* @author liusy
+* @date 2020-08-19
+*/
 @Slf4j
 @Service
 @AllArgsConstructor
@@ -140,6 +140,7 @@ public class YxMerchantsDetailServiceImpl extends BaseServiceImpl<YxMerchantsDet
             map.put("修改人", yxMerchantsDetail.getUpdateUserId());
             map.put("创建时间", yxMerchantsDetail.getCreateTime());
             map.put("更新时间", yxMerchantsDetail.getUpdateTime());
+            map.put("商户名称", yxMerchantsDetail.getMerchantsName());
             list.add(map);
         }
         FileUtil.downloadExcel(list, response);
