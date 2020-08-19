@@ -8,10 +8,8 @@
 */
 package co.yixiang.modules.coupon.service.dto;
 
-import com.sun.deploy.panel.AndOrRadioPropertyGroup;
-import lombok.Data;
-import java.util.List;
 import co.yixiang.annotation.Query;
+import lombok.Data;
 
 /**
 * @author huiy
