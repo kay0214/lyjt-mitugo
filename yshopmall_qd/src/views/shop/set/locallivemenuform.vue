@@ -43,7 +43,7 @@ export default {
       loading: false, dialog: false,
       form: {
         id: '',
-        groupName: 'shop_home_menus',
+        groupName: 'local_live_menu',
         name: '',
         url: '',
         wxapp_url: '',
@@ -108,7 +108,7 @@ export default {
       this.$refs['form'].resetFields()
       this.form = {
         id: '',
-        groupName: 'shop_home_menus',
+        groupName: 'local_live_menu',
         name: '',
         url: '',
         wxapp_url: '',

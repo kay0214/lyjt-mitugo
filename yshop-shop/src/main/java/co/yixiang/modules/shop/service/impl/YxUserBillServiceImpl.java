@@ -12,6 +12,7 @@ import co.yixiang.modules.shop.service.YxUserBillService;
 import co.yixiang.modules.shop.service.dto.YxUserBillDto;
 import co.yixiang.modules.shop.service.dto.YxUserBillQueryCriteria;
 import co.yixiang.modules.shop.service.mapper.UserBillMapper;
+import co.yixiang.utils.DateUtils;
 import co.yixiang.utils.FileUtil;
 import com.github.pagehelper.PageInfo;
 import lombok.AllArgsConstructor;
@@ -26,11 +27,6 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-
-// 默认不使用缓存
-//import org.springframework.cache.annotation.CacheConfig;
-//import org.springframework.cache.annotation.CacheEvict;
-//import org.springframework.cache.annotation.Cacheable;
 
 /**
 * @author hupeng
@@ -57,10 +53,11 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<UserBillMapper, YxUse
 
 
     @Override
-    //@Cacheable
+//    @Cacheable
     public List<YxUserBillDto> queryAll(YxUserBillQueryCriteria criteria){
-
-        return baseMapper.findAllByQueryCriteria(criteria.getCategory(),criteria.getType(),criteria.getNickname());
+        int startTime = DateUtils.stringToTimestamp(criteria.getAddTimeStart() + " 00:00:00");
+        int endTime = DateUtils.stringToTimestamp(criteria.getAddTimeEnd() + " 23:59:59");
+        return baseMapper.findAllByQueryCriteria(criteria.getUsername(), criteria.getTitle(), criteria.getPm(), startTime, endTime);
     }
 
 

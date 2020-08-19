@@ -19,9 +19,9 @@
     <!--表格渲染-->
     <el-table v-loading="loading" :data="data" size="small" style="width: 100%;">
       <el-table-column prop="id" label="ID" />
-      <el-table-column prop="map.name" label="分类名称" />
+      <el-table-column prop="map.name" label="标题" />
       <el-table-column prop="map.url" label="小程序跳转page" />
-      <el-table-column ref="table" label="分类图标">
+      <el-table-column ref="table" label="图片">
         <template slot-scope="scope">
           <a :href="scope.row.map.pic" style="color: #42b983" target="_blank"><img :src="scope.row.map.pic" alt="点击打开" class="el-avatar"></a>
         </template>
@@ -70,7 +70,7 @@
 import checkPermission from '@/utils/permission'
 import initData from '@/mixins/crud'
 import { del } from '@/api/yxSystemGroupData'
-import eForm from './menuform'
+import eForm from './shopcarouselform'
 export default {
   components: { eForm },
   mixins: [initData],
@@ -89,7 +89,7 @@ export default {
     beforeInit() {
       this.url = 'api/yxSystemGroupData'
       const sort = 'id,desc'
-      this.params = { page: this.page, size: this.size, sort: sort, groupName: 'shop_home_menus' }
+      this.params = { page: this.page, size: this.size, sort: sort, groupName: 'shop_carousel' }
       return true
     },
     subDelete(id) {
