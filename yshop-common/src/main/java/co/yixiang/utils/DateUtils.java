@@ -8,6 +8,7 @@ package co.yixiang.utils;
 import org.apache.commons.lang3.time.DateFormatUtils;
 
 import java.lang.management.ManagementFactory;
+import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -134,5 +135,20 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
         // 计算差多少秒//输出结果
         // long sec = diff % nd % nh % nm / ns;
         return day + "天" + hour + "小时" + min + "分钟";
+    }
+
+    /**
+     * String(yyyy-MM-dd HH:mm:ss)转10位时间戳
+     * @param dateStr
+     * @return
+     */
+    public static int stringToTimestamp(String dateStr){
+        int times = 0;
+        try {
+            times = (int) ((Timestamp.valueOf(dateStr).getTime())/1000);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return times;
     }
 }

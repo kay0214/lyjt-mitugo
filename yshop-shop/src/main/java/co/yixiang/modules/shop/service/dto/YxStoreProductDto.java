@@ -133,4 +133,7 @@ public class YxStoreProductDto implements Serializable {
     private YxStoreCategorySmallDto storeCategory;
 
     private YxStoreInfo store;
+
+
+    private BigDecimal commission;
 }

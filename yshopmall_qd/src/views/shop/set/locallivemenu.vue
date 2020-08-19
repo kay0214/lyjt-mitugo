@@ -70,7 +70,7 @@
 import checkPermission from '@/utils/permission'
 import initData from '@/mixins/crud'
 import { del } from '@/api/yxSystemGroupData'
-import eForm from './menuform'
+import eForm from './locallivemenuform'
 export default {
   components: { eForm },
   mixins: [initData],
@@ -89,7 +89,7 @@ export default {
     beforeInit() {
       this.url = 'api/yxSystemGroupData'
       const sort = 'id,desc'
-      this.params = { page: this.page, size: this.size, sort: sort, groupName: 'shop_home_menus' }
+      this.params = { page: this.page, size: this.size, sort: sort, groupName: 'local_live_menu' }
       return true
     },
     subDelete(id) {

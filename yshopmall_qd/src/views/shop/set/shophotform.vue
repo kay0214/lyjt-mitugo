@@ -1,14 +1,8 @@
 <template>
   <el-dialog :append-to-body="true" :close-on-click-modal="false" :before-close="cancel" :visible.sync="dialog" :title="isAdd ? '新增' : '编辑'" width="500px">
-    <el-form ref="form" :model="form" :rules="rules" size="small" label-width="140px">
-      <el-form-item label="分类名称">
-        <el-input v-model="form.name" style="width: 300px;" />
-      </el-form-item>
-      <el-form-item label="小程序跳转page">
-        <el-input v-model="form.url" style="width: 300px;" />
-      </el-form-item>
-      <el-form-item label="分类图标">
-        <MaterialList v-model="form.imageArr" style="width: 300px" type="image" :num="1" :width="150" :height="150" />
+    <el-form ref="form" :model="form" :rules="rules" size="small" label-width="100px">
+      <el-form-item label="标签">
+        <el-input v-model="form.title" style="width: 370px;" />
       </el-form-item>
       <el-form-item label="排序">
         <el-input v-model="form.sort" style="width: 300px;" />
@@ -29,9 +23,8 @@
 <script>
 import { add, edit } from '@/api/yxSystemGroupData'
 import picUpload from '@/components/pic-upload'
-import MaterialList from '@/components/material'
 export default {
-  components: { picUpload, MaterialList },
+  components: { picUpload },
   props: {
     isAdd: {
       type: Boolean,
@@ -43,23 +36,12 @@ export default {
       loading: false, dialog: false,
       form: {
         id: '',
-        groupName: 'shop_home_menus',
-        name: '',
-        url: '',
-        wxapp_url: '',
-        pic: '',
-        imageArr: [],
+        groupName: 'shop_hot',
+        title: '',
         sort: 0,
         status: 1
       },
       rules: {
-      }
-    }
-  },
-  watch: {
-    'form.imageArr': function(val) {
-      if (val) {
-        this.form.pic = val.join(',')
       }
     }
   },
@@ -108,12 +90,8 @@ export default {
       this.$refs['form'].resetFields()
       this.form = {
         id: '',
-        groupName: 'shop_home_menus',
-        name: '',
-        url: '',
-        wxapp_url: '',
-        pic: '',
-        imageArr: [],
+        groupName: 'shop_hot',
+        title: '',
         sort: 0,
         status: 1
       }

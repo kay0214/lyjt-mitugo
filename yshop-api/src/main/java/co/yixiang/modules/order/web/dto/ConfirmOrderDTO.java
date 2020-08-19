@@ -2,6 +2,7 @@ package co.yixiang.modules.order.web.dto;
 
 import co.yixiang.modules.shop.entity.YxStoreCouponUser;
 import co.yixiang.modules.shop.web.vo.YxStoreCartQueryVo;
+import co.yixiang.modules.shop.web.vo.YxStoreInfoQueryVo;
 import co.yixiang.modules.shop.web.vo.YxSystemStoreQueryVo;
 import co.yixiang.modules.user.entity.YxUserAddress;
 import co.yixiang.modules.user.web.vo.YxUserQueryVo;
@@ -54,6 +55,8 @@ public class ConfirmOrderDTO implements Serializable {
 
     private YxUserQueryVo userInfo;
 
+    //商铺信息
+    private YxStoreInfoQueryVo storeInfo;
 
 
 }

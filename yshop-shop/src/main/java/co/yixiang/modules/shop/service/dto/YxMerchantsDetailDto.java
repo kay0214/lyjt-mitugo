@@ -9,9 +9,9 @@ import java.io.Serializable;
 import java.sql.Timestamp;
 
 /**
- * @author liusy
- * @date 2020-08-15
- */
+* @author liusy
+* @date 2020-08-19
+*/
 @Data
 public class YxMerchantsDetailDto implements Serializable {
 
@@ -189,5 +189,10 @@ public class YxMerchantsDetailDto implements Serializable {
     /** 更新时间 */
 
     private Timestamp updateTime;
+
+
+    /** 商户名称 */
+
+    private String merchantsName;
 
 }

@@ -53,5 +53,6 @@ public class YxUserBillDto implements Serializable {
     /** 0 = 带确定 1 = 有效 -1 = 无效 */
     private Integer status;
 
-    private String nickname;
+    /** 用户名 */
+    private String username;
 }

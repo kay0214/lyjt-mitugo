@@ -3,12 +3,15 @@ package co.yixiang.modules.shop.service.dto;
 import co.yixiang.annotation.Query;
 import lombok.Data;
 
+import java.sql.Timestamp;
+import java.util.List;
+
 /**
-* @author hupeng
-* @date 2020-05-12
+* @author huiy
+* @date 2020-08-19
 */
 @Data
-public class YxUserBillQueryCriteria{
+public class YxPointDetailQueryCriteria{
 
     /** 用户名模糊查询 */
     @Query(type = Query.Type.EQUAL)
@@ -16,13 +19,8 @@ public class YxUserBillQueryCriteria{
 
     /** 账单明细种类 */
     @Query(type = Query.Type.EQUAL)
-    private Integer pm;
+    private Integer type;
 
-    /** 账单标题 */
-    @Query(type = Query.Type.INNER_LIKE)
-    private String title;
-
-
-    private String addTimeStart;
-    private String addTimeEnd;
+    @Query(type = Query.Type.BETWEEN)
+    private List<Timestamp> createTime;
 }

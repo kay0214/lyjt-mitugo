@@ -1,13 +1,10 @@
-/**
- * Copyright (C) 2018-2020
- * All rights reserved, Designed By www.yixiang.co
-
- */
 package co.yixiang.modules.shop.rest;
 
 import co.yixiang.logging.aop.log.Log;
 import co.yixiang.modules.shop.service.YxUserBillService;
 import co.yixiang.modules.shop.service.dto.YxUserBillQueryCriteria;
+import co.yixiang.utils.DateUtils;
+import co.yixiang.utils.StringUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.data.domain.Pageable;
@@ -22,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 * @author hupeng
 * @date 2019-11-06
 */
-@Api(tags = "商城:用户账单管理")
+@Api(tags = "商城:用户账单表(资金明细)")
 @RestController
 @RequestMapping("api")
 public class UserBillController {
@@ -38,12 +35,13 @@ public class UserBillController {
     @GetMapping(value = "/yxUserBill")
     @PreAuthorize("hasAnyRole('admin','YXUSERBILL_ALL','YXUSERBILL_SELECT')")
     public ResponseEntity getYxUserBills(YxUserBillQueryCriteria criteria, Pageable pageable){
-        return new ResponseEntity(yxUserBillService.queryAll(criteria,pageable),HttpStatus.OK);
+        if (StringUtils.isNotBlank(criteria.getAddTimeStart()) && StringUtils.isBlank(criteria.getAddTimeEnd())){
+            criteria.setAddTimeEnd(DateUtils.getDate());
+        }
+        if (StringUtils.isBlank(criteria.getAddTimeStart()) && StringUtils.isNotBlank(criteria.getAddTimeEnd())){
+            criteria.setAddTimeStart(DateUtils.getDate());
+        }
+        return new ResponseEntity(yxUserBillService.queryAll(criteria,pageable), HttpStatus.OK);
     }
-
-
-
-
-
 
 }

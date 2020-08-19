@@ -50,7 +50,10 @@
       </el-form-item>-->
 
       <el-form-item label="库存">
-        <el-input v-model="form.stock" disabled="disabled" />
+        <el-input v-model="form.stock"/>
+      </el-form-item>
+      <el-form-item label="佣金">
+        <el-input v-model="form.commission"/>
       </el-form-item>
       <el-form-item label="是否包邮">
         <el-radio v-model="form.isPostage" :label="1">是</el-radio>
