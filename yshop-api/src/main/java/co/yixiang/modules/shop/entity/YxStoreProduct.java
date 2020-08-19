@@ -9,13 +9,15 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.util.Date;
+
 /**
  * <p>
  * 商品表
  * </p>
  *
- * @author hupeng
- * @since 2020-08-13
+ * @author nxl
+ * @since 2020-08-19
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -39,6 +41,9 @@ private String sliderImage;
 
 @ApiModelProperty(value = "商品名称")
 private String storeName;
+
+@ApiModelProperty(value = "佣金")
+private BigDecimal commission;
 
 @ApiModelProperty(value = "商品简介")
 private String storeInfo;

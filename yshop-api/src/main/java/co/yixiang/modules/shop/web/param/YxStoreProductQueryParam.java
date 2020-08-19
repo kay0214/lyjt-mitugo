@@ -11,8 +11,8 @@ import co.yixiang.common.web.param.QueryParam;
  * 商品表 查询参数对象
  * </p>
  *
- * @author hupeng
- * @date 2020-08-13
+ * @author nxl
+ * @date 2020-08-19
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -32,4 +32,6 @@ public class YxStoreProductQueryParam extends QueryParam {
     private String salesOrder;
     //关键字
     private String keyword;
+    //名称（店铺名&商品名）
+    private String name;
 }
