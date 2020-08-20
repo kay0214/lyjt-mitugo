@@ -97,11 +97,14 @@ public class CommissionConsumer implements RocketMQListener<String>, RocketMQPus
      * @param OrderId
      */
     private void updateOrderInfo(String OrderId){
-        //根据订单号查询订单信息，获取推荐人、分享人、分享人的推荐人ID
+        //根据订单号查询订单信息
         YxStoreOrder yxStoreOrder = yxStoreOrderMapper.selectOne(new QueryWrapper<YxStoreOrder>().lambda().eq(YxStoreOrder::getOrderId, OrderId));
-
         if(yxStoreOrder.getRebateStatus()==1){
             log.info("分佣失败，该订单重复分佣,订单号：{}",OrderId);
+            return;
+        }
+        if(yxStoreOrder.getCommission().equals(0)){
+            log.info("分佣失败，该订单可分佣金额为0,订单号：{}",OrderId);
             return;
         }
         yxStoreOrder.setRebateStatus(1);
@@ -123,6 +126,10 @@ public class CommissionConsumer implements RocketMQListener<String>, RocketMQPus
             log.info("分佣失败，该订单重复分佣,订单号：{}",OrderId);
             return;
         }
+        if(yxCouponOrder.getCommission().equals(0)){
+            log.info("分佣失败，该订单可分佣金额为0,订单号：{}",OrderId);
+            return;
+        }
         yxCouponOrder.setRebateStatus(1);
         yxCouponOrderMapper.updateById(yxCouponOrder);
         YxWechatUser yxWechatUser = yxWechatUserMapper.selectById(OrderId);
@@ -140,8 +147,8 @@ public class CommissionConsumer implements RocketMQListener<String>, RocketMQPus
     private void updateaccount(OrderInfo orderInfo){
         YxFundsAccount yxFundsAccount = yxFundsAccountMapper.selectById(0);
         //查询分佣比例
-        YxCommissionRate yxCommissionRate = yxCommissionRateMapper.selectOne(new QueryWrapper<YxCommissionRate>());
-        //佣金数量
+        YxCommissionRate yxCommissionRate = yxCommissionRateMapper.selectOne(new QueryWrapper<>());
+        //平台抽成
         BigDecimal fundsRate = yxCommissionRate.getFundsRate();
         //推荐人
         if (null != orderInfo.getParentId() && orderInfo.getParentType() == 3) {
@@ -197,7 +204,7 @@ public class CommissionConsumer implements RocketMQListener<String>, RocketMQPus
         yxFundsDetail.setPm(1);
         yxFundsDetail.setOrderAmount(orderInfo.getPayPrice());
         yxFundsDetailMapper.insert(yxFundsDetail);
-        yxFundsAccount.setPrice(yxFundsAccount.getPrice().multiply(fundsBonus));
+        yxFundsAccount.setPrice(yxFundsAccount.getPrice().add(fundsBonus));
         yxFundsAccountMapper.updateById(yxFundsAccount);
     }
 
