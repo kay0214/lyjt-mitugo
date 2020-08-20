@@ -17,8 +17,8 @@ import java.io.Serializable;
  * 商品表 Mapper 接口
  * </p>
  *
- * @author hupeng
- * @since 2020-08-13
+ * @author nxl
+ * @since 2020-08-19
  */
 @Repository
 public interface YxStoreProductMapper extends BaseMapper<YxStoreProduct> {

@@ -17,7 +17,7 @@ import java.io.Serializable;
 
 /**
 * @author liusy
-* @date 2020-08-17
+* @date 2020-08-19
 */
 @Data
 @TableName("yx_examine_log")
@@ -66,6 +66,14 @@ public class YxExamineLog implements Serializable {
     /** 更新时间 */
     @TableField(fill= FieldFill.INSERT_UPDATE)
     private Timestamp updateTime;
+
+
+    /** 冗余字段：被审核人id */
+    private Integer uid;
+
+
+    /** 冗余字段：被审核人信息 */
+    private String username;
 
 
     public void copy(YxExamineLog source){

@@ -8,6 +8,8 @@ import co.yixiang.common.service.impl.BaseServiceImpl;
 import co.yixiang.common.utils.QueryHelpPlus;
 import co.yixiang.dozer.service.IGenerator;
 import co.yixiang.exception.EntityExistException;
+import co.yixiang.modules.shop.domain.YxMerchantsDetail;
+import co.yixiang.modules.shop.service.YxMerchantsDetailService;
 import co.yixiang.modules.system.domain.Role;
 import co.yixiang.modules.system.domain.User;
 import co.yixiang.modules.system.domain.UserAvatar;
@@ -61,6 +63,8 @@ public class SysUserServiceImpl extends BaseServiceImpl<SysUserMapper, User> imp
     private final UsersRolesService usersRolesService;
     @Autowired
     private RoleService roleService;
+    @Autowired
+    private YxMerchantsDetailService yxMerchantsDetailService;
 
     public SysUserServiceImpl(IGenerator generator, SysUserMapper userMapper, UserAvatarService userAvatarService, JobService jobService, DeptService deptService, RoleMapper roleMapper, RedisUtils redisUtils, UsersRolesService usersRolesService) {
         this.generator = generator;
@@ -237,6 +241,67 @@ public class SysUserServiceImpl extends BaseServiceImpl<SysUserMapper, User> imp
         if (result) {
             usersRolesService.save(usersRoles);
         }
+        return result;
+    }
+
+
+    /**
+     * 新增商户
+     *
+     * @param resources /
+     * @return /
+     */
+    @Override
+    //@CacheEvict(allEntries = true)
+    @Transactional(rollbackFor = Exception.class)
+    public boolean createMerchants(User resources) {
+        User userName = this.getOne(new QueryWrapper<User>().lambda()
+                .eq(User::getUsername, resources.getUsername()));
+        if (userName != null) {
+            throw new EntityExistException(User.class, "username", resources.getUsername());
+        }
+        // 组装
+        UsersRoles usersRoles = new UsersRoles();
+        // 注意这里需要写死数据库的商户角色的id
+        usersRoles.setRoleId(5L);
+        // 根据用户的角色设定用户user表里用户的角色
+        resources.setUserRole(1);
+        boolean result = this.save(resources);
+
+        usersRoles.setUserId(resources.getId());
+        if (result) {
+            result = usersRolesService.save(usersRoles);
+        }
+        if (result) {
+            // 新建商户信息
+            YxMerchantsDetail yxMerchantsDetail = new YxMerchantsDetail();
+            yxMerchantsDetail.setUid(resources.getId().intValue());
+            // 用户昵称作为商户名称
+            yxMerchantsDetail.setMerchantsName(resources.getNickName());
+            yxMerchantsDetail.setAddress("");
+            yxMerchantsDetail.setContacts(resources.getMerchantsContact());
+            yxMerchantsDetail.setContactMobile(resources.getPhone());
+            yxMerchantsDetail.setMailbox("");
+            // 默认给个0
+            yxMerchantsDetail.setMerchantsType(0);
+            yxMerchantsDetail.setBankNo("");
+            yxMerchantsDetail.setOpenAccountProvince("");
+            yxMerchantsDetail.setBankType(0);
+            yxMerchantsDetail.setOpenAccountName("");
+            yxMerchantsDetail.setOpenAccountBank("");
+            yxMerchantsDetail.setOpenAccountSubbranch("");
+            yxMerchantsDetail.setCompanyProvince("");
+            yxMerchantsDetail.setCompanyAddress("");
+            yxMerchantsDetail.setCompanyName("");
+            yxMerchantsDetail.setCompanyLegalPerson("");
+            yxMerchantsDetail.setCompanyPhone("");
+            yxMerchantsDetail.setBusinessCategory(0);
+            yxMerchantsDetail.setQualificationsType(0);
+            yxMerchantsDetail.setDelFlag(0);
+            yxMerchantsDetail.setCreateUserId(resources.getParentId());
+            yxMerchantsDetailService.save(yxMerchantsDetail);
+        }
+
         return result;
     }
 

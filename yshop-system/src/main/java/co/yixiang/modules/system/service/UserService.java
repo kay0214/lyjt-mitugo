@@ -84,6 +84,15 @@ public interface UserService  extends BaseService<User>{
      */
     boolean create(User resources);
 
+
+    /**
+     * 新增商户
+     * @param resources /
+     * @return /
+     */
+    boolean createMerchants(User resources);
+
+
     /**
      * 编辑用户
      * @param resources /
