@@ -7,6 +7,7 @@ import co.yixiang.modules.image.web.vo.YxImageInfoQueryVo;
 import co.yixiang.common.web.vo.Paging;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * <p>
@@ -31,5 +32,20 @@ public interface YxImageInfoService extends BaseService<YxImageInfo> {
      * @return
      */
     Paging<YxImageInfoQueryVo> getYxImageInfoPageList(YxImageInfoQueryParam yxImageInfoQueryParam) throws Exception;
-
+    /**
+     * 获取图片信息返回list
+     * @param typeId
+     * @param imgType
+     * @param cateTypeId
+     * @return
+     */
+    List<String> selectImgByParamList(int typeId, Integer imgType, Integer cateTypeId);
+    /**
+     * 获取图片信息,返回逗号拼接的字符
+     * @param typeId
+     * @param imgType
+     * @param cateTypeId
+     * @return
+     */
+    String selectImgByParam(int typeId, Integer imgType, Integer cateTypeId);
 }

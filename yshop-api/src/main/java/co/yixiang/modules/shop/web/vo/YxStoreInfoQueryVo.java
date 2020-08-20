@@ -5,9 +5,9 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.io.Serializable;
-
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.List;
 
 /**
  * <p>
@@ -87,6 +87,13 @@ public class YxStoreInfoQueryVo implements Serializable {
     @ApiModelProperty(value = "行业类别-文字")
     private String industryCategoryInfo;
 
-
+    @ApiModelProperty(value = "店铺服务")
+    private List<String> storeServiceList;
+    @ApiModelProperty(value = "营业时间")
+    private List<String> openTimes;
+    @ApiModelProperty(value = "店铺缩略图")
+    private String storeImage;
+    @ApiModelProperty(value = "店铺轮播图")
+    private List<String> storeRotationImages;
 
 }

@@ -4,13 +4,19 @@ import co.yixiang.common.constant.CommonConstant;
 import co.yixiang.common.service.impl.BaseServiceImpl;
 import co.yixiang.common.web.vo.Paging;
 import co.yixiang.enums.CommonEnum;
+import co.yixiang.modules.coupons.service.YxCouponsService;
+import co.yixiang.modules.image.service.YxImageInfoService;
 import co.yixiang.modules.manage.entity.DictDetail;
 import co.yixiang.modules.manage.service.DictDetailService;
+import co.yixiang.modules.shop.entity.YxStoreAttribute;
 import co.yixiang.modules.shop.entity.YxStoreInfo;
 import co.yixiang.modules.shop.mapper.YxStoreInfoMapper;
 import co.yixiang.modules.shop.mapping.YxStoreInfoMap;
+import co.yixiang.modules.shop.service.YxStoreAttributeService;
 import co.yixiang.modules.shop.service.YxStoreInfoService;
+import co.yixiang.modules.shop.service.YxStoreProductService;
 import co.yixiang.modules.shop.web.param.YxStoreInfoQueryParam;
+import co.yixiang.modules.shop.web.vo.YxStoreInfoDetailQueryVo;
 import co.yixiang.modules.shop.web.vo.YxStoreInfoQueryVo;
 import co.yixiang.utils.StringUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -24,6 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -46,6 +53,14 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
     private YxStoreInfoMap yxStoreInfoMap;
     @Autowired
     private DictDetailService dictDetailService;
+    @Autowired
+    private YxImageInfoService yxImageInfoService;
+    @Autowired
+    private YxStoreAttributeService yxStoreAttributeService;
+    @Autowired
+    private YxCouponsService yxCouponsService;
+    @Autowired
+    private YxStoreProductService yxStoreProductService;
 
     @Override
     public YxStoreInfoQueryVo getYxStoreInfoById(Serializable id){
@@ -78,10 +93,77 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
         List<YxStoreInfoQueryVo> list = yxStoreInfoMap.toDto(pageList.getRecords());
         if(!CollectionUtils.isEmpty(list)){
             for(YxStoreInfoQueryVo yxStoreInfoQueryVo:list){
+                //行业类别
                 DictDetail dictDetail = dictDetailService.getDictDetailValueByType(CommonConstant.DICT_TYPE_INDUSTRY_CATEGORY,yxStoreInfoQueryVo.getIndustryCategory());
-                yxStoreInfoQueryVo.setIndustryCategoryInfo(dictDetail.getLabel());
+                if(null!=dictDetail){
+                    yxStoreInfoQueryVo.setIndustryCategoryInfo(dictDetail.getLabel());
+                }
+                //店铺缩略图
+                yxStoreInfoQueryVo.setStoreImage(yxImageInfoService.selectImgByParam(yxStoreInfoQueryVo.getId(),CommonConstant.IMG_TYPE_STORE,CommonConstant.IMG_CATEGORY_PIC));
             }
         }
         return list;
     }
+
+    /**
+     * 显示店铺详情
+     * @param id
+     * @return
+     */
+    @Override
+    public YxStoreInfoDetailQueryVo getStoreDetailInfoById(Integer id){
+        YxStoreInfoDetailQueryVo yxStoreInfoDetailQueryVo = new YxStoreInfoDetailQueryVo();
+        QueryWrapper<YxStoreInfo> wrapper = new QueryWrapper<YxStoreInfo>();
+        wrapper.eq("del_flag", CommonEnum.DEL_STATUS_0.getValue()).eq("status",0).eq("id",id);
+        YxStoreInfo yxStoreInfo = this.getOne(wrapper);
+        YxStoreInfoQueryVo yxStoreInfoQueryVo = yxStoreInfoMap.toDto(yxStoreInfo);
+        //行业类别
+        DictDetail dictDetail = dictDetailService.getDictDetailValueByType(CommonConstant.DICT_TYPE_INDUSTRY_CATEGORY,yxStoreInfoQueryVo.getIndustryCategory());
+        if(null!=dictDetail){
+            yxStoreInfoQueryVo.setIndustryCategoryInfo(dictDetail.getLabel());
+        }
+        //店铺缩略图
+        yxStoreInfoQueryVo.setStoreImage(yxImageInfoService.selectImgByParam(yxStoreInfoQueryVo.getId(),CommonConstant.IMG_TYPE_STORE,CommonConstant.IMG_CATEGORY_PIC));
+        //轮播图
+        yxStoreInfoQueryVo.setStoreRotationImages(yxImageInfoService.selectImgByParamList(yxStoreInfoQueryVo.getId(),CommonConstant.IMG_TYPE_STORE,CommonConstant.IMG_CATEGORY_ROTATION1));
+        //店铺服务
+        List<String> listService= getStroeAttribute(yxStoreInfo.getId(),1);
+        yxStoreInfoQueryVo.setStoreServiceList(listService);
+        //店铺营业时间
+        List<String> listOpenTiems= getStroeAttribute(yxStoreInfo.getId(),0);
+        yxStoreInfoQueryVo.setOpenTimes(listOpenTiems);
+        yxStoreInfoDetailQueryVo.setSotreInfo(yxStoreInfoQueryVo);
+        //卡券信息
+        yxStoreInfoDetailQueryVo.setCouponsListInfo(yxCouponsService.getCouponsInfoByMerId(yxStoreInfo.getMerId()));
+        //商品信息
+        yxStoreInfoDetailQueryVo.setProductListInfo(yxStoreProductService.getProductListByMerId(yxStoreInfo.getMerId()));
+        return yxStoreInfoDetailQueryVo;
+    }
+
+    public List<String> getStroeAttribute(int sotreId,int attributeType){
+        YxStoreInfoDetailQueryVo yxStoreInfoDetailQueryVo = new YxStoreInfoDetailQueryVo();
+        List<String> listStr=new ArrayList<String>();
+        QueryWrapper<YxStoreAttribute> wrapper = new QueryWrapper<YxStoreAttribute>();
+        wrapper.eq("del_flag", CommonEnum.DEL_STATUS_0.getValue()).eq("store_id",sotreId).eq("attribute_type",attributeType);
+        List<YxStoreAttribute> yxStoreAttributeList =yxStoreAttributeService.list(wrapper);
+        if(CollectionUtils.isEmpty(yxStoreAttributeList)){
+            return null;
+        }
+        if(1==attributeType){
+            //店铺服务
+            for(YxStoreAttribute yxStoreAttribute:yxStoreAttributeList){
+                //行业类别
+                DictDetail dictDetail = dictDetailService.getDictDetailValueByType(CommonConstant.DICT_TYPE_STORE_SERVICE,Integer.parseInt(yxStoreAttribute.getAttributeValue1()));
+                if(null!=dictDetail){
+                    listStr.add(dictDetail.getLabel());
+                }
+            }
+        }else{
+            for(YxStoreAttribute yxStoreAttribute:yxStoreAttributeList){
+                listStr.add(yxStoreAttribute.getAttributeValue1()+" "+yxStoreAttribute.getAttributeValue2());
+            }
+        }
+        return listStr;
+    }
+
 }

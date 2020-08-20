@@ -8,15 +8,13 @@ import co.yixiang.common.web.vo.Paging;
 import co.yixiang.modules.shop.entity.YxStoreInfo;
 import co.yixiang.modules.shop.service.YxStoreInfoService;
 import co.yixiang.modules.shop.web.param.YxStoreInfoQueryParam;
+import co.yixiang.modules.shop.web.vo.YxStoreInfoDetailQueryVo;
 import co.yixiang.modules.shop.web.vo.YxStoreInfoQueryVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -72,7 +70,7 @@ public class YxStoreInfoController extends BaseController {
     * 获取店铺表
     */
     @PostMapping("/info")
-    @ApiOperation(value = "获取YxStoreInfo对象详情",notes = "查看店铺表",response = YxStoreInfoQueryVo.class)
+//    @ApiOperation(value = "获取YxStoreInfo对象详情",notes = "查看店铺表",response = YxStoreInfoQueryVo.class)
     public ApiResult<YxStoreInfoQueryVo> getYxStoreInfo(@Valid @RequestBody IdParam idParam) {
         YxStoreInfoQueryVo yxStoreInfoQueryVo = yxStoreInfoService.getYxStoreInfoById(idParam.getId());
         return ApiResult.ok(yxStoreInfoQueryVo);
@@ -94,6 +92,18 @@ public class YxStoreInfoController extends BaseController {
         List<YxStoreInfoQueryVo> yxStoreInfoQueryVoList = yxStoreInfoService.getStoreInfoList(yxStoreInfoQueryParam);
         return ApiResult.ok(yxStoreInfoQueryVoList);
     }
+
+    /**
+     * 获取店铺表
+     */
+    @AnonymousAccess
+    @GetMapping("/getStoreDetail/{storeId}")
+    @ApiOperation(value = "获取商品详情",notes = "获取商品详情")
+    public ApiResult<YxStoreInfoDetailQueryVo> getStoreDetail(@PathVariable Integer storeId) {
+        YxStoreInfoDetailQueryVo yxStoreInfoQueryVo = yxStoreInfoService.getStoreDetailInfoById(storeId);
+        return ApiResult.ok(yxStoreInfoQueryVo);
+    }
+
 
 }
 
