@@ -121,7 +121,7 @@ public class YxUserDto implements Serializable {
 
     /** 提现银行 */
 
-    private Integer bankName;
+    private String bankName;
 
 
     /** 银行卡号 */
