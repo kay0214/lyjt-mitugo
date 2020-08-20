@@ -25,4 +25,14 @@ public interface UserBillMapper extends CoreMapper<YxUserBill> {
             "<if test =\"title != '' and title != null\">and b.title LIKE CONCAT('%',#{title},'%')</if> " +
             "<if test = \"startTime != '' and startTime != null\"> and b.add_time BETWEEN #{startTime} AND #{endTime}</if> </script>")
     List<YxUserBillDto> findAllByQueryCriteria(@Param("username") String username, @Param("title") String title, @Param("pm") Integer pm, @Param("startTime") Integer startTime, @Param("endTime") Integer endTime);
+
+    /**
+     * 根据 关联ID, 查询指定类型数据
+     * @param linkId
+     * @return
+     */
+    @Select("<script> select b.title,b.pm,b.category,b.type,b.number,b.add_time ,u.nickname " +
+            "from yx_user_bill b left join yx_user u on u.uid=b.uid  where 1=1  "  +
+            "<if test = \"linkId != '' and linkId != null\"> and b.link_id=#{linkId}</if> </script>")
+    List<YxUserBillDto> withdrawReviewLog(@Param("linkId") Integer linkId);
 }

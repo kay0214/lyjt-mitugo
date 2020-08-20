@@ -2,6 +2,7 @@ package co.yixiang.modules.shop.rest;
 
 import co.yixiang.logging.aop.log.Log;
 import co.yixiang.modules.shop.service.YxUserBillService;
+import co.yixiang.modules.shop.service.dto.WithdrawReviewQueryCriteria;
 import co.yixiang.modules.shop.service.dto.YxUserBillQueryCriteria;
 import co.yixiang.utils.DateUtils;
 import co.yixiang.utils.StringUtils;
@@ -41,6 +42,19 @@ public class UserBillController {
         if (StringUtils.isBlank(criteria.getAddTimeStart()) && StringUtils.isNotBlank(criteria.getAddTimeEnd())){
             criteria.setAddTimeStart(DateUtils.getDate());
         }
+        return new ResponseEntity(yxUserBillService.queryAll(criteria,pageable), HttpStatus.OK);
+    }
+
+    /**
+     * 查询提现记录的审批记录
+     * @param criteria
+     * @param pageable
+     * @return
+     */
+    @Log("查询提现审批记录")
+    @ApiOperation(value = "查询提现审批记录")
+    @GetMapping(value = "/withdrawReviewLog")
+    public ResponseEntity<Object> getUserWithdrawList(WithdrawReviewQueryCriteria criteria, Pageable pageable) {
         return new ResponseEntity(yxUserBillService.queryAll(criteria,pageable), HttpStatus.OK);
     }
 

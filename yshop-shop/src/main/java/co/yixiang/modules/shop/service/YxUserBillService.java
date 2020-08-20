@@ -7,6 +7,7 @@ package co.yixiang.modules.shop.service;
 
 import co.yixiang.common.service.BaseService;
 import co.yixiang.modules.shop.domain.YxUserBill;
+import co.yixiang.modules.shop.service.dto.WithdrawReviewQueryCriteria;
 import co.yixiang.modules.shop.service.dto.YxUserBillDto;
 import co.yixiang.modules.shop.service.dto.YxUserBillQueryCriteria;
 import org.springframework.data.domain.Pageable;
@@ -37,6 +38,13 @@ public interface YxUserBillService  extends BaseService<YxUserBill>{
     */
     List<YxUserBillDto> queryAll(YxUserBillQueryCriteria criteria);
 
+    /**
+     * 查询指定场景的数据
+     * @param criteria
+     * @param pageable
+     * @return
+     */
+    Map<String,Object> queryAll(WithdrawReviewQueryCriteria criteria, Pageable pageable);
     /**
     * 导出数据
     * @param all 待导出的数据

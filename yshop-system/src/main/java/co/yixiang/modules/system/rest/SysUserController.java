@@ -130,6 +130,19 @@ public class SysUserController {
         return new ResponseEntity<>(userService.create(resources),HttpStatus.CREATED);
     }
 
+    @Log("新增商户")
+    @ApiOperation("新增商户")
+    @PostMapping(value = "/createMerchants")
+    @PreAuthorize("@el.check('admin','user:add')")
+    public ResponseEntity<Object> createMerchants(@Validated @RequestBody User resources){
+        checkLevel(resources);
+        int uid = SecurityUtils.getUserId().intValue();
+        resources.setParentId(uid);
+        // 默认密码 123456
+        resources.setPassword(passwordEncoder.encode("123456"));
+        return new ResponseEntity<>(userService.createMerchants(resources),HttpStatus.CREATED);
+    }
+
     @Log("修改用户")
     @ApiOperation("修改用户")
     @PutMapping

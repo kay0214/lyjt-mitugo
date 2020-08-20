@@ -37,6 +37,12 @@
           <el-form-item label="更新时间">
             <el-input v-model="form.updateTime" style="width: 370px;" />
           </el-form-item>
+          <el-form-item label="冗余字段：被审核人id">
+            <el-input v-model="form.uid" style="width: 370px;" />
+          </el-form-item>
+          <el-form-item label="冗余字段：被审核人信息">
+            <el-input v-model="form.username" style="width: 370px;" />
+          </el-form-item>
         </el-form>
         <div slot="footer" class="dialog-footer">
           <el-button type="text" @click="crud.cancelCU">取消</el-button>
@@ -64,6 +70,8 @@
             <span>{{ parseTime(scope.row.updateTime) }}</span>
           </template>
         </el-table-column>
+        <el-table-column v-if="columns.visible('uid')" prop="uid" label="冗余字段：被审核人id" />
+        <el-table-column v-if="columns.visible('username')" prop="username" label="冗余字段：被审核人信息" />
         <el-table-column v-permission="['admin','yxExamineLog:edit','yxExamineLog:del']" label="操作" width="150px" align="center">
           <template slot-scope="scope">
             <udOperation
@@ -90,7 +98,7 @@ import MaterialList from "@/components/material";
 
 // crud交由presenter持有
 const defaultCrud = CRUD({ title: '审核记录', url: 'api/yxExamineLog', sort: 'id,desc', crudMethod: { ...crudYxExamineLog }})
-const defaultForm = { id: null, type: null, typeId: null, status: null, remark: null, delFlag: null, createUserId: null, updateUserId: null, createTime: null, updateTime: null }
+const defaultForm = { id: null, type: null, typeId: null, status: null, remark: null, delFlag: null, createUserId: null, updateUserId: null, createTime: null, updateTime: null, uid: null, username: null }
 export default {
   name: 'YxExamineLog',
   components: { pagination, crudOperation, rrOperation, udOperation ,MaterialList},
