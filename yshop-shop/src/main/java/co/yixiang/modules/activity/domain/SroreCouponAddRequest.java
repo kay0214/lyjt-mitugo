@@ -1,36 +1,20 @@
-/**
- * Copyright (C) 2018-2020
- * All rights reserved, Designed By www.yixiang.co
-
- */
 package co.yixiang.modules.activity.domain;
 
-import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.core.bean.copier.CopyOptions;
-import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
 import javax.validation.constraints.DecimalMax;
 import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import java.io.Serializable;
 import java.math.BigDecimal;
 
 /**
-* @author hupeng
-* @date 2020-05-13
-*/
+ * 优惠券添加实体
+ * @Author : huanghui
+ */
 @Data
-@TableName("yx_store_coupon")
-public class YxStoreCoupon implements Serializable {
-
-    /** 优惠券表ID */
-    @TableId(value = "id", type = IdType.AUTO)
-    private Integer id;
+public class SroreCouponAddRequest {
 
     /** 所属商户 */
     private Integer belong;
@@ -38,11 +22,6 @@ public class YxStoreCoupon implements Serializable {
     /** 优惠券名称 */
     @NotBlank(message = "请填写优惠券名称")
     private String title;
-
-
-    /** 兑换消耗积分值 */
-    private Integer integral;
-
 
     /** 兑换的优惠券面值 */
     @DecimalMin(value="0.00", message = "优惠券面值不在合法范围内" )
@@ -60,26 +39,11 @@ public class YxStoreCoupon implements Serializable {
     @NotNull(message = "请输入有效期限")
     private Integer couponTime;
 
-
     /** 排序 */
-    @NotNull(message = "排序不可为空")
     private Integer sort;
 
 
     /** 状态（0：关闭，1：开启） */
     @TableField(value = "`status`")
     private Integer status;
-
-
-    /** 兑换项目添加时间 */
-    private Integer addTime;
-
-
-    /** 是否删除 */
-    private Integer isDel;
-
-
-    public void copy(YxStoreCoupon source){
-        BeanUtil.copyProperties(source,this, CopyOptions.create().setIgnoreNullValue(true));
-    }
 }

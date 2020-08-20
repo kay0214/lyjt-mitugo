@@ -5,26 +5,28 @@
  */
 package co.yixiang.modules.activity.rest;
 
+import cn.hutool.core.bean.BeanUtil;
+import co.yixiang.exception.BadRequestException;
 import co.yixiang.logging.aop.log.Log;
+import co.yixiang.modules.activity.domain.SroreCouponAddRequest;
+import co.yixiang.modules.activity.domain.SroreCouponModifyRequest;
 import co.yixiang.modules.activity.domain.YxStoreCoupon;
 import co.yixiang.modules.activity.service.YxStoreCouponService;
 import co.yixiang.modules.activity.service.dto.YxStoreCouponQueryCriteria;
+import co.yixiang.modules.shop.domain.User;
+import co.yixiang.modules.shop.service.UserService;
 import co.yixiang.utils.OrderUtil;
+import co.yixiang.utils.SecurityUtils;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
 * @author hupeng
@@ -36,6 +38,9 @@ import org.springframework.web.bind.annotation.RestController;
 public class StoreCouponController {
 
     private final YxStoreCouponService yxStoreCouponService;
+
+    @Autowired
+    private UserService userService;
 
     public StoreCouponController(YxStoreCouponService yxStoreCouponService) {
         this.yxStoreCouponService = yxStoreCouponService;
@@ -49,22 +54,46 @@ public class StoreCouponController {
         return new ResponseEntity(yxStoreCouponService.queryAll(criteria,pageable),HttpStatus.OK);
     }
 
+    @Log("查询指定优惠券详情")
+    @ApiOperation(value = "查询指定优惠券详情")
+    @GetMapping(value = "/yxStoreCoupon/getCouponInfo/{id}")
+    public ResponseEntity<Object> getCouponInfo(@PathVariable Integer id){
+        return new ResponseEntity<>(yxStoreCouponService.getOne(new QueryWrapper<YxStoreCoupon>().eq("id", id)), HttpStatus.OK);
+    }
+
     @Log("新增")
     @ApiOperation(value = "新增")
     @PostMapping(value = "/yxStoreCoupon")
     @PreAuthorize("hasAnyRole('admin','YXSTORECOUPON_ALL','YXSTORECOUPON_CREATE')")
-    public ResponseEntity create(@Validated @RequestBody YxStoreCoupon resources){
-        resources.setAddTime(OrderUtil.getSecondTimestampTwo());
-        return new ResponseEntity(yxStoreCouponService.save(resources),HttpStatus.CREATED);
+    public ResponseEntity create(@Validated @RequestBody SroreCouponAddRequest resources){
+
+        // 当前登录用户ID (此账户应为商铺管理员)
+        int loginUserId = SecurityUtils.getUserId().intValue();
+
+
+        User getOneUser = userService.getOne(new QueryWrapper<User>().eq("id", loginUserId).eq("merchants_status", 0));
+        if (getOneUser == null){
+            throw new BadRequestException("当前登录用户异常!");
+        }
+        if (getOneUser.getUserRole() != 2){
+            throw new BadRequestException("当前登录用户非商户, 不可操作!");
+        }
+
+        YxStoreCoupon yxStoreCoupon = new YxStoreCoupon();
+        BeanUtil.copyProperties(resources, yxStoreCoupon);
+        yxStoreCoupon.setBelong(loginUserId);
+        yxStoreCoupon.setAddTime(OrderUtil.getSecondTimestampTwo());
+        return new ResponseEntity(yxStoreCouponService.save(yxStoreCoupon),HttpStatus.CREATED);
     }
 
     @Log("修改")
     @ApiOperation(value = "修改")
     @PutMapping(value = "/yxStoreCoupon")
     @PreAuthorize("hasAnyRole('admin','YXSTORECOUPON_ALL','YXSTORECOUPON_EDIT')")
-    public ResponseEntity update(@Validated @RequestBody YxStoreCoupon resources){
-        yxStoreCouponService.saveOrUpdate(resources);
-        return new ResponseEntity(HttpStatus.NO_CONTENT);
+    public ResponseEntity update(@Validated @RequestBody SroreCouponModifyRequest resources){
+        YxStoreCoupon yxStoreCoupon = new YxStoreCoupon();
+        BeanUtil.copyProperties(resources, yxStoreCoupon);
+        return new ResponseEntity(yxStoreCouponService.saveOrUpdate(yxStoreCoupon), HttpStatus.NO_CONTENT);
     }
 
     @Log("删除")
