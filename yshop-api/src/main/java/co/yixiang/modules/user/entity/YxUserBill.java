@@ -1,8 +1,7 @@
 package co.yixiang.modules.user.entity;
 
-import java.math.BigDecimal;
-import com.baomidou.mybatisplus.annotation.IdType;
 import co.yixiang.common.entity.BaseEntity;
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import io.swagger.annotations.ApiModel;
@@ -10,7 +9,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import java.util.Date;
+import java.math.BigDecimal;
 
 /**
  * <p>
@@ -73,5 +72,8 @@ private Integer partnerId;
 
 @ApiModelProperty(value = "用户类型 0:预留 1:前台用户 2：后台商户 3：后台合伙人")
 private Integer userType;
+
+    @ApiModelProperty(value = "用户名")
+    private String username;
 
 }

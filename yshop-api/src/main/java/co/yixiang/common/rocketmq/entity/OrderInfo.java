@@ -21,6 +21,9 @@ public class OrderInfo {
     @ApiModelProperty(value = "用户id")
     private Integer uid;
 
+    @ApiModelProperty(value = "用户名")
+    private String username;
+
     @ApiModelProperty(value = "实际支付金额")
     private BigDecimal payPrice;
 
