@@ -99,6 +99,7 @@ public class CommissionConsumer implements RocketMQListener<String>, RocketMQPus
     private void updateOrderInfo(String OrderId){
         //根据订单号查询订单信息，获取推荐人、分享人、分享人的推荐人ID
         YxStoreOrder yxStoreOrder = yxStoreOrderMapper.selectOne(new QueryWrapper<YxStoreOrder>().lambda().eq(YxStoreOrder::getOrderId, OrderId));
+
         if(yxStoreOrder.getRebateStatus()==1){
             log.info("分佣失败，该订单重复分佣,订单号：{}",OrderId);
             return;
@@ -106,7 +107,9 @@ public class CommissionConsumer implements RocketMQListener<String>, RocketMQPus
         yxStoreOrder.setRebateStatus(1);
         yxStoreOrderMapper.updateById(yxStoreOrder);
         OrderInfo orderInfo = new OrderInfo();
+        YxWechatUser yxWechatUser = yxWechatUserMapper.selectById(OrderId);
         BeanUtils.copyProperties(yxStoreOrder,orderInfo);
+        orderInfo.setUsername(yxWechatUser.getNickname());
         updateaccount(orderInfo);
     }
 
@@ -122,9 +125,11 @@ public class CommissionConsumer implements RocketMQListener<String>, RocketMQPus
         }
         yxCouponOrder.setRebateStatus(1);
         yxCouponOrderMapper.updateById(yxCouponOrder);
+        YxWechatUser yxWechatUser = yxWechatUserMapper.selectById(OrderId);
         OrderInfo orderInfo = new OrderInfo();
         BeanUtils.copyProperties(yxCouponOrder,orderInfo);
         orderInfo.setPayPrice(yxCouponOrder.getCouponPrice());
+        orderInfo.setUsername(yxWechatUser.getNickname());
         updateaccount(orderInfo);
     }
 
@@ -146,7 +151,7 @@ public class CommissionConsumer implements RocketMQListener<String>, RocketMQPus
             //更新佣金金额
             yxWechatUser.setNowMoney(yxWechatUser.getNowMoney().add(parentBonus));
             yxWechatUserMapper.updateById(yxWechatUser);
-            insertBill(orderInfo.getParentId(), parentBonus, yxWechatUser.getNowMoney());
+            insertBill(orderInfo.getParentId(), parentBonus, yxWechatUser);
         } else {
             fundsRate = fundsRate.add(yxCommissionRate.getParentRate());
         }
@@ -158,7 +163,7 @@ public class CommissionConsumer implements RocketMQListener<String>, RocketMQPus
             //更新佣金金额
             yxWechatUser.setNowMoney(yxWechatUser.getNowMoney().add(shareBonus));
             yxWechatUserMapper.updateById(yxWechatUser);
-            insertBill(orderInfo.getShareId(), shareBonus, yxWechatUser.getNowMoney());
+            insertBill(orderInfo.getShareId(), shareBonus, yxWechatUser);
 
         } else {
             fundsRate = fundsRate.add(yxCommissionRate.getShareRate());
@@ -171,7 +176,7 @@ public class CommissionConsumer implements RocketMQListener<String>, RocketMQPus
             //更新佣金金额
             yxWechatUser.setNowMoney(yxWechatUser.getNowMoney().add(shareParentBonus));
             yxWechatUserMapper.updateById(yxWechatUser);
-            insertBill(orderInfo.getShareParentId(), shareParentBonus, yxWechatUser.getNowMoney());
+            insertBill(orderInfo.getShareParentId(), shareParentBonus, yxWechatUser);
         } else {
             fundsRate = fundsRate.add(yxCommissionRate.getShareParentRate());
         }
@@ -184,11 +189,10 @@ public class CommissionConsumer implements RocketMQListener<String>, RocketMQPus
         }
         //平台
         BigDecimal fundsBonus = orderInfo.getCommission().multiply(fundsRate);
-        YxWechatUser yxWechatUser = yxWechatUserMapper.selectById(orderInfo.getUid());
         YxFundsDetail yxFundsDetail = new YxFundsDetail();
         yxFundsDetail.setType(1);
         yxFundsDetail.setUid(orderInfo.getUid());
-        yxFundsDetail.setUsername(yxWechatUser.getNickname());
+        yxFundsDetail.setUsername(orderInfo.getUsername());
         yxFundsDetail.setOrderId(orderInfo.getOrderId());
         yxFundsDetail.setPm(1);
         yxFundsDetail.setOrderAmount(orderInfo.getPayPrice());
@@ -210,6 +214,7 @@ public class CommissionConsumer implements RocketMQListener<String>, RocketMQPus
         SystemUser merInfo = systemUserMapper.selectById(orderInfo.getMerId());
         YxPointDetail yxPointDetail = new YxPointDetail();
         yxPointDetail.setUid(orderInfo.getUid());
+        yxPointDetail.setUsername(orderInfo.getUsername());
         yxPointDetail.setType(type);
         yxPointDetail.setOrderId(orderInfo.getOrderId());
         yxPointDetail.setOrderType(0);
@@ -246,18 +251,19 @@ public class CommissionConsumer implements RocketMQListener<String>, RocketMQPus
      * 插入用户资金明细
      * @param uid
      * @param parentBonus
-     * @param nowMoney
+     * @param yxWechatUser
      */
-    private void insertBill(Integer uid, BigDecimal parentBonus, BigDecimal nowMoney) {
+    private void insertBill(Integer uid, BigDecimal parentBonus, YxWechatUser yxWechatUser) {
         //插入明细数据
         YxUserBill yxUserBill = new YxUserBill();
         yxUserBill.setUid(uid);
+        yxUserBill.setUsername(yxWechatUser.getNickname());
         yxUserBill.setPm(1);
         yxUserBill.setTitle("推荐佣金");
         yxUserBill.setCategory("now_money");
         yxUserBill.setType("brokerage");
         yxUserBill.setNumber(parentBonus);
-        yxUserBill.setBalance(nowMoney.add(parentBonus));
+        yxUserBill.setBalance(yxWechatUser.getNowMoney().add(parentBonus));
         yxUserBill.setAddTime(OrderUtil.getSecondTimestampTwo());
         yxUserBill.setStatus(1);
         yxUserBillMapper.insert(yxUserBill);
