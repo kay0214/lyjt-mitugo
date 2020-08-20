@@ -38,9 +38,17 @@
         </template>
       </el-table-column>
       <el-table-column prop="phone" label="手机号码" />
-      <el-table-column prop="nowMoney" label="用户余额" />
+      <el-table-column prop="realName" label="真实姓名" />
       <el-table-column prop="brokeragePrice" label="佣金金额" />
-      <el-table-column prop="integral" label="用户积分" />
+      <el-table-column label="用户角色" align="center">
+        <template slot-scope="scope">
+          <div>
+            <el-tag v-if="scope.row.userRole == 1">分销客</el-tag>
+            <el-tag v-else-if="scope.row.userRole == 0">普通会员</el-tag>
+            <el-tag v-else></el-tag>
+          </div>
+        </template>
+      </el-table-column>
       <el-table-column :show-overflow-tooltip="true" prop="addTime" label="创建日期">
         <template slot-scope="scope">
           <span>{{ formatTime(scope.row.addTime) }}</span>
@@ -54,17 +62,9 @@
           </div>
         </template>
       </el-table-column>
-      <el-table-column label="用户来源" align="center">
-        <template slot-scope="scope">
-          <div>
-            <el-tag v-if="scope.row.userType == 'wechat'">公众号</el-tag>
-            <el-tag v-else-if="scope.row.userType == 'routine'">小程序</el-tag>
-            <el-tag v-else>H5</el-tag>
-          </div>
-        </template>
-      </el-table-column>
       <el-table-column prop="spreadUid" label="推荐人" />
       <el-table-column prop="payCount" label="购买次数" />
+      <el-table-column prop="pushCount" label="直推人数" />
       <el-table-column v-if="checkPermission(['admin','YXUSER_ALL','YXUSER_EDIT','YXUSER_DELETE'])" label="操作" width="185" align="center" fixed="right">
         <template slot-scope="scope">
           <el-button
@@ -74,7 +74,7 @@
             icon="el-icon-edit"
             @click="edit(scope.row)"
           />
-          <el-dropdown size="mini" split-button type="primary" trigger="click">
+          <!-- <el-dropdown size="mini" split-button type="primary" trigger="click">
             操作
             <el-dropdown-menu slot="dropdown">
               <el-dropdown-item>
@@ -87,6 +87,7 @@
               </el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>
+          -->
           <!--
          <el-popover
             v-permission="['admin','YXUSER_ALL','YXUSER_DELETE']"
@@ -231,6 +232,9 @@ export default {
         spreadTime: data.spreadTime,
         userType: data.userType,
         isPromoter: data.isPromoter,
+        userRole: data.userRole,
+        bankName: data.bankName,
+        bankNo: data.bankNo,
         payCount: data.payCount,
         spreadCount: data.spreadCount,
         cleanTime: data.cleanTime,
