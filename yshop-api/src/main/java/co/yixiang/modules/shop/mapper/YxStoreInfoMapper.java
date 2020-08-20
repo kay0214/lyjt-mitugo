@@ -1,12 +1,11 @@
 package co.yixiang.modules.shop.mapper;
 
-import co.yixiang.common.mybatis.GeoPoint;
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import co.yixiang.modules.shop.entity.YxStoreInfo;
 import co.yixiang.modules.shop.web.param.YxStoreInfoQueryParam;
 import co.yixiang.modules.shop.web.vo.YxStoreInfoQueryVo;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
@@ -18,8 +17,8 @@ import java.math.BigDecimal;
  * 店铺表 Mapper 接口
  * </p>
  *
- * @author hupeng
- * @since 2020-08-14
+ * @author nxl
+ * @since 2020-08-20
  */
 @Repository
 public interface YxStoreInfoMapper extends BaseMapper<YxStoreInfo> {

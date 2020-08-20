@@ -14,8 +14,8 @@ import java.util.List;
  * 店铺表 查询结果对象
  * </p>
  *
- * @author hupeng
- * @date 2020-08-14
+ * @author nxl
+ * @date 2020-08-20
  */
 @Data
 @ApiModel(value = "YxStoreInfoQueryVo对象", description = "店铺表查询参数")

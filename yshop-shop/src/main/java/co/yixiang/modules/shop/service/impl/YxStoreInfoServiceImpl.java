@@ -12,12 +12,11 @@ import co.yixiang.common.service.impl.BaseServiceImpl;
 import co.yixiang.common.utils.QueryHelpPlus;
 import co.yixiang.constant.ShopConstants;
 import co.yixiang.dozer.service.IGenerator;
+import co.yixiang.modules.mybatis.GeoPoint;
 import co.yixiang.modules.shop.domain.*;
 import co.yixiang.modules.shop.service.YxStoreInfoService;
 import co.yixiang.modules.shop.service.dto.YxStoreInfoDto;
 import co.yixiang.modules.shop.service.dto.YxStoreInfoQueryCriteria;
-import co.yixiang.modules.shop.service.mapper.YxImageInfoMapper;
-import co.yixiang.modules.shop.service.mapper.YxStoreAttributeMapper;
 import co.yixiang.modules.shop.service.mapper.YxStoreInfoMapper;
 import co.yixiang.utils.BeanUtils;
 import co.yixiang.utils.FileUtil;
@@ -36,6 +35,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.*;
 
 // 默认不使用缓存
@@ -92,6 +92,9 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
         YxStoreInfo yxStoreInfo = new YxStoreInfo();
         BeanUtils.copyProperties(request,yxStoreInfo);
         //
+        GeoPoint geoPoint = new GeoPoint(new BigDecimal(request.getCoordinateX()),new BigDecimal(request.getCoordinateX()));
+        yxStoreInfo.setCoordinate(geoPoint);
+
         yxStoreInfo.setUpdateUserId(SecurityUtils.getUserId().intValue());
         boolean isUpd = this.updateById(yxStoreInfo);
         List<YxImageInfo> imageInfoList = yxImageInfoService.list(new QueryWrapper<YxImageInfo>().eq("type_id",yxStoreInfo.getId()).eq("img_type",ShopConstants.IMG_TYPE_STORE).eq("del_flag",0));
@@ -205,8 +208,8 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
             map.put("创建时间", yxStoreInfo.getCreateTime());
 //            map.put("更新时间", yxStoreInfo.getUpdateTime());
             map.put("店铺介绍", yxStoreInfo.getIntroduction());
-            map.put("地图坐标经度", yxStoreInfo.getCoordinateX());
-            map.put("地图坐标纬度", yxStoreInfo.getCoordinateY());
+           /* map.put("地图坐标经度", yxStoreInfo.getCoordinateX());
+            map.put("地图坐标纬度", yxStoreInfo.getCoordinateY());*/
             list.add(map);
         }
         FileUtil.downloadExcel(list, response);

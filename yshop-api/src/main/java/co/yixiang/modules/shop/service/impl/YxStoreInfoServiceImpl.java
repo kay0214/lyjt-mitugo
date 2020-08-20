@@ -141,7 +141,6 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
     }
 
     public List<String> getStroeAttribute(int sotreId,int attributeType){
-        YxStoreInfoDetailQueryVo yxStoreInfoDetailQueryVo = new YxStoreInfoDetailQueryVo();
         List<String> listStr=new ArrayList<String>();
         QueryWrapper<YxStoreAttribute> wrapper = new QueryWrapper<YxStoreAttribute>();
         wrapper.eq("del_flag", CommonEnum.DEL_STATUS_0.getValue()).eq("store_id",sotreId).eq("attribute_type",attributeType);

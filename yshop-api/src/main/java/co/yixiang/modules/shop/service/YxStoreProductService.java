@@ -4,6 +4,7 @@ import co.yixiang.modules.shop.entity.YxStoreProduct;
 import co.yixiang.common.service.BaseService;
 import co.yixiang.modules.shop.web.dto.ProductDTO;
 import co.yixiang.modules.shop.web.param.YxStoreProductQueryParam;
+import co.yixiang.modules.shop.web.vo.YxStoreProductNoAttrQueryVo;
 import co.yixiang.modules.shop.web.vo.YxStoreProductQueryVo;
 import co.yixiang.common.web.vo.Paging;
 
@@ -63,5 +64,5 @@ public interface YxStoreProductService extends BaseService<YxStoreProduct> {
      * @param merId
      * @return
      */
-    public List<YxStoreProductQueryVo> getProductListByMerId(int merId);
+    public List<YxStoreProductNoAttrQueryVo> getProductListByMerId(int merId);
 }

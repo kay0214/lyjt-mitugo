@@ -25,5 +25,5 @@ public class YxStoreInfoDetailQueryVo implements Serializable {
     @ApiModelProperty(value = "卡券信息")
     private List<YxCouponsQueryVo> couponsListInfo;
     @ApiModelProperty(value = "商品信息")
-    private List<YxStoreProductQueryVo> productListInfo;
+    private List<YxStoreProductNoAttrQueryVo> productListInfo;
 }

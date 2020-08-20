@@ -2,6 +2,7 @@ package co.yixiang.modules.shop.service.impl;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import co.yixiang.common.service.impl.BaseServiceImpl;
+import co.yixiang.common.util.CommonsUtils;
 import co.yixiang.common.web.vo.Paging;
 import co.yixiang.enums.CommonEnum;
 import co.yixiang.enums.ProductEnum;
@@ -15,6 +16,7 @@ import co.yixiang.modules.shop.service.*;
 import co.yixiang.modules.shop.web.dto.ProductDTO;
 import co.yixiang.modules.shop.web.param.YxStoreProductQueryParam;
 import co.yixiang.modules.shop.web.vo.YxStoreProductAttrQueryVo;
+import co.yixiang.modules.shop.web.vo.YxStoreProductNoAttrQueryVo;
 import co.yixiang.modules.shop.web.vo.YxStoreProductQueryVo;
 import co.yixiang.modules.user.service.YxUserService;
 import co.yixiang.mp.config.ShopKeyUtils;
@@ -286,11 +288,12 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
      * @return
      */
     @Override
-    public List<YxStoreProductQueryVo> getProductListByMerId(int merId){
+    public List<YxStoreProductNoAttrQueryVo> getProductListByMerId(int merId){
         QueryWrapper<YxStoreProduct> wrapper = new QueryWrapper<YxStoreProduct>();
         wrapper.eq("is_del", CommonEnum.DEL_STATUS_0.getValue()).eq("is_show",1).eq("mer_id",merId);
+        wrapper.orderByDesc("sort");
         List<YxStoreProduct> storeProductList =  this.list(wrapper);
-        List<YxStoreProductQueryVo> queryVoList = storeProductMap.toDto(storeProductList);
+        List<YxStoreProductNoAttrQueryVo> queryVoList = CommonsUtils.convertBeanList(storeProductList,YxStoreProductNoAttrQueryVo.class);
         return queryVoList;
     }
 }

@@ -3,7 +3,6 @@ package co.yixiang.modules.shop.entity;
 import co.yixiang.common.entity.BaseEntity;
 import co.yixiang.common.mybatis.GeoPoint;
 import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -18,8 +17,8 @@ import java.util.Date;
  * 店铺表
  * </p>
  *
- * @author hupeng
- * @since 2020-08-14
+ * @author nxl
+ * @since 2020-08-20
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -53,7 +52,6 @@ public class YxStoreInfo extends BaseEntity {
     private String storeMobile;
 
     @ApiModelProperty(value = "状态：0：上架，1：下架")
-    @TableField(value = "`status`")
     private Integer status;
 
     @ApiModelProperty(value = "人均消费")
@@ -70,6 +68,12 @@ public class YxStoreInfo extends BaseEntity {
 
     @ApiModelProperty(value = "地图坐标")
     private GeoPoint coordinate;
+
+    @ApiModelProperty(value = "地图坐标经度")
+    private String coordinateX;
+
+    @ApiModelProperty(value = "地图坐标纬度")
+    private String coordinateY;
 
     @ApiModelProperty(value = "是否删除（0：未删除，1：已删除）")
     private Integer delFlag;

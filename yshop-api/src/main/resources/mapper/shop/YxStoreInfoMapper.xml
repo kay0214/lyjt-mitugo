@@ -4,7 +4,7 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, store_nid, store_name, manage_user_name, mer_id, partner_id, manage_mobile, store_mobile, status, per_capita, industry_category, store_province, store_address, coordinate_x, coordinate_y, del_flag, create_user_id, update_user_id, create_time, update_time, introduction
+        id, store_nid, store_name, manage_user_name, mer_id, partner_id, manage_mobile, store_mobile, status, per_capita, industry_category, store_province, store_address, coordinate, coordinate_x, coordinate_y, del_flag, create_user_id, update_user_id, create_time, update_time, introduction
     </sql>
 
     <select id="getYxStoreInfoById" resultType="co.yixiang.modules.shop.web.vo.YxStoreInfoQueryVo">

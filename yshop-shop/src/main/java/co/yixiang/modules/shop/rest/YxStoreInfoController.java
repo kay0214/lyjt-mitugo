@@ -6,14 +6,12 @@ package co.yixiang.modules.shop.rest;
 import co.yixiang.dozer.service.IGenerator;
 import co.yixiang.logging.aop.log.Log;
 import co.yixiang.modules.shop.domain.User;
-import co.yixiang.modules.shop.domain.YxStoreInfo;
 import co.yixiang.modules.shop.domain.YxStoreInfoRequest;
 import co.yixiang.modules.shop.domain.YxStoreInfoResponse;
 import co.yixiang.modules.shop.service.UserService;
 import co.yixiang.modules.shop.service.YxStoreInfoService;
 import co.yixiang.modules.shop.service.dto.YxStoreInfoDto;
 import co.yixiang.modules.shop.service.dto.YxStoreInfoQueryCriteria;
-import co.yixiang.utils.BeanUtils;
 import co.yixiang.utils.SecurityUtils;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -79,7 +77,7 @@ public class YxStoreInfoController {
         return new ResponseEntity<>(yxStoreInfoService.queryAll(criteria, pageable), HttpStatus.OK);
     }
 
-    @PostMapping
+/*    @PostMapping
     @Log("新增店铺表")
     @ApiOperation("新增店铺表")
     @PreAuthorize("@el.check('admin','yxStoreInfo:add')")
@@ -87,7 +85,7 @@ public class YxStoreInfoController {
         YxStoreInfo yxStoreInfo = new YxStoreInfo();
         BeanUtils.copyProperties(resources,yxStoreInfo);
         return new ResponseEntity<>(yxStoreInfoService.save(yxStoreInfo), HttpStatus.CREATED);
-    }
+    }*/
 
     @PutMapping(value = "/updateStoreInfo")
     @Log("修改店铺表")
