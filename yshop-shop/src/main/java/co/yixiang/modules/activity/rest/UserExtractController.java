@@ -6,7 +6,6 @@
 package co.yixiang.modules.activity.rest;
 
 import cn.hutool.core.util.NumberUtil;
-import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import co.yixiang.dozer.service.IGenerator;
 import co.yixiang.exception.BadRequestException;
@@ -16,16 +15,13 @@ import co.yixiang.modules.activity.service.YxUserExtractService;
 import co.yixiang.modules.activity.service.dto.YxUserExtractQueryCriteria;
 import co.yixiang.modules.shop.domain.YxUser;
 import co.yixiang.modules.shop.domain.YxUserBill;
-import co.yixiang.modules.shop.domain.YxWechatUser;
 import co.yixiang.modules.shop.service.YxUserBillService;
 import co.yixiang.modules.shop.service.YxUserService;
 import co.yixiang.modules.shop.service.YxWechatUserService;
 import co.yixiang.modules.shop.service.dto.YxUserDto;
-import co.yixiang.modules.shop.service.dto.YxWechatUserDto;
 import co.yixiang.mp.service.YxPayService;
 import co.yixiang.utils.OrderUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.github.binarywang.wxpay.exception.WxPayException;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.data.domain.Pageable;
@@ -33,13 +29,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-import java.math.BigDecimal;
+import org.springframework.web.bind.annotation.*;
 
 /**
 * @author hupeng
@@ -119,25 +109,24 @@ public class UserExtractController {
 
         }
         //todo 此处为企业付款，没经过测试
-        boolean isTest = true;
-        if(!isTest){
-            YxWechatUserDto wechatUser =  generator.convert(wechatUserService.getOne(new QueryWrapper<YxWechatUser>().eq("uid",resources.getUid())),YxWechatUserDto.class);
-            if(ObjectUtil.isNotNull(wechatUser)){
-                try {
-                    payService.entPay(wechatUser.getOpenid(),resources.getId().toString(),
-                            resources.getRealName(),
-                            resources.getExtractPrice().multiply(new BigDecimal(100)).intValue());
-                } catch (WxPayException e) {
-                    throw new BadRequestException(e.getMessage());
-                }
-            }else{
-                throw new BadRequestException("不是微信用户无法退款");
-            }
-
-        }
+        // TODO:: 一期全部线下转账.
+//        boolean isTest = true;
+//        if(!isTest){
+//            YxWechatUserDto wechatUser =  generator.convert(wechatUserService.getOne(new QueryWrapper<YxWechatUser>().eq("uid",resources.getUid())),YxWechatUserDto.class);
+//            if(ObjectUtil.isNotNull(wechatUser)){
+//                try {
+//                    payService.entPay(wechatUser.getOpenid(),resources.getId().toString(),
+//                            resources.getRealName(),
+//                            resources.getExtractPrice().multiply(new BigDecimal(100)).intValue());
+//                } catch (WxPayException e) {
+//                    throw new BadRequestException(e.getMessage());
+//                }
+//            }else{
+//                throw new BadRequestException("不是微信用户无法退款");
+//            }
+//
+//        }
         yxUserExtractService.saveOrUpdate(resources);
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
-
-
 }
