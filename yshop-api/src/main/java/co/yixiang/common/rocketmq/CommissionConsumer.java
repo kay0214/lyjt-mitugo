@@ -33,6 +33,7 @@ import org.apache.rocketmq.spring.core.RocketMQPushConsumerLifecycleListener;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 
@@ -41,6 +42,7 @@ import java.math.BigDecimal;
  */
 @Service
 @Slf4j
+@Transactional(rollbackFor = Exception.class)
 @RocketMQMessageListener(topic = MQConstant.MITU_TOPIC, selectorExpression = MQConstant.MITU_COMMISSION_TAG, consumerGroup = MQConstant.MITU_COMMISSION_GROUP)
 public class CommissionConsumer implements RocketMQListener<String>, RocketMQPushConsumerLifecycleListener {
 
@@ -79,62 +81,64 @@ public class CommissionConsumer implements RocketMQListener<String>, RocketMQPus
         String orderId = callBackResult.getString("orderId");
         String orderType = callBackResult.getString("orderType");
 
-        if(orderType.equals("0")){
+        if (orderType.equals("0")) {
             //商品购买
             updateOrderInfo(orderId);
 
-        }else if(orderType.equals("1")){
+        } else if (orderType.equals("1")) {
             //本地生活
             updateCouponInfo(orderId);
-        }else {
-            log.info("订单类型错误，类型为：{}",orderType);
+        } else {
+            log.info("订单类型错误，类型为：{}", orderType);
             return;
         }
     }
 
     /**
      * 商品购买分佣
+     *
      * @param OrderId
      */
-    private void updateOrderInfo(String OrderId){
+    private void updateOrderInfo(String OrderId) {
         //根据订单号查询订单信息
         YxStoreOrder yxStoreOrder = yxStoreOrderMapper.selectOne(new QueryWrapper<YxStoreOrder>().lambda().eq(YxStoreOrder::getOrderId, OrderId));
-        if(yxStoreOrder.getRebateStatus()==1){
-            log.info("分佣失败，该订单重复分佣,订单号：{}",OrderId);
-            return;
-        }
-        if(yxStoreOrder.getCommission().equals(0)){
-            log.info("分佣失败，该订单可分佣金额为0,订单号：{}",OrderId);
+        if (yxStoreOrder.getRebateStatus() == 1) {
+            log.info("分佣失败，该订单重复分佣,订单号：{}", OrderId);
             return;
         }
         yxStoreOrder.setRebateStatus(1);
         yxStoreOrderMapper.updateById(yxStoreOrder);
+        if (yxStoreOrder.getCommission().compareTo(BigDecimal.ZERO)<=0) {
+            log.info("分佣失败，该订单可分佣金额为0,订单号：{}", OrderId);
+            return;
+        }
         OrderInfo orderInfo = new OrderInfo();
-        YxWechatUser yxWechatUser = yxWechatUserMapper.selectById(OrderId);
-        BeanUtils.copyProperties(yxStoreOrder,orderInfo);
+        YxWechatUser yxWechatUser = yxWechatUserMapper.selectById(yxStoreOrder.getUid());
+        BeanUtils.copyProperties(yxStoreOrder, orderInfo);
         orderInfo.setUsername(yxWechatUser.getNickname());
         updateaccount(orderInfo);
     }
 
     /**
      * 本地生活分佣
+     *
      * @param OrderId
      */
-    private void updateCouponInfo(String OrderId){
-        YxCouponOrder yxCouponOrder= yxCouponOrderMapper.selectOne(new QueryWrapper<YxCouponOrder>().lambda().eq(YxCouponOrder::getOrderId, OrderId));
-        if(yxCouponOrder.getRebateStatus().equals(1)){
-            log.info("分佣失败，该订单重复分佣,订单号：{}",OrderId);
+    private void updateCouponInfo(String OrderId) {
+        YxCouponOrder yxCouponOrder = yxCouponOrderMapper.selectOne(new QueryWrapper<YxCouponOrder>().lambda().eq(YxCouponOrder::getOrderId, OrderId));
+        if (yxCouponOrder.getRebateStatus().equals(1)) {
+            log.info("分佣失败，该订单重复分佣,订单号：{}", OrderId);
             return;
         }
-        if(yxCouponOrder.getCommission().equals(0)){
-            log.info("分佣失败，该订单可分佣金额为0,订单号：{}",OrderId);
+        if (yxCouponOrder.getCommission().compareTo(BigDecimal.ZERO)<=0) {
+            log.info("分佣失败，该订单可分佣金额为0,订单号：{}", OrderId);
             return;
         }
         yxCouponOrder.setRebateStatus(1);
         yxCouponOrderMapper.updateById(yxCouponOrder);
-        YxWechatUser yxWechatUser = yxWechatUserMapper.selectById(OrderId);
+        YxWechatUser yxWechatUser = yxWechatUserMapper.selectById(yxCouponOrder.getUid());
         OrderInfo orderInfo = new OrderInfo();
-        BeanUtils.copyProperties(yxCouponOrder,orderInfo);
+        BeanUtils.copyProperties(yxCouponOrder, orderInfo);
         orderInfo.setPayPrice(yxCouponOrder.getCouponPrice());
         orderInfo.setUsername(yxWechatUser.getNickname());
         updateaccount(orderInfo);
@@ -142,10 +146,11 @@ public class CommissionConsumer implements RocketMQListener<String>, RocketMQPus
 
     /**
      * 更新账户信息
+     *
      * @param orderInfo
      */
-    private void updateaccount(OrderInfo orderInfo){
-        YxFundsAccount yxFundsAccount = yxFundsAccountMapper.selectById(0);
+    private void updateaccount(OrderInfo orderInfo) {
+        YxFundsAccount yxFundsAccount = yxFundsAccountMapper.selectById(1);
         //查询分佣比例
         YxCommissionRate yxCommissionRate = yxCommissionRateMapper.selectOne(new QueryWrapper<>());
         //平台抽成
@@ -163,7 +168,7 @@ public class CommissionConsumer implements RocketMQListener<String>, RocketMQPus
             fundsRate = fundsRate.add(yxCommissionRate.getParentRate());
         }
         //分享人
-        if (null != orderInfo.getShareId()) {
+        if (null != orderInfo.getShareId() && orderInfo.getShareId() == 3) {
             BigDecimal shareBonus = orderInfo.getCommission().multiply(yxCommissionRate.getShareRate());
             //获取用户信息
             YxWechatUser yxWechatUser = yxWechatUserMapper.selectById(orderInfo.getShareId());
@@ -188,11 +193,13 @@ public class CommissionConsumer implements RocketMQListener<String>, RocketMQPus
             fundsRate = fundsRate.add(yxCommissionRate.getShareParentRate());
         }
         //商户、合伙人积分
-        if (null != orderInfo.getMerId()) {
+        if (null != orderInfo.getMerId() && orderInfo.getMerId() != 0) {
             //分红池
-            yxFundsAccount = updatePoint(orderInfo,yxCommissionRate,yxFundsAccount,1);
+            yxFundsAccount = updatePoint(orderInfo, yxCommissionRate, yxFundsAccount, 1);
             //拉新池
-            yxFundsAccount = updatePoint(orderInfo,yxCommissionRate,yxFundsAccount,0);
+            yxFundsAccount = updatePoint(orderInfo, yxCommissionRate, yxFundsAccount, 0);
+        } else {
+            fundsRate = fundsRate.add(yxCommissionRate.getMerRate().add(yxCommissionRate.getPartnerRate()));
         }
         //平台
         BigDecimal fundsBonus = orderInfo.getCommission().multiply(fundsRate);
@@ -202,21 +209,22 @@ public class CommissionConsumer implements RocketMQListener<String>, RocketMQPus
         yxFundsDetail.setUsername(orderInfo.getUsername());
         yxFundsDetail.setOrderId(orderInfo.getOrderId());
         yxFundsDetail.setPm(1);
-        yxFundsDetail.setOrderAmount(orderInfo.getPayPrice());
+        yxFundsDetail.setOrderAmount(fundsBonus);
         yxFundsDetailMapper.insert(yxFundsDetail);
         yxFundsAccount.setPrice(yxFundsAccount.getPrice().add(fundsBonus));
         yxFundsAccountMapper.updateById(yxFundsAccount);
     }
 
     /**
-     *  更新商户合伙人积分明细以及平台总积分
+     * 更新商户合伙人积分明细以及平台总积分
+     *
      * @param orderInfo
      * @param yxCommissionRate
      * @param yxFundsAccount
      * @param type
      * @return
      */
-    private YxFundsAccount updatePoint(OrderInfo orderInfo, YxCommissionRate yxCommissionRate, YxFundsAccount yxFundsAccount, Integer type){
+    private YxFundsAccount updatePoint(OrderInfo orderInfo, YxCommissionRate yxCommissionRate, YxFundsAccount yxFundsAccount, Integer type) {
         BigDecimal merBonus = orderInfo.getCommission().multiply(yxCommissionRate.getMerRate());
         SystemUser merInfo = systemUserMapper.selectById(orderInfo.getMerId());
         YxPointDetail yxPointDetail = new YxPointDetail();
@@ -244,10 +252,11 @@ public class CommissionConsumer implements RocketMQListener<String>, RocketMQPus
         systemUserMapper.updateById(partnerInfo);
         //总积分
         BigDecimal totalPoint = yxFundsAccount.getBonusPoint().add(merBonus).add(partnerBonus);
-        if(type==1){
+        if (type == 1) {
+            // TODO: 2020/8/20 是否将对应金额累积到平台总佣金中 
             //分红总积分
             yxFundsAccount.setBonusPoint(totalPoint);
-        }else {
+        } else {
             //拉新总积分
             yxFundsAccount.setReferencePoint(totalPoint);
         }
@@ -256,6 +265,7 @@ public class CommissionConsumer implements RocketMQListener<String>, RocketMQPus
 
     /**
      * 插入用户资金明细
+     *
      * @param uid
      * @param parentBonus
      * @param yxWechatUser
