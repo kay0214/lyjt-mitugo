@@ -13,16 +13,15 @@
       <el-form-item label="手机号码">
         <el-input v-model="form.phone" style="width: 370px;" />
       </el-form-item>
-      <el-form-item label="用户积分">
-        <el-input v-model="form.integral" style="width: 370px;" />
+      <el-form-item label="分销客">
+        <el-radio v-model="form.userRole" :label="1">分销客</el-radio>
+        <el-radio v-model="form.userRole" :label="0">普通会员</el-radio>
       </el-form-item>
-      <el-form-item label="推广员">
-        <el-radio v-model="form.isPromoter" :label="1">开启</el-radio>
-        <el-radio v-model="form.isPromoter" :label="0">关闭</el-radio>
+      <el-form-item label="提现银行">
+        <el-input v-model="form.bankName" :disabled="true" style="width: 370px;" />
       </el-form-item>
-      <el-form-item label="商户管理">
-        <el-radio v-model="form.adminid" :label="1">开启</el-radio>
-        <el-radio v-model="form.adminid" :label="0">关闭</el-radio>
+      <el-form-item label="银行卡号">
+        <el-input v-model="form.bankNo" :disabled="true" style="width: 370px;" />
       </el-form-item>
     </el-form>
     <div slot="footer" class="dialog-footer">
@@ -71,6 +70,7 @@ export default {
         spreadTime: '',
         userType: '',
         isPromoter: 0,
+        userRole: 0,
         payCount: '',
         spreadCount: '',
         cleanTime: '',
@@ -152,6 +152,7 @@ export default {
         spreadTime: '',
         userType: '',
         isPromoter: '',
+        userRole: '',
         payCount: '',
         spreadCount: '',
         cleanTime: '',

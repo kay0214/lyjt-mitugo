@@ -161,6 +161,30 @@ public class YxUser implements Serializable {
     /** 用户登陆类型，h5,wechat,routine */
     private String loginType;
 
+    /** 提现银行 */
+    private String bankName;
+
+
+    /** 银行卡号 */
+    private String bankNo;
+
+
+    /** 角色：0->普通会员,1->分销客 */
+    private Integer userRole;
+
+
+    /** 推荐用二维码地址 */
+    private String qrCodeUrl;
+
+
+    /** 推荐人用户ID */
+    private Integer parentId;
+
+    /** 直推人数 */
+    private Integer pushCount;
+
+    /** 推荐人类型:1商户;2合伙人;3用户 */
+    private Integer parentType;
 
     public void copy(YxUser source){
         BeanUtil.copyProperties(source,this, CopyOptions.create().setIgnoreNullValue(true));
