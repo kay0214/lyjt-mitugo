@@ -11,12 +11,16 @@ import co.yixiang.modules.coupon.domain.YxCouponsCategory;
 import co.yixiang.modules.coupon.service.YxCouponsCategoryService;
 import co.yixiang.modules.coupon.service.YxCouponsService;
 import co.yixiang.modules.coupon.service.dto.YxCouponsQueryCriteria;
+import co.yixiang.modules.shop.domain.User;
+import co.yixiang.modules.shop.service.UserService;
+import co.yixiang.utils.OrderUtil;
 import co.yixiang.utils.SecurityUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -41,6 +45,9 @@ public class YxCouponsController {
 
     private final YxCouponsCategoryService yxCouponsCategoryService;
 
+    @Autowired
+    private UserService userService;
+
     @GetMapping
     @Log("查询卡券表")
     @ApiOperation("查询卡券表")
@@ -54,6 +61,18 @@ public class YxCouponsController {
     @ApiOperation("新增卡券表")
     @PreAuthorize("@el.check('admin','yxCoupons:add')")
     public ResponseEntity<Object> create(@Validated @RequestBody CouponAddRequest request){
+
+        // 当前登录用户ID
+        int loginUserId = SecurityUtils.getUserId().intValue();
+
+        User getOneUser = userService.getOne(new QueryWrapper<User>().eq("id", loginUserId).eq("merchants_status", 0));
+        if (getOneUser == null){
+            throw new BadRequestException("当前登录用户异常!");
+        }
+        if (getOneUser.getUserRole() != 2){
+            throw new BadRequestException("当前登录用户非商户, 不可操作!");
+        }
+
         if (request.getCouponType() == 1 && request.getDenomination() == null){
             throw new BadRequestException("代金券面额不可为空!");
         }
@@ -84,8 +103,7 @@ public class YxCouponsController {
             throw new BadRequestException("当前选择的卡券分类不存在!");
         }
 
-        //TODO:: 商品码生成未实现
-        String couponNum = "123333135b";
+        String couponNum = OrderUtil.orderSn();
 
         QueryWrapper<YxCoupons> yxCouponsQueryWrapper = new QueryWrapper<>();
         yxCouponsQueryWrapper.lambda()
@@ -97,11 +115,10 @@ public class YxCouponsController {
             throw new BadRequestException("卡券核销码已存在, 请联系开发人员");
         }
 
-        // 当前登录用户ID
-        int loginUserId = SecurityUtils.getUserId().intValue();
-
         YxCoupons yxCoupons = new YxCoupons();
         BeanUtil.copyProperties(request, yxCoupons);
+        // 添加以后不可修改所属商户
+        yxCoupons.setBelong(loginUserId);
         yxCoupons.setCouponNum(couponNum);
         yxCoupons.setIsShow(0);
         yxCoupons.setIsHot(0);

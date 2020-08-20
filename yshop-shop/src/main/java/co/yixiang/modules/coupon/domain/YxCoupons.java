@@ -28,6 +28,8 @@ public class YxCoupons implements Serializable {
     @TableId(type = IdType.AUTO)
     private Integer id;
 
+    /** 卡券所属商户 */
+    private Integer belong;
 
     /** 卡券编号 */
     @NotBlank
