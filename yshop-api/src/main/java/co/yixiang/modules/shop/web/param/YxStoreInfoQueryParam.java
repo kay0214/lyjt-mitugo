@@ -1,6 +1,7 @@
 package co.yixiang.modules.shop.web.param;
 
 import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -18,5 +19,8 @@ import co.yixiang.common.web.param.QueryParam;
 @EqualsAndHashCode(callSuper = true)
 @ApiModel(value="YxStoreInfoQueryParam对象", description="店铺表查询参数")
 public class YxStoreInfoQueryParam extends QueryParam {
+
     private static final long serialVersionUID = 1L;
+    @ApiModelProperty(value = "店铺名称")
+    private String storeName;
 }

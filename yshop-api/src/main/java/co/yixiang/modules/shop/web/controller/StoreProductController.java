@@ -15,15 +15,14 @@ import co.yixiang.enums.AppFromEnum;
 import co.yixiang.enums.ProductEnum;
 import co.yixiang.logging.aop.log.Log;
 import co.yixiang.modules.shop.entity.YxStoreProduct;
-import co.yixiang.modules.shop.service.CreatShareProductService;
-import co.yixiang.modules.shop.service.YxStoreProductRelationService;
-import co.yixiang.modules.shop.service.YxStoreProductReplyService;
-import co.yixiang.modules.shop.service.YxStoreProductService;
-import co.yixiang.modules.shop.service.YxSystemConfigService;
+import co.yixiang.modules.shop.service.*;
 import co.yixiang.modules.shop.web.dto.ProductDTO;
 import co.yixiang.modules.shop.web.dto.ReplyCountDTO;
+import co.yixiang.modules.shop.web.param.YxStoreInfoQueryParam;
 import co.yixiang.modules.shop.web.param.YxStoreProductQueryParam;
 import co.yixiang.modules.shop.web.param.YxStoreProductRelationQueryParam;
+import co.yixiang.modules.shop.web.vo.YxStoreInfoQueryVo;
+import co.yixiang.modules.shop.web.vo.YxStoreProductAndStoreQueryVo;
 import co.yixiang.modules.shop.web.vo.YxStoreProductQueryVo;
 import co.yixiang.modules.shop.web.vo.YxStoreProductReplyQueryVo;
 import co.yixiang.modules.user.entity.YxSystemAttachment;
@@ -31,12 +30,14 @@ import co.yixiang.modules.user.service.YxSystemAttachmentService;
 import co.yixiang.modules.user.service.YxUserService;
 import co.yixiang.modules.user.web.vo.YxUserQueryVo;
 import co.yixiang.utils.SecurityUtils;
+import co.yixiang.utils.StringUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.util.CollectionUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -73,6 +74,7 @@ public class StoreProductController extends BaseController {
     private final YxSystemAttachmentService systemAttachmentService;
     private final YxUserService yxUserService;
     private final CreatShareProductService creatShareProductService;
+    private final YxStoreInfoService yxStoreInfoService;
     @Value("${file.path}")
     private String path;
 
@@ -243,6 +245,30 @@ public class StoreProductController extends BaseController {
         return ApiResult.ok(replyService.getReplyCount(id));
     }
 
+    /**
+     * 查找产品&店铺信息
+     */
+    @AnonymousAccess
+    @GetMapping("/productsAndStore")
+    @ApiOperation(value = "商品列表&店铺信息",notes = "商品列表&店铺信息")
+    public ApiResult<YxStoreProductAndStoreQueryVo> productsAndStore(YxStoreProductQueryParam productQueryParam){
+        YxStoreProductAndStoreQueryVo productAndStoreQueryVo= new YxStoreProductAndStoreQueryVo();
+        List<YxStoreProductQueryVo> productList = storeProductService.getGoodsList(productQueryParam);
+        productAndStoreQueryVo.setProductList(productList);
+        //店铺信息
+        if(StringUtils.isNotBlank(productQueryParam.getName())){
+            YxStoreInfoQueryParam yxStoreInfoQueryParam = new YxStoreInfoQueryParam();
+            yxStoreInfoQueryParam.setStoreName(productQueryParam.getName());
+            List<YxStoreInfoQueryVo> yxStoreInfoQueryVoList = yxStoreInfoService.getStoreInfoList(yxStoreInfoQueryParam);
+            if(!CollectionUtils.isEmpty(yxStoreInfoQueryVoList)){
+                productAndStoreQueryVo.setSumStoe(yxStoreInfoQueryVoList.size());
+                productAndStoreQueryVo.setStoreName(yxStoreInfoQueryVoList.get(0).getStoreName());
+                productAndStoreQueryVo.setIndustryCategoryInfo(yxStoreInfoQueryVoList.get(0).getIndustryCategoryInfo());
+                productAndStoreQueryVo.setStoreId(yxStoreInfoQueryVoList.get(0).getId());
+            }
+        }
+        return ApiResult.ok(productAndStoreQueryVo);
+    }
 
 
 }

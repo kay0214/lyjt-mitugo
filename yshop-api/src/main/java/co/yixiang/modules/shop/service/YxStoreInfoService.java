@@ -7,6 +7,7 @@ import co.yixiang.modules.shop.web.vo.YxStoreInfoQueryVo;
 import co.yixiang.common.web.vo.Paging;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * <p>
@@ -23,7 +24,7 @@ public interface YxStoreInfoService extends BaseService<YxStoreInfo> {
      * @param id
      * @return
      */
-    YxStoreInfoQueryVo getYxStoreInfoById(Serializable id) throws Exception;
+    YxStoreInfoQueryVo getYxStoreInfoById(Serializable id);
 
     /**
      * 获取分页对象
@@ -32,4 +33,10 @@ public interface YxStoreInfoService extends BaseService<YxStoreInfo> {
      */
     Paging<YxStoreInfoQueryVo> getYxStoreInfoPageList(YxStoreInfoQueryParam yxStoreInfoQueryParam) throws Exception;
 
+    /**
+     * 根据参数获取店铺信息
+     * @param yxStoreInfoQueryParam
+     * @return
+     */
+    List<YxStoreInfoQueryVo> getStoreInfoList(YxStoreInfoQueryParam yxStoreInfoQueryParam);
 }

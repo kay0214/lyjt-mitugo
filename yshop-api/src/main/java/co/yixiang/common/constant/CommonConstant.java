@@ -43,4 +43,8 @@ public interface CommonConstant {
     String ADMIN_ROLE_NAME = "管理员";
 
     String ADMIN_LOGIN = "adminLogin";
+
+    //dict类型
+    String DICT_TYPE_INDUSTRY_CATEGORY = "industry_category";
+    String DICT_TYPE_STORE_SERVICE = "store_service";
 }

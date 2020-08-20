@@ -210,6 +210,11 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
         }else if(productQueryParam.getPriceOrder().equals("asc")){
             wrapper.orderByAsc("price");
         }
+        //商品名
+        if(StrUtil.isNotEmpty(productQueryParam.getName())){
+            wrapper.likeRight("store_name",productQueryParam.getName());
+        }
+
         wrapper.orderByDesc("sort");
 
 
