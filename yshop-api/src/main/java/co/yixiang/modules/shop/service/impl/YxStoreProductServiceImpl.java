@@ -8,15 +8,10 @@ import co.yixiang.enums.ProductEnum;
 import co.yixiang.exception.ErrorRequestException;
 import co.yixiang.modules.shop.entity.YxStoreProduct;
 import co.yixiang.modules.shop.entity.YxStoreProductAttrValue;
-import co.yixiang.modules.shop.mapper.YxStoreInfoMapper;
 import co.yixiang.modules.shop.mapper.YxStoreProductAttrValueMapper;
 import co.yixiang.modules.shop.mapper.YxStoreProductMapper;
 import co.yixiang.modules.shop.mapping.YxStoreProductMap;
-import co.yixiang.modules.shop.service.YxStoreProductAttrService;
-import co.yixiang.modules.shop.service.YxStoreProductRelationService;
-import co.yixiang.modules.shop.service.YxStoreProductReplyService;
-import co.yixiang.modules.shop.service.YxStoreProductService;
-import co.yixiang.modules.shop.service.YxSystemStoreService;
+import co.yixiang.modules.shop.service.*;
 import co.yixiang.modules.shop.web.dto.ProductDTO;
 import co.yixiang.modules.shop.web.param.YxStoreProductQueryParam;
 import co.yixiang.modules.shop.web.vo.YxStoreProductAttrQueryVo;
@@ -71,8 +66,6 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
 
     @Autowired
     private YxStoreProductMap storeProductMap;
-    @Autowired
-    private YxStoreInfoMapper storeInfoMapper;
 
 
 
@@ -287,4 +280,17 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
         return new Paging(iPage);
     }
 
+    /**
+     * 根据商户id获取商品信息
+     * @param merId
+     * @return
+     */
+    @Override
+    public List<YxStoreProductQueryVo> getProductListByMerId(int merId){
+        QueryWrapper<YxStoreProduct> wrapper = new QueryWrapper<YxStoreProduct>();
+        wrapper.eq("is_del", CommonEnum.DEL_STATUS_0.getValue()).eq("is_show",1).eq("mer_id",merId);
+        List<YxStoreProduct> storeProductList =  this.list(wrapper);
+        List<YxStoreProductQueryVo> queryVoList = storeProductMap.toDto(storeProductList);
+        return queryVoList;
+    }
 }

@@ -47,4 +47,70 @@ public interface CommonConstant {
     //dict类型
     String DICT_TYPE_INDUSTRY_CATEGORY = "industry_category";
     String DICT_TYPE_STORE_SERVICE = "store_service";
+
+    /*********************图片类型 **********************/
+    /**
+     * 图片类型-卡券
+     */
+    int IMG_TYPE_CARD=1;
+    /**
+     * 图片类型-店铺
+     */
+    int IMG_TYPE_STORE=2;
+    /**
+     * 图片类型-产品
+     */
+    int IMG_TYPE_PRODUCT=3;
+    /**
+     * 图片类型-商户
+     */
+    int IMG_TYPE_MERCHANTS=4;
+
+    /*********************图片类别**********************/
+
+    /**
+     * 图片类别-缩略图
+     */
+    int IMG_CATEGORY_PIC=1;
+    /**
+     * 图片类别-轮播图
+     */
+    int IMG_CATEGORY_ROTATION1 = 2;
+    /**
+     * 图片类别-手持证件照
+     */
+    int IMG_PERSON_IDCARD=1;
+    /**
+     * 图片类别-证件照人像面
+     */
+    int IMG_PERSON_IDCARD_FACE=2;
+    /**
+     * 图片类别-证件照国徽面
+     */
+    int IMG_PERSON_IDCARD_BACK=3;
+    /**
+     * 图片类别-营业执照
+     */
+    int IMG_BUSINESS_LICENSE=4;
+    /**
+     * 图片类别-银行开户证明
+     */
+    int IMG_BANK_OPEN_PROVE=5;
+    /**
+     * 图片类别-法人身份证头像面
+     */
+    int IMG_LEGAL_IDCARD_FACE=6;
+    /**
+     * 图片类别-法人身份证国徽面
+     */
+    int IMG_LEGAL_IDCARD_BACK=7;
+    /**
+     * 图片类别-门店照及经营场所
+     */
+    int IMG_STORE=8;
+    /**
+     * 图片类别-医疗机构许可证
+     */
+    int IMG_LICENCE=9;
+
 }

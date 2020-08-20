@@ -7,6 +7,7 @@ import co.yixiang.modules.coupons.web.vo.YxCouponsQueryVo;
 import co.yixiang.common.web.vo.Paging;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * <p>
@@ -32,4 +33,10 @@ public interface YxCouponsService extends BaseService<YxCoupons> {
      */
     Paging<YxCouponsQueryVo> getYxCouponsPageList(YxCouponsQueryParam yxCouponsQueryParam) throws Exception;
 
+    /**
+     * 根据商户id获取卡券信息
+     * @param merId
+     * @return
+     */
+    public List<YxCouponsQueryVo> getCouponsInfoByMerId(int merId);
 }

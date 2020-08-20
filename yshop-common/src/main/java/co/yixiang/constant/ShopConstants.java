@@ -126,6 +126,8 @@ public interface ShopConstants {
 	 * 打印机配置
 	 */
 	String YSHOP_ORDER_PRINT_COUNT_DETAIL = "order_print_count_detail";
+
+	/*********************图片类型 **********************/
 	/**
 	 * 图片类型-卡券
 	 */

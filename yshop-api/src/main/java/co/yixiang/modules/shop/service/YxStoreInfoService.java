@@ -3,6 +3,7 @@ package co.yixiang.modules.shop.service;
 import co.yixiang.modules.shop.entity.YxStoreInfo;
 import co.yixiang.common.service.BaseService;
 import co.yixiang.modules.shop.web.param.YxStoreInfoQueryParam;
+import co.yixiang.modules.shop.web.vo.YxStoreInfoDetailQueryVo;
 import co.yixiang.modules.shop.web.vo.YxStoreInfoQueryVo;
 import co.yixiang.common.web.vo.Paging;
 
@@ -39,4 +40,10 @@ public interface YxStoreInfoService extends BaseService<YxStoreInfo> {
      * @return
      */
     List<YxStoreInfoQueryVo> getStoreInfoList(YxStoreInfoQueryParam yxStoreInfoQueryParam);
+    /**
+     * 显示店铺详情
+     * @param id
+     * @return
+     */
+    public YxStoreInfoDetailQueryVo getStoreDetailInfoById(Integer id);
 }
