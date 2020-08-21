@@ -26,13 +26,13 @@ public class ProductDTO extends QueryParam {
     private static final long serialVersionUID = 1L;
 
     //todo
-    private List<YxStoreProductQueryVo> goodList = new ArrayList();
+//    private List<YxStoreProductQueryVo> goodList = new ArrayList();
 
 
     //todo
-    private Integer merId = 0;
-
-    private String priceName = "";
+//    private Integer merId = 0;
+//
+//    private String priceName = "";
 
     private List<YxStoreProductAttrQueryVo> productAttr = new ArrayList();
 
@@ -45,7 +45,7 @@ public class ProductDTO extends QueryParam {
     private Integer replyCount = 0;
 
     //todo
-    private List similarity = new ArrayList();
+//    private List similarity = new ArrayList();
 
     private YxStoreProductQueryVo storeInfo;
 

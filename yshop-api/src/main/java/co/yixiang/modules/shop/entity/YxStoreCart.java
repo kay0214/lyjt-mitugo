@@ -13,8 +13,8 @@ import lombok.EqualsAndHashCode;
  * 购物车表
  * </p>
  *
- * @author hupeng
- * @since 2019-10-25
+ * @author nxl
+ * @since 2020-08-21
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -62,5 +62,8 @@ public class YxStoreCart extends BaseEntity {
 
     @ApiModelProperty(value = "砍价id")
     private Integer bargainId;
+
+    @ApiModelProperty(value = "商铺id")
+    private Integer storeId;
 
 }
