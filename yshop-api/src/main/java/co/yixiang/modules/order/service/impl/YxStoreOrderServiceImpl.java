@@ -39,6 +39,7 @@ import co.yixiang.modules.shop.mapper.YxStoreCartMapper;
 import co.yixiang.modules.shop.mapper.YxStoreCouponUserMapper;
 import co.yixiang.modules.shop.service.*;
 import co.yixiang.modules.shop.web.vo.YxStoreCartQueryVo;
+import co.yixiang.modules.shop.web.vo.YxStoreStoreCartQueryVo;
 import co.yixiang.modules.shop.web.vo.YxSystemStoreQueryVo;
 import co.yixiang.modules.user.entity.YxUser;
 import co.yixiang.modules.user.entity.YxUserBill;
@@ -1680,6 +1681,17 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
         Page page = setPageParam(yxStoreOrderQueryParam, OrderItem.desc("create_time"));
         IPage<YxStoreOrderQueryVo> iPage = yxStoreOrderMapper.getYxStoreOrderPageList(page, yxStoreOrderQueryParam);
         return new Paging(iPage);
+    }
+
+    @Override
+    public String cacheOrderStroeInfo(int uid, List<YxStoreStoreCartQueryVo> cartInfo, PriceGroupDTO priceGroup, OtherDTO other) {
+        String key = IdUtil.simpleUUID();
+        CacheStoreDTO cacheDTO = new CacheStoreDTO();
+        cacheDTO.setCartInfo(cartInfo);
+        cacheDTO.setPriceGroup(priceGroup);
+        cacheDTO.setOther(other);
+        redisService.saveCode("user_order_" + uid + key, cacheDTO, 600L);
+        return key;
     }
 
 }

@@ -11,7 +11,6 @@ import org.apache.ibatis.annotations.Select;
 import org.springframework.stereotype.Repository;
 
 import java.io.Serializable;
-import java.util.List;
 
 /**
  * <p>
@@ -42,6 +41,4 @@ public interface YxStoreCartMapper extends BaseMapper<YxStoreCart> {
      * @return
      */
     IPage<YxStoreCartQueryVo> getYxStoreCartPageList(@Param("page") Page page, @Param("param") YxStoreCartQueryParam yxStoreCartQueryParam);
-
-    List<Integer> getCartStoreIdList();
 }

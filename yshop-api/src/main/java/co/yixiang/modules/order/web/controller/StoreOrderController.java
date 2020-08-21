@@ -24,29 +24,13 @@ import co.yixiang.modules.order.entity.YxStoreOrderCartInfo;
 import co.yixiang.modules.order.service.YxStoreOrderCartInfoService;
 import co.yixiang.modules.order.service.YxStoreOrderService;
 import co.yixiang.modules.order.service.YxStoreOrderStatusService;
-import co.yixiang.modules.order.web.dto.ComputeDTO;
-import co.yixiang.modules.order.web.dto.ConfirmOrderDTO;
-import co.yixiang.modules.order.web.dto.OrderCartInfoDTO;
-import co.yixiang.modules.order.web.dto.OrderExtendDTO;
-import co.yixiang.modules.order.web.dto.OtherDTO;
-import co.yixiang.modules.order.web.dto.PriceGroupDTO;
-import co.yixiang.modules.order.web.dto.ProductAttrDTO;
-import co.yixiang.modules.order.web.dto.ProductDTO;
-import co.yixiang.modules.order.web.param.ExpressParam;
-import co.yixiang.modules.order.web.param.OrderParam;
-import co.yixiang.modules.order.web.param.OrderVerifyParam;
-import co.yixiang.modules.order.web.param.PayParam;
-import co.yixiang.modules.order.web.param.RefundParam;
-import co.yixiang.modules.order.web.param.YxStoreOrderQueryParam;
+import co.yixiang.modules.order.web.dto.*;
+import co.yixiang.modules.order.web.param.*;
 import co.yixiang.modules.order.web.vo.YxStoreOrderQueryVo;
 import co.yixiang.modules.shop.entity.YxStoreProductReply;
-import co.yixiang.modules.shop.service.YxStoreCartService;
-import co.yixiang.modules.shop.service.YxStoreCouponUserService;
-import co.yixiang.modules.shop.service.YxStoreProductReplyService;
-import co.yixiang.modules.shop.service.YxSystemConfigService;
-import co.yixiang.modules.shop.service.YxSystemStoreService;
-import co.yixiang.modules.shop.service.YxSystemStoreStaffService;
+import co.yixiang.modules.shop.service.*;
 import co.yixiang.modules.shop.web.vo.YxStoreCartQueryVo;
+import co.yixiang.modules.shop.web.vo.YxStoreStoreCartQueryVo;
 import co.yixiang.modules.user.entity.YxSystemAttachment;
 import co.yixiang.modules.user.service.YxSystemAttachmentService;
 import co.yixiang.modules.user.service.YxUserAddressService;
@@ -69,19 +53,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -812,6 +788,82 @@ public class StoreOrderController extends BaseController {
         return ApiResult.ok("核销成功");
     }
 
+    /**
+     * 订单确认
+     */
+    @AnonymousAccess
+    @PostMapping("/order/confirmNew")
+    @ApiOperation(value = "订单确认（带店铺信息）",notes = "订单确认（带店铺信息）")
+    public ApiResult<ConfirmNewOrderDTO> confirmNew(@RequestBody String jsonStr){
+        JSONObject jsonObject = JSON.parseObject(jsonStr);
+        String cartId = jsonObject.getString("cartId");
+        if(StrUtil.isEmpty(cartId)){
+            return ApiResult.fail("请提交购买的商品");
+        }
+//        int uid = SecurityUtils.getUserId().intValue();
+        int uid = 22;
+        Map<String, Object> cartGroup = cartService.getUserStoreCartList(uid,cartId,1);
+        if(ObjectUtil.isNotEmpty(cartGroup.get("invalid"))){
+            return ApiResult.fail("有失效的商品请重新提交");
+        }
+        if(ObjectUtil.isEmpty(cartGroup.get("valid"))){
+            return ApiResult.fail("请提交购买的商品");
+        }
+        List<YxStoreStoreCartQueryVo> cartStoreInfo = (List<YxStoreStoreCartQueryVo>)cartGroup.get("valid");
+        List<YxStoreCartQueryVo>cartInfo =new ArrayList<>();
+        for(YxStoreStoreCartQueryVo storeStoreCartQueryVo:cartStoreInfo){
+            cartInfo.addAll(storeStoreCartQueryVo.getCartList());
+        }
+        PriceGroupDTO priceGroup = storeOrderService.getOrderPriceGroup(cartInfo);
+
+        ConfirmNewOrderDTO confirmOrderDTO = new ConfirmNewOrderDTO();
+
+        confirmOrderDTO.setUsableCoupon(couponUserService
+                .beUsableCoupon(uid,priceGroup.getTotalPrice()));
+        //积分抵扣
+        OtherDTO other = new OtherDTO();
+        other.setIntegralRatio(systemConfigService.getData(SystemConfigConstants.INTERGRAL_RATIO));
+        other.setIntegralFull(systemConfigService.getData(SystemConfigConstants.INTERGRAL_FULL));
+        other.setIntegralMax(systemConfigService.getData(SystemConfigConstants.INTERGRAL_MAX));
+
+        //拼团 砍价 秒杀
+        int combinationId = 0;
+        int secKillId = 0;
+        int bargainId = 0;
+        if(cartId.split(",").length == 1){
+            YxStoreCartQueryVo cartQueryVo = cartService.getYxStoreCartById(Integer
+                    .valueOf(cartId));
+            combinationId = cartQueryVo.getCombinationId();
+            secKillId = cartQueryVo.getSeckillId();
+            bargainId = cartQueryVo.getBargainId();
+        }
+
+
+        //拼团砍价秒杀类产品不参与抵扣
+        if(combinationId > 0 || secKillId > 0 || bargainId > 0) confirmOrderDTO.setDeduction(true);
+
+        //判断积分是否满足订单额度
+        if(priceGroup.getTotalPrice() < Double.valueOf(other.getIntegralFull())) confirmOrderDTO.setEnableIntegral(false);
+
+        confirmOrderDTO.setEnableIntegralNum(Double.valueOf(other.getIntegralMax()));
+
+
+        confirmOrderDTO.setAddressInfo(addressService.getUserDefaultAddress(uid));
+
+//        confirmOrderDTO.setCartInfo(cartInfo);
+        confirmOrderDTO.setCartInfo(cartStoreInfo);
+        confirmOrderDTO.setPriceGroup(priceGroup);
+        confirmOrderDTO.setOrderKey(storeOrderService.cacheOrderStroeInfo(uid,cartStoreInfo,
+                priceGroup,other));
+
+
+        confirmOrderDTO.setUserInfo(userService.getYxUserById(uid));
+
+        //门店
+//        confirmOrderDTO.setSystemStore(systemStoreService.getStoreInfo("",""));
+
+        return ApiResult.ok(confirmOrderDTO);
+    }
 
 
 
