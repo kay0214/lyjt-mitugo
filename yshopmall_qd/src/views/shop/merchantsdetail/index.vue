@@ -7,6 +7,7 @@
       <!--表单组件-->
       <el-dialog append-to-body :close-on-click-modal="false" :before-close="crud.cancelCU" :visible.sync="crud.status.cu > 0" :title="crud.status.title" width="570px">
         <el-form ref="form" :inline="true" :model="form" :rules="rules" size="small" label-width="120px">
+            <!-- 以下是新增展示字段 -->
             <el-form-item label="商户名称" prop="nickName">
               <el-input v-model="form.nickName"  style="width: 350px;"/>
             </el-form-item>
@@ -18,6 +19,92 @@
             </el-form-item>
             <el-form-item label="用户名" prop="username">
               <el-input v-model="form.username"  style="width: 350px;"/>
+            </el-form-item>
+
+            <!-- 以下是编辑页面展示字段 -->
+            <el-form-item label="商户名称" prop="merchantsName">
+              <el-input v-model="form.merchantsName"  style="width: 350px;"/>
+            </el-form-item>
+            <el-form-item label="商户地址">
+              <el-input v-model="form.address" style="width: 370px;" />
+            </el-form-item>
+            <el-form-item label="联系人">
+              <el-input v-model="form.contacts" style="width: 370px;" />
+            </el-form-item>
+            <el-form-item label="联系电话">
+              <el-input v-model="form.contactMobile" style="width: 370px;" />
+            </el-form-item>
+            <el-form-item label="邮箱">
+              <el-input v-model="form.mailbox" style="width: 370px;" />
+            </el-form-item>
+            <!--
+            <el-form-item label="认证类型" prop="merchantsType">
+              <el-radio-group v-model="form.type" size="mini" style="width: 370px">
+                <el-radio-button label="0">个人</el-radio-button>
+                <el-radio-button label="1">企业</el-radio-button>
+                <el-radio-button label="2">个体商户</el-radio-button>
+              </el-radio-group>
+            </el-form-item>
+            -->
+            <el-form-item label="认证类型">
+              <el-radio v-model="form.merchantsType" :label="0">个人</el-radio>
+              <el-radio v-model="form.merchantsType" :label="1">企业</el-radio>
+              <el-radio v-model="form.merchantsType" :label="2" style="width: 200px;">个体商户</el-radio>
+            </el-form-item>
+
+            <!-- 以下是个人认证 -->
+            <!--  手持证件照 personIdCard、 证件照人像面 personIdCardFace、证件照国徽面personIdCardBack  -->
+
+            <el-form-item label="银行账号">
+              <el-input v-model="form.bankNo" style="width: 370px;" />
+            </el-form-item>
+            <el-form-item label="开户省市">
+              <el-input v-model="form.openAccountProvince" style="width: 370px;" />
+            </el-form-item>
+            <el-form-item label="银行卡信息">
+              <el-radio v-model="form.bankType" :label="0">对私账号</el-radio>
+              <el-radio v-model="form.bankType" :label="1" style="width: 200px;">对公账号</el-radio>
+            </el-form-item>
+            <el-form-item label="开户名称">
+              <el-input v-model="form.openAccountName" style="width: 370px;" />
+            </el-form-item>
+            <el-form-item label="开户行">
+              <el-input v-model="form.openAccountBank" style="width: 370px;" />
+            </el-form-item>
+            <el-form-item label="开户支行">
+              <el-input v-model="form.openAccountSubbranch" style="width: 370px;" />
+            </el-form-item>
+
+            <!-- 以下是企业 -->
+            <el-form-item label="企业所在省市区">
+              <el-input v-model="form.companyProvince" style="width: 370px;" />
+            </el-form-item>
+            <el-form-item label="企业所在详细地址">
+              <el-input v-model="form.companyAddress" style="width: 370px;" />
+            </el-form-item>
+            <el-form-item label="公司名称">
+              <el-input v-model="form.companyName" style="width: 370px;" />
+            </el-form-item>
+            <el-form-item label="法定代表人">
+              <el-input v-model="form.companyLegalPerson" style="width: 370px;" />
+            </el-form-item>
+            <el-form-item label="公司电话">
+              <el-input v-model="form.companyPhone" style="width: 370px;" />
+            </el-form-item>
+
+            <!-- 以下企业与个体户 -->
+            <!-- 下拉框 取值从dict的business_category和qualifications_type、两个下拉框联动 -->
+            <el-form-item label="经营类目">
+              <el-input v-model="form.businessCategory" style="width: 370px;" />
+            </el-form-item>
+            <el-form-item label="主体资质类型">
+              <el-input v-model="form.qualificationsType" style="width: 370px;" />
+            </el-form-item>
+            <!-- 营业执照 businessLicenseImg、银行开户证明 bankOpenProveImg、法人身份证头像面 legalIdCardFace、法人身份证国徽面 legalIdCardBack、门店照及经营场所 storeImg、医疗机构许可证 licenceImg -->
+
+            <!-- 审核意见、大点的文本框只用于展示 -->
+            <el-form-item label="主体资质类型">
+              <el-input v-model="form.examineRemark" style="width: 370px;" />
             </el-form-item>
         </el-form>
         <div slot="footer" class="dialog-footer">
@@ -32,7 +119,6 @@
         <el-table-column v-if="columns.visible('merchantsName')" prop="merchantsName" label="商户名称" />
         <el-table-column v-if="columns.visible('contacts')" prop="contacts" label="商户联系人" />
         <el-table-column v-if="columns.visible('contactMobile')" prop="contactMobile" label="联系人电话" />
-        <el-table-column v-if="columns.visible('delFlag')" prop="delFlag" label="商户状态" />
         <el-table-column label="商户状态" align="center">
           <template slot-scope="scope">
             <div>
@@ -48,6 +134,7 @@
           </template>
         </el-table-column>
         <el-table-column v-permission="['admin','yxMerchantsDetail:edit','yxMerchantsDetail:del']" label="操作" width="150px" align="center">
+        <!-- 需要加一个审核按钮还有审核用的弹出框 -->
           <template slot-scope="scope">
             <udOperation
               :data="scope.row"
@@ -95,6 +182,7 @@ export default {
       permission: {
         add: ['admin', 'yxMerchantsDetail:add'],
         edit: ['admin', 'yxMerchantsDetail:edit'],
+        examine: ['admin', 'yxMerchantsDetail:examine'],
         del: ['admin', 'yxMerchantsDetail:del']
       },
       rules: {
