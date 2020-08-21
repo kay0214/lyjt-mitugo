@@ -14,8 +14,4 @@
     <select id="getYxStoreCartPageList" resultType="co.yixiang.modules.shop.web.vo.YxStoreCartQueryVo">
         select <include refid="Base_Column_List"/> from yx_store_cart
     </select>
-
-    <select id="getCartStoreIdList"  resultType="java.lang.Integer">
-        SELECT DISTINCT store_id from yx_store_cart where store_id !=0
-    </select>
 </mapper>

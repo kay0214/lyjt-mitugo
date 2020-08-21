@@ -51,4 +51,13 @@ public interface YxStoreCartService extends BaseService<YxStoreCart> {
      */
     void checkProductStock(int uid, int productId, int cartNum, String productAttrUnique,
                            int combinationId, int seckillId, int bargainId);
+
+    /**
+     * 购物车列表（有店铺）
+     * @param uid
+     * @param cartIds
+     * @param status
+     * @return
+     */
+    public Map<String, Object> getUserStoreCartList(int uid, String cartIds, int status);
 }
