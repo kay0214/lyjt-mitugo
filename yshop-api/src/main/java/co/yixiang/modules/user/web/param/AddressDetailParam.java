@@ -2,6 +2,7 @@ package co.yixiang.modules.user.web.param;
 
 import lombok.Data;
 
+import javax.validation.constraints.NotBlank;
 import java.io.Serializable;
 
 /**
@@ -11,7 +12,11 @@ import java.io.Serializable;
  **/
 @Data
 public class AddressDetailParam  implements Serializable {
+
+    @NotBlank(message = "城市不可为空")
     private String city;
+    @NotBlank(message = "区县不可为空")
     private String district;
+    @NotBlank(message = "所在省不可为空")
     private String province;
 }

@@ -16,7 +16,7 @@ public class UserExtParam implements Serializable {
     //支付宝用户名
     private String alipayCode;
 
-    @NotBlank(message = "体现类型不能为空")
+    @NotBlank(message = "提现类型不能为空")
     private String extractType;
 
     @NotBlank(message = "金额不能为空")

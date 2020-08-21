@@ -13,13 +13,13 @@ import java.io.Serializable;
 @Data
 public class AddressParam  implements Serializable {
     private String id;
-    @NotBlank
+    @NotBlank(message = "收货人姓名不可为空")
     private String real_name;
     private String post_code;
     private String is_default;
-    @NotBlank
+    @NotBlank(message = "详细地址不能为空")
     private String detail;
-    @NotBlank
+    @NotBlank(message = "联系电话不能为空")
     private String phone;
     private AddressDetailParam address;
 }
