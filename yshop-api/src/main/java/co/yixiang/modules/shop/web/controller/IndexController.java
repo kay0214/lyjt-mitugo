@@ -59,7 +59,7 @@ public class IndexController {
 
         Map<String,Object> map = new LinkedHashMap<>();
         //banner
-        map.put("banner",systemGroupDataService.getDatas(ShopConstants.YSHOP_HOME_BANNER));
+        map.put("banner",systemGroupDataService.getDatas(ShopConstants.SHOP_CAROUSEL));
         //首页按钮
         map.put("menus",systemGroupDataService.getDatas(ShopConstants.YSHOP_HOME_MENUS));
         //首页活动区域图片

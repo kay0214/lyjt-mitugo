@@ -4,7 +4,7 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, uid, type, product_id, product_attr_unique, cart_num, add_time, is_pay, is_del, is_new, combination_id, seckill_id, bargain_id
+        id, uid, type, product_id, product_attr_unique, cart_num, add_time, is_pay, is_del, is_new, combination_id, seckill_id, bargain_id, store_id
     </sql>
 
     <select id="getYxStoreCartById" resultType="co.yixiang.modules.shop.web.vo.YxStoreCartQueryVo">
@@ -15,4 +15,7 @@
         select <include refid="Base_Column_List"/> from yx_store_cart
     </select>
 
+    <select id="getCartStoreIdList"  resultType="java.lang.Integer">
+        SELECT DISTINCT store_id from yx_store_cart where store_id !=0
+    </select>
 </mapper>

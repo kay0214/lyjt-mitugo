@@ -100,6 +100,8 @@ public interface ShopConstants {
 	 * 个人中心菜单
 	 */
 	String YSHOP_MY_MENUES = "yshop_my_menus";
+
+	String  SHOP_CAROUSEL =" shop_carousel";
 	/**
 	 * 秒杀时间段
 	 */
