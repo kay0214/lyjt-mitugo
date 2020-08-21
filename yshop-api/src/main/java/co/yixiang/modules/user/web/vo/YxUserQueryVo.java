@@ -126,7 +126,7 @@ private String pwd;*/
     private String loginType;
 
     @ApiModelProperty(value = "提现银行")
-    private Integer bankName;
+    private String bankName;
 
     @ApiModelProperty(value = "银行卡号")
     private String bankNo;
