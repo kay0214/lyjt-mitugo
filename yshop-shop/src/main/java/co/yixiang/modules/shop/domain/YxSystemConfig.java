@@ -7,6 +7,7 @@ package co.yixiang.modules.shop.domain;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.bean.copier.CopyOptions;
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -24,7 +25,7 @@ import java.io.Serializable;
 public class YxSystemConfig implements Serializable {
 
     /** 配置id */
-    @TableId
+    @TableId(value = "id", type = IdType.AUTO)
     private Integer id;
 
 

@@ -17,7 +17,7 @@ import java.io.Serializable;
 public class YxPointDetail implements Serializable {
 
     /** 主键id */
-    @TableId
+    @TableId(value = "id", type = IdType.AUTO)
     private Integer id;
 
 

@@ -5,10 +5,7 @@
  */
 package co.yixiang.tools.domain;
 
-import com.baomidou.mybatisplus.annotation.FieldFill;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -27,7 +24,7 @@ import java.sql.Timestamp;
 @TableName("verification_code")
 public class VerificationCode  implements Serializable {
 
-    @TableId
+    @TableId(value = "id", type = IdType.AUTO)
     //@GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 

@@ -7,6 +7,7 @@ package co.yixiang.modules.shop.domain;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.bean.copier.CopyOptions;
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -23,7 +24,7 @@ import java.io.Serializable;
 @TableName("yx_store_order_cart_info")
 public class YxStoreOrderCartInfo implements Serializable {
 
-    @TableId
+    @TableId(value = "id", type = IdType.AUTO)
     private Integer id;
 
 

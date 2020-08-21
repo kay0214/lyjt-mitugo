@@ -10,10 +10,7 @@ package co.yixiang.modules.system.domain;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.bean.copier.CopyOptions;
-import com.baomidou.mybatisplus.annotation.FieldFill;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -27,7 +24,7 @@ import java.sql.Timestamp;
 @TableName("user_avatar")
 public class UserAvatar implements Serializable {
 
-    @TableId
+    @TableId(value = "id", type = IdType.AUTO)
     private Long id;
 
 

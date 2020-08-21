@@ -23,7 +23,7 @@ import java.io.Serializable;
 @TableName("yx_store_attribute")
 public class YxStoreAttribute implements Serializable {
 
-    @TableId
+    @TableId(value = "id", type = IdType.AUTO)
     private Integer id;
 
 

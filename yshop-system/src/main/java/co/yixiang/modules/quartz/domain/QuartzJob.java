@@ -7,10 +7,7 @@ package co.yixiang.modules.quartz.domain;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.bean.copier.CopyOptions;
-import com.baomidou.mybatisplus.annotation.FieldFill;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -28,7 +25,7 @@ public class QuartzJob implements Serializable {
     public static final String JOB_KEY = "JOB_KEY";
 
     /** 定时任务ID */
-    @TableId
+    @TableId(value = "id", type = IdType.AUTO)
     private Long id;
 
 

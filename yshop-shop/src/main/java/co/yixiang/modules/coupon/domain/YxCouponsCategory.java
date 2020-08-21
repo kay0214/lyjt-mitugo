@@ -24,7 +24,7 @@ import java.io.Serializable;
 public class YxCouponsCategory implements Serializable {
 
     /** 券分类主键 */
-    @TableId(type = IdType.AUTO)
+    @TableId(value = "id", type = IdType.AUTO)
     private Integer id;
 
 

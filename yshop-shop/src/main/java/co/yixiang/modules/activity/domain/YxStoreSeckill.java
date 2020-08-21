@@ -7,6 +7,7 @@ package co.yixiang.modules.activity.domain;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.bean.copier.CopyOptions;
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -30,7 +31,7 @@ import java.sql.Timestamp;
 public class YxStoreSeckill implements Serializable {
 
     /** 商品秒杀产品表id */
-    @TableId
+    @TableId(value = "id", type = IdType.AUTO)
     private Integer id;
 
 

@@ -5,10 +5,7 @@
  */
 package co.yixiang.logging.domain;
 
-import com.baomidou.mybatisplus.annotation.FieldFill;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -24,7 +21,7 @@ import java.sql.Timestamp;
 @NoArgsConstructor
 public class Log  implements Serializable {
 
-    @TableId
+    @TableId(value = "id", type = IdType.AUTO)
     private Long id;
 
     /** 操作用户 */

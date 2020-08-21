@@ -135,7 +135,8 @@ public class SysUserController {
     @PostMapping(value = "/createMerchants")
     @PreAuthorize("@el.check('admin','user:add')")
     public ResponseEntity<Object> createMerchants(@Validated @RequestBody User resources){
-        checkLevel(resources);
+        // 这个地方配置好权限只能平台或者合伙人过来创建商户
+        // checkLevel(resources);
         int uid = SecurityUtils.getUserId().intValue();
         resources.setParentId(uid);
         // 默认密码 123456

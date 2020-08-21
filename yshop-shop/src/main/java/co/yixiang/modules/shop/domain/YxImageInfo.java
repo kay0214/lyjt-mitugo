@@ -24,7 +24,7 @@ import java.io.Serializable;
 public class YxImageInfo implements Serializable {
 
     /** id */
-    @TableId
+    @TableId(value = "id", type = IdType.AUTO)
     private Integer id;
 
 

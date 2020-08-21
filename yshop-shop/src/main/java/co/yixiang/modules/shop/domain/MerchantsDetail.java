@@ -23,7 +23,7 @@ import java.io.Serializable;
 @TableName("yx_merchants_detail")
 public class MerchantsDetail implements Serializable {
 
-    @TableId
+    @TableId(value = "id", type = IdType.AUTO)
     private Integer id;
 
 

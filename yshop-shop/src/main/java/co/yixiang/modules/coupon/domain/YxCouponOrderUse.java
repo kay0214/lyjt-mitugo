@@ -24,7 +24,7 @@ import java.io.Serializable;
 public class YxCouponOrderUse implements Serializable {
 
     /** 订单ID */
-    @TableId
+    @TableId(value = "id", type = IdType.AUTO)
     private Integer id;
 
 

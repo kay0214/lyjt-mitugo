@@ -7,10 +7,7 @@ package co.yixiang.tools.domain;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.bean.copier.CopyOptions;
-import com.baomidou.mybatisplus.annotation.FieldFill;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -27,7 +24,7 @@ import java.sql.Timestamp;
 @TableName("local_storage")
 public class LocalStorage implements Serializable {
 
-    @TableId
+    @TableId(value = "id", type = IdType.AUTO)
     //@GeneratedValue(strategy = GenerationType.IDENTITY)
    // @Column(name = "id")
     private Long id;

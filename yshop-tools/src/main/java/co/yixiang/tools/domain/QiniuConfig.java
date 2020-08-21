@@ -7,6 +7,7 @@ package co.yixiang.tools.domain;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.bean.copier.CopyOptions;
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
@@ -23,7 +24,7 @@ import java.io.Serializable;
 public class QiniuConfig implements Serializable {
 
     /** ID */
-    @TableId
+    @TableId(value = "id", type = IdType.AUTO)
     //@GeneratedValue(strategy = GenerationType.IDENTITY)
    // @Column(name = "id")
     private Long id;

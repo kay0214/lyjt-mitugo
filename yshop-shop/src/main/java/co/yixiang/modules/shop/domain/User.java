@@ -24,7 +24,7 @@ import java.io.Serializable;
 public class User implements Serializable {
 
     /** ID */
-    @TableId
+    @TableId(value = "id", type = IdType.AUTO)
     private Long id;
 
 

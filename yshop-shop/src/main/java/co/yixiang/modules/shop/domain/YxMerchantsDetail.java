@@ -20,7 +20,7 @@ import java.sql.Timestamp;
 @TableName("yx_merchants_detail")
 public class YxMerchantsDetail implements Serializable {
 
-    @TableId
+    @TableId(value = "id", type = IdType.AUTO)
     private Integer id;
 
 

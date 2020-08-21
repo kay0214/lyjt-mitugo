@@ -25,7 +25,7 @@ import java.io.Serializable;
 public class YxFundsDetail implements Serializable {
 
     /** 主键 */
-    @TableId
+    @TableId(value = "id", type = IdType.AUTO)
     private Integer id;
 
 
