@@ -39,8 +39,8 @@ public class YxStoreInfoController extends BaseController {
     /**
     * 添加店铺表
     */
-    @PostMapping("/add")
-    @ApiOperation(value = "添加YxStoreInfo对象",notes = "添加店铺表",response = ApiResult.class)
+//    @PostMapping("/add")
+//    @ApiOperation(value = "添加YxStoreInfo对象",notes = "添加店铺表",response = ApiResult.class)
     public ApiResult<Boolean> addYxStoreInfo(@Valid @RequestBody YxStoreInfo yxStoreInfo) throws Exception{
         boolean flag = yxStoreInfoService.save(yxStoreInfo);
         return ApiResult.result(flag);
@@ -49,8 +49,8 @@ public class YxStoreInfoController extends BaseController {
     /**
     * 修改店铺表
     */
-    @PostMapping("/update")
-    @ApiOperation(value = "修改YxStoreInfo对象",notes = "修改店铺表",response = ApiResult.class)
+    //    @PostMapping("/update")
+//    @ApiOperation(value = "修改YxStoreInfo对象",notes = "修改店铺表",response = ApiResult.class)
     public ApiResult<Boolean> updateYxStoreInfo(@Valid @RequestBody YxStoreInfo yxStoreInfo) throws Exception{
         boolean flag = yxStoreInfoService.updateById(yxStoreInfo);
         return ApiResult.result(flag);
@@ -59,8 +59,8 @@ public class YxStoreInfoController extends BaseController {
     /**
     * 删除店铺表
     */
-    @PostMapping("/delete")
-    @ApiOperation(value = "删除YxStoreInfo对象",notes = "删除店铺表",response = ApiResult.class)
+    //  @PostMapping("/delete")
+//    @ApiOperation(value = "删除YxStoreInfo对象",notes = "删除店铺表",response = ApiResult.class)
     public ApiResult<Boolean> deleteYxStoreInfo(@Valid @RequestBody IdParam idParam) throws Exception{
         boolean flag = yxStoreInfoService.removeById(idParam.getId());
         return ApiResult.result(flag);
@@ -69,7 +69,7 @@ public class YxStoreInfoController extends BaseController {
     /**
     * 获取店铺表
     */
-    @PostMapping("/info")
+    //    @PostMapping("/info")
 //    @ApiOperation(value = "获取YxStoreInfo对象详情",notes = "查看店铺表",response = YxStoreInfoQueryVo.class)
     public ApiResult<YxStoreInfoQueryVo> getYxStoreInfo(@Valid @RequestBody IdParam idParam) {
         YxStoreInfoQueryVo yxStoreInfoQueryVo = yxStoreInfoService.getYxStoreInfoById(idParam.getId());
@@ -79,8 +79,8 @@ public class YxStoreInfoController extends BaseController {
     /**
      * 店铺表分页列表
      */
-    @PostMapping("/getPageList")
-    @ApiOperation(value = "获取YxStoreInfo分页列表",notes = "店铺表分页列表",response = YxStoreInfoQueryVo.class)
+//     @PostMapping("/getPageList")
+//    @ApiOperation(value = "获取YxStoreInfo分页列表",notes = "店铺表分页列表",response = YxStoreInfoQueryVo.class)
     public ApiResult<Paging<YxStoreInfoQueryVo>> getYxStoreInfoPageList(@RequestBody YxStoreInfoQueryParam yxStoreInfoQueryParam) throws Exception{
         Paging<YxStoreInfoQueryVo> paging = yxStoreInfoService.getYxStoreInfoPageList(yxStoreInfoQueryParam);
         return ApiResult.ok(paging);
