@@ -96,7 +96,7 @@ public class YxStoreInfoController extends BaseController {
     /**
      * 获取店铺表
      */
-    @AnonymousAccess
+//    @AnonymousAccess
     @GetMapping("/getStoreDetail/{storeId}")
     @ApiOperation(value = "获取商品详情",notes = "获取商品详情")
     public ApiResult<YxStoreInfoDetailQueryVo> getStoreDetail(@PathVariable Integer storeId) {
