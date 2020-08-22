@@ -47,6 +47,7 @@ import java.awt.Font;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -93,7 +94,7 @@ public class UserBillController extends BaseController {
         //昨天的佣金
         double lastDayCount = userBillService.yesterdayCommissionSum(uid);
         //累计提现金额
-        double extractCount = extractService.extractSum(uid);
+        BigDecimal extractCount = extractService.extractSum(uid);
 
 
 

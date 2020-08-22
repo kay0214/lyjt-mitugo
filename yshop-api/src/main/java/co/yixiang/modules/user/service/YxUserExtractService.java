@@ -11,6 +11,7 @@ import co.yixiang.modules.user.web.param.YxUserExtractQueryParam;
 import co.yixiang.modules.user.web.vo.YxUserExtractQueryVo;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 
 /**
  * <p>
@@ -24,7 +25,7 @@ public interface YxUserExtractService extends BaseService<YxUserExtract> {
 
     void userExtract(int uid, UserExtParam param);
 
-    double extractSum(int uid);
+    BigDecimal extractSum(int uid);
 
     /**
      * 根据ID获取查询对象

@@ -12,7 +12,7 @@
     </select>
 
     <select id="getYxUserExtractPageList" resultType="co.yixiang.modules.user.web.vo.YxUserExtractQueryVo">
-        select <include refid="Base_Column_List"/> from yx_user_extract
+        select <include refid="Base_Column_List"/> from yx_user_extract where uid=#{param.uid}
     </select>
 
 </mapper>

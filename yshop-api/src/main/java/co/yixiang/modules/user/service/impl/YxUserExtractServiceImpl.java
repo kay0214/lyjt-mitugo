@@ -21,6 +21,7 @@ import co.yixiang.modules.user.web.vo.YxUserExtractQueryVo;
 import co.yixiang.modules.user.web.vo.YxUserQueryVo;
 import co.yixiang.utils.OrderUtil;
 import co.yixiang.utils.StringUtils;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.metadata.OrderItem;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -76,7 +77,7 @@ public class YxUserExtractServiceImpl extends BaseServiceImpl<YxUserExtractMappe
 
         YxUserExtract userExtract = new YxUserExtract();
         userExtract.setUid(uid);
-        userExtract.setExtractType(StringUtils.isNotBlank(param.getExtractType()) ? param.getExtractType() : "WX");
+        userExtract.setExtractType(StringUtils.isNotBlank(param.getExtractType()) ? param.getExtractType() : "weixin");
         userExtract.setExtractPrice(new BigDecimal(param.getMoney()));
         userExtract.setAddTime(OrderUtil.getSecondTimestampTwo());
         userExtract.setBalance(balance);
@@ -88,7 +89,7 @@ public class YxUserExtractServiceImpl extends BaseServiceImpl<YxUserExtractMappe
             userExtract.setRealName(userInfo.getNickname());
         }
 
-        if (StrUtil.isNotEmpty(param.getWeixin())) {
+        if (StringUtils.isNotBlank(param.getWeixin())) {
             userExtract.setWechat(param.getWeixin());
         } else {
             userExtract.setWechat(userInfo.getNickname());
@@ -102,10 +103,9 @@ public class YxUserExtractServiceImpl extends BaseServiceImpl<YxUserExtractMappe
             userExtract.setAlipayCode(param.getAlipayCode());
             mark = "使用支付宝提现" + param.getMoney() + "元";
         } else if (param.getExtractType().equals("weixin")) {
-            if (StrUtil.isEmpty(param.getWeixin())) {
-                throw new ErrorRequestException("请输入微信账号");
-            }
-
+//            if (StrUtil.isEmpty(param.getWeixin())) {
+//                throw new ErrorRequestException("请输入微信账号");
+//            }
             mark = "使用微信提现" + param.getMoney() + "元";
         }
 
@@ -130,12 +130,10 @@ public class YxUserExtractServiceImpl extends BaseServiceImpl<YxUserExtractMappe
         userBill.setPm(BillEnum.PM_0.getValue());
         userBill.setAddTime(OrderUtil.getSecondTimestampTwo());
         billService.save(userBill);
-
-
     }
 
     @Override
-    public double extractSum(int uid) {
+    public BigDecimal extractSum(int uid) {
         return yxUserExtractMapper.sumPrice(uid);
     }
 
@@ -146,9 +144,15 @@ public class YxUserExtractServiceImpl extends BaseServiceImpl<YxUserExtractMappe
 
     @Override
     public Paging<YxUserExtractQueryVo> getYxUserExtractPageList(YxUserExtractQueryParam yxUserExtractQueryParam) throws Exception {
-        Page page = setPageParam(yxUserExtractQueryParam, OrderItem.desc("create_time"));
-        IPage<YxUserExtractQueryVo> iPage = yxUserExtractMapper.getYxUserExtractPageList(page, yxUserExtractQueryParam);
-        return new Paging(iPage);
+//        Page page = setPageParam(yxUserExtractQueryParam, OrderItem.desc("add_time"));
+//        IPage<YxUserExtractQueryVo> iPage = yxUserExtractMapper.getYxUserExtractPageList(page, yxUserExtractQueryParam);
+
+        QueryWrapper<YxUserExtract> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("uid", yxUserExtractQueryParam.getUid());
+        queryWrapper.orderByDesc("add_time");
+        IPage<YxUserExtract> list = page(new Page<>(yxUserExtractQueryParam.getPage(), yxUserExtractQueryParam.getLimit()), queryWrapper);
+
+        return new Paging(list);
     }
 
 }

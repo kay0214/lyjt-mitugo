@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
+import java.math.BigDecimal;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -43,46 +44,56 @@ import java.util.Map;
 @Api(value = "用户提现", tags = "用户:用户提现", description = "用户提现")
 public class UserExtractController extends BaseController {
 
-    private final YxUserExtractService userExtractService;
-    private final YxUserService userService;
-    private final YxSystemConfigService systemConfigService;
+    @Autowired
+    private YxUserExtractService userExtractService;
+    @Autowired
+    private YxUserService userService;
+    @Autowired
+    private YxSystemConfigService systemConfigService;
+    @Autowired
+    private YxUserExtractService yxUserExtractService;
 
     /**
      * 提现参数
      */
     @GetMapping("/extract/bank")
-    @ApiOperation(value = "提现参数",notes = "提现参数")
-    public ApiResult<Object> bank(){
+    @ApiOperation(value = "提现参数", notes = "提现参数")
+    public ApiResult<Object> bank() {
         int uid = SecurityUtils.getUserId().intValue();
         YxUserQueryVo userInfo = userService.getYxUserById(uid);
-        Map<String,Object> map = new LinkedHashMap<>();
-        map.put("commissionCount",userInfo.getBrokeragePrice());
-        map.put("minPrice",systemConfigService.getData(SystemConfigConstants.USER_EXTRACT_MIN_PRICE));
+        Map<String, Object> map = new LinkedHashMap<>();
+        map.put("commissionCount", userInfo.getBrokeragePrice());
+        map.put("minPrice", systemConfigService.getData(SystemConfigConstants.USER_EXTRACT_MIN_PRICE));
         return ApiResult.ok(map);
     }
 
 
     /**
-    * 用户提现
-    */
+     * 用户提现
+     */
     @PostMapping("/extract/cash")
-    @ApiOperation(value = "用户提现",notes = "用户提现")
-    public ApiResult<String> addYxUserExtract(@Valid @RequestBody UserExtParam param) throws Exception{
+    @ApiOperation(value = "用户提现", notes = "用户提现")
+    public ApiResult<String> addYxUserExtract(@Valid @RequestBody UserExtParam param) throws Exception {
         int uid = SecurityUtils.getUserId().intValue();
-        userExtractService.userExtract(uid,param);
+        userExtractService.userExtract(uid, param);
 
         return ApiResult.ok("申请提现成功");
     }
-
 
 
     /**
      * 用户提现表分页列表
      */
     @PostMapping("/getPageList")
-    @ApiOperation(value = "获取YxUserExtract分页列表",notes = "用户提现表分页列表",response = YxUserExtractQueryVo.class)
-    public ApiResult<Paging<YxUserExtractQueryVo>> getYxUserExtractPageList(@Valid @RequestBody(required = false) YxUserExtractQueryParam yxUserExtractQueryParam) throws Exception{
+    @ApiOperation(value = "获取YxUserExtract分页列表", notes = "用户提现表分页列表", response = YxUserExtractQueryVo.class)
+    public ApiResult<Paging<YxUserExtractQueryVo>> getYxUserExtractPageList(@Valid @RequestBody(required = false) YxUserExtractQueryParam yxUserExtractQueryParam) throws Exception {
+        int uid = SecurityUtils.getUserId().intValue();
+        yxUserExtractQueryParam.setUid(uid);
+        // 获取提现分页数据
         Paging<YxUserExtractQueryVo> paging = userExtractService.getYxUserExtractPageList(yxUserExtractQueryParam);
+        // 获取总累计提现金额
+        BigDecimal extractCount = yxUserExtractService.extractSum(uid);
+        paging.setSum(extractCount.toString());
         return ApiResult.ok(paging);
     }
 
