@@ -12,7 +12,9 @@ import co.yixiang.modules.coupon.service.YxCouponsCategoryService;
 import co.yixiang.modules.coupon.service.YxCouponsService;
 import co.yixiang.modules.coupon.service.dto.YxCouponsQueryCriteria;
 import co.yixiang.modules.shop.domain.User;
+import co.yixiang.modules.shop.domain.YxStoreInfo;
 import co.yixiang.modules.shop.service.UserService;
+import co.yixiang.modules.shop.service.YxStoreInfoService;
 import co.yixiang.utils.OrderUtil;
 import co.yixiang.utils.SecurityUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -48,6 +50,9 @@ public class YxCouponsController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private YxStoreInfoService yxStoreInfoService;
+
     @GetMapping
     @Log("查询卡券表")
     @ApiOperation("查询卡券表")
@@ -71,6 +76,11 @@ public class YxCouponsController {
         }
         if (getOneUser.getUserRole() != 2){
             throw new BadRequestException("当前登录用户非商户, 不可操作!");
+        }
+
+        YxStoreInfo findStoreInfo = yxStoreInfoService.getOne(new QueryWrapper<YxStoreInfo>().eq("mer_id", getOneUser.getId()).eq("del_flag", 0));
+        if (findStoreInfo == null){
+            throw new BadRequestException("当前商户未绑定商铺!");
         }
 
         if (request.getCouponType() == 1 && request.getDenomination() == null){
@@ -117,8 +127,8 @@ public class YxCouponsController {
 
         YxCoupons yxCoupons = new YxCoupons();
         BeanUtil.copyProperties(request, yxCoupons);
-        // 添加以后不可修改所属商户
-        yxCoupons.setBelong(loginUserId);
+        // 添加以后不可修改所属商铺
+        yxCoupons.setBelong(findStoreInfo.getId());
         yxCoupons.setCouponNum(couponNum);
         yxCoupons.setIsShow(0);
         yxCoupons.setIsHot(0);

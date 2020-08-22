@@ -14,7 +14,9 @@ import co.yixiang.modules.activity.domain.YxStoreCoupon;
 import co.yixiang.modules.activity.service.YxStoreCouponService;
 import co.yixiang.modules.activity.service.dto.YxStoreCouponQueryCriteria;
 import co.yixiang.modules.shop.domain.User;
+import co.yixiang.modules.shop.domain.YxStoreInfo;
 import co.yixiang.modules.shop.service.UserService;
+import co.yixiang.modules.shop.service.YxStoreInfoService;
 import co.yixiang.utils.OrderUtil;
 import co.yixiang.utils.SecurityUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -41,6 +43,9 @@ public class StoreCouponController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private YxStoreInfoService yxStoreInfoService;
 
     public StoreCouponController(YxStoreCouponService yxStoreCouponService) {
         this.yxStoreCouponService = yxStoreCouponService;
@@ -79,9 +84,15 @@ public class StoreCouponController {
             throw new BadRequestException("当前登录用户非商户, 不可操作!");
         }
 
+        YxStoreInfo findStoreInfo = yxStoreInfoService.getOne(new QueryWrapper<YxStoreInfo>().eq("mer_id", getOneUser.getId()).eq("del_flag", 0));
+        if (findStoreInfo == null){
+            throw new BadRequestException("当前商户未绑定商铺!");
+        }
+
         YxStoreCoupon yxStoreCoupon = new YxStoreCoupon();
         BeanUtil.copyProperties(resources, yxStoreCoupon);
-        yxStoreCoupon.setBelong(loginUserId);
+        // 优惠券直接绑定到商铺 不可修改
+        yxStoreCoupon.setBelong(findStoreInfo.getId());
         yxStoreCoupon.setAddTime(OrderUtil.getSecondTimestampTwo());
         return new ResponseEntity(yxStoreCouponService.save(yxStoreCoupon),HttpStatus.CREATED);
     }
