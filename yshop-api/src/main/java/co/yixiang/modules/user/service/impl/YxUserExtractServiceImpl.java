@@ -23,7 +23,6 @@ import co.yixiang.utils.OrderUtil;
 import co.yixiang.utils.StringUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.core.metadata.OrderItem;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -151,8 +150,9 @@ public class YxUserExtractServiceImpl extends BaseServiceImpl<YxUserExtractMappe
         queryWrapper.eq("uid", yxUserExtractQueryParam.getUid());
         queryWrapper.orderByDesc("add_time");
         IPage<YxUserExtract> list = page(new Page<>(yxUserExtractQueryParam.getPage(), yxUserExtractQueryParam.getLimit()), queryWrapper);
-
-        return new Paging(list);
+        Paging<YxUserExtractQueryVo> result = new Paging<>(list);
+        result.setTotal(count(queryWrapper));
+        return result;
     }
 
 }
