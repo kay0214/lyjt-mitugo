@@ -48,7 +48,14 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
     public Paging<YxCouponsQueryVo> getYxCouponsPageList(YxCouponsQueryParam yxCouponsQueryParam) throws Exception{
         Page page = setPageParam(yxCouponsQueryParam,OrderItem.desc("create_time"));
         IPage<YxCouponsQueryVo> iPage = yxCouponsMapper.getYxCouponsPageList(page,yxCouponsQueryParam);
+        iPage.setTotal(yxCouponsMapper.getCount(yxCouponsQueryParam));
         return new Paging(iPage);
+    }
+
+    @Override
+    public List<YxCouponsQueryVo> getCouponsHotList(YxCouponsQueryParam yxCouponsQueryParam) throws Exception {
+        List<YxCouponsQueryVo> couponsHotList = yxCouponsMapper.getCouponsHotList(yxCouponsQueryParam);
+        return couponsHotList;
     }
 
     /**

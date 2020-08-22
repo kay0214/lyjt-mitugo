@@ -7,6 +7,7 @@ import java.io.Serializable;
 
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.List;
 
 /**
  * <p>
@@ -122,5 +123,14 @@ private Date updateTime;
 
 @ApiModelProperty(value = "卡券详情")
 private String content;
+
+@ApiModelProperty(value = "卡券缩略图")
+private String image;
+
+@ApiModelProperty(value = "卡券轮播图")
+private List<String> sliderImage;
+
+@ApiModelProperty(value = "总销量(真实销量+虚拟销量)")
+private Integer totalSales;
 
 }

@@ -7,9 +7,11 @@ import co.yixiang.modules.coupons.entity.YxCoupons;
 import co.yixiang.modules.coupons.web.param.YxCouponsQueryParam;
 import co.yixiang.modules.coupons.web.vo.YxCouponsQueryVo;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
 import org.springframework.stereotype.Repository;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * <p>
@@ -35,6 +37,13 @@ public interface YxCouponsMapper extends BaseMapper<YxCoupons> {
      * @param yxCouponsQueryParam
      * @return
      */
+    @Select("select * from yx_coupons")
     IPage<YxCouponsQueryVo> getYxCouponsPageList(@Param("page") Page page, @Param("param") YxCouponsQueryParam yxCouponsQueryParam);
+
+    @Select("select * from (select *, (sales+ficti) as totalSales from yx_coupons) tmp order by totalSales desc limit 20")
+    List<YxCouponsQueryVo> getCouponsHotList(@Param("param") YxCouponsQueryParam yxCouponsQueryParam);
+
+    @Select("select count(1) from yx_coupons")
+    int getCount(@Param("param") YxCouponsQueryParam yxCouponsQueryParam);
 
 }
