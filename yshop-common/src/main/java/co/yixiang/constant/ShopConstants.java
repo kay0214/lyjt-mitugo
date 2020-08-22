@@ -146,6 +146,10 @@ public interface ShopConstants {
 	 * 图片类型-商户
 	 */
 	int IMG_TYPE_MERCHANTS=4;
+	/** 卡券分类相关 */
+	int IMG_TYPE_COUPONS_CATEGORY = 5;
+	/** 卡券相关 */
+	int IMG_TYPE_COUPONS = 6;
 
 	/*********************图片类别**********************/
 
