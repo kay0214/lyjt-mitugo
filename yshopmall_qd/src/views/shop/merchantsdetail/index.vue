@@ -8,35 +8,39 @@
       <el-dialog append-to-body :close-on-click-modal="false" :before-close="crud.cancelCU" :visible.sync="crud.status.cu > 0" :title="crud.status.title" width="570px">
         <el-form ref="form" :inline="true" :model="form" :rules="rules" size="small" label-width="120px">
             <!-- 以下是新增展示字段 -->
-            <el-form-item label="商户名称" prop="nickName">
-              <el-input v-model="form.nickName"  style="width: 350px;"/>
-            </el-form-item>
-            <el-form-item label="商户联系人" prop="merchantsContact">
-              <el-input v-model="form.merchantsContact"  style="width: 350px;"/>
-            </el-form-item>
-            <el-form-item label="商户联系人手机" prop="phone">
-              <el-input v-model.number="form.phone"  style="width: 350px;"/>
-            </el-form-item>
-            <el-form-item label="用户名" prop="username">
-              <el-input v-model="form.username"  style="width: 350px;"/>
-            </el-form-item>
+            <div v-if="crud.status.add">
+              <el-form-item label="商户名称" prop="nickName">
+                <el-input v-model="form.nickName"  style="width: 350px;"/>
+              </el-form-item>
+              <el-form-item label="商户联系人" prop="merchantsContact">
+                <el-input v-model="form.merchantsContact"  style="width: 350px;"/>
+              </el-form-item>
+              <el-form-item label="商户联系人手机" prop="phone">
+                <el-input v-model.number="form.phone"  style="width: 350px;"/>
+              </el-form-item>
+              <el-form-item label="用户名" prop="username">
+                <el-input v-model="form.username"  style="width: 350px;"/>
+              </el-form-item>
+            </div>
 
             <!-- 以下是编辑页面展示字段 -->
-            <el-form-item label="商户名称" prop="merchantsName">
-              <el-input v-model="form.merchantsName"  style="width: 350px;"/>
-            </el-form-item>
-            <el-form-item label="商户地址">
-              <el-input v-model="form.address" style="width: 370px;" />
-            </el-form-item>
-            <el-form-item label="联系人">
-              <el-input v-model="form.contacts" style="width: 370px;" />
-            </el-form-item>
-            <el-form-item label="联系电话">
-              <el-input v-model="form.contactMobile" style="width: 370px;" />
-            </el-form-item>
-            <el-form-item label="邮箱">
-              <el-input v-model="form.mailbox" style="width: 370px;" />
-            </el-form-item>
+            <div v-if="crud.status.edit">
+              <el-form-item label="商户名称" prop="merchantsName">
+                <el-input v-model="form.merchantsName"  style="width: 350px;"/>
+              </el-form-item>
+              <el-form-item label="商户地址">
+                <el-input v-model="form.address" style="width: 370px;" />
+              </el-form-item>
+              <el-form-item label="联系人">
+                <el-input v-model="form.contacts" style="width: 370px;" />
+              </el-form-item>
+              <el-form-item label="联系电话">
+                <el-input v-model="form.contactMobile" style="width: 370px;" />
+              </el-form-item>
+              <el-form-item label="邮箱">
+                <el-input v-model="form.mailbox" style="width: 370px;" />
+              </el-form-item>
+            </div>
             <!--
             <el-form-item label="认证类型" prop="merchantsType">
               <el-radio-group v-model="form.type" size="mini" style="width: 370px">
@@ -54,53 +58,57 @@
 
             <!-- 以下是个人认证 -->
             <!--  手持证件照 personIdCard、 证件照人像面 personIdCardFace、证件照国徽面personIdCardBack  -->
-
-            <el-form-item label="银行账号">
-              <el-input v-model="form.bankNo" style="width: 370px;" />
-            </el-form-item>
-            <el-form-item label="开户省市">
-              <el-input v-model="form.openAccountProvince" style="width: 370px;" />
-            </el-form-item>
-            <el-form-item label="银行卡信息">
-              <el-radio v-model="form.bankType" :label="0">对私账号</el-radio>
-              <el-radio v-model="form.bankType" :label="1" style="width: 200px;">对公账号</el-radio>
-            </el-form-item>
-            <el-form-item label="开户名称">
-              <el-input v-model="form.openAccountName" style="width: 370px;" />
-            </el-form-item>
-            <el-form-item label="开户行">
-              <el-input v-model="form.openAccountBank" style="width: 370px;" />
-            </el-form-item>
-            <el-form-item label="开户支行">
-              <el-input v-model="form.openAccountSubbranch" style="width: 370px;" />
-            </el-form-item>
-
+            <div v-if="form.merchantsType==0">
+              <el-form-item label="银行账号">
+                <el-input v-model="form.bankNo" style="width: 370px;" />
+              </el-form-item>
+              <el-form-item label="开户省市">
+                <el-input v-model="form.openAccountProvince" style="width: 370px;" />
+              </el-form-item>
+              <el-form-item label="银行卡信息">
+                <el-radio v-model="form.bankType" :label="0">对私账号</el-radio>
+                <el-radio v-model="form.bankType" :label="1" style="width: 200px;">对公账号</el-radio>
+              </el-form-item>
+              <el-form-item label="开户名称">
+                <el-input v-model="form.openAccountName" style="width: 370px;" />
+              </el-form-item>
+              <el-form-item label="开户行">
+                <el-input v-model="form.openAccountBank" style="width: 370px;" />
+              </el-form-item>
+              <el-form-item label="开户支行">
+                <el-input v-model="form.openAccountSubbranch" style="width: 370px;" />
+              </el-form-item>
+            </div>
             <!-- 以下是企业 -->
-            <el-form-item label="企业所在省市区">
-              <el-input v-model="form.companyProvince" style="width: 370px;" />
-            </el-form-item>
-            <el-form-item label="企业所在详细地址">
-              <el-input v-model="form.companyAddress" style="width: 370px;" />
-            </el-form-item>
-            <el-form-item label="公司名称">
-              <el-input v-model="form.companyName" style="width: 370px;" />
-            </el-form-item>
-            <el-form-item label="法定代表人">
-              <el-input v-model="form.companyLegalPerson" style="width: 370px;" />
-            </el-form-item>
-            <el-form-item label="公司电话">
-              <el-input v-model="form.companyPhone" style="width: 370px;" />
-            </el-form-item>
+            <div v-if="form.merchantsType==1">
+              <el-form-item label="企业所在省市区">
+                <el-input v-model="form.companyProvince" style="width: 370px;" />
+              </el-form-item>
+              <el-form-item label="企业所在详细地址">
+                <el-input v-model="form.companyAddress" style="width: 370px;" />
+              </el-form-item>
+              <el-form-item label="公司名称">
+                <el-input v-model="form.companyName" style="width: 370px;" />
+              </el-form-item>
+              <el-form-item label="法定代表人">
+                <el-input v-model="form.companyLegalPerson" style="width: 370px;" />
+              </el-form-item>
+              <el-form-item label="公司电话">
+                <el-input v-model="form.companyPhone" style="width: 370px;" />
+              </el-form-item>
+            </div>
 
             <!-- 以下企业与个体户 -->
+            <div v-if="form.merchantsType==1 || form.merchantsType==2">
             <!-- 下拉框 取值从dict的business_category和qualifications_type、两个下拉框联动 -->
-            <el-form-item label="经营类目">
-              <el-input v-model="form.businessCategory" style="width: 370px;" />
-            </el-form-item>
-            <el-form-item label="主体资质类型">
-              <el-input v-model="form.qualificationsType" style="width: 370px;" />
-            </el-form-item>
+              <el-form-item label="经营类目">
+                <el-input v-model="form.businessCategory" style="width: 370px;" />
+              </el-form-item>
+              <el-form-item label="主体资质类型">
+                <el-input v-model="form.qualificationsType" style="width: 370px;" />
+              </el-form-item>            
             <!-- 营业执照 businessLicenseImg、银行开户证明 bankOpenProveImg、法人身份证头像面 legalIdCardFace、法人身份证国徽面 legalIdCardBack、门店照及经营场所 storeImg、医疗机构许可证 licenceImg -->
+            </div>
 
             <!-- 审核意见、大点的文本框只用于展示 -->
             <el-form-item label="主体资质类型">
@@ -160,7 +168,12 @@ import pagination from '@crud/Pagination'
 import MaterialList from "@/components/material";
 
 // crud交由presenter持有
-const defaultCrud = CRUD({ title: '商户详情表', url: 'api/yxMerchantsDetail/getYxMerchantsDetailsList', sort: 'id,desc', crudMethod: { ...crudYxMerchantsDetail }})
+const defaultCrud = CRUD({ title: '商户详情表', url: 'api/yxMerchantsDetail/getYxMerchantsDetailsList', sort: 'id,desc', crudMethod: { ...crudYxMerchantsDetail },optShow: {
+      add: true,
+      edit: false,
+      del: false,
+      download: false
+    }})
 const defaultForm = { id: null, uid: null, examineStatus: null, address: null, contacts: null, contactMobile: null, mailbox: null, merchantsType: null, bankNo: null, openAccountProvince: null, bankType: null, openAccountName: null, openAccountBank: null, openAccountSubbranch: null, companyProvince: null, companyAddress: null, companyName: null, companyLegalPerson: null, companyPhone: null, businessCategory: null, qualificationsType: null, delFlag: null, createUserId: null, updateUserId: null, createTime: null, updateTime: null, merchantsName: null }
 export default {
   name: 'YxMerchantsDetail',
