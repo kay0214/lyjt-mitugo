@@ -3,6 +3,7 @@ package co.yixiang.modules.coupons.web.controller;
 import co.yixiang.annotation.AnonymousAccess;
 import co.yixiang.common.api.ApiResult;
 import co.yixiang.modules.coupons.web.vo.LocalLifeSliderVo;
+import co.yixiang.modules.coupons.web.vo.LocalLiveIndexVo;
 import co.yixiang.modules.shop.entity.SystemGroupDataValue;
 import co.yixiang.modules.shop.entity.YxSystemGroupData;
 import co.yixiang.modules.shop.service.YxSystemGroupDataService;
@@ -33,39 +34,49 @@ public class LocaLifeIndexController {
     @Autowired
     private YxSystemGroupDataService yxSystemGroupDataService;
 
-    // 获取导航.
-    @GetMapping("/getLocalLifeNav")
+    /**
+     * Banner 上下方导航
+     * @return
+     * @throws Exception
+     */
+    @AnonymousAccess
+    @GetMapping("/getLocalLifeIndex")
     @ApiOperation(value = "本地生活首页幻灯片",notes = "本地生活首页幻灯片",response = ApiResult.class)
-    public ApiResult<List<LocalLifeSliderVo>> getLocalLifeNav() throws Exception {
+    public ApiResult<LocalLiveIndexVo> getLocalLifeNav() throws Exception {
         // 本地生活Banner下导航
         List<YxSystemGroupData> localLiveMenu = yxSystemGroupDataService.list(new QueryWrapper<YxSystemGroupData>()
                 .eq("group_name", "local_live_menu").eq("status", 1).orderByAsc("sort"));
 
+        LocalLiveIndexVo localLiveIndexVo = new LocalLiveIndexVo();
+
+        List<LocalLifeSliderVo> menusList = new ArrayList<>();
         if (localLiveMenu != null){
             for (YxSystemGroupData menu : localLiveMenu){
+                LocalLifeSliderVo liveMenuVo = new LocalLifeSliderVo();
                 String jsonString = menu.getValue();
 
-                YxSystemGroupData yxSystemGroupData = JSON.parseObject(jsonString, YxSystemGroupData.class);
-                System.out.println(yxSystemGroupData);
-//                JSONObject jsonObject=JSONObject.parseObject(jsonString);
-//                YxSystemGroupData groupData = (YxSystemGroupData) JSONObject.
+                SystemGroupDataValue sliderSystemData = JSON.parseObject(jsonString, SystemGroupDataValue.class);
+                BeanUtils.copyProperties(sliderSystemData, liveMenuVo);
+                menusList.add(liveMenuVo);
             }
         }
         // 本地生活Banner上导航
         List<YxSystemGroupData> localLiveLink = yxSystemGroupDataService.list(new QueryWrapper<YxSystemGroupData>()
                 .eq("group_name", "local_live_link").eq("status", 1).orderByAsc("sort"));
 
+        List<LocalLifeSliderVo> linksList = new ArrayList<>();
         if (localLiveLink != null){
+            for (YxSystemGroupData links : localLiveLink){
+                LocalLifeSliderVo liveLinkVo = new LocalLifeSliderVo();
+                String jsonString = links.getValue();
 
+                SystemGroupDataValue sliderSystemData = JSON.parseObject(jsonString, SystemGroupDataValue.class);
+                BeanUtils.copyProperties(sliderSystemData, liveLinkVo);
+                linksList.add(liveLinkVo);
+            }
         }
-        return null;
-    }
 
-    // 获取本地生活幻灯片
-    @AnonymousAccess
-    @GetMapping("/getSliderImages")
-    @ApiOperation(value = "本地生活首页幻灯片",notes = "本地生活首页幻灯片",response = ApiResult.class)
-    public ApiResult<List<LocalLifeSliderVo>> getSliderImages() throws Exception{
+        // 首页幻灯片
         List<YxSystemGroupData> groupDataList = yxSystemGroupDataService.list(new QueryWrapper<YxSystemGroupData>()
                 .eq("group_name", "local_live_carousel").eq("status", 1).orderByAsc("sort"));
 
@@ -79,7 +90,21 @@ public class LocaLifeIndexController {
                 sliderVos.add(localLifeSliderVo);
             }
         }
-        return ApiResult.ok(sliderVos);
+
+        localLiveIndexVo.setLocalLiveMenu(menusList);
+        localLiveIndexVo.setLocalLiveLink(linksList);
+        localLiveIndexVo.setSliderList(sliderVos);
+        return ApiResult.ok(localLiveIndexVo);
     }
+
+    // 获取本地生活幻灯片
+//    @GetMapping("/getSliderImages")
+//    @ApiOperation(value = "本地生活首页幻灯片",notes = "本地生活首页幻灯片",response = ApiResult.class)
+//    public ApiResult<List<LocalLifeSliderVo>> getSliderImages() throws Exception{
+//
+//        return ApiResult.ok(sliderVos);
+//    }
+
+
 
 }

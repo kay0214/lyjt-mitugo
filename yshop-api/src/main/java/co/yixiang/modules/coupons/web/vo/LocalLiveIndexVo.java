@@ -9,11 +9,14 @@ import java.util.List;
  * @Author : huanghui
  */
 @Data
-public class LocalLiveMenusVo {
+public class LocalLiveIndexVo {
 
     /** 本地生活Banner下导航 */
-    List<LocalLiveNavVo> localLiveMenu;
+    List<LocalLifeSliderVo> localLiveMenu;
 
     /** 本地生活Banner上导航 */
-    List<LocalLiveNavVo> localLiveLink;
+    List<LocalLifeSliderVo> localLiveLink;
+
+    /** 幻灯片 */
+    List<LocalLifeSliderVo> sliderList;
 }
