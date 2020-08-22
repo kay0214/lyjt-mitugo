@@ -25,6 +25,10 @@ public class YxCouponsQueryVo implements Serializable{
 @ApiModelProperty(value = "卡券主键")
 private Integer id;
 
+/** 所属商户 */
+@ApiModelProperty(value = "所属商户")
+private Integer belong;
+
 @ApiModelProperty(value = "卡券编号")
 private String couponNum;
 
