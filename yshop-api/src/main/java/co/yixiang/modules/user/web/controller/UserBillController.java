@@ -96,8 +96,6 @@ public class UserBillController extends BaseController {
         //累计提现金额
         BigDecimal extractCount = extractService.extractSum(uid);
 
-
-
         Map<String,Object> map = new LinkedHashMap<>();
         map.put("lastDayCount",lastDayCount);
         map.put("extractCount",extractCount);
