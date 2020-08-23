@@ -2,6 +2,7 @@ package co.yixiang.modules.coupon.rest;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.date.DateTime;
+import co.yixiang.constant.LocalLiveConstants;
 import co.yixiang.constant.ShopConstants;
 import co.yixiang.exception.BadRequestException;
 import co.yixiang.logging.aop.log.Log;
@@ -291,7 +292,7 @@ public class YxCouponsController {
             imageInfoQueryWrapper.lambda()
                     .and(type -> type.eq(YxImageInfo::getTypeId, typeId))
                     .and(imgCate -> imgCate.eq(YxImageInfo::getImgCategory, ShopConstants.IMG_CATEGORY_PIC))
-                    .and(imgType -> imgType.eq(YxImageInfo::getImgType, ShopConstants.IMG_TYPE_COUPONS))
+                    .and(imgType -> imgType.eq(YxImageInfo::getImgType, LocalLiveConstants.IMG_TYPE_COUPONS))
                     .and(del -> del.eq(YxImageInfo::getDelFlag, false));
 
             List<YxImageInfo> imageInfoList = yxImageInfoService.list(imageInfoQueryWrapper);
@@ -311,7 +312,7 @@ public class YxCouponsController {
                 YxImageInfo imageInfo = new YxImageInfo();
                 imageInfo.setTypeId(typeId);
                 // 卡券分类 img_type 为 5
-                imageInfo.setImgType(ShopConstants.IMG_TYPE_COUPONS);
+                imageInfo.setImgType(LocalLiveConstants.IMG_TYPE_COUPONS);
                 imageInfo.setImgCategory(ShopConstants.IMG_CATEGORY_PIC);
                 imageInfo.setImgUrl(imgPath);
                 imageInfo.setDelFlag(0);
@@ -329,7 +330,7 @@ public class YxCouponsController {
             sliderImageInfoQueryWrapper.lambda()
                     .and(type -> type.eq(YxImageInfo::getTypeId, typeId))
                     .and(imgCate -> imgCate.eq(YxImageInfo::getImgCategory, ShopConstants.IMG_CATEGORY_ROTATION1))
-                    .and(imgType -> imgType.eq(YxImageInfo::getImgType, ShopConstants.IMG_TYPE_COUPONS))
+                    .and(imgType -> imgType.eq(YxImageInfo::getImgType, LocalLiveConstants.IMG_TYPE_COUPONS))
                     .and(del -> del.eq(YxImageInfo::getDelFlag, false));
 
             List<YxImageInfo> sliderImageInfoList = yxImageInfoService.list(sliderImageInfoQueryWrapper);

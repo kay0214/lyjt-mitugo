@@ -2,6 +2,7 @@ package co.yixiang.modules.coupons.web.controller;
 
 import co.yixiang.annotation.AnonymousAccess;
 import co.yixiang.common.api.ApiResult;
+import co.yixiang.constant.LocalLiveConstants;
 import co.yixiang.modules.coupons.web.vo.LocalLifeSliderVo;
 import co.yixiang.modules.coupons.web.vo.LocalLiveIndexVo;
 import co.yixiang.modules.shop.entity.SystemGroupDataValue;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 本地生活首页 控制器
@@ -78,7 +80,7 @@ public class LocaLifeIndexController {
 
         // 首页幻灯片
         List<YxSystemGroupData> groupDataList = yxSystemGroupDataService.list(new QueryWrapper<YxSystemGroupData>()
-                .eq("group_name", "local_live_carousel").eq("status", 1).orderByAsc("sort"));
+                .eq("group_name", " ").eq("status", 1).orderByAsc("sort"));
 
         List<LocalLifeSliderVo> sliderVos = new ArrayList<>();
         if (groupDataList != null){
@@ -97,14 +99,20 @@ public class LocaLifeIndexController {
         return ApiResult.ok(localLiveIndexVo);
     }
 
-    // 获取本地生活幻灯片
-//    @GetMapping("/getSliderImages")
-//    @ApiOperation(value = "本地生活首页幻灯片",notes = "本地生活首页幻灯片",response = ApiResult.class)
-//    public ApiResult<List<LocalLifeSliderVo>> getSliderImages() throws Exception{
-//
-//        return ApiResult.ok(sliderVos);
-//    }
-
-
+    /**
+     * 热门搜索关键词
+     * @return
+     */
+    @AnonymousAccess
+    @GetMapping("/search/keyword")
+    @ApiOperation(value = "热门搜索关键字获取",notes = "热门搜索关键字获取")
+    public ApiResult<List<String>> search(){
+        List<Map<String,Object>> list = yxSystemGroupDataService.getDatas(LocalLiveConstants.LOCAL_LIVE_HOT_SEARCH);
+        List<String>  stringList = new ArrayList<>();
+        for (Map<String,Object> map : list) {
+            stringList.add(map.get("title").toString());
+        }
+        return ApiResult.ok(stringList);
+    }
 
 }
