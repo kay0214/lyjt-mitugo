@@ -29,4 +29,7 @@ public class LocalLiveCouponsVo {
 
     @ApiModelProperty(value = "原价")
     private BigDecimal originalPrice;
+
+    @ApiModelProperty(value = "卡券图片")
+    private String img;
 }

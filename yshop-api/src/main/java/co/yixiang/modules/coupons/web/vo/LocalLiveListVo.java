@@ -21,6 +21,9 @@ public class LocalLiveListVo {
     @ApiModelProperty(value = "店铺名称")
     private String storeName;
 
+    @ApiModelProperty(value = "店铺缩略图")
+    private String img;
+
     @ApiModelProperty(value = "店铺卡券")
     private List<LocalLiveCouponsVo> localLiveCouponsVoList;
 }
