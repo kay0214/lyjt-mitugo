@@ -5,6 +5,9 @@ import co.yixiang.common.service.impl.BaseServiceImpl;
 import co.yixiang.common.web.vo.Paging;
 import co.yixiang.enums.CommonEnum;
 import co.yixiang.modules.coupons.service.YxCouponsService;
+import co.yixiang.modules.coupons.web.param.LocalLiveQueryParam;
+import co.yixiang.modules.coupons.web.vo.LocalLiveCouponsVo;
+import co.yixiang.modules.coupons.web.vo.LocalLiveListVo;
 import co.yixiang.modules.image.service.YxImageInfoService;
 import co.yixiang.modules.manage.entity.DictDetail;
 import co.yixiang.modules.manage.service.DictDetailService;
@@ -165,4 +168,21 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
         return listStr;
     }
 
+    /**
+     *
+     * @param localLiveQueryParam
+     * @return
+     * @throws Exception
+     */
+    @Override
+    public Paging<LocalLiveListVo> getLocalLiveList(LocalLiveQueryParam localLiveQueryParam) throws Exception {
+        Page page = setPageParam(localLiveQueryParam, OrderItem.desc("create_time"));
+        IPage<LocalLiveListVo> iPage = yxStoreInfoMapper.getLocalLiveList(page, localLiveQueryParam);
+        List<LocalLiveListVo> localLiveListVoList = iPage.getRecords();
+        for (LocalLiveListVo localLiveListVo : localLiveListVoList){
+            List<LocalLiveCouponsVo> localLiveCouponsVoList = yxCouponsService.getCouponsLitByBelog(localLiveListVo.getId());
+            localLiveListVo.setLocalLiveCouponsVoList(localLiveCouponsVoList);
+        }
+        return new Paging(iPage);
+    }
 }

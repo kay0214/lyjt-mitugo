@@ -2,11 +2,16 @@ package co.yixiang.modules.coupons.web.controller;
 
 import co.yixiang.annotation.AnonymousAccess;
 import co.yixiang.common.api.ApiResult;
+import co.yixiang.common.web.vo.Paging;
 import co.yixiang.constant.LocalLiveConstants;
+import co.yixiang.modules.coupons.web.param.LocalLiveQueryParam;
 import co.yixiang.modules.coupons.web.vo.LocalLifeSliderVo;
 import co.yixiang.modules.coupons.web.vo.LocalLiveIndexVo;
+import co.yixiang.modules.coupons.web.vo.LocalLiveListVo;
+import co.yixiang.modules.coupons.web.vo.YxCouponOrderQueryVo;
 import co.yixiang.modules.shop.entity.SystemGroupDataValue;
 import co.yixiang.modules.shop.entity.YxSystemGroupData;
+import co.yixiang.modules.shop.service.YxStoreInfoService;
 import co.yixiang.modules.shop.service.YxSystemGroupDataService;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -15,10 +20,9 @@ import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -35,6 +39,9 @@ public class LocaLifeIndexController {
 
     @Autowired
     private YxSystemGroupDataService yxSystemGroupDataService;
+
+    @Autowired
+    private YxStoreInfoService yxStoreInfoService;
 
     /**
      * Banner 上下方导航
@@ -113,6 +120,21 @@ public class LocaLifeIndexController {
             stringList.add(map.get("title").toString());
         }
         return ApiResult.ok(stringList);
+    }
+
+
+    /**
+     * 本地生活分类列表
+     * @param localLiveQueryParam
+     * @return
+     * @throws Exception
+     */
+    @AnonymousAccess
+    @PostMapping("/getLocalLiveList")
+    @ApiOperation(value = "获取本地生活分页列表",notes = "卡券订单表分页列表",response = YxCouponOrderQueryVo.class)
+    public ApiResult<Paging<LocalLiveListVo>> getYxCouponOrderPageList(@Valid @RequestBody(required = false) LocalLiveQueryParam localLiveQueryParam) throws Exception{
+        Paging<LocalLiveListVo> paging = yxStoreInfoService.getLocalLiveList(localLiveQueryParam);
+        return ApiResult.ok(paging);
     }
 
 }

@@ -1,5 +1,6 @@
 package co.yixiang.modules.coupons.service.impl;
 
+import cn.hutool.core.bean.BeanUtil;
 import co.yixiang.common.service.impl.BaseServiceImpl;
 import co.yixiang.common.web.vo.Paging;
 import co.yixiang.enums.CommonEnum;
@@ -7,6 +8,7 @@ import co.yixiang.modules.coupons.entity.YxCoupons;
 import co.yixiang.modules.coupons.mapper.YxCouponsMapper;
 import co.yixiang.modules.coupons.service.YxCouponsService;
 import co.yixiang.modules.coupons.web.param.YxCouponsQueryParam;
+import co.yixiang.modules.coupons.web.vo.LocalLiveCouponsVo;
 import co.yixiang.modules.coupons.web.vo.YxCouponsQueryVo;
 import co.yixiang.modules.shop.mapping.YxCouponsMap;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -19,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -70,5 +73,22 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
         List<YxCoupons> storeProductList =  this.list(wrapper);
         List<YxCouponsQueryVo> queryVoList = yxCouponsMap.toDto(storeProductList);
         return queryVoList;
+    }
+
+    /**
+     * 通过店铺ID获取店铺卡券
+     * @param id
+     * @return
+     */
+    @Override
+    public List<LocalLiveCouponsVo> getCouponsLitByBelog(int id) {
+        List<YxCoupons> yxCoupons = baseMapper.selectList(new QueryWrapper<YxCoupons>().last("limit 3").eq("belong", id).eq("del_flag", 0));
+        List<LocalLiveCouponsVo> localLiveCouponsVoList = new ArrayList<>();
+        for (YxCoupons coupons : yxCoupons){
+            LocalLiveCouponsVo localLiveCouponsVo = new LocalLiveCouponsVo();
+            BeanUtil.copyProperties(coupons, localLiveCouponsVo);
+            localLiveCouponsVoList.add(localLiveCouponsVo);
+        }
+        return localLiveCouponsVoList;
     }
 }
