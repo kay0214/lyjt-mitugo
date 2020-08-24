@@ -28,16 +28,16 @@
           </el-form-item>
           
           <!-- coupon_type为1时使用 -->
-          <el-form-item prop="denomination" v-show="form.couponType === 1" required label="代金券面额">
+          <el-form-item prop="denomination" v-show="form.couponType === 1" :required="form.couponType === 1" label="代金券面额">
             <el-input v-model="form.denomination" style="width: 100%;" />
           </el-form-item>
-          <el-form-item prop="discount" v-show="form.couponType === 2" required label="折扣券折扣率">
+          <el-form-item prop="discount" v-show="form.couponType === 2" :required="form.couponType === 2" label="折扣券折扣率">
             <el-input v-model="form.discount" style="width: 100%;" />
           </el-form-item>
-          <el-form-item prop="threshold" v-show="form.couponType === 3" required label="使用门槛">
+          <el-form-item prop="threshold" v-show="form.couponType === 3" :required="form.couponType === 3" label="使用门槛">
             <el-input v-model="form.threshold" style="width: 100%;" />
           </el-form-item>
-          <el-form-item prop="discountAmount" v-show="form.couponType === 3" required label="优惠金额">
+          <el-form-item prop="discountAmount" v-show="form.couponType === 3" :required="form.couponType === 3" label="优惠金额">
             <el-input v-model="form.discountAmount" style="width: 100%;" />
           </el-form-item>
           <el-form-item label="卡券分类" prop="couponCategory">
@@ -84,7 +84,7 @@
               range-separator="至"
               start-placeholder="有效期开始日期"
               end-placeholder="有效期结束日期"
-              style="width:100%;">
+              style="width:100%;" @change="expireDateChange">
             </el-date-picker>
           </el-form-item>
           
@@ -375,15 +375,37 @@ export default {
         // couponNum: [
         //   { required: true, message: '卡券编号不能为空', trigger: 'blur' }
         // ],
+        
         couponName: [
           { required: true, message: '卡券名称不能为空', trigger: 'blur' }
         ],
+        
         couponType: [
           { required: true, message: '卡券类型不能为空', trigger: 'blur' }
         ],
         couponCategory: [
           { required: true, message: '卡券分类不能为空', trigger: 'blur' }
         ],
+        denomination: [{ validator:(rule, value, callback)=>{
+          if (this.form.couponType === 1 && (!value || value === '')) {
+            return callback(new Error('代金券面额不能为空不能为空'));
+          }else { callback(); }
+        }, trigger: 'blur' }],
+        discount: [{ validator:(rule, value, callback)=>{
+          if (this.form.couponType === 2 &&  (!value || value === '')) {
+            return callback(new Error('折扣不能为空'));
+          }else { callback(); }
+        }, trigger: 'blur' }],
+        threshold: [{ validator:(rule, value, callback)=>{
+          if (this.form.couponType === 3 &&  (!value || value === '')) {
+            return callback(new Error('使用门槛不能为空不能为空'));
+          }else { callback(); }
+        }, trigger: 'blur' }],
+        discountAmount: [{ validator:(rule, value, callback)=>{
+          if (this.form.couponType === 3 &&  (!value || value === '')) {
+            return callback(new Error('优惠金额不能为空'));
+          }else { callback(); }
+        },trigger: 'blur' }],
         sellingPrice: [
           { required: true, message: '销售价格不能为空', trigger: 'blur' }
         ],
@@ -405,24 +427,37 @@ export default {
         writeOff: [
           { required: true, message: '核销次数不能为空', trigger: 'blur' }
         ],
+        
         expireDate: [{
-          required: true, message:"有效期不能为空",trigger: 'blur'
+          validator:(rule, value, callback)=>{
+          if (!this.form.expireDateStart|| !this.form.expireDateEnd) {
+            return callback(new Error('有效期不能为空'));
+          } 
+          callback();
+        }, trigger: 'blur'
         }],
-        expireDateStart: [
-          { required: true, message: '有效期始不能为空', trigger: 'blur' }
-        ],
-        expireDateEnd: [
-          { required: true, message: '有效期止不能为空', trigger: 'blur' }
-        ],
+        // expireDateStart: [
+        //   { required: true, message: '有效期始不能为空', trigger: 'blur' }
+        // ],
+        // expireDateEnd: [
+        //   { required: true, message: '有效期止不能为空', trigger: 'blur' }
+        // ],
         useCondition: [
           { required: true, message: '使用条件不能为空', trigger: 'blur' }
         ],
-        availableTimeStart: [
-          { required: true, message: '可用时间始不能为空', trigger: 'blur' }
-        ],
-        availableTimeEnd: [
-          { required: true, message: '可用时间止不能为空', trigger: 'blur' }
-        ],
+        availableTime:[{
+          validator:(rule, value, callback)=>{
+          if (!this.form.availableTimeStart|| !this.form.availableTimeEnd) {
+            return callback(new Error('可用时间不能为空'));
+          } 
+          callback();
+        }, trigger: 'blur'}],
+        // availableTimeStart: [
+        //   { required: true, message: '可用时间始不能为空', trigger: 'blur' }
+        // ],
+        // availableTimeEnd: [
+        //   { required: true, message: '可用时间止不能为空', trigger: 'blur' }
+        // ],
         delFlag: [
           { required: true, message: '是否删除不能为空', trigger: 'blur' }
         ],
@@ -436,45 +471,14 @@ export default {
           { validator:(rule, value, callback)=>{
           if (!value || value === "<p><br></p>" || value === "<p></p>") {
             return callback(new Error('卡券详情不能为空'));
-          }
+          } 
+          callback();
         }, trigger: 'blur' }
         ],
         
-        denomination: [{ validator:(rule, value, callback)=>{
-          if (this.form.couponType === 1 && !value) {
-            return callback(new Error('代金券面额不能为空不能为空'));
-          }
-        }, trigger: 'blur' }],
-        discount: [{ validator:(rule, value, callback)=>{
-          if (this.form.couponType === 2 && !value) {
-            return callback(new Error('折扣不能为空'));
-          }
-        }, trigger: 'blur' }],
-        threshold: [{ validator:(rule, value, callback)=>{
-          if (this.form.couponType === 3 && !value) {
-            return callback(new Error('使用门槛不能为空不能为空'));
-          }
-        }, trigger: 'blur' }],
-        discountAmount: [{ validator:(rule, value, callback)=>{
-          if (this.form.couponType === 3 && !value) {
-            return callback(new Error('优惠金额不能为空'));
-          }
-        },trigger: 'blur' }],
       }    }
   },
   watch: {
-    // 有效期监听
-    expireDate(newValue){
-      this.form.expireDate = newValue;
-      this.form.expireDateStart = parseTime(newValue[0]);
-      this.form.expireDateEnd = parseTime(newValue[1]);
-    },
-    // 过期时间监听
-    availableTime(newValue){
-      this.form.availableTime = newValue;
-      this.form.availableTimeStart = parseTime(newValue[0]);
-      this.form.availableTimeEnd = parseTime(newValue[1]);
-    }
   },
   computed:{
     
@@ -485,9 +489,18 @@ export default {
       return true
     }, // 新增与编辑前做的操作
     [CRUD.HOOK.afterToCU](crud, form) {
-      return true;
+      delete form.availableTime
+      delete form.expireDate
+      this.form.availableTimeEnd = this.availableTime[0]
+      this.form.availableTimeStart = this.availableTime[1]
     },
-    [CRUD.HOOK.beforeSubmit]() {
+    expireDateChange(newValue){
+      this.form.expireDateStart = this.expireDate[0]
+      this.form.expireDateEnd = this.expireDate[1]
+    },
+    availabalChange(newValue){
+      this.form.availableTimeStart = this.availableTime[0]
+      this.form.availableTimeEnd = this.availableTime[1]
     },
     setCommission(){
       const commission = this.form.sellingPrice - this.form.settlementPrice;
