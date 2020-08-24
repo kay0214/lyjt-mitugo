@@ -5,7 +5,6 @@
  */
 package co.yixiang.modules.shop.service.dto;
 
-import co.yixiang.modules.shop.domain.YxStoreInfo;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -132,8 +131,7 @@ public class YxStoreProductDto implements Serializable {
 
     private YxStoreCategorySmallDto storeCategory;
 
-    private YxStoreInfo store;
-
+    private YxStoreInfoDto store;
 
     private BigDecimal commission;
 }
