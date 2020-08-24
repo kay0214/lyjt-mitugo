@@ -12,7 +12,8 @@ spring:
     redis:
       repositories:
         enabled: false
-
+  application:
+    name: system
 task:
   pool:
     # 核心线程池大小

@@ -2,6 +2,8 @@ package co.yixiang.modules.coupon.rest;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.date.DateTime;
+import co.yixiang.constant.LocalLiveConstants;
+import co.yixiang.constant.ShopConstants;
 import co.yixiang.logging.aop.log.Log;
 import co.yixiang.modules.coupon.domain.CouponsCategoryAddRequest;
 import co.yixiang.modules.coupon.domain.CouponsCategoryModifyRequest;
@@ -11,6 +13,7 @@ import co.yixiang.modules.coupon.service.YxCouponsCategoryService;
 import co.yixiang.modules.shop.domain.YxImageInfo;
 import co.yixiang.modules.shop.service.YxImageInfoService;
 import co.yixiang.utils.SecurityUtils;
+import co.yixiang.utils.StringUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import io.swagger.annotations.Api;
@@ -84,41 +87,7 @@ public class CouponsCategoryController {
         int insCouponCateStatus  = yxCouponsCategoryService.insCouponCate(yxCouponsCategory);
         boolean couponCateStatus = insCouponCateStatus > 0 ? true : false;
         if (couponCateStatus){
-            // 查询图片是否存在(已存在则删除)
-            QueryWrapper<YxImageInfo> imageInfoQueryWrapper = new QueryWrapper<>();
-            imageInfoQueryWrapper.lambda()
-                    // .and(typeId -> typeId.eq(YxImageInfo::getTypeId, yxCouponsCategory.getId()))
-                    .and(imgCate -> imgCate.eq(YxImageInfo::getImgCategory, 1))
-                    .and(imgType -> imgType.eq(YxImageInfo::getImgType, 5))
-                    .and(del -> del.eq(YxImageInfo::getDelFlag, false));
-
-            List<YxImageInfo> imageInfoList = yxImageInfoService.list(imageInfoQueryWrapper);
-
-            if (imageInfoList.size() > 0){
-                // 删除已存在的图片
-                for (YxImageInfo imageInfo : imageInfoList){
-                    YxImageInfo delImageInfo = new YxImageInfo();
-                    delImageInfo.setId(imageInfo.getId());
-                    delImageInfo.setDelFlag(1);
-                    delImageInfo.setUpdateUserId(loginUserId);
-                    delImageInfo.setUpdateTime(DateTime.now().toTimestamp());
-                    yxImageInfoService.updateById(delImageInfo);
-                }
-            }
-
-            // 写入分类对应的图片关联表
-            YxImageInfo imageInfo = new YxImageInfo();
-            imageInfo.setTypeId(yxCouponsCategory.getId());
-            // 卡券分类 img_type 为 5
-            imageInfo.setImgType(5);
-            imageInfo.setImgCategory(1);
-            imageInfo.setImgUrl(categoryAddRequest.getPath());
-            imageInfo.setDelFlag(0);
-            imageInfo.setCreateUserId(loginUserId);
-            imageInfo.setUpdateUserId(loginUserId);
-            imageInfo.setCreateTime(DateTime.now().toTimestamp());
-            imageInfo.setUpdateTime(DateTime.now().toTimestamp());
-            yxImageInfoService.save(imageInfo);
+            categoryImg(yxCouponsCategory.getId(), categoryAddRequest.getPath(), loginUserId);
         }
         return new ResponseEntity<>(couponCateStatus, HttpStatus.CREATED);
     }
@@ -151,41 +120,7 @@ public class CouponsCategoryController {
         boolean updateStatus = yxCouponsCategoryService.updateById(yxCouponsCategory);
 
         if (updateStatus){
-            // 查询图片是否存在(已存在则删除)
-            QueryWrapper<YxImageInfo> imageInfoQueryWrapper = new QueryWrapper<>();
-            imageInfoQueryWrapper.lambda()
-                    // .and(typeId -> typeId.eq(YxImageInfo::getTypeId, yxCouponsCategory.getId()))
-                    .and(imgCate -> imgCate.eq(YxImageInfo::getImgCategory, 1))
-                    .and(imgType -> imgType.eq(YxImageInfo::getImgType, 5))
-                    .and(del -> del.eq(YxImageInfo::getDelFlag, false));
-
-            List<YxImageInfo> imageInfoList = yxImageInfoService.list(imageInfoQueryWrapper);
-
-            if (imageInfoList.size() > 0){
-                // 删除已存在的图片
-                for (YxImageInfo imageInfo : imageInfoList){
-                    YxImageInfo delImageInfo = new YxImageInfo();
-                    delImageInfo.setId(imageInfo.getId());
-                    delImageInfo.setDelFlag(1);
-                    delImageInfo.setUpdateUserId(loginUserId);
-                    delImageInfo.setUpdateTime(DateTime.now().toTimestamp());
-                    yxImageInfoService.updateById(delImageInfo);
-                }
-            }
-
-            // 写入分类对应的图片关联表
-            YxImageInfo imageInfo = new YxImageInfo();
-            imageInfo.setTypeId(yxCouponsCategory.getId());
-            // 卡券分类 img_type 为 5
-            imageInfo.setImgType(5);
-            imageInfo.setImgCategory(1);
-            imageInfo.setImgUrl(request.getPath());
-            imageInfo.setDelFlag(0);
-            imageInfo.setCreateUserId(loginUserId);
-            imageInfo.setUpdateUserId(loginUserId);
-            imageInfo.setCreateTime(DateTime.now().toTimestamp());
-            imageInfo.setUpdateTime(DateTime.now().toTimestamp());
-            yxImageInfoService.save(imageInfo);
+            categoryImg(request.getId(), request.getPath(), loginUserId);
         }
         return new ResponseEntity<>(updateStatus, HttpStatus.CREATED);
     }
@@ -206,5 +141,51 @@ public class CouponsCategoryController {
             delStatus = yxCouponsCategoryService.removeById(id);
         }
         return new ResponseEntity<>(delStatus, HttpStatus.OK);
+    }
+
+    /**
+     * 缩略图操作
+     * @param typeId
+     * @param path   缩略图
+     * @param loginUserId
+     */
+    private void categoryImg(Integer typeId, String path, Integer loginUserId){
+        if (StringUtils.isNotBlank(path)) {
+            // 查询图片是否存在(已存在则删除)
+            QueryWrapper<YxImageInfo> imageInfoQueryWrapper = new QueryWrapper<>();
+            imageInfoQueryWrapper.lambda()
+                    .and(type -> type.eq(YxImageInfo::getTypeId, typeId))
+                    .and(imgCate -> imgCate.eq(YxImageInfo::getImgCategory, ShopConstants.IMG_CATEGORY_PIC))
+                    .and(imgType -> imgType.eq(YxImageInfo::getImgType, LocalLiveConstants.IMG_TYPE_COUPONS_CATEGORY))
+                    .and(del -> del.eq(YxImageInfo::getDelFlag, false));
+
+            List<YxImageInfo> imageInfoList = yxImageInfoService.list(imageInfoQueryWrapper);
+
+            if (imageInfoList.size() > 0) {
+                // 删除已存在的图片
+                for (YxImageInfo imageInfo : imageInfoList) {
+                    YxImageInfo delImageInfo = new YxImageInfo();
+                    delImageInfo.setId(imageInfo.getId());
+                    delImageInfo.setDelFlag(1);
+                    delImageInfo.setUpdateUserId(loginUserId);
+                    delImageInfo.setUpdateTime(DateTime.now().toTimestamp());
+                    yxImageInfoService.updateById(delImageInfo);
+                }
+
+                // 写入分类对应的图片关联表
+                YxImageInfo imageInfo = new YxImageInfo();
+                imageInfo.setTypeId(typeId);
+                // 卡券分类 img_type 为 5
+                imageInfo.setImgType(LocalLiveConstants.IMG_TYPE_COUPONS_CATEGORY);
+                imageInfo.setImgCategory(ShopConstants.IMG_CATEGORY_PIC);
+                imageInfo.setImgUrl(path);
+                imageInfo.setDelFlag(0);
+                imageInfo.setCreateUserId(loginUserId);
+                imageInfo.setUpdateUserId(loginUserId);
+                imageInfo.setCreateTime(DateTime.now().toTimestamp());
+                imageInfo.setUpdateTime(DateTime.now().toTimestamp());
+                yxImageInfoService.save(imageInfo);
+            }
+        }
     }
 }

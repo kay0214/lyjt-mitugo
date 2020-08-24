@@ -4,6 +4,7 @@
 package co.yixiang.modules.shop.web.controller;
 
 import cn.hutool.core.util.ObjectUtil;
+import co.yixiang.annotation.AnonymousAccess;
 import co.yixiang.common.api.ApiResult;
 import co.yixiang.common.web.controller.BaseController;
 import co.yixiang.logging.aop.log.Log;
@@ -150,6 +151,18 @@ public class StoreCartController extends BaseController {
 
 
 
+    /**
+     * 购物车列表
+     */
+    @AnonymousAccess
+    @Log(value = "查看购物车",type = 1)
+    @GetMapping("/cart/listNew")
+    @ApiOperation(value = "购物车列表（带店铺）",notes = "购物车列表（带店铺）")
+    public ApiResult<Map<String,Object>> getCartList(){
+//        int uid = SecurityUtils.getUserId().intValue();
+        int uid = 22;
+        return ApiResult.ok(storeCartService.getUserStoreCartList(uid,"",0));
+    }
 
 
 }

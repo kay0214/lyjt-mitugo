@@ -137,4 +137,11 @@ public class CouponAddRequest implements Serializable {
     @NotBlank(message = "请输入卡券详情")
     private String content;
 
+    @NotBlank(message = "请上传卡券图片")
+    private String image;
+
+    /** 轮播图 */
+    @NotBlank(message = "请上传卡券轮播图")
+    private String sliderImage;
+
 }

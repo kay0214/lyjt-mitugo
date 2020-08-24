@@ -3,8 +3,14 @@ package co.yixiang.modules.shop.service.impl;
 import co.yixiang.common.constant.CommonConstant;
 import co.yixiang.common.service.impl.BaseServiceImpl;
 import co.yixiang.common.web.vo.Paging;
+import co.yixiang.constant.ShopConstants;
 import co.yixiang.enums.CommonEnum;
 import co.yixiang.modules.coupons.service.YxCouponsService;
+import co.yixiang.modules.coupons.web.param.LocalLiveQueryParam;
+import co.yixiang.modules.coupons.web.vo.LocalLiveCouponsVo;
+import co.yixiang.modules.coupons.web.vo.LocalLiveListVo;
+import co.yixiang.modules.image.entity.YxImageInfo;
+import co.yixiang.modules.image.mapper.YxImageInfoMapper;
 import co.yixiang.modules.image.service.YxImageInfoService;
 import co.yixiang.modules.manage.entity.DictDetail;
 import co.yixiang.modules.manage.service.DictDetailService;
@@ -61,6 +67,9 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
     private YxCouponsService yxCouponsService;
     @Autowired
     private YxStoreProductService yxStoreProductService;
+
+    @Autowired
+    private YxImageInfoMapper yxImageInfoMapper;
 
     @Override
     public YxStoreInfoQueryVo getYxStoreInfoById(Serializable id){
@@ -165,4 +174,29 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
         return listStr;
     }
 
+    /**
+     *
+     * @param localLiveQueryParam
+     * @return
+     * @throws Exception
+     */
+    @Override
+    public Paging<LocalLiveListVo> getLocalLiveList(LocalLiveQueryParam localLiveQueryParam) throws Exception {
+        Page page = setPageParam(localLiveQueryParam, OrderItem.desc("create_time"));
+        IPage<LocalLiveListVo> iPage = yxStoreInfoMapper.getLocalLiveList(page, localLiveQueryParam);
+        List<LocalLiveListVo> localLiveListVoList = iPage.getRecords();
+        iPage.setTotal(localLiveListVoList.size());
+        for (LocalLiveListVo localLiveListVo : localLiveListVoList){
+            QueryWrapper<YxImageInfo> imageInfoQueryWrapper = new QueryWrapper<>();
+            imageInfoQueryWrapper.lambda().eq(YxImageInfo::getTypeId, localLiveListVo.getId())
+                    .eq(YxImageInfo::getImgType, ShopConstants.IMG_TYPE_STORE).eq(YxImageInfo::getImgCategory, ShopConstants.IMG_CATEGORY_PIC);
+            YxImageInfo yxImageInfo = yxImageInfoMapper.selectOne(imageInfoQueryWrapper);
+            if (yxImageInfo != null) {
+                localLiveListVo.setImg(yxImageInfo.getImgUrl());
+            }
+            List<LocalLiveCouponsVo> localLiveCouponsVoList = yxCouponsService.getCouponsLitByBelog(localLiveListVo.getId());
+            localLiveListVo.setLocalLiveCouponsVoList(localLiveCouponsVoList);
+        }
+        return new Paging(iPage);
+    }
 }

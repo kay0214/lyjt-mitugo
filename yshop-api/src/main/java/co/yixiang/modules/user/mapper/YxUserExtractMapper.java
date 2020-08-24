@@ -11,6 +11,7 @@ import org.apache.ibatis.annotations.Select;
 import org.springframework.stereotype.Repository;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 
 /**
  * <p>
@@ -26,7 +27,7 @@ public interface YxUserExtractMapper extends BaseMapper<YxUserExtract> {
     @Select("select IFNULL(sum(extract_price),0) from yx_user_extract " +
             "where status=1 " +
             "and uid=#{uid}")
-    double sumPrice(@Param("uid") int uid);
+    BigDecimal sumPrice(@Param("uid") int uid);
 
     /**
      * 根据ID获取查询对象

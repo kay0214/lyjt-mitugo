@@ -1,24 +1,25 @@
 package co.yixiang.modules.coupons.web.controller;
 
+import co.yixiang.annotation.AnonymousAccess;
 import co.yixiang.modules.coupons.entity.YxCouponsCategory;
 import co.yixiang.modules.coupons.service.YxCouponsCategoryService;
 import co.yixiang.modules.coupons.web.param.YxCouponsCategoryQueryParam;
 import co.yixiang.modules.coupons.web.vo.YxCouponsCategoryQueryVo;
 import co.yixiang.common.web.controller.BaseController;
 import co.yixiang.common.api.ApiResult;
+import co.yixiang.utils.CateDTO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
 import co.yixiang.common.web.vo.Paging;
 import co.yixiang.common.web.param.IdParam;
+
+import java.util.List;
 
 /**
  * <p>
@@ -87,5 +88,15 @@ public class YxCouponsCategoryController extends BaseController {
         return ApiResult.ok(paging);
     }
 
+    /**
+     * 卡券分类列表
+     * @return
+     */
+    @AnonymousAccess
+    @GetMapping("/category")
+    @ApiOperation(value = "卡券分类列表",notes = "卡券分类列表")
+    public ApiResult<List<CateDTO>> getYxStoreCategoryPageList(){
+        return ApiResult.ok(yxCouponsCategoryService.getList());
+    }
 }
 

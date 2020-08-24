@@ -800,6 +800,7 @@ public class StoreOrderController extends BaseController {
         if(StrUtil.isEmpty(cartId)){
             return ApiResult.fail("请提交购买的商品");
         }
+        // todo 测试用
 //        int uid = SecurityUtils.getUserId().intValue();
         int uid = 22;
         Map<String, Object> cartGroup = cartService.getUserStoreCartList(uid,cartId,1);
@@ -855,13 +856,9 @@ public class StoreOrderController extends BaseController {
         confirmOrderDTO.setPriceGroup(priceGroup);
         confirmOrderDTO.setOrderKey(storeOrderService.cacheOrderStroeInfo(uid,cartStoreInfo,
                 priceGroup,other));
-
-
         confirmOrderDTO.setUserInfo(userService.getYxUserById(uid));
-
         //门店
 //        confirmOrderDTO.setSystemStore(systemStoreService.getStoreInfo("",""));
-
         return ApiResult.ok(confirmOrderDTO);
     }
 

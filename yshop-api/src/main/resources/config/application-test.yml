@@ -67,8 +67,8 @@ jwt:
   token-start-with: Bearer
   # 必须使用最少88位的Base64对该令牌进行编码
   base64-secret: ZmQ0ZGI5NjQ0MDQwY2I4MjMxY2Y3ZmI3MjdhN2ZmMjNhODViOTg1ZGE0NTBjMGM4NDA5NzYxMjdjOWMwYWRmZTBlZjlhNGY3ZTg4Y2U3YTE1ODVkZDU5Y2Y3OGYwZWE1NzUzNWQ2YjFjZDc0NGMxZWU2MmQ3MjY1NzJmNTE0MzI=
-  # 令牌过期时间 此处单位/毫秒 ，默认4小时，可在此网站生成 https://www.convertworld.com/zh-hans/time/milliseconds.html
-  token-validity-in-seconds: 14400000
+  # 令牌过期时间 此处单位/毫秒 ，默认400小时，可在此网站生成 https://www.convertworld.com/zh-hans/time/milliseconds.html
+  token-validity-in-seconds: 1440000000
   # 在线用户key
   online-key: m-online-token
 
@@ -141,8 +141,11 @@ mybatis-plus:
       logic-not-delete-value: 1
   mapper-locations: classpath*:mapper/**/*Mapper.xml
 
+# 日志配置
 logging:
-  level:
-    org.springframework.web: INFO
-    com.github.binarywang.demo.wx.mp: DEBUG
-    me.chanjar.weixin: DEBUG
+  config: classpath:logback-spring.xml
+  file: /hyjfdata/log/mitu/${spring.profiles.active}/api.log
+  file.max-size: 50MB
+  #当参数定义int简单类型并使用@apiModelPerperty标签时,如果不指名example属性,会导致swagger类型转换错误,信息如下
+  #java.lang.NumberFormatException: For input string: ""
+  level.io.swagger.models.parameters.AbstractSerializableParameter: error

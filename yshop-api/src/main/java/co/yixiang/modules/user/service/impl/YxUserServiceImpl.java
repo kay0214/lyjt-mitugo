@@ -35,6 +35,7 @@ import co.yixiang.mp.config.ShopKeyUtils;
 import co.yixiang.mp.config.WxMpConfiguration;
 import co.yixiang.utils.OrderUtil;
 import co.yixiang.utils.RedisUtil;
+import co.yixiang.utils.StringUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.metadata.OrderItem;
@@ -111,6 +112,7 @@ public class YxUserServiceImpl extends BaseServiceImpl<YxUserMapper, YxUser> imp
 
     /**
      * 返回会员价
+     *
      * @param price
      * @param uid
      * @return
@@ -118,35 +120,36 @@ public class YxUserServiceImpl extends BaseServiceImpl<YxUserMapper, YxUser> imp
     @Override
     public double setLevelPrice(double price, int uid) {
         QueryWrapper<YxUserLevel> wrapper = new QueryWrapper<>();
-        wrapper.eq("is_del",0).eq("status",1)
-                .eq("uid",uid).orderByDesc("grade").last("limit 1");
+        wrapper.eq("is_del", 0).eq("status", 1)
+                .eq("uid", uid).orderByDesc("grade").last("limit 1");
         YxUserLevel userLevel = userLevelService.getOne(wrapper);
         YxSystemUserLevel systemUserLevel = new YxSystemUserLevel();
-        if(ObjectUtil.isNotNull(userLevel))  systemUserLevel=  systemUserLevelService.getById(userLevel.getLevelId());
+        if (ObjectUtil.isNotNull(userLevel)) systemUserLevel = systemUserLevelService.getById(userLevel.getLevelId());
         int discount = 100;
-        if(ObjectUtil.isNotNull(userLevel)) discount = systemUserLevel.getDiscount().intValue();
-        return NumberUtil.mul(NumberUtil.div(discount,100),price);
+        if (ObjectUtil.isNotNull(userLevel)) discount = systemUserLevel.getDiscount().intValue();
+        return NumberUtil.mul(NumberUtil.div(discount, 100), price);
     }
-
 
 
     /**
      * 更新用户余额
+     *
      * @param uid
      * @param price
      */
     @Override
     public void incMoney(int uid, double price) {
-        yxUserMapper.incMoney(uid,price);
+        yxUserMapper.incMoney(uid, price);
     }
 
     @Override
     public void incIntegral(int uid, double integral) {
-        yxUserMapper.incIntegral(integral,uid);
+        yxUserMapper.incIntegral(integral, uid);
     }
 
     /**
      * 一级返佣
+     *
      * @param order
      * @return
      */
@@ -154,28 +157,28 @@ public class YxUserServiceImpl extends BaseServiceImpl<YxUserMapper, YxUser> imp
     public boolean backOrderBrokerage(YxStoreOrderQueryVo order) {
         //如果分销没开启直接返回
         String open = systemConfigService.getData("store_brokerage_open");
-        if(StrUtil.isEmpty(open) || open.equals("2")) return false;
+        if (StrUtil.isEmpty(open) || open.equals("2")) return false;
         //支付金额减掉邮费
         double payPrice = 0d;
-        payPrice = NumberUtil.sub(order.getPayPrice(),order.getPayPostage()).doubleValue();
+        payPrice = NumberUtil.sub(order.getPayPrice(), order.getPayPostage()).doubleValue();
 
         //获取购买商品的用户
         YxUserQueryVo userInfo = getYxUserById(order.getUid());
         //当前用户不存在 没有上级  直接返回
-        if(ObjectUtil.isNull(userInfo) || userInfo.getSpreadUid() == 0) return true;
+        if (ObjectUtil.isNull(userInfo) || userInfo.getSpreadUid() == 0) return true;
 
         //获取后台分销类型  1 指定分销 2 人人分销
         int storeBrokerageStatus = 1;
-        if(StrUtil.isNotEmpty(systemConfigService.getData(SystemConfigConstants.STORE_BROKERAGE_STATU))){
+        if (StrUtil.isNotEmpty(systemConfigService.getData(SystemConfigConstants.STORE_BROKERAGE_STATU))) {
             storeBrokerageStatus = Integer.valueOf(systemConfigService
                     .getData(SystemConfigConstants.STORE_BROKERAGE_STATU));
         }
 
         //指定分销 判断 上级是否时推广员  如果不是推广员直接跳转二级返佣
         YxUserQueryVo preUser = getYxUserById(userInfo.getSpreadUid());
-        if(storeBrokerageStatus == 1){
+        if (storeBrokerageStatus == 1) {
 
-            if(preUser.getIsPromoter() == 0){
+            if (preUser.getIsPromoter() == 0) {
                 return backOrderBrokerageTwo(order);
             }
         }
@@ -183,33 +186,33 @@ public class YxUserServiceImpl extends BaseServiceImpl<YxUserMapper, YxUser> imp
         //获取后台一级返佣比例
         String storeBrokerageRatioStr = systemConfigService.getData(SystemConfigConstants.STORE_BROKERAGE_RATIO);
         int storeBrokerageRatio = 0;
-        if(StrUtil.isNotEmpty(storeBrokerageRatioStr)){
+        if (StrUtil.isNotEmpty(storeBrokerageRatioStr)) {
             storeBrokerageRatio = Integer.valueOf(storeBrokerageRatioStr);
         }
         //一级返佣比例 等于零时直接返回 不返佣
-        if(storeBrokerageRatio == 0) return true;
+        if (storeBrokerageRatio == 0) return true;
 
         //计算获取一级返佣比例
-        double brokerageRatio = NumberUtil.div(storeBrokerageRatio,100);
+        double brokerageRatio = NumberUtil.div(storeBrokerageRatio, 100);
         //成本价
         double cost = order.getCost().doubleValue();
 
         //成本价大于等于支付价格时直接返回
-        if(cost >= payPrice) return true;
+        if (cost >= payPrice) return true;
 
         //获取订单毛利
-        payPrice = NumberUtil.sub(payPrice,cost);
+        payPrice = NumberUtil.sub(payPrice, cost);
 
         //返佣金额 = 毛利 / 一级返佣比例
-        double brokeragePrice = NumberUtil.mul(payPrice,brokerageRatio);
+        double brokeragePrice = NumberUtil.mul(payPrice, brokerageRatio);
 
         //返佣金额小于等于0 直接返回不返佣金
-        if(brokeragePrice <=0 ) return true;
+        if (brokeragePrice <= 0) return true;
 
         //计算上级推广员返佣之后的金额
-        double balance = NumberUtil.add(preUser.getBrokeragePrice(),brokeragePrice)
+        double balance = NumberUtil.add(preUser.getBrokeragePrice(), brokeragePrice)
                 .doubleValue();
-        String mark = userInfo.getNickname()+"成功消费"+order.getPayPrice()+"元,奖励推广佣金"+
+        String mark = userInfo.getNickname() + "成功消费" + order.getPayPrice() + "元,奖励推广佣金" +
                 brokeragePrice;
         //插入流水
         YxUserBill userBill = new YxUserBill();
@@ -238,6 +241,7 @@ public class YxUserServiceImpl extends BaseServiceImpl<YxUserMapper, YxUser> imp
 
     /**
      * 二级返佣
+     *
      * @param order
      * @return
      */
@@ -245,7 +249,7 @@ public class YxUserServiceImpl extends BaseServiceImpl<YxUserMapper, YxUser> imp
     public boolean backOrderBrokerageTwo(YxStoreOrderQueryVo order) {
 
         double payPrice = 0d;
-        payPrice = NumberUtil.sub(order.getPayPrice(),order.getPayPostage()).doubleValue();
+        payPrice = NumberUtil.sub(order.getPayPrice(), order.getPayPostage()).doubleValue();
 
         YxUserQueryVo userInfo = getYxUserById(order.getUid());
 
@@ -253,19 +257,19 @@ public class YxUserServiceImpl extends BaseServiceImpl<YxUserMapper, YxUser> imp
         YxUserQueryVo userInfoTwo = getYxUserById(userInfo.getSpreadUid());
 
         //上推广人不存在 或者 上推广人没有上级    直接返回
-        if(ObjectUtil.isNull(userInfoTwo) || userInfoTwo.getSpreadUid() == 0) return true;
+        if (ObjectUtil.isNull(userInfoTwo) || userInfoTwo.getSpreadUid() == 0) return true;
 
         //获取后台分销类型  1 指定分销 2 人人分销
         int storeBrokerageStatus = 1;
-        if(StrUtil.isNotEmpty(systemConfigService.getData(SystemConfigConstants.STORE_BROKERAGE_STATU))){
+        if (StrUtil.isNotEmpty(systemConfigService.getData(SystemConfigConstants.STORE_BROKERAGE_STATU))) {
             storeBrokerageStatus = Integer.valueOf(systemConfigService
                     .getData(SystemConfigConstants.STORE_BROKERAGE_STATU));
         }
         //指定分销 判断 上上级是否时推广员  如果不是推广员直接返回
         YxUserQueryVo preUser = getYxUserById(userInfoTwo.getSpreadUid());
-        if(storeBrokerageStatus == 1){
+        if (storeBrokerageStatus == 1) {
 
-            if(preUser.getIsPromoter() == 0){
+            if (preUser.getIsPromoter() == 0) {
                 return true;
             }
         }
@@ -273,33 +277,33 @@ public class YxUserServiceImpl extends BaseServiceImpl<YxUserMapper, YxUser> imp
         //获取二级返佣比例
         String storeBrokerageTwoStr = systemConfigService.getData(SystemConfigConstants.STORE_BROKERAGE_TWO);
         int storeBrokerageTwo = 0;
-        if(StrUtil.isNotEmpty(storeBrokerageTwoStr)){
+        if (StrUtil.isNotEmpty(storeBrokerageTwoStr)) {
             storeBrokerageTwo = Integer.valueOf(storeBrokerageTwoStr);
         }
         //一级返佣比例 等于零时直接返回 不返佣
-        if(storeBrokerageTwo == 0) return true;
+        if (storeBrokerageTwo == 0) return true;
 
         //计算获取二级返佣比例
-        double brokerageRatio = NumberUtil.div(storeBrokerageTwo,100);
+        double brokerageRatio = NumberUtil.div(storeBrokerageTwo, 100);
         //成本价
         double cost = order.getCost().doubleValue();
 
         //成本价大于等于支付价格时直接返回
-        if(cost >= payPrice) return true;
+        if (cost >= payPrice) return true;
 
         //获取订单毛利
-        payPrice = NumberUtil.sub(payPrice,cost);
+        payPrice = NumberUtil.sub(payPrice, cost);
 
         //返佣金额 = 毛利 / 二级返佣比例
-        double brokeragePrice = NumberUtil.mul(payPrice,brokerageRatio);
+        double brokeragePrice = NumberUtil.mul(payPrice, brokerageRatio);
 
         //返佣金额小于等于0 直接返回不返佣金
-        if(brokeragePrice <=0 ) return true;
+        if (brokeragePrice <= 0) return true;
 
         //获取上上级推广员信息
-        double balance = NumberUtil.add(preUser.getBrokeragePrice(),brokeragePrice)
+        double balance = NumberUtil.add(preUser.getBrokeragePrice(), brokeragePrice)
                 .doubleValue();
-        String mark = "二级推广人"+userInfo.getNickname()+"成功消费"+order.getPayPrice()+"元,奖励推广佣金"+
+        String mark = "二级推广人" + userInfo.getNickname() + "成功消费" + order.getPayPrice() + "元,奖励推广佣金" +
                 brokeragePrice;
         //插入流水
         YxUserBill userBill = new YxUserBill();
@@ -327,7 +331,7 @@ public class YxUserServiceImpl extends BaseServiceImpl<YxUserMapper, YxUser> imp
     @Override
     public void setUserSpreadCount(int uid) {
         QueryWrapper<YxUser> wrapper = new QueryWrapper<>();
-        wrapper.eq("spread_uid",uid);
+        wrapper.eq("spread_uid", uid);
         int count = yxUserMapper.selectCount(wrapper);
 
         YxUser user = new YxUser();
@@ -340,19 +344,19 @@ public class YxUserServiceImpl extends BaseServiceImpl<YxUserMapper, YxUser> imp
     @Override
     public int getSpreadCount(int uid, int type) {
         QueryWrapper<YxUser> wrapper = new QueryWrapper<>();
-        wrapper.eq("spread_uid",uid);
+        wrapper.eq("spread_uid", uid);
         int count = 0;
-        if(type == 1){
+        if (type == 1) {
             count = yxUserMapper.selectCount(wrapper);
-        }else{
+        } else {
             List<YxUser> userList = yxUserMapper.selectList(wrapper);
             List<Integer> userIds = userList.stream().map(YxUser::getUid)
                     .collect(Collectors.toList());
-            if(userIds.isEmpty()) {
+            if (userIds.isEmpty()) {
                 count = 0;
-            }else{
+            } else {
                 QueryWrapper<YxUser> wrapperT = new QueryWrapper<>();
-                wrapperT.in("spread_uid",userIds);
+                wrapperT.in("spread_uid", userIds);
 
                 count = yxUserMapper.selectCount(wrapperT);
             }
@@ -362,44 +366,35 @@ public class YxUserServiceImpl extends BaseServiceImpl<YxUserMapper, YxUser> imp
     }
 
     @Override
-    public List<PromUserDTO> getUserSpreadGrade(PromParam promParam,int uid) {
+    public List<PromUserDTO> getUserSpreadGrade(PromParam promParam, int uid) {
         QueryWrapper<YxUser> wrapper = new QueryWrapper<>();
-        wrapper.eq("spread_uid",uid);
+        wrapper.eq("spread_uid", uid);
         List<YxUser> userList = yxUserMapper.selectList(wrapper);
         List<Integer> userIds = userList.stream().map(YxUser::getUid)
                 .collect(Collectors.toList());
         List<PromUserDTO> list = new ArrayList<>();
-        if(userIds.isEmpty()) return list;
+        if (userIds.isEmpty()) {
+            return list;
+        }
         String sort;
-        if(StrUtil.isEmpty(promParam.getSort())){
+        if (StringUtils.isBlank(promParam.getSort())) {
             sort = "u.add_time desc";
-        }else{
+        } else {
             sort = promParam.getSort();
         }
         String keyword = null;
-        if(StrUtil.isNotEmpty(promParam.getKeyword())){
+        if (StringUtils.isNotBlank(promParam.getKeyword())) {
             keyword = promParam.getKeyword();
         }
         Page<YxUser> pageModel = new Page<>(promParam.getPage(), promParam.getLimit());
-        if(promParam.getGrade() == 0){//-级
-             list = yxUserMapper.getUserSpreadCountList(pageModel,userIds,
-                     keyword,sort);
-        }else{//二级
-            QueryWrapper<YxUser> wrapperT = new QueryWrapper<>();
-            wrapperT.in("spread_uid",userIds);
-            List<YxUser> userListT = yxUserMapper.selectList(wrapperT);
-            List<Integer> userIdsT = userListT.stream().map(YxUser::getUid)
-                    .collect(Collectors.toList());
-            if(userIdsT.isEmpty()) return list;
-            list = yxUserMapper.getUserSpreadCountList(pageModel,userIdsT,
-                    keyword,sort);
-
-        }
+        //-级
+        list = yxUserMapper.getUserSpreadCountList(pageModel, userIds, keyword, sort);
         return list;
     }
 
     /**
      * 设置推广关系
+     *
      * @param spread
      * @param uid
      */
@@ -407,28 +402,28 @@ public class YxUserServiceImpl extends BaseServiceImpl<YxUserMapper, YxUser> imp
     public boolean setSpread(int spread, int uid) {
         //如果分销没开启直接返回
         String open = systemConfigService.getData("store_brokerage_open");
-        if(StrUtil.isEmpty(open) || open.equals("2")) return false;
+        if (StrUtil.isEmpty(open) || open.equals("2")) return false;
         //当前用户信息
         YxUserQueryVo userInfo = getYxUserById(uid);
-        if(ObjectUtil.isNull(userInfo)) return true;
+        if (ObjectUtil.isNull(userInfo)) return true;
 
         //当前用户有上级直接返回
-        if(userInfo.getSpreadUid() > 0) return true;
+        if (userInfo.getSpreadUid() > 0) return true;
         //没有推广编号直接返回
-        if(spread == 0) return true;
-        if(spread == uid) return true;
+        if (spread == 0) return true;
+        if (spread == uid) return true;
 
         //不能互相成为上下级
         YxUserQueryVo userInfoT = getYxUserById(spread);
-        if(ObjectUtil.isNull(userInfoT)) return true;
+        if (ObjectUtil.isNull(userInfoT)) return true;
 
-        if(userInfoT.getSpreadUid() == uid) return true;
+        if (userInfoT.getSpreadUid() == uid) return true;
 
         //1-指定分销 2-人人分销
         int storeBrokerageStatus = Integer.valueOf(systemConfigService
                 .getData(SystemConfigConstants.STORE_BROKERAGE_STATU));
         //如果是指定分销，如果 推广人不是分销员不能形成关系
-        if(storeBrokerageStatus == 1 && userInfoT.getIsPromoter() == 0){
+        if (storeBrokerageStatus == 1 && userInfoT.getIsPromoter() == 0) {
             return true;
         }
         YxUser yxUser = new YxUser();
@@ -449,16 +444,16 @@ public class YxUserServiceImpl extends BaseServiceImpl<YxUserMapper, YxUser> imp
 
     @Override
     public void decPrice(int uid, double payPrice) {
-        yxUserMapper.decPrice(payPrice,uid);
+        yxUserMapper.decPrice(payPrice, uid);
     }
 
     @Override
     public void decIntegral(int uid, double integral) {
-        yxUserMapper.decIntegral(integral,uid);
+        yxUserMapper.decIntegral(integral, uid);
     }
 
     @Override
-    public YxUserQueryVo getYxUserById(Serializable id){
+    public YxUserQueryVo getYxUserById(Serializable id) {
         YxUserQueryVo userQueryVo = yxUserMapper.getYxUserById(id);
         return userQueryVo;
     }
@@ -466,41 +461,42 @@ public class YxUserServiceImpl extends BaseServiceImpl<YxUserMapper, YxUser> imp
     @Override
     public YxUserQueryVo getNewYxUserById(Serializable id) {
         YxUserQueryVo userQueryVo = yxUserMapper.getYxUserById(id);
-        if(userQueryVo == null){
+        if (userQueryVo == null) {
             throw new ErrorRequestException("用户不存在");
         }
-        userQueryVo.setOrderStatusNum(orderService.orderData((int)id));
-        userQueryVo.setCouponCount(storeCouponUserService.getUserValidCouponCount((int)id));
+        userQueryVo.setOrderStatusNum(orderService.orderData((int) id));
+        userQueryVo.setCouponCount(storeCouponUserService.getUserValidCouponCount((int) id));
         //判断分销类型
         String statu = systemConfigService.getData(SystemConfigConstants.STORE_BROKERAGE_STATU);
-        if(StrUtil.isNotEmpty(statu)){
+        if (StrUtil.isNotEmpty(statu)) {
             userQueryVo.setStatu(Integer.valueOf(statu));
-        }else{
+        } else {
             userQueryVo.setStatu(0);
         }
 
         //获取核销权限
-        userQueryVo.setCheckStatus(systemStoreStaffService.checkStatus((int)id,0));
+        userQueryVo.setCheckStatus(systemStoreStaffService.checkStatus((int) id, 0));
 
         return userQueryVo;
     }
 
     @Override
-    public Paging<YxUserQueryVo> getYxUserPageList(YxUserQueryParam yxUserQueryParam) throws Exception{
-        Page page = setPageParam(yxUserQueryParam,OrderItem.desc("create_time"));
-        IPage<YxUserQueryVo> iPage = yxUserMapper.getYxUserPageList(page,yxUserQueryParam);
+    public Paging<YxUserQueryVo> getYxUserPageList(YxUserQueryParam yxUserQueryParam) throws Exception {
+        Page page = setPageParam(yxUserQueryParam, OrderItem.desc("create_time"));
+        IPage<YxUserQueryVo> iPage = yxUserMapper.getYxUserPageList(page, yxUserQueryParam);
         return new Paging(iPage);
     }
 
     @Override
     public YxUser findByName(String name) {
         QueryWrapper<YxUser> wrapper = new QueryWrapper<>();
-        wrapper.eq("username",name);
+        wrapper.eq("username", name);
         return getOne(wrapper);
     }
+
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Object authLogin(String code, String spread, HttpServletRequest request){
+    public Object authLogin(String code, String spread, HttpServletRequest request) {
         try {
             WxMpService wxService = WxMpConfiguration.getWxMpService();
             WxMpOAuth2AccessToken wxMpOAuth2AccessToken = wxService.oauth2getAccessToken(code);
@@ -514,7 +510,7 @@ public class YxUserServiceImpl extends BaseServiceImpl<YxUserMapper, YxUser> imp
             YxUser yxUser = this.findByName(openid);
 
             String username = "";
-            if(ObjectUtil.isNull(yxUser)){
+            if (ObjectUtil.isNull(yxUser)) {
                 //过滤掉表情
                 String nickname = EmojiParser.removeAllEmojis(wxMpUser.getNickname());
                 log.info("昵称：{}", nickname);
@@ -525,7 +521,7 @@ public class YxUserServiceImpl extends BaseServiceImpl<YxUserMapper, YxUser> imp
                 if (StrUtil.isNotBlank(wxMpUser.getUnionId())) {
                     username = wxMpUser.getUnionId();
                     user.setUsername(wxMpUser.getUnionId());
-                }else{
+                } else {
                     username = wxMpUser.getOpenId();
                     user.setUsername(wxMpUser.getOpenId());
                 }
@@ -575,9 +571,9 @@ public class YxUserServiceImpl extends BaseServiceImpl<YxUserMapper, YxUser> imp
 
                 wechatUserService.save(yxWechatUser);
 
-            }else{
+            } else {
                 username = yxUser.getUsername();
-                if(StrUtil.isNotBlank(wxMpUser.getOpenId()) || StrUtil.isNotBlank(wxMpUser.getUnionId())){
+                if (StrUtil.isNotBlank(wxMpUser.getOpenId()) || StrUtil.isNotBlank(wxMpUser.getUnionId())) {
                     YxWechatUser wechatUser = new YxWechatUser();
                     wechatUser.setUid(yxUser.getUid());
                     wechatUser.setUnionid(wxMpUser.getUnionId());
@@ -629,7 +625,7 @@ public class YxUserServiceImpl extends BaseServiceImpl<YxUserMapper, YxUser> imp
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Object wxappAuth(LoginParam loginParam, HttpServletRequest request){
+    public Object wxappAuth(LoginParam loginParam, HttpServletRequest request) {
         String code = loginParam.getCode();
         String encryptedData = loginParam.getEncryptedData();
         String iv = loginParam.getIv();
@@ -658,7 +654,7 @@ public class YxUserServiceImpl extends BaseServiceImpl<YxUserMapper, YxUser> imp
 
             YxUser yxUser = this.findByName(openid);
             String username = "";
-            if(ObjectUtil.isNull(yxUser)){
+            if (ObjectUtil.isNull(yxUser)) {
                 //过滤掉表情
                 String nickname = EmojiParser.removeAllEmojis(wxMpUser.getNickName());
                 //用户保存
@@ -669,7 +665,7 @@ public class YxUserServiceImpl extends BaseServiceImpl<YxUserMapper, YxUser> imp
                 if (StrUtil.isNotBlank(wxMpUser.getUnionId())) {
                     username = wxMpUser.getUnionId();
                     user.setUsername(wxMpUser.getUnionId());
-                }else{
+                } else {
                     username = wxMpUser.getOpenId();
                     user.setUsername(wxMpUser.getOpenId());
                 }
@@ -709,9 +705,9 @@ public class YxUserServiceImpl extends BaseServiceImpl<YxUserMapper, YxUser> imp
 
                 wechatUserService.save(yxWechatUser);
 
-            }else{
+            } else {
                 username = yxUser.getUsername();
-                if(StrUtil.isNotBlank(wxMpUser.getOpenId()) || StrUtil.isNotBlank(wxMpUser.getUnionId())){
+                if (StrUtil.isNotBlank(wxMpUser.getOpenId()) || StrUtil.isNotBlank(wxMpUser.getUnionId())) {
                     YxWechatUser wechatUser = new YxWechatUser();
                     wechatUser.setUid(yxUser.getUid());
                     wechatUser.setUnionid(wxMpUser.getUnionId());

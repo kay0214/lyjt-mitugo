@@ -21,6 +21,11 @@ public class Paging<T> implements Serializable {
     @JsonProperty("total")
     private long total = 0;
 
+    @ApiModelProperty("总合计")
+    @JSONField(name = "sum")
+    @JsonProperty("sum")
+    private String sum = "";
+
     @ApiModelProperty("数据列表")
     @JSONField(name = "records")
     @JsonProperty("records")
@@ -48,6 +53,14 @@ public class Paging<T> implements Serializable {
 
     public void setRecords(List<T> records) {
         this.records = records;
+    }
+
+    public String getSum() {
+        return sum;
+    }
+
+    public void setSum(String sum) {
+        this.sum = sum;
     }
 
     @Override

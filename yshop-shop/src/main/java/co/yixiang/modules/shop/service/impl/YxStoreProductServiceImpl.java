@@ -14,13 +14,10 @@ import co.yixiang.dozer.service.IGenerator;
 import co.yixiang.exception.BadRequestException;
 import co.yixiang.modules.shop.domain.*;
 import co.yixiang.modules.shop.service.*;
-import co.yixiang.modules.shop.service.dto.DetailDto;
-import co.yixiang.modules.shop.service.dto.FromatDetailDto;
-import co.yixiang.modules.shop.service.dto.ProductFormatDto;
-import co.yixiang.modules.shop.service.dto.YxStoreProductDto;
-import co.yixiang.modules.shop.service.dto.YxStoreProductQueryCriteria;
+import co.yixiang.modules.shop.service.dto.*;
 import co.yixiang.modules.shop.service.mapper.StoreProductAttrMapper;
 import co.yixiang.modules.shop.service.mapper.StoreProductMapper;
+import co.yixiang.utils.BeanUtils;
 import co.yixiang.utils.FileUtil;
 import co.yixiang.utils.OrderUtil;
 import co.yixiang.utils.SecurityUtils;
@@ -103,7 +100,10 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<StoreProductMappe
         List<YxStoreProduct> yxStoreProductList = baseMapper.selectList(QueryHelpPlus.getPredicate(YxStoreProduct.class, criteria));
         yxStoreProductList.forEach(yxStoreProduct ->{
             yxStoreProduct.setStoreCategory(yxStoreCategoryService.getById(yxStoreProduct.getCateId()));
-            yxStoreProduct.setStore(yxStoreInfoService.getById(yxStoreProduct.getStoreId()));
+            YxStoreInfoDto yxStoreInfoDto = new YxStoreInfoDto();
+            YxStoreInfo yxStoreInfo = yxStoreInfoService.getById(yxStoreProduct.getStoreId());
+            BeanUtils.copyProperties(yxStoreInfo,yxStoreInfoDto);
+            yxStoreProduct.setStore(yxStoreInfoDto);
         });
         return yxStoreProductList;
     }

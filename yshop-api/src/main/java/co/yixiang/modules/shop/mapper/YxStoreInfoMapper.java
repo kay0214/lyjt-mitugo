@@ -1,5 +1,7 @@
 package co.yixiang.modules.shop.mapper;
 
+import co.yixiang.modules.coupons.web.param.LocalLiveQueryParam;
+import co.yixiang.modules.coupons.web.vo.LocalLiveListVo;
 import co.yixiang.modules.shop.entity.YxStoreInfo;
 import co.yixiang.modules.shop.web.param.YxStoreInfoQueryParam;
 import co.yixiang.modules.shop.web.vo.YxStoreInfoQueryVo;
@@ -46,4 +48,12 @@ public interface YxStoreInfoMapper extends BaseMapper<YxStoreInfo> {
      * @return
      */
     YxStoreInfoQueryVo getYxStoreInfoByPoint(BigDecimal lnt,BigDecimal lat);
+
+    /**
+     * 本地生活
+     * @param page
+     * @param localLiveQueryParam
+     * @return
+     */
+    IPage<LocalLiveListVo> getLocalLiveList(@Param("page") Page page, @Param("param") LocalLiveQueryParam localLiveQueryParam);
 }

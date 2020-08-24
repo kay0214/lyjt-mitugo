@@ -5,8 +5,10 @@ import co.yixiang.common.service.BaseService;
 import co.yixiang.modules.coupons.web.param.YxCouponsCategoryQueryParam;
 import co.yixiang.modules.coupons.web.vo.YxCouponsCategoryQueryVo;
 import co.yixiang.common.web.vo.Paging;
+import co.yixiang.utils.CateDTO;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * <p>
@@ -32,4 +34,9 @@ public interface YxCouponsCategoryService extends BaseService<YxCouponsCategory>
      */
     Paging<YxCouponsCategoryQueryVo> getYxCouponsCategoryPageList(YxCouponsCategoryQueryParam yxCouponsCategoryQueryParam) throws Exception;
 
+    /**
+     * 获取卡券分类列表
+     * @return
+     */
+    List<CateDTO> getList();
 }

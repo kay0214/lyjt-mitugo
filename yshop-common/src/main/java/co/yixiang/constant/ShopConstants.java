@@ -96,6 +96,8 @@ public interface ShopConstants {
 	 * 热门搜索
 	 */
 	String YSHOP_HOT_SEARCH = "yshop_hot_search";
+
+
 	/**
 	 * 个人中心菜单
 	 */
@@ -146,6 +148,7 @@ public interface ShopConstants {
 	 * 图片类型-商户
 	 */
 	int IMG_TYPE_MERCHANTS=4;
+
 
 	/*********************图片类别**********************/
 

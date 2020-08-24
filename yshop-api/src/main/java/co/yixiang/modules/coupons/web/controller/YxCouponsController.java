@@ -1,11 +1,19 @@
 package co.yixiang.modules.coupons.web.controller;
 
+import co.yixiang.annotation.AnonymousAccess;
+import co.yixiang.common.api.ApiResult;
+import co.yixiang.common.web.controller.BaseController;
+import co.yixiang.common.web.param.IdParam;
+import co.yixiang.common.web.vo.Paging;
+import co.yixiang.constant.LocalLiveConstants;
+import co.yixiang.constant.ShopConstants;
 import co.yixiang.modules.coupons.entity.YxCoupons;
 import co.yixiang.modules.coupons.service.YxCouponsService;
 import co.yixiang.modules.coupons.web.param.YxCouponsQueryParam;
 import co.yixiang.modules.coupons.web.vo.YxCouponsQueryVo;
-import co.yixiang.common.web.controller.BaseController;
-import co.yixiang.common.api.ApiResult;
+import co.yixiang.modules.image.entity.YxImageInfo;
+import co.yixiang.modules.image.service.YxImageInfoService;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -16,9 +24,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
-
-import co.yixiang.common.web.vo.Paging;
-import co.yixiang.common.web.param.IdParam;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * <p>
@@ -31,11 +38,14 @@ import co.yixiang.common.web.param.IdParam;
 @Slf4j
 @RestController
 @RequestMapping("/yxCoupons")
-@Api("本地生活, 卡券表 API")
+@Api(value = "本地生活, 卡券表 API")
 public class YxCouponsController extends BaseController {
 
     @Autowired
     private YxCouponsService yxCouponsService;
+
+    @Autowired
+    private YxImageInfoService yxImageInfoService;
 
     /**
     * 添加本地生活, 卡券表
@@ -68,22 +78,61 @@ public class YxCouponsController extends BaseController {
     }
 
     /**
-    * 获取本地生活, 卡券表
+    * 获取本地生活, 卡券详情
     */
+    @AnonymousAccess
     @PostMapping("/info")
     @ApiOperation(value = "获取YxCoupons对象详情",notes = "查看本地生活, 卡券表",response = YxCouponsQueryVo.class)
-    public ApiResult<YxCouponsQueryVo> getYxCoupons(@Valid @RequestBody IdParam idParam) throws Exception{
+    public ApiResult<YxCouponsQueryVo> getYxCoupons(@Valid @RequestBody IdParam idParam) throws Exception {
         YxCouponsQueryVo yxCouponsQueryVo = yxCouponsService.getYxCouponsById(idParam.getId());
+
+        if (yxCouponsQueryVo != null){
+            // 总销量
+            yxCouponsQueryVo.setTotalSales(yxCouponsQueryVo.getSales() + yxCouponsQueryVo.getFicti());
+        }
+        // 卡券缩略图
+        YxImageInfo thumbnail = yxImageInfoService.getOne(new QueryWrapper<YxImageInfo>().eq("type_id", idParam.getId()).eq("img_type", LocalLiveConstants.IMG_TYPE_COUPONS)
+                .eq("img_category", ShopConstants.IMG_CATEGORY_PIC).eq("del_flag", 0));
+        if (thumbnail != null){
+            yxCouponsQueryVo.setImage(thumbnail.getImgUrl());
+        }
+        // 轮播图
+        List<YxImageInfo> sliderImg = yxImageInfoService.list(new QueryWrapper<YxImageInfo>().eq("type_id", idParam.getId()).eq("img_type", LocalLiveConstants.IMG_TYPE_COUPONS)
+                .eq("img_category", ShopConstants.IMG_CATEGORY_ROTATION1).eq("del_flag", 0));
+        List<String> sliderImages = new ArrayList<>();
+        if (sliderImg.size() > 0) {
+            for (YxImageInfo slider : sliderImg) {
+                String imgPath = slider.getImgUrl();
+                sliderImages.add(imgPath);
+            }
+            yxCouponsQueryVo.setSliderImage(sliderImages);
+        }
         return ApiResult.ok(yxCouponsQueryVo);
     }
 
     /**
      * 本地生活, 卡券表分页列表
      */
+    @AnonymousAccess
     @PostMapping("/getPageList")
     @ApiOperation(value = "获取YxCoupons分页列表",notes = "本地生活, 卡券表分页列表",response = YxCouponsQueryVo.class)
     public ApiResult<Paging<YxCouponsQueryVo>> getYxCouponsPageList(@Valid @RequestBody(required = false) YxCouponsQueryParam yxCouponsQueryParam) throws Exception{
+        yxCouponsQueryParam.setKeyword("aa");
         Paging<YxCouponsQueryVo> paging = yxCouponsService.getYxCouponsPageList(yxCouponsQueryParam);
+        return ApiResult.ok(paging);
+    }
+
+    /**
+     * 本地生活卡券热销榜单
+     * @param yxCouponsQueryParam
+     * @return
+     * @throws Exception
+     */
+    @AnonymousAccess
+    @PostMapping("/getCouponsHotList")
+    @ApiOperation(value = "本地生活卡券,热销榜单", notes = "本地生活卡券,热销榜单")
+    public ApiResult<List<YxCouponsQueryVo>> getCouponsHotList(@Valid @RequestBody(required = false) YxCouponsQueryParam yxCouponsQueryParam) throws Exception{
+        List<YxCouponsQueryVo> paging = yxCouponsService.getCouponsHotList(yxCouponsQueryParam);
         return ApiResult.ok(paging);
     }
 
