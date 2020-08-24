@@ -38,7 +38,7 @@ public class ${className} implements Serializable {
     /** ${column.remark} */
     </#if>
     <#if column.columnKey = 'PRI'>
-    @TableId
+    @TableId(value = "id", type = IdType.AUTO)
     </#if>
     <#if column.istNotNull && column.columnKey != 'PRI'>
         <#if column.columnType = 'String'>
