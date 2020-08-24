@@ -7,54 +7,63 @@
       <!--表单组件-->
       <el-dialog :close-on-click-modal="false" :before-close="crud.cancelCU" :visible.sync="crud.status.cu > 0" :title="crud.status.title" width="900px">
         <!--        <el-form ref="form" :model="form" :rules="rules" size="small" label-width="80px">-->
-        <el-form ref="form" :model="form" :inline="true" :rules="rules" size="small" label-width="80px">
+        <el-form ref="form" :model="form" :inline="false" :rules="rules" size="small" label-width="120px">
           <el-form-item label="店铺编号" prop="storeNid">
-            <el-input v-model="form.storeNid" style="width: 370px;" disabled="disabled" />
+            <el-input v-model="form.storeNid" style="width: 700px;" disabled="disabled" />
           </el-form-item>
           <el-form-item label="店铺名称" prop="storeName">
-            <el-input v-model="form.storeName" style="width: 370px;" />
+            <el-input v-model="form.storeName" style="width: 700px;" />
           </el-form-item>
           <el-form-item label="管理人用户名" prop="manageUserName">
-            <el-input v-model="form.manageUserName" style="width: 370px;" />
+            <el-input v-model="form.manageUserName" style="width: 700px;" />
           </el-form-item>
           <el-form-item label="管理人电话" prop="manageMobile">
-            <el-input v-model="form.manageMobile" style="width: 370px;" />
+            <el-input v-model="form.manageMobile" style="width: 700px;" />
           </el-form-item>
           <el-form-item label="店铺电话" prop="storeMobile">
-            <el-input v-model="form.storeMobile" style="width: 370px;" />
+            <el-input v-model="form.storeMobile" style="width: 700px;" />
           </el-form-item>
 
           <el-form-item label="人均消费" prop="perCapita">
-            <el-input v-model="form.perCapita" style="width: 370px;" />
+            <el-input v-model="form.perCapita" style="width: 700px;" />
           </el-form-item>
           <el-form-item label="行业类别" prop="industryCategory">
-            <el-select v-model="form.industryCategory" style="width: 370px;" />
+            <el-select v-model="form.industryCategory" style="width: 700px;" />
           </el-form-item>
-          <el-form-item label="店铺服务"prop="stroeService">
-            <!--<el-checkbox></el-checkbox>-->
-            <!--<el-input v-model="form.stroeService" style="width: 370px;" />-->
+          <el-form-item label="店铺服务" prop="storeService">
+            <el-checkbox-group v-model="form.storeService">
+                <template v-for="item in selections.storeService" >
+                  <el-checkbox :label="item.label" :key="item.value"></el-checkbox>
+                </template>
+            </el-checkbox-group>
           </el-form-item>
-          <el-form-item label="店铺图片" prop="imageArr">
-            <MaterialList v-model="form.imageArr" style="width: 500px" type="image" :num="1" :width="150" :height="150" />
+          <el-form-item label="店铺图片" prop="pic">
+            <MaterialList v-model="picArr" style="width: 700px" type="image" :num="1" :width="150" :height="150" />
           </el-form-item>
-          <el-form-item label="轮播图" prop="sliderImageArr">
-            <MaterialList v-model="form.sliderImageArr" style="width: 500px" type="image" :num="4" :width="150" :height="150" />
+          <el-form-item label="轮播图" prop="slider">
+            <MaterialList v-model="sliderImageArr" 
+            style="width: 700px" type="image" :num="4" :width="150" :height="150"
+            @setValue="setSliderImageArr" />
           </el-form-item>
           <el-form-item label="店铺省市区" prop="storeProvince">
-            <el-input v-model="form.storeProvince" style="width: 370px;" />
+            <el-input v-model="form.storeProvince" style="width: 700px;"/>
           </el-form-item>
           <el-form-item label="店铺详细地址" prop="storeAddress">
-            <el-input v-model="form.storeAddress" style="width: 370px;" />
+            <el-input v-model="form.storeAddress" style="width: 700px;"  @change="codeAddress" />
+          </el-form-item>
+          <el-form-item label=" ">
+            <div id="mapContainer" style="width:700px;height:300px;"></div>
           </el-form-item>
           <el-form-item label="店铺介绍" prop="introduction">
-            <editor v-model="form.introduction" />
+            <editor v-model="form.introduction" style="width: 700px;" />
           </el-form-item>
-          <el-form-item label="地图坐标经度">
-            <el-input v-model="form.coordinateX" style="width: 370px;" />
+          <el-form-item label="地图坐标经度" v-show="false">
+            <el-input v-model="form.coordinateX" />
           </el-form-item>
-          <el-form-item label="地图坐标纬度">
-            <el-input v-model="form.coordinateY" style="width: 370px;" />
+          <el-form-item label="地图坐标纬度" v-show="false">
+            <el-input v-model="form.coordinateY" />
           </el-form-item>
+          
         </el-form>
         <div slot="footer" class="dialog-footer">
           <el-button type="text" @click="crud.cancelCU">取消</el-button>
@@ -115,7 +124,7 @@
       del: false,
       download: false
     }, crudMethod: { ...crudYxStoreInfo }})
-  const defaultForm = { id: null, storeNid: null, storeName: null, manageUserName: null, merId: null, partnerId: null, manageMobile: null, storeMobile: null, status: null, perCapita: null, industryCategory: null, storeProvince: null, storeAddress: null, delFlag: null, createUserId: null, updateUserId: null, createTime: null, updateTime: null, introduction: null, coordinateX: null, coordinateY: null }
+  const defaultForm = { id: null, storeNid: null, storeName: null, manageUserName: null, merId: null, partnerId: null, manageMobile: null, storeMobile: null, status: null, perCapita: null, industryCategory: null, storeProvince: null, storeAddress: null, delFlag: null, createUserId: null, updateUserId: null, createTime: null, updateTime: null, introduction: null, coordinateX: null, coordinateY: null,storeService: [],pic: null, slider: null }
   export default {
     name: 'YxStoreInfo',
     // components: { pagination, crudOperation, rrOperation, udOperation ,MaterialList},
@@ -123,7 +132,13 @@
     mixins: [presenter(defaultCrud), header(), form(defaultForm), crud()],
     data() {
       return {
-
+        map:null,
+        geocoder: null,
+        selections: {
+          storeService: [{label:"有WIFI",value:1},{label:"有宝宝椅",value:4}]
+        },
+        sliderImageArr:[],
+        picArr: [],
         permission: {
           add: ['admin', 'yxStoreInfo:add'],
           edit: ['admin', 'yxStoreInfo:edit'],
@@ -145,13 +160,13 @@
           industryCategory: [
             { required: true/*, message: '管理人用户名不能为空', trigger: 'blur'*/ }
           ],
-          stroeService: [
+          storeService: [
             { required: true /*,message: '不能为空', trigger: 'blur'*/ }
           ],
-          imageArr: [
+          pic: [
             { required: true}
           ],
-          sliderImageArr: [
+          slider: [
             { required: true }
           ],
           /*merId: [
@@ -181,13 +196,91 @@
         }    }
     },
     watch: {
+      picArr(val) {
+        this.form.pic = val.join(',')
+        this.$nextTick(()=>{
+          if(this.$refs.form && this.form.pic){
+            this.$refs.form.validateField('pic');
+          }
+        })
+        
+      },
+      sliderImageArr(val) {
+        this.form.slider = val.join(',');
+        this.$nextTick(()=>{
+          if(this.$refs.form && this.form.pic){
+            this.$refs.form.validateField('slider');
+          }
+        })
+      }
+    },
+    mounted(){
+      const that = this;
+      
     },
     methods: {
+      // 初始化地图
+      initMap() {
+        const that = this;
+        // 设置一个基础中心点
+        const lat = that.form.coordinateX ||116.397128;
+        const lng = that.form.coordinateY|| 39.916527;
+        const center = new qq.maps.LatLng(lng,lat);
+        const map = new qq.maps.Map(document.getElementById('mapContainer'),{
+          center: center,
+          zoom: 15,
+          // 关闭控制选项和功能
+          draggable: false,
+          scrollwheel: false,
+          disableDoubleClickZoom: false,
+          keyboardShortcuts:false,
+          mapTypeControl: false,
+          panControl: false,
+          zoomControl: false,
+        });
+        // 保存地图
+        that.map = map;
+        //调用地址解析类
+        that.geocoder = new qq.maps.Geocoder({
+          complete : result=>{
+            console.log(result)
+            const { location } = result.detail;
+            that.map.setCenter(result.detail.location);
+            var marker = new qq.maps.Marker({
+              map:that.map,
+              position: result.detail.location
+            });
+            // 设置经纬度
+            that.form.coordinateX = location.lat;
+            that.form.coordinateY = location.lng;
+          }
+        });
+      },
+      codeAddress() {
+        const that = this;
+        //通过getLocation();方法获取位置信息值
+        that.geocoder.getLocation(this.form.storeProvince + this.form.storeAddress);
+        
+      },
+      setSliderImageArr(urls){
+        this.sliderImageArr = urls
+      },
       // 获取数据前设置好接口地址
       [CRUD.HOOK.beforeRefresh]() {
         return true
       }, // 新增与编辑前做的操作
       [CRUD.HOOK.afterToCU](crud, form) {
+        this.picArr = [];
+        this.sliderImageArr = [];
+        if (form.pic && form.id) {
+          this.picArr = form.pic.split(',')
+        }
+        if (form.slider && form.id) {
+          this.sliderImageArr = form.slider.split(',')
+        }
+        this.$nextTick(()=>{
+          this.initMap()
+        })
       },
       onSale(id, status) {
         this.$confirm(`确定进行[${status ? '下架' : '上架'}]操作?`, '提示', {
