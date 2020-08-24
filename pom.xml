@@ -232,6 +232,23 @@
             <url>http://maven.aliyun.com/nexus/content/groups/public/</url>
         </repository>
         <repository>
+            <id>nexus</id>
+            <name>Local Repo</name>
+            <url>http://10.10.2.100:18080/nexus-2.9.0/content/groups/public/</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+
+        <repository>
+            <id>nexus-2</id>
+            <name>Local Repo2</name>
+            <url>http://qingdao.hyjf.com:18080/nexus-2.9.0/content/groups/public/</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+        <repository>
             <id>spring-milestones</id>
             <name>Spring Milestones</name>
             <url>https://maven.aliyun.com/repository/spring</url>

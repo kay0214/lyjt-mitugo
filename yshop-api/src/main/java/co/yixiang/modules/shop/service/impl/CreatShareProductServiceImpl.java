@@ -7,6 +7,7 @@ import co.yixiang.modules.shop.service.CreatShareProductService;
 import co.yixiang.modules.user.entity.YxSystemAttachment;
 import co.yixiang.modules.user.service.YxSystemAttachmentService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -25,7 +26,7 @@ import java.io.InputStream;
 import java.net.URL;
 
 import static co.yixiang.utils.FileUtil.transformStyle;
-
+@Slf4j
 @Service
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class CreatShareProductServiceImpl implements CreatShareProductService {
@@ -171,8 +172,10 @@ public class CreatShareProductServiceImpl implements CreatShareProductService {
             //读取互联网图片
             BufferedImage qrCode  = null;
             try {
+                log.info("url:{}",url);
                 qrCode = ImageIO.read(new URL(url));
             } catch (IOException e) {
+                log.error("二维码图片读取失败",e);
                 e.printStackTrace();
             }
             // 绘制缩小后的图

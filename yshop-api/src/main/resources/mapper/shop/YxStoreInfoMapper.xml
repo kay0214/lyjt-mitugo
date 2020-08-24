@@ -3,6 +3,30 @@
 <mapper namespace="co.yixiang.modules.shop.mapper.YxStoreInfoMapper">
 
     <!-- 通用查询结果列 -->
+    <select id="getLocalLiveList" resultType="co.yixiang.modules.coupons.web.vo.LocalLiveListVo">
+        select
+        ysi.*
+        from yx_store_info ysi
+        <if test ="param.salesOrder != '' and param.salesOrder != null">
+            left join (select sum((sales+ficti)) as totalSales , belong from yx_coupons group by belong) yc on ysi.id = yc.belong
+        </if>
+        where ysi.status = 0 and ysi.del_flag = 0
+        <choose>
+            <when test ="param.salesOrder != '' and param.salesOrder != null">
+                <if test ="param.salesOrder == 'desc'">
+                    order by totalSales desc;
+                </if>
+                <if test ="param.salesOrder == 'asc'">
+                    order by totalSales asc;
+                </if>
+            </when>
+            <otherwise>
+                order by ysi.create_time desc;
+            </otherwise>
+        </choose>
+
+    </select>
+
     <sql id="Base_Column_List">
         id, store_nid, store_name, manage_user_name, mer_id, partner_id, manage_mobile, store_mobile, status, per_capita, industry_category, store_province, store_address, coordinate, coordinate_x, coordinate_y, del_flag, create_user_id, update_user_id, create_time, update_time, introduction
     </sql>
@@ -31,6 +55,5 @@
         ) <![CDATA[ <= ]]> 1000
         order by a
     </select>
-
 
 </mapper>

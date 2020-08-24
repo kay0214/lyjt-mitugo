@@ -18,8 +18,8 @@ export function del(ids) {
 
 export function edit(data) {
   return request({
-    url: 'api/yxMerchantsDetail',
-    method: 'put',
+    url: '/api/yxMerchantsDetail/add',
+    method: 'post',
     data
   })
 }

@@ -33,9 +33,9 @@ import java.util.*;
 //import org.springframework.cache.annotation.Cacheable;
 
 /**
-* @author liusy
-* @date 2020-08-19
-*/
+ * @author liusy
+ * @date 2020-08-19
+ */
 @Slf4j
 @Service
 @AllArgsConstructor
@@ -205,7 +205,7 @@ public class YxMerchantsDetailServiceImpl extends BaseServiceImpl<YxMerchantsDet
         // 处理结果
         boolean result = true;
         // 记录下
-        YxMerchantsDetail yxMerchantsDetail = this.getOne(query().eq("uid", uid));
+        YxMerchantsDetail yxMerchantsDetail = this.getOne(new QueryWrapper<YxMerchantsDetail>().eq("uid", uid));
         // 审核通过的直接返回不允许修改
         if (null != yxMerchantsDetail) {
             if (1 == yxMerchantsDetail.getExamineStatus()) {
@@ -298,6 +298,7 @@ public class YxMerchantsDetailServiceImpl extends BaseServiceImpl<YxMerchantsDet
             personIdCard.setCreateUserId(resources.getUid());
             personIdCard.setImgCategory(ShopConstants.IMG_PERSON_IDCARD);
             personIdCard.setImgUrl(resources.getPersonIdCard());
+            personIdCard.setDelFlag(0);
             this.yxImageInfoService.saveOrUpdate(personIdCard);
             // 证件照人像面
             YxImageInfo personIdCardFace = new YxImageInfo();
@@ -306,6 +307,7 @@ public class YxMerchantsDetailServiceImpl extends BaseServiceImpl<YxMerchantsDet
             personIdCardFace.setCreateUserId(resources.getUid());
             personIdCardFace.setImgCategory(ShopConstants.IMG_PERSON_IDCARD_FACE);
             personIdCardFace.setImgUrl(resources.getPersonIdCardFace());
+            personIdCardFace.setDelFlag(0);
             this.yxImageInfoService.save(personIdCardFace);
             // 证件照国徽面
             YxImageInfo personIdCardBack = new YxImageInfo();
@@ -314,6 +316,7 @@ public class YxMerchantsDetailServiceImpl extends BaseServiceImpl<YxMerchantsDet
             personIdCardBack.setCreateUserId(resources.getUid());
             personIdCardBack.setImgCategory(ShopConstants.IMG_PERSON_IDCARD_BACK);
             personIdCardBack.setImgUrl(resources.getPersonIdCardBack());
+            personIdCardBack.setDelFlag(0);
             this.yxImageInfoService.save(personIdCardBack);
         } else {
             // 营业执照
@@ -323,6 +326,7 @@ public class YxMerchantsDetailServiceImpl extends BaseServiceImpl<YxMerchantsDet
             businessLicenseImg.setCreateUserId(resources.getUid());
             businessLicenseImg.setImgCategory(ShopConstants.IMG_BUSINESS_LICENSE);
             businessLicenseImg.setImgUrl(resources.getBusinessLicenseImg());
+            businessLicenseImg.setDelFlag(0);
             this.yxImageInfoService.save(businessLicenseImg);
             // 银行开户证明
             YxImageInfo bankOpenProveImg = new YxImageInfo();
@@ -331,6 +335,7 @@ public class YxMerchantsDetailServiceImpl extends BaseServiceImpl<YxMerchantsDet
             bankOpenProveImg.setCreateUserId(resources.getUid());
             bankOpenProveImg.setImgCategory(ShopConstants.IMG_BANK_OPEN_PROVE);
             bankOpenProveImg.setImgUrl(resources.getBankOpenProveImg());
+            bankOpenProveImg.setDelFlag(0);
             this.yxImageInfoService.save(bankOpenProveImg);
             // 法人身份证头像面
             YxImageInfo legalIdCardFace = new YxImageInfo();
@@ -339,6 +344,7 @@ public class YxMerchantsDetailServiceImpl extends BaseServiceImpl<YxMerchantsDet
             legalIdCardFace.setCreateUserId(resources.getUid());
             legalIdCardFace.setImgCategory(ShopConstants.IMG_LEGAL_IDCARD_FACE);
             legalIdCardFace.setImgUrl(resources.getLegalIdCardFace());
+            legalIdCardFace.setDelFlag(0);
             this.yxImageInfoService.save(legalIdCardFace);
             // 法人身份证国徽面
             YxImageInfo legalIdCardBack = new YxImageInfo();
@@ -347,6 +353,7 @@ public class YxMerchantsDetailServiceImpl extends BaseServiceImpl<YxMerchantsDet
             legalIdCardBack.setCreateUserId(resources.getUid());
             legalIdCardBack.setImgCategory(ShopConstants.IMG_LEGAL_IDCARD_BACK);
             legalIdCardBack.setImgUrl(resources.getLegalIdCardBack());
+            legalIdCardBack.setDelFlag(0);
             this.yxImageInfoService.save(legalIdCardBack);
             // 门店照及经营场所
             YxImageInfo storeImg = new YxImageInfo();
@@ -355,6 +362,7 @@ public class YxMerchantsDetailServiceImpl extends BaseServiceImpl<YxMerchantsDet
             storeImg.setCreateUserId(resources.getUid());
             storeImg.setImgCategory(ShopConstants.IMG_STORE);
             storeImg.setImgUrl(resources.getStoreImg());
+            storeImg.setDelFlag(0);
             this.yxImageInfoService.save(storeImg);
             // 医疗机构许可证
             YxImageInfo licenceImg = new YxImageInfo();
@@ -363,6 +371,7 @@ public class YxMerchantsDetailServiceImpl extends BaseServiceImpl<YxMerchantsDet
             licenceImg.setCreateUserId(resources.getUid());
             licenceImg.setImgCategory(ShopConstants.IMG_LICENCE);
             licenceImg.setImgUrl(resources.getLicenceImg());
+            licenceImg.setDelFlag(0);
             this.yxImageInfoService.save(licenceImg);
         }
         return true;

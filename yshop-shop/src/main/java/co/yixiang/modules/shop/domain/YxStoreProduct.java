@@ -7,12 +7,12 @@ package co.yixiang.modules.shop.domain;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.bean.copier.CopyOptions;
+import co.yixiang.modules.shop.service.dto.YxStoreInfoDto;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.*;
-
 
 import javax.validation.constraints.*;
 import java.io.Serializable;
@@ -211,8 +211,11 @@ public class YxStoreProduct implements Serializable {
     @TableField(exist = false)
     private YxStoreCategory storeCategory;
 
+    /*@TableField(exist = false)
+    private YxStoreInfo store;*/
+
     @TableField(exist = false)
-    private YxStoreInfo store;
+    private YxStoreInfoDto store;
 
     public void copy(YxStoreProduct source){
         BeanUtil.copyProperties(source,this, CopyOptions.create().setIgnoreNullValue(true));

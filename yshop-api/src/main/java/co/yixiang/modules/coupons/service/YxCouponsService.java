@@ -3,6 +3,7 @@ package co.yixiang.modules.coupons.service;
 import co.yixiang.modules.coupons.entity.YxCoupons;
 import co.yixiang.common.service.BaseService;
 import co.yixiang.modules.coupons.web.param.YxCouponsQueryParam;
+import co.yixiang.modules.coupons.web.vo.LocalLiveCouponsVo;
 import co.yixiang.modules.coupons.web.vo.YxCouponsQueryVo;
 import co.yixiang.common.web.vo.Paging;
 
@@ -47,4 +48,11 @@ public interface YxCouponsService extends BaseService<YxCoupons> {
      * @return
      */
     public List<YxCouponsQueryVo> getCouponsInfoByMerId(int merId);
+
+    /**
+     * 通过店铺ID获取店铺卡券
+     * @param id
+     * @return
+     */
+    List<LocalLiveCouponsVo> getCouponsLitByBelog(int id);
 }
