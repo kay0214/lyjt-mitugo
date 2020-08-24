@@ -59,13 +59,15 @@ public class StoreCartController extends BaseController {
     /**
      * 购物车 添加
      */
+    @AnonymousAccess
     @Log(value = "添加购物车",type = 1)
     @PostMapping("/cart/add")
     @ApiOperation(value = "添加购物车",notes = "添加购物车")
     public ApiResult<Map<String,Object>> add(@RequestBody String jsonStr){
         JSONObject jsonObject = JSON.parseObject(jsonStr);
         Map<String,Object> map = new LinkedHashMap<>();
-        int uid = SecurityUtils.getUserId().intValue();
+//        int uid = SecurityUtils.getUserId().intValue();
+        int uid = 27;
         if(ObjectUtil.isNull(jsonObject.get("cartNum")) || ObjectUtil.isNull(jsonObject.get("productId"))){
             return ApiResult.fail("参数有误");
         }
@@ -160,7 +162,7 @@ public class StoreCartController extends BaseController {
     @ApiOperation(value = "购物车列表（带店铺）",notes = "购物车列表（带店铺）")
     public ApiResult<Map<String,Object>> getCartList(){
 //        int uid = SecurityUtils.getUserId().intValue();
-        int uid = 22;
+        int uid = 27;
         return ApiResult.ok(storeCartService.getUserStoreCartList(uid,"",0));
     }
 

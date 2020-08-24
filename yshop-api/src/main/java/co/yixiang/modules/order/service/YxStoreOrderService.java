@@ -124,4 +124,39 @@ public interface YxStoreOrderService extends BaseService<YxStoreOrder> {
     Paging<YxStoreOrderQueryVo> getYxStoreOrderPageList(YxStoreOrderQueryParam yxStoreOrderQueryParam) throws Exception;
 
     String cacheOrderStroeInfo(int uid, List<YxStoreStoreCartQueryVo> cartInfo, PriceGroupDTO priceGroup, OtherDTO other);
+
+    /**
+     * 创建订单（同一商铺为同一订单）
+     * @param uid
+     * @param key
+     * @param param
+     * @return
+     */
+    public List<YxStoreOrder> createOrderNew(int uid, String key, OrderParam param);
+
+    /**
+     * 订单信息列表
+     *
+     * @param unique
+     * @param uid
+     * @return
+     */
+    public List<YxStoreOrderQueryVo> getOrderInfoList(String unique, int uid);
+    /**
+     * 余额支付
+     *
+     * @param orderIdList 订单号
+     * @param uid     用户id
+     */
+    public void yuePayOrderList(List<String> orderIdList, int uid);
+
+    /**
+     * 小程序支付(订单列表）
+     *
+     * @param orderIdList
+     * @return
+     * @throws WxPayException
+     */
+    WxPayMpOrderResult wxAppPayList(List<String> orderIdList,String payNo) throws WxPayException;
+
 }
