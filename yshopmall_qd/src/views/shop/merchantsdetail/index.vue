@@ -50,15 +50,25 @@
               </el-radio-group>
             </el-form-item>
             -->
-            <el-form-item label="认证类型">
-              <el-radio v-model="form.merchantsType" :label="0">个人</el-radio>
-              <el-radio v-model="form.merchantsType" :label="1">企业</el-radio>
-              <el-radio v-model="form.merchantsType" :label="2" style="width: 200px;">个体商户</el-radio>
-            </el-form-item>
+            <div v-if="!crud.status.add">
+              <el-form-item label="认证类型">
+                <el-radio v-model="form.merchantsType" :label="0">个人</el-radio>
+                <el-radio v-model="form.merchantsType" :label="1">企业</el-radio>
+                <el-radio v-model="form.merchantsType" :label="2" style="width: 200px;">个体商户</el-radio>
+              </el-form-item>
+            </div>
 
             <!-- 以下是个人认证 -->
-            <!--  手持证件照 personIdCard、 证件照人像面 personIdCardFace、证件照国徽面personIdCardBack  -->
-            <div v-if="form.merchantsType==0">
+            <div v-if="!crud.status.add && form.merchantsType==0">
+              <el-form-item label="手持证件照">
+                <MaterialList v-model="perIdCard" type="image" :num="1" :width="150" :height="150" />
+              </el-form-item> 
+              <el-form-item label="证件照人像面">
+                <MaterialList v-model="perIdCardFace" type="image" :num="1" :width="150" :height="150" />
+              </el-form-item> 
+              <el-form-item label="证件照国徽面">
+                <MaterialList v-model="perIdCardBack" type="image" :num="1" :width="150" :height="150" />
+              </el-form-item>
               <el-form-item label="银行账号">
                 <el-input v-model="form.bankNo" style="width: 370px;" />
               </el-form-item>
@@ -80,7 +90,7 @@
               </el-form-item>
             </div>
             <!-- 以下是企业 -->
-            <div v-if="form.merchantsType==1">
+            <div v-if="!crud.status.add &&form.merchantsType==1">
               <el-form-item label="企业所在省市区">
                 <el-input v-model="form.companyProvince" style="width: 370px;" />
               </el-form-item>
@@ -99,7 +109,7 @@
             </div>
 
             <!-- 以下企业与个体户 -->
-            <div v-if="form.merchantsType==1 || form.merchantsType==2">
+            <div v-if="!crud.status.add && (form.merchantsType==1 || form.merchantsType==2)">
             <!-- 下拉框 取值从dict的business_category和qualifications_type、两个下拉框联动 -->
               <el-form-item label="经营类目">
                 <!-- <el-input v-model="form.businessCategory" style="width: 370px;" /> -->
@@ -114,7 +124,7 @@
               </el-form-item>
               <el-form-item label="主体资质类型">
                 <!-- <el-input v-model="form.qualificationsType" style="width: 370px;" /> -->
-                <el-select v-model="form.qualificationsType" placeholder="请选择" ref='qualificationsType'>
+                <el-select v-model="form.qualificationsType" placeholder="请选择">
                   <el-option
                     v-for="item in qualificationsType"
                     :key="item.value"
@@ -122,8 +132,25 @@
                     :value="item.value">
                   </el-option>
                 </el-select>
-              </el-form-item>            
-            <!-- 营业执照 businessLicenseImg、银行开户证明 bankOpenProveImg、法人身份证头像面 legalIdCardFace、法人身份证国徽面 legalIdCardBack、门店照及经营场所 storeImg、医疗机构许可证 licenceImg -->
+              </el-form-item>  
+              <el-form-item label="营业执照">
+                <MaterialList v-model="businessLicenseImg" type="image" :num="1" :width="150" :height="150" />
+              </el-form-item>
+              <el-form-item label="银行开户证明">
+                <MaterialList v-model="bankOpenProveImg" type="image" :num="1" :width="150" :height="150" />
+              </el-form-item>
+              <el-form-item label="法人身份证头像面">
+                <MaterialList v-model="legalIdCardFace" type="image" :num="1" :width="150" :height="150" />
+              </el-form-item>
+              <el-form-item label="法人身份证国徽面">
+                <MaterialList v-model="legalIdCardBack" type="image" :num="1" :width="150" :height="150" />
+              </el-form-item>
+              <el-form-item label="门店照及经营场所">
+                <MaterialList v-model="storeImg" type="image" :num="1" :width="150" :height="150" />
+              </el-form-item> 
+              <el-form-item label="医疗机构许可证">
+                <MaterialList v-model="licenceImg" type="image" :num="1" :width="150" :height="150" />
+              </el-form-item>       
             </div>
 
             <!-- 审核意见、大点的文本框只用于展示 -->
@@ -232,11 +259,50 @@ export default {
           { required: true, trigger: 'blur', validator: validPhone }
         ]
       },
-      //主体资质类型
-      qualificationsType:[]
+      qualificationsType:[], //主体资质类型      
+      // 个人认证
+      perIdCard:[],//手持证件照      
+      perIdCardFace:[],//证件照人像面      
+      perIdCardBack:[],//证件照国徽面  
+      // 企业和个体户
+      businessLicenseImg:[],//营业执照      
+      bankOpenProveImg:[],//银行开户证明      
+      legalIdCardFace:[],//法人身份证头像面    
+      legalIdCardBack:[],//法人身份证国徽面      
+      storeImg:[],//门店照及经营场所      
+      licenceImg:[],//医疗机构许可证 
    }
   },
   watch: {
+    // 个人认证
+    perIdCard: function(val) {
+      this.form.personIdCard = val.join(',')
+    },
+    perIdCardFace: function(val) {
+      this.form.personIdCardFace = val.join(',')
+    },
+    perIdCardBack: function(val) {
+      this.form.personIdCardBack = val.join(',')
+    },
+    // 企业和个体户
+    businessLicenseImg: function(val) {
+      this.form.businessLicenseImg = val.join(',')
+    },
+    bankOpenProveImg: function(val) {
+      this.form.bankOpenProveImg = val.join(',')
+    },
+    legalIdCardFace: function(val) {
+      this.form.legalIdCardFace = val.join(',')
+    },
+    legalIdCardBack: function(val) {
+      this.form.legalIdCardBack = val.join(',')
+    },
+    storeImg: function(val) {
+      this.form.storeImg = val.join(',')
+    },
+    licenceImg: function(val) {
+      this.form.licenceImg = val.join(',')
+    },
   },
   methods: {
     // 获取数据前设置好接口地址
@@ -244,11 +310,39 @@ export default {
       return true
     }, // 新增与编辑前做的操作
     [CRUD.HOOK.afterToCU](crud, form) {
+      // 个人认证
+      if (form.personIdCard) {
+        this.perIdCard = form.personIdCard.split(',')
+      }
+      if (form.personIdCardFace) {
+        this.perIdCardFace = form.personIdCardFace.split(',')
+      }
+      if (form.personIdCardBack) {
+        this.perIdCardBack = form.personIdCardBack.split(',')
+      }
+      // 企业和个体户
+      if (form.businessLicenseImg) {
+        this.businessLicenseImg = form.businessLicenseImg.split(',')
+      }
+      if (form.bankOpenProveImg) {
+        this.bankOpenProveImg = form.bankOpenProveImg.split(',')
+      }
+      if (form.legalIdCardFace) {
+        this.legalIdCardFace = form.legalIdCardFace.split(',')
+      }
+      if (form.legalIdCardBack) {
+        this.legalIdCardBack = form.legalIdCardBack.split(',')
+      }
+      if (form.storeImg) {
+        this.storeImg = form.storeImg.split(',')
+      }
+      if (form.licenceImg) {
+        this.licenceImg = form.licenceImg.split(',')
+      }
     },
     //获取主体资质类型列表
     businessCategoryChange(v){
-      console.log('111111111111')
-      console.log(this.form.qualificationsType="")
+      this.form.qualificationsType=""
       getDictDetail(v).then(res=>{
           this.qualificationsType=res.content;
       })

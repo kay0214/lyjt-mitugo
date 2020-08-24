@@ -34,16 +34,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.awt.Color;
-import java.awt.Font;
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -76,16 +70,16 @@ public class UserBillController extends BaseController {
      * 推广数据    昨天的佣金   累计提现金额  当前佣金
      */
     @GetMapping("/commission")
-    @ApiOperation(value = "推广数据",notes = "推广数据")
-    public ApiResult<Object> commission(){
+    @ApiOperation(value = "推广数据", notes = "推广数据")
+    public ApiResult<Object> commission() {
         int uid = SecurityUtils.getUserId().intValue();
 
         //判断分销类型
         String statu = systemConfigService.getData(SystemConfigConstants.STORE_BROKERAGE_STATU);
         YxUserQueryVo userQueryVo = yxUserService.getYxUserById(uid);
-        if(StrUtil.isNotEmpty(statu)){
-            if(Integer.valueOf(statu) == 1){
-                if(userQueryVo.getIsPromoter() == 0){
+        if (StrUtil.isNotEmpty(statu)) {
+            if (Integer.valueOf(statu) == 1) {
+                if (userQueryVo.getIsPromoter() == 0) {
                     return ApiResult.fail("你不是推广员哦!");
                 }
             }
@@ -96,10 +90,10 @@ public class UserBillController extends BaseController {
         //累计提现金额
         BigDecimal extractCount = extractService.extractSum(uid);
 
-        Map<String,Object> map = new LinkedHashMap<>();
-        map.put("lastDayCount",lastDayCount);
-        map.put("extractCount",extractCount);
-        map.put("commissionCount",userQueryVo.getBrokeragePrice());
+        Map<String, Object> map = new LinkedHashMap<>();
+        map.put("lastDayCount", lastDayCount);
+        map.put("extractCount", extractCount);
+        map.put("commissionCount", userQueryVo.getBrokeragePrice());
 
         return ApiResult.ok(map);
     }
@@ -107,13 +101,13 @@ public class UserBillController extends BaseController {
     /**
      * 积分记录
      */
-    @Log(value = "查看积分流水",type = 1)
+    @Log(value = "查看积分流水", type = 1)
     @GetMapping("/integral/list")
-    @ApiOperation(value = "积分记录",notes = "积分记录")
-    public ApiResult<Object> userInfo(YxUserBillQueryParam queryParam){
+    @ApiOperation(value = "积分记录", notes = "积分记录")
+    public ApiResult<Object> userInfo(YxUserBillQueryParam queryParam) {
         int uid = SecurityUtils.getUserId().intValue();
-        return ApiResult.ok(userBillService.userBillList(uid,queryParam.getPage().intValue(),
-                queryParam.getLimit().intValue(),"integral"));
+        return ApiResult.ok(userBillService.userBillList(uid, queryParam.getPage().intValue(),
+                queryParam.getLimit().intValue(), "integral"));
     }
 
 
@@ -121,29 +115,29 @@ public class UserBillController extends BaseController {
      * 分销二维码海报生成
      */
     @GetMapping("/spread/banner")
-    @ApiOperation(value = "分销二维码海报生成",notes = "分销二维码海报生成")
-    public ApiResult<Object> spreadBanner(@RequestParam(value = "",required=false) String form){
+    @ApiOperation(value = "分销二维码海报生成", notes = "分销二维码海报生成")
+    public ApiResult<Object> spreadBanner(@RequestParam(value = "", required = false) String form) {
         int uid = SecurityUtils.getUserId().intValue();
         YxUserQueryVo userInfo = yxUserService.getYxUserById(uid);
         String siteUrl = systemConfigService.getData(SystemConfigConstants.SITE_URL);
-        if(StrUtil.isEmpty(siteUrl)){
+        if (StrUtil.isEmpty(siteUrl)) {
             return ApiResult.fail("未配置h5地址");
         }
         String apiUrl = systemConfigService.getData(SystemConfigConstants.API_URL);
-        if(StrUtil.isEmpty(apiUrl)){
+        if (StrUtil.isEmpty(apiUrl)) {
             return ApiResult.fail("未配置api地址");
         }
 
         String spreadUrl = "";
         //app类型
-        if(StrUtil.isNotBlank(form) && AppFromEnum.APP.getValue().equals(form)){
-            String spreadPicName = uid + "_"+form+"_user_spread.jpg";
-            String fileDir = path+"qrcode"+File.separator;
-            String spreadPicPath = fileDir+spreadPicName;
+        if (StrUtil.isNotBlank(form) && AppFromEnum.APP.getValue().equals(form)) {
+            String spreadPicName = uid + "_" + form + "_user_spread.jpg";
+            String fileDir = path + "qrcode" + File.separator;
+            String spreadPicPath = fileDir + spreadPicName;
 
             YxSystemAttachment attachmentT = systemAttachmentService.getInfo(spreadPicName);
-            InputStream stream =  getClass().getClassLoader().getResourceAsStream("fx.jpg");
-            InputStream streamT =  getClass().getClassLoader()
+            InputStream stream = getClass().getClassLoader().getResourceAsStream("fx.jpg");
+            InputStream streamT = getClass().getClassLoader()
                     .getResourceAsStream("simsunb.ttf");
             File newFile = new File("fx.jpg");
             File newFileT = new File("simsunb.ttf");
@@ -153,14 +147,14 @@ public class UserBillController extends BaseController {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            if(ObjectUtil.isNull(attachmentT)){
+            if (ObjectUtil.isNull(attachmentT)) {
                 try {
-                    Font font =  Font.createFont(Font.TRUETYPE_FONT, newFileT);
-                    Font f= font.deriveFont(Font.PLAIN,20);
+                    Font font = Font.createFont(Font.TRUETYPE_FONT, newFileT);
+                    Font f = font.deriveFont(Font.PLAIN, 20);
                     ImgUtil.pressText(//
                             newFile,
                             FileUtil.file(spreadPicPath),
-                            userInfo.getNickname()+"邀您加入",
+                            userInfo.getNickname() + "邀您加入",
                             Color.BLACK,
                             f, //字体
                             0, //x坐标修正值。 默认在中间，偏移量相对于中间偏移
@@ -168,11 +162,11 @@ public class UserBillController extends BaseController {
                             0.8f//透明度：alpha 必须是范围 [0.0, 1.0] 之内（包含边界值）的一个浮点数字
                     );
 
-                    String inviteCode =  OrderUtil.createShareCode();
+                    String inviteCode = OrderUtil.createShareCode();
                     ImgUtil.pressText(
                             FileUtil.file(spreadPicPath),
                             FileUtil.file(spreadPicPath),
-                            "邀您码:"+ inviteCode,
+                            "邀您码:" + inviteCode,
                             Color.RED,
                             f, //字体
                             0, //x坐标修正值。 默认在中间，偏移量相对于中间偏移
@@ -182,51 +176,50 @@ public class UserBillController extends BaseController {
 
                     systemAttachmentService.newAttachmentAdd(spreadPicName,
                             String.valueOf(FileUtil.size(new File(spreadPicPath))),
-                            spreadPicPath,"qrcode/"+spreadPicName,uid,inviteCode);
+                            spreadPicPath, "qrcode/" + spreadPicName, uid, inviteCode);
 
-                    spreadUrl = apiUrl + "/api/file/qrcode/"+spreadPicName;
+                    spreadUrl = apiUrl + "/api/file/qrcode/" + spreadPicName;
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-            }else{
+            } else {
                 spreadUrl = apiUrl + "/api/file/" + attachmentT.getSattDir();
             }
-        }
-        else{//其他
+        } else {//其他
             String userType = userInfo.getUserType();
-            if(!userType.equals(AppFromEnum.ROUNTINE.getValue())) {
+            if (!userType.equals(AppFromEnum.ROUNTINE.getValue())) {
                 userType = AppFromEnum.H5.getValue();
             }
 
-            String name = uid + "_"+userType+"_user_wap.jpg";
+            String name = uid + "_" + userType + "_user_wap.jpg";
 
             YxSystemAttachment attachment = systemAttachmentService.getInfo(name);
-            String fileDir = path+"qrcode"+File.separator;
+            String fileDir = path + "qrcode" + File.separator;
             String qrcodeUrl = "";
-            if(ObjectUtil.isNull(attachment)){
+            if (ObjectUtil.isNull(attachment)) {
                 //生成二维码
                 //判断用户是否小程序,注意小程序二维码生成路径要与H5不一样 不然会导致都跳转到小程序问题
-                if(userType.equals(AppFromEnum.ROUNTINE.getValue())){
-                    siteUrl = siteUrl+"/distribution/";
+                if (userType.equals(AppFromEnum.ROUNTINE.getValue())) {
+                    siteUrl = siteUrl + "/distribution/";
                 }
                 File file = FileUtil.mkdir(new File(fileDir));
-                QrCodeUtil.generate(siteUrl+"?spread="+uid, 180, 180,
-                        FileUtil.file(fileDir+name));
+                QrCodeUtil.generate(siteUrl + "?spread=" + uid, 180, 180,
+                        FileUtil.file(fileDir + name));
 
-                systemAttachmentService.attachmentAdd(name,String.valueOf(FileUtil.size(file)),
-                        fileDir+name,"qrcode/"+name);
+                systemAttachmentService.attachmentAdd(name, String.valueOf(FileUtil.size(file)),
+                        fileDir + name, "qrcode/" + name);
 
-                qrcodeUrl = fileDir+name;
-            }else{
+                qrcodeUrl = fileDir + name;
+            } else {
                 qrcodeUrl = attachment.getAttDir();
             }
 
-            String spreadPicName = uid + "_"+userType+"_user_spread.jpg";
-            String spreadPicPath = fileDir+spreadPicName;
+            String spreadPicName = uid + "_" + userType + "_user_spread.jpg";
+            String spreadPicPath = fileDir + spreadPicName;
 
             YxSystemAttachment attachmentT = systemAttachmentService.getInfo(spreadPicName);
-            InputStream stream =  getClass().getClassLoader().getResourceAsStream("fx.jpg");
-            InputStream streamT =  getClass().getClassLoader()
+            InputStream stream = getClass().getClassLoader().getResourceAsStream("fx.jpg");
+            InputStream streamT = getClass().getClassLoader()
                     .getResourceAsStream("simsunb.ttf");
             File newFile = new File("fx.jpg");
             File newFileT = new File("simsunb.ttf");
@@ -236,16 +229,16 @@ public class UserBillController extends BaseController {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            if(ObjectUtil.isNull(attachmentT)){
+            if (ObjectUtil.isNull(attachmentT)) {
                 try {
 
-                    Font font =  Font.createFont(Font.TRUETYPE_FONT, newFileT);
-                    Font f= font.deriveFont(Font.PLAIN,20);
+                    Font font = Font.createFont(Font.TRUETYPE_FONT, newFileT);
+                    Font f = font.deriveFont(Font.PLAIN, 20);
                     //font.
                     ImgUtil.pressText(//
                             newFile,
                             FileUtil.file(spreadPicPath),
-                            userInfo.getNickname()+"邀您加入",
+                            userInfo.getNickname() + "邀您加入",
                             Color.BLACK,
                             f, //字体
                             50, //x坐标修正值。 默认在中间，偏移量相对于中间偏移
@@ -264,28 +257,28 @@ public class UserBillController extends BaseController {
 
                     systemAttachmentService.attachmentAdd(spreadPicName,
                             String.valueOf(FileUtil.size(new File(spreadPicPath))),
-                            spreadPicPath,"qrcode/"+spreadPicName);
+                            spreadPicPath, "qrcode/" + spreadPicName);
 
-                    spreadUrl = apiUrl + "/api/file/qrcode/"+spreadPicName;
+                    spreadUrl = apiUrl + "/api/file/qrcode/" + spreadPicName;
 
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-            }else{
+            } else {
                 spreadUrl = apiUrl + "/api/file/" + attachmentT.getSattDir();
             }
 
         }
 
 
-        java.util.List<Map<String,Object>> list = new ArrayList<>();
+        java.util.List<Map<String, Object>> list = new ArrayList<>();
 
 
-        Map<String,Object> map = new LinkedHashMap<>();
-        map.put("id",1);
-        map.put("pic","");
-        map.put("title","分享海报");
-        map.put("wap_poster",spreadUrl);
+        Map<String, Object> map = new LinkedHashMap<>();
+        map.put("id", 1);
+        map.put("pic", "");
+        map.put("title", "分享海报");
+        map.put("wap_poster", spreadUrl);
         list.add(map);
         return ApiResult.ok(list);
     }
@@ -299,16 +292,16 @@ public class UserBillController extends BaseController {
      * sort  childCount ASC/DESC  团队排序   numberCount ASC/DESC
      * 金额排序  orderCount  ASC/DESC  订单排序
      */
-    @Log(value = "查看分销人",type = 1)
+    @Log(value = "查看分销人", type = 1)
     @PostMapping("/spread/people")
-    @ApiOperation(value = "推荐用户",notes = "推荐用户")
-    public ApiResult<Object> spreadPeople(@Valid @RequestBody PromParam param){
+    @ApiOperation(value = "推荐用户", notes = "推荐用户")
+    public ApiResult<Object> spreadPeople(@Valid @RequestBody PromParam param) {
         int uid = SecurityUtils.getUserId().intValue();
 
-        Map<String,Object> map = new LinkedHashMap<>();
-        map.put("list",yxUserService.getUserSpreadGrade(param,uid));
-        map.put("total",yxUserService.getSpreadCount(uid,1));
-        map.put("totalLevel",yxUserService.getSpreadCount(uid,2));
+        Map<String, Object> map = new LinkedHashMap<>();
+        map.put("list", yxUserService.getUserSpreadGrade(param, uid));
+        map.put("total", yxUserService.getSpreadCount(uid, 1));
+        map.put("totalLevel", yxUserService.getSpreadCount(uid, 2));
 
         return ApiResult.ok(map);
     }
@@ -316,18 +309,21 @@ public class UserBillController extends BaseController {
     /**
      * 推广佣金明细
      * type  0 全部  1 消费  2 充值  3 返佣  4 提现
+     *
      * @return mixed
      */
-    @Log(value = "查看佣金",type = 1)
+    @Log(value = "查看佣金", type = 1)
     @GetMapping("/spread/commission/{type}")
-    @ApiOperation(value = "推广佣金明细",notes = "推广佣金明细")
+    @ApiOperation(value = "推广佣金明细", notes = "推广佣金明细")
     public ApiResult<Object> spreadCommission(YxUserBillQueryParam queryParam,
-                                              @PathVariable String type){
+                                              @PathVariable String type) {
         int newType = 0;
-        if(NumberUtil.isNumber(type)) newType = Integer.valueOf(type);
+        if (NumberUtil.isNumber(type)) {
+            newType = Integer.valueOf(type);
+        }
         int uid = SecurityUtils.getUserId().intValue();
         return ApiResult.ok(userBillService.getUserBillList(queryParam.getPage().intValue(),
-                queryParam.getLimit().intValue(),uid,newType));
+                queryParam.getLimit().intValue(), uid, newType));
     }
 
 
@@ -335,18 +331,17 @@ public class UserBillController extends BaseController {
      * 推广订单
      */
     @PostMapping("/spread/order")
-    @ApiOperation(value = "推广订单",notes = "推广订单")
-    public ApiResult<Object> spreadOrder(@RequestBody String jsonStr){
+    @ApiOperation(value = "推广订单", notes = "推广订单")
+    public ApiResult<Object> spreadOrder(@RequestBody String jsonStr) {
         JSONObject jsonObject = JSON.parseObject(jsonStr);
-        if(ObjectUtil.isNull(jsonObject.get("page")) || ObjectUtil.isNull(jsonObject.get("limit"))){
+        if (ObjectUtil.isNull(jsonObject.get("page")) || ObjectUtil.isNull(jsonObject.get("limit"))) {
             return ApiResult.fail("参数错误");
         }
         int uid = SecurityUtils.getUserId().intValue();
-        Map<String, Object> map = userBillService.spreadOrder(uid,Integer.valueOf(jsonObject.get("page").toString())
-                ,Integer.valueOf(jsonObject.get("limit").toString()));
+        Map<String, Object> map = userBillService.spreadOrder(uid, Integer.valueOf(jsonObject.get("page").toString())
+                , Integer.valueOf(jsonObject.get("limit").toString()));
         return ApiResult.ok(map);
     }
-
 
 
 }
