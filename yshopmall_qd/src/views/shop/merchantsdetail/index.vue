@@ -102,18 +102,34 @@
             <div v-if="form.merchantsType==1 || form.merchantsType==2">
             <!-- 下拉框 取值从dict的business_category和qualifications_type、两个下拉框联动 -->
               <el-form-item label="经营类目">
-                <el-input v-model="form.businessCategory" style="width: 370px;" />
+                <!-- <el-input v-model="form.businessCategory" style="width: 370px;" /> -->
+                <el-select v-model="form.businessCategory" placeholder="请选择" @change="businessCategoryChange">
+                  <el-option
+                    v-for="item in dict.business_category"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value">
+                  </el-option>
+                </el-select>
               </el-form-item>
               <el-form-item label="主体资质类型">
-                <el-input v-model="form.qualificationsType" style="width: 370px;" />
+                <!-- <el-input v-model="form.qualificationsType" style="width: 370px;" /> -->
+                <el-select v-model="form.qualificationsType" placeholder="请选择" ref='qualificationsType'>
+                  <el-option
+                    v-for="item in qualificationsType"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value">
+                  </el-option>
+                </el-select>
               </el-form-item>            
             <!-- 营业执照 businessLicenseImg、银行开户证明 bankOpenProveImg、法人身份证头像面 legalIdCardFace、法人身份证国徽面 legalIdCardBack、门店照及经营场所 storeImg、医疗机构许可证 licenceImg -->
             </div>
 
             <!-- 审核意见、大点的文本框只用于展示 -->
-            <el-form-item label="主体资质类型">
+            <!-- <el-form-item label="主体资质类型">
               <el-input v-model="form.examineRemark" style="width: 370px;" />
-            </el-form-item>
+            </el-form-item> -->
         </el-form>
         <div slot="footer" class="dialog-footer">
           <el-button type="text" @click="crud.cancelCU">取消</el-button>
@@ -166,6 +182,7 @@ import crudOperation from '@crud/CRUD.operation'
 import udOperation from '@crud/UD.operation'
 import pagination from '@crud/Pagination'
 import MaterialList from "@/components/material";
+import { get as getDictDetail } from '@/api/system/dictDetail'
 
 // crud交由presenter持有
 const defaultCrud = CRUD({ title: '商户详情表', url: 'api/yxMerchantsDetail/getYxMerchantsDetailsList', sort: 'id,desc', crudMethod: { ...crudYxMerchantsDetail },optShow: {
@@ -178,8 +195,8 @@ const defaultForm = { id: null, uid: null, examineStatus: null, address: null, c
 export default {
   name: 'YxMerchantsDetail',
   components: { pagination, crudOperation, rrOperation, udOperation ,MaterialList},
-  mixins: [presenter(defaultCrud), header(), form(defaultForm), crud()],
-  dicts: ['merchants_status'],
+  mixins: [presenter(defaultCrud), header(), form(defaultForm), crud()],  
+  dicts: ['merchants_status','business_category'],
   data() {
     // 自定义验证
     const validPhone = (rule, value, callback) => {
@@ -214,7 +231,10 @@ export default {
         phone: [
           { required: true, trigger: 'blur', validator: validPhone }
         ]
-      }    }
+      },
+      //主体资质类型
+      qualificationsType:[]
+   }
   },
   watch: {
   },
@@ -225,6 +245,14 @@ export default {
     }, // 新增与编辑前做的操作
     [CRUD.HOOK.afterToCU](crud, form) {
     },
+    //获取主体资质类型列表
+    businessCategoryChange(v){
+      console.log('111111111111')
+      console.log(this.form.qualificationsType="")
+      getDictDetail(v).then(res=>{
+          this.qualificationsType=res.content;
+      })
+    }
   }
 }
 
