@@ -178,7 +178,6 @@ public class StoreProductController extends BaseController {
         }
         String spreadPicName = id+"_"+uid + "_"+userType+"_product_user_spread.jpg";
         String spreadPicPath = fileDir+spreadPicName;
-        log.info("qrcodeUrl:{}",qrcodeUrl);
         String rr =  creatShareProductService.creatProductPic(storeProduct,qrcodeUrl,
                 spreadPicName,spreadPicPath,apiUrl);
         //productDTO.getStoreInfo().setCodeBase(rr);

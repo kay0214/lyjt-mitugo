@@ -172,12 +172,13 @@ public class CreatShareProductServiceImpl implements CreatShareProductService {
             //读取互联网图片
             BufferedImage qrCode  = null;
             try {
+                log.info("url:{}",url);
                 qrCode = ImageIO.read(new URL(url));
+                log.info("qrCode是否为空：{}", null == qrCode);
             } catch (IOException e) {
                 e.printStackTrace();
             }
             // 绘制缩小后的图
-            log.info("qrCode是否为空：{}", null == qrCode);
             g.drawImage(qrCode.getScaledInstance(174, 174, Image.SCALE_DEFAULT), 536, 1057, null);
 
             //二维码字体
