@@ -107,3 +107,12 @@ mybatis-plus:
       logic-delete-value: 1
       logic-not-delete-value: 0
       mapper-locations: classpath*:mapper/**/*Mapper.xml
+
+# 日志配置
+logging:
+  config: classpath:logback-spring.xml
+  file: /hyjfdata/log/mitu/${spring.profiles.active}/ststem.log
+  file.max-size: 50MB
+  #当参数定义int简单类型并使用@apiModelPerperty标签时,如果不指名example属性,会导致swagger类型转换错误,信息如下
+  #java.lang.NumberFormatException: For input string: ""
+  level.io.swagger.models.parameters.AbstractSerializableParameter: error
