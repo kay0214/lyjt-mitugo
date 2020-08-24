@@ -197,6 +197,8 @@ public class YxStoreOrderQueryVo implements Serializable {
 
     @ApiModelProperty(value = "下单时的佣金")
     private BigDecimal commission;
+    @ApiModelProperty(value = "付款单号")
+    private String paymentNo;
 
     private List<YxStoreCartQueryVo> cartInfo;
 

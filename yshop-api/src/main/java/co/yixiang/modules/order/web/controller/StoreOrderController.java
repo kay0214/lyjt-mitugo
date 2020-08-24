@@ -42,6 +42,7 @@ import co.yixiang.utils.RedisUtil;
 import co.yixiang.utils.SecurityUtils;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.github.binarywang.wxpay.bean.order.WxPayAppOrderResult;
 import com.github.binarywang.wxpay.bean.order.WxPayMpOrderResult;
@@ -57,6 +58,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.io.File;
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -346,6 +348,7 @@ public class StoreOrderController extends BaseController {
         String orderId = storeOrder.getOrderId();
 
         OrderExtendDTO orderDTO = new OrderExtendDTO();
+
         orderDTO.setOrderId(orderId);
         map.put("status","SUCCESS");
         map.put("result",orderDTO);
@@ -802,7 +805,7 @@ public class StoreOrderController extends BaseController {
         }
         // todo 测试用
 //        int uid = SecurityUtils.getUserId().intValue();
-        int uid = 22;
+        int uid = 27;
         Map<String, Object> cartGroup = cartService.getUserStoreCartList(uid,cartId,1);
         if(ObjectUtil.isNotEmpty(cartGroup.get("invalid"))){
             return ApiResult.fail("有失效的商品请重新提交");
@@ -813,6 +816,14 @@ public class StoreOrderController extends BaseController {
         List<YxStoreStoreCartQueryVo> cartStoreInfo = (List<YxStoreStoreCartQueryVo>)cartGroup.get("valid");
         List<YxStoreCartQueryVo>cartInfo =new ArrayList<>();
         for(YxStoreStoreCartQueryVo storeStoreCartQueryVo:cartStoreInfo){
+            //设置价格
+            Double sumPrice = storeOrderService.getOrderSumPrice(storeStoreCartQueryVo.getCartList(),"truePrice");
+            storeStoreCartQueryVo.setOrderSumPrice(new BigDecimal(sumPrice));
+            Double costPrice = storeOrderService.getOrderSumPrice(storeStoreCartQueryVo.getCartList(),"costPrice");
+            storeStoreCartQueryVo.setOrderCostPrice(new BigDecimal(costPrice));
+            Double vipTruePrice = storeOrderService.getOrderSumPrice(storeStoreCartQueryVo.getCartList(),"vipTruePrice");
+            storeStoreCartQueryVo.setOrderVipTruePrice(new BigDecimal(vipTruePrice));
+
             cartInfo.addAll(storeStoreCartQueryVo.getCartList());
         }
         PriceGroupDTO priceGroup = storeOrderService.getOrderPriceGroup(cartInfo);
@@ -862,7 +873,95 @@ public class StoreOrderController extends BaseController {
         return ApiResult.ok(confirmOrderDTO);
     }
 
+    /**
+     * 订单创建
+     */
+    @AnonymousAccess
+    @PostMapping("/order/createOrder/{key}")
+    @ApiOperation(value = "订单创建（多个订单）",notes = "（多个订单）")
+    public ApiResult<Map<String,Object>> createOrderList(@Valid @RequestBody OrderParam param,
+                                                @PathVariable String key){
 
+        Map<String,Object> map = new LinkedHashMap<>();
+//        int uid = SecurityUtils.getUserId().intValue();
+        int uid = 27;
+        if(StrUtil.isEmpty(key)) return ApiResult.fail("参数错误");
+
+        List<YxStoreOrderQueryVo> orderList = storeOrderService.getOrderInfoList(key,uid);
+        YxStoreOrderQueryVo storeOrder = storeOrderService.getOrderInfo(key,uid);
+        if(CollectionUtils.isNotEmpty(orderList)){
+            map.put("status","EXTEND_ORDER");
+            OrderExtendDTO orderExtendDTO = new OrderExtendDTO();
+            orderExtendDTO.setKey(key);
+            orderExtendDTO.setOrderId(storeOrder.getOrderId());
+            map.put("result",orderExtendDTO);
+            return ApiResult.ok(map,"订单已生成");
+        }
+
+        if(param.getFrom().equals("weixin"))  param.setIsChannel(0);
+        //创建订单
+        List<YxStoreOrder> orderCreateList = new ArrayList<YxStoreOrder>();
+        try{
+            lock.lock();
+            orderCreateList = storeOrderService.createOrderNew(uid,key,param);
+        }finally {
+            lock.unlock();
+        }
+
+
+        if(CollectionUtils.isEmpty(orderCreateList)) throw new ErrorRequestException("订单生成失败");
+
+        BigDecimal bigDecimalPrice = new BigDecimal(0);
+        YxStoreOrder yxStoreOrder = orderCreateList.get(0);
+        List<String> orderIdList= new ArrayList<>();
+        for(YxStoreOrder order:orderCreateList){
+            orderIdList.add(order.getOrderId());
+            bigDecimalPrice.add(order.getPayPrice());
+        }
+
+        OrderExtendDTO orderDTO = new OrderExtendDTO();
+        orderDTO.setKey(key);
+        // todo
+        orderDTO.setOrderId(yxStoreOrder.getPaymentNo());
+        map.put("status","SUCCESS");
+        map.put("result",orderDTO);
+        //开始处理支付
+        if(StrUtil.isNotEmpty(yxStoreOrder.getOrderId())){
+            //处理金额为0的情况
+            if(bigDecimalPrice.compareTo(BigDecimal.ZERO) <= 0){
+                storeOrderService.yuePayOrderList(orderIdList,uid);
+                return ApiResult.ok(map,"支付成功");
+            }
+            switch (PayTypeEnum.toType(param.getPayType())){
+                case WEIXIN:
+                    try {
+                        Map<String,String> jsConfig = new HashMap<>();
+                        if(param.getFrom().equals("routine")){
+                            map.put("status","WECHAT_PAY");
+                            WxPayMpOrderResult wxPayMpOrderResult = storeOrderService
+                                    .wxAppPayList(orderIdList,yxStoreOrder.getPaymentNo());
+                            jsConfig.put("appId",wxPayMpOrderResult.getAppId());
+                            jsConfig.put("timeStamp",wxPayMpOrderResult.getTimeStamp());
+                            jsConfig.put("nonceStr",wxPayMpOrderResult.getNonceStr());
+                            jsConfig.put("package",wxPayMpOrderResult.getPackageValue());
+                            jsConfig.put("signType",wxPayMpOrderResult.getSignType());
+                            jsConfig.put("paySign",wxPayMpOrderResult.getPaySign());
+                            orderDTO.setJsConfig(jsConfig);
+                            map.put("result",orderDTO);
+                            return ApiResult.ok(map,"订单创建成功");
+                        }
+                    } catch (WxPayException e) {
+                        return ApiResult.fail(e.getMessage());
+                    }
+                case YUE:
+                    storeOrderService.yuePayOrderList(orderIdList,uid);
+                    return ApiResult.ok(map,"余额支付成功");
+            }
+        }
+
+
+        return ApiResult.fail("订单生成失败");
+    }
 
 }
 
