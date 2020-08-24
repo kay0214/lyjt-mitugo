@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <include resource="org/springframework/boot/logging/logback/base.xml"/>
+
+    <logger name="org.springframework.web" level="INFO"/>
+    <logger name="org.springboot.sample" level="TRACE"/>
+    <logger name="springfox.documentation" level="ERROR"/>
+
+    <!-- 叮叮输出 -->
+    <appender name="AsyncLogback" class="com.hyjf.framework.log.dingding.AsyncDingAppender">
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <!-- 日志收集最低日志级别 -->
+            <level>ERROR</level>
+        </filter>
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <!--格式化输出：%d表示日期，%thread表示线程名，%-5level：级别从左显示5个字符宽度%msg：日志消息，%n是换行符 -->
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n</pattern>
+        </layout>
+    </appender>
+
+    <!-- 开发环境. 多个使用逗号隔开. -->
+    <springProfile name="dev">
+        <logger name="org.springframework.web" level="INFO"/>
+        <logger name="org.springboot.sample" level="INFO"/>
+        <logger name="com.monster" level="DEBUG"/>
+
+        <root level="INFO">
+            <appender-ref ref="AsyncLogback" />
+        </root>
+
+    </springProfile>
+
+    <!-- 预生产环境. 多个使用逗号隔开. -->
+    <springProfile name="test">
+        <logger name="org.springframework.web" level="INFO"/>
+        <logger name="org.springboot.sample" level="INFO"/>
+        <logger name="com.monster" level="INFO"/>
+
+        <root level="INFO">
+            <appender-ref ref="AsyncLogback" />
+        </root>
+    </springProfile>
+
+
+    <!-- 测试环境. 多个使用逗号隔开. -->
+    <springProfile name="uat">
+        <logger name="org.springframework.web" level="INFO"/>
+        <logger name="org.springboot.sample" level="INFO"/>
+        <logger name="com.monster" level="INFO"/>
+
+        <root level="INFO">
+            <appender-ref ref="AsyncLogback" />
+        </root>
+    </springProfile>
+    <!-- 生产环境. -->
+    <springProfile name="prod">
+        <logger name="org.springframework.web" level="ERROR"/>
+        <logger name="org.springboot.sample" level="ERROR"/>
+        <logger name="com.monster" level="INFO"/>
+
+        <root level="INFO">
+            <appender-ref ref="AsyncLogback" />
+        </root>
+
+    </springProfile>
+</configuration>
