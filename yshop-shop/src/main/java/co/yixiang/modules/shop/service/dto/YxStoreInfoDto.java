@@ -80,7 +80,7 @@ public class YxStoreInfoDto implements Serializable {
     private String coordinateY;
 
     //店铺服务
-    private String stroeService;
+//    private String stroeService;
     //营业时间
 
 
