@@ -174,8 +174,8 @@ public class CreatShareProductServiceImpl implements CreatShareProductService {
             try {
                 log.info("url:{}",url);
                 qrCode = ImageIO.read(new URL(url));
-                log.info("qrCode是否为空：{}", null == qrCode);
             } catch (IOException e) {
+                log.info("qrCode是否为空：{}", null == qrCode);
                 e.printStackTrace();
             }
             // 绘制缩小后的图
