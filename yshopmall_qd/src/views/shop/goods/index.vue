@@ -56,6 +56,32 @@
       </el-table-column>
       <el-table-column label="操作" width="205px" align="center">
         <template slot-scope="scope">
+          <div v-if="showFlg" style='marginBottom:10px;'>
+            <el-popover
+              :ref="scope.row.id+hotType.hot.value"
+              placement="top"
+              width="180"
+            >
+              <p>确定设为热销榜单？</p>
+              <div style="text-align: right; margin: 0">
+                <el-button size="mini" type="text" @click="changeHotStatus(scope.row.id,0,hotType.hot)">取消</el-button>
+                <el-button :loading="delLoading" type="primary" size="mini" @click="changeHotStatus(scope.row.id,1,hotType.hot)">确定</el-button>
+              </div>
+              <el-button slot="reference" size="mini" type="danger" plain>热销榜单</el-button>
+            </el-popover>
+            <el-popover
+              :ref="scope.row.id+hotType.best.value"
+              placement="top"
+              width="180"
+            >
+              <p>确定设为精品推荐？</p>
+              <div style="text-align: right; margin: 0">
+                <el-button size="mini" type="text" @click="changeHotStatus(scope.row.id,0,hotType.best)">取消</el-button>
+                <el-button :loading="delLoading" type="primary" size="mini" @click="changeHotStatus(scope.row.id,1,hotType.best)">确定</el-button>
+              </div>
+              <el-button slot="reference" size="mini" type="primary" plain>精品推荐</el-button>
+            </el-popover>
+          </div>
           <el-button slot="reference" type="danger" size="mini" @click="attr(scope.row)">规格属性</el-button>
           <el-dropdown size="mini" split-button type="primary" trigger="click">
             操作
@@ -130,7 +156,7 @@
 <script>
 import checkPermission from '@/utils/permission'
 import initData from '@/mixins/crud'
-import { del, onsale } from '@/api/yxStoreProduct'
+import { del, onsale, changeStatus } from '@/api/yxStoreProduct'
 import eForm from './form'
 import eAttr from './attr'
 import comForm from '@/views/activity/combination/form'
@@ -143,6 +169,25 @@ export default {
     return {
       delLoading: false,
       visible: false,
+      hotType:{
+        benefit:{
+          value:'benefit',
+          label:'促销'
+        }, 
+        best :{
+          value:'best',
+          label:'精品'
+        },
+        hot :{
+          value:'hot',
+          label:'热卖'
+        },
+        new :{
+          value:'new',
+          label:'新品'
+        },
+      },
+      showFlg:0,//精品热销显示状态
       queryTypeOptions: [
         { key: 'storeName', display_name: '商品名称' }
       ],
@@ -151,7 +196,9 @@ export default {
   },
   created() {
     this.$nextTick(() => {
-      this.init()
+      this.init().then(res=>{
+        this.showFlg=res.showFlg
+      })
     })
   },
   methods: {
@@ -401,6 +448,28 @@ export default {
       }
       _this.dialog = true
       this.$refs.form2.getAttrs(data.id)
+    },
+    changeHotStatus(id,status,type){//设置精品或热销
+      changeStatus({
+        id,
+        changeStatus:status,
+        changeType:type.value}).then(res => {
+        this.$refs[id+type.value].doClose()
+        this.init()
+        this.$notify({
+          title: '设置成功',
+          type: 'success',
+          duration: 2500
+        })
+      }).catch(err => {
+        this.$refs[id+type.value].doClose()
+        this.$notify({
+          title: err.response.data.message,
+          type: 'success',
+          duration: 2500
+        })
+        console.log(err.response.data.message)
+      })
     }
   }
 }
