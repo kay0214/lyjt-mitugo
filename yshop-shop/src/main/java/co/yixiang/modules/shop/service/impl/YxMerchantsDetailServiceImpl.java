@@ -218,6 +218,7 @@ public class YxMerchantsDetailServiceImpl extends BaseServiceImpl<YxMerchantsDet
         // 有数据的更新数据、没有数据的新插入数据
         yxMerchantsDetail = generator.convert(resources, YxMerchantsDetail.class);
         if (isNew) {
+            yxMerchantsDetail.setCreateUserId(resources.getUpdateUserId());
             result = this.save(yxMerchantsDetail);
         } else {
             result = this.updateById(yxMerchantsDetail);
@@ -250,7 +251,7 @@ public class YxMerchantsDetailServiceImpl extends BaseServiceImpl<YxMerchantsDet
         this.updateById(yxMerchantsDetail);
         YxExamineLog yxExamineLog = new YxExamineLog();
         // 审批类型 1:提现 2:商户信息
-        yxExamineLog.setType(1);
+        yxExamineLog.setType(2);
         yxExamineLog.setTypeId(resources.getId());
         yxExamineLog.setStatus(resources.getExamineStatus());
         yxExamineLog.setRemark(resources.getExamineRemark());

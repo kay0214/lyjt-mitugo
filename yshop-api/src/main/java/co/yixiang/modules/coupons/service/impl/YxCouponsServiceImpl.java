@@ -107,4 +107,10 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
         }
         return localLiveCouponsVoList;
     }
+
+    @Override
+    public YxCoupons getCouponsById(Integer id) {
+        YxCoupons yxCoupons = yxCouponsMapper.selectById(id);
+        return yxCoupons;
+    }
 }

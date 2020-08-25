@@ -55,4 +55,11 @@ public interface YxCouponsService extends BaseService<YxCoupons> {
      * @return
      */
     List<LocalLiveCouponsVo> getCouponsLitByBelog(int id);
+
+    /**
+     * 根据ID查询卡券信息
+     * @param id
+     * @return
+     */
+    YxCoupons getCouponsById(Integer id);
 }

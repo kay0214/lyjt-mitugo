@@ -5,8 +5,9 @@
       <!--如果想在工具栏加入更多按钮，可以使用插槽方式， slot = 'left' or 'right'-->
       <crudOperation :permission="permission" />
       <!--表单组件-->
-      <el-dialog append-to-body :close-on-click-modal="false" :before-close="crud.cancelCU" :visible.sync="crud.status.cu > 0" :title="crud.status.title" width="570px">
-        <el-form ref="form" :inline="true" :model="form" :rules="rules" size="small" label-width="120px">
+      <el-dialog append-to-body :close-on-click-modal="false" :before-close="dialogBeforeCancel" :visible.sync="crud.status.cu>0 || dialogVisible" 
+        :title="crud.status.title" width="570px">
+        <el-form ref="form" :inline="true" :model="form" :rules="rules" size="small" label-width="120px" :disabled='formDisabled'>
             <!-- 以下是新增展示字段 -->
             <div v-if="crud.status.add">
               <el-form-item label="商户名称" prop="nickName">
@@ -24,7 +25,7 @@
             </div>
 
             <!-- 以下是编辑页面展示字段 -->
-            <div v-if="crud.status.edit">
+            <div v-if="crud.status.edit || examineEdit">
               <el-form-item label="商户名称" prop="merchantsName">
                 <el-input v-model="form.merchantsName"  style="width: 350px;"/>
               </el-form-item>
@@ -59,7 +60,7 @@
             </div>
 
             <!-- 以下是个人认证 -->
-            <div v-if="!crud.status.add && form.merchantsType==0">
+            <div v-if="!crud.status.add && (form.merchantsType==0 || examineEdit)">
               <el-form-item label="手持证件照">
                 <MaterialList v-model="perIdCard" type="image" :num="1" :width="150" :height="150" />
               </el-form-item> 
@@ -152,16 +153,31 @@
                 <MaterialList v-model="licenceImg" type="image" :num="1" :width="150" :height="150" />
               </el-form-item>       
             </div>
-
-            <!-- 审核意见、大点的文本框只用于展示 -->
-            <!-- <el-form-item label="主体资质类型">
-              <el-input v-model="form.examineRemark" style="width: 370px;" />
-            </el-form-item> -->
         </el-form>
         <div slot="footer" class="dialog-footer">
-          <el-button type="text" @click="crud.cancelCU">取消</el-button>
-          <el-button :loading="crud.cu === 2" type="primary" @click="crud.submitCU">确认</el-button>
+          <div v-if="crud.status.add || crud.status.edit">
+            <el-button type="text" @click="crud.cancelCU">取消</el-button>
+            <el-button :loading="crud.cu === 2" type="primary" @click="crud.submitCU">确认</el-button>
+          </div>
+          <div v-if="examineEdit">
+            <el-row style='marginBottom:20px'>
+              <el-col :span='5' style='marginRight:12px'>
+                <label>审核意见</label>
+              </el-col>
+              <el-col :span="17">
+              <el-input
+                  type="textarea"
+                  :rows="5"
+                  placeholder="请输入内容"
+                  v-model="form.examineRemark">
+                </el-input>
+              </el-col>
+            </el-row>
+            <el-button type="text" @click="examineEditCancelCU">驳回</el-button>
+            <el-button :loading="examineEdit === 2" type="primary" @click="examineEditSubmitCU">通过</el-button>
+          </div>
         </div>
+        
       </el-dialog>
       <!--表格渲染-->
       <el-table ref="table" v-loading="crud.loading" :data="crud.data" size="small" style="width: 100%;" @selection-change="crud.selectionChangeHandler">
@@ -184,9 +200,9 @@
             {{ dict.label.merchants_status[scope.row.examineStatus] }}
           </template>
         </el-table-column>
-        <el-table-column v-permission="['admin','yxMerchantsDetail:edit','yxMerchantsDetail:del']" label="操作" width="150px" align="center">
-        <!-- 需要加一个审核按钮还有审核用的弹出框 -->
+        <el-table-column v-permission="['admin','yxMerchantsDetail:edit','yxMerchantsDetail:examine','yxMerchantsDetail:del']" label="操作" width="150px" align="center">        
           <template slot-scope="scope">
+            <el-button v-permission="permission.examine" size="mini" type="primary" icon="el-icon-s-check" @click="examineOpt(scope.row)" plain></el-button>
             <udOperation
               :data="scope.row"
               :permission="permission"
@@ -201,7 +217,7 @@
 </template>
 
 <script>
-import crudYxMerchantsDetail from '@/api/yxMerchantsDetail'
+import crudYxMerchantsDetail,{examine as examineSubmit} from '@/api/yxMerchantsDetail'
 import { isvalidPhone } from '@/utils/validate'
 import CRUD, { presenter, header, form, crud } from '@crud/crud'
 import rrOperation from '@crud/RR.operation'
@@ -259,7 +275,10 @@ export default {
           { required: true, trigger: 'blur', validator: validPhone }
         ]
       },
-      qualificationsType:[], //主体资质类型      
+      qualificationsType:[], //主体资质类型    
+      examineEdit:0,  //审核状态
+      dialogVisible:this.crud.status.cu>0, 
+      formDisabled:false, 
       // 个人认证
       perIdCard:[],//手持证件照      
       perIdCardFace:[],//证件照人像面      
@@ -346,6 +365,77 @@ export default {
       getDictDetail(v).then(res=>{
           this.qualificationsType=res.content;
       })
+    },
+     
+    //显示审核弹出框
+    examineOpt(data){
+      this.examineEdit=1;
+      this.dialogVisible=Boolean(this.examineEdit)
+      
+      this.crud.resetForm(JSON.parse(JSON.stringify(data)))
+      /*图片默认值赋值*/
+      // 个人认证
+      if (form.personIdCard) {
+        this.perIdCard = form.personIdCard.split(',')
+      }
+      if (form.personIdCardFace) {
+        this.perIdCardFace = form.personIdCardFace.split(',')
+      }
+      if (form.personIdCardBack) {
+        this.perIdCardBack = form.personIdCardBack.split(',')
+      }
+      // 企业和个体户
+      if (form.businessLicenseImg) {
+        this.businessLicenseImg = form.businessLicenseImg.split(',')
+      }
+      if (form.bankOpenProveImg) {
+        this.bankOpenProveImg = form.bankOpenProveImg.split(',')
+      }
+      if (form.legalIdCardFace) {
+        this.legalIdCardFace = form.legalIdCardFace.split(',')
+      }
+      if (form.legalIdCardBack) {
+        this.legalIdCardBack = form.legalIdCardBack.split(',')
+      }
+      if (form.storeImg) {
+        this.storeImg = form.storeImg.split(',')
+      }
+      if (form.licenceImg) {
+        this.licenceImg = form.licenceImg.split(',')
+      }
+      this.formDisabled=true
+    },
+    //审核通过 /** 审批状态examineStatus：0->待审核,1->通过,2->驳回 */
+    examineEditSubmitCU(){
+      this.examineEdit=2
+      examineSubmit({
+        examineStatus:1,
+        examineRemark:this.form.examineRemark,
+        id:this.form.id
+      })
+    },
+    //审核驳回 /** 审批状态examineStatus：0->待审核,1->通过,2->驳回 */
+    examineEditCancelCU(){
+      this.examineEdit=0;
+      examineSubmit({
+        examineStatus:2,
+        examineRemark:this.form.examineRemark,
+        id:this.form.id
+      })
+      this.dialogVisible=Boolean(this.crud.status.cu);
+      this.formDisabled=false
+    },
+    //新增、编辑、审核弹出框关闭
+    dialogBeforeCancel(done){
+      console.log('guanbi')
+        if(this.crud.status.cu>0){
+          this.crud.cancelCU()
+        }
+        if(this.examineEdit){
+          this.examineEdit=0;
+          this.dialogVisible=Boolean(this.crud.status.cu);
+          this.formDisabled=false
+        }
     }
   }
 }
