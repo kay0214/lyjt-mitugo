@@ -307,21 +307,21 @@ public class YxCouponsController {
                     delImageInfo.setUpdateTime(DateTime.now().toTimestamp());
                     yxImageInfoService.updateById(delImageInfo);
                 }
-
-                // 写入分类对应的图片关联表
-                YxImageInfo imageInfo = new YxImageInfo();
-                imageInfo.setTypeId(typeId);
-                // 卡券分类 img_type 为 5
-                imageInfo.setImgType(LocalLiveConstants.IMG_TYPE_COUPONS);
-                imageInfo.setImgCategory(ShopConstants.IMG_CATEGORY_PIC);
-                imageInfo.setImgUrl(imgPath);
-                imageInfo.setDelFlag(0);
-                imageInfo.setCreateUserId(loginUserId);
-                imageInfo.setUpdateUserId(loginUserId);
-                imageInfo.setCreateTime(DateTime.now().toTimestamp());
-                imageInfo.setUpdateTime(DateTime.now().toTimestamp());
-                yxImageInfoService.save(imageInfo);
             }
+
+            // 写入分类对应的图片关联表
+            YxImageInfo imageInfo = new YxImageInfo();
+            imageInfo.setTypeId(typeId);
+            // 卡券分类 img_type 为 5
+            imageInfo.setImgType(LocalLiveConstants.IMG_TYPE_COUPONS);
+            imageInfo.setImgCategory(ShopConstants.IMG_CATEGORY_PIC);
+            imageInfo.setImgUrl(imgPath);
+            imageInfo.setDelFlag(0);
+            imageInfo.setCreateUserId(loginUserId);
+            imageInfo.setUpdateUserId(loginUserId);
+            imageInfo.setCreateTime(DateTime.now().toTimestamp());
+            imageInfo.setUpdateTime(DateTime.now().toTimestamp());
+            yxImageInfoService.save(imageInfo);
         }
 
         if(StringUtils.isNotBlank(sliderPath)){
@@ -335,6 +335,7 @@ public class YxCouponsController {
 
             List<YxImageInfo> sliderImageInfoList = yxImageInfoService.list(sliderImageInfoQueryWrapper);
 
+            List<YxImageInfo> delSliderImageInfoList = new ArrayList<YxImageInfo>();
             if (sliderImageInfoList.size() > 0){
                 // 删除已存在的图片
                 for (YxImageInfo imageInfo : sliderImageInfoList){
@@ -343,23 +344,24 @@ public class YxCouponsController {
                     delImageInfo.setDelFlag(1);
                     delImageInfo.setUpdateUserId(loginUserId);
                     delImageInfo.setUpdateTime(DateTime.now().toTimestamp());
-                    yxImageInfoService.updateById(delImageInfo);
+                    delSliderImageInfoList.add(delImageInfo);
                 }
+                yxImageInfoService.updateBatchById(delSliderImageInfoList, delSliderImageInfoList.size());
+            }
 
-                List<YxImageInfo> yxImageInfoList = new ArrayList<YxImageInfo>();
-                    String [] images = sliderPath.split(",");
-                if(images.length>0){
-                    for(int i=0;i<images.length;i++){
-                        YxImageInfo yxImageInfos = new YxImageInfo();
-                        yxImageInfos.setTypeId(typeId);
-                        yxImageInfos.setImgType(ShopConstants.IMG_TYPE_STORE);
-                        yxImageInfos.setImgCategory(ShopConstants.IMG_CATEGORY_ROTATION1);
-                        yxImageInfos.setImgUrl(images[i]);
-                        yxImageInfos.setDelFlag(0);
-                        yxImageInfos.setUpdateUserId(loginUserId);
-                        yxImageInfos.setCreateUserId(loginUserId);
-                        yxImageInfoList.add(yxImageInfos);
-                    }
+            List<YxImageInfo> yxImageInfoList = new ArrayList<YxImageInfo>();
+            String [] images = sliderPath.split(",");
+            if(images.length>0){
+                for(int i=0;i<images.length;i++){
+                    YxImageInfo yxImageInfos = new YxImageInfo();
+                    yxImageInfos.setTypeId(typeId);
+                    yxImageInfos.setImgType(LocalLiveConstants.IMG_TYPE_COUPONS);
+                    yxImageInfos.setImgCategory(ShopConstants.IMG_CATEGORY_ROTATION1);
+                    yxImageInfos.setImgUrl(images[i]);
+                    yxImageInfos.setDelFlag(0);
+                    yxImageInfos.setUpdateUserId(loginUserId);
+                    yxImageInfos.setCreateUserId(loginUserId);
+                    yxImageInfoList.add(yxImageInfos);
                 }
                 yxImageInfoService.saveBatch(yxImageInfoList,yxImageInfoList.size());
             }

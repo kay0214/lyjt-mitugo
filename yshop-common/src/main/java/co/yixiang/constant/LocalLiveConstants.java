@@ -12,5 +12,5 @@ public interface LocalLiveConstants {
     /** 卡券分类相关 */
     int IMG_TYPE_COUPONS_CATEGORY = 5;
     /** 卡券相关 */
-    int IMG_TYPE_COUPONS = 6;
+    int IMG_TYPE_COUPONS = 1;
 }

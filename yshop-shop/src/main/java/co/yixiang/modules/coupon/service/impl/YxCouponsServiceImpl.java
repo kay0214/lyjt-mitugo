@@ -8,34 +8,39 @@
 */
 package co.yixiang.modules.coupon.service.impl;
 
-import co.yixiang.modules.coupon.domain.YxCoupons;
 import co.yixiang.common.service.impl.BaseServiceImpl;
-import lombok.AllArgsConstructor;
-import co.yixiang.dozer.service.IGenerator;
-import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
 import co.yixiang.common.utils.QueryHelpPlus;
-import co.yixiang.utils.ValidationUtil;
-import co.yixiang.utils.FileUtil;
+import co.yixiang.constant.LocalLiveConstants;
+import co.yixiang.constant.ShopConstants;
+import co.yixiang.dozer.service.IGenerator;
+import co.yixiang.modules.coupon.domain.YxCoupons;
 import co.yixiang.modules.coupon.service.YxCouponsService;
 import co.yixiang.modules.coupon.service.dto.YxCouponsDto;
 import co.yixiang.modules.coupon.service.dto.YxCouponsQueryCriteria;
 import co.yixiang.modules.coupon.service.mapper.YxCouponsMapper;
+import co.yixiang.modules.shop.domain.YxImageInfo;
+import co.yixiang.modules.shop.service.YxImageInfoService;
+import co.yixiang.utils.FileUtil;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.github.pagehelper.PageInfo;
+import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
 // 默认不使用缓存
 //import org.springframework.cache.annotation.CacheConfig;
 //import org.springframework.cache.annotation.CacheEvict;
 //import org.springframework.cache.annotation.Cacheable;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import java.util.List;
-import java.util.Map;
-import java.io.IOException;
-import javax.servlet.http.HttpServletResponse;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 
 /**
 * @author huiy
@@ -49,13 +54,51 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
 
     private final IGenerator generator;
 
+    @Autowired
+    private YxImageInfoService yxImageInfoService;
+
     @Override
     //@Cacheable
     public Map<String, Object> queryAll(YxCouponsQueryCriteria criteria, Pageable pageable) {
         getPage(pageable);
         PageInfo<YxCoupons> page = new PageInfo<>(queryAll(criteria));
         Map<String, Object> map = new LinkedHashMap<>(2);
-        map.put("content", generator.convert(page.getList(), YxCouponsDto.class));
+        List<YxCouponsDto> yxCouponsDtoList = generator.convert(page.getList(), YxCouponsDto.class);
+        if (yxCouponsDtoList.size() > 0){
+            // 查询缩略图和幻灯片
+            for (YxCouponsDto yxCouponsDto : yxCouponsDtoList){
+                // 查询缩略图图片是否存在
+                QueryWrapper<YxImageInfo> imageInfoQueryWrapper = new QueryWrapper<>();
+                imageInfoQueryWrapper.lambda()
+                        .and(type -> type.eq(YxImageInfo::getTypeId, yxCouponsDto.getId()))
+                        .and(imgCate -> imgCate.eq(YxImageInfo::getImgCategory, ShopConstants.IMG_CATEGORY_PIC))
+                        .and(imgType -> imgType.eq(YxImageInfo::getImgType, LocalLiveConstants.IMG_TYPE_COUPONS))
+                        .and(del -> del.eq(YxImageInfo::getDelFlag, false));
+                YxImageInfo imageInfo = yxImageInfoService.getOne(imageInfoQueryWrapper);
+                if (imageInfo != null){
+                    yxCouponsDto.setImage(imageInfo.getImgUrl());
+                }
+
+                // 查询幻灯片
+                QueryWrapper<YxImageInfo> sliderImageInfoQueryWrapper = new QueryWrapper<>();
+                sliderImageInfoQueryWrapper.lambda().select(YxImageInfo::getImgUrl)
+                        .and(type -> type.eq(YxImageInfo::getTypeId, yxCouponsDto.getId()))
+                        .and(imgCate -> imgCate.eq(YxImageInfo::getImgCategory, ShopConstants.IMG_CATEGORY_ROTATION1))
+                        .and(imgType -> imgType.eq(YxImageInfo::getImgType, LocalLiveConstants.IMG_TYPE_COUPONS))
+                        .and(del -> del.eq(YxImageInfo::getDelFlag, false));
+
+                List<YxImageInfo> sliderImageInfoList = yxImageInfoService.list(sliderImageInfoQueryWrapper);
+
+                if (sliderImageInfoList.size() >0){
+                    List<String> sliderList = new ArrayList<>();
+                    for (YxImageInfo sliderImage : sliderImageInfoList){
+                        sliderList.add(sliderImage.getImgUrl());
+                    }
+                    yxCouponsDto.setSliderImage(sliderList);
+                }
+            }
+        }
+        map.put("content", yxCouponsDtoList);
         map.put("totalElements", page.getTotal());
         return map;
     }
