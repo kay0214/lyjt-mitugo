@@ -21,7 +21,7 @@ import javax.sql.DataSource;
  *
  */
 @Configuration
-@MapperScan(basePackages = {"co.yixiang.modules.**.mapper"}, sqlSessionTemplateRef = "sqlSessionTemplate")
+@MapperScan(basePackages = {"co.yixiang.modules.*.mapper"}, sqlSessionTemplateRef = "sqlSessionTemplate")
 public class MybatisPlusConfig {
 
     /**
@@ -29,7 +29,7 @@ public class MybatisPlusConfig {
      */
     @Bean
     public PaginationInterceptor paginationInterceptor() {
-        return new PaginationInterceptor().setDialectType("mysql");
+        return new PaginationInterceptor();
     }
 
     @Bean
