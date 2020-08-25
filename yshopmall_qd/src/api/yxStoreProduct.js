@@ -68,3 +68,10 @@ export function getAttr(id) {
   })
 }
 
+export function changeStatus(data) {
+  return request({
+    url: 'api/yxStoreProduct/changeStatus',
+    method: 'post',
+    data
+  })
+}
