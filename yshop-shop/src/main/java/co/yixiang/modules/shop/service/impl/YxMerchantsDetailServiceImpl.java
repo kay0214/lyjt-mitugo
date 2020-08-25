@@ -250,7 +250,7 @@ public class YxMerchantsDetailServiceImpl extends BaseServiceImpl<YxMerchantsDet
         this.updateById(yxMerchantsDetail);
         YxExamineLog yxExamineLog = new YxExamineLog();
         // 审批类型 1:提现 2:商户信息
-        yxExamineLog.setType(1);
+        yxExamineLog.setType(2);
         yxExamineLog.setTypeId(resources.getId());
         yxExamineLog.setStatus(resources.getExamineStatus());
         yxExamineLog.setRemark(resources.getExamineRemark());
