@@ -10,8 +10,14 @@
           <el-form-item label="分类名称" prop="cateName">
             <el-input v-model="form.cateName" style="width: 370px;" />
           </el-form-item>
-          <el-form-item label="是否推荐" prop="isShow">
-            <el-input v-model="form.isShow" style="width: 370px;" />
+          <el-form-item label="分类图片" prop="img">
+            <MaterialList v-model="form.img" style="width: 100%" type="image" :num="1" :width="150" :height="150" />
+          </el-form-item>
+          <el-form-item label="是否显示" prop="isShow">
+            <el-radio-group v-model="form.isShow">
+              <el-radio :label="0">隐藏</el-radio>
+              <el-radio :label="1">显示</el-radio>
+            </el-radio-group>
           </el-form-item>
           <el-form-item label="排序" prop="sort">
             <el-input v-model="form.sort" style="width: 370px;" />
@@ -26,7 +32,11 @@
       <el-table ref="table" v-loading="crud.loading" :data="crud.data" size="small" style="width: 100%;" @selection-change="crud.selectionChangeHandler">
         <el-table-column type="selection" width="55" />
         <el-table-column v-if="columns.visible('cateName')" prop="cateName" label="分类名称" />
-        <el-table-column v-if="columns.visible('isShow')" prop="isShow" label="是否推荐" />
+        <el-table-column v-if="columns.visible('isShow')" prop="isShow" label="显示状态">
+          <template slot-scope="scope">
+            {{scope.row.isShow === 1 ? "显示": "隐藏"}}
+          </template>
+        </el-table-column>
         <el-table-column v-if="columns.visible('sort')" prop="sort" label="排序" />
         <el-table-column v-permission="['admin','yxCouponsCategory:edit','yxCouponsCategory:del']" label="操作" width="150px" align="center">
           <template slot-scope="scope">
@@ -54,7 +64,7 @@ import MaterialList from "@/components/material";
 
 // crud交由presenter持有
 const defaultCrud = CRUD({ title: '卡券分类表', url: 'api/yxCouponsCategory', sort: 'id,desc', crudMethod: { ...crudYxCouponsCategory }})
-const defaultForm = { id: null, pid: null, cateName: null, sort: null, isShow: null, delFlag: null, createUserId: null, updateUserId: null, createTime: null, updateTime: null }
+const defaultForm = { id: null, pid: null, cateName: null, sort: null, isShow: 0, delFlag: null, createUserId: null, updateUserId: null, createTime: null, updateTime: null }
 export default {
   name: 'YxCouponsCategory',
   components: { pagination, crudOperation, rrOperation, udOperation ,MaterialList},
