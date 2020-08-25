@@ -15,7 +15,6 @@ import co.yixiang.modules.shop.service.YxImageInfoService;
 import co.yixiang.utils.SecurityUtils;
 import co.yixiang.utils.StringUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.AllArgsConstructor;
@@ -46,8 +45,7 @@ public class CouponsCategoryController {
     @ApiOperation("查询卡券分类表")
     @PreAuthorize("@el.check('admin','yxCouponsCategory:list')")
     public ResponseEntity<Object> getYxCouponsCategorys(CouponsCategoryRequest request){
-        IPage<YxCouponsCategory> allList = yxCouponsCategoryService.getAllList(request);
-        return new ResponseEntity<>(allList, HttpStatus.OK);
+        return new ResponseEntity<>(yxCouponsCategoryService.getAllList(request),HttpStatus.OK);
     }
 
     @PostMapping("/add")
