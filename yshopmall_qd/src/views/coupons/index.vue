@@ -124,11 +124,11 @@
           <el-form-item label="使用条件" prop="useCondition">
             <el-input v-model="form.useCondition" style="width: 100%;" />
           </el-form-item>
-          <el-form-item label="图片(260*260/416*214)" required>
+          <el-form-item label="图片(260*260/416*214)" prop="image">
             <!-- <pic-upload-two v-model="form.pic" /> -->
             <MaterialList v-model="imageArr" style="width: 100%" type="image" :num="1" :width="150" :height="150" />
           </el-form-item>
-          <el-form-item label="轮播图" required prop="sliderImageArr">
+          <el-form-item label="轮播图" prop="sliderImage">
             <MaterialList
               v-model="sliderImageArr"
               style="width: 100%"
@@ -486,7 +486,9 @@ export default {
             }
             callback()
           }, trigger: 'blur' }
-        ]
+        ],
+        image: [{ required: true, message: '卡券图片不能为空' }],
+        sliderImage: [{ required: true, message: '卡券轮播图不能为空' }]
 
       }}
   },
@@ -496,9 +498,15 @@ export default {
   watch: {
     imageArr(value) {
       this.form.image = value.join(',')
+      if (this.$refs.form) {
+        this.$refs.form.validateField('image')
+      }
     },
     sliderImageArr(value) {
       this.form.sliderImage = value.join(',')
+      if (this.$refs.form) {
+        this.$refs.form.validateField('sliderImage')
+      }
     }
   },
   methods: {
@@ -507,12 +515,19 @@ export default {
       return true
     }, // 新增与编辑前做的操作
     [CRUD.HOOK.afterToCU](crud, form) {
-      delete form.availableTime
-      delete form.expireDate
       this.form.availableTimeEnd = this.availableTime[0]
       this.form.availableTimeStart = this.availableTime[1]
-      this.imageArr = []
-      this.sliderImageArr = []
+      form.imageArr = [form.image]
+      const formImage = []
+      let formSliderImageArr = []
+      if (form.image) {
+        formImage.push(form.image)
+      }
+      if (form.sliderImage) {
+        formSliderImageArr = form.sliderImage
+      }
+      this.imageArr = formImage
+      this.sliderImageArr = formSliderImageArr
     },
     expireDateChange(newValue) {
       this.form.expireDateStart = this.expireDate[0]

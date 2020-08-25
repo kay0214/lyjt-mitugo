@@ -218,6 +218,7 @@ public class YxMerchantsDetailServiceImpl extends BaseServiceImpl<YxMerchantsDet
         // 有数据的更新数据、没有数据的新插入数据
         yxMerchantsDetail = generator.convert(resources, YxMerchantsDetail.class);
         if (isNew) {
+            yxMerchantsDetail.setCreateUserId(resources.getUpdateUserId());
             result = this.save(yxMerchantsDetail);
         } else {
             result = this.updateById(yxMerchantsDetail);

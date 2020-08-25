@@ -1,15 +1,14 @@
 package co.yixiang.modules.coupons.entity;
 
-import java.math.BigDecimal;
-import com.baomidou.mybatisplus.annotation.IdType;
 import co.yixiang.common.entity.BaseEntity;
-import java.util.Date;
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.math.BigDecimal;
 import java.util.Date;
 
 /**
@@ -111,6 +110,9 @@ private String availableTimeStart;
 
 @ApiModelProperty(value = "可用时间止")
 private String availableTimeEnd;
+
+@ApiModelProperty(value = "卡券简介")
+private String couponInfo;
 
 @ApiModelProperty(value = "是否删除（0：未删除，1：已删除）")
 private Integer delFlag;

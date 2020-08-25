@@ -21,9 +21,9 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 /**
-* @author liusy
-* @date 2020-08-19
-*/
+ * @author liusy
+ * @date 2020-08-19
+ */
 @AllArgsConstructor
 @Api(tags = "商户详情表管理")
 @RestController
@@ -62,7 +62,7 @@ public class YxMerchantsDetailController {
     public ResponseEntity<Object> create(@Validated @RequestBody YxMerchantsDetailDto resources) {
         // 获取登陆用户的id
         int uid = SecurityUtils.getUserId().intValue();
-        resources.setUid(uid);
+        resources.setUpdateUserId(uid);
         boolean result = yxMerchantsDetailService.createOrUpdate(resources);
         return new ResponseEntity<>(result, HttpStatus.CREATED);
     }
