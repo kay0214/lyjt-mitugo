@@ -24,4 +24,12 @@ export function edit(data) {
   })
 }
 
+export function examine(data) {
+  return request({
+    url: '/api/yxMerchantsDetail/examine',
+    method: 'post',
+    data
+  })
+}
+
 export default { add, edit, del }

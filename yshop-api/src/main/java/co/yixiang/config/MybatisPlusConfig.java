@@ -4,9 +4,11 @@ package co.yixiang.config;
 import com.baomidou.mybatisplus.autoconfigure.SpringBootVFS;
 import com.baomidou.mybatisplus.extension.plugins.PaginationInterceptor;
 import com.baomidou.mybatisplus.extension.spring.MybatisSqlSessionFactoryBean;
+import org.apache.ibatis.plugin.Interceptor;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.type.TypeHandler;
 import org.mybatis.spring.annotation.MapperScan;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
@@ -31,8 +33,9 @@ public class MybatisPlusConfig {
     }
 
     @Bean
-    public SqlSessionFactory sqlSessionFactory(DataSource dataSource) {
+    public SqlSessionFactory sqlSessionFactory(DataSource dataSource, @Autowired PaginationInterceptor paginationInterceptor) {
         MybatisSqlSessionFactoryBean bean = new MybatisSqlSessionFactoryBean();
+        bean.setPlugins(new Interceptor[]{paginationInterceptor});
         bean.setDataSource(dataSource);
         bean.setVfs(SpringBootVFS.class);
         //添加XML目录

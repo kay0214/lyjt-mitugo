@@ -8,6 +8,7 @@ import co.yixiang.modules.user.web.vo.YxUserBillQueryVo;
 import co.yixiang.common.web.vo.Paging;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -29,7 +30,7 @@ public interface YxUserBillService extends BaseService<YxUserBill> {
 
     double getBrokerage(int uid);
 
-    double yesterdayCommissionSum(int uid);
+    BigDecimal yesterdayCommissionSum(int uid);
 
     List<YxUserBillQueryVo> userBillList(int uid, int page, int limit, String category);
 

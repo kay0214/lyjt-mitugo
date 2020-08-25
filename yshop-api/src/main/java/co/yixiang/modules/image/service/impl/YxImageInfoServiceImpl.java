@@ -7,6 +7,7 @@ import co.yixiang.modules.image.mapper.YxImageInfoMapper;
 import co.yixiang.modules.image.service.YxImageInfoService;
 import co.yixiang.modules.image.web.param.YxImageInfoQueryParam;
 import co.yixiang.modules.image.web.vo.YxImageInfoQueryVo;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.metadata.OrderItem;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
@@ -93,5 +94,19 @@ public class YxImageInfoServiceImpl extends BaseServiceImpl<YxImageInfoMapper, Y
             strImg = strImg.substring(0, strImg.length() - 1);
         }
         return strImg;
+    }
+
+
+    /**
+     * @return
+     */
+    @Override
+    public YxImageInfo selectOneImg(int typeId, Integer imgType, Integer cateTypeId) {
+
+        List<YxImageInfo> yxImageInfoList = yxImageInfoMapper.selectList(new QueryWrapper<YxImageInfo>().lambda().eq(YxImageInfo::getTypeId, typeId).eq(YxImageInfo::getImgType, imgType).eq(YxImageInfo::getImgCategory, cateTypeId));
+        if(null == yxImageInfoList||yxImageInfoList.size()<=0){
+            return null;
+        }
+        return yxImageInfoList.get(0);
     }
 }

@@ -1,12 +1,18 @@
+/*
+ * @Copyright: 2005-2018 www.hyjf.com. All rights reserved.
+ */
 package co.yixiang.modules.shop.service.impl;
 
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.ObjectUtil;
-import co.yixiang.modules.shop.entity.ProductInfo;
-import co.yixiang.modules.shop.service.CreatShareProductService;
+import co.yixiang.common.constant.CommonConstant;
+import co.yixiang.modules.image.entity.YxImageInfo;
+import co.yixiang.modules.image.service.YxImageInfoService;
+import co.yixiang.modules.shop.entity.YxStoreInfo;
+import co.yixiang.modules.shop.mapper.YxStoreInfoMapper;
+import co.yixiang.modules.shop.service.CreatShareStoreService;
 import co.yixiang.modules.user.entity.YxSystemAttachment;
 import co.yixiang.modules.user.service.YxSystemAttachmentService;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,15 +28,27 @@ import java.io.InputStream;
 import java.net.URL;
 
 import static co.yixiang.utils.FileUtil.transformStyle;
+
+/**
+ * @author zhangqingqing
+ * @version CreatShareStoreServiceImpl, v0.1 2020/8/25 17:02
+ */
 @Slf4j
 @Service
-@RequiredArgsConstructor(onConstructor = @__(@Autowired))
-public class CreatShareProductServiceImpl implements CreatShareProductService {
+public class CreatShareStoreServiceImpl implements CreatShareStoreService {
 
-    private final YxSystemAttachmentService systemAttachmentService;
+    @Autowired
+    YxSystemAttachmentService systemAttachmentService;
+    @Autowired
+    YxStoreInfoMapper yxStoreInfoMapper;
+
+    @Autowired
+    YxImageInfoService yxImageInfoService;
 
     @Override
-    public  String creatProductPic(ProductInfo productInfo, String shareCode, String spreadPicName, String spreadPicPath, String apiUrl) throws IOException, FontFormatException {
+    public String creatProductPic(Integer id, String shareCode, String spreadPicName, String spreadPicPath, String apiUrl) throws IOException, FontFormatException {
+        YxStoreInfo yxStoreInfo = yxStoreInfoMapper.selectById(id);
+        YxImageInfo yxImageInfo = yxImageInfoService.selectOneImg(id, CommonConstant.IMG_TYPE_STORE, CommonConstant.IMG_CATEGORY_PIC);
         YxSystemAttachment attachmentT = systemAttachmentService.getInfo(spreadPicName);
         String spreadUrl = "";
         if(ObjectUtil.isNull(attachmentT)){
@@ -48,7 +66,7 @@ public class CreatShareProductServiceImpl implements CreatShareProductService {
             //读取互联网图片
             BufferedImage priductUrl = null;
             try {
-                priductUrl = ImageIO.read(new URL(transformStyle(productInfo.getImage())));
+                priductUrl = ImageIO.read(new URL(transformStyle(yxImageInfo.getImgUrl())));
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -61,7 +79,7 @@ public class CreatShareProductServiceImpl implements CreatShareProductService {
             //文案标题
             g.setFont(font.deriveFont(Font.BOLD,34));
             g.setColor(new Color(29,29,29));
-            int fontlenb = getWatermarkLength(productInfo.getStoreName(), g);
+            int fontlenb = getWatermarkLength(yxStoreInfo.getStoreName(), g);
             //文字长度相对于图片宽度应该有多少行
             int lineb = fontlenb / (back.getWidth() +200);
             //高度
@@ -74,8 +92,8 @@ public class CreatShareProductServiceImpl implements CreatShareProductService {
             //单行字符总长度临时计算
             int tempLineLenb = 0;
             StringBuffer sbb =new StringBuffer();
-            for(int i=0; i < productInfo.getStoreName().length(); i++) {
-                char tempChar = productInfo.getStoreName().charAt(i);
+            for(int i=0; i < yxStoreInfo.getStoreName().length(); i++) {
+                char tempChar = yxStoreInfo.getStoreName().charAt(i);
                 tempCharLenb = getCharLen(tempChar, g);
                 tempLineLenb += tempCharLenb;
                 if(tempLineLenb >= (back.getWidth()+220)) {
@@ -96,7 +114,8 @@ public class CreatShareProductServiceImpl implements CreatShareProductService {
             //文案
             g.setFont(font.deriveFont(Font.PLAIN,30));
             g.setColor(new Color(47,47,47));
-            int fontlen = getWatermarkLength(productInfo.getStoreInfo(), g);
+            String storeInfo = yxStoreInfo.getStoreProvince()+yxStoreInfo.getStoreAddress();
+            int fontlen = getWatermarkLength(storeInfo, g);
             //文字长度相对于图片宽度应该有多少行
             int line = fontlen / (back.getWidth() - 90);
             //高度
@@ -110,8 +129,8 @@ public class CreatShareProductServiceImpl implements CreatShareProductService {
             int tempLineLen = 0;
             StringBuffer sb =new StringBuffer();
 
-            for(int i=0; i < productInfo.getStoreInfo().length(); i++) {
-                char tempChar = productInfo.getStoreInfo().charAt(i);
+            for(int i=0; i < storeInfo.length(); i++) {
+                char tempChar = storeInfo.charAt(i);
                 tempCharLen = getCharLen(tempChar, g);
                 tempLineLen += tempCharLen;
                 if(tempLineLen >= (back.getWidth()-90)) {
@@ -141,23 +160,6 @@ public class CreatShareProductServiceImpl implements CreatShareProductService {
             }
             // 绘制缩小后的图
             g.drawImage(bground.getScaledInstance(160, 40, Image.SCALE_DEFAULT), 30, 1053, null);
-
-            //限时促销价
-            g.setFont(font.deriveFont(Font.PLAIN,24));
-            g.setColor(new Color(255,255,255));
-            g.drawString("限时促销价", 50, 1080);
-
-            //价格
-            g.setFont(font.deriveFont(Font.PLAIN,50));
-            g.setColor(new Color(249,64,64));
-            g.drawString("¥" +productInfo.getPrice(), 29, 1162);
-
-            //原价
-            g.setFont(font.deriveFont(Font.PLAIN,36));
-            g.setColor(new Color(171,171,171));
-            String price = "¥" + productInfo.getOtPrice();
-            g.drawString(price, 260, 1160);
-            g.drawLine(250,1148,260+150,1148);
 
             //生成二维码返回链接
             String url = shareCode;
@@ -198,7 +200,6 @@ public class CreatShareProductServiceImpl implements CreatShareProductService {
 
         return spreadUrl;
     }
-
 
     /**
      * 获取水印文字总长度
