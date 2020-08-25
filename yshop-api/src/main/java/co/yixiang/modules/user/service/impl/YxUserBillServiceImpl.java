@@ -24,6 +24,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.metadata.OrderItem;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.*;
 
 
@@ -144,7 +145,7 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<YxUserBillMapper, YxU
     }
 
     @Override
-    public double yesterdayCommissionSum(int uid) {
+    public BigDecimal yesterdayCommissionSum(int uid) {
         return yxUserBillMapper.sumYesterdayPrice(uid);
     }
 

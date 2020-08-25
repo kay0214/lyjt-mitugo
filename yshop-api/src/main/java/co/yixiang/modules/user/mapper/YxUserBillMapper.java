@@ -17,6 +17,7 @@ import org.apache.ibatis.annotations.Select;
 import org.springframework.stereotype.Repository;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -72,7 +73,7 @@ public interface YxUserBillMapper extends BaseMapper<YxUserBill> {
     @Select("select IFNULL(sum(number),0) from yx_user_bill " +
             "where status=1 and type='brokerage' and pm=1 and category='now_money' " +
             "and uid=#{uid} and TO_DAYS(NOW()) - TO_DAYS(add_time) <= 1")
-    double sumYesterdayPrice(@Param("uid") int uid);
+    BigDecimal sumYesterdayPrice(@Param("uid") int uid);
 
 
     /**
