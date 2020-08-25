@@ -237,6 +237,8 @@ public class YxStoreOrder implements Serializable {
 
     private Integer isSystemDel;
 
+    //付款单号
+    private String paymentNo;
 
     public void copy(YxStoreOrder source){
         BeanUtil.copyProperties(source,this, CopyOptions.create().setIgnoreNullValue(true));

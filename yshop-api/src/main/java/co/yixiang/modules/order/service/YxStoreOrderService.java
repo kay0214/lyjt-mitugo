@@ -159,4 +159,18 @@ public interface YxStoreOrderService extends BaseService<YxStoreOrder> {
      */
     WxPayMpOrderResult wxAppPayList(List<String> orderIdList,String payNo) throws WxPayException;
 
+    /**
+     * 支付成功后操作（多订单）
+     *
+     * @param orderId 订单号
+     * @param payType 支付方式
+     */
+    void paySuccessNew(String orderId, String payType);
+
+    /**
+     * 获取店铺名称
+     * @param storeId
+     * @return
+     */
+    String getStoreName(Integer storeId);
 }

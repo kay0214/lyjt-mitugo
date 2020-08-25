@@ -43,4 +43,8 @@ public interface StoreOrderMapper extends CoreMapper<YxStoreOrder> {
             " GROUP BY FROM_UNIXTIME(add_time,'%Y-%m-%d') " +
             " ORDER BY add_time ASC")
     List<ChartDataDto> chartListT(@Param("time")int time);
+
+    @Select("select IFNULL(sum(pay_price),0) from yx_store_order " +
+            "where paid=1 and is_del=0 and refund_status=0 and paymentNo=#{paymentNo}")
+    double sumPayPrice(@Param("paymentNo") String paymentNo);
 }

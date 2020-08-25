@@ -30,6 +30,9 @@ public class YxStoreStoreCartQueryVo implements Serializable {
     @ApiModelProperty(value = "购物车商品信息")
     private List<YxStoreCartQueryVo> cartList;
 
+    @ApiModelProperty(value = "商户id")
+    private Integer merId;
+
     //订单价格
     private BigDecimal orderSumPrice;
     // 订单成本价

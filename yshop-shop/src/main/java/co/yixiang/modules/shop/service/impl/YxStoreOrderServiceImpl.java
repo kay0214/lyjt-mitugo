@@ -16,26 +16,9 @@ import co.yixiang.exception.BadRequestException;
 import co.yixiang.exception.EntityExistException;
 import co.yixiang.modules.activity.domain.YxStorePink;
 import co.yixiang.modules.activity.service.YxStorePinkService;
-import co.yixiang.modules.shop.domain.YxStoreOrder;
-import co.yixiang.modules.shop.domain.YxStoreOrderCartInfo;
-import co.yixiang.modules.shop.domain.YxStoreOrderStatus;
-import co.yixiang.modules.shop.domain.YxStoreProduct;
-import co.yixiang.modules.shop.domain.YxUser;
-import co.yixiang.modules.shop.domain.YxUserBill;
-import co.yixiang.modules.shop.service.YxStoreCartService;
-import co.yixiang.modules.shop.service.YxStoreOrderCartInfoService;
-import co.yixiang.modules.shop.service.YxStoreOrderService;
-import co.yixiang.modules.shop.service.YxStoreOrderStatusService;
-import co.yixiang.modules.shop.service.YxSystemStoreService;
-import co.yixiang.modules.shop.service.YxUserBillService;
-import co.yixiang.modules.shop.service.YxUserService;
-import co.yixiang.modules.shop.service.dto.CountDto;
-import co.yixiang.modules.shop.service.dto.OrderCountDto;
-import co.yixiang.modules.shop.service.dto.OrderTimeDataDto;
-import co.yixiang.modules.shop.service.dto.StoreOrderCartInfoDto;
-import co.yixiang.modules.shop.service.dto.YxStoreOrderDto;
-import co.yixiang.modules.shop.service.dto.YxStoreOrderQueryCriteria;
-import co.yixiang.modules.shop.service.dto.YxUserDto;
+import co.yixiang.modules.shop.domain.*;
+import co.yixiang.modules.shop.service.*;
+import co.yixiang.modules.shop.service.dto.*;
 import co.yixiang.modules.shop.service.mapper.StoreOrderMapper;
 import co.yixiang.modules.shop.service.mapper.StoreProductMapper;
 import co.yixiang.modules.shop.service.mapper.UserMapper;
@@ -57,12 +40,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 // 默认不使用缓存
 //import org.springframework.cache.annotation.CacheConfig;
@@ -464,13 +442,17 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<StoreOrderMapper, Y
             yxStoreOrderStatusService.save(storeOrderStatus);
         }else{
             BigDecimal bigDecimal = new BigDecimal("100");
+            BigDecimal bigSumPrice = new BigDecimal(yxStoreOrderMapper.sumPayPrice(resources.getPaymentNo()));
             try {
                 if(OrderInfoEnum.PAY_CHANNEL_1.getValue().equals(resources.getIsChannel())){
-                    miniPayService.refundOrder(resources.getOrderId(),
-                            bigDecimal.multiply(resources.getPayPrice()).intValue());
+                    //修改->多个订单，同一个付款单号，orderId为退款单号
+                   /* miniPayService.refundOrder(resources.getOrderId(),
+                            bigDecimal.multiply(resources.getPayPrice()).intValue());*/
+                    miniPayService.refundOrderNew(resources.getOrderId(),bigDecimal.multiply(resources.getPayPrice()).intValue(),resources.getPaymentNo(),bigDecimal.multiply(bigSumPrice).intValue());
                 }else{
-                    payService.refundOrder(resources.getOrderId(),
-                            bigDecimal.multiply(resources.getPayPrice()).intValue());
+                    /*payService.refundOrder(resources.getOrderId(),
+                            bigDecimal.multiply(resources.getPayPrice()).intValue());*/
+                    payService.refundOrderNew(resources.getOrderId(),bigDecimal.multiply(resources.getPayPrice()).intValue(),resources.getPaymentNo(),bigDecimal.multiply(bigSumPrice).intValue());
                 }
 
             } catch (WxPayException e) {
