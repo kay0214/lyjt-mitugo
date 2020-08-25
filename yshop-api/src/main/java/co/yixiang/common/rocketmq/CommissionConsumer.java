@@ -163,7 +163,9 @@ public class CommissionConsumer implements RocketMQListener<String>, RocketMQPus
             //更新佣金金额
             yxWechatUser.setNowMoney(yxWechatUser.getNowMoney().add(parentBonus));
             yxWechatUserMapper.updateById(yxWechatUser);
-            insertBill(orderInfo.getParentId(), parentBonus, yxWechatUser);
+            insertBill(orderInfo.getParentId(),1, parentBonus, yxWechatUser.getNickname(),yxWechatUser.getNowMoney());
+            //拉新池
+            yxFundsAccount = updatePullNewPoint(orderInfo, yxCommissionRate, yxFundsAccount);
         } else {
             fundsRate = fundsRate.add(yxCommissionRate.getParentRate());
         }
@@ -175,7 +177,7 @@ public class CommissionConsumer implements RocketMQListener<String>, RocketMQPus
             //更新佣金金额
             yxWechatUser.setNowMoney(yxWechatUser.getNowMoney().add(shareBonus));
             yxWechatUserMapper.updateById(yxWechatUser);
-            insertBill(orderInfo.getShareId(), shareBonus, yxWechatUser);
+            insertBill(orderInfo.getShareId(),1, shareBonus, yxWechatUser.getNickname(),yxWechatUser.getNowMoney());
 
         } else {
             fundsRate = fundsRate.add(yxCommissionRate.getShareRate());
@@ -188,16 +190,15 @@ public class CommissionConsumer implements RocketMQListener<String>, RocketMQPus
             //更新佣金金额
             yxWechatUser.setNowMoney(yxWechatUser.getNowMoney().add(shareParentBonus));
             yxWechatUserMapper.updateById(yxWechatUser);
-            insertBill(orderInfo.getShareParentId(), shareParentBonus, yxWechatUser);
+            insertBill(orderInfo.getShareParentId(),1, shareParentBonus, yxWechatUser.getNickname(),yxWechatUser.getNowMoney());
         } else {
             fundsRate = fundsRate.add(yxCommissionRate.getShareParentRate());
         }
         //商户、合伙人积分
         if (null != orderInfo.getMerId() && orderInfo.getMerId() != 0) {
             //分红池
-            yxFundsAccount = updatePoint(orderInfo, yxCommissionRate, yxFundsAccount, 1);
-            //拉新池
-            yxFundsAccount = updatePoint(orderInfo, yxCommissionRate, yxFundsAccount, 0);
+            yxFundsAccount = updateDividendPoint(orderInfo, yxCommissionRate, yxFundsAccount);
+
         } else {
             fundsRate = fundsRate.add(yxCommissionRate.getMerRate().add(yxCommissionRate.getPartnerRate()));
         }
@@ -215,18 +216,58 @@ public class CommissionConsumer implements RocketMQListener<String>, RocketMQPus
         yxFundsAccountMapper.updateById(yxFundsAccount);
     }
 
+    private YxFundsAccount updatePullNewPoint(OrderInfo orderInfo, YxCommissionRate yxCommissionRate, YxFundsAccount yxFundsAccount) {
+        //拉新积分
+        BigDecimal referencePoint = orderInfo.getCommission().multiply(yxCommissionRate.getReferenceRate());
+        SystemUser merInfo = systemUserMapper.selectById(orderInfo.getMerId());
+        insertPointDetail(orderInfo,referencePoint,merInfo.getParentId(),new BigDecimal("0"),0);
+        yxFundsAccount.setReferencePoint(yxFundsAccount.getReferencePoint().add(referencePoint));
+        yxFundsAccount.setPrice(yxFundsAccount.getPrice().add(referencePoint));
+        return yxFundsAccount;
+    }
+
+
     /**
      * 更新商户合伙人积分明细以及平台总积分
      *
      * @param orderInfo
      * @param yxCommissionRate
      * @param yxFundsAccount
-     * @param type
      * @return
      */
-    private YxFundsAccount updatePoint(OrderInfo orderInfo, YxCommissionRate yxCommissionRate, YxFundsAccount yxFundsAccount, Integer type) {
-        BigDecimal merBonus = orderInfo.getCommission().multiply(yxCommissionRate.getMerRate());
+    private YxFundsAccount updateDividendPoint(OrderInfo orderInfo, YxCommissionRate yxCommissionRate, YxFundsAccount yxFundsAccount) {
+        BigDecimal merchantsPoint = orderInfo.getCommission().multiply(yxCommissionRate.getMerRate());
         SystemUser merInfo = systemUserMapper.selectById(orderInfo.getMerId());
+        //合伙人收益
+        BigDecimal partnerPoint = orderInfo.getCommission().multiply(yxCommissionRate.getPartnerRate());
+        insertPointDetail(orderInfo,merchantsPoint,merInfo.getParentId(),partnerPoint,1);
+        merInfo.setTotalScore(merInfo.getTotalScore().add(merchantsPoint));
+        systemUserMapper.updateById(merInfo);
+
+        SystemUser partnerInfo = systemUserMapper.selectById(merInfo.getParentId());
+        partnerInfo.setTotalScore(partnerInfo.getTotalScore().add(partnerPoint));
+        systemUserMapper.updateById(partnerInfo);
+        //插入明细数据(商户)
+        insertBill(orderInfo.getMerId(),1, merchantsPoint, merInfo.getUsername(),merInfo.getTotalScore());
+        //插入明细数据(合伙人)
+        insertBill(merInfo.getParentId(),1, partnerPoint, partnerInfo.getUsername(),partnerInfo.getTotalScore());
+        BigDecimal totalPoint = yxFundsAccount.getBonusPoint().add(merchantsPoint).add(partnerPoint);
+        //分红总积分
+        yxFundsAccount.setBonusPoint(totalPoint);
+
+        yxFundsAccount.setPrice(yxFundsAccount.getPrice().add(totalPoint));
+        return yxFundsAccount;
+    }
+
+    /**
+     * 插入积分明细
+     * @param orderInfo
+     * @param merchantsPoint
+     * @param parentId
+     * @param partnerPoint
+     * @param type
+     */
+    private void insertPointDetail(OrderInfo orderInfo,BigDecimal merchantsPoint,Integer parentId,BigDecimal partnerPoint,Integer type){
         YxPointDetail yxPointDetail = new YxPointDetail();
         yxPointDetail.setUid(orderInfo.getUid());
         yxPointDetail.setUsername(orderInfo.getUsername());
@@ -236,53 +277,34 @@ public class CommissionConsumer implements RocketMQListener<String>, RocketMQPus
         yxPointDetail.setOrderPrice(orderInfo.getPayPrice());
         yxPointDetail.setCommission(orderInfo.getCommission());
         yxPointDetail.setMerchantsId(orderInfo.getMerId());
-        yxPointDetail.setMerchantsPoint(merBonus);
-        //合伙人ID
-        yxPointDetail.setPartnerId(merInfo.getParentId());
-        //合伙人收益
-        BigDecimal partnerBonus = orderInfo.getCommission().multiply(yxCommissionRate.getPartnerRate());
-        yxPointDetail.setPartnerPoint(partnerBonus);
+        yxPointDetail.setMerchantsPoint(merchantsPoint);
+        yxPointDetail.setPartnerId(parentId);
+        yxPointDetail.setPartnerPoint(partnerPoint);
         yxPointDetailMapper.insert(yxPointDetail);
-
-        merInfo.setTotalScore(merInfo.getTotalScore().add(merBonus));
-        systemUserMapper.updateById(merInfo);
-
-        SystemUser partnerInfo = systemUserMapper.selectById(merInfo.getParentId());
-        partnerInfo.setTotalScore(partnerInfo.getTotalScore().add(partnerBonus));
-        systemUserMapper.updateById(partnerInfo);
-        //总积分
-        BigDecimal totalPoint = yxFundsAccount.getBonusPoint().add(merBonus).add(partnerBonus);
-        if (type == 1) {
-            // TODO: 2020/8/20 是否将对应金额累积到平台总佣金中 
-            //分红总积分
-            yxFundsAccount.setBonusPoint(totalPoint);
-        } else {
-            //拉新总积分
-            yxFundsAccount.setReferencePoint(totalPoint);
-        }
-        return yxFundsAccount;
     }
+
 
     /**
      * 插入用户资金明细
      *
      * @param uid
      * @param parentBonus
-     * @param yxWechatUser
+     * @param
      */
-    private void insertBill(Integer uid, BigDecimal parentBonus, YxWechatUser yxWechatUser) {
+    private void insertBill(Integer uid,Integer userType,BigDecimal parentBonus,String userName, BigDecimal nowMoney) {
         //插入明细数据
         YxUserBill yxUserBill = new YxUserBill();
         yxUserBill.setUid(uid);
-        yxUserBill.setUsername(yxWechatUser.getNickname());
+        yxUserBill.setUsername(userName);
         yxUserBill.setPm(1);
-        yxUserBill.setTitle("推荐佣金");
-        yxUserBill.setCategory("now_money");
+        yxUserBill.setTitle("商品返佣");
+        yxUserBill.setCategory(userType==1?"now_money":"integral");
         yxUserBill.setType("brokerage");
         yxUserBill.setNumber(parentBonus);
-        yxUserBill.setBalance(yxWechatUser.getNowMoney().add(parentBonus));
+        yxUserBill.setBalance(nowMoney.add(parentBonus));
         yxUserBill.setAddTime(OrderUtil.getSecondTimestampTwo());
         yxUserBill.setStatus(1);
+        yxUserBill.setUserType(userType);
         yxUserBillMapper.insert(yxUserBill);
     }
 

@@ -1,6 +1,3 @@
-/**
- * Copyright (C) 2018-2020
- */
 package co.yixiang.modules.shop.service.impl;
 
 import co.yixiang.common.service.impl.BaseServiceImpl;
@@ -15,6 +12,7 @@ import com.baomidou.mybatisplus.core.metadata.OrderItem;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,8 +24,8 @@ import java.io.Serializable;
  * 优惠券表 服务实现类
  * </p>
  *
- * @author hupeng
- * @since 2019-10-27
+ * @author nxl
+ * @since 2020-08-24
  */
 @Slf4j
 @Service
@@ -35,7 +33,8 @@ import java.io.Serializable;
 @Transactional(rollbackFor = Exception.class)
 public class YxStoreCouponServiceImpl extends BaseServiceImpl<YxStoreCouponMapper, YxStoreCoupon> implements YxStoreCouponService {
 
-    private final YxStoreCouponMapper yxStoreCouponMapper;
+    @Autowired
+    private YxStoreCouponMapper yxStoreCouponMapper;
 
     @Override
     public YxStoreCouponQueryVo getYxStoreCouponById(Serializable id){

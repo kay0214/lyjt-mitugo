@@ -124,9 +124,9 @@ public class StoreProductController extends BaseController {
     /**
      * 商品详情海报
      */
-    @GetMapping("/product/poster/{id}")
+    @GetMapping("/product/poster/{pageType}/{id}")
     @ApiOperation(value = "商品详情海报",notes = "商品详情海报")
-    public ApiResult<String> prodoctPoster(@PathVariable Integer id) throws IOException, FontFormatException {
+    public ApiResult<String> prodoctPoster(@PathVariable String pageType,@PathVariable Integer id) throws IOException, FontFormatException {
         int uid = SecurityUtils.getUserId().intValue();
 
         YxStoreProduct storeProduct = storeProductService.getProductInfo(id);
@@ -155,14 +155,14 @@ public class StoreProductController extends BaseController {
                 //h5地址
                 siteUrl = siteUrl+"/product/";
                 //生成二维码
-                QrCodeUtil.generate(siteUrl+"?productId="+id+"&spread="+uid+"&pageType=good&codeType="+AppFromEnum.ROUNTINE.getValue(), 180, 180,
+                QrCodeUtil.generate(siteUrl+"?productId="+id+"&spread="+uid+"&pageType="+pageType+"&codeType="+AppFromEnum.ROUNTINE.getValue(), 180, 180,
                         FileUtil.file(fileDir+name));
             }
             else if(userType.equals(AppFromEnum.APP.getValue())){
                 //h5地址
                 siteUrl = siteUrl+"/product/";
                 //生成二维码
-                QrCodeUtil.generate(siteUrl+"?productId="+id+"&spread="+uid+"&pageType=good&codeType="+AppFromEnum.APP.getValue(), 180, 180,
+                QrCodeUtil.generate(siteUrl+"?productId="+id+"&spread="+uid+"&pageType="+pageType+"&codeType="+AppFromEnum.APP.getValue(), 180, 180,
                         FileUtil.file(fileDir+name));
             }else{//如果类型是h5
                 //生成二维码

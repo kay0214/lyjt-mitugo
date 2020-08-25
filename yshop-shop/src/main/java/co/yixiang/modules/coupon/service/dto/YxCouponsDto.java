@@ -12,6 +12,7 @@ import lombok.Data;
 import java.sql.Timestamp;
 import java.math.BigDecimal;
 import java.io.Serializable;
+import java.util.List;
 
 /**
 * @author huiy
@@ -189,4 +190,9 @@ public class YxCouponsDto implements Serializable {
 
     private String content;
 
+    /** 卡券缩略图 */
+    private String image;
+
+    /** 幻灯片 */
+    private List<String> sliderImage;
 }

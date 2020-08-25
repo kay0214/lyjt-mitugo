@@ -3,7 +3,6 @@ package co.yixiang.modules.shop.web.vo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-
 import java.io.Serializable;
 import java.math.BigDecimal;
 
@@ -12,8 +11,8 @@ import java.math.BigDecimal;
  * 优惠券表 查询结果对象
  * </p>
  *
- * @author hupeng
- * @date 2019-10-27
+ * @author nxl
+ * @date 2020-08-24
  */
 @Data
 @ApiModel(value="YxStoreCouponQueryVo对象", description="优惠券表查询参数")
@@ -22,6 +21,9 @@ public class YxStoreCouponQueryVo implements Serializable{
 
 @ApiModelProperty(value = "优惠券表ID")
 private Integer id;
+
+@ApiModelProperty(value = "卡券所属商铺")
+private Integer belong;
 
 @ApiModelProperty(value = "优惠券名称")
 private String title;
@@ -42,12 +44,12 @@ private Integer couponTime;
 private Integer sort;
 
 @ApiModelProperty(value = "状态（0：关闭，1：开启）")
-private Boolean status;
+private Integer status;
 
 @ApiModelProperty(value = "兑换项目添加时间")
 private Integer addTime;
 
 @ApiModelProperty(value = "是否删除")
-private Boolean isDel;
+private Integer isDel;
 
 }

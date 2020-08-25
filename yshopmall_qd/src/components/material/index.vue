@@ -457,9 +457,14 @@ export default {
       return isPic && isLt2M
     },
     sureUrls() {
-      this.urls.forEach(item => {
-        this.$set(this.value, this.value.length, item)
-      })
+      if (this.$listeners['setValue']) {
+        // 如果提供执行
+        this.$emit('setValue', this.urls)
+      } else {
+        this.urls.forEach(item => {
+          this.$set(this.value, this.value.length, item)
+        })
+      }
       this.listDialogVisible = false
     }
   }

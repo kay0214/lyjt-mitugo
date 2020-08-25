@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -28,5 +29,14 @@ public class YxStoreStoreCartQueryVo implements Serializable {
 
     @ApiModelProperty(value = "购物车商品信息")
     private List<YxStoreCartQueryVo> cartList;
+
+    //订单价格
+    private BigDecimal orderSumPrice;
+    // 订单成本价
+    private BigDecimal orderCostPrice;
+    //VIP价格
+    private BigDecimal orderVipTruePrice;
+
+    //邮费
 
 }

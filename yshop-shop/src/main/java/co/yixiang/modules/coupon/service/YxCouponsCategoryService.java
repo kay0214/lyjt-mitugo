@@ -1,15 +1,16 @@
 package co.yixiang.modules.coupon.service;
+
 import co.yixiang.common.service.BaseService;
 import co.yixiang.modules.coupon.domain.CouponsCategoryRequest;
 import co.yixiang.modules.coupon.domain.YxCouponsCategory;
 import co.yixiang.modules.coupon.service.dto.YxCouponsCategoryDto;
 import co.yixiang.modules.coupon.service.dto.YxCouponsCategoryQueryCriteria;
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import org.springframework.data.domain.Pageable;
-import java.util.Map;
-import java.util.List;
-import java.io.IOException;
+
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 
 /**
 * @author huiy
@@ -24,7 +25,7 @@ public interface YxCouponsCategoryService  extends BaseService<YxCouponsCategory
      */
     int insCouponCate(YxCouponsCategory yxCouponsCategory);
 
-    IPage<YxCouponsCategory> getAllList(CouponsCategoryRequest request);
+    Map<String, Object> getAllList(CouponsCategoryRequest request);
 
     /**
     * 查询数据分页

@@ -9,14 +9,12 @@ import co.yixiang.modules.coupon.service.YxCouponsCategoryService;
 import co.yixiang.modules.coupon.service.dto.YxCouponsCategoryDto;
 import co.yixiang.modules.coupon.service.dto.YxCouponsCategoryQueryCriteria;
 import co.yixiang.modules.coupon.service.mapper.YxCouponsCategoryMapper;
-import co.yixiang.paginator.Paginator;
 import co.yixiang.utils.FileUtil;
 import co.yixiang.utils.StringUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.pagehelper.PageInfo;
 import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -41,6 +39,9 @@ public class YxCouponsCategoryServiceImpl extends BaseServiceImpl<YxCouponsCateg
 
     private final IGenerator generator;
 
+    @Autowired
+    private YxCouponsCategoryMapper yxCouponsCategoryMapper;
+
     /**
      * 写入 ()
      * @param yxCouponsCategory
@@ -57,14 +58,18 @@ public class YxCouponsCategoryServiceImpl extends BaseServiceImpl<YxCouponsCateg
      * @return
      */
     @Override
-    public IPage<YxCouponsCategory> getAllList(CouponsCategoryRequest request) {
+    public Map<String, Object> getAllList(CouponsCategoryRequest request) {
+        Map<String, Object> map = new LinkedHashMap<>(2);
         QueryWrapper<YxCouponsCategory> queryWrapper = new QueryWrapper<>();
         queryWrapper.lambda().select()
                 .and(StringUtils.isNoneBlank(request.getCateName()), cateName -> cateName.like(YxCouponsCategory::getCateName, request.getCateName()))
                 .orderByDesc(YxCouponsCategory::getId)
                 .orderByAsc(YxCouponsCategory::getSort);
-        Paginator paginator = new Paginator(request.getCurrPage(), request.getPageSize());
-        return page(new Page<>(paginator.getCurrPage(), paginator.getPageSize()),queryWrapper);
+        List<YxCouponsCategory> categoryList = baseMapper.selectList(queryWrapper);
+//        Paging<YxCouponsCategory> yxCouponsCategoryIPage = baseMapper.selectPage();
+        map.put("content", generator.convert(categoryList, YxCouponsCategoryDto.class));
+        map.put("totalElements", categoryList.size());
+        return map;
     }
 
     @Override
