@@ -86,7 +86,7 @@ public class UserBillController extends BaseController {
         }
 
         //昨天的佣金
-        double lastDayCount = userBillService.yesterdayCommissionSum(uid);
+        BigDecimal lastDayCount = userBillService.yesterdayCommissionSum(uid);
         //累计提现金额
         BigDecimal extractCount = extractService.extractSum(uid);
 
