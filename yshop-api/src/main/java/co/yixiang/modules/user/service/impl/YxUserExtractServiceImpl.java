@@ -150,9 +150,7 @@ public class YxUserExtractServiceImpl extends BaseServiceImpl<YxUserExtractMappe
         queryWrapper.eq("uid", yxUserExtractQueryParam.getUid());
         queryWrapper.orderByDesc("add_time");
         IPage<YxUserExtract> list = page(new Page<>(yxUserExtractQueryParam.getPage(), yxUserExtractQueryParam.getLimit()), queryWrapper);
-        Paging<YxUserExtractQueryVo> result = new Paging<>(list);
-        result.setTotal(count(queryWrapper));
-        return result;
+        return new Paging<>(list);
     }
 
 }

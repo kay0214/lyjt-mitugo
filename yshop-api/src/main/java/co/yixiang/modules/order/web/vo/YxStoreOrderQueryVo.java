@@ -199,7 +199,8 @@ public class YxStoreOrderQueryVo implements Serializable {
     private BigDecimal commission;
     @ApiModelProperty(value = "付款单号")
     private String paymentNo;
-
+    @ApiModelProperty(value = "店铺名称")
+    private String storeName;
     private List<YxStoreCartQueryVo> cartInfo;
 
     private StatusDTO _status;

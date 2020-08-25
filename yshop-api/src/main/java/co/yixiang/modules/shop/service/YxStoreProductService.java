@@ -61,8 +61,8 @@ public interface YxStoreProductService extends BaseService<YxStoreProduct> {
     Paging<YxStoreProductQueryVo> getYxStoreProductPageList(YxStoreProductQueryParam yxStoreProductQueryParam) throws Exception;
     /**
      * 根据商户id获取商品信息
-     * @param merId
+     * @param storeId
      * @return
      */
-    public List<YxStoreProductNoAttrQueryVo> getProductListByMerId(int merId);
+    public List<YxStoreProductNoAttrQueryVo> getProductListByStoreId(int storeId);
 }

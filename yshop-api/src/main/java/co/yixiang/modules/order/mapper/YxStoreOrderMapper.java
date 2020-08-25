@@ -74,4 +74,7 @@ public interface YxStoreOrderMapper extends BaseMapper<YxStoreOrder> {
      */
     IPage<YxStoreOrderQueryVo> getYxStoreOrderPageList(@Param("page") Page page, @Param("param") YxStoreOrderQueryParam yxStoreOrderQueryParam);
 
+    @Select("select IFNULL(sum(pay_price),0) from yx_store_order " +
+            "where paid=1 and is_del=0 and refund_status=0 and paymentNo=#{paymentNo}")
+    double sumPayPrice(@Param("paymentNo") String paymentNo);
 }

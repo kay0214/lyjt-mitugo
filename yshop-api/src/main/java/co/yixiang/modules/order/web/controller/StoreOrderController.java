@@ -4,6 +4,7 @@
 package co.yixiang.modules.order.web.controller;
 
 import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.qrcode.QrCodeUtil;
@@ -27,6 +28,7 @@ import co.yixiang.modules.order.service.YxStoreOrderStatusService;
 import co.yixiang.modules.order.web.dto.*;
 import co.yixiang.modules.order.web.param.*;
 import co.yixiang.modules.order.web.vo.YxStoreOrderQueryVo;
+import co.yixiang.modules.shop.entity.YxStoreProduct;
 import co.yixiang.modules.shop.entity.YxStoreProductReply;
 import co.yixiang.modules.shop.service.*;
 import co.yixiang.modules.shop.web.vo.YxStoreCartQueryVo;
@@ -92,6 +94,8 @@ public class StoreOrderController extends BaseController {
     private final YxSystemStoreService systemStoreService;
     private final YxSystemAttachmentService systemAttachmentService;
     private final YxSystemStoreStaffService systemStoreStaffService;
+    @Autowired
+    private YxStoreProductService yxStoreProductService;
 
     private static Lock lock = new ReentrantLock(false);
 
@@ -450,7 +454,7 @@ public class StoreOrderController extends BaseController {
         if(ObjectUtil.isNull(storeOrder)){
             return ApiResult.fail("订单不存在");
         }
-
+        storeOrder.setStoreName(storeOrderService.getStoreName(storeOrder.getStoreId()));
         //门店
         if(OrderInfoEnum.SHIPPIING_TYPE_2.getValue().equals(storeOrder.getShippingType())){
             String mapKey = RedisUtil.get(SystemConfigConstants.TENGXUN_MAP_KEY);
@@ -634,6 +638,9 @@ public class StoreOrderController extends BaseController {
         productReply.setProductId(orderCartInfo.getProductId());
         productReply.setAddTime(OrderUtil.getSecondTimestampTwo());
         productReply.setReplyType("product");
+//        所在商户
+        YxStoreProduct product =  yxStoreProductService.getProductInfo(orderCartInfo.getProductId());
+        productReply.setMerId(product.getMerId());
 
         productReplyService.save(productReply);
 
@@ -794,7 +801,6 @@ public class StoreOrderController extends BaseController {
     /**
      * 订单确认
      */
-    @AnonymousAccess
     @PostMapping("/order/confirmNew")
     @ApiOperation(value = "订单确认（带店铺信息）",notes = "订单确认（带店铺信息）")
     public ApiResult<ConfirmNewOrderDTO> confirmNew(@RequestBody String jsonStr){
@@ -803,9 +809,8 @@ public class StoreOrderController extends BaseController {
         if(StrUtil.isEmpty(cartId)){
             return ApiResult.fail("请提交购买的商品");
         }
-        // todo 测试用
-//        int uid = SecurityUtils.getUserId().intValue();
-        int uid = 27;
+        int uid = SecurityUtils.getUserId().intValue();
+//        int uid = 27;
         Map<String, Object> cartGroup = cartService.getUserStoreCartList(uid,cartId,1);
         if(ObjectUtil.isNotEmpty(cartGroup.get("invalid"))){
             return ApiResult.fail("有失效的商品请重新提交");
@@ -876,90 +881,91 @@ public class StoreOrderController extends BaseController {
     /**
      * 订单创建
      */
-    @AnonymousAccess
     @PostMapping("/order/createOrder/{key}")
     @ApiOperation(value = "订单创建（多个订单）",notes = "（多个订单）")
-    public ApiResult<Map<String,Object>> createOrderList(@Valid @RequestBody OrderParam param,
-                                                @PathVariable String key){
+    public ApiResult<Map<String, Object>> createOrderList(@Valid @RequestBody OrderParam param,
+                                                          @PathVariable String key) {
 
-        Map<String,Object> map = new LinkedHashMap<>();
-//        int uid = SecurityUtils.getUserId().intValue();
-        int uid = 27;
-        if(StrUtil.isEmpty(key)) return ApiResult.fail("参数错误");
+        Map<String, Object> map = new LinkedHashMap<>();
+        int uid = SecurityUtils.getUserId().intValue();
+//        int uid = 27;
+        if (StrUtil.isEmpty(key)) return ApiResult.fail("参数错误");
 
-        List<YxStoreOrderQueryVo> orderList = storeOrderService.getOrderInfoList(key,uid);
-        YxStoreOrderQueryVo storeOrder = storeOrderService.getOrderInfo(key,uid);
-        if(CollectionUtils.isNotEmpty(orderList)){
-            map.put("status","EXTEND_ORDER");
+        List<YxStoreOrderQueryVo> orderList = storeOrderService.getOrderInfoList(key, uid);
+//        YxStoreOrderQueryVo storeOrder = storeOrderService.getOrderInfo(key,uid);
+        if (CollectionUtils.isNotEmpty(orderList)) {
+            String orders = "";
+            for (YxStoreOrderQueryVo store : orderList) {
+                orders = orders + store.getOrderId() + ",";
+            }
+            map.put("status", "EXTEND_ORDER");
             OrderExtendDTO orderExtendDTO = new OrderExtendDTO();
             orderExtendDTO.setKey(key);
-            orderExtendDTO.setOrderId(storeOrder.getOrderId());
-            map.put("result",orderExtendDTO);
-            return ApiResult.ok(map,"订单已生成");
+            orderExtendDTO.setOrderId(orders.substring(0, orders.length() - 1));
+            map.put("result", orderExtendDTO);
+            return ApiResult.ok(map, "订单已生成");
         }
 
-        if(param.getFrom().equals("weixin"))  param.setIsChannel(0);
+        if (param.getFrom().equals("weixin")) param.setIsChannel(0);
         //创建订单
         List<YxStoreOrder> orderCreateList = new ArrayList<YxStoreOrder>();
-        try{
+        try {
             lock.lock();
-            orderCreateList = storeOrderService.createOrderNew(uid,key,param);
-        }finally {
+            orderCreateList = storeOrderService.createOrderNew(uid, key, param);
+        } finally {
             lock.unlock();
         }
 
-
-        if(CollectionUtils.isEmpty(orderCreateList)) throw new ErrorRequestException("订单生成失败");
+        if (CollectionUtils.isEmpty(orderCreateList)) throw new ErrorRequestException("订单生成失败");
 
         BigDecimal bigDecimalPrice = new BigDecimal(0);
-        YxStoreOrder yxStoreOrder = orderCreateList.get(0);
-        List<String> orderIdList= new ArrayList<>();
-        for(YxStoreOrder order:orderCreateList){
+//        YxStoreOrder yxStoreOrder = orderCreateList.get(0);
+        List<String> orderIdList = new ArrayList<>();
+        for (YxStoreOrder order : orderCreateList) {
             orderIdList.add(order.getOrderId());
-            bigDecimalPrice.add(order.getPayPrice());
+            bigDecimalPrice = bigDecimalPrice.add(order.getPayPrice());
         }
-
+        String payNo = IdUtil.getSnowflake(0, 0).nextIdStr();
         OrderExtendDTO orderDTO = new OrderExtendDTO();
         orderDTO.setKey(key);
-        // todo
-        orderDTO.setOrderId(yxStoreOrder.getPaymentNo());
-        map.put("status","SUCCESS");
-        map.put("result",orderDTO);
-        //开始处理支付
+        orderDTO.setOrderId(payNo);
+        map.put("status", "SUCCESS");
+        map.put("result", orderDTO);
+       /* //开始处理支付
         if(StrUtil.isNotEmpty(yxStoreOrder.getOrderId())){
-            //处理金额为0的情况
-            if(bigDecimalPrice.compareTo(BigDecimal.ZERO) <= 0){
-                storeOrderService.yuePayOrderList(orderIdList,uid);
-                return ApiResult.ok(map,"支付成功");
-            }
-            switch (PayTypeEnum.toType(param.getPayType())){
-                case WEIXIN:
-                    try {
-                        Map<String,String> jsConfig = new HashMap<>();
-                        if(param.getFrom().equals("routine")){
-                            map.put("status","WECHAT_PAY");
-                            WxPayMpOrderResult wxPayMpOrderResult = storeOrderService
-                                    .wxAppPayList(orderIdList,yxStoreOrder.getPaymentNo());
-                            jsConfig.put("appId",wxPayMpOrderResult.getAppId());
-                            jsConfig.put("timeStamp",wxPayMpOrderResult.getTimeStamp());
-                            jsConfig.put("nonceStr",wxPayMpOrderResult.getNonceStr());
-                            jsConfig.put("package",wxPayMpOrderResult.getPackageValue());
-                            jsConfig.put("signType",wxPayMpOrderResult.getSignType());
-                            jsConfig.put("paySign",wxPayMpOrderResult.getPaySign());
-                            orderDTO.setJsConfig(jsConfig);
-                            map.put("result",orderDTO);
-                            return ApiResult.ok(map,"订单创建成功");
-                        }
-                    } catch (WxPayException e) {
-                        return ApiResult.fail(e.getMessage());
-                    }
-                case YUE:
-                    storeOrderService.yuePayOrderList(orderIdList,uid);
-                    return ApiResult.ok(map,"余额支付成功");
-            }
+
+        }*/
+
+        //处理金额为0的情况
+        if (bigDecimalPrice.compareTo(BigDecimal.ZERO) <= 0) {
+            storeOrderService.yuePayOrderList(orderIdList, uid);
+            return ApiResult.ok(map, "支付成功");
         }
-
-
+        switch (PayTypeEnum.toType(param.getPayType())) {
+            case WEIXIN:
+                try {
+                    Map<String, String> jsConfig = new HashMap<>();
+                    if (param.getFrom().equals("routine")) {
+                        map.put("status", "WECHAT_PAY");
+                        WxPayMpOrderResult wxPayMpOrderResult = storeOrderService
+                                .wxAppPayList(orderIdList, payNo);
+                        jsConfig.put("appId", wxPayMpOrderResult.getAppId());
+                        jsConfig.put("timeStamp", wxPayMpOrderResult.getTimeStamp());
+                        jsConfig.put("nonceStr", wxPayMpOrderResult.getNonceStr());
+                        jsConfig.put("package", wxPayMpOrderResult.getPackageValue());
+                        jsConfig.put("signType", wxPayMpOrderResult.getSignType());
+                        jsConfig.put("paySign", wxPayMpOrderResult.getPaySign());
+                        orderDTO.setJsConfig(jsConfig);
+                        map.put("result", orderDTO);
+                        return ApiResult.ok(map, "订单创建成功");
+                    }
+                } catch (WxPayException e) {
+                    return ApiResult.fail(e.getMessage());
+                }
+            case YUE:
+                storeOrderService.yuePayOrderList(orderIdList, uid);
+                return ApiResult.ok(map, "余额支付成功");
+        }
         return ApiResult.fail("订单生成失败");
     }
 
