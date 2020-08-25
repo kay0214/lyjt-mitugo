@@ -143,9 +143,9 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
         yxStoreInfoQueryVo.setOpenTimes(listOpenTiems);
         yxStoreInfoDetailQueryVo.setSotreInfo(yxStoreInfoQueryVo);
         //卡券信息
-        yxStoreInfoDetailQueryVo.setCouponsListInfo(yxCouponsService.getCouponsInfoByMerId(yxStoreInfo.getMerId()));
+        yxStoreInfoDetailQueryVo.setCouponsListInfo(yxCouponsService.getCouponsInfoByStoreId(yxStoreInfo.getId()));
         //商品信息
-        yxStoreInfoDetailQueryVo.setProductListInfo(yxStoreProductService.getProductListByMerId(yxStoreInfo.getMerId()));
+        yxStoreInfoDetailQueryVo.setProductListInfo(yxStoreProductService.getProductListByStoreId(yxStoreInfo.getId()));
         return yxStoreInfoDetailQueryVo;
     }
 

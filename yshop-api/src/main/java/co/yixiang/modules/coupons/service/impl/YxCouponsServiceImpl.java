@@ -71,13 +71,13 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
 
     /**
      * 根据商户id获取卡券信息
-     * @param merId
+     * @param storeId
      * @return
      */
     @Override
-    public List<YxCouponsQueryVo> getCouponsInfoByMerId(int merId){
+    public List<YxCouponsQueryVo> getCouponsInfoByStoreId(int storeId){
         QueryWrapper<YxCoupons> wrapper = new QueryWrapper<YxCoupons>();
-        wrapper.eq("del_flag", CommonEnum.DEL_STATUS_0.getValue()).eq("is_show",1).eq("create_user_id",merId);
+        wrapper.eq("del_flag", CommonEnum.DEL_STATUS_0.getValue()).eq("is_show",1).eq("belong",storeId);
         List<YxCoupons> storeProductList =  this.list(wrapper);
         List<YxCouponsQueryVo> queryVoList = yxCouponsMap.toDto(storeProductList);
         return queryVoList;
