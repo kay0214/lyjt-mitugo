@@ -48,4 +48,6 @@ public interface YxImageInfoService extends BaseService<YxImageInfo> {
      * @return
      */
     String selectImgByParam(int typeId, Integer imgType, Integer cateTypeId);
+
+    YxImageInfo selectOneImg(int typeId, Integer imgType, Integer cateTypeId);
 }

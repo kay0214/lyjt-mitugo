@@ -9,11 +9,17 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.qrcode.QrCodeUtil;
 import co.yixiang.annotation.AnonymousAccess;
 import co.yixiang.common.api.ApiResult;
+import co.yixiang.common.constant.CommonConstant;
 import co.yixiang.common.web.controller.BaseController;
 import co.yixiang.constant.SystemConfigConstants;
 import co.yixiang.enums.AppFromEnum;
 import co.yixiang.enums.ProductEnum;
 import co.yixiang.logging.aop.log.Log;
+import co.yixiang.modules.coupons.entity.YxCoupons;
+import co.yixiang.modules.coupons.service.YxCouponsService;
+import co.yixiang.modules.image.entity.YxImageInfo;
+import co.yixiang.modules.image.service.YxImageInfoService;
+import co.yixiang.modules.shop.entity.ProductInfo;
 import co.yixiang.modules.shop.entity.YxStoreProduct;
 import co.yixiang.modules.shop.service.*;
 import co.yixiang.modules.shop.web.dto.ProductDTO;
@@ -35,18 +41,14 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.CollectionUtils;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import java.awt.FontFormatException;
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.LinkedHashMap;
@@ -75,6 +77,8 @@ public class StoreProductController extends BaseController {
     private final YxUserService yxUserService;
     private final CreatShareProductService creatShareProductService;
     private final YxStoreInfoService yxStoreInfoService;
+    private final YxCouponsService yxCouponsService;
+    private final YxImageInfoService yxImageInfoService;
     @Value("${file.path}")
     private String path;
 
@@ -129,7 +133,7 @@ public class StoreProductController extends BaseController {
     public ApiResult<String> prodoctPoster(@PathVariable String pageType,@PathVariable Integer id) throws IOException, FontFormatException {
         int uid = SecurityUtils.getUserId().intValue();
 
-        YxStoreProduct storeProduct = storeProductService.getProductInfo(id);
+
         // 海报
         String siteUrl = systemConfigService.getData(SystemConfigConstants.SITE_URL);
         if(StrUtil.isEmpty(siteUrl)){
@@ -144,7 +148,7 @@ public class StoreProductController extends BaseController {
         if(!userType.equals(AppFromEnum.ROUNTINE.getValue())) {
             userType = AppFromEnum.H5.getValue();
         }
-        String name = id+"_"+uid + "_"+userType+"_product_detail_wap.jpg";
+        String name = id + "_" + uid + "_" + pageType + "_" + userType + "_product_detail_wap.jpg";
         YxSystemAttachment attachment = systemAttachmentService.getInfo(name);
         String fileDir = path+"qrcode"+ File.separator;
         String qrcodeUrl = "";
@@ -152,17 +156,17 @@ public class StoreProductController extends BaseController {
             File file = FileUtil.mkdir(new File(fileDir));
             //如果类型是小程序
             if(userType.equals(AppFromEnum.ROUNTINE.getValue())){
-                //h5地址
-                siteUrl = siteUrl+"/product/";
+                //小程序地址
+                siteUrl = siteUrl+"/"+pageType+"/";
                 //生成二维码
-                QrCodeUtil.generate(siteUrl+"?productId="+id+"&spread="+uid+"&pageType="+pageType+"&codeType="+AppFromEnum.ROUNTINE.getValue(), 180, 180,
+                QrCodeUtil.generate(siteUrl+"?productId="+id+"&spread="+uid+"&codeType="+AppFromEnum.ROUNTINE.getValue(), 180, 180,
                         FileUtil.file(fileDir+name));
             }
             else if(userType.equals(AppFromEnum.APP.getValue())){
                 //h5地址
-                siteUrl = siteUrl+"/product/";
+                siteUrl = siteUrl+"/"+pageType+"/";
                 //生成二维码
-                QrCodeUtil.generate(siteUrl+"?productId="+id+"&spread="+uid+"&pageType="+pageType+"&codeType="+AppFromEnum.APP.getValue(), 180, 180,
+                QrCodeUtil.generate(siteUrl+"?productId="+id+"&spread="+uid+"&codeType="+AppFromEnum.APP.getValue(), 180, 180,
                         FileUtil.file(fileDir+name));
             }else{//如果类型是h5
                 //生成二维码
@@ -176,11 +180,27 @@ public class StoreProductController extends BaseController {
         }else{
             qrcodeUrl = apiUrl + "/api/file/" + attachment.getSattDir();
         }
-        String spreadPicName = id+"_"+uid + "_"+userType+"_product_user_spread.jpg";
+        String spreadPicName = id+"_"+uid + "_" + pageType + "_"+userType+"_product_user_spread.jpg";
         String spreadPicPath = fileDir+spreadPicName;
-        String rr =  creatShareProductService.creatProductPic(storeProduct,qrcodeUrl,
-                spreadPicName,spreadPicPath,apiUrl);
-        //productDTO.getStoreInfo().setCodeBase(rr);
+        ProductInfo productInfo = new ProductInfo();
+        if(pageType.equals("good")){
+            YxStoreProduct storeProduct = storeProductService.getProductInfo(id);
+            BeanUtils.copyProperties(storeProduct, productInfo);
+        }else {
+            YxCoupons yxCoupons = yxCouponsService.getCouponsById(id);
+            YxImageInfo yxImageInfo = yxImageInfoService.selectOneImg(id, CommonConstant.IMG_TYPE_CARD, CommonConstant.IMG_CATEGORY_PIC);
+            if (null == yxImageInfo){
+                return ApiResult.fail("卡券图片为空");
+            }
+            productInfo.setImage(yxImageInfo.getImgUrl());
+            productInfo.setOtPrice(yxCoupons.getOriginalPrice());
+            productInfo.setStoreName(yxCoupons.getCouponName());
+            productInfo.setPrice(yxCoupons.getSellingPrice());
+            productInfo.setStoreInfo(yxCoupons.getCouponInfo());
+        }
+
+        String rr = creatShareProductService.creatProductPic(productInfo, qrcodeUrl,
+                    spreadPicName, spreadPicPath, apiUrl);
         return ApiResult.ok(rr);
     }
 
