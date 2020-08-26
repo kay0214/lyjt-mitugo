@@ -59,7 +59,7 @@
         <el-radio v-model="form.isPostage" :label="1">是</el-radio>
         <el-radio v-model="form.isPostage" :label="0" style="width: 200px;">否</el-radio>
       </el-form-item>
-      <el-form-item label="邮费">
+      <el-form-item v-if='!form.isPostage' label="邮费">
         <el-input v-model="form.postage" />
       </el-form-item>
      <!-- <el-form-item label="优品推荐">

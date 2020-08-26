@@ -4,7 +4,6 @@
 package co.yixiang.modules.shop.web.controller;
 
 import cn.hutool.core.util.ObjectUtil;
-import co.yixiang.annotation.AnonymousAccess;
 import co.yixiang.common.api.ApiResult;
 import co.yixiang.common.web.controller.BaseController;
 import co.yixiang.logging.aop.log.Log;
@@ -25,6 +24,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.math.BigDecimal;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -59,17 +59,26 @@ public class StoreCartController extends BaseController {
     /**
      * 购物车 添加
      */
-    @AnonymousAccess
     @Log(value = "添加购物车",type = 1)
     @PostMapping("/cart/add")
     @ApiOperation(value = "添加购物车",notes = "添加购物车")
     public ApiResult<Map<String,Object>> add(@RequestBody String jsonStr){
         JSONObject jsonObject = JSON.parseObject(jsonStr);
         Map<String,Object> map = new LinkedHashMap<>();
-//        int uid = SecurityUtils.getUserId().intValue();
-        int uid = 27;
+        int uid = SecurityUtils.getUserId().intValue();
+//        int uid = 27;
         if(ObjectUtil.isNull(jsonObject.get("cartNum")) || ObjectUtil.isNull(jsonObject.get("productId"))){
             return ApiResult.fail("参数有误");
+        }
+        int shareUserId = 0;
+        if(ObjectUtil.isNotNull(jsonObject.get("shareUserId"))){
+            //分享人id
+            shareUserId=jsonObject.getInteger("shareUserId");
+        }
+        BigDecimal bigDecimalComm = BigDecimal.ZERO;
+        if(ObjectUtil.isNotNull(jsonObject.get("commission"))){
+            //佣金
+            bigDecimalComm=jsonObject.getBigDecimal("commission");
         }
         Integer cartNum = jsonObject.getInteger("cartNum");
         if(ObjectUtil.isNull(cartNum)){
@@ -106,8 +115,10 @@ public class StoreCartController extends BaseController {
             bargainId = jsonObject.getInteger("bargainId");
         }
 
-        map.put("cartId",storeCartService.addCart(uid,productId,cartNum,uniqueId
-                ,"product",isNew,combinationId,seckillId,bargainId));
+        /*map.put("cartId",storeCartService.addCart(uid,productId,cartNum,uniqueId
+                ,"product",isNew,combinationId,seckillId,bargainId));*/
+        map.put("cartId",storeCartService.addCartShareId(uid,productId,cartNum,uniqueId
+                ,"product",isNew,combinationId,seckillId,bargainId,shareUserId,bigDecimalComm));
         return ApiResult.ok(map);
     }
 
@@ -156,13 +167,12 @@ public class StoreCartController extends BaseController {
     /**
      * 购物车列表
      */
-    @AnonymousAccess
     @Log(value = "查看购物车",type = 1)
     @GetMapping("/cart/listNew")
     @ApiOperation(value = "购物车列表（带店铺）",notes = "购物车列表（带店铺）")
     public ApiResult<Map<String,Object>> getCartList(){
-//        int uid = SecurityUtils.getUserId().intValue();
-        int uid = 27;
+        int uid = SecurityUtils.getUserId().intValue();
+//        int uid = 27;
         return ApiResult.ok(storeCartService.getUserStoreCartList(uid,"",0));
     }
 
