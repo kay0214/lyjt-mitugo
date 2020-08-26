@@ -833,6 +833,7 @@ public class StoreOrderController extends BaseController {
             cartInfo.addAll(storeStoreCartQueryVo.getCartList());
         }
         PriceGroupDTO priceGroup = storeOrderService.getOrderPriceGroup(cartInfo);
+//        PriceGroupDTO priceGroup = storeOrderService.getOrderPriceGroupNoFree(cartInfo);
 
         ConfirmNewOrderDTO confirmOrderDTO = new ConfirmNewOrderDTO();
 

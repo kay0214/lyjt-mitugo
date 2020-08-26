@@ -173,4 +173,12 @@ public interface YxStoreOrderService extends BaseService<YxStoreOrder> {
      * @return
      */
     String getStoreName(Integer storeId);
+
+    /**
+     * 获取订单价格
+     *
+     * @param cartInfo
+     * @return
+     */
+    PriceGroupDTO getOrderPriceGroupNoFree(List<YxStoreCartQueryVo> cartInfo);
 }
