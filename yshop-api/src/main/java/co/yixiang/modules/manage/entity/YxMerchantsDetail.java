@@ -93,10 +93,10 @@ private String companyLegalPerson;
 private String companyPhone;
 
 @ApiModelProperty(value = "经营类目")
-private Integer businessCategory;
+private String businessCategory;
 
 @ApiModelProperty(value = "主体资质类型")
-private Integer qualificationsType;
+private String qualificationsType;
 
 @ApiModelProperty(value = "营业执照")
 private String businessLicenseImg;

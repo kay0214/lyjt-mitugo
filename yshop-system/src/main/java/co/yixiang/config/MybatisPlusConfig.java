@@ -2,6 +2,7 @@ package co.yixiang.config;
 
 
 import com.baomidou.mybatisplus.autoconfigure.SpringBootVFS;
+import com.baomidou.mybatisplus.core.config.GlobalConfig;
 import com.baomidou.mybatisplus.extension.plugins.PaginationInterceptor;
 import com.baomidou.mybatisplus.extension.spring.MybatisSqlSessionFactoryBean;
 import org.apache.ibatis.plugin.Interceptor;
@@ -44,6 +45,9 @@ public class MybatisPlusConfig {
             bean.setMapperLocations(resolver.getResources("classpath*:mapper/**/*Mapper.xml"));
             // bean.setTypeAliasesPackage("co.yixiang");
             //添加MysqlGeoPointTypeHandler
+            GlobalConfig globalConfig = new GlobalConfig();
+            globalConfig.setMetaObjectHandler(new MetaHandler());
+            bean.setGlobalConfig(globalConfig);
             bean.setTypeHandlers(new TypeHandler[]{new MysqlGeoPointTypeHandler(0)});
             bean.getObject().getConfiguration().setMapUnderscoreToCamelCase(true);
             return bean.getObject();

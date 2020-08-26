@@ -97,11 +97,11 @@ public class YxMerchantsDetail implements Serializable {
 
 
     /** 经营类目 */
-    private Integer businessCategory;
+    private String businessCategory;
 
 
     /** 主体资质类型 */
-    private Integer qualificationsType;
+    private String qualificationsType;
 
 
     /** 是否删除（0：未删除，1：已删除） */
