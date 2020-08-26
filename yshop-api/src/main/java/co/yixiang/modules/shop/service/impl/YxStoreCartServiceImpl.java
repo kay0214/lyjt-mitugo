@@ -26,10 +26,7 @@ import co.yixiang.modules.shop.mapping.CartMap;
 import co.yixiang.modules.shop.service.YxStoreCartService;
 import co.yixiang.modules.shop.service.YxStoreProductAttrService;
 import co.yixiang.modules.shop.service.YxStoreProductService;
-import co.yixiang.modules.shop.web.vo.YxStoreCartQueryVo;
-import co.yixiang.modules.shop.web.vo.YxStoreInfoQueryVo;
-import co.yixiang.modules.shop.web.vo.YxStoreProductQueryVo;
-import co.yixiang.modules.shop.web.vo.YxStoreStoreCartQueryVo;
+import co.yixiang.modules.shop.web.vo.*;
 import co.yixiang.modules.user.entity.YxUser;
 import co.yixiang.modules.user.service.YxUserService;
 import co.yixiang.utils.OrderUtil;
@@ -380,7 +377,8 @@ public class YxStoreCartServiceImpl extends BaseServiceImpl<YxStoreCartMapper, Y
      * @return
      */
     @Override
-    public Map<String, Object> getUserStoreCartList(int uid, String cartIds, int status) {
+    public YxStoreStoreCartVo getUserStoreCartList(int uid, String cartIds, int status) {
+        YxStoreStoreCartVo yxStoreStoreCartVo = new YxStoreStoreCartVo();
         List<YxStoreStoreCartQueryVo> vaildStoreList = new ArrayList<>();
         List<YxStoreStoreCartQueryVo> invalidStoreList = new ArrayList<>();
 
@@ -496,9 +494,11 @@ public class YxStoreCartServiceImpl extends BaseServiceImpl<YxStoreCartMapper, Y
 
         }
         Map<String,Object> map = new LinkedHashMap<>();
-        map.put("valid",vaildStoreList);
-        map.put("invalid",invalidStoreList);
-        return map;
+//        map.put("valid",vaildStoreList);
+        yxStoreStoreCartVo.setValid(vaildStoreList);
+        yxStoreStoreCartVo.setInvalid(invalidStoreList);
+//        map.put("invalid",invalidStoreList);
+        return yxStoreStoreCartVo;
     }
 
     private QueryWrapper<YxStoreCart> getWrapper(Integer uid, Integer status,String cartIds){
