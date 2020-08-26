@@ -9,7 +9,7 @@ import co.yixiang.modules.coupon.service.YxCouponsCategoryService;
 import co.yixiang.modules.coupon.service.dto.YxCouponsCategoryDto;
 import co.yixiang.modules.coupon.service.dto.YxCouponsCategoryQueryCriteria;
 import co.yixiang.modules.coupon.service.mapper.YxCouponsCategoryMapper;
-import co.yixiang.utils.FileUtil;
+import co.yixiang.modules.shop.service.dto.YxStoreCategoryDto;
 import co.yixiang.utils.StringUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.github.pagehelper.PageInfo;
@@ -19,13 +19,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
 * @author huiy
@@ -93,21 +90,51 @@ public class YxCouponsCategoryServiceImpl extends BaseServiceImpl<YxCouponsCateg
 
 
     @Override
-    public void download(List<YxCouponsCategoryDto> all, HttpServletResponse response) throws IOException {
-        List<Map<String, Object>> list = new ArrayList<>();
-        for (YxCouponsCategoryDto yxCouponsCategory : all) {
-            Map<String,Object> map = new LinkedHashMap<>();
-            map.put("父id", yxCouponsCategory.getPid());
-            map.put("分类名称", yxCouponsCategory.getCateName());
-            map.put("排序", yxCouponsCategory.getSort());
-            map.put("是否推荐. 0:不推荐, 1:推荐", yxCouponsCategory.getIsShow());
-            map.put("是否删除（0：未删除，1：已删除）", yxCouponsCategory.getDelFlag());
-            map.put("创建人", yxCouponsCategory.getCreateUserId());
-            map.put("修改人", yxCouponsCategory.getUpdateUserId());
-            map.put("创建时间", yxCouponsCategory.getCreateTime());
-            map.put("更新时间", yxCouponsCategory.getUpdateTime());
-            list.add(map);
+    public Object buildTree(List<YxCouponsCategoryDto> categoryDTOS) {
+        Set<YxCouponsCategoryDto> trees = new LinkedHashSet<>();
+        Set<YxCouponsCategoryDto> cates= new LinkedHashSet<>();
+        List<String> deptNames = categoryDTOS.stream().map(YxCouponsCategoryDto::getCateName)
+                .collect(Collectors.toList());
+
+        YxStoreCategoryDto categoryDTO = new YxStoreCategoryDto();
+        Boolean isChild;
+        List<YxCouponsCategory> categories = this.list();
+        for (YxCouponsCategoryDto deptDTO : categoryDTOS) {
+            isChild = false;
+            if ("0".equals(deptDTO.getPid().toString())) {
+                trees.add(deptDTO);
+            }
+//            for (YxCouponsCategoryDto it : categoryDTOS) {
+//                if (it.getPid().equals(deptDTO.getId())) {
+//                    isChild = true;
+//                    if (deptDTO.getChildren() == null) {
+//                        deptDTO.setChildren(new ArrayList<YxStoreCategoryDto>());
+//                    }
+//                    deptDTO.getChildren().add(it);
+//                }
+//            }
+            if(isChild)
+                cates.add(deptDTO);
+            for (YxCouponsCategory category : categories) {
+                if(category.getId()==deptDTO.getPid()&&!deptNames.contains(category.getCateName())){
+                    cates.add(deptDTO);
+                }
+            }
         }
-        FileUtil.downloadExcel(list, response);
+
+
+
+        if (CollectionUtils.isEmpty(trees)) {
+            trees = cates;
+        }
+
+
+
+        Integer totalElements = categoryDTOS!=null?categoryDTOS.size():0;
+
+        Map map = new HashMap();
+        map.put("totalElements",totalElements);
+        map.put("content",CollectionUtils.isEmpty(trees)?categoryDTOS:trees);
+        return map;
     }
 }

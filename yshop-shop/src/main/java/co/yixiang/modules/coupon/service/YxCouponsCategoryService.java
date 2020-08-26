@@ -7,8 +7,6 @@ import co.yixiang.modules.coupon.service.dto.YxCouponsCategoryDto;
 import co.yixiang.modules.coupon.service.dto.YxCouponsCategoryQueryCriteria;
 import org.springframework.data.domain.Pageable;
 
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -42,11 +40,5 @@ public interface YxCouponsCategoryService  extends BaseService<YxCouponsCategory
     */
     List<YxCouponsCategory> queryAll(YxCouponsCategoryQueryCriteria criteria);
 
-    /**
-    * 导出数据
-    * @param all 待导出的数据
-    * @param response /
-    * @throws IOException /
-    */
-    void download(List<YxCouponsCategoryDto> all, HttpServletResponse response) throws IOException;
+    Object buildTree(List<YxCouponsCategoryDto> categoryList);
 }

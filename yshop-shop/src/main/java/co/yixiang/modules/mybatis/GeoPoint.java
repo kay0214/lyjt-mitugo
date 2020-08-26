@@ -1,7 +1,9 @@
 package co.yixiang.modules.mybatis;
 
-import java.math.BigDecimal;
+import lombok.Data;
 
+import java.math.BigDecimal;
+@Data
 public class GeoPoint {
     public GeoPoint(BigDecimal lng, BigDecimal lat) {
         this.lng = lng;
