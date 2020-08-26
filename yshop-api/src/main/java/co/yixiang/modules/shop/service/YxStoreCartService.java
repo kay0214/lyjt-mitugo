@@ -6,6 +6,7 @@ package co.yixiang.modules.shop.service;
 import co.yixiang.common.service.BaseService;
 import co.yixiang.modules.shop.entity.YxStoreCart;
 import co.yixiang.modules.shop.web.vo.YxStoreCartQueryVo;
+import co.yixiang.modules.shop.web.vo.YxStoreStoreCartVo;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -60,7 +61,7 @@ public interface YxStoreCartService extends BaseService<YxStoreCart> {
      * @param status
      * @return
      */
-    public Map<String, Object> getUserStoreCartList(int uid, String cartIds, int status);
+    public YxStoreStoreCartVo getUserStoreCartList(int uid, String cartIds, int status);
 
     /**
      * 添加购物车

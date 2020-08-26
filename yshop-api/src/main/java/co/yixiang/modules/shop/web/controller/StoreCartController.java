@@ -10,6 +10,7 @@ import co.yixiang.logging.aop.log.Log;
 import co.yixiang.modules.shop.service.YxStoreCartService;
 import co.yixiang.modules.shop.web.param.CartIdsParm;
 import co.yixiang.modules.shop.web.param.YxStoreCartQueryParam;
+import co.yixiang.modules.shop.web.vo.YxStoreStoreCartVo;
 import co.yixiang.utils.SecurityUtils;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -170,7 +171,7 @@ public class StoreCartController extends BaseController {
     @Log(value = "查看购物车",type = 1)
     @GetMapping("/cart/listNew")
     @ApiOperation(value = "购物车列表（带店铺）",notes = "购物车列表（带店铺）")
-    public ApiResult<Map<String,Object>> getCartList(){
+    public ApiResult<YxStoreStoreCartVo> getCartList(){
         int uid = SecurityUtils.getUserId().intValue();
 //        int uid = 27;
         return ApiResult.ok(storeCartService.getUserStoreCartList(uid,"",0));
