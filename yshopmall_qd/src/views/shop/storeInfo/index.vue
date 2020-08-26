@@ -2,8 +2,19 @@
   <div class="app-container">
     <!--工具栏-->
     <div class="head-container">
-      <!--如果想在工具栏加入更多按钮，可以使用插槽方式， slot = 'left' or 'right'-->
-      <crudOperation :permission="permission" />
+      <el-row>
+        <el-col :span='4' style='paddingTop:6px;'>
+          <div v-if="crud.props.searchToggle">
+            <!-- 搜索 -->
+            <el-input v-model="query.cateName" clearable size="small" placeholder="请输入店铺名称" style="width: 200px;" class="filter-item" @keyup.enter.native="crud.toQuery" />
+            <el-button class="filter-item" size="mini" type="success" icon="el-icon-search" @click="crud.toQuery">搜索</el-button>
+          </div>
+        </el-col>
+        <el-col :span='6'>
+          <crudOperation :permission="permission" />
+        </el-col>
+      </el-row>
+      
       <!--表单组件-->
       <el-dialog :close-on-click-modal="false" :before-close="crud.cancelCU" :visible.sync="crud.status.cu > 0" :title="crud.status.title" width="900px">
         <!--        <el-form ref="form" :model="form" :rules="rules" size="small" label-width="80px">-->
@@ -28,12 +39,19 @@
             <el-input v-model="form.perCapita" style="width: 700px;" />
           </el-form-item>
           <el-form-item label="行业类别" prop="industryCategory">
-            <el-select v-model="form.industryCategory" style="width: 700px;" />
+            <el-select v-model="form.industryCategory" placeholder="请选择">
+                  <el-option
+                    v-for="item in dict.industry_category"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value">
+                  </el-option>
+                </el-select>
           </el-form-item>
           <el-form-item label="店铺服务" prop="storeService">
             <el-checkbox-group v-model="form.storeService">
-                <template v-for="item in selections.storeService" >
-                  <el-checkbox :label="item.label" :key="item.value"></el-checkbox>
+                <template v-for="item in dict.store_service" >
+                  <el-checkbox :label="item.label" :key="item.value" :value="item.value"></el-checkbox>
                 </template>
             </el-checkbox-group>
           </el-form-item>
@@ -77,7 +95,12 @@
         <el-table-column v-if="columns.visible('storeNid')" prop="storeNid" label="店铺编号" />
         <el-table-column v-if="columns.visible('storeName')" prop="storeName" label="店铺名称" />
         <el-table-column v-if="columns.visible('manageUserName')" prop="manageUserName" label="管理人用户名" />
-        <el-table-column v-if="columns.visible('industryCategory')" prop="industryCategory" label="行业类别" />
+        <el-table-column v-if="columns.visible('industryCategory')" label="行业类别">
+          <template slot-scope="scope">
+            <!-- {{scope.row.industryCategory}} -->
+            <span style="margin-left: 10px">{{ dict.label.industry_category[scope.row.industryCategory]}}</span>
+          </template>
+      </el-table-column>
         <el-table-column v-if="columns.visible('manageMobile')" prop="manageMobile" label="管理人电话" />
         <el-table-column v-if="columns.visible('storeMobile')" prop="storeMobile" label="店铺电话" />
         <!--        <el-table-column v-if="columns.visible('status')" prop="status" label="状态：0：上架，1：下架" />-->
@@ -119,7 +142,7 @@
 
   // crud交由presenter持有
   const defaultCrud = CRUD({ title: '店铺表', url: 'api/yxStoreInfo', sort: 'id,desc',optShow: {
-      add: false,
+      add: true,
       edit: false,
       del: false,
       download: false
@@ -130,6 +153,7 @@
     // components: { pagination, crudOperation, rrOperation, udOperation ,MaterialList},
     components: {editor, picUpload, mulpicUpload,pagination, crudOperation, rrOperation, udOperation ,MaterialList},
     mixins: [presenter(defaultCrud), header(), form(defaultForm), crud()],
+    dicts:['industry_category','store_service'],
     data() {
       return {
         map:null,
