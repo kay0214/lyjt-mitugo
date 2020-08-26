@@ -369,7 +369,7 @@ public class YxStoreCartServiceImpl extends BaseServiceImpl<YxStoreCartMapper, Y
 
     }
 
-
+/******************************以下为新加接口********************************/
     /**
      * 购物车列表（有店铺）
      * @param uid
@@ -394,6 +394,7 @@ public class YxStoreCartServiceImpl extends BaseServiceImpl<YxStoreCartMapper, Y
             yxStoreStoreValidVo.setStoreName(yxStoreInfoQueryVo.getStoreName());
             yxStoreStoreInvalidVo.setStoreId(yxStoreInfoQueryVo.getId());
             yxStoreStoreInvalidVo.setStoreName(yxStoreInfoQueryVo.getStoreName());
+            yxStoreStoreInvalidVo.setMerId(yxStoreInfoQueryVo.getMerId());
             List<YxStoreCartQueryVo> cartQueryVoListInvalid = new ArrayList<YxStoreCartQueryVo>();
             List<YxStoreCartQueryVo> cartQueryVoListValid = new ArrayList<YxStoreCartQueryVo>();
 

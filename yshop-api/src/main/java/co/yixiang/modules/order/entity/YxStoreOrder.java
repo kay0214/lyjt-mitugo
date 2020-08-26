@@ -206,5 +206,8 @@ public class YxStoreOrder extends BaseEntity {
     private Integer rebateStatus;
     @ApiModelProperty(value = "付款单号")
     private String paymentNo;
+    @ApiModelProperty(value = "redis的key")
+    private String uniqueKey;
+
 
 }

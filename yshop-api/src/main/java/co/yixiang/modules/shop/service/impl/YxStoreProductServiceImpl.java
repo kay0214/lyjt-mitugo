@@ -287,13 +287,13 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
 
     /**
      * 根据商户id获取商品信息
-     * @param merId
+     * @param storeId
      * @return
      */
     @Override
-    public List<YxStoreProductNoAttrQueryVo> getProductListByMerId(int merId){
+    public List<YxStoreProductNoAttrQueryVo> getProductListByStoreId(int storeId){
         QueryWrapper<YxStoreProduct> wrapper = new QueryWrapper<YxStoreProduct>();
-        wrapper.eq("is_del", CommonEnum.DEL_STATUS_0.getValue()).eq("is_show",1).eq("mer_id",merId);
+        wrapper.eq("is_del", CommonEnum.DEL_STATUS_0.getValue()).eq("is_show",1).eq("store_id",storeId);
         wrapper.orderByDesc("sort");
         List<YxStoreProduct> storeProductList =  this.list(wrapper);
         List<YxStoreProductNoAttrQueryVo> queryVoList = CommonsUtils.convertBeanList(storeProductList,YxStoreProductNoAttrQueryVo.class);

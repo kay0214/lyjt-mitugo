@@ -33,11 +33,8 @@ import me.chanjar.weixin.mp.api.WxMpService;
 import me.chanjar.weixin.mp.bean.message.WxMpXmlMessage;
 import me.chanjar.weixin.mp.bean.message.WxMpXmlOutMessage;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.util.CollectionUtils;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -45,6 +42,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.math.BigDecimal;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -250,5 +248,35 @@ public class WechatController extends BaseController {
 
 
 
-
+    @AnonymousAccess
+    @PostMapping("/wechat/notifyNew")
+    @ApiOperation(value = "微信支付充值回调",notes = "微信支付充值回调")
+    public String notifyNew(@RequestBody String xmlData) {
+        try {
+            WxPayService wxPayService = WxPayConfiguration.getPayService();
+            WxPayOrderNotifyResult notifyResult = wxPayService.parseOrderNotifyResult(xmlData);
+            String orderId = notifyResult.getOutTradeNo();
+            String attach = notifyResult.getAttach();
+            if(BillDetailEnum.TYPE_3.getValue().equals(attach)){
+                List<YxStoreOrderQueryVo> lsitOrder = orderService.getOrderInfoList(orderId,0);
+                if(CollectionUtils.isEmpty(lsitOrder)) return WxPayNotifyResponse.success("处理成功!");
+                if(OrderInfoEnum.PAY_STATUS_1.getValue().equals(lsitOrder.get(0).getPaid())){
+                    return WxPayNotifyResponse.success("处理成功!");
+                }
+                orderService.paySuccessNew(orderId,"weixin");
+            }else if(BillDetailEnum.TYPE_1.getValue().equals(attach)){
+                //处理充值
+                YxUserRecharge userRecharge = userRechargeService.getInfoByOrderId(orderId);
+                if(userRecharge == null) return WxPayNotifyResponse.success("处理成功!");
+                if(OrderInfoEnum.PAY_STATUS_1.getValue().equals(userRecharge.getPaid())){
+                    return WxPayNotifyResponse.success("处理成功!");
+                }
+                userRechargeService.updateRecharge(userRecharge);
+            }
+            return WxPayNotifyResponse.success("处理成功!");
+        } catch (WxPayException e) {
+            log.error(e.getMessage());
+            return WxPayNotifyResponse.fail(e.getMessage());
+        }
+    }
 }

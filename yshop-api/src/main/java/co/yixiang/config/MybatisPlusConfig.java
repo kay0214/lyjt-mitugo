@@ -35,6 +35,7 @@ public class MybatisPlusConfig {
     @Bean
     public SqlSessionFactory sqlSessionFactory(DataSource dataSource, @Autowired PaginationInterceptor paginationInterceptor) {
         MybatisSqlSessionFactoryBean bean = new MybatisSqlSessionFactoryBean();
+        bean.setPlugins(new Interceptor[]{paginationInterceptor});
         bean.setDataSource(dataSource);
         bean.setVfs(SpringBootVFS.class);
         //添加XML目录
@@ -45,8 +46,6 @@ public class MybatisPlusConfig {
             //添加MysqlGeoPointTypeHandler
             bean.setTypeHandlers(new TypeHandler[]{new MysqlGeoPointTypeHandler(0)});
             bean.getObject().getConfiguration().setMapUnderscoreToCamelCase(true);
-            Interceptor[] plugins = {paginationInterceptor};
-            bean.setPlugins(plugins);
             return bean.getObject();
         } catch (Exception e) {
             e.printStackTrace();

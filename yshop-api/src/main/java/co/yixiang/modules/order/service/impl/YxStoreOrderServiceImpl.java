@@ -39,8 +39,10 @@ import co.yixiang.modules.shop.entity.YxStoreCouponUser;
 import co.yixiang.modules.shop.mapper.YxStoreCartMapper;
 import co.yixiang.modules.shop.mapper.YxStoreCouponMapper;
 import co.yixiang.modules.shop.mapper.YxStoreCouponUserMapper;
+import co.yixiang.modules.shop.mapper.YxStoreInfoMapper;
 import co.yixiang.modules.shop.service.*;
 import co.yixiang.modules.shop.web.vo.YxStoreCartQueryVo;
+import co.yixiang.modules.shop.web.vo.YxStoreInfoQueryVo;
 import co.yixiang.modules.shop.web.vo.YxStoreStoreCartQueryVo;
 import co.yixiang.modules.shop.web.vo.YxSystemStoreQueryVo;
 import co.yixiang.modules.user.entity.YxUser;
@@ -63,6 +65,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.metadata.OrderItem;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
+import com.baomidou.mybatisplus.core.toolkit.ObjectUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.binarywang.wxpay.bean.order.WxPayAppOrderResult;
 import com.github.binarywang.wxpay.bean.order.WxPayMpOrderResult;
@@ -164,6 +167,8 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
     @Autowired
     private YxStoreCouponMapper yxStoreCouponMapper;
 
+    @Autowired
+    private YxStoreInfoMapper yxStoreInfoMapper;
 
     /**
      * 订单退款
@@ -190,7 +195,7 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
             yxStoreOrderMapper.updateById(storeOrder);
             return;
         }
-
+        BigDecimal bigSumPrice = new BigDecimal(yxStoreOrderMapper.sumPayPrice(orderQueryVo.getPaymentNo()));
         //根据支付类型不同退款不同
         if (orderQueryVo.getPayType().equals("yue")) {
             storeOrder.setRefundStatus(OrderInfoEnum.REFUND_STATUS_2.getValue());
@@ -220,11 +225,13 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
             BigDecimal bigDecimal = new BigDecimal("100");
             try {
                 if (OrderInfoEnum.PAY_CHANNEL_1.getValue().equals(orderQueryVo.getIsChannel())) {
-                    miniPayService.refundOrder(param.getOrderId(),
-                            bigDecimal.multiply(orderQueryVo.getPayPrice()).intValue());
+                   /* miniPayService.refundOrder(param.getOrderId(),
+                            bigDecimal.multiply(orderQueryVo.getPayPrice()).intValue());*/
+                    miniPayService.refundOrderNew(orderQueryVo.getOrderId(),bigDecimal.multiply(orderQueryVo.getPayPrice()).intValue(),orderQueryVo.getPaymentNo(),bigDecimal.multiply(bigSumPrice).intValue());
                 } else {
-                    payService.refundOrder(param.getOrderId(),
-                            bigDecimal.multiply(orderQueryVo.getPayPrice()).intValue());
+                    /*payService.refundOrder(param.getOrderId(),
+                            bigDecimal.multiply(orderQueryVo.getPayPrice()).intValue());*/
+                    payService.refundOrderNew(orderQueryVo.getOrderId(),bigDecimal.multiply(orderQueryVo.getPayPrice()).intValue(),orderQueryVo.getPaymentNo(),bigDecimal.multiply(bigSumPrice).intValue());
                 }
 
             } catch (WxPayException e) {
@@ -700,7 +707,7 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
                 wrapper.eq("paid", 1).eq("refund_status", 1);
                 break;
             case STATUS_MINUS_2://已退款
-                wrapper.eq("paid", 0).eq("refund_status", 2);
+                wrapper.eq("paid", 1).eq("refund_status", 2);
                 break;
             case STATUS_MINUS_3://退款
                 String[] strs = {"1", "2"};
@@ -982,7 +989,7 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
         }
 
         order.set_status(statusDTO);
-
+        order.setStoreName(this.getStoreName(order.getStoreId()));
 
         return order;
     }
@@ -1576,18 +1583,9 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
         return (CacheDTO) redisService.getObj("user_order_" + uid + key);
     }
 
-//    @Override
-    public CacheStoreDTO getCacheStoreOrderInfo(int uid, String key) {
-
-        return (CacheStoreDTO) redisService.getObj("user_order_info_" + uid + key);
-    }
     @Override
     public void delCacheOrderInfo(int uid, String key) {
         redisService.delete("user_order_" + uid + key);
-    }
-//    @Override
-    public void delCacheStoreOrderInfo(int uid, String key) {
-        redisService.delete("user_order_info_" + uid + key);
     }
 
     /**
@@ -1697,6 +1695,8 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
         return new Paging(iPage);
     }
 
+    /******************************以下为新加接口********************************/
+
     @Override
     public String cacheOrderStroeInfo(int uid, List<YxStoreStoreCartQueryVo> cartInfo, PriceGroupDTO priceGroup, OtherDTO other) {
         String key = IdUtil.simpleUUID();
@@ -1708,9 +1708,21 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
         return key;
     }
 
+    //    @Override
+    public CacheStoreDTO getCacheStoreOrderInfo(int uid, String key) {
+
+        return (CacheStoreDTO) redisService.getObj("user_order_info_" + uid + key);
+    }
+
+    //    @Override
+    public void delCacheStoreOrderInfo(int uid, String key) {
+        redisService.delete("user_order_info_" + uid + key);
+    }
+
 
     /**
      * 创建订单（同一商铺为同一订单）
+     *
      * @param uid
      * @param key
      * @param param
@@ -1719,7 +1731,7 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
     @Override
     @Transactional(rollbackFor = Exception.class)
     public List<YxStoreOrder> createOrderNew(int uid, String key, OrderParam param) {
-        List<YxStoreOrder> orderList= new ArrayList<YxStoreOrder>();
+        List<YxStoreOrder> orderList = new ArrayList<YxStoreOrder>();
         YxUserQueryVo userInfo = userService.getYxUserById(uid);
         if (ObjectUtil.isNull(userInfo)) throw new ErrorRequestException("用户不存在");
 
@@ -1771,7 +1783,7 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
                 combinationId = cart.getCombinationId();
                 seckillId = cart.getSeckillId();
                 bargainId = cart.getBargainId();
-                totalNum=totalNum+cart.getCartNum();
+                totalNum = totalNum + cart.getCartNum();
                 cartIds.add(cart.getId().toString());
 
                 //计算积分
@@ -1821,7 +1833,7 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
                     bigOrderPayPrice = bigOrderPayPrice.subtract(couponUser.getCouponPrice());
                     couponUserService.useCoupon(couponId);//更新优惠券状态
                     couponPrice = couponUser.getCouponPrice().doubleValue();
-                }else{
+                } else {
                     couponId = 0;
                 }
 
@@ -1848,9 +1860,9 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
                         usedIntegral = userIntegral;
                     } else {
                         subPice = bigOrderPayPrice.doubleValue();
-                        double doubleRatio= Double.valueOf(cacheDTO.getOther().getIntegralRatio());
+                        double doubleRatio = Double.valueOf(cacheDTO.getOther().getIntegralRatio());
                         deductionPrice = payPrice.doubleValue();
-                        usedIntegral = NumberUtil.div(subPice,doubleRatio);
+                        usedIntegral = NumberUtil.div(subPice, doubleRatio);
                         bigOrderPayPrice = new BigDecimal(0);
                     }
                     userService.decIntegral(uid, usedIntegral);
@@ -1867,6 +1879,14 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
                     userBill.setStatus(1);
                     userBill.setPm(0);
                     userBill.setAddTime(OrderUtil.getSecondTimestampTwo());
+                    //订单商品所属商户id
+                    userBill.setMerId(storeStoreCartQueryVo.getMerId());
+                    //  订单商品所属合伙人id
+                    userBill.setPartnerId(userInfo.getPartnerId());
+                    //用户类型 0:预留 1:前台用户 2：后台商户 3：后台合伙人
+                    userBill.setUserType(1);
+//                    用户名
+                    userBill.setUsername(userInfo.getUsername());
                     billService.save(userBill);
                 }
 
@@ -1909,19 +1929,27 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
                 storeOrder.setIsChannel(OrderInfoEnum.PAY_CHANNEL_0.getValue());
             }
             storeOrder.setAddTime(OrderUtil.getSecondTimestampTwo());
-            storeOrder.setUnique(orderSn);
+            storeOrder.setUnique(IdUtil.simpleUUID());
             //快递
             storeOrder.setShippingType(1);
+            //商户ID
+            storeOrder.setMerId(storeStoreCartQueryVo.getMerId());
+            //店铺id
             storeOrder.setStoreId(storeStoreCartQueryVo.getStoreId());
             //推荐人id
+            storeOrder.setParentId(userInfo.getParentId());
             //推荐人类型:1商户;2合伙人;3用户
-            //分享人用户ID
+            storeOrder.setParentType(userInfo.getParentType());
+            //todo 分享人用户ID
             //分享人的推荐人用户ID
             //分享人的推荐人类型:1商户;2合伙人;3用户
             //下单时的佣金
+//            storeOrder.setCommission();
             //分佣状态 0:未分佣 1:已分佣
             //支付单号
             storeOrder.setPaymentNo(payOrderNo);
+            //
+            storeOrder.setUniqueKey(key);
 
             orderList.add(storeOrder);
 
@@ -1973,8 +2001,9 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
 
         return orderList;
     }
+
     /**
-     * 订单信息列表
+     * 订单信息列表（unique，支付单号，redis_key）
      *
      * @param unique
      * @param uid
@@ -1984,12 +2013,18 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
     public List<YxStoreOrderQueryVo> getOrderInfoList(String unique, int uid) {
         QueryWrapper<YxStoreOrder> wrapper = new QueryWrapper<>();
         wrapper.eq("is_del", 0).and(
-                i -> i.eq("`unique`", unique));
+                i -> i.eq("`unique`", unique).or().eq("payment_no", unique).or().eq("unique_key",unique));
         if (uid > 0) wrapper.eq("uid", uid);
 
         return orderMap.toDto(yxStoreOrderMapper.selectList(wrapper));
     }
 
+    /**
+     * 根据根据id列表获取订单信息
+     * @param orderIdList
+     * @param uid
+     * @return
+     */
     public List<YxStoreOrderQueryVo> getOrderList(List<String> orderIdList, int uid) {
         QueryWrapper<YxStoreOrder> wrapper = new QueryWrapper<>();
         wrapper.eq("is_del", 0).and(
@@ -1998,11 +2033,12 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
 
         return orderMap.toDto(yxStoreOrderMapper.selectList(wrapper));
     }
+
     /**
      * 余额支付
      *
      * @param orderIdList 订单号
-     * @param uid     用户id
+     * @param uid         用户id
      */
     @Override
     public void yuePayOrderList(List<String> orderIdList, int uid) {
@@ -2010,7 +2046,7 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
         if (CollectionUtils.isEmpty(orderList)) throw new ErrorRequestException("订单不存在");
         YxUserQueryVo userInfo = userService.getYxUserById(uid);
 
-        for(YxStoreOrderQueryVo yxStoreOrderQueryVo:orderList){
+        for (YxStoreOrderQueryVo yxStoreOrderQueryVo : orderList) {
             if (yxStoreOrderQueryVo.getPaid().equals(OrderInfoEnum.PAY_STATUS_1.getValue()))
                 throw new ErrorRequestException("该订单已支付");
 
@@ -2022,7 +2058,7 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
             YxUserBill userBill = new YxUserBill();
             userBill.setUid(uid);
             userBill.setTitle("购买商品");
-            userBill.setLinkId(yxStoreOrderQueryVo.getId().toString());
+            userBill.setLinkId(yxStoreOrderQueryVo.getOrderId().toString());
             userBill.setCategory("now_money");
             userBill.setType("pay_product");
             userBill.setNumber(yxStoreOrderQueryVo.getPayPrice());
@@ -2031,6 +2067,14 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
             userBill.setStatus(BillEnum.STATUS_1.getValue());
             userBill.setPm(BillEnum.PM_0.getValue());
             userBill.setAddTime(OrderUtil.getSecondTimestampTwo());
+            //订单商品所属商户id
+            userBill.setMerId(yxStoreOrderQueryVo.getMerId());
+            // 订单商品所属合伙人id
+            userBill.setPartnerId(userInfo.getPartnerId());
+            //用户类型 0:预留 1:前台用户 2：后台商户 3：后台合伙人
+            userBill.setUserType(1);
+            //用户名
+            userBill.setUsername(userInfo.getUsername());
             billService.save(userBill);
             //支付成功后处理
             paySuccess(yxStoreOrderQueryVo.getOrderId(), "yue");
@@ -2046,7 +2090,7 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
      * @throws WxPayException
      */
     @Override
-    public WxPayMpOrderResult wxAppPayList(List<String> orderIdList,String payNo) throws WxPayException {
+    public WxPayMpOrderResult wxAppPayList(List<String> orderIdList, String payNo) throws WxPayException {
         List<YxStoreOrderQueryVo> orderInfo = getOrderList(orderIdList, 0);
 
         BigDecimal bigPayPrice = new BigDecimal(0);
@@ -2056,7 +2100,7 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
                 throw new ErrorRequestException("该订单已支付");
 
             if (orderQueryVo.getPayPrice().doubleValue() <= 0) throw new ErrorRequestException("该支付无需支付");
-            bigPayPrice.add(orderQueryVo.getPayPrice());
+            bigPayPrice =bigPayPrice.add(orderQueryVo.getPayPrice());
 
         }
         YxWechatUser wechatUser = wechatUserService.getById(orderInfo.get(0).getUid());
@@ -2068,4 +2112,62 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
                 bigDecimal.multiply(bigPayPrice).intValue(),
                 BillDetailEnum.TYPE_3.getValue());
     }
+
+
+    /**
+     * 支付成功后操作（多订单）
+     *
+     * @param orderId 订单号
+     * @param payType 支付方式
+     */
+    @Transactional
+    @Override
+    public void paySuccessNew(String orderId, String payType) {
+
+        //更新订单状态
+        QueryWrapper<YxStoreOrder> wrapper = new QueryWrapper<>();
+        wrapper.eq("payment_no", orderId);
+        YxStoreOrder storeOrder = new YxStoreOrder();
+        storeOrder.setPaid(OrderInfoEnum.PAY_STATUS_1.getValue());
+        storeOrder.setPayType(payType);
+        storeOrder.setPayTime(OrderUtil.getSecondTimestampTwo());
+        yxStoreOrderMapper.update(storeOrder, wrapper);
+
+        List<YxStoreOrderQueryVo> orderInfoList = getOrderInfoList(orderId, 0);
+        if (CollectionUtils.isNotEmpty(orderInfoList)) {
+            for (YxStoreOrderQueryVo orderInfo : orderInfoList) {
+                //增加用户购买次数
+                userService.incPayCount(orderInfo.getUid());
+                //增加状态
+                orderStatusService.create(orderInfo.getId(), "pay_success", "用户付款成功");
+              /*  //拼团
+                if (orderInfo.getCombinationId() > 0) pinkService.createPink(orderInfo);
+
+                //砍价
+                if (orderInfo.getBargainId() > 0) {
+                    storeBargainUserService.setBargainUserStatus(orderInfo.getBargainId(),
+                            orderInfo.getUid());
+                }*/
+                //模板消息推送
+                YxWechatUserQueryVo wechatUser = wechatUserService.getYxWechatUserById(orderInfo.getUid());
+                if (ObjectUtil.isNotNull(wechatUser)) {
+                    ////公众号与小程序打通统一公众号模板通知
+                    if (StrUtil.isNotBlank(wechatUser.getOpenid())) {
+                        templateService.paySuccessNotice(orderInfo.getOrderId(),
+                                orderInfo.getPayPrice().toString(), wechatUser.getOpenid());
+                    }
+                }
+            }
+        }
+    }
+
+    @Override
+    public String getStoreName(Integer storeId){
+        YxStoreInfoQueryVo yxStoreInfo = yxStoreInfoMapper.getYxStoreInfoById(storeId);
+        if(ObjectUtils.isNotEmpty(yxStoreInfo)){
+            return yxStoreInfo.getStoreName();
+        }
+        return null;
+    }
+
 }

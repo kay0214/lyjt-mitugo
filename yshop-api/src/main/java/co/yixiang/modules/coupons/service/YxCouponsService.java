@@ -44,10 +44,10 @@ public interface YxCouponsService extends BaseService<YxCoupons> {
 
     /**
      * 根据商户id获取卡券信息
-     * @param merId
+     * @param storeId
      * @return
      */
-    public List<YxCouponsQueryVo> getCouponsInfoByMerId(int merId);
+    public List<YxCouponsQueryVo> getCouponsInfoByStoreId(int storeId);
 
     /**
      * 通过店铺ID获取店铺卡券
