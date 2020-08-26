@@ -164,7 +164,6 @@ public class CreatShareProductServiceImpl implements CreatShareProductService {
             //读取互联网图片
             BufferedImage qrCode  = null;
             try {
-                log.info("url:{}",url);
                 qrCode = ImageIO.read(new URL(url));
             } catch (IOException e) {
                 log.error("二维码图片读取失败",e);

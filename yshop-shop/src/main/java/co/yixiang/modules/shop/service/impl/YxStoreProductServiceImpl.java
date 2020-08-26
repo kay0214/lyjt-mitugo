@@ -102,7 +102,9 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<StoreProductMappe
             yxStoreProduct.setStoreCategory(yxStoreCategoryService.getById(yxStoreProduct.getCateId()));
             YxStoreInfoDto yxStoreInfoDto = new YxStoreInfoDto();
             YxStoreInfo yxStoreInfo = yxStoreInfoService.getById(yxStoreProduct.getStoreId());
-            BeanUtils.copyProperties(yxStoreInfo,yxStoreInfoDto);
+            if(ObjectUtil.isNotNull(yxStoreInfo)){
+                BeanUtils.copyProperties(yxStoreInfo,yxStoreInfoDto);
+            }
             yxStoreProduct.setStore(yxStoreInfoDto);
         });
         return yxStoreProductList;

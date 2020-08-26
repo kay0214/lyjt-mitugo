@@ -1,12 +1,7 @@
 package co.yixiang.modules.coupons.entity;
 
-import java.math.BigDecimal;
-
-import com.baomidou.mybatisplus.annotation.IdType;
 import co.yixiang.common.entity.BaseEntity;
-
-import java.util.Date;
-
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import io.swagger.annotations.ApiModel;
@@ -14,6 +9,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.math.BigDecimal;
 import java.util.Date;
 
 /**
@@ -34,6 +30,9 @@ public class YxCouponOrder extends BaseEntity {
     @ApiModelProperty(value = "订单ID")
     @TableId(value = "id", type = IdType.AUTO)
     private Integer id;
+
+    /** 唯一值 */
+    private String unique;
 
     @ApiModelProperty(value = "订单号")
     private String orderId;
@@ -61,6 +60,12 @@ public class YxCouponOrder extends BaseEntity {
 
     @ApiModelProperty(value = "支付状态 0未支付 1已支付")
     private Integer payStaus;
+
+    @ApiModelProperty(value = "支付方式")
+    private String payType;
+
+    @ApiModelProperty(value = "支付渠道(0微信公众号1微信小程序)")
+    private Integer isChannel;
 
     @ApiModelProperty(value = "支付时间")
     private Integer payTime;
