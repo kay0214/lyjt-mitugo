@@ -45,6 +45,9 @@ public class YxCouponsDto implements Serializable {
 
     private Integer couponCategory;
 
+    /** 所属分类名称 */
+    private String couponCategoryName;
+
 
     /** 代金券面额, coupon_type为1时使用 */
 

@@ -25,7 +25,7 @@ export default {
   },
   data() {
     return {
-      title: 'YSHOP-后台管理',
+      title: '蜜兔GO后台管理',
       logo: Logo
     }
   }

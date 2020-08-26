@@ -12,6 +12,8 @@ import co.yixiang.modules.manage.entity.SystemUser;
 import co.yixiang.modules.manage.mapper.SystemUserMapper;
 import co.yixiang.modules.order.entity.YxStoreOrder;
 import co.yixiang.modules.order.mapper.YxStoreOrderMapper;
+import co.yixiang.modules.shop.entity.YxStoreCart;
+import co.yixiang.modules.shop.mapper.YxStoreCartMapper;
 import co.yixiang.modules.user.entity.YxFundsDetail;
 import co.yixiang.modules.user.entity.YxPointDetail;
 import co.yixiang.modules.user.entity.YxUserBill;
@@ -21,6 +23,7 @@ import co.yixiang.modules.user.mapper.YxPointDetailMapper;
 import co.yixiang.modules.user.mapper.YxUserBillMapper;
 import co.yixiang.modules.user.mapper.YxWechatUserMapper;
 import co.yixiang.utils.OrderUtil;
+import co.yixiang.utils.StringUtils;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import lombok.extern.slf4j.Slf4j;
@@ -36,6 +39,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * 短信消费端
@@ -75,6 +80,9 @@ public class CommissionConsumer implements RocketMQListener<String>, RocketMQPus
     @Autowired
     YxCouponOrderMapper yxCouponOrderMapper;
 
+    @Autowired
+    YxStoreCartMapper yxStoreCartMapper;
+
     @Override
     public void onMessage(String message) {
         JSONObject callBackResult = JSONObject.parseObject(message);
@@ -97,41 +105,52 @@ public class CommissionConsumer implements RocketMQListener<String>, RocketMQPus
     /**
      * 商品购买分佣
      *
-     * @param OrderId
+     * @param orderId
      */
-    private void updateOrderInfo(String OrderId) {
+    private void updateOrderInfo(String orderId) {
         //根据订单号查询订单信息
-        YxStoreOrder yxStoreOrder = yxStoreOrderMapper.selectOne(new QueryWrapper<YxStoreOrder>().lambda().eq(YxStoreOrder::getOrderId, OrderId));
+        YxStoreOrder yxStoreOrder = yxStoreOrderMapper.selectOne(new QueryWrapper<YxStoreOrder>().lambda().eq(YxStoreOrder::getOrderId, orderId));
         if (yxStoreOrder.getRebateStatus() == 1) {
-            log.info("分佣失败，该订单重复分佣,订单号：{}", OrderId);
+            log.info("分佣失败，该订单重复分佣,订单号：{}", orderId);
             return;
         }
         yxStoreOrder.setRebateStatus(1);
         yxStoreOrderMapper.updateById(yxStoreOrder);
-        if (yxStoreOrder.getCommission().compareTo(BigDecimal.ZERO)<=0) {
-            log.info("分佣失败，该订单可分佣金额为0,订单号：{}", OrderId);
-            return;
-        }
         OrderInfo orderInfo = new OrderInfo();
         YxWechatUser yxWechatUser = yxWechatUserMapper.selectById(yxStoreOrder.getUid());
-        BeanUtils.copyProperties(yxStoreOrder, orderInfo);
-        orderInfo.setUsername(yxWechatUser.getNickname());
-        updateaccount(orderInfo);
+        String cartIds = yxStoreOrder.getCartId();
+        if(StringUtils.isBlank(cartIds)){
+            log.info("分佣失败，该订单无可分佣商品,订单号：{}", orderId);
+            return;
+        }
+        List<String> cartIdList = Arrays.asList(cartIds.split(","));
+        for (String cartId : cartIdList) {
+            YxStoreCart yxStoreCart = yxStoreCartMapper.selectById(Integer.parseInt(cartId));
+            if (yxStoreCart.getCommission().compareTo(BigDecimal.ZERO)<=0) {
+                log.info("分佣失败，该商品可分佣金额为0,订单号：{}==>>>商品号：{}", orderId,cartId);
+                return;
+            }
+            BeanUtils.copyProperties(yxStoreCart, orderInfo);
+            orderInfo.setOrderId(orderId);
+            orderInfo.setCartId(cartId);
+            orderInfo.setUsername(yxWechatUser.getNickname());
+            updateaccount(orderInfo);
+        }
     }
 
     /**
      * 本地生活分佣
      *
-     * @param OrderId
+     * @param orderId
      */
-    private void updateCouponInfo(String OrderId) {
-        YxCouponOrder yxCouponOrder = yxCouponOrderMapper.selectOne(new QueryWrapper<YxCouponOrder>().lambda().eq(YxCouponOrder::getOrderId, OrderId));
+    private void updateCouponInfo(String orderId) {
+        YxCouponOrder yxCouponOrder = yxCouponOrderMapper.selectOne(new QueryWrapper<YxCouponOrder>().lambda().eq(YxCouponOrder::getOrderId, orderId));
         if (yxCouponOrder.getRebateStatus().equals(1)) {
-            log.info("分佣失败，该订单重复分佣,订单号：{}", OrderId);
+            log.info("分佣失败，该订单重复分佣,订单号：{}", orderId);
             return;
         }
         if (yxCouponOrder.getCommission().compareTo(BigDecimal.ZERO)<=0) {
-            log.info("分佣失败，该订单可分佣金额为0,订单号：{}", OrderId);
+            log.info("分佣失败，该订单可分佣金额为0,订单号：{}", orderId);
             return;
         }
         yxCouponOrder.setRebateStatus(1);
