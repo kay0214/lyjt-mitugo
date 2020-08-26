@@ -45,4 +45,13 @@ public interface YxCouponsService  extends BaseService<YxCoupons>{
     * @throws IOException /
     */
     void download(List<YxCouponsDto> all, HttpServletResponse response) throws IOException;
+
+    /**
+     * 根据核销码查询卡券信息
+     *
+     * @param verifyCode
+     * @param uid
+     * @return
+     */
+    YxCouponsDto getCouponByVerifyCode(String verifyCode, int uid);
 }

@@ -11,6 +11,7 @@ import co.yixiang.modules.coupon.service.YxCouponOrderService;
 import co.yixiang.modules.coupon.service.YxCouponOrderUseService;
 import co.yixiang.modules.coupon.service.dto.YxCouponOrderDto;
 import co.yixiang.modules.coupon.service.dto.YxCouponOrderQueryCriteria;
+import co.yixiang.modules.coupon.service.dto.YxCouponsDto;
 import co.yixiang.utils.SecurityUtils;
 import co.yixiang.utils.StringUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -27,9 +28,9 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 /**
-* @author huiy
-* @date 2020-08-14
-*/
+ * @author huiy
+ * @date 2020-08-14
+ */
 @AllArgsConstructor
 @Api(tags = "卡券订单表管理")
 @RestController
@@ -45,15 +46,15 @@ public class YxCouponOrderController {
     @Log("查询卡券订单表")
     @ApiOperation("查询卡券订单表")
     @PreAuthorize("@el.check('admin','yxCouponOrder:list')")
-    public ResponseEntity<Object> getYxCouponOrders(YxCouponOrderQueryCriteria criteria, Pageable pageable){
-        return new ResponseEntity<>(yxCouponOrderService.queryAll(criteria,pageable),HttpStatus.OK);
+    public ResponseEntity<Object> getYxCouponOrders(YxCouponOrderQueryCriteria criteria, Pageable pageable) {
+        return new ResponseEntity<>(yxCouponOrderService.queryAll(criteria, pageable), HttpStatus.OK);
     }
 
     @GetMapping(value = "/getCouponOrderInfo/{id}")
     @Log("查询卡券订单详情")
     @ApiOperation("查询卡券订单详情")
-    public ResponseEntity<Object> getYxCouponOrderInfo(@PathVariable String id){
-        if (StringUtils.isBlank(id)){
+    public ResponseEntity<Object> getYxCouponOrderInfo(@PathVariable String id) {
+        if (StringUtils.isBlank(id)) {
             throw new BadRequestException("请传入正确的ID!");
         }
         QueryWrapper<YxCouponOrder> yxCouponOrderQueryWrapper = new QueryWrapper<>();
@@ -77,15 +78,15 @@ public class YxCouponOrderController {
     @Log("新增卡券订单表")
     @ApiOperation("新增卡券订单表")
     @PreAuthorize("@el.check('admin','yxCouponOrder:add')")
-    public ResponseEntity<Object> create(@Validated @RequestBody YxCouponOrder resources){
-        return new ResponseEntity<>(yxCouponOrderService.save(resources),HttpStatus.CREATED);
+    public ResponseEntity<Object> create(@Validated @RequestBody YxCouponOrder resources) {
+        return new ResponseEntity<>(yxCouponOrderService.save(resources), HttpStatus.CREATED);
     }
 
     @PutMapping
     @Log("修改卡券订单表")
     @ApiOperation("修改卡券订单表")
     @PreAuthorize("@el.check('admin','yxCouponOrder:edit')")
-    public ResponseEntity<Object> update(@Validated @RequestBody CouponOrderModifyRequest request){
+    public ResponseEntity<Object> update(@Validated @RequestBody CouponOrderModifyRequest request) {
         YxCouponOrder yxCouponOrder = new YxCouponOrder();
         BeanUtil.copyProperties(request, yxCouponOrder);
         return new ResponseEntity<>(yxCouponOrderService.updateById(yxCouponOrder), HttpStatus.NO_CONTENT);
@@ -113,4 +114,10 @@ public class YxCouponOrderController {
 //        });
 //        return new ResponseEntity<>(HttpStatus.OK);
     }
+
+
+    // 核销
+
+    // 查询核销记录
+
 }
