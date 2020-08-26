@@ -28,6 +28,8 @@ public class YxCouponOrder implements Serializable {
     @TableId(value = "id", type = IdType.AUTO)
     private Integer id;
 
+    /** 唯一值 */
+    private String unique;
 
     /** 订单号 */
     @NotBlank
@@ -73,6 +75,10 @@ public class YxCouponOrder implements Serializable {
     @NotNull
     private Integer payStaus;
 
+    @NotNull
+    private String payType;
+
+    private Integer isChannel;
 
     /** 支付时间 */
     private Integer payTime;

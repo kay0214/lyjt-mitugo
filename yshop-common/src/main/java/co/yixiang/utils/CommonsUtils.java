@@ -1,4 +1,4 @@
-package co.yixiang.common.util;
+package co.yixiang.utils;
 
 import com.google.zxing.WriterException;
 import lombok.extern.slf4j.Slf4j;

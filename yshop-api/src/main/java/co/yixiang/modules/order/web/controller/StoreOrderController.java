@@ -33,6 +33,7 @@ import co.yixiang.modules.shop.entity.YxStoreProductReply;
 import co.yixiang.modules.shop.service.*;
 import co.yixiang.modules.shop.web.vo.YxStoreCartQueryVo;
 import co.yixiang.modules.shop.web.vo.YxStoreStoreCartQueryVo;
+import co.yixiang.modules.shop.web.vo.YxStoreStoreCartVo;
 import co.yixiang.modules.user.entity.YxSystemAttachment;
 import co.yixiang.modules.user.service.YxSystemAttachmentService;
 import co.yixiang.modules.user.service.YxUserAddressService;
@@ -811,14 +812,14 @@ public class StoreOrderController extends BaseController {
         }
         int uid = SecurityUtils.getUserId().intValue();
 //        int uid = 27;
-        Map<String, Object> cartGroup = cartService.getUserStoreCartList(uid,cartId,1);
-        if(ObjectUtil.isNotEmpty(cartGroup.get("invalid"))){
+        YxStoreStoreCartVo cartGroup = cartService.getUserStoreCartList(uid,cartId,1);
+        if(ObjectUtil.isNotEmpty(cartGroup.getInvalid())){
             return ApiResult.fail("有失效的商品请重新提交");
         }
-        if(ObjectUtil.isEmpty(cartGroup.get("valid"))){
+        if(ObjectUtil.isEmpty(cartGroup.getValid())){
             return ApiResult.fail("请提交购买的商品");
         }
-        List<YxStoreStoreCartQueryVo> cartStoreInfo = (List<YxStoreStoreCartQueryVo>)cartGroup.get("valid");
+        List<YxStoreStoreCartQueryVo> cartStoreInfo = (List<YxStoreStoreCartQueryVo>)cartGroup.getValid();
         List<YxStoreCartQueryVo>cartInfo =new ArrayList<>();
         for(YxStoreStoreCartQueryVo storeStoreCartQueryVo:cartStoreInfo){
             //设置价格

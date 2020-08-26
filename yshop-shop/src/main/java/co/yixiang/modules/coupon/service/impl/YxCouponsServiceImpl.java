@@ -14,6 +14,8 @@ import co.yixiang.constant.LocalLiveConstants;
 import co.yixiang.constant.ShopConstants;
 import co.yixiang.dozer.service.IGenerator;
 import co.yixiang.modules.coupon.domain.YxCoupons;
+import co.yixiang.modules.coupon.domain.YxCouponsCategory;
+import co.yixiang.modules.coupon.service.YxCouponsCategoryService;
 import co.yixiang.modules.coupon.service.YxCouponsService;
 import co.yixiang.modules.coupon.service.dto.YxCouponsDto;
 import co.yixiang.modules.coupon.service.dto.YxCouponsQueryCriteria;
@@ -57,6 +59,9 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
     @Autowired
     private YxImageInfoService yxImageInfoService;
 
+    @Autowired
+    private YxCouponsCategoryService yxCouponsCategoryService;
+
     @Override
     //@Cacheable
     public Map<String, Object> queryAll(YxCouponsQueryCriteria criteria, Pageable pageable) {
@@ -67,6 +72,13 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
         if (yxCouponsDtoList.size() > 0){
             // 查询缩略图和幻灯片
             for (YxCouponsDto yxCouponsDto : yxCouponsDtoList){
+
+                YxCouponsCategory couponsCategory = yxCouponsCategoryService.getOne(new QueryWrapper<YxCouponsCategory>()
+                        .eq("del_flag", 0).eq("id", yxCouponsDto.getCouponCategory()));
+                if (couponsCategory != null){
+                    yxCouponsDto.setCouponCategoryName(couponsCategory.getCateName());
+                }
+
                 // 查询缩略图图片是否存在
                 QueryWrapper<YxImageInfo> imageInfoQueryWrapper = new QueryWrapper<>();
                 imageInfoQueryWrapper.lambda()

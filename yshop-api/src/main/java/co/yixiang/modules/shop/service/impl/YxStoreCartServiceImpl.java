@@ -26,10 +26,8 @@ import co.yixiang.modules.shop.mapping.CartMap;
 import co.yixiang.modules.shop.service.YxStoreCartService;
 import co.yixiang.modules.shop.service.YxStoreProductAttrService;
 import co.yixiang.modules.shop.service.YxStoreProductService;
-import co.yixiang.modules.shop.web.vo.YxStoreCartQueryVo;
-import co.yixiang.modules.shop.web.vo.YxStoreInfoQueryVo;
-import co.yixiang.modules.shop.web.vo.YxStoreProductQueryVo;
-import co.yixiang.modules.shop.web.vo.YxStoreStoreCartQueryVo;
+import co.yixiang.modules.shop.web.vo.*;
+import co.yixiang.modules.user.entity.YxUser;
 import co.yixiang.modules.user.service.YxUserService;
 import co.yixiang.utils.OrderUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -41,6 +39,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.*;
 
 
@@ -378,7 +377,8 @@ public class YxStoreCartServiceImpl extends BaseServiceImpl<YxStoreCartMapper, Y
      * @return
      */
     @Override
-    public Map<String, Object> getUserStoreCartList(int uid, String cartIds, int status) {
+    public YxStoreStoreCartVo getUserStoreCartList(int uid, String cartIds, int status) {
+        YxStoreStoreCartVo yxStoreStoreCartVo = new YxStoreStoreCartVo();
         List<YxStoreStoreCartQueryVo> vaildStoreList = new ArrayList<>();
         List<YxStoreStoreCartQueryVo> invalidStoreList = new ArrayList<>();
 
@@ -494,9 +494,11 @@ public class YxStoreCartServiceImpl extends BaseServiceImpl<YxStoreCartMapper, Y
 
         }
         Map<String,Object> map = new LinkedHashMap<>();
-        map.put("valid",vaildStoreList);
-        map.put("invalid",invalidStoreList);
-        return map;
+//        map.put("valid",vaildStoreList);
+        yxStoreStoreCartVo.setValid(vaildStoreList);
+        yxStoreStoreCartVo.setInvalid(invalidStoreList);
+//        map.put("invalid",invalidStoreList);
+        return yxStoreStoreCartVo;
     }
 
     private QueryWrapper<YxStoreCart> getWrapper(Integer uid, Integer status,String cartIds){
@@ -507,4 +509,92 @@ public class YxStoreCartServiceImpl extends BaseServiceImpl<YxStoreCartMapper, Y
         if(StrUtil.isNotEmpty(cartIds)) wrapper.in("id", Arrays.asList(cartIds.split(",")));
         return wrapper;
     }
+
+
+    /**
+     * 添加购物车
+     * @param uid  用户id
+     * @param productId 普通产品编号
+     * @param cartNum  购物车数量
+     * @param productAttrUnique 属性唯一值
+     * @param type product
+     * @param isNew 1 加入购物车直接购买  0 加入购物车
+     * @param combinationId 拼团id
+     * @param seckillId  秒杀id
+     * @param bargainId  砍价id
+     * @param shareUserId 分享人用户id
+     * @return
+     */
+    @Override
+    public int addCartShareId(int uid, int productId, int cartNum, String productAttrUnique,
+                              String type, int isNew, int combinationId, int seckillId, int bargainId, int shareUserId, BigDecimal commission) {
+
+        checkProductStock(uid,productId,cartNum,productAttrUnique,combinationId,seckillId,bargainId);
+        QueryWrapper<YxStoreCart> wrapper = new QueryWrapper<>();
+        wrapper.eq("uid",uid).eq("type",type).eq("is_pay",0).eq("is_del",0)
+                .eq("product_id",productId)
+                .eq("is_new",isNew).eq("product_attr_unique",productAttrUnique)
+                .eq("combination_id",combinationId).eq("bargain_id",bargainId)
+                .eq("seckill_id",seckillId).orderByDesc("id").last("limit 1");
+
+        YxStoreCart cart =yxStoreCartMapper.selectOne(wrapper);
+        YxStoreCart storeCart = new YxStoreCart();
+
+        storeCart.setBargainId(bargainId);
+        storeCart.setCartNum(cartNum);
+        storeCart.setCombinationId(combinationId);
+        storeCart.setProductAttrUnique(productAttrUnique);
+        storeCart.setProductId(productId);
+        YxStoreProductQueryVo product = productService.getYxStoreProductById(productId);
+        //店铺id
+        storeCart.setStoreId(null!=product?product.getStoreId():0);
+        storeCart.setSeckillId(0);
+        storeCart.setType(type);
+        storeCart.setUid(uid);
+        storeCart.setIsNew(isNew);
+        //分享人用户id
+        storeCart.setShareId(shareUserId);
+        int shareParentId = 0;
+        int shartParentType=0;
+        if(0!=shareUserId) {
+            //分享人的推荐人类型:1商户;2合伙人;3用户
+            YxUser yxUsersShare= getUserInfoByUserId(shareUserId);
+            shartParentType = yxUsersShare.getParentType();
+            //分享人的推荐人用户ID
+            shareParentId = yxUsersShare.getParentId();
+        }
+        storeCart.setShareParentId(shareParentId);
+        storeCart.setShareParentType(shartParentType);
+        //推荐人用户ID
+        YxUser yxUser= getUserInfoByUserId(storeCart.getUid());
+        storeCart.setParentId(yxUser.getParentId());
+        //推荐人类型:1商户;2合伙人;3用户
+        storeCart.setParentType(yxUser.getParentType());
+        //佣金
+        storeCart.setCommission(commission);
+        //商户ID
+        storeCart.setMerId(product.getMerId());
+        if(ObjectUtil.isNotNull(cart)){
+            if(isNew == 0){
+                storeCart.setCartNum(cartNum + cart.getCartNum());
+            }
+            storeCart.setId(cart.getId());
+            yxStoreCartMapper.updateById(storeCart);
+        }else{
+            //判断是否已经添加过
+            storeCart.setAddTime(OrderUtil.getSecondTimestampTwo());
+            yxStoreCartMapper.insert(storeCart);
+        }
+
+        return storeCart.getId().intValue();
+    }
+
+
+    private YxUser getUserInfoByUserId(int userId){
+        QueryWrapper<YxUser> userQueryWrapper = new QueryWrapper<>();
+        userQueryWrapper.eq("uid",userId);
+        YxUser userInfo = userService.getOne(userQueryWrapper);
+        return userInfo;
+    }
+
 }

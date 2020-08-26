@@ -18,6 +18,9 @@ public class OrderInfo {
     @ApiModelProperty(value = "订单号")
     private String orderId;
 
+    @ApiModelProperty(value = "购物车id")
+    private String cartId;
+
     @ApiModelProperty(value = "用户id")
     private Integer uid;
 
