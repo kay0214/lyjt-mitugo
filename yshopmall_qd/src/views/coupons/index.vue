@@ -2,6 +2,39 @@
   <div class="app-container">
     <!--工具栏-->
     <div class="head-container">
+      <div v-if="crud.props.searchToggle">
+        <!-- 搜索 -->
+        <el-input v-model="query.couponName" clearable placeholder="卡券名称" style="width: 130px;" class="filter-item" />
+        <el-select v-model="query.couponType" clearable placeholder="卡券类型" class="filter-item" style="width: 130px">
+          <el-option v-for="item in selections.couponType" :key="item.value" :label="item.label" :value="item.value" />
+        </el-select>
+        <el-select v-model="query.couponCategory" clearable placeholder="卡券分类" class="filter-item" style="width: 130px">
+          <el-option v-for="item in selections.couponCategory" :key="item.value" :label="item.label" :value="item.value" />
+        </el-select>
+        <el-select v-model="query.isShow" clearable placeholder="上架状态" class="filter-item" style="width: 130px">
+          <el-option
+            v-for="item in [
+              { key: 1, display_name: '是' },
+              { key: 0, display_name: '否' }
+            ]"
+            :key="item.key"
+            :label="item.display_name"
+            :value="item.key"
+          />
+        </el-select>
+        <el-select v-model="query.isHot" clearable placeholder="热门状态" class="filter-item" style="width: 130px">
+          <el-option
+            v-for="item in [
+              { key: 1, display_name: '是' },
+              { key: 0, display_name: '否' }
+            ]"
+            :key="item.key"
+            :label="item.display_name"
+            :value="item.key"
+          />
+        </el-select>
+        <rrOperation :crud="crud" />
+      </div>
       <!--如果想在工具栏加入更多按钮，可以使用插槽方式， slot = 'left' or 'right'-->
       <crudOperation :permission="permission" />
       <!--表单组件-->
@@ -98,10 +131,10 @@
           <el-form-item v-show="false" label="热门优惠; 1:是, 0否">
             <el-input v-model="form.isHot" style="width: 100%;" />
           </el-form-item>
-          <el-form-item v-show="false" label="状态">
+          <el-form-item v-show="false" label="上架状态">
             <el-radio-group v-model="form.isShow">
-              <el-radio :label="0">未上架</el-radio>
-              <el-radio :label="1">上架</el-radio>
+              <el-radio :label="0">是</el-radio>
+              <el-radio :label="1">否</el-radio>
             </el-radio-group>
           </el-form-item>
           <el-form-item label="服务支持">
@@ -185,8 +218,8 @@
 
       <el-table ref="table" v-loading="crud.loading" :data="crud.data" size="small" style="width: 100%;" @selection-change="crud.selectionChangeHandler">
         <el-table-column type="selection" width="55" />
-        <!-- <el-table-column v-if="false && columns.visible('id')" prop="id" label="卡券主键" /> -->
-        <el-table-column v-if="columns.visible('couponNum')" fixed="left" prop="couponNum" label="卡券编号" />
+        <el-table-column v-if="columns.visible('id')" fixed="left" prop="id" label="卡券id" />
+        <!-- <el-table-column v-if="columns.visible('couponNum')" fixed="left" prop="couponNum" label="卡券编号" width="160px" /> -->
         <el-table-column v-if="columns.visible('couponName')" fixed="left" prop="couponName" label="卡券名称" />
         <el-table-column v-if="columns.visible('couponType')" prop="couponType" label="卡券类型">
           <!-- 1:代金券, 2:折扣券, 3:满减券 -->
@@ -198,14 +231,10 @@
             }}
           </template>
         </el-table-column>
-        <el-table-column v-if="columns.visible('couponCategory')" prop="couponCategory" label="卡券分类">
+        <el-table-column v-if="columns.visible('couponCategoryName')" prop="couponCategoryName" label="卡券分类">
           <!-- 卡券分类 -->
           <template slot-scope="scope">
-            {{
-              selections.couponCategory.find(item=>{
-                return item.value === scope.row.couponType
-              }).label
-            }}
+            {{ scope.row.couponCategoryName }}
           </template>
         </el-table-column>
         <!-- coupon_type === 1 -->
@@ -248,7 +277,7 @@
         <el-table-column v-if="columns.visible('ficti')" prop="ficti" label="虚拟销量" />
         <el-table-column v-if="columns.visible('writeOff')" prop="writeOff" label="核销次数" />
 
-        <el-table-column label="有效期">
+        <el-table-column label="有效期" width="180px">
           <template slot-scope="scope">
             {{ parseTime(scope.row.expireDateStart,"{y}-{m}-{d}") }} ~ {{ parseTime(scope.row.expireDateEnd,"{y}-{m}-{d}") }}
           </template>
@@ -304,10 +333,10 @@
             <span v-if="scope.row.awaysRefund === 1">支持</span>
           </template>
         </el-table-column> -->
-        <el-table-column v-if="columns.visible('useCondition')" prop="useCondition" label="使用条件 描述" />
-        <el-table-column label="可用时段">
+        <el-table-column v-if="columns.visible('useCondition')" prop="useCondition" label="使用条件" width="180px" />
+        <el-table-column label="可用时段" width="150px">
           <template slot-scope="scope">
-            {{ scope.row.availableTimeStart }} ~ {{ scope.row.availableTimeEnd }}
+            {{ parseTime(scope.row.availableTimeStart,'{h}:{i}:{s}') }} ~ {{ parseTime(scope.row.availableTimeEnd,'{h}:{i}:{s}') }}
           </template>
         </el-table-column>
         <!-- <el-table-column v-if="columns.visible('availableTimeStart')" prop="availableTimeStart" label="可用时间始" />
@@ -332,12 +361,72 @@
           </template>
         </el-table-column>
         <!-- <el-table-column v-if="columns.visible('content')" prop="content" label="卡券详情" /> -->
-        <el-table-column v-permission="['admin','yxCoupons:edit','yxCoupons:del']" fixed="right" label="操作" width="150px" align="center">
+        <el-table-column v-permission="['admin','yxCoupons:edit','yxCoupons:del']" fixed="right" label="操作" width="220px" align="center">
           <template slot-scope="scope">
             <udOperation
               :data="scope.row"
               :permission="permission"
-            />
+            >
+              <template slot="right">
+                <el-dropdown trigger="click" :hide-on-click="false">
+                  <el-button type="primary" size="mini">
+                    更多 <i class="el-icon-arrow-down el-icon--right" />
+                  </el-button>
+                  <el-dropdown-menu slot="dropdown">
+                    <el-dropdown-item v-if="scope.row.isShow === 0">
+                      <el-popconfirm
+                        confirm-button-text="确认"
+                        cancel-button-text="取消"
+                        icon="el-icon-info"
+                        icon-color="red"
+                        title="确认将商品上架吗？"
+                        @onConfirm="handleUpload(scope.row)"
+                      >
+                        <el-button slot="reference" class="more-action-button" icon="el-icon-upload2" type="text">上架</el-button>
+                      </el-popconfirm>
+                    </el-dropdown-item>
+                    <el-dropdown-item v-if="scope.row.isShow === 1">
+                      <el-popconfirm
+                        confirm-button-text="确认"
+                        cancel-button-text="取消"
+                        icon="el-icon-info"
+                        icon-color="red"
+                        title="确认将商品下架吗？"
+                        @onConfirm="handleUpload(scope.row)"
+                      >
+                        <el-button slot="reference" class="more-action-button" icon="el-icon-download" type="text">下架</el-button>
+                      </el-popconfirm>
+                    </el-dropdown-item>
+
+                    <el-dropdown-item v-if="scope.row.isHot === 1">
+                      <el-popconfirm
+                        confirm-button-text="确认"
+                        cancel-button-text="取消"
+                        icon="el-icon-info"
+                        icon-color="red"
+                        title="确认取消热门吗？"
+                        @onConfirm="handleHot(scope.row)"
+                      >
+                        <el-button slot="reference" class="more-action-button" icon="el-icon-star-off" type="text">取消热门</el-button>
+                      </el-popconfirm>
+                    </el-dropdown-item>
+                    <el-dropdown-item v-if="scope.row.isHot === 0">
+                      <el-popconfirm
+                        confirm-button-text="确认"
+                        cancel-button-text="取消"
+                        icon="el-icon-info"
+                        icon-color="red"
+                        title="确认设为热门吗？"
+                        @onConfirm="handleHot(scope.row)"
+                      >
+                        <el-button slot="reference" class="more-action-button" icon="el-icon-star-on" type="text">设为热门</el-button>
+                      </el-popconfirm>
+                    </el-dropdown-item>
+                  </el-dropdown-menu>
+                </el-dropdown>
+              </template>
+            </udOperation>
+
           </template>
         </el-table-column>
       </el-table>
@@ -359,6 +448,7 @@ import picUploadTwo from '@/components/pic-upload-two'
 import mulpicUpload from '@/components/mul-pic-upload'
 import editor from '@/views/components/Editor'
 import { parseTime } from '@/utils/index'
+import { Message } from 'element-ui'
 // crud交由presenter持有
 const defaultCrud = CRUD({ title: '卡券表', url: 'api/yxCoupons', sort: 'id,desc', crudMethod: { ...crudYxCoupons }})
 const defaultForm = { id: null, couponNum: null, couponName: null, couponType: null, couponCategory: null, denomination: null, discount: null, threshold: null, discountAmount: null, sellingPrice: null, originalPrice: null, settlementPrice: null, commission: null, quantityLimit: null, inventory: null, sales: null, ficti: null, writeOff: null, expireDateStart: null, expireDateEnd: null, isHot: null, isShow: null, outtimeRefund: null, needOrder: null, awaysRefund: null, useCondition: null, availableTimeStart: null, availableTimeEnd: null, delFlag: null, createUserId: null, updateUserId: null, createTime: null, updateTime: null, content: null, expireDate: null, image: null, sliderImage: null }
@@ -376,7 +466,7 @@ export default {
       sliderImageArr: defaultForm.sliderImage || [],
       selections: {
         couponType: [{ label: '代金券', value: 1 }, { label: '折扣券', value: 2 }, { label: '满减券', value: 3 }], // 卡券类型
-        couponCategory: [{ label: '美食', value: 1 }, { label: '理发', value: 2 }, { label: '游戏', value: 3 }] // 卡券分类
+        couponCategory: [] // 卡券分类
       },
       permission: {
         add: ['admin', 'yxCoupons:add'],
@@ -489,8 +579,11 @@ export default {
         ],
         image: [{ required: true, message: '卡券图片不能为空' }],
         sliderImage: [{ required: true, message: '卡券轮播图不能为空' }]
-
-      }}
+      },
+      queryTypeOptions: [
+        { key: 'couponName', display_name: '卡券名称' }
+      ]
+    }
   },
   computed: {
 
@@ -509,9 +602,26 @@ export default {
       }
     }
   },
+  mounted() {
+    // 获取卡券分类数据
+    crudYxCoupons.categoryTree().then(res => {
+      this.selections.couponCategory = res.content.map(item => {
+        const { id, cateName } = item
+        return { label: cateName, value: id }
+      })
+    })
+  },
   methods: {
     // 获取数据前设置好接口地址
     [CRUD.HOOK.beforeRefresh]() {
+      const query = this.query
+      if (query.type && query.value) {
+        this.crud.params[query.type] = query.value
+      } else {
+        delete this.crud.params.couponName
+        delete this.crud.params.couponType
+        delete this.crud.params.couponCategory
+      }
       return true
     }, // 新增与编辑前做的操作
     [CRUD.HOOK.afterToCU](crud, form) {
@@ -546,6 +656,32 @@ export default {
     setCommission() {
       const commission = this.form.sellingPrice - this.form.settlementPrice
       this.form.commission = isNaN(commission) ? null : commission
+    },
+    // 上下架操作
+    handleUpload(row) {
+      const { id, isShow } = row
+      const text = isShow === 1 ? '下架' : '上架'
+      crudYxCoupons.pufOff(id).then(() => {
+        this.$notify({
+          title: text + '成功',
+          // message: '这是一条成功的提示消息',
+          type: 'success'
+        })
+        this.crud.refresh()
+      })
+    },
+    // 热销操作
+    handleHot(row) {
+      const { id, isHot } = row
+      const text = isHot === 1 ? '取消' : '设置'
+      crudYxCoupons.popular(id).then(() => {
+        this.$notify({
+          title: text + '热销成功',
+          // message: '这是一条成功的提示消息',
+          type: 'success'
+        })
+        this.crud.refresh()
+      })
     }
   }
 }

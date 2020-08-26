@@ -24,4 +24,27 @@ export function edit(data) {
   })
 }
 
-export default { add, edit, del }
+// 设为热销
+export function popular(id) {
+  return request({
+    url: 'api/yxCoupons/popular/' + id,
+    method: 'post'
+  })
+}
+
+// 上下架
+export function pufOff(id) {
+  return request({
+    url: 'api/yxCoupons/pufOff/' + id,
+    method: 'post'
+  })
+}
+// 卡券分类
+export function categoryTree() {
+  return request({
+    url: 'api/yxCouponsCategory/categoryTree',
+    method: 'get'
+  })
+}
+
+export default { add, edit, del, popular, pufOff, categoryTree }
