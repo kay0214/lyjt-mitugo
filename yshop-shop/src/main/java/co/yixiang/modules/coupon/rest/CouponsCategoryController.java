@@ -2,6 +2,7 @@ package co.yixiang.modules.coupon.rest;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.date.DateTime;
+import co.yixiang.annotation.AnonymousAccess;
 import co.yixiang.constant.LocalLiveConstants;
 import co.yixiang.constant.ShopConstants;
 import co.yixiang.logging.aop.log.Log;
@@ -10,14 +11,18 @@ import co.yixiang.modules.coupon.domain.CouponsCategoryModifyRequest;
 import co.yixiang.modules.coupon.domain.CouponsCategoryRequest;
 import co.yixiang.modules.coupon.domain.YxCouponsCategory;
 import co.yixiang.modules.coupon.service.YxCouponsCategoryService;
+import co.yixiang.modules.coupon.service.dto.YxCouponsCategoryDto;
+import co.yixiang.modules.coupon.service.dto.YxCouponsCategoryQueryCriteria;
 import co.yixiang.modules.shop.domain.YxImageInfo;
 import co.yixiang.modules.shop.service.YxImageInfoService;
+import co.yixiang.utils.CommonsUtils;
 import co.yixiang.utils.SecurityUtils;
 import co.yixiang.utils.StringUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -39,6 +44,24 @@ public class CouponsCategoryController {
     private final YxCouponsCategoryService yxCouponsCategoryService;
 
     private final YxImageInfoService yxImageInfoService;
+
+    /**
+     * Select 卡券分类
+     * @param criteria
+     * @param pageable
+     * @return
+     */
+    @AnonymousAccess
+    @Log("查询卡券分类")
+    @ApiOperation(value = "查询卡券分类")
+    @GetMapping(value = "/categoryTree")
+    @PreAuthorize("hasAnyRole('admin','YXSTORECATEGORY_ALL','YXSTORECATEGORY_SELECT')")
+    public ResponseEntity getCouponsCategorys(YxCouponsCategoryQueryCriteria criteria, Pageable pageable){
+
+        List<YxCouponsCategory> categoryDTOList = yxCouponsCategoryService.queryAll(criteria);
+        List<YxCouponsCategoryDto> categoryDtoLists =  CommonsUtils.convertBeanList(categoryDTOList, YxCouponsCategoryDto.class);
+        return new ResponseEntity(yxCouponsCategoryService.buildTree(categoryDtoLists),HttpStatus.OK);
+    }
 
     @GetMapping
     @Log("查询卡券分类表")
