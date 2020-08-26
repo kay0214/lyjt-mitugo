@@ -14,7 +14,7 @@
           <crudOperation :permission="permission" />
         </el-col> -->
       </el-row>
-      
+
       <!--表单组件-->
       <el-dialog :close-on-click-modal="false" :before-close="crud.cancelCU" :visible.sync="crud.status.cu > 0" :title="crud.status.title" width="900px">
         <!--        <el-form ref="form" :model="form" :rules="rules" size="small" label-width="80px">-->
@@ -33,11 +33,10 @@
           </el-form-item>
           <el-form-item label="店铺电话" prop="storeMobile">
             <el-input v-model="form.storeMobile" style="width: 700px;" />
-          </el-form-item> 
+          </el-form-item>
           <el-form-item label="营业时间" prop="openTime">
-            <el-input type='hidden' v-model="form.openTime" style="width: 700px;" />
-            <el-button type="text" @click="addOpenTime = true" plain>添加营业时间</el-button>
-          </el-form-item> 
+            <el-button @click="addOpenTime = !addOpenTime" plain>添加营业时间</el-button>
+          </el-form-item>
           <div v-if="addOpenTime">
             <el-row style="marginLeft:120px;marginBottom:18px;">
               <el-col :span='8'>
@@ -59,7 +58,7 @@
               </el-option>
             </el-select>
             </el-col>
-            <el-col :span='14'>
+            <el-col :span='12'>
               <el-time-picker
                 is-range
                 v-model="BusinessTime"
@@ -69,17 +68,37 @@
                 placeholder="选择时间范围">
               </el-time-picker>
             </el-col>
-            <el-col>
-              <el-button type="text" @click="addOpenTime=false">取消</el-button>
-              <el-button :loading="crud.cu === 2" type="primary" @click="addOpenTimeSub">确认</el-button>
+            <el-col :span='4'>
+              <el-button :loading="crud.cu === 2" type="primary" @click="addOpenTimeSub">添加</el-button>
             </el-col>
           </el-row>
           </div>
           <!-- 营业时间显示区域 -->
           <div>
-            <el-table :data="formOpenTime" empty-text="请添加营业时间" :show-header="false">
-              <el-table-column property="businessDay" label="营业日"></el-table-column>
-              <el-table-column property="businessTime" label="营业时间"></el-table-column>
+            <el-table :data="formOpenTime" empty-text=" "
+                      :cell-style="{borderBottomWidth:'0'}" :show-header="false"
+                      :style="{width:'700px',marginLeft:'110px',marginBottom:'20px'}"
+                      >
+              <el-table-column :width="150" label="营业日">
+                <template slot-scope="scope">
+                  <div :style="{padding:'10px',borderRadius:'5px',borderStyle:'solid',borderWidth:'1px',borderColor:'#DCDFE6'}">
+                    {{scope.row.businessDay}}
+                  </div>
+                </template>
+
+              </el-table-column>
+              <el-table-column :width="300" label="营业时间">
+                <template slot-scope="scope">
+                  <div :style="{padding:'10px',borderRadius:'5px',borderStyle:'solid',borderWidth:'1px',borderColor:'#DCDFE6'}">
+                    {{scope.row.businessTime}}
+                  </div>
+                </template>
+              </el-table-column>
+              <el-table-column :width="50">
+                <template slot-scope="scope">
+                  <i class="el-icon-delete" @click="deleteOpenTime(scope.$index)"></i>
+                </template>
+              </el-table-column>
             </el-table>
           </div>
           <el-form-item label="人均消费" prop="perCapita">
@@ -106,7 +125,7 @@
             <MaterialList v-model="picArr" style="width: 700px" type="image" :num="1" :width="150" :height="150" />
           </el-form-item>
           <el-form-item label="轮播图" prop="slider">
-            <MaterialList v-model="sliderImageArr" 
+            <MaterialList v-model="sliderImageArr"
             style="width: 700px" type="image" :num="4" :width="150" :height="150"
             @setValue="setSliderImageArr" />
           </el-form-item>
@@ -128,7 +147,7 @@
           <el-form-item label="地图坐标纬度" v-show="false">
             <el-input v-model="form.coordinateY" />
           </el-form-item>
-          
+
         </el-form>
         <div slot="footer" class="dialog-footer">
           <el-button type="text" @click="crud.cancelCU">取消</el-button>
@@ -186,6 +205,7 @@
   import pagination from '@crud/Pagination'
   import MaterialList from "@/components/material";
   import {onsale} from '@/api/yxStoreInfo'
+  import {parseTime} from '@/utils/index'
 
   // crud交由presenter持有
   const defaultCrud = CRUD({ title: '店铺表', url: 'api/yxStoreInfo', sort: 'id,desc',optShow: {
@@ -286,7 +306,7 @@
             this.$refs.form.validateField('pic');
           }
         })
-        
+
       },
       sliderImageArr(val) {
         this.form.slider = val.join(',');
@@ -299,7 +319,7 @@
     },
     mounted(){
       const that = this;
-      
+
     },
     methods: {
       // 初始化地图
@@ -343,7 +363,7 @@
         const that = this;
         //通过getLocation();方法获取位置信息值
         that.geocoder.getLocation(this.form.storeProvince + this.form.storeAddress);
-        
+
       },
       setSliderImageArr(urls){
         this.sliderImageArr = urls
@@ -386,31 +406,27 @@
           })
           .catch(() => { })
       },
-      addOpenTimeSub(){
+      addOpenTimeSub(){//添加营业时间
         let businessDay="",businessTime=[]
-        console.log('11111111111111111')
-        console.log(this.BusinessTime)
-     
         if(this.form.BusinessDayBegin == this.form.BusinessDayEnd){
           businessDay=this.selections.week[this.form.BusinessDayBegin].label
         }else{
           businessDay=this.selections.week[this.form.BusinessDayBegin].label+"至"+this.selections.week[this.form.BusinessDayEnd].label
         }
         this.BusinessTime.map(item=>{
-          businessTime.push(item.toLocaleTimeString ())
-        })
-        console.log({
-          businessDay,
-          businessTime:businessTime.join('~')
-
+          businessTime.push(parseTime(item,'{h}:{i}:{s}'))
         })
         this.formOpenTime.push({
           businessDay,
-          businessTime:businessTime.join('~')
-
+          businessTime:businessTime.join('~'),
+          businessDayBegin:this.form.BusinessDayBegin,
+          businessDayEnd:this.form.BusinessDayEnd,
+          businessTimes:this.BusinessTime
         })
         console.log(this.formOpenTime)
-        this.addOpenTime=false
+      },
+      deleteOpenTime(index){//更新营业时间
+        this.formOpenTime.splice(index,1)
       }
 
     },
@@ -434,5 +450,8 @@
     width: 32px;
     height: 32px;
     line-height: 32px;
+  }
+  .el-table::before{
+    height: 0;
   }
 </style>
