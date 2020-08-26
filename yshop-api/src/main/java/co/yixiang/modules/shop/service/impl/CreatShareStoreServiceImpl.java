@@ -148,25 +148,11 @@ public class CreatShareStoreServiceImpl implements CreatShareStoreService {
             //最后叠加余下的文字
             g.drawString(sb.toString(), tempX, tempY + 50);
 
-            //价格背景
-            //读取互联网图片
-//            BufferedImage bground  = null;//
-//            InputStream redStream =  getClass().getClassLoader().getResourceAsStream("red.jpg");
-//            try {
-//                ImageInputStream red = ImageIO.createImageInputStream(redStream);
-//                bground = ImageIO.read(red);
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
-//            // 绘制缩小后的图
-//            g.drawImage(bground.getScaledInstance(160, 40, Image.SCALE_DEFAULT), 30, 1053, null);
-
             //生成二维码返回链接
             String url = shareCode;
             //读取互联网图片
             BufferedImage qrCode  = null;
             try {
-                log.info("url:{}",url);
                 qrCode = ImageIO.read(new URL(url));
             } catch (IOException e) {
                 log.error("二维码图片读取失败",e);

@@ -134,6 +134,7 @@ public class CommissionConsumer implements RocketMQListener<String>, RocketMQPus
             orderInfo.setOrderId(orderId);
             orderInfo.setCartId(cartId);
             orderInfo.setUsername(yxWechatUser.getNickname());
+            orderInfo.setCommission(yxStoreCart.getCommission().multiply(new BigDecimal(yxStoreCart.getCartNum().toString())));
             updateaccount(orderInfo);
         }
     }
