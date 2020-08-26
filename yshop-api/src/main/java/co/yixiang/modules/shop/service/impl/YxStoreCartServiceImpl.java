@@ -566,7 +566,7 @@ public class YxStoreCartServiceImpl extends BaseServiceImpl<YxStoreCartMapper, Y
         storeCart.setShareParentId(shareParentId);
         storeCart.setShareParentType(shartParentType);
         //推荐人用户ID
-        YxUser yxUser= getUserInfoByUserId(shareUserId);
+        YxUser yxUser= getUserInfoByUserId(storeCart.getUid());
         storeCart.setParentId(yxUser.getParentId());
         //推荐人类型:1商户;2合伙人;3用户
         storeCart.setParentType(yxUser.getParentType());
