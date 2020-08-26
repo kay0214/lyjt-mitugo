@@ -1936,7 +1936,7 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
             storeOrder.setMerId(storeStoreCartQueryVo.getMerId());
             //店铺id
             storeOrder.setStoreId(storeStoreCartQueryVo.getStoreId());
-            //推荐人id
+          /*  //推荐人id
             storeOrder.setParentId(userInfo.getParentId());
             //推荐人类型:1商户;2合伙人;3用户
             storeOrder.setParentType(userInfo.getParentType());
@@ -1945,7 +1945,7 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
             //分享人的推荐人类型:1商户;2合伙人;3用户
             //下单时的佣金
 //            storeOrder.setCommission();
-            //分佣状态 0:未分佣 1:已分佣
+            //分佣状态 0:未分佣 1:已分佣*/
             //支付单号
             storeOrder.setPaymentNo(payOrderNo);
             //
@@ -1975,12 +1975,12 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
             //保存购物车商品信息
             orderCartInfoService.saveCartInfo(storeOrder.getId(), storeStoreCartQueryVo.getCartList());
 
-            //购物车状态修改
+         /*   //购物车状态修改
             QueryWrapper<YxStoreCart> wrapper = new QueryWrapper<>();
             wrapper.in("id", cartIds);
             YxStoreCart cartObj = new YxStoreCart();
             cartObj.setIsPay(1);
-            storeCartMapper.update(cartObj, wrapper);
+            storeCartMapper.update(cartObj, wrapper);*/
 
             //增加状态
             orderStatusService.create(storeOrder.getId(), "cache_key_create_order", "订单生成");
@@ -2140,14 +2140,14 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
                 userService.incPayCount(orderInfo.getUid());
                 //增加状态
                 orderStatusService.create(orderInfo.getId(), "pay_success", "用户付款成功");
-              /*  //拼团
-                if (orderInfo.getCombinationId() > 0) pinkService.createPink(orderInfo);
 
-                //砍价
-                if (orderInfo.getBargainId() > 0) {
-                    storeBargainUserService.setBargainUserStatus(orderInfo.getBargainId(),
-                            orderInfo.getUid());
-                }*/
+                //购物车状态修改
+                QueryWrapper<YxStoreCart> cartQueryWrapper = new QueryWrapper<>();
+                wrapper.in("id", orderInfo.getCartId());
+                YxStoreCart cartObj = new YxStoreCart();
+                cartObj.setIsPay(1);
+                storeCartMapper.update(cartObj, cartQueryWrapper);
+
                 //模板消息推送
                 YxWechatUserQueryVo wechatUser = wechatUserService.getYxWechatUserById(orderInfo.getUid());
                 if (ObjectUtil.isNotNull(wechatUser)) {

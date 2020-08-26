@@ -1,5 +1,6 @@
 package co.yixiang.modules.shop.web.vo;
 
+import co.yixiang.common.mybatis.GeoPoint;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -59,6 +60,9 @@ public class YxStoreInfoQueryVo implements Serializable {
 
     @ApiModelProperty(value = "店铺详细地址")
     private String storeAddress;
+
+    @ApiModelProperty(value = "地图坐标")
+    private GeoPoint coordinate;
 
     @ApiModelProperty(value = "地图坐标经度")
     private String coordinateX;

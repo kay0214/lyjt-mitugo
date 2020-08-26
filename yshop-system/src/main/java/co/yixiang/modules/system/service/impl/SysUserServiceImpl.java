@@ -295,8 +295,8 @@ public class SysUserServiceImpl extends BaseServiceImpl<SysUserMapper, User> imp
             yxMerchantsDetail.setCompanyName("");
             yxMerchantsDetail.setCompanyLegalPerson("");
             yxMerchantsDetail.setCompanyPhone("");
-            yxMerchantsDetail.setBusinessCategory(0);
-            yxMerchantsDetail.setQualificationsType(0);
+            yxMerchantsDetail.setBusinessCategory("");
+            yxMerchantsDetail.setQualificationsType("");
             yxMerchantsDetail.setDelFlag(0);
             yxMerchantsDetail.setCreateUserId(resources.getParentId());
             yxMerchantsDetailService.save(yxMerchantsDetail);
