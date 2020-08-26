@@ -119,12 +119,12 @@ public class MerchantsDetail implements Serializable {
 
     /** 经营类目 */
     @NotNull
-    private Integer businessCategory;
+    private String businessCategory;
 
 
     /** 主体资质类型 */
     @NotNull
-    private Integer qualificationsType;
+    private String qualificationsType;
 
 
     /** 是否删除（0：未删除，1：已删除） */
