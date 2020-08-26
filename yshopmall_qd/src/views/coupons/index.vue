@@ -40,12 +40,13 @@
       <!--表单组件-->
       <el-dialog :close-on-click-modal="false" :before-close="crud.cancelCU" :visible.sync="crud.status.cu > 0" :title="crud.status.title" width="900px">
         <el-form ref="form" :model="form" :rules="rules" size="small" label-width="120px">
-          <el-form-item v-show="false" label="卡券主键">
-            <el-input v-model="form.id" style="width: 100%;" />
+          <el-form-item v-show="crud.status.edit === 1" label="卡券id">
+            <!-- <el-input v-model="form.id" style="width: 100%;" /> -->
+            <span>{{ form.id }}</span>
           </el-form-item>
-          <el-form-item v-show="crud.status.edit === 1" label="卡券编号" prop="couponNum">
+          <!-- <el-form-item v-show="crud.status.edit === 1" label="卡券编号" prop="couponNum">
             <span>{{ form.couponNum }}</span>
-          </el-form-item>
+          </el-form-item> -->
           <el-form-item label="卡券名称" prop="couponName">
             <el-input v-model="form.couponName" style="width: 100%;" />
           </el-form-item>
