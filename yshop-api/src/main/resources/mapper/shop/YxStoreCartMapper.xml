@@ -4,7 +4,7 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, uid, type, product_id, product_attr_unique, cart_num, add_time, is_pay, is_del, is_new, combination_id, seckill_id, bargain_id, store_id
+        id, uid, type, product_id, product_attr_unique, cart_num, add_time, is_pay, is_del, is_new, combination_id, seckill_id, bargain_id, store_id, share_id,share_parent_type,share_parent_id,parent_id,parent_type,commission,mer_id
     </sql>
 
     <select id="getYxStoreCartById" resultType="co.yixiang.modules.shop.web.vo.YxStoreCartQueryVo">
