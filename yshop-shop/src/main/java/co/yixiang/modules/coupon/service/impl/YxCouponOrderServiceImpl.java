@@ -5,13 +5,17 @@ import co.yixiang.common.utils.QueryHelpPlus;
 import co.yixiang.dozer.service.IGenerator;
 import co.yixiang.modules.coupon.domain.YxCouponOrder;
 import co.yixiang.modules.coupon.domain.YxCouponOrderDetail;
+import co.yixiang.modules.coupon.domain.YxCouponOrderUse;
 import co.yixiang.modules.coupon.domain.YxCoupons;
 import co.yixiang.modules.coupon.service.YxCouponOrderDetailService;
 import co.yixiang.modules.coupon.service.YxCouponOrderService;
+import co.yixiang.modules.coupon.service.YxCouponOrderUseService;
 import co.yixiang.modules.coupon.service.YxCouponsService;
 import co.yixiang.modules.coupon.service.dto.YxCouponOrderDto;
 import co.yixiang.modules.coupon.service.dto.YxCouponOrderQueryCriteria;
 import co.yixiang.modules.coupon.service.mapper.YxCouponOrderMapper;
+import co.yixiang.modules.shop.domain.YxStoreInfo;
+import co.yixiang.modules.shop.service.YxStoreInfoService;
 import co.yixiang.utils.FileUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.github.pagehelper.PageInfo;
@@ -26,10 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author huiy
@@ -47,6 +48,10 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
     private YxCouponOrderDetailService yxCouponOrderDetailService;
     @Autowired
     private YxCouponsService yxCouponsService;
+    @Autowired
+    private YxStoreInfoService yxStoreInfoService;
+    @Autowired
+    private YxCouponOrderUseService yxCouponOrderUseService;
 
     @Override
     //@Cacheable
@@ -132,6 +137,11 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
             log.info("核销为查询到卡券信息verifyCode：" + verifyCode);
             return false;
         }
+        YxStoreInfo yxStoreInfo = this.yxStoreInfoService.getOne(new QueryWrapper<YxStoreInfo>().eq("mer_id", uid));
+        if (null == yxStoreInfo) {
+            log.info("未获取到用户的店铺信息uid：" + uid);
+            return false;
+        }
         // 判断是否本商铺发放的卡券
         if (!yxCoupons.getCreateUserId().equals(uid)) {
             log.info("不可核销其他商户的卡券verifyCode：" + verifyCode + "uid:" + uid);
@@ -175,10 +185,24 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         } else {
             yxCouponOrderDetail.setStatus(5);
         }
+        // 处理店铺核销数据
+        YxCouponOrderUse yxCouponOrderUse = new YxCouponOrderUse();
+        yxCouponOrderUse.setCouponId(yxCouponOrderDetail.getCouponId());
+        yxCouponOrderUse.setOrderId(yxCouponOrder.getOrderId());
+        yxCouponOrderUse.setStoreId(yxStoreInfo.getId());
+        yxCouponOrderUse.setStoreName(yxStoreInfo.getStoreName());
+        yxCouponOrderUse.setUsedCount(yxCouponOrderDetail.getUsedCount());
+        yxCouponOrderUse.setDelFlag(0);
+        yxCouponOrderUse.setCreateUserId(uid);
+
+        // 数据入库
+        this.updateById(yxCouponOrder);
+        this.yxCouponOrderDetailService.updateById(yxCouponOrderDetail);
+        this.yxCouponOrderUseService.save(yxCouponOrderUse);
 
         if (isFirst) {
-            // 分佣mq发送
-
+            // TODO 分佣mq发送 admin模块的MQ缺少生产端
+//            commonMqProducer.messageSend2(new MessageContent(MQConstant.EGRET_TOPIC, MQConstant.EGRET_XPYUN_CODE_TAG, UUID.randomUUID().toString(), xpyunCommonRequest));
         }
 
         return true;
