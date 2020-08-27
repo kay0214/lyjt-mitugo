@@ -529,22 +529,20 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
      */
     @Override
     public void orderApplyRefund(RefundParam param, int uid) {
-        /*YxStoreOrderQueryVo order = getOrderInfo(param.getUni(), uid);
+        YxCouponOrder order = getOrderInfo(param.getUni(), uid);
         if (ObjectUtil.isNull(order)) throw new ErrorRequestException("订单不存在");
         if (order.getRefundStatus() == 2) throw new ErrorRequestException("订单已退款");
         if (order.getRefundStatus() == 1) throw new ErrorRequestException("正在申请退款中");
         if (order.getStatus() == 1) throw new ErrorRequestException("订单当前无法退款");
 
-        YxStoreOrder storeOrder = new YxStoreOrder();
+        YxCouponOrder storeOrder = new YxCouponOrder();
         storeOrder.setRefundStatus(OrderInfoEnum.REFUND_STATUS_1.getValue());
         storeOrder.setRefundReasonTime(OrderUtil.getSecondTimestampTwo());
         storeOrder.setRefundReasonWapExplain(param.getRefund_reason_wap_explain());
-        storeOrder.setRefundReasonWapImg(param.getRefund_reason_wap_img());
-        storeOrder.setRefundReasonWap(param.getText());
         storeOrder.setId(order.getId());
-        yxStoreOrderMapper.updateById(storeOrder);
+        yxCouponOrderMapper.updateById(storeOrder);
 
         //增加状态
-        orderStatusService.create(order.getId(), "apply_refund", "用户申请退款，原因：" + param.getText());*/
+        //orderStatusService.create(order.getId(), "apply_refund", "用户申请退款，原因：" + param.getText());
     }
 }
