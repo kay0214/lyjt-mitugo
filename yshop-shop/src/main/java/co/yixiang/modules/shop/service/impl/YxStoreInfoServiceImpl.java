@@ -96,7 +96,9 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
         yxStoreInfo.setCoordinate(geoPoint);
 
         yxStoreInfo.setUpdateUserId(SecurityUtils.getUserId().intValue());
-        boolean isUpd = this.updateById(yxStoreInfo);
+        yxStoreInfo.setDelFlag(0);
+//        boolean isUpd = this.update(yxStoreInfo,new QueryWrapper<YxStoreInfo>().eq("id",request.getId()));
+        boolean isUpd =yxStoreInfoMapper.updateByPrimaryKey(yxStoreInfo)>0?true:false;
         List<YxImageInfo> imageInfoList = yxImageInfoService.list(new QueryWrapper<YxImageInfo>().eq("type_id",yxStoreInfo.getId()).eq("img_type",ShopConstants.IMG_TYPE_STORE).eq("del_flag",0));
 
         if(CollectionUtils.isNotEmpty(imageInfoList)){
@@ -135,25 +137,22 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
         //店铺服务
         List<YxStoreAttribute> serviceAttribute = yxStoreAttributeService.list(new QueryWrapper<YxStoreAttribute>().eq("store_id",yxStoreInfo.getId()).eq("attribute_type",1).eq("del_flag",0));
         if(CollectionUtils.isNotEmpty(serviceAttribute)){
+            //删除之前的
             yxStoreAttributeService.remove(new QueryWrapper<YxStoreAttribute>().eq("store_id",yxStoreInfo.getId()).eq("attribute_type",1));
         }
         List<YxStoreAttribute> storeAttributeList = new ArrayList<YxStoreAttribute>();
 
-        if(StringUtils.isNotBlank(request.getStoreService())){
-            //删除之前的
-            String[] service = request.getStoreService().split(",");
-            if(service.length>0){
-                for(int i=0;i<service.length;i++){
-                    YxStoreAttribute yxStoreattribute = new YxStoreAttribute();
-                    //0：运营时间，1：店铺服务
-                    yxStoreattribute.setAttributeType(1);
-                    yxStoreattribute.setStoreId(yxStoreInfo.getId());
-                    yxStoreattribute.setAttributeValue1(service[i]);
-                    yxStoreattribute.setUpdateUserId(SecurityUtils.getUserId().intValue());
-                    yxStoreattribute.setCreateUserId(SecurityUtils.getUserId().intValue());
-                    yxStoreattribute.setDelFlag(0);
-                    storeAttributeList.add(yxStoreattribute);
-                }
+        if(CollectionUtils.isNotEmpty(request.getStoreService())) {
+            for (String service : request.getStoreService()) {
+                YxStoreAttribute yxStoreattribute = new YxStoreAttribute();
+                //0：运营时间，1：店铺服务
+                yxStoreattribute.setAttributeType(1);
+                yxStoreattribute.setStoreId(yxStoreInfo.getId());
+                yxStoreattribute.setAttributeValue1(service);
+                yxStoreattribute.setUpdateUserId(SecurityUtils.getUserId().intValue());
+                yxStoreattribute.setCreateUserId(SecurityUtils.getUserId().intValue());
+                yxStoreattribute.setDelFlag(0);
+                storeAttributeList.add(yxStoreattribute);
             }
         }
         List<YxStoreAttribute> openAttribute = yxStoreAttributeService.list(new QueryWrapper<YxStoreAttribute>().eq("store_id",yxStoreInfo.getId()).eq("attribute_type",0).eq("del_flag",0));
@@ -239,7 +238,12 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
         //轮播图
         response.setSliderImageArr(yxImageInfoService.selectImgByParam(storeId,ShopConstants.IMG_TYPE_STORE,ShopConstants.IMG_CATEGORY_ROTATION1));
         //店铺服务
-        response.setStoreService(selectAttributeByParam((storeId)));
+        List<String> serviceLists= new ArrayList<String>();
+        if(StringUtils.isNotBlank(selectAttributeByParam((storeId)))){
+            String[] serviceArr = selectAttributeByParam((storeId)).split(",");
+            serviceLists = new ArrayList<String>(Arrays.asList(serviceArr));
+        }
+        response.setStoreService(serviceLists);
         //营业时间
         response.setOpenTime(selectAttributeListByParam(storeId));
 

@@ -94,7 +94,7 @@ public class YxStoreInfo implements Serializable {
 
 
     /** 是否删除（0：未删除，1：已删除） */
-    @NotNull
+//    @NotNull
     @TableLogic
     @TableField(fill=FieldFill.INSERT_UPDATE)
     private Integer delFlag;
@@ -109,13 +109,13 @@ public class YxStoreInfo implements Serializable {
 
 
     /** 创建时间 */
-    @NotNull
+//    @NotNull
     @TableField(fill= FieldFill.INSERT)
     private Timestamp createTime;
 
 
     /** 更新时间 */
-    @NotNull
+//    @NotNull
     @TableField(fill= FieldFill.INSERT_UPDATE)
     private Timestamp updateTime;
 

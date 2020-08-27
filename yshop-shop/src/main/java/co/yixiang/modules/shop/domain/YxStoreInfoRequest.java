@@ -5,11 +5,9 @@ package co.yixiang.modules.shop.domain;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.bean.copier.CopyOptions;
-import com.baomidou.mybatisplus.annotation.*;
+import com.baomidou.mybatisplus.annotation.TableField;
 import lombok.Data;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
@@ -121,7 +119,7 @@ public class YxStoreInfoRequest implements Serializable {
 //    private List<Map<String, Object>> openTime;
     private List<Map<String,String>> openDays;
     //店铺服务
-    private String storeService;
+    private List<String> storeService;
 
 
     public void copy(YxStoreInfoRequest source) {
