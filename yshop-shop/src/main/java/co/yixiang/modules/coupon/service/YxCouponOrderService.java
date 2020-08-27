@@ -39,4 +39,13 @@ public interface YxCouponOrderService  extends BaseService<YxCouponOrder>{
     * @throws IOException /
     */
     void download(List<YxCouponOrderDto> all, HttpServletResponse response) throws IOException;
+
+    /**
+     * 卡券核销
+     *
+     * @param verifyCode
+     * @param uid
+     * @return
+     */
+    boolean updateCouponOrder(String verifyCode, int uid);
 }

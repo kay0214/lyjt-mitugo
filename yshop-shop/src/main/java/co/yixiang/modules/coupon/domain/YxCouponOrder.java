@@ -155,6 +155,11 @@ public class YxCouponOrder implements Serializable {
     @NotBlank
     private String verifyCode;
 
+    /** 佣金 */
+    private BigDecimal commission;
+
+    /** 分佣状态 0:未分佣 1:已分佣 */
+    private Integer rebateStatus;
 
     /** 是否删除（0：未删除，1：已删除） */
     @NotNull
