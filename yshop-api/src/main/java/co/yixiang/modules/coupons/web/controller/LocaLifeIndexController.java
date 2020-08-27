@@ -87,7 +87,7 @@ public class LocaLifeIndexController {
 
         // 首页幻灯片
         List<YxSystemGroupData> groupDataList = yxSystemGroupDataService.list(new QueryWrapper<YxSystemGroupData>()
-                .eq("group_name", " ").eq("status", 1).orderByAsc("sort"));
+                .eq("group_name", "local_live_carousel").eq("status", 1).orderByAsc("sort"));
 
         List<LocalLifeSliderVo> sliderVos = new ArrayList<>();
         if (groupDataList != null){
