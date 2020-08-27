@@ -82,7 +82,7 @@
               <el-table-column :width="150" label="营业日">
                 <template slot-scope="scope">
                   <div :style="{padding:'10px',borderRadius:'5px',borderStyle:'solid',borderWidth:'1px',borderColor:'#DCDFE6'}">
-                    {{scope.row.businessDay}}
+                    {{scope.row.openDay}}
                   </div>
                 </template>
 
@@ -90,7 +90,7 @@
               <el-table-column :width="300" label="营业时间">
                 <template slot-scope="scope">
                   <div :style="{padding:'10px',borderRadius:'5px',borderStyle:'solid',borderWidth:'1px',borderColor:'#DCDFE6'}">
-                    {{scope.row.businessTime}}
+                    {{scope.row.openTime}}
                   </div>
                 </template>
               </el-table-column>
@@ -230,14 +230,14 @@
         BusinessTime:[new Date(),new Date()],
         selections: {
           storeService: [{label:"有WIFI",value:1},{label:"有宝宝椅",value:4}],
-          week:[
-            {label:"星期日",value:0},
-            {label:"星期一",value:1},
-            {label:"星期二",value:2},
-            {label:"星期三",value:3},
-            {label:"星期四",value:4},
-            {label:"星期五",value:5},
-            {label:"星期六",value:6},
+          week:[ /*注意：value不能换，取值是根据Index*/
+            {label:"周日",value:0},
+            {label:"周一",value:1},
+            {label:"周二",value:2},
+            {label:"周三",value:3},
+            {label:"周四",value:4},
+            {label:"周五",value:5},
+            {label:"周六",value:6},
           ]
         },
         sliderImageArr:[],
@@ -407,26 +407,24 @@
           .catch(() => { })
       },
       addOpenTimeSub(){//添加营业时间
-        let businessDay="",businessTime=[]
+        let openDay="",openTime=[]
         if(this.form.BusinessDayBegin == this.form.BusinessDayEnd){
-          businessDay=this.selections.week[this.form.BusinessDayBegin].label
+          openDay=this.selections.week[this.form.BusinessDayBegin].label
         }else{
-          businessDay=this.selections.week[this.form.BusinessDayBegin].label+"至"+this.selections.week[this.form.BusinessDayEnd].label
+          openDay=this.selections.week[this.form.BusinessDayBegin].label+"至"+this.selections.week[this.form.BusinessDayEnd].label
         }
         this.BusinessTime.map(item=>{
-          businessTime.push(parseTime(item,'{h}:{i}:{s}'))
+          openTime.push(parseTime(item,'{h}:{i}:{s}'))
         })
         this.formOpenTime.push({
-          businessDay,
-          businessTime:businessTime.join('~'),
-          businessDayBegin:this.form.BusinessDayBegin,
-          businessDayEnd:this.form.BusinessDayEnd,
-          businessTimes:this.BusinessTime
+          openDay,
+          openTime:openTime.join('~'),
         })
-        console.log(this.formOpenTime)
+        this.form.openDays=this.formOpenTime
       },
-      deleteOpenTime(index){//更新营业时间
+      deleteOpenTime(index){//刪除营业时间
         this.formOpenTime.splice(index,1)
+        this.form.openDays=this.formOpenTime
       }
 
     },
