@@ -211,70 +211,8 @@ public class YxCouponOrderController extends BaseController {
                 yxCouponOrderService.yuePay(orderId,uid);
                 return ApiResult.ok(map,"支付成功");
             }
-
-//            switch (PayTypeEnum.toType(param.getPayType())){
-//                case WEIXIN:
-//                    try {
-//                        Map<String,String> jsConfig = new HashMap<>();
-//                        if(param.getFrom().equals("weixinh5")){
-//                            WxPayMwebOrderResult wxPayMwebOrderResult = storeOrderService
-//                                    .wxH5Pay(orderId);
-//                            log.info("wxPayMwebOrderResult:{}",wxPayMwebOrderResult);
-//                            jsConfig.put("mweb_url",wxPayMwebOrderResult.getMwebUrl());
-//                            orderDTO.setJsConfig(jsConfig);
-//                            map.put("result",orderDTO);
-//                            map.put("status","WECHAT_H5_PAY");
-//                            return ApiResult.ok(map);
-//                        }else if(param.getFrom().equals("routine")){
-//                            map.put("status","WECHAT_PAY");
-//                            WxPayMpOrderResult wxPayMpOrderResult = storeOrderService
-//                                    .wxAppPay(orderId);
-//                            jsConfig.put("appId",wxPayMpOrderResult.getAppId());
-//                            jsConfig.put("timeStamp",wxPayMpOrderResult.getTimeStamp());
-//                            jsConfig.put("nonceStr",wxPayMpOrderResult.getNonceStr());
-//                            jsConfig.put("package",wxPayMpOrderResult.getPackageValue());
-//                            jsConfig.put("signType",wxPayMpOrderResult.getSignType());
-//                            jsConfig.put("paySign",wxPayMpOrderResult.getPaySign());
-//                            orderDTO.setJsConfig(jsConfig);
-//                            map.put("result",orderDTO);
-//                            return ApiResult.ok(map,"订单创建成功");
-//                        }else if(param.getFrom().equals("app")){//app支付
-//                            map.put("status","WECHAT_APP_PAY");
-//                            WxPayAppOrderResult wxPayAppOrderResult = storeOrderService
-//                                    .appPay(orderId);
-//                            jsConfig.put("appid",wxPayAppOrderResult.getAppId());
-//                            jsConfig.put("partnerid",wxPayAppOrderResult.getPartnerId());
-//                            jsConfig.put("prepayid",wxPayAppOrderResult.getPrepayId());
-//                            jsConfig.put("package",wxPayAppOrderResult.getPackageValue());
-//                            jsConfig.put("noncestr",wxPayAppOrderResult.getNonceStr());
-//                            jsConfig.put("timestamp",wxPayAppOrderResult.getTimeStamp());
-//                            jsConfig.put("sign",wxPayAppOrderResult.getSign());
-//                            orderDTO.setJsConfig(jsConfig);
-//                            map.put("result",orderDTO);
-//                            return ApiResult.ok(map,"订单创建成功");
-//                        } else{//公众号
-//                            map.put("status","WECHAT_PAY");
-//                            WxPayMpOrderResult wxPayMpOrderResult = storeOrderService.wxPay(orderId);
-//                            jsConfig.put("appId",wxPayMpOrderResult.getAppId());
-//                            jsConfig.put("timestamp",wxPayMpOrderResult.getTimeStamp());
-//                            jsConfig.put("nonceStr",wxPayMpOrderResult.getNonceStr());
-//                            jsConfig.put("package",wxPayMpOrderResult.getPackageValue());
-//                            jsConfig.put("signType",wxPayMpOrderResult.getSignType());
-//                            jsConfig.put("paySign",wxPayMpOrderResult.getPaySign());
-//                            orderDTO.setJsConfig(jsConfig);
-//                            map.put("result",orderDTO);
-//                            return ApiResult.ok(map,"订单创建成功");
-//                        }
-//
-//                    } catch (WxPayException e) {
-//                        return ApiResult.fail(e.getMessage());
-//                    }
-//                case YUE:
-//                    yxCouponOrderService.yuePay(orderId,uid);
-//                    return ApiResult.ok(map,"余额支付成功");
-//            }
         }
-        return ApiResult.fail("订单生成失败");
+        return ApiResult.ok(map,"订单创建成功");
     }
 
     /**
