@@ -208,4 +208,7 @@ public class YxCouponsDto implements Serializable {
 
     /** 当前卡券状态 */
     private Integer status;
+
+    /** 状态描述 */
+    private String statusDesc;
 }
