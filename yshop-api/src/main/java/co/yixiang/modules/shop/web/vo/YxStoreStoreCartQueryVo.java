@@ -1,5 +1,6 @@
 package co.yixiang.modules.shop.web.vo;
 
+import co.yixiang.modules.shop.entity.YxStoreCouponUser;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -34,12 +35,24 @@ public class YxStoreStoreCartQueryVo implements Serializable {
     private Integer merId;
 
     //订单价格
+    @ApiModelProperty(value = "订单价格")
     private BigDecimal orderSumPrice;
     // 订单成本价
+    @ApiModelProperty(value = "订单成本价")
     private BigDecimal orderCostPrice;
     //VIP价格
+    @ApiModelProperty(value = "VIP价格")
     private BigDecimal orderVipTruePrice;
 
     //邮费
+    @ApiModelProperty(value = "邮费")
+    private BigDecimal storePostage;
+
+    /*@ApiModelProperty(value = "实际支付金额")
+    private BigDecimal payPrice;*/
+
+    @ApiModelProperty(value = "可用优惠券列表")
+    private List<YxStoreCouponUser> usableCoupon;
+
 
 }

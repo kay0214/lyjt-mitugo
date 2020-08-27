@@ -123,7 +123,7 @@ public interface YxStoreOrderService extends BaseService<YxStoreOrder> {
      */
     Paging<YxStoreOrderQueryVo> getYxStoreOrderPageList(YxStoreOrderQueryParam yxStoreOrderQueryParam) throws Exception;
 
-    String cacheOrderStroeInfo(int uid, List<YxStoreStoreCartQueryVo> cartInfo, PriceGroupDTO priceGroup, OtherDTO other);
+    String cacheOrderStroeInfo(int uid, List<YxStoreStoreCartQueryVo> cartInfo);
 
     /**
      * 创建订单（同一商铺为同一订单）
@@ -174,11 +174,4 @@ public interface YxStoreOrderService extends BaseService<YxStoreOrder> {
      */
     String getStoreName(Integer storeId);
 
-    /**
-     * 获取订单价格
-     *
-     * @param cartInfo
-     * @return
-     */
-    PriceGroupDTO getOrderPriceGroupNoFree(List<YxStoreCartQueryVo> cartInfo);
 }

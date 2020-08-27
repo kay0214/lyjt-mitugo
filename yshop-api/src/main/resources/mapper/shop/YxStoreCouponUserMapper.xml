@@ -4,7 +4,7 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, cid, uid, coupon_title, coupon_price, use_min_price, add_time, end_time, use_time, type, status, is_fail
+        id, cid, uid, coupon_title, coupon_price, use_min_price, add_time, end_time, use_time, type, status, is_fail,store_id
     </sql>
 
     <select id="getYxStoreCouponUserById" resultType="co.yixiang.modules.shop.web.vo.YxStoreCouponUserQueryVo">

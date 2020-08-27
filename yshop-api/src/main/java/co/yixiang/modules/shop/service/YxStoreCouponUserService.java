@@ -52,4 +52,22 @@ public interface YxStoreCouponUserService extends BaseService<YxStoreCouponUser>
      */
     Paging<YxStoreCouponUserQueryVo> getYxStoreCouponUserPageList(YxStoreCouponUserQueryParam yxStoreCouponUserQueryParam) throws Exception;
 
+    void addUserCouponNew(int uid, int cid,int storeId);
+
+    /**
+     * 创建订单时，获取用户可用优惠券
+     * @param uid
+     * @param price
+     * @param cartIds
+     * @return
+     */
+    List<YxStoreCouponUserQueryVo> getUsableCouponList(int uid, double price,String cartIds);
+
+    /**
+     * 获取可用优惠券
+     * @param uid
+     * @param price
+     * @return
+     */
+    List<YxStoreCouponUser> beUsableCouponListStore(int uid, double price,int storeId);
 }

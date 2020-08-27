@@ -60,4 +60,9 @@ public class YxStoreCouponUserQueryVo implements Serializable {
 
     private String _msg;
 
+    @ApiModelProperty(value = "所属店铺名")
+    private String storeName;
+    @ApiModelProperty(value = "所属店铺id")
+    private Integer storeId;
+
 }

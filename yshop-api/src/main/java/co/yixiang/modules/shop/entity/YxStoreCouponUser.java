@@ -64,4 +64,6 @@ public class YxStoreCouponUser extends BaseEntity {
     @ApiModelProperty(value = "是否有效")
     private Integer isFail;
 
+    @ApiModelProperty(value = "店铺id")
+    private Integer storeId;
 }

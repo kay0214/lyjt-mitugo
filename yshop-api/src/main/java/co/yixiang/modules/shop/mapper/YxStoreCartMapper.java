@@ -11,6 +11,7 @@ import org.apache.ibatis.annotations.Select;
 import org.springframework.stereotype.Repository;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * <p>
@@ -41,4 +42,13 @@ public interface YxStoreCartMapper extends BaseMapper<YxStoreCart> {
      * @return
      */
     IPage<YxStoreCartQueryVo> getYxStoreCartPageList(@Param("page") Page page, @Param("param") YxStoreCartQueryParam yxStoreCartQueryParam);
+
+    @Select(" <script> SELECT DISTINCT store_id " +
+            "from yx_store_cart " +
+            "WHERE id in " +
+            "   <foreach item='item' index='index' collection='cartIds' open='(' separator=',' close=')'>" +
+            "       #{item}" +
+            "   </foreach>" +
+            "AND uid =#{uid} </script> ")
+    List<Integer> getStoreIds(@Param("uid") int uid, @Param("cartIds") List<String> type);
 }

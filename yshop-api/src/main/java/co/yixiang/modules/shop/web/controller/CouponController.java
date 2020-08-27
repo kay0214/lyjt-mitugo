@@ -65,7 +65,9 @@ public class CouponController extends BaseController {
         if(ObjectUtil.isNull(jsonObject.get("couponId"))){
             ApiResult.fail("参数错误");
         }
-        couponIssueService.issueUserCoupon(
+        /*couponIssueService.issueUserCoupon(
+                Integer.valueOf(jsonObject.get("couponId").toString()),uid);*/
+        couponIssueService.issueUserCouponNew(
                 Integer.valueOf(jsonObject.get("couponId").toString()),uid);
         return ApiResult.ok("ok");
     }
@@ -105,6 +107,24 @@ public class CouponController extends BaseController {
         return ApiResult.ok(storeCouponUserService.beUsableCouponList(uid,price));
     }
 
+    /**
+     * 优惠券 订单获取
+     */
+    @PostMapping("/coupons/orderAvailable")
+    @ApiOperation(value = "获取创建订单时可用优惠券",notes = "获取创建订单时可用优惠券")
+    public ApiResult<Object> orderCouponAvailable(@RequestBody String jsonStr){
+        int uid = SecurityUtils.getUserId().intValue();
+        JSONObject jsonObject = JSON.parseObject(jsonStr);
+        if(ObjectUtil.isNull(jsonObject.get("totlePrice"))||ObjectUtil.isNull(jsonObject.get("cartIds"))){
+            ApiResult.fail("参数错误");
+        }
+        //订单总价
+        double price = jsonObject.getDouble("totlePrice");
+        //购物车IDS
+        String strCartIds = jsonObject.getString("cartIds");
+
+        return ApiResult.ok(storeCouponUserService.getUsableCouponList(uid,price,strCartIds));
+    }
 
 }
 

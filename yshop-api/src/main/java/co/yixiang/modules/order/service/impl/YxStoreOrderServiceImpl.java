@@ -1651,56 +1651,6 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
 
         return priceGroupDTO;
     }
-
-    /**
-     * 获取订单价格
-     *
-     * @param cartInfo
-     * @return
-     */
-    @Override
-    public PriceGroupDTO getOrderPriceGroupNoFree(List<YxStoreCartQueryVo> cartInfo) {
-
-        String storePostageStr = "0";//邮费基础价
-        Double storePostage = 0d;
-        if (StrUtil.isNotEmpty(storePostageStr)) storePostage = Double.valueOf(storePostageStr);
-
-//        String storeFreePostageStr = systemConfigService.getData(SystemConfigConstants.STORE_FREE_POSTAGE);//满额包邮
-//        Double storeFreePostage = 0d;
-//        if (StrUtil.isNotEmpty(storeFreePostageStr)) storeFreePostage = Double.valueOf(storeFreePostageStr);
-
-        Double totalPrice = getOrderSumPrice(cartInfo, "truePrice");//获取订单总金额
-        Double costPrice = getOrderSumPrice(cartInfo, "costPrice");//获取订单成本价
-        Double vipPrice = getOrderSumPrice(cartInfo, "vipTruePrice");//获取订单会员优惠金额
-
-        /*if (storeFreePostage == 0) {//包邮
-            storePostage = 0d;
-        } else {
-            for (YxStoreCartQueryVo storeCart : cartInfo) {
-                if (storeCart.getProductInfo().getIsPostage() == 0) {//不包邮
-                    storePostage = NumberUtil.add(storePostage
-                            , storeCart.getProductInfo().getPostage()).doubleValue();
-                }
-            }
-            //如果总价大于等于满额包邮 邮费等于0
-            if (storeFreePostage <= totalPrice) storePostage = 0d;
-        }
-*/
-        for (YxStoreCartQueryVo storeCart : cartInfo) {
-            if (storeCart.getProductInfo().getIsPostage() == 0) {//不包邮
-                storePostage = NumberUtil.add(storePostage
-                        , storeCart.getProductInfo().getPostage()).doubleValue();
-            }
-        }
-        PriceGroupDTO priceGroupDTO = new PriceGroupDTO();
-        priceGroupDTO.setStorePostage(storePostage);
-//        priceGroupDTO.setStoreFreePostage(storeFreePostage);
-        priceGroupDTO.setTotalPrice(totalPrice);
-        priceGroupDTO.setCostPrice(costPrice);
-        priceGroupDTO.setVipPrice(vipPrice);
-
-        return priceGroupDTO;
-    }
     /**
      * 获取某字段价格
      *
@@ -1747,12 +1697,10 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
     /******************************以下为新加接口********************************/
 
     @Override
-    public String cacheOrderStroeInfo(int uid, List<YxStoreStoreCartQueryVo> cartInfo, PriceGroupDTO priceGroup, OtherDTO other) {
+    public String cacheOrderStroeInfo(int uid, List<YxStoreStoreCartQueryVo> cartInfo) {
         String key = IdUtil.simpleUUID();
         CacheStoreDTO cacheDTO = new CacheStoreDTO();
         cacheDTO.setCartInfo(cartInfo);
-        cacheDTO.setPriceGroup(priceGroup);
-        cacheDTO.setOther(other);
         redisService.saveCode("user_order_info_" + uid + key, cacheDTO, 600L);
         return key;
     }
@@ -1809,17 +1757,23 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
 
         //支付单号
         String payOrderNo = IdUtil.getSnowflake(0, 0).nextIdStr();
-        //所有订单的合计
+       /* //所有订单的合计
         Double totalPrice = cacheDTO.getPriceGroup().getTotalPrice();
         Double payPrice = cacheDTO.getPriceGroup().getTotalPrice();
-        Double payPostage = cacheDTO.getPriceGroup().getStorePostage();
-        OtherDTO other = cacheDTO.getOther();
+        Double payPostage = cacheDTO.getPriceGroup().getStorePostage();*/
+//        OtherDTO other = cacheDTO.getOther();
+
+        Double totalPrice = 0d;
+        Double payPrice = 0d;
+        Double payPostage = 0d;
 
         BigDecimal bigOrderPayPrice = new BigDecimal(0);
         BigDecimal bigOrderTotlePrice = new BigDecimal(0);
         BigDecimal bigOrderPayPostage = new BigDecimal(0);
 
         for (YxStoreStoreCartQueryVo storeStoreCartQueryVo : storeCartQueryVoList) {
+            payPostage = storeStoreCartQueryVo.getStorePostage().doubleValue();
+
             List<String> cartIds = new ArrayList<>();
             bigOrderPayPrice = storeStoreCartQueryVo.getOrderSumPrice();
             bigOrderTotlePrice = storeStoreCartQueryVo.getOrderSumPrice();
@@ -1876,7 +1830,7 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
                 if (storeStoreCartQueryVo.getStoreId() == coupon.getBelong()) {
                     //同一店铺
                     if (couponUser.getUseMinPrice().compareTo(bigOrderPayPrice) > 0) {
-                        //优惠券最低消费大于支付金额
+                        //优惠券最低消费小于支付金额
                         throw new ErrorRequestException("不满足优惠劵的使用条件");
                     }
                     bigOrderPayPrice = bigOrderPayPrice.subtract(couponUser.getCouponPrice());
@@ -1894,7 +1848,7 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
             double deductionPrice = 0; //抵扣金额
             double usedIntegral = 0; //使用的积分
             //积分抵扣开始
-            if (useIntegral > 0 && userInfo.getIntegral().doubleValue() > 0) {
+     /*       if (useIntegral > 0 && userInfo.getIntegral().doubleValue() > 0) {
                 Double integralMax = Double.valueOf(cacheDTO.getOther().getIntegralMax());
                 Double integralFull = Double.valueOf(cacheDTO.getOther().getIntegralFull());
                 Double integralRatio = Double.valueOf(cacheDTO.getOther().getIntegralRatio());
@@ -1940,7 +1894,7 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
                 }
 
 
-            }
+            }*/
 
             if (payPrice <= 0) payPrice = 0d;
 
@@ -1971,7 +1925,7 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
             storeOrder.setPinkId(param.getPinkId());
             storeOrder.setSeckillId(seckillId);
             storeOrder.setBargainId(bargainId);
-            storeOrder.setCost(BigDecimal.valueOf(cacheDTO.getPriceGroup().getCostPrice()));
+            storeOrder.setCost(storeStoreCartQueryVo.getOrderCostPrice());
             if (AppFromEnum.ROUNTINE.getValue().equals(param.getFrom())) {
                 storeOrder.setIsChannel(OrderInfoEnum.PAY_CHANNEL_1.getValue());
             } else {
@@ -1989,7 +1943,7 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
             storeOrder.setParentId(userInfo.getParentId());
             //推荐人类型:1商户;2合伙人;3用户
             storeOrder.setParentType(userInfo.getParentType());
-            //todo 分享人用户ID
+            //分享人用户ID
             //分享人的推荐人用户ID
             //分享人的推荐人类型:1商户;2合伙人;3用户
             //下单时的佣金
