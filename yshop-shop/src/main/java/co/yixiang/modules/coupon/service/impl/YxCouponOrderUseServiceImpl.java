@@ -39,7 +39,7 @@ import java.util.LinkedHashMap;
 
 /**
 * @author huiy
-* @date 2020-08-14
+* @date 2020-08-27
 */
 @Service
 @AllArgsConstructor
@@ -82,6 +82,7 @@ public class YxCouponOrderUseServiceImpl extends BaseServiceImpl<YxCouponOrderUs
             map.put("修改人", yxCouponOrderUse.getUpdateUserId());
             map.put("创建时间", yxCouponOrderUse.getCreateTime());
             map.put("更新时间", yxCouponOrderUse.getUpdateTime());
+            map.put("卡券id", yxCouponOrderUse.getCouponId());
             list.add(map);
         }
         FileUtil.downloadExcel(list, response);

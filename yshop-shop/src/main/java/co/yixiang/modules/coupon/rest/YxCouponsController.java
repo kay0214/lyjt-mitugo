@@ -12,7 +12,6 @@ import co.yixiang.modules.coupon.domain.YxCoupons;
 import co.yixiang.modules.coupon.domain.YxCouponsCategory;
 import co.yixiang.modules.coupon.service.YxCouponsCategoryService;
 import co.yixiang.modules.coupon.service.YxCouponsService;
-import co.yixiang.modules.coupon.service.dto.YxCouponsDto;
 import co.yixiang.modules.coupon.service.dto.YxCouponsQueryCriteria;
 import co.yixiang.modules.shop.domain.User;
 import co.yixiang.modules.shop.domain.YxImageInfo;
@@ -20,6 +19,7 @@ import co.yixiang.modules.shop.domain.YxStoreInfo;
 import co.yixiang.modules.shop.service.UserService;
 import co.yixiang.modules.shop.service.YxImageInfoService;
 import co.yixiang.modules.shop.service.YxStoreInfoService;
+import co.yixiang.utils.Base64Utils;
 import co.yixiang.utils.OrderUtil;
 import co.yixiang.utils.SecurityUtils;
 import co.yixiang.utils.StringUtils;
@@ -375,11 +375,6 @@ public class YxCouponsController {
     @GetMapping(value = "/getCouponDetail/{verifyCode}")
     public ResponseEntity<Object> getCouponDetail(@PathVariable String verifyCode) {
         int uid = SecurityUtils.getUserId().intValue();
-        YxCouponsDto yxCouponsDto = this.yxCouponsService.getCouponByVerifyCode(verifyCode, uid);
-        if (null == yxCouponsDto) {
-            yxCouponsDto = new YxCouponsDto();
-            yxCouponsDto.setStatus(0);
-        }
-        return new ResponseEntity<>(yxCouponsDto, HttpStatus.OK);
+        return new ResponseEntity<>(this.yxCouponsService.getCouponByVerifyCode(Base64Utils.decode(verifyCode), uid), HttpStatus.OK);
     }
 }

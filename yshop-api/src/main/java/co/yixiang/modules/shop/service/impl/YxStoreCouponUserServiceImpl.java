@@ -8,22 +8,27 @@ import co.yixiang.common.service.impl.BaseServiceImpl;
 import co.yixiang.common.web.vo.Paging;
 import co.yixiang.exception.ErrorRequestException;
 import co.yixiang.modules.shop.entity.YxStoreCouponUser;
+import co.yixiang.modules.shop.entity.YxStoreInfo;
+import co.yixiang.modules.shop.mapper.YxStoreCartMapper;
 import co.yixiang.modules.shop.mapper.YxStoreCouponUserMapper;
 import co.yixiang.modules.shop.mapping.CouponMap;
 import co.yixiang.modules.shop.service.YxStoreCouponService;
 import co.yixiang.modules.shop.service.YxStoreCouponUserService;
+import co.yixiang.modules.shop.service.YxStoreInfoService;
 import co.yixiang.modules.shop.web.param.YxStoreCouponUserQueryParam;
 import co.yixiang.modules.shop.web.vo.YxStoreCouponQueryVo;
 import co.yixiang.modules.shop.web.vo.YxStoreCouponUserQueryVo;
+import co.yixiang.utils.CommonsUtils;
 import co.yixiang.utils.OrderUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.metadata.OrderItem;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -40,15 +45,19 @@ import java.util.List;
  */
 @Slf4j
 @Service
-@AllArgsConstructor
+//@AllArgsConstructor
 @Transactional(rollbackFor = Exception.class)
 public class YxStoreCouponUserServiceImpl extends BaseServiceImpl<YxStoreCouponUserMapper, YxStoreCouponUser> implements YxStoreCouponUserService {
-
-    private final YxStoreCouponUserMapper yxStoreCouponUserMapper;
-
-    private final YxStoreCouponService storeCouponService;
-
-    private final CouponMap couponMap;
+    @Autowired
+    YxStoreCouponUserMapper yxStoreCouponUserMapper;
+    @Autowired
+    YxStoreCouponService storeCouponService;
+    @Autowired
+    CouponMap couponMap;
+    @Autowired
+    YxStoreInfoService storeInfoService;
+    @Autowired
+    YxStoreCartMapper cartMapper;
 
     @Override
     public int getUserValidCouponCount(int uid) {
@@ -136,6 +145,11 @@ public class YxStoreCouponUserServiceImpl extends BaseServiceImpl<YxStoreCouponU
         int nowTime = OrderUtil.getSecondTimestampTwo();
         for (YxStoreCouponUser couponUser : storeCouponUsers) {
             YxStoreCouponUserQueryVo queryVo = couponMap.toDto(couponUser);
+            //添加店铺信息
+            YxStoreInfo storeInfo= getStoreInfoById(couponUser.getStoreId());
+            if(ObjectUtil.isNotNull(storeInfo)){
+                queryVo.setStoreName(storeInfo.getStoreName());
+            }
             if(couponUser.getIsFail() == 1){
                 queryVo.set_type(0);
                 queryVo.set_msg("已失效");
@@ -198,4 +212,85 @@ public class YxStoreCouponUserServiceImpl extends BaseServiceImpl<YxStoreCouponU
         return new Paging(iPage);
     }
 
+    private YxStoreInfo getStoreInfoById(Integer storeId){
+        YxStoreInfo storeInfo = storeInfoService.getById(storeId);
+        return storeInfo;
+    }
+
+    /**
+     * 创建订单时，获取用户可用优惠券
+     * @param uid
+     * @param price
+     * @param cartIds
+     * @return
+     */
+    @Override
+    public List<YxStoreCouponUserQueryVo> getUsableCouponList(int uid, double price,String cartIds) {
+        //
+        List<YxStoreCouponUserQueryVo> queryVoList = new ArrayList<>();
+        List<String> listIds = new ArrayList<>();
+        if(ObjectUtil.isNotNull(cartIds)){
+            String[] strIds = cartIds.split(",");
+            for(int i=0;i<strIds.length;i++){
+                listIds.add(strIds[i]);
+            }
+        }
+        List<Integer> storeIds = cartMapper.getStoreIds(uid,listIds);
+        QueryWrapper<YxStoreCouponUser> wrapper= new QueryWrapper<>();
+        wrapper.eq("is_fail",0).eq("status",0).le("use_min_price",price).eq("uid",uid).in("store_id",storeIds);
+        List<YxStoreCouponUser> listCouponUser = yxStoreCouponUserMapper.selectList(wrapper);
+        queryVoList = CommonsUtils.convertBeanList(listCouponUser,YxStoreCouponUserQueryVo.class);
+        if(CollectionUtils.isEmpty(queryVoList)){
+            return queryVoList;
+        }
+        for(YxStoreCouponUserQueryVo queryVo:queryVoList){
+            YxStoreInfo storeInfo= getStoreInfoById(queryVo.getStoreId());
+            queryVo.setStoreName(storeInfo.getStoreName());
+        }
+        return queryVoList;
+    }
+
+    /**
+     * 获取可用优惠券
+     * @param uid
+     * @param price
+     * @return
+     */
+    @Override
+    public List<YxStoreCouponUser>  beUsableCouponListStore(int uid, double price,int storeId) {
+        QueryWrapper<YxStoreCouponUser> wrapper= new QueryWrapper<>();
+        wrapper.eq("is_fail",0).eq("status",0).eq("uid",uid).eq("store_id",storeId)
+                .le("use_min_price",price);
+        return yxStoreCouponUserMapper.selectList(wrapper);
+    }
+
+    /**
+     * 用户领取优惠券
+     * @param uid
+     * @param cid
+     * @param storeId
+     */
+    @Override
+    public void addUserCouponNew(int uid, int cid,int storeId) {
+        YxStoreCouponQueryVo storeCouponQueryVo = storeCouponService.
+                getYxStoreCouponById(cid);
+        if(ObjectUtil.isNull(storeCouponQueryVo)) throw new ErrorRequestException("优惠劵不存在");
+
+        YxStoreCouponUser couponUser = new YxStoreCouponUser();
+        couponUser.setCid(cid);
+        couponUser.setUid(uid);
+        //店铺id
+        couponUser.setStoreId(storeId);
+        couponUser.setCouponTitle(storeCouponQueryVo.getTitle());
+        couponUser.setCouponPrice(storeCouponQueryVo.getCouponPrice());
+        couponUser.setUseMinPrice(storeCouponQueryVo.getUseMinPrice());
+        int addTime = OrderUtil.getSecondTimestampTwo();
+        couponUser.setAddTime(addTime);
+        int endTime = addTime + storeCouponQueryVo.getCouponTime() * 86400;
+        couponUser.setEndTime(endTime);
+        couponUser.setType("get");
+
+        save(couponUser);
+
+    }
 }

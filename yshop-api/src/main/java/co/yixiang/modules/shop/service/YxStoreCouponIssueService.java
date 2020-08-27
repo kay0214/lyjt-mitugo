@@ -42,4 +42,10 @@ public interface YxStoreCouponIssueService extends BaseService<YxStoreCouponIssu
      */
     Paging<YxStoreCouponIssueQueryVo> getYxStoreCouponIssuePageList(YxStoreCouponIssueQueryParam yxStoreCouponIssueQueryParam) throws Exception;
 
+    /**
+     * 领取优惠券
+     * @param id id
+     * @param uid uid
+     */
+    void issueUserCouponNew(int id, int uid);
 }

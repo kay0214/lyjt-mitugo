@@ -65,9 +65,6 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
     @Autowired
     private YxUserService userService;
     @Autowired
-    private YxSystemStoreService systemStoreService;
-
-    @Autowired
     private YxStoreProductMap storeProductMap;
     @Autowired
     private YxStoreInfoMapper storeInfoMapper;

@@ -14,6 +14,4 @@ import java.util.List;
 @Data
 public class CacheStoreDTO implements Serializable {
     private List<YxStoreStoreCartQueryVo> cartInfo;
-    private PriceGroupDTO priceGroup;
-    private OtherDTO other;
 }

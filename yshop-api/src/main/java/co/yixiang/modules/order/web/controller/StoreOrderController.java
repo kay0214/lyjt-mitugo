@@ -812,7 +812,6 @@ public class StoreOrderController extends BaseController {
             return ApiResult.fail("请提交购买的商品");
         }
         int uid = SecurityUtils.getUserId().intValue();
-//        int uid = 27;
         YxStoreStoreCartVo cartGroup = cartService.getUserStoreCartList(uid,cartId,1);
         if(ObjectUtil.isNotEmpty(cartGroup.getInvalid())){
             return ApiResult.fail("有失效的商品请重新提交");
@@ -821,7 +820,7 @@ public class StoreOrderController extends BaseController {
             return ApiResult.fail("请提交购买的商品");
         }
         List<YxStoreStoreCartQueryVo> cartStoreInfo = (List<YxStoreStoreCartQueryVo>)cartGroup.getValid();
-        List<YxStoreCartQueryVo>cartInfo =new ArrayList<>();
+
         for(YxStoreStoreCartQueryVo storeStoreCartQueryVo:cartStoreInfo){
             //设置价格
             Double sumPrice = storeOrderService.getOrderSumPrice(storeStoreCartQueryVo.getCartList(),"truePrice");
@@ -831,53 +830,24 @@ public class StoreOrderController extends BaseController {
             Double vipTruePrice = storeOrderService.getOrderSumPrice(storeStoreCartQueryVo.getCartList(),"vipTruePrice");
             storeStoreCartQueryVo.setOrderVipTruePrice(new BigDecimal(vipTruePrice));
 
-            cartInfo.addAll(storeStoreCartQueryVo.getCartList());
+            PriceGroupDTO priceGroup = storeOrderService.getOrderPriceGroup(storeStoreCartQueryVo.getCartList());
+
+            storeStoreCartQueryVo.setStorePostage(new BigDecimal(priceGroup.getStorePostage()));
+
+            storeStoreCartQueryVo.setUsableCoupon(couponUserService
+                    .beUsableCouponListStore(uid,sumPrice,storeStoreCartQueryVo.getStoreId()));
+
         }
-        PriceGroupDTO priceGroup = storeOrderService.getOrderPriceGroup(cartInfo);
-//        PriceGroupDTO priceGroup = storeOrderService.getOrderPriceGroupNoFree(cartInfo);
 
         ConfirmNewOrderDTO confirmOrderDTO = new ConfirmNewOrderDTO();
 
-        confirmOrderDTO.setUsableCoupon(couponUserService
-                .beUsableCoupon(uid,priceGroup.getTotalPrice()));
-        //积分抵扣
-        OtherDTO other = new OtherDTO();
-        other.setIntegralRatio(systemConfigService.getData(SystemConfigConstants.INTERGRAL_RATIO));
-        other.setIntegralFull(systemConfigService.getData(SystemConfigConstants.INTERGRAL_FULL));
-        other.setIntegralMax(systemConfigService.getData(SystemConfigConstants.INTERGRAL_MAX));
-
-        //拼团 砍价 秒杀
-        int combinationId = 0;
-        int secKillId = 0;
-        int bargainId = 0;
-        if(cartId.split(",").length == 1){
-            YxStoreCartQueryVo cartQueryVo = cartService.getYxStoreCartById(Integer
-                    .valueOf(cartId));
-            combinationId = cartQueryVo.getCombinationId();
-            secKillId = cartQueryVo.getSeckillId();
-            bargainId = cartQueryVo.getBargainId();
-        }
-
-
-        //拼团砍价秒杀类产品不参与抵扣
-        if(combinationId > 0 || secKillId > 0 || bargainId > 0) confirmOrderDTO.setDeduction(true);
-
-        //判断积分是否满足订单额度
-        if(priceGroup.getTotalPrice() < Double.valueOf(other.getIntegralFull())) confirmOrderDTO.setEnableIntegral(false);
-
-        confirmOrderDTO.setEnableIntegralNum(Double.valueOf(other.getIntegralMax()));
-
-
         confirmOrderDTO.setAddressInfo(addressService.getUserDefaultAddress(uid));
 
-//        confirmOrderDTO.setCartInfo(cartInfo);
         confirmOrderDTO.setCartInfo(cartStoreInfo);
-        confirmOrderDTO.setPriceGroup(priceGroup);
-        confirmOrderDTO.setOrderKey(storeOrderService.cacheOrderStroeInfo(uid,cartStoreInfo,
-                priceGroup,other));
+
+        confirmOrderDTO.setOrderKey(storeOrderService.cacheOrderStroeInfo(uid,cartStoreInfo));
+
         confirmOrderDTO.setUserInfo(userService.getYxUserById(uid));
-        //门店
-//        confirmOrderDTO.setSystemStore(systemStoreService.getStoreInfo("",""));
         return ApiResult.ok(confirmOrderDTO);
     }
 
@@ -891,11 +861,9 @@ public class StoreOrderController extends BaseController {
 
         Map<String, Object> map = new LinkedHashMap<>();
         int uid = SecurityUtils.getUserId().intValue();
-//        int uid = 27;
         if (StrUtil.isEmpty(key)) return ApiResult.fail("参数错误");
 
         List<YxStoreOrderQueryVo> orderList = storeOrderService.getOrderInfoList(key, uid);
-//        YxStoreOrderQueryVo storeOrder = storeOrderService.getOrderInfo(key,uid);
         if (CollectionUtils.isNotEmpty(orderList)) {
             String orders = "";
             for (YxStoreOrderQueryVo store : orderList) {
@@ -922,7 +890,7 @@ public class StoreOrderController extends BaseController {
         if (CollectionUtils.isEmpty(orderCreateList)) throw new ErrorRequestException("订单生成失败");
 
         BigDecimal bigDecimalPrice = new BigDecimal(0);
-//        YxStoreOrder yxStoreOrder = orderCreateList.get(0);
+
         List<String> orderIdList = new ArrayList<>();
         for (YxStoreOrder order : orderCreateList) {
             orderIdList.add(order.getOrderId());

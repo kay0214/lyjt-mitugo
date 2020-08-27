@@ -11,7 +11,7 @@ import co.yixiang.modules.coupon.service.YxCouponOrderService;
 import co.yixiang.modules.coupon.service.YxCouponOrderUseService;
 import co.yixiang.modules.coupon.service.dto.YxCouponOrderDto;
 import co.yixiang.modules.coupon.service.dto.YxCouponOrderQueryCriteria;
-import co.yixiang.modules.coupon.service.dto.YxCouponsDto;
+import co.yixiang.utils.Base64Utils;
 import co.yixiang.utils.SecurityUtils;
 import co.yixiang.utils.StringUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -25,7 +25,9 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author huiy
@@ -115,9 +117,22 @@ public class YxCouponOrderController {
 //        return new ResponseEntity<>(HttpStatus.OK);
     }
 
-
-    // 核销
-
+    @Log("核销卡券")
+    @ApiOperation("B端:核销卡券")
+    @GetMapping(value = "/useCoupon/{verifyCode}")
+    public ResponseEntity<Object> updateCouponOrder(@PathVariable String verifyCode) {
+        int uid = SecurityUtils.getUserId().intValue();
+        boolean result = this.yxCouponOrderService.updateCouponOrder(Base64Utils.decode(verifyCode), uid);
+        Map<String, String> map = new HashMap<>();
+        if (result) {
+            map.put("status", "0");
+            map.put("statusDesc", "核销成功");
+        } else {
+            map.put("status", "1");
+            map.put("statusDesc", "核销失败");
+        }
+        return new ResponseEntity<>(map, HttpStatus.OK);
+    }
     // 查询核销记录
 
 }
