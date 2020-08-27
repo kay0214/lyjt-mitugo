@@ -91,7 +91,7 @@ public class YxMerchantsDetailController {
 
     @GetMapping(value = "/getMerchantsDetailByUid")
     @Log("获取商户及门店信息")
-    @ApiOperation("获取商户及门店信息")
+    @ApiOperation("B端：获取商户及门店信息")
     public ResponseEntity<Object> getMerchantsDetailByUid() {
 
         // 获取登陆用户的id
