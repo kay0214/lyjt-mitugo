@@ -227,13 +227,7 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         int combinationId = 0;
         int seckillId = 0;
         int bargainId = 0;
-        //门店
 
-        if (OrderInfoEnum.SHIPPIING_TYPE_1.getValue().equals(param.getShippingType())) {
-            payPrice = NumberUtil.add(payPrice, payPostage);
-        } else {
-            payPostage = 0d;
-        }
 
         if (payPrice <= 0) payPrice = 0d;
 
@@ -243,30 +237,15 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         YxCouponOrder couponOrder = new YxCouponOrder();
         couponOrder.setUid(uid);
         couponOrder.setOrderId(orderSn);
-        couponOrder.setRealName(userAddress.getRealName());
-        couponOrder.setUserPhone(userAddress.getPhone());
-//        couponOrder.setUserAddress(userAddress.getProvince() + " " + userAddress.getCity() +
-//                " " + userAddress.getDistrict() + " " + userAddress.getDetail());
-//        couponOrder.setCartId(StrUtil.join(",", cartIds));
+        couponOrder.setRealName("");
+        couponOrder.setUserPhone("");
         couponOrder.setTotalNum(totalNum);
         couponOrder.setTotalPrice(BigDecimal.valueOf(totalPrice));
-//        couponOrder.setTotalPostage(BigDecimal.valueOf(payPostage));
-//        couponOrder.setCouponId(couponId);
-//        couponOrder.setCouponPrice(BigDecimal.valueOf(couponPrice));
         couponOrder.setTotalPrice(BigDecimal.valueOf(payPrice));
-//        couponOrder.setPayPostage(BigDecimal.valueOf(payPostage));
-//        couponOrder.setDeductionPrice(BigDecimal.valueOf(deductionPrice));
         couponOrder.setPayStaus(OrderInfoEnum.PAY_STATUS_0.getValue());
 
         couponOrder.setPayType(param.getPayType());
-//        couponOrder.setUseIntegral(BigDecimal.valueOf(usedIntegral));
-//        couponOrder.setGainIntegral(BigDecimal.valueOf(gainIntegral));
         couponOrder.setMark(param.getMark());
-//        couponOrder.setCombinationId(combinationId);
-//        couponOrder.setPinkId(param.getPinkId());
-//        couponOrder.setSeckillId(seckillId);
-//        couponOrder.setBargainId(bargainId);
-//        couponOrder.setCost(BigDecimal.valueOf(cacheDTO.getPriceGroup().getCostPrice()));
 
         if (AppFromEnum.ROUNTINE.getValue().equals(param.getFrom())) {
             couponOrder.setIsChannel(OrderInfoEnum.PAY_CHANNEL_1.getValue());
@@ -275,43 +254,17 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         }
         couponOrder.setCreateTime(DateTime.now());
         couponOrder.setUnique(key);
-//        couponOrder.setShippingType(param.getShippingType());
         //处理门店
         if (OrderInfoEnum.SHIPPIING_TYPE_2.getValue().equals(param.getShippingType())) {
             YxSystemStoreQueryVo systemStoreQueryVo = systemStoreService.getYxSystemStoreById(param.getStoreId());
             if (systemStoreQueryVo == null) throw new ErrorRequestException("暂无门店无法选择门店自提");
             couponOrder.setVerifyCode(StrUtil.sub(orderSn, orderSn.length(), -12));
-//            couponOrder.setStoreId(systemStoreQueryVo.getId());
         }
 
         boolean res = save(couponOrder);
         if (!res) throw new ErrorRequestException("订单生成失败");
 
         //减库存加销量
-
-//        for (YxStoreCartQueryVo cart : cartInfo) {
-//            if (combinationId > 0) {
-//                combinationService.decStockIncSales(cart.getCartNum(), combinationId);
-//            } else if (seckillId > 0) {
-//                storeSeckillService.decStockIncSales(cart.getCartNum(), seckillId);
-//            } else if (bargainId > 0) {
-//                storeBargainService.decStockIncSales(cart.getCartNum(), bargainId);
-//            } else {
-//                productService.decProductStock(cart.getCartNum(), cart.getProductId(),
-//                        cart.getProductAttrUnique());
-//            }
-//
-//        }
-
-        //保存购物车商品信息
-//        orderCartInfoService.saveCartInfo(storeOrder.getId(), cartInfo);
-
-        //购物车状态修改
-//        QueryWrapper<YxStoreCart> wrapper = new QueryWrapper<>();
-//        wrapper.in("id", cartIds);
-//        YxStoreCart cartObj = new YxStoreCart();
-//        cartObj.setIsPay(1);
-//        storeCartMapper.update(cartObj, wrapper);
 
         //删除缓存
         delCacheOrderInfo(uid, key);
