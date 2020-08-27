@@ -398,7 +398,7 @@ public class YxCouponOrderController extends BaseController {
     @ApiOperation(value = "订单退款审核",notes = "订单退款审核")
     public ApiResult<Object> refundVerify(@RequestBody RefundParam param){
         int uid = SecurityUtils.getUserId().intValue();
-        //storeOrderService.orderApplyRefund(param,uid);
+        yxCouponOrderService.orderApplyRefund(param,uid);
         return ApiResult.ok("ok");
     }
 }

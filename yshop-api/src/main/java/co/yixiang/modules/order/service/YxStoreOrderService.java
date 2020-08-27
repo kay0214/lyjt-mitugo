@@ -157,7 +157,7 @@ public interface YxStoreOrderService extends BaseService<YxStoreOrder> {
      * @return
      * @throws WxPayException
      */
-    WxPayMpOrderResult wxAppPayList(List<String> orderIdList,String payNo) throws WxPayException;
+    WxPayMpOrderResult wxAppPayList(List<String> orderIdList,String payNo,String ip) throws WxPayException;
 
     /**
      * 支付成功后操作（多订单）

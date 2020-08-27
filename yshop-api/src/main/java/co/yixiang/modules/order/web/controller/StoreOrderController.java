@@ -857,7 +857,7 @@ public class StoreOrderController extends BaseController {
     @PostMapping("/order/createOrder/{key}")
     @ApiOperation(value = "订单创建（多个订单）",notes = "（多个订单）")
     public ApiResult<Map<String, Object>> createOrderList(@Valid @RequestBody OrderParam param,
-                                                          @PathVariable String key) {
+                                                          @PathVariable String key, HttpServletRequest request){
 
         Map<String, Object> map = new LinkedHashMap<>();
         int uid = SecurityUtils.getUserId().intValue();
@@ -919,7 +919,7 @@ public class StoreOrderController extends BaseController {
                     if (param.getFrom().equals("routine")) {
                         map.put("status", "WECHAT_PAY");
                         WxPayMpOrderResult wxPayMpOrderResult = storeOrderService
-                                .wxAppPayList(orderIdList, payNo);
+                                .wxAppPayList(orderIdList, payNo, IpUtils.getIpAddress(request));
                         jsConfig.put("appId", wxPayMpOrderResult.getAppId());
                         jsConfig.put("timeStamp", wxPayMpOrderResult.getTimeStamp());
                         jsConfig.put("nonceStr", wxPayMpOrderResult.getNonceStr());

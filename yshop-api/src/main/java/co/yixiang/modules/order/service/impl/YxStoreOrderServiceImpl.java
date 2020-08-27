@@ -2093,7 +2093,7 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
      * @throws WxPayException
      */
     @Override
-    public WxPayMpOrderResult wxAppPayList(List<String> orderIdList, String payNo) throws WxPayException {
+    public WxPayMpOrderResult wxAppPayList(List<String> orderIdList, String payNo,String ip) throws WxPayException {
         List<YxStoreOrderQueryVo> orderInfo = getOrderList(orderIdList, 0);
 
         BigDecimal bigPayPrice = new BigDecimal(0);
@@ -2113,7 +2113,7 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
 
         return miniPayService.wxPay(payNo, wechatUser.getRoutineOpenid(), "小程序商品购买",
                 bigDecimal.multiply(bigPayPrice).intValue(),
-                BillDetailEnum.TYPE_3.getValue());
+                BillDetailEnum.TYPE_3.getValue(),ip);
     }
 
 

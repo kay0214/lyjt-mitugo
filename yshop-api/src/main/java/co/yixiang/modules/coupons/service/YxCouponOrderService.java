@@ -12,6 +12,7 @@ import co.yixiang.modules.order.web.dto.ComputeDTO;
 import co.yixiang.modules.order.web.dto.CouponCacheDTO;
 import co.yixiang.modules.order.web.dto.PriceGroupDTO;
 import co.yixiang.modules.order.web.param.OrderParam;
+import co.yixiang.modules.order.web.param.RefundParam;
 import com.github.binarywang.wxpay.bean.order.WxPayMpOrderResult;
 import com.github.binarywang.wxpay.exception.WxPayException;
 
@@ -107,4 +108,11 @@ public interface YxCouponOrderService extends BaseService<YxCouponOrder> {
      * @return
      */
     WxPayMpOrderResult wxAppPay(String orderId,String ip) throws WxPayException;
+
+    /**
+     * 提交订单退款
+     * @param param
+     * @param uid
+     */
+    void orderApplyRefund(RefundParam param, int uid);
 }

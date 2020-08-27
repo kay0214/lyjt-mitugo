@@ -29,11 +29,13 @@ import co.yixiang.modules.coupons.web.vo.YxCouponsQueryVo;
 import co.yixiang.modules.image.entity.YxImageInfo;
 import co.yixiang.modules.image.service.YxImageInfoService;
 import co.yixiang.modules.monitor.service.RedisService;
+import co.yixiang.modules.order.entity.YxStoreOrder;
 import co.yixiang.modules.order.mapping.OrderMap;
 import co.yixiang.modules.order.web.dto.ComputeDTO;
 import co.yixiang.modules.order.web.dto.CouponCacheDTO;
 import co.yixiang.modules.order.web.dto.PriceGroupDTO;
 import co.yixiang.modules.order.web.param.OrderParam;
+import co.yixiang.modules.order.web.param.RefundParam;
 import co.yixiang.modules.order.web.vo.YxStoreOrderQueryVo;
 import co.yixiang.modules.shop.entity.YxStoreInfo;
 import co.yixiang.modules.shop.service.YxStoreInfoService;
@@ -518,5 +520,31 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         return miniPayService.couponWxPay(orderId, wechatUser.getRoutineOpenid(), "小程序本地生活购买",
                 bigDecimal.multiply(orderInfo.getTotalPrice()).intValue(),
                 BillDetailEnum.TYPE_3.getValue(),ip);
+    }
+
+    /**
+     * 提交订单退款
+     * @param param
+     * @param uid
+     */
+    @Override
+    public void orderApplyRefund(RefundParam param, int uid) {
+        /*YxStoreOrderQueryVo order = getOrderInfo(param.getUni(), uid);
+        if (ObjectUtil.isNull(order)) throw new ErrorRequestException("订单不存在");
+        if (order.getRefundStatus() == 2) throw new ErrorRequestException("订单已退款");
+        if (order.getRefundStatus() == 1) throw new ErrorRequestException("正在申请退款中");
+        if (order.getStatus() == 1) throw new ErrorRequestException("订单当前无法退款");
+
+        YxStoreOrder storeOrder = new YxStoreOrder();
+        storeOrder.setRefundStatus(OrderInfoEnum.REFUND_STATUS_1.getValue());
+        storeOrder.setRefundReasonTime(OrderUtil.getSecondTimestampTwo());
+        storeOrder.setRefundReasonWapExplain(param.getRefund_reason_wap_explain());
+        storeOrder.setRefundReasonWapImg(param.getRefund_reason_wap_img());
+        storeOrder.setRefundReasonWap(param.getText());
+        storeOrder.setId(order.getId());
+        yxStoreOrderMapper.updateById(storeOrder);
+
+        //增加状态
+        orderStatusService.create(order.getId(), "apply_refund", "用户申请退款，原因：" + param.getText());*/
     }
 }
