@@ -29,6 +29,7 @@ public class YxCouponOrder implements Serializable {
     private Integer id;
 
     /** 唯一值 */
+    @TableField(value = "`unique`")
     private String unique;
 
     /** 订单号 */
