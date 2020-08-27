@@ -62,20 +62,20 @@ public class IndexController {
         //首页按钮
         map.put("menus",systemGroupDataService.getDatas(ShopConstants.YSHOP_HOME_MENUS));
         //首页活动区域图片
-        map.put("activity",new String[]{});
+//        map.put("activity",new String[]{});
 
 
         //精品推荐
         map.put("bastList",storeProductService.getList(1,6,1));
         //首发新品
-        map.put("firstList",storeProductService.getList(1,6,3));
+//        map.put("firstList",storeProductService.getList(1,6,3));
         //促销单品
-        map.put("benefit",storeProductService.getList(1,3,4));
+//        map.put("benefit",storeProductService.getList(1,3,4));
         //热门榜单
         map.put("likeInfo",storeProductService.getList(1,3,2));
 
         //滚动
-        map.put("roll",systemGroupDataService.getDatas(ShopConstants.YSHOP_HOME_ROLL_NEWS));
+//        map.put("roll",systemGroupDataService.getDatas(ShopConstants.YSHOP_HOME_ROLL_NEWS));
 
         map.put("mapKey",RedisUtil.get(ShopKeyUtils.getTengXunMapKey()));
 
