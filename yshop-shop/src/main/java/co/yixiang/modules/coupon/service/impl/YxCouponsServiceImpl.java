@@ -189,28 +189,34 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
             yxCouponsDto.setStatusDesc("卡券已失效");
             return yxCouponsDto;
         }
+        // 判断是否本商铺发放的卡券
+        if(!yxCoupons.getCreateUserId().equals(uid)) {
+            yxCouponsDto.setStatus(-3);
+            yxCouponsDto.setStatusDesc("非本商户卡券");
+            return yxCouponsDto;
+        }
         yxCouponsDto = generator.convert(yxCoupons, YxCouponsDto.class);
         // 可核销次数已核销次数
         if (yxCouponOrderDetail.getUsedCount() >= yxCouponOrderDetail.getUseCount()) {
-            yxCouponsDto.setStatus(-3);
+            yxCouponsDto.setStatus(-4);
             yxCouponsDto.setStatusDesc("当前卡券已达核销上限");
         }
         // 判断卡券状态
         switch (yxCouponOrderDetail.getStatus()) {
             case 0:
-                yxCouponsDto.setStatus(-4);
+                yxCouponsDto.setStatus(-5);
                 yxCouponsDto.setStatusDesc("待支付");
                 break;
             case 1:
-                yxCouponsDto.setStatus(-5);
+                yxCouponsDto.setStatus(-6);
                 yxCouponsDto.setStatusDesc("已过期");
                 break;
             case 2:
-                yxCouponsDto.setStatus(-6);
+                yxCouponsDto.setStatus(-7);
                 yxCouponsDto.setStatusDesc("待发放");
                 break;
             case 3:
-                yxCouponsDto.setStatus(-7);
+                yxCouponsDto.setStatus(-8);
                 yxCouponsDto.setStatusDesc("支付失败");
                 break;
             case 4:
@@ -222,23 +228,23 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
                 yxCouponsDto.setStatusDesc("已使用");
                 break;
             case 6:
-                yxCouponsDto.setStatus(-8);
+                yxCouponsDto.setStatus(-9);
                 yxCouponsDto.setStatusDesc("已核销");
                 break;
             case 7:
-                yxCouponsDto.setStatus(-9);
+                yxCouponsDto.setStatus(-10);
                 yxCouponsDto.setStatusDesc("退款中");
                 break;
             case 8:
-                yxCouponsDto.setStatus(-10);
+                yxCouponsDto.setStatus(-11);
                 yxCouponsDto.setStatusDesc("已退款");
                 break;
             case 9:
-                yxCouponsDto.setStatus(-11);
+                yxCouponsDto.setStatus(-12);
                 yxCouponsDto.setStatusDesc("退款驳回");
                 break;
             default:
-                yxCouponsDto.setStatus(-12);
+                yxCouponsDto.setStatus(-13);
                 yxCouponsDto.setStatusDesc("未知状态");
                 break;
         }
@@ -246,7 +252,7 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
         LocalDateTime expireDateStart = yxCoupons.getExpireDateStart().toLocalDateTime();
         LocalDateTime expireDateEnd = yxCoupons.getExpireDateEnd().toLocalDateTime();
         if (expireDateStart.isBefore(LocalDateTime.now()) || expireDateEnd.isAfter(LocalDateTime.now())) {
-            yxCouponsDto.setStatus(-12);
+            yxCouponsDto.setStatus(-14);
             yxCouponsDto.setStatusDesc("已失效");
             return yxCouponsDto;
         }
