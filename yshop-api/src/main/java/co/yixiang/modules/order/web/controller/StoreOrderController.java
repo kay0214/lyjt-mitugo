@@ -10,6 +10,7 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.qrcode.QrCodeUtil;
 import co.yixiang.annotation.AnonymousAccess;
 import co.yixiang.common.api.ApiResult;
+import co.yixiang.common.util.IpUtils;
 import co.yixiang.common.web.controller.BaseController;
 import co.yixiang.constant.SystemConfigConstants;
 import co.yixiang.enums.OrderInfoEnum;
@@ -59,6 +60,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.io.File;
 import java.math.BigDecimal;
@@ -180,7 +182,7 @@ public class StoreOrderController extends BaseController {
     @PostMapping("/order/create/{key}")
     @ApiOperation(value = "订单创建",notes = "订单创建")
     public ApiResult<Map<String,Object>> create(@Valid @RequestBody OrderParam param,
-                                             @PathVariable String key){
+                                             @PathVariable String key, HttpServletRequest request){
 
         Map<String,Object> map = new LinkedHashMap<>();
         int uid = SecurityUtils.getUserId().intValue();
@@ -278,7 +280,7 @@ public class StoreOrderController extends BaseController {
                          }else if(param.getFrom().equals("routine")){
                              map.put("status","WECHAT_PAY");
                              WxPayMpOrderResult wxPayMpOrderResult = storeOrderService
-                                     .wxAppPay(orderId);
+                                     .wxAppPay(orderId, IpUtils.getIpAddress(request));
                              jsConfig.put("appId",wxPayMpOrderResult.getAppId());
                              jsConfig.put("timeStamp",wxPayMpOrderResult.getTimeStamp());
                              jsConfig.put("nonceStr",wxPayMpOrderResult.getNonceStr());
@@ -337,7 +339,7 @@ public class StoreOrderController extends BaseController {
     @Log(value = "订单支付",type = 1)
     @PostMapping("/order/pay")
     @ApiOperation(value = "订单支付",notes = "订单支付")
-    public ApiResult<Map<String,Object>> pay(@Valid @RequestBody PayParam param){
+    public ApiResult<Map<String,Object>> pay(@Valid @RequestBody PayParam param, HttpServletRequest request){
 
         Map<String,Object> map = new LinkedHashMap<>();
         int uid = SecurityUtils.getUserId().intValue();
@@ -375,7 +377,7 @@ public class StoreOrderController extends BaseController {
                         }else if(param.getFrom().equals("routine")){
                             map.put("status","WECHAT_PAY");
                             WxPayMpOrderResult wxPayMpOrderResult = storeOrderService
-                                    .wxAppPay(orderId);
+                                    .wxAppPay(orderId, IpUtils.getIpAddress(request));
                             jsConfig.put("appId",wxPayMpOrderResult.getAppId());
                             jsConfig.put("timeStamp",wxPayMpOrderResult.getTimeStamp());
                             jsConfig.put("nonceStr",wxPayMpOrderResult.getNonceStr());
@@ -427,7 +429,6 @@ public class StoreOrderController extends BaseController {
 
         return ApiResult.fail("订单生成失败");
     }
-
 
     /**
      * 订单列表

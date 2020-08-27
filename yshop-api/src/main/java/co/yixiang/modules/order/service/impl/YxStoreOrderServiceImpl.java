@@ -1128,7 +1128,7 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
      * @throws WxPayException
      */
     @Override
-    public WxPayMpOrderResult wxAppPay(String orderId) throws WxPayException {
+    public WxPayMpOrderResult wxAppPay(String orderId ,String ip) throws WxPayException {
         YxStoreOrderQueryVo orderInfo = getOrderInfo(orderId, 0);
         if (ObjectUtil.isNull(orderInfo)) throw new ErrorRequestException("订单不存在");
         if (orderInfo.getPaid().equals(OrderInfoEnum.PAY_STATUS_1.getValue()))
@@ -1147,7 +1147,7 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
 
         return miniPayService.wxPay(orderId, wechatUser.getRoutineOpenid(), "小程序商品购买",
                 bigDecimal.multiply(orderInfo.getPayPrice()).intValue(),
-                BillDetailEnum.TYPE_3.getValue());
+                BillDetailEnum.TYPE_3.getValue(),ip);
     }
 
 

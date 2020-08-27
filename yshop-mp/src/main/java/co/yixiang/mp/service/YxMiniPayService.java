@@ -41,7 +41,7 @@ public class YxMiniPayService {
      * @throws WxPayException
      */
     public WxPayMpOrderResult wxPay(String orderId, String openId, String body,
-                                    Integer totalFee,String attach) throws WxPayException {
+                                    Integer totalFee,String attach,String ip) throws WxPayException {
 
         String apiUrl = redisHandler.getVal(ShopKeyUtils.getApiUrl());
         if (StrUtil.isBlank(apiUrl)) throw new ErrorRequestException("请配置api地址");
@@ -54,7 +54,7 @@ public class YxMiniPayService {
         orderRequest.setBody(body);
         orderRequest.setOutTradeNo(orderId);
         orderRequest.setTotalFee(totalFee);
-        orderRequest.setSpbillCreateIp("127.0.0.1");
+        orderRequest.setSpbillCreateIp(ip);
 //        orderRequest.setNotifyUrl(apiUrl + "/api/wechat/notify");
         orderRequest.setNotifyUrl(apiUrl + "/api/wechat/notifyNew");
         orderRequest.setAttach(attach);
@@ -136,4 +136,27 @@ public class YxMiniPayService {
     }
 
 
+    public WxPayMpOrderResult couponWxPay(String orderId, String openId, String body,
+                                          Integer totalFee,String attach,String ip) throws WxPayException {
+        String apiUrl = redisHandler.getVal(ShopKeyUtils.getApiUrl());
+        if (StrUtil.isBlank(apiUrl)) throw new ErrorRequestException("请配置api地址");
+
+        WxPayService wxPayService = WxPayConfiguration.getWxAppPayService();
+        WxPayUnifiedOrderRequest orderRequest = new WxPayUnifiedOrderRequest();
+
+        orderRequest.setTradeType("JSAPI");
+        orderRequest.setOpenid(openId);
+        orderRequest.setBody(body);
+        orderRequest.setOutTradeNo(orderId);
+        orderRequest.setTotalFee(totalFee);
+        orderRequest.setSpbillCreateIp(ip);
+//        orderRequest.setNotifyUrl(apiUrl + "/api/wechat/notify");
+        orderRequest.setNotifyUrl(apiUrl + "/api/wechat/notifyCoupon");
+        orderRequest.setAttach(attach);
+
+
+        WxPayMpOrderResult orderResult = wxPayService.createOrder(orderRequest);
+
+        return orderResult;
+    }
 }

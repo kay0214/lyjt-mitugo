@@ -12,6 +12,7 @@ import co.yixiang.constant.LocalLiveConstants;
 import co.yixiang.constant.ShopConstants;
 import co.yixiang.constant.SystemConfigConstants;
 import co.yixiang.enums.AppFromEnum;
+import co.yixiang.enums.BillDetailEnum;
 import co.yixiang.enums.BillEnum;
 import co.yixiang.enums.OrderInfoEnum;
 import co.yixiang.exception.ErrorRequestException;
@@ -33,22 +34,28 @@ import co.yixiang.modules.order.web.dto.ComputeDTO;
 import co.yixiang.modules.order.web.dto.CouponCacheDTO;
 import co.yixiang.modules.order.web.dto.PriceGroupDTO;
 import co.yixiang.modules.order.web.param.OrderParam;
+import co.yixiang.modules.order.web.vo.YxStoreOrderQueryVo;
 import co.yixiang.modules.shop.entity.YxStoreInfo;
 import co.yixiang.modules.shop.service.YxStoreInfoService;
 import co.yixiang.modules.shop.service.YxSystemConfigService;
 import co.yixiang.modules.shop.service.YxSystemStoreService;
 import co.yixiang.modules.shop.web.vo.YxSystemStoreQueryVo;
 import co.yixiang.modules.user.entity.YxUserBill;
+import co.yixiang.modules.user.entity.YxWechatUser;
 import co.yixiang.modules.user.service.YxUserAddressService;
 import co.yixiang.modules.user.service.YxUserBillService;
 import co.yixiang.modules.user.service.YxUserService;
+import co.yixiang.modules.user.service.YxWechatUserService;
 import co.yixiang.modules.user.web.vo.YxUserAddressQueryVo;
 import co.yixiang.modules.user.web.vo.YxUserQueryVo;
+import co.yixiang.mp.service.YxMiniPayService;
 import co.yixiang.utils.OrderUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.metadata.OrderItem;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.github.binarywang.wxpay.bean.order.WxPayMpOrderResult;
+import com.github.binarywang.wxpay.exception.WxPayException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -110,6 +117,12 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
 
     @Autowired
     private YxImageInfoService yxImageInfoService;
+
+    @Autowired
+    private YxWechatUserService wechatUserService;
+
+    @Autowired
+    private YxMiniPayService miniPayService;
 
     @Override
     public YxCouponOrderQueryVo getYxCouponOrderById(Serializable id) throws Exception{
@@ -484,5 +497,26 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
             couponInfoQueryVo.setStoreInfo(storeInfo);
         }
         return couponInfoQueryVo;
+    }
+
+    @Override
+    public WxPayMpOrderResult wxAppPay(String orderId,String ip) throws WxPayException {
+        YxCouponOrder orderInfo = getOrderInfo(orderId, 0);
+        if (ObjectUtil.isNull(orderInfo)) throw new ErrorRequestException("订单不存在");
+        if (orderInfo.getPayStaus().equals(OrderInfoEnum.PAY_STATUS_1.getValue()))
+            throw new ErrorRequestException("该订单已支付");
+
+        if (orderInfo.getTotalPrice().doubleValue() <= 0) throw new ErrorRequestException("该支付无需支付");
+
+        YxWechatUser wechatUser = wechatUserService.getById(orderInfo.getUid());
+        if (ObjectUtil.isNull(wechatUser)) throw new ErrorRequestException("用户错误");
+
+
+
+        BigDecimal bigDecimal = new BigDecimal(100);
+
+        return miniPayService.couponWxPay(orderId, wechatUser.getRoutineOpenid(), "小程序本地生活购买",
+                bigDecimal.multiply(orderInfo.getTotalPrice()).intValue(),
+                BillDetailEnum.TYPE_3.getValue(),ip);
     }
 }

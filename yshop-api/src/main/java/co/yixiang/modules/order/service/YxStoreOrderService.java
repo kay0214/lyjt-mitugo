@@ -79,7 +79,7 @@ public interface YxStoreOrderService extends BaseService<YxStoreOrder> {
 
     void yuePay(String orderId, int uid);
 
-    WxPayMpOrderResult wxAppPay(String orderId) throws WxPayException;
+    WxPayMpOrderResult wxAppPay(String orderId,String ip) throws WxPayException;
 
     WxPayMpOrderResult wxPay(String orderId) throws WxPayException;
 

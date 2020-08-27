@@ -12,6 +12,8 @@ import co.yixiang.modules.order.web.dto.ComputeDTO;
 import co.yixiang.modules.order.web.dto.CouponCacheDTO;
 import co.yixiang.modules.order.web.dto.PriceGroupDTO;
 import co.yixiang.modules.order.web.param.OrderParam;
+import com.github.binarywang.wxpay.bean.order.WxPayMpOrderResult;
+import com.github.binarywang.wxpay.exception.WxPayException;
 
 import java.io.Serializable;
 import java.util.List;
@@ -98,4 +100,11 @@ public interface YxCouponOrderService extends BaseService<YxCouponOrder> {
      * @return
      */
     CouponInfoQueryVo getCouponInfo(Integer couponId);
+
+    /**
+     * 小程序支付
+     * @param orderId
+     * @return
+     */
+    WxPayMpOrderResult wxAppPay(String orderId,String ip) throws WxPayException;
 }

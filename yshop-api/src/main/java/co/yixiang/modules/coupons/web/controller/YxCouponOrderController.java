@@ -4,10 +4,14 @@ import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import co.yixiang.annotation.AnonymousAccess;
 import co.yixiang.common.api.ApiResult;
+import co.yixiang.common.util.IpUtils;
 import co.yixiang.common.web.controller.BaseController;
 import co.yixiang.common.web.param.IdParam;
 import co.yixiang.common.web.vo.Paging;
+import co.yixiang.enums.OrderInfoEnum;
+import co.yixiang.enums.PayTypeEnum;
 import co.yixiang.exception.ErrorRequestException;
+import co.yixiang.logging.aop.log.Log;
 import co.yixiang.modules.coupons.entity.YxCouponOrder;
 import co.yixiang.modules.coupons.entity.YxCoupons;
 import co.yixiang.modules.coupons.service.YxCouponOrderService;
@@ -22,6 +26,9 @@ import co.yixiang.modules.order.web.dto.ConfirmOrderDTO;
 import co.yixiang.modules.order.web.dto.OrderExtendDTO;
 import co.yixiang.modules.order.web.dto.PriceGroupDTO;
 import co.yixiang.modules.order.web.param.OrderParam;
+import co.yixiang.modules.order.web.param.PayParam;
+import co.yixiang.modules.order.web.param.RefundParam;
+import co.yixiang.modules.order.web.vo.YxStoreOrderQueryVo;
 import co.yixiang.modules.shop.service.YxSystemStoreService;
 import co.yixiang.modules.user.service.YxUserAddressService;
 import co.yixiang.modules.user.service.YxUserService;
@@ -31,13 +38,19 @@ import co.yixiang.utils.StringUtils;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.github.binarywang.wxpay.bean.order.WxPayAppOrderResult;
+import com.github.binarywang.wxpay.bean.order.WxPayMpOrderResult;
+import com.github.binarywang.wxpay.bean.order.WxPayMwebOrderResult;
+import com.github.binarywang.wxpay.exception.WxPayException;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -167,7 +180,7 @@ public class YxCouponOrderController extends BaseController {
      */
     @PostMapping("/order/create/{key}")
     @ApiOperation(value = "订单创建",notes = "订单创建")
-    public ApiResult<Map<String,Object>> create(@Valid @RequestBody OrderParam param, @PathVariable String key){
+    public ApiResult<Map<String,Object>> create(@Valid @RequestBody OrderParam param, @PathVariable String key, HttpServletRequest request){
 
         Map<String,Object> map = new LinkedHashMap<>();
         int uid = SecurityUtils.getUserId().intValue();
@@ -211,8 +224,79 @@ public class YxCouponOrderController extends BaseController {
                 yxCouponOrderService.yuePay(orderId,uid);
                 return ApiResult.ok(map,"支付成功");
             }
+            try {
+                Map<String,String> jsConfig = new HashMap<>();
+                if(param.getFrom().equals("routine")){
+                    map.put("status","WECHAT_PAY");
+                    WxPayMpOrderResult wxPayMpOrderResult = yxCouponOrderService
+                            .wxAppPay(orderId, IpUtils.getIpAddress(request));
+                    jsConfig.put("appId",wxPayMpOrderResult.getAppId());
+                    jsConfig.put("timeStamp",wxPayMpOrderResult.getTimeStamp());
+                    jsConfig.put("nonceStr",wxPayMpOrderResult.getNonceStr());
+                    jsConfig.put("package",wxPayMpOrderResult.getPackageValue());
+                    jsConfig.put("signType",wxPayMpOrderResult.getSignType());
+                    jsConfig.put("paySign",wxPayMpOrderResult.getPaySign());
+                    orderDTO.setJsConfig(jsConfig);
+                    map.put("result",orderDTO);
+                    return ApiResult.ok(map,"订单创建成功");
+                }
+
+            } catch (Exception e) {
+                return ApiResult.fail(e.getMessage());
+            }
         }
         return ApiResult.ok(map,"订单创建成功");
+    }
+
+    /**
+     *  订单支付
+     */
+    @Log(value = "订单支付",type = 1)
+    @PostMapping("/order/pay")
+    @ApiOperation(value = "订单支付",notes = "订单支付")
+    public ApiResult<Map<String,Object>> pay(@Valid @RequestBody PayParam param, HttpServletRequest request){
+
+        Map<String,Object> map = new LinkedHashMap<>();
+        int uid = SecurityUtils.getUserId().intValue();
+        if(StrUtil.isEmpty(param.getUni())) return ApiResult.fail("参数错误");
+
+        YxCouponOrder order = yxCouponOrderService
+                .getOrderInfo(param.getUni(),uid);
+        if(ObjectUtil.isNull(order)) return ApiResult.fail("订单不存在");
+
+        if(order.getPayStaus().equals(OrderInfoEnum.REFUND_STATUS_1.getValue())) return ApiResult.fail("该订单已支付");
+
+
+        String orderId = order.getOrderId();
+
+        OrderExtendDTO orderDTO = new OrderExtendDTO();
+
+        orderDTO.setOrderId(orderId);
+        map.put("status","SUCCESS");
+        map.put("result",orderDTO);
+        //开始处理支付
+        if(StrUtil.isNotEmpty(orderId)){
+            try {
+                Map<String,String> jsConfig = new HashMap<>();
+                if(param.getFrom().equals("routine")){
+                    map.put("status","WECHAT_PAY");
+                    WxPayMpOrderResult wxPayMpOrderResult = yxCouponOrderService
+                            .wxAppPay(orderId, IpUtils.getIpAddress(request));
+                    jsConfig.put("appId",wxPayMpOrderResult.getAppId());
+                    jsConfig.put("timeStamp",wxPayMpOrderResult.getTimeStamp());
+                    jsConfig.put("nonceStr",wxPayMpOrderResult.getNonceStr());
+                    jsConfig.put("package",wxPayMpOrderResult.getPackageValue());
+                    jsConfig.put("signType",wxPayMpOrderResult.getSignType());
+                    jsConfig.put("paySign",wxPayMpOrderResult.getPaySign());
+                    orderDTO.setJsConfig(jsConfig);
+                    map.put("result",orderDTO);
+                    return ApiResult.ok(map,"订单创建成功");
+                }
+            } catch (Exception e) {
+                return ApiResult.fail(e.getMessage());
+            }
+        }
+        return ApiResult.fail("订单生成失败");
     }
 
     /**
@@ -294,5 +378,28 @@ public class YxCouponOrderController extends BaseController {
         return ApiResult.ok(paging);
     }
 
+
+    /**
+     * 退款信息
+     */
+
+    @PostMapping("/info")
+    @ApiOperation(value = "获取YxCouponOrder对象详情",notes = "查看卡券订单表",response = YxCouponOrderQueryVo.class)
+    public ApiResult<YxCouponOrderQueryVo> getTkYxCouponOrder(@Valid @RequestBody IdParam idParam) throws Exception{
+        YxCouponOrderQueryVo yxCouponOrderQueryVo = yxCouponOrderService.getYxCouponOrderById(idParam.getId());
+        return ApiResult.ok(yxCouponOrderQueryVo);
+    }
+
+    /**
+     * 提交订单退款审核
+     */
+    @Log(value = "提交订单退款",type = 1)
+    @PostMapping("/order/refund/verify")
+    @ApiOperation(value = "订单退款审核",notes = "订单退款审核")
+    public ApiResult<Object> refundVerify(@RequestBody RefundParam param){
+        int uid = SecurityUtils.getUserId().intValue();
+        //storeOrderService.orderApplyRefund(param,uid);
+        return ApiResult.ok("ok");
+    }
 }
 
