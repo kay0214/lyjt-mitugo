@@ -128,12 +128,12 @@ public class YxMerchantsDetailDto implements Serializable {
     // --------------------认证类型为企业或个体户---------------------------
     /** 经营类目 */
 
-    private Integer businessCategory;
+    private String businessCategory;
 
 
     /** 主体资质类型 */
 
-    private Integer qualificationsType;
+    private String qualificationsType;
 
 
     /**

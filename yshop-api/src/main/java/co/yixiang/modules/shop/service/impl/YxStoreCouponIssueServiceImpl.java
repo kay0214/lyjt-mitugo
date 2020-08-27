@@ -9,19 +9,20 @@ import co.yixiang.common.web.vo.Paging;
 import co.yixiang.exception.ErrorRequestException;
 import co.yixiang.modules.shop.entity.YxStoreCouponIssue;
 import co.yixiang.modules.shop.entity.YxStoreCouponIssueUser;
+import co.yixiang.modules.shop.entity.YxStoreInfo;
 import co.yixiang.modules.shop.mapper.YxStoreCouponIssueMapper;
 import co.yixiang.modules.shop.mapper.YxStoreCouponIssueUserMapper;
-import co.yixiang.modules.shop.service.YxStoreCouponIssueService;
-import co.yixiang.modules.shop.service.YxStoreCouponIssueUserService;
-import co.yixiang.modules.shop.service.YxStoreCouponUserService;
+import co.yixiang.modules.shop.service.*;
 import co.yixiang.modules.shop.web.param.YxStoreCouponIssueQueryParam;
 import co.yixiang.modules.shop.web.vo.YxStoreCouponIssueQueryVo;
+import co.yixiang.modules.shop.web.vo.YxStoreCouponQueryVo;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.metadata.OrderItem;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -43,11 +44,19 @@ import java.util.List;
 @Transactional(rollbackFor = Exception.class)
 public class YxStoreCouponIssueServiceImpl extends BaseServiceImpl<YxStoreCouponIssueMapper, YxStoreCouponIssue> implements YxStoreCouponIssueService {
 
-    private final YxStoreCouponIssueMapper yxStoreCouponIssueMapper;
-    private final YxStoreCouponIssueUserMapper storeCouponIssueUserMapper;
+    @Autowired
+    private YxStoreCouponIssueMapper yxStoreCouponIssueMapper;
+    @Autowired
+    private YxStoreCouponIssueUserMapper storeCouponIssueUserMapper;
+    @Autowired
+    private YxStoreCouponUserService storeCouponUserService;
+    @Autowired
+    private YxStoreCouponIssueUserService storeCouponIssueUserService;
+    @Autowired
+    private YxStoreInfoService yxStoreInfoService;
+    @Autowired
+    private YxStoreCouponService couponService;
 
-    private final YxStoreCouponUserService storeCouponUserService;
-    private final YxStoreCouponIssueUserService storeCouponIssueUserService;
 
     /**
      * 领取优惠券
@@ -59,7 +68,8 @@ public class YxStoreCouponIssueServiceImpl extends BaseServiceImpl<YxStoreCoupon
         YxStoreCouponIssueQueryVo couponIssueQueryVo = yxStoreCouponIssueMapper
                 .selectOne(id);
         if(ObjectUtil.isNull(couponIssueQueryVo)) throw new ErrorRequestException("领取的优惠劵已领完或已过期");
-
+        couponIssueQueryVo.getCid();
+        YxStoreCouponQueryVo couponQueryVo = couponService.getYxStoreCouponById(couponIssueQueryVo.getCid());
         int count = couponCount(id,uid);
         if(count > 0) throw new ErrorRequestException("已领取过该优惠劵");
 
@@ -98,7 +108,12 @@ public class YxStoreCouponIssueServiceImpl extends BaseServiceImpl<YxStoreCoupon
         List<YxStoreCouponIssueQueryVo> list = yxStoreCouponIssueMapper
                 .selectList(pageModel);
         for (YxStoreCouponIssueQueryVo couponIssue : list) {
+            //店铺名称
+            YxStoreInfo storeInfo = yxStoreInfoService.getById(couponIssue.getBelong());
+            couponIssue.setStoreName(storeInfo.getStoreName());
+
             int count = couponCount(couponIssue.getId(),uid);
+
             if(count > 0){
                 couponIssue.setIsUse(true);
             }else{
