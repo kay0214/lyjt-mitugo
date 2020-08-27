@@ -370,9 +370,8 @@ public class YxCouponsController {
         }
     }
 
-    // 根据核销码查询卡券信息
     @Log("根据核销码查询卡券信息")
-    @ApiOperation("根据核销码查询卡券信息")
+    @ApiOperation("B端：根据核销码查询卡券信息")
     @GetMapping(value = "/getCouponDetail/{verifyCode}")
     public ResponseEntity<Object> getCouponDetail(@PathVariable String verifyCode) {
         int uid = SecurityUtils.getUserId().intValue();
@@ -383,5 +382,4 @@ public class YxCouponsController {
         }
         return new ResponseEntity<>(yxCouponsDto, HttpStatus.OK);
     }
-
 }

@@ -9,6 +9,7 @@ import cn.hutool.core.util.StrUtil;
 import co.yixiang.common.service.impl.BaseServiceImpl;
 import co.yixiang.common.web.vo.Paging;
 import co.yixiang.constant.LocalLiveConstants;
+import co.yixiang.constant.ShopConstants;
 import co.yixiang.constant.SystemConfigConstants;
 import co.yixiang.enums.AppFromEnum;
 import co.yixiang.enums.BillEnum;
@@ -24,6 +25,8 @@ import co.yixiang.modules.coupons.web.vo.CouponInfoQueryVo;
 import co.yixiang.modules.coupons.web.vo.CouponOrderQueryVo;
 import co.yixiang.modules.coupons.web.vo.YxCouponOrderQueryVo;
 import co.yixiang.modules.coupons.web.vo.YxCouponsQueryVo;
+import co.yixiang.modules.image.entity.YxImageInfo;
+import co.yixiang.modules.image.service.YxImageInfoService;
 import co.yixiang.modules.monitor.service.RedisService;
 import co.yixiang.modules.order.mapping.OrderMap;
 import co.yixiang.modules.order.web.dto.ComputeDTO;
@@ -104,6 +107,9 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
 
     @Autowired
     private YxStoreInfoService storeInfoService;
+
+    @Autowired
+    private YxImageInfoService yxImageInfoService;
 
     @Override
     public YxCouponOrderQueryVo getYxCouponOrderById(Serializable id) throws Exception{
@@ -592,8 +598,15 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         if (yxCoupons == null){
             throw new ErrorRequestException("卡券不存在, 请检查卡券ID是否正确!");
         }
+
         CouponInfoQueryVo couponInfoQueryVo = new CouponInfoQueryVo();
         BeanUtil.copyProperties(yxCoupons, couponInfoQueryVo);
+        // 卡券缩略图
+        YxImageInfo thumbnail = yxImageInfoService.getOne(new QueryWrapper<YxImageInfo>().eq("type_id", yxCoupons.getId()).eq("img_type", LocalLiveConstants.IMG_TYPE_COUPONS)
+                .eq("img_category", ShopConstants.IMG_CATEGORY_PIC).eq("del_flag", 0));
+        if (thumbnail != null){
+            couponInfoQueryVo.setImage(thumbnail.getImgUrl());
+        }
         YxStoreInfo storeInfo = storeInfoService.getOne(new QueryWrapper<YxStoreInfo>().eq("id", yxCoupons.getBelong()).eq("del_flag", 0));
         if (storeInfo != null){
             couponInfoQueryVo.setStoreInfo(storeInfo);

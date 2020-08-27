@@ -1,11 +1,6 @@
 /**
-* Copyright (C) 2018-2020
-* All rights reserved, Designed By www.yixiang.co
-* 注意：
-* 本软件为www.yixiang.co开发研制，未经购买不得使用
-* 购买后可获得全部源代码（禁止转卖、分享、上传到码云、github等开源平台）
-* 一经发现盗用、分享等行为，将追究法律责任，后果自负
-*/
+ * Copyright (C) 2018-2020
+ */
 package co.yixiang.modules.coupon.service.impl;
 
 import co.yixiang.common.service.impl.BaseServiceImpl;
@@ -13,8 +8,10 @@ import co.yixiang.common.utils.QueryHelpPlus;
 import co.yixiang.constant.LocalLiveConstants;
 import co.yixiang.constant.ShopConstants;
 import co.yixiang.dozer.service.IGenerator;
+import co.yixiang.modules.coupon.domain.YxCouponOrderDetail;
 import co.yixiang.modules.coupon.domain.YxCoupons;
 import co.yixiang.modules.coupon.domain.YxCouponsCategory;
+import co.yixiang.modules.coupon.service.YxCouponOrderDetailService;
 import co.yixiang.modules.coupon.service.YxCouponsCategoryService;
 import co.yixiang.modules.coupon.service.YxCouponsService;
 import co.yixiang.modules.coupon.service.dto.YxCouponsDto;
@@ -34,6 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -45,9 +43,9 @@ import java.util.Map;
 //import org.springframework.cache.annotation.Cacheable;
 
 /**
-* @author huiy
-* @date 2020-08-14
-*/
+ * @author huiy
+ * @date 2020-08-14
+ */
 @Service
 @AllArgsConstructor
 //@CacheConfig(cacheNames = "yxCoupons")
@@ -61,6 +59,8 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
 
     @Autowired
     private YxCouponsCategoryService yxCouponsCategoryService;
+    @Autowired
+    private YxCouponOrderDetailService yxCouponOrderDetailService;
 
     @Override
     //@Cacheable
@@ -69,13 +69,13 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
         PageInfo<YxCoupons> page = new PageInfo<>(queryAll(criteria));
         Map<String, Object> map = new LinkedHashMap<>(2);
         List<YxCouponsDto> yxCouponsDtoList = generator.convert(page.getList(), YxCouponsDto.class);
-        if (yxCouponsDtoList.size() > 0){
+        if (yxCouponsDtoList.size() > 0) {
             // 查询缩略图和幻灯片
-            for (YxCouponsDto yxCouponsDto : yxCouponsDtoList){
+            for (YxCouponsDto yxCouponsDto : yxCouponsDtoList) {
 
                 YxCouponsCategory couponsCategory = yxCouponsCategoryService.getOne(new QueryWrapper<YxCouponsCategory>()
                         .eq("del_flag", 0).eq("id", yxCouponsDto.getCouponCategory()));
-                if (couponsCategory != null){
+                if (couponsCategory != null) {
                     yxCouponsDto.setCouponCategoryName(couponsCategory.getCateName());
                 }
 
@@ -87,7 +87,7 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
                         .and(imgType -> imgType.eq(YxImageInfo::getImgType, LocalLiveConstants.IMG_TYPE_COUPONS))
                         .and(del -> del.eq(YxImageInfo::getDelFlag, false));
                 YxImageInfo imageInfo = yxImageInfoService.getOne(imageInfoQueryWrapper);
-                if (imageInfo != null){
+                if (imageInfo != null) {
                     yxCouponsDto.setImage(imageInfo.getImgUrl());
                 }
 
@@ -101,9 +101,9 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
 
                 List<YxImageInfo> sliderImageInfoList = yxImageInfoService.list(sliderImageInfoQueryWrapper);
 
-                if (sliderImageInfoList.size() >0){
+                if (sliderImageInfoList.size() > 0) {
                     List<String> sliderList = new ArrayList<>();
-                    for (YxImageInfo sliderImage : sliderImageInfoList){
+                    for (YxImageInfo sliderImage : sliderImageInfoList) {
                         sliderList.add(sliderImage.getImgUrl());
                     }
                     yxCouponsDto.setSliderImage(sliderList);
@@ -118,7 +118,7 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
 
     @Override
     //@Cacheable
-    public List<YxCoupons> queryAll(YxCouponsQueryCriteria criteria){
+    public List<YxCoupons> queryAll(YxCouponsQueryCriteria criteria) {
         return baseMapper.selectList(QueryHelpPlus.getPredicate(YxCoupons.class, criteria));
     }
 
@@ -127,7 +127,7 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
     public void download(List<YxCouponsDto> all, HttpServletResponse response) throws IOException {
         List<Map<String, Object>> list = new ArrayList<>();
         for (YxCouponsDto yxCoupons : all) {
-            Map<String,Object> map = new LinkedHashMap<>();
+            Map<String, Object> map = new LinkedHashMap<>();
             map.put("卡券编号", yxCoupons.getCouponNum());
             map.put("卡券名称", yxCoupons.getCouponName());
             map.put("卡券类型;1:代金券, 2:折扣券, 3:满减券", yxCoupons.getCouponType());
@@ -175,12 +175,87 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
      */
     @Override
     public YxCouponsDto getCouponByVerifyCode(String verifyCode, int uid) {
-//        YxCouponOrderDetail
-        // 查询到couponid 可核销次数已核销次数
+        YxCouponsDto yxCouponsDto = new YxCouponsDto();
+        YxCouponOrderDetail yxCouponOrderDetail = this.yxCouponOrderDetailService.getOne(new QueryWrapper<YxCouponOrderDetail>().eq("verify_code", verifyCode));
+        if (null == yxCouponOrderDetail) {
+            yxCouponsDto.setStatus(-1);
+            yxCouponsDto.setStatusDesc("无效卡券");
+            return yxCouponsDto;
+        }
         // 查询优惠券信息
-        // 判断核销次数
+        YxCoupons yxCoupons = this.getById(yxCouponOrderDetail.getCouponId());
+        if (null == yxCoupons) {
+            yxCouponsDto.setStatus(-2);
+            yxCouponsDto.setStatusDesc("卡券已失效");
+            return yxCouponsDto;
+        }
+        // 判断是否本商铺发放的卡券
+        if(!yxCoupons.getCreateUserId().equals(uid)) {
+            yxCouponsDto.setStatus(-3);
+            yxCouponsDto.setStatusDesc("非本商户卡券");
+            return yxCouponsDto;
+        }
+        yxCouponsDto = generator.convert(yxCoupons, YxCouponsDto.class);
+        // 可核销次数已核销次数
+        if (yxCouponOrderDetail.getUsedCount() >= yxCouponOrderDetail.getUseCount()) {
+            yxCouponsDto.setStatus(-4);
+            yxCouponsDto.setStatusDesc("当前卡券已达核销上限");
+        }
         // 判断卡券状态
+        switch (yxCouponOrderDetail.getStatus()) {
+            case 0:
+                yxCouponsDto.setStatus(-5);
+                yxCouponsDto.setStatusDesc("待支付");
+                break;
+            case 1:
+                yxCouponsDto.setStatus(-6);
+                yxCouponsDto.setStatusDesc("已过期");
+                break;
+            case 2:
+                yxCouponsDto.setStatus(-7);
+                yxCouponsDto.setStatusDesc("待发放");
+                break;
+            case 3:
+                yxCouponsDto.setStatus(-8);
+                yxCouponsDto.setStatusDesc("支付失败");
+                break;
+            case 4:
+                yxCouponsDto.setStatus(4);
+                yxCouponsDto.setStatusDesc("待使用");
+                break;
+            case 5:
+                yxCouponsDto.setStatus(5);
+                yxCouponsDto.setStatusDesc("已使用");
+                break;
+            case 6:
+                yxCouponsDto.setStatus(-9);
+                yxCouponsDto.setStatusDesc("已核销");
+                break;
+            case 7:
+                yxCouponsDto.setStatus(-10);
+                yxCouponsDto.setStatusDesc("退款中");
+                break;
+            case 8:
+                yxCouponsDto.setStatus(-11);
+                yxCouponsDto.setStatusDesc("已退款");
+                break;
+            case 9:
+                yxCouponsDto.setStatus(-12);
+                yxCouponsDto.setStatusDesc("退款驳回");
+                break;
+            default:
+                yxCouponsDto.setStatus(-13);
+                yxCouponsDto.setStatusDesc("未知状态");
+                break;
+        }
         // 判断有效期
-        return null;
+        LocalDateTime expireDateStart = yxCoupons.getExpireDateStart().toLocalDateTime();
+        LocalDateTime expireDateEnd = yxCoupons.getExpireDateEnd().toLocalDateTime();
+        if (expireDateStart.isBefore(LocalDateTime.now()) || expireDateEnd.isAfter(LocalDateTime.now())) {
+            yxCouponsDto.setStatus(-14);
+            yxCouponsDto.setStatusDesc("已失效");
+            return yxCouponsDto;
+        }
+        return yxCouponsDto;
     }
 }
