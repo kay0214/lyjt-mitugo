@@ -87,7 +87,7 @@ public interface ShopConstants {
 	/**
 	 * 首页菜单
 	 */
-	String YSHOP_HOME_MENUS = "yshop_home_menus";
+	String YSHOP_HOME_MENUS = "shop_home_menus";
 	/**
 	 * 首页滚动新闻
 	 */
