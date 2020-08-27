@@ -386,7 +386,15 @@
         }
         this.$nextTick(()=>{
           this.initMap()
-          getStoreInfo(form.id)
+          getStoreInfo(form.id).then(res=>{
+            crud.resetForm(JSON.parse(JSON.stringify(res)))
+            if(form.imageArr!=""){
+              this.picArr = form.imageArr.split(',')
+            }
+            if(form.sliderImageArr!=""){
+              this.sliderImageArr = form.sliderImageArr.split(',')
+            }
+          })
         })
       },
       onSale(id, status) {
