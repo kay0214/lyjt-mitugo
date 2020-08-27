@@ -108,7 +108,7 @@ public class YxStoreInfoResponse implements Serializable {
     //营业时间
     private List<Map<String, Object>> openTime;
     //店铺服务
-    private String storeService;
+    private List<String> storeService;
 
 
     public void copy(YxStoreInfoResponse source) {

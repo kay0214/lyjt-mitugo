@@ -37,8 +37,8 @@
           <el-form-item label="营业时间" prop="openTime">
             <el-button @click="addOpenTime = !addOpenTime" plain>添加营业时间</el-button>
           </el-form-item>
-          <div v-if="addOpenTime">
-            <el-row style="marginLeft:120px;marginBottom:18px;">
+          <div v-if="addOpenTime" style="margin-bottom:20px;">
+            <el-row style="marginLeft:120px;marginBottom:10px;marginTop:-5px">
               <el-col :span='8'>
             <el-select v-model="form.BusinessDayBegin" style='width:100px' placeholder="请选择">
               <el-option
@@ -74,15 +74,15 @@
           </el-row>
           </div>
           <!-- 营业时间显示区域 -->
-          <div>
+          <div style="margin-top:-10px">
             <el-table :data="formOpenTime" empty-text=" "
                       :row-style="{marginBottom:'20px'}"
                       :cell-style="{borderBottomWidth:'0'}" :show-header="false"
-                      :style="{width:'700px',marginLeft:'110px'}"
+                      :style="{width:'700px',marginLeft:'110px',paddingBottom:'10px'}"
                       >
               <el-table-column :width="150" label="营业日">
                 <template slot-scope="scope">
-                  <div :style="{padding:'10px',borderRadius:'5px',borderStyle:'solid',borderWidth:'1px',borderColor:'#DCDFE6'}">
+                  <div :style="{padding:'5px 10px',borderRadius:'5px',borderStyle:'solid',borderWidth:'1px',borderColor:'#DCDFE6'}">
                     {{scope.row.openDay}}
                   </div>
                 </template>
@@ -90,7 +90,7 @@
               </el-table-column>
               <el-table-column :width="300" label="营业时间">
                 <template slot-scope="scope">
-                  <div :style="{padding:'10px',borderRadius:'5px',borderStyle:'solid',borderWidth:'1px',borderColor:'#DCDFE6'}">
+                  <div :style="{padding:'5px 10px',borderRadius:'5px',borderStyle:'solid',borderWidth:'1px',borderColor:'#DCDFE6'}">
                     {{scope.row.openTime}}
                   </div>
                 </template>
@@ -124,10 +124,10 @@
                 </template>
             </el-checkbox-group>
           </el-form-item>
-          <el-form-item label="店铺图片" prop="pic">
+          <el-form-item label="店铺图片" prop="imageArr">
             <MaterialList v-model="picArr" style="width: 700px" type="image" :num="1" :width="150" :height="150" />
           </el-form-item>
-          <el-form-item label="轮播图" prop="slider">
+          <el-form-item label="轮播图" prop="sliderImageArr">
             <MaterialList v-model="sliderImageArr"
             style="width: 700px" type="image" :num="4" :width="150" :height="150"
             @setValue="setSliderImageArr" />
@@ -217,7 +217,7 @@
       del: false,
       download: false
     }, crudMethod: { ...crudYxStoreInfo }})
-  const defaultForm = { id: null, storeNid: null, storeName: null, manageUserName: null, merId: null, partnerId: null, manageMobile: null, storeMobile: null, status: null, perCapita: null, industryCategory: null, storeProvince: null, storeAddress: null, delFlag: null, createUserId: null, updateUserId: null, createTime: null, updateTime: null, introduction: null, coordinateX: null, coordinateY: null,storeService: [],pic: null, slider: null }
+  const defaultForm = { id: null, storeNid: null, storeName: null, manageUserName: null, merId: null, partnerId: null, manageMobile: null, storeMobile: null, status: null, perCapita: null, industryCategory: null, storeProvince: null, storeAddress: null, delFlag: null, createUserId: null, updateUserId: null, createTime: null, updateTime: null, introduction: null, coordinateX: null, coordinateY: null,storeService: [],imageArr: null, sliderImageArr: null }
   export default {
     name: 'YxStoreInfo',
     // components: { pagination, crudOperation, rrOperation, udOperation ,MaterialList},
@@ -269,10 +269,10 @@
           storeService: [
             { required: true /*,message: '不能为空', trigger: 'blur'*/ }
           ],
-          pic: [
+          imageArr: [
             { required: true}
           ],
-          slider: [
+          sliderImageArr: [
             { required: true }
           ],
           /*merId: [
@@ -303,19 +303,19 @@
     },
     watch: {
       picArr(val) {
-        this.form.pic = val.join(',')
+        this.form.imageArr = val.join(',')
         this.$nextTick(()=>{
-          if(this.$refs.form && this.form.pic){
-            this.$refs.form.validateField('pic');
+          if(this.$refs.form && this.form.imageArr){
+            this.$refs.form.validateField('imageArr');
           }
         })
 
       },
       sliderImageArr(val) {
-        this.form.slider = val.join(',');
+        this.form.sliderImageArr = val.join(',');
         this.$nextTick(()=>{
-          if(this.$refs.form && this.form.pic){
-            this.$refs.form.validateField('slider');
+          if(this.$refs.form && this.form.sliderImageArr){
+            this.$refs.form.validateField('sliderImageArr');
           }
         })
       }
@@ -378,15 +378,23 @@
       [CRUD.HOOK.afterToCU](crud, form) {
         this.picArr = [];
         this.sliderImageArr = [];
-        if (form.pic && form.id) {
-          this.picArr = form.pic.split(',')
+        if (form.imageArr && form.id) {
+          this.picArr = form.imageArr.split(',')
         }
-        if (form.slider && form.id) {
-          this.sliderImageArr = form.slider.split(',')
+        if (form.sliderImageArr && form.id) {
+          this.sliderImageArr = form.sliderImageArr.split(',')
         }
         this.$nextTick(()=>{
           this.initMap()
-          getStoreInfo(form.id)
+          getStoreInfo(form.id).then(res=>{
+            crud.resetForm(JSON.parse(JSON.stringify(res)))
+            if(form.imageArr!=""){
+              this.picArr = form.imageArr.split(',')
+            }
+            if(form.sliderImageArr!=""){
+              this.sliderImageArr = form.sliderImageArr.split(',')
+            }
+          })
         })
       },
       onSale(id, status) {
@@ -455,7 +463,7 @@
   .el-table::before{
     height: 0;
   }
-  .el-table__empty-block{
+  .el-table >>> .el-table__empty-block{
     min-height: 0;
   }
 </style>

@@ -87,7 +87,7 @@ public class YxStoreInfoController {
         return new ResponseEntity<>(yxStoreInfoService.save(yxStoreInfo), HttpStatus.CREATED);
     }*/
 
-    @PutMapping(value = "/updateStoreInfo")
+    @PostMapping(value = "/updateStoreInfo")
     @Log("修改店铺表")
     @ApiOperation("修改店铺表")
     @PreAuthorize("@el.check('admin','yxStoreInfo:edit')")

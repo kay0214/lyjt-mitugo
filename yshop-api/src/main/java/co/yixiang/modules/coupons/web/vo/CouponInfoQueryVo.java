@@ -46,6 +46,9 @@ public class CouponInfoQueryVo implements Serializable {
     @ApiModelProperty(value = "有效期止")
     private Date expireDateEnd;
 
+    @ApiModelProperty(value = "卡券缩略图")
+    private String image;
+
     @ApiModelProperty(value = "卡券所属商铺")
     private YxStoreInfo storeInfo;
 }
