@@ -212,22 +212,14 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         Double payPostage = cacheDTO.getPriceGroup().getStorePostage();
 
         YxUserAddressQueryVo userAddress = null;
-        if (OrderInfoEnum.SHIPPIING_TYPE_1.getValue().equals(param.getShippingType())) {
-            if (StrUtil.isEmpty(param.getAddressId())) throw new ErrorRequestException("请选择收货地址");
-            userAddress = userAddressService.getYxUserAddressById(param.getAddressId());
-            if (ObjectUtil.isNull(userAddress)) throw new ErrorRequestException("地址选择有误");
-        } else { //门店
-            if (StrUtil.isBlank(param.getRealName()) || StrUtil.isBlank(param.getPhone())) {
-                throw new ErrorRequestException("请填写姓名和电话");
-            }
-            userAddress = new YxUserAddressQueryVo();
-            userAddress.setRealName(param.getRealName());
-            userAddress.setPhone(param.getPhone());
-            userAddress.setProvince("");
-            userAddress.setCity("");
-            userAddress.setDistrict("");
-            userAddress.setDetail("");
-        }
+
+        userAddress = new YxUserAddressQueryVo();
+        userAddress.setRealName(param.getRealName());
+        userAddress.setPhone(param.getPhone());
+        userAddress.setProvince("");
+        userAddress.setCity("");
+        userAddress.setDistrict("");
+        userAddress.setDetail("");
 
         Integer totalNum = 0;
         Integer gainIntegral = 0;
@@ -235,30 +227,6 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         int combinationId = 0;
         int seckillId = 0;
         int bargainId = 0;
-
-//        for (YxStoreCartQueryVo cart : cartInfo) {
-//            yxStoreCartService.checkProductStock(uid, cart.getProductId(), cart.getCartNum(),
-//                    cart.getProductAttrUnique(), cart.getCombinationId(), cart.getSeckillId(), cart.getBargainId());
-//
-//
-//            combinationId = cart.getCombinationId();
-//            seckillId = cart.getSeckillId();
-//            bargainId = cart.getBargainId();
-//            cartIds.add(cart.getId().toString());
-//            totalNum += cart.getCartNum();
-//            //计算积分
-//            BigDecimal cartInfoGainIntegral = BigDecimal.ZERO;
-//            if (combinationId == 0 && seckillId == 0 && bargainId == 0) {//拼团等活动不参与积分
-//                if (cart.getProductInfo().getGiveIntegral().intValue() > 0) {
-//                    cartInfoGainIntegral = NumberUtil.mul(cart.getCartNum(), cart.
-//                            getProductInfo().getGiveIntegral());
-//                }
-//                gainIntegral = NumberUtil.add(gainIntegral, cartInfoGainIntegral).intValue();
-//            }
-//
-//        }
-
-
         //门店
 
         if (OrderInfoEnum.SHIPPIING_TYPE_1.getValue().equals(param.getShippingType())) {
