@@ -378,18 +378,6 @@ public class YxCouponOrderController extends BaseController {
         return ApiResult.ok(paging);
     }
 
-
-    /**
-     * 退款信息
-     */
-
-    @PostMapping("/info")
-    @ApiOperation(value = "获取YxCouponOrder对象详情",notes = "查看卡券订单表",response = YxCouponOrderQueryVo.class)
-    public ApiResult<YxCouponOrderQueryVo> getTkYxCouponOrder(@Valid @RequestBody IdParam idParam) throws Exception{
-        YxCouponOrderQueryVo yxCouponOrderQueryVo = yxCouponOrderService.getYxCouponOrderById(idParam.getId());
-        return ApiResult.ok(yxCouponOrderQueryVo);
-    }
-
     /**
      * 提交订单退款审核
      */
