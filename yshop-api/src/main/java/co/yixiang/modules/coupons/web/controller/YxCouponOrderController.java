@@ -174,7 +174,7 @@ public class YxCouponOrderController extends BaseController {
         if(StrUtil.isEmpty(key)) return ApiResult.fail("参数错误");
 
         // 校验订单是否已存在
-        YxCouponOrder couponOrder = yxCouponOrderService.getOne(new QueryWrapper<YxCouponOrder>().eq("unique", key).eq("del_flag", 0));
+        YxCouponOrder couponOrder = yxCouponOrderService.getOne(new QueryWrapper<YxCouponOrder>().eq("`unique`", key).eq("del_flag", 0));
         if(ObjectUtil.isNotNull(couponOrder)){
             map.put("status","EXTEND_ORDER");
             OrderExtendDTO orderExtendDTO = new OrderExtendDTO();
