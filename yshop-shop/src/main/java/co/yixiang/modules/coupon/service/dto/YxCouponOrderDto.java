@@ -9,7 +9,7 @@ import java.util.List;
 
 /**
 * @author huiy
-* @date 2020-08-14
+* @date 2020-08-27
 */
 @Data
 public class YxCouponOrderDto implements Serializable {
@@ -172,6 +172,31 @@ public class YxCouponOrderDto implements Serializable {
     /** 更新时间 */
 
     private Timestamp updateTime;
+
+
+    /** 唯一id(md5加密)类似id */
+
+    private String unique;
+
+
+    /** 支付方式 */
+
+    private String payType;
+
+
+    /** 支付渠道(0微信公众号1微信小程序) */
+
+    private Integer isChannel;
+
+
+    /** 佣金 */
+
+    private BigDecimal commission;
+
+
+    /** 分佣状态 0:未分佣 1:已分佣 */
+
+    private Integer rebateStatus;
 
     /** 卡券核销记录 */
     List<YxCouponOrderUse> couponOrderUseList;
