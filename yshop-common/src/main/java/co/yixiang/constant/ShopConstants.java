@@ -103,7 +103,7 @@ public interface ShopConstants {
 	 */
 	String YSHOP_MY_MENUES = "yshop_my_menus";
 
-	String  SHOP_CAROUSEL =" shop_carousel";
+	String  SHOP_CAROUSEL ="shop_carousel";
 	/**
 	 * 秒杀时间段
 	 */
