@@ -111,7 +111,7 @@
                     v-for="item in dict.industry_category"
                     :key="item.value"
                     :label="item.label"
-                    :value="item.value">
+                    :value="parseInt(item.value)">
                   </el-option>
                 </el-select>
           </el-form-item>
@@ -388,6 +388,7 @@
           this.initMap()
           getStoreInfo(form.id).then(res=>{
             crud.resetForm(JSON.parse(JSON.stringify(res)))
+            this.formOpenTime=form.openTime
             if(form.imageArr!=""){
               this.picArr = form.imageArr.split(',')
             }
