@@ -28,7 +28,8 @@ public interface YxStoreCouponIssueMapper extends BaseMapper<YxStoreCouponIssue>
     @Select("select A.cid,A.end_time as endTime,A.start_time as startTime," +
             "A.is_permanent as isPermanent,A.remain_count as remainCount," +
             "A.total_count as totalCount,A.id,B.coupon_price as couponPrice," +
-            "B.use_min_price as useMinPrice" +
+            "B.use_min_price as useMinPrice, " +
+            "B.belong as belong" +
             " from yx_store_coupon_issue A left join yx_store_coupon B " +
             "on A.cid = B.id " +
             "where A.status =1 " +

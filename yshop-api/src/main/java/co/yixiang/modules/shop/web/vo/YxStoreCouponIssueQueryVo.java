@@ -48,4 +48,11 @@ public class YxStoreCouponIssueQueryVo implements Serializable {
 
     private Boolean isUse;
 
+    @ApiModelProperty(value = "店铺id")
+    private Integer belong;
+
+    @ApiModelProperty(value = "店铺名称")
+    private String storeName;
+
+
 }
