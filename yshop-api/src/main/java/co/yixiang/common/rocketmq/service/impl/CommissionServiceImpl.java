@@ -153,6 +153,7 @@ public class CommissionServiceImpl implements CommissionService {
         BeanUtils.copyProperties(yxCouponOrder, orderInfo);
         orderInfo.setPayPrice(yxCouponOrder.getCouponPrice());
         orderInfo.setUsername(yxWechatUser.getNickname());
+        orderInfo.setCommission(yxCouponOrder.getCommission().multiply(new BigDecimal(yxCouponOrder.getTotalNum().toString())));
         updateaccount(orderInfo);
     }
 
