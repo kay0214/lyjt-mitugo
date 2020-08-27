@@ -1,5 +1,6 @@
 package co.yixiang.modules.coupons.service.impl;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.NumberUtil;
@@ -14,17 +15,23 @@ import co.yixiang.enums.BillEnum;
 import co.yixiang.enums.OrderInfoEnum;
 import co.yixiang.exception.ErrorRequestException;
 import co.yixiang.modules.coupons.entity.YxCouponOrder;
+import co.yixiang.modules.coupons.entity.YxCoupons;
 import co.yixiang.modules.coupons.mapper.YxCouponOrderMapper;
 import co.yixiang.modules.coupons.service.YxCouponOrderService;
+import co.yixiang.modules.coupons.service.YxCouponsService;
 import co.yixiang.modules.coupons.web.param.YxCouponOrderQueryParam;
+import co.yixiang.modules.coupons.web.vo.CouponInfoQueryVo;
 import co.yixiang.modules.coupons.web.vo.CouponOrderQueryVo;
 import co.yixiang.modules.coupons.web.vo.YxCouponOrderQueryVo;
 import co.yixiang.modules.coupons.web.vo.YxCouponsQueryVo;
 import co.yixiang.modules.monitor.service.RedisService;
 import co.yixiang.modules.order.mapping.OrderMap;
+import co.yixiang.modules.order.web.dto.ComputeDTO;
 import co.yixiang.modules.order.web.dto.CouponCacheDTO;
 import co.yixiang.modules.order.web.dto.PriceGroupDTO;
 import co.yixiang.modules.order.web.param.OrderParam;
+import co.yixiang.modules.shop.entity.YxStoreInfo;
+import co.yixiang.modules.shop.service.YxStoreInfoService;
 import co.yixiang.modules.shop.service.YxSystemConfigService;
 import co.yixiang.modules.shop.service.YxSystemStoreService;
 import co.yixiang.modules.shop.web.vo.YxSystemStoreQueryVo;
@@ -91,6 +98,12 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
 
     @Autowired
     private YxUserBillService billService;
+
+    @Autowired
+    private YxCouponsService couponsService;
+
+    @Autowired
+    private YxStoreInfoService storeInfoService;
 
     @Override
     public YxCouponOrderQueryVo getYxCouponOrderById(Serializable id) throws Exception{
@@ -474,5 +487,117 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
 //            }
 //        }
 
+    }
+
+    /**
+     * 计算价格
+     * @param uid
+     * @param key
+     * @param couponId
+     * @param useIntegral
+     * @param shippingType
+     * @return
+     */
+    @Override
+    public ComputeDTO computedOrder(int uid, String key, int couponId, int useIntegral, int shippingType) {
+        YxUserQueryVo userInfo = userService.getYxUserById(uid);
+        if (ObjectUtil.isNull(userInfo)) throw new ErrorRequestException("用户不存在");
+
+        CouponCacheDTO cacheDTO = getCacheOrderInfo(uid, key);
+        if (ObjectUtil.isNull(cacheDTO)) {
+            throw new ErrorRequestException("订单已过期,请刷新当前页面");
+        }
+        ComputeDTO computeDTO = new ComputeDTO();
+        computeDTO.setTotalPrice(cacheDTO.getPriceGroup().getTotalPrice());
+        Double payPrice = cacheDTO.getPriceGroup().getTotalPrice();
+        Double payPostage = cacheDTO.getPriceGroup().getStorePostage();
+
+        //1-配送 2-到店
+        if (shippingType == 1) {
+            payPrice = NumberUtil.add(payPrice, payPostage);
+        } else {
+            payPostage = 0d;
+        }
+
+        boolean deduction = false;//拼团秒杀砍价等
+        int combinationId = 0;
+        int seckillId = 0;
+        int bargainId = 0;
+//        List<YxStoreCartQueryVo> cartInfo = cacheDTO.getCartInfo();
+//        for (YxStoreCartQueryVo cart : cartInfo) {
+//            combinationId = cart.getCombinationId();
+//            seckillId = cart.getSeckillId();
+//            bargainId = cart.getBargainId();
+//        }
+        //拼团等不参与抵扣
+//        if (combinationId > 0 || seckillId > 0 || bargainId > 0) deduction = true;
+//
+//
+//        if (deduction) {
+//            couponId = 0;
+//            useIntegral = 0;
+//        }
+//        double couponPrice = 0;
+//        if (couponId > 0) {//使用优惠券
+//            YxStoreCouponUser couponUser = couponUserService.getCoupon(couponId, uid);
+//            if (ObjectUtil.isNull(couponUser)) throw new ErrorRequestException("使用优惠劵失败");
+//
+//            if (couponUser.getUseMinPrice().doubleValue() > payPrice) {
+//                throw new ErrorRequestException("不满足优惠劵的使用条件");
+//            }
+//            payPrice = NumberUtil.sub(payPrice, couponUser.getCouponPrice()).doubleValue();
+//
+//            couponPrice = couponUser.getCouponPrice().doubleValue();
+//
+//        }
+//
+//        // 积分抵扣
+//        double deductionPrice = 0;
+//        System.out.println("a:" + userInfo.getIntegral().doubleValue());
+//        if (useIntegral > 0 && userInfo.getIntegral().doubleValue() > 0) {
+//            Double integralMax = Double.valueOf(cacheDTO.getOther().getIntegralMax());
+//            Double integralFull = Double.valueOf(cacheDTO.getOther().getIntegralFull());
+//            Double integralRatio = Double.valueOf(cacheDTO.getOther().getIntegralRatio());
+//            if (computeDTO.getTotalPrice() >= integralFull) {
+//                Double userIntegral = userInfo.getIntegral().doubleValue();
+//                if (integralMax > 0 && userIntegral >= integralMax) userIntegral = integralMax;
+//                deductionPrice = NumberUtil.mul(userIntegral, integralRatio);
+//                if (deductionPrice < payPrice) {
+//                    payPrice = NumberUtil.sub(payPrice.doubleValue(), deductionPrice);
+//                } else {
+//                    deductionPrice = payPrice;
+//                    payPrice = 0d;
+//                }
+//            }
+//        }
+
+        if (payPrice <= 0) payPrice = 0d;
+
+        computeDTO.setPayPrice(payPrice);
+        computeDTO.setPayPostage(payPostage);
+//        computeDTO.setCouponPrice(couponPrice);
+//        computeDTO.setDeductionPrice(deductionPrice);
+
+        return computeDTO;
+    }
+
+    /**
+     * 通过卡券ID 获取卡券信息和所属公司信息
+     * @param couponId
+     * @return
+     */
+    @Override
+    public CouponInfoQueryVo getCouponInfo(Integer couponId) {
+        YxCoupons yxCoupons = couponsService.getOne(new QueryWrapper<YxCoupons>().eq("id", couponId).eq("del_flag", 0));
+        if (yxCoupons == null){
+            throw new ErrorRequestException("卡券不存在, 请检查卡券ID是否正确!");
+        }
+        CouponInfoQueryVo couponInfoQueryVo = new CouponInfoQueryVo();
+        BeanUtil.copyProperties(yxCoupons, couponInfoQueryVo);
+        YxStoreInfo storeInfo = storeInfoService.getOne(new QueryWrapper<YxStoreInfo>().eq("id", yxCoupons.getBelong()).eq("del_flag", 0));
+        if (storeInfo != null){
+            couponInfoQueryVo.setStoreInfo(storeInfo);
+        }
+        return couponInfoQueryVo;
     }
 }

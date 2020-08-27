@@ -2,6 +2,7 @@ package co.yixiang.modules.coupons.web.controller;
 
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import co.yixiang.annotation.AnonymousAccess;
 import co.yixiang.common.api.ApiResult;
 import co.yixiang.common.web.controller.BaseController;
 import co.yixiang.common.web.param.IdParam;
@@ -12,9 +13,11 @@ import co.yixiang.modules.coupons.entity.YxCoupons;
 import co.yixiang.modules.coupons.service.YxCouponOrderService;
 import co.yixiang.modules.coupons.service.YxCouponsService;
 import co.yixiang.modules.coupons.web.param.YxCouponOrderQueryParam;
+import co.yixiang.modules.coupons.web.vo.CouponInfoQueryVo;
 import co.yixiang.modules.coupons.web.vo.CouponOrderQueryVo;
 import co.yixiang.modules.coupons.web.vo.YxCouponOrderQueryVo;
 import co.yixiang.modules.coupons.web.vo.YxCouponsQueryVo;
+import co.yixiang.modules.order.web.dto.ComputeDTO;
 import co.yixiang.modules.order.web.dto.ConfirmOrderDTO;
 import co.yixiang.modules.order.web.dto.OrderExtendDTO;
 import co.yixiang.modules.order.web.dto.PriceGroupDTO;
@@ -71,6 +74,26 @@ public class YxCouponOrderController extends BaseController {
     private YxSystemStoreService systemStoreService;
 
     private static Lock lock = new ReentrantLock(false);
+
+
+    /**
+     * 通过卡券ID, 获取卡券和卡券所属商户信息
+     * @param id
+     * @return
+     */
+    @AnonymousAccess
+    @GetMapping("/order/couponInfo/{id}")
+    @ApiOperation(value = "订单确认",notes = "订单确认")
+    public ApiResult<CouponInfoQueryVo> getCouponInfo(@PathVariable Integer id){
+        if (id == null){
+            return ApiResult.fail("请传入正确的卡券ID");
+        }
+        if (id <= 0){
+            return ApiResult.fail("请传入正确的卡券ID");
+        }
+        CouponInfoQueryVo couponInfoQueryVo = yxCouponOrderService.getCouponInfo(id);
+        return ApiResult.ok(couponInfoQueryVo);
+    }
 
     /**
      * 卡券订单确认
@@ -252,6 +275,69 @@ public class YxCouponOrderController extends BaseController {
 //            }
         }
         return ApiResult.fail("订单生成失败");
+    }
+
+    /**
+     * 计算订单金额
+     */
+    @PostMapping("/order/computed/{key}")
+    @ApiOperation(value = "计算订单金额",notes = "计算订单金额")
+    public ApiResult<Map<String,Object>> computedOrder(@RequestBody String jsonStr,
+                                                       @PathVariable String key){
+
+        Map<String,Object> map = new LinkedHashMap<>();
+        int uid = SecurityUtils.getUserId().intValue();
+        if(StrUtil.isEmpty(key)) return ApiResult.fail("参数错误");
+
+        YxCouponOrderQueryVo storeOrder = yxCouponOrderService.getOrderInfo(key,uid);
+        if(ObjectUtil.isNotNull(storeOrder)){
+            map.put("status","EXTEND_ORDER");
+            OrderExtendDTO orderExtendDTO = new OrderExtendDTO();
+            orderExtendDTO.setKey(key);
+            orderExtendDTO.setOrderId(storeOrder.getOrderId());
+            map.put("result",orderExtendDTO);
+            return ApiResult.ok(map,"订单已生成");
+        }
+
+        JSONObject jsonObject = JSON.parseObject(jsonStr);
+//        String addressId = jsonObject.getString("addressId");
+//        String couponId = jsonObject.getString("couponId");
+        String shippingType = jsonObject.getString("shipping_type");
+        String useIntegral = jsonObject.getString("useIntegral");
+        // 砍价
+//        if(ObjectUtil.isNotNull(jsonObject.getInteger("bargainId"))){
+//            YxStoreBargainUser storeBargainUser = storeBargainUserService.getBargainUserInfo(jsonObject.getInteger("bargainId")
+//                    ,uid);
+//            if(ObjectUtil.isNull(storeBargainUser)) return ApiResult.fail("砍价失败");
+//            if(storeBargainUser.getStatus() == 3) return ApiResult.fail("砍价已支付");
+//        }
+//        // 拼团
+//        if(ObjectUtil.isNotNull(jsonObject.getInteger("pinkId"))){
+//            int pinkId = jsonObject.getInteger("pinkId");
+//            YxStoreOrder yxStoreOrder = storeOrderService.getOrderPink(pinkId,uid,1);
+//            if(storePinkService.getIsPinkUid(pinkId,uid) > 0){
+//                map.put("status","ORDER_EXIST");
+//                OrderExtendDTO orderExtendDTO = new OrderExtendDTO();
+//                orderExtendDTO.setOrderId(yxStoreOrder.getOrderId());
+//                map.put("result",orderExtendDTO);
+//                return ApiResult.ok(map,"订单生成失败，你已经在该团内不能再参加了");
+//            }
+//            YxStoreOrder yxStoreOrderT = storeOrderService.getOrderPink(pinkId,uid,0);
+//            if(ObjectUtil.isNotNull(yxStoreOrderT)){
+//                map.put("status","ORDER_EXIST");
+//                OrderExtendDTO orderExtendDTO = new OrderExtendDTO();
+//                orderExtendDTO.setOrderId(yxStoreOrder.getOrderId());
+//                map.put("result",orderExtendDTO);
+//                return ApiResult.ok(map,"订单生成失败，你已经参加该团了，请先支付订单");
+//            }
+//
+//        }
+        ComputeDTO computeDTO = yxCouponOrderService.computedOrder(uid, key, 0, Integer.valueOf(useIntegral), Integer.valueOf(shippingType));
+
+
+        map.put("result",computeDTO);
+        map.put("status","NONE");
+        return ApiResult.ok(map);
     }
 
     /**

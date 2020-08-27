@@ -4,9 +4,11 @@ import co.yixiang.common.service.BaseService;
 import co.yixiang.common.web.vo.Paging;
 import co.yixiang.modules.coupons.entity.YxCouponOrder;
 import co.yixiang.modules.coupons.web.param.YxCouponOrderQueryParam;
+import co.yixiang.modules.coupons.web.vo.CouponInfoQueryVo;
 import co.yixiang.modules.coupons.web.vo.CouponOrderQueryVo;
 import co.yixiang.modules.coupons.web.vo.YxCouponOrderQueryVo;
 import co.yixiang.modules.coupons.web.vo.YxCouponsQueryVo;
+import co.yixiang.modules.order.web.dto.ComputeDTO;
 import co.yixiang.modules.order.web.dto.CouponCacheDTO;
 import co.yixiang.modules.order.web.dto.PriceGroupDTO;
 import co.yixiang.modules.order.web.param.OrderParam;
@@ -79,4 +81,21 @@ public interface YxCouponOrderService extends BaseService<YxCouponOrder> {
 
     void paySuccess(String orderId, String payType);
 
+    /**
+     * 计算订单价格
+     * @param uid
+     * @param key
+     * @param couponId
+     * @param useIntegral
+     * @param shippingType
+     * @return
+     */
+    ComputeDTO computedOrder(int uid, String key, int couponId, int useIntegral, int shippingType);
+
+    /**
+     * 通过卡券ID 获取卡券信息和所属公司信息
+     * @param couponId
+     * @return
+     */
+    CouponInfoQueryVo getCouponInfo(Integer couponId);
 }
