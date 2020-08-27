@@ -32,6 +32,7 @@ public class YxCouponOrder extends BaseEntity {
     private Integer id;
 
     /** 唯一值 */
+    @TableField(value = "`unique`")
     private String unique;
 
     @ApiModelProperty(value = "订单号")

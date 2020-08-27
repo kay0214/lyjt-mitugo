@@ -77,7 +77,7 @@ public interface YxCouponOrderService extends BaseService<YxCouponOrder> {
      * @param uid
      * @return
      */
-    YxCouponOrderQueryVo getOrderInfo(String unique, int uid);
+    YxCouponOrder getOrderInfo(String unique, int uid);
 
     void paySuccess(String orderId, String payType);
 

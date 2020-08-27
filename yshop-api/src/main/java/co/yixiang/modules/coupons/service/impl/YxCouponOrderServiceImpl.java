@@ -200,7 +200,7 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
     @Transactional(rollbackFor = Exception.class)
     public YxCouponOrder createOrder(int uid, String key, OrderParam param) {
         YxUserQueryVo userInfo = userService.getYxUserById(uid);
-        if (ObjectUtil.isNull(userInfo)) throw new ErrorRequestException("用户不存在");
+        if (ObjectUtil.isNull(userInfo)) {throw new ErrorRequestException("用户不存在");}
 
         CouponCacheDTO cacheDTO = getCacheOrderInfo(uid, key);
         if (ObjectUtil.isNull(cacheDTO)) {
@@ -373,7 +373,7 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
      */
     @Override
     public void yuePay(String orderId, int uid) {
-        YxCouponOrderQueryVo orderInfo = getOrderInfo(orderId, uid);
+        YxCouponOrder orderInfo = getOrderInfo(orderId, uid);
         if (ObjectUtil.isNull(orderInfo)) throw new ErrorRequestException("订单不存在");
 
         if (orderInfo.getPayStaus().equals(OrderInfoEnum.PAY_STATUS_1.getValue()))
@@ -447,14 +447,14 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
      * @return
      */
     @Override
-    public YxCouponOrderQueryVo getOrderInfo(String unique, int uid) {
+    public YxCouponOrder getOrderInfo(String unique, int uid) {
         QueryWrapper<YxCouponOrder> wrapper = new QueryWrapper<>();
-        wrapper.eq("is_del", 0).and(
+        wrapper.eq("del_flag", 0).and(
                 i -> i.eq("order_id", unique).or().eq("`unique`", unique));
         if (uid > 0) wrapper.eq("uid", uid);
 
-//        return orderMap.toDto(yxCouponOrderMapper.selectOne(wrapper));
-        return new YxCouponOrderQueryVo();
+        return yxCouponOrderMapper.selectOne(wrapper);
+        //return new YxCouponOrderQueryVo();
     }
 
     /**
@@ -465,7 +465,7 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
      */
     @Override
     public void paySuccess(String orderId, String payType) {
-        YxCouponOrderQueryVo orderInfo = getOrderInfo(orderId, 0);
+        YxCouponOrder orderInfo = getOrderInfo(orderId, 0);
 
         //更新订单状态
         QueryWrapper<YxCouponOrder> wrapper = new QueryWrapper<>();
@@ -507,7 +507,7 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
     @Override
     public ComputeDTO computedOrder(int uid, String key, int couponId, int useIntegral, int shippingType) {
         YxUserQueryVo userInfo = userService.getYxUserById(uid);
-        if (ObjectUtil.isNull(userInfo)) throw new ErrorRequestException("用户不存在");
+        if (ObjectUtil.isNull(userInfo)) {throw new ErrorRequestException("用户不存在");}
 
         CouponCacheDTO cacheDTO = getCacheOrderInfo(uid, key);
         if (ObjectUtil.isNull(cacheDTO)) {
@@ -529,60 +529,11 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         int combinationId = 0;
         int seckillId = 0;
         int bargainId = 0;
-//        List<YxStoreCartQueryVo> cartInfo = cacheDTO.getCartInfo();
-//        for (YxStoreCartQueryVo cart : cartInfo) {
-//            combinationId = cart.getCombinationId();
-//            seckillId = cart.getSeckillId();
-//            bargainId = cart.getBargainId();
-//        }
-        //拼团等不参与抵扣
-//        if (combinationId > 0 || seckillId > 0 || bargainId > 0) deduction = true;
-//
-//
-//        if (deduction) {
-//            couponId = 0;
-//            useIntegral = 0;
-//        }
-//        double couponPrice = 0;
-//        if (couponId > 0) {//使用优惠券
-//            YxStoreCouponUser couponUser = couponUserService.getCoupon(couponId, uid);
-//            if (ObjectUtil.isNull(couponUser)) throw new ErrorRequestException("使用优惠劵失败");
-//
-//            if (couponUser.getUseMinPrice().doubleValue() > payPrice) {
-//                throw new ErrorRequestException("不满足优惠劵的使用条件");
-//            }
-//            payPrice = NumberUtil.sub(payPrice, couponUser.getCouponPrice()).doubleValue();
-//
-//            couponPrice = couponUser.getCouponPrice().doubleValue();
-//
-//        }
-//
-//        // 积分抵扣
-//        double deductionPrice = 0;
-//        System.out.println("a:" + userInfo.getIntegral().doubleValue());
-//        if (useIntegral > 0 && userInfo.getIntegral().doubleValue() > 0) {
-//            Double integralMax = Double.valueOf(cacheDTO.getOther().getIntegralMax());
-//            Double integralFull = Double.valueOf(cacheDTO.getOther().getIntegralFull());
-//            Double integralRatio = Double.valueOf(cacheDTO.getOther().getIntegralRatio());
-//            if (computeDTO.getTotalPrice() >= integralFull) {
-//                Double userIntegral = userInfo.getIntegral().doubleValue();
-//                if (integralMax > 0 && userIntegral >= integralMax) userIntegral = integralMax;
-//                deductionPrice = NumberUtil.mul(userIntegral, integralRatio);
-//                if (deductionPrice < payPrice) {
-//                    payPrice = NumberUtil.sub(payPrice.doubleValue(), deductionPrice);
-//                } else {
-//                    deductionPrice = payPrice;
-//                    payPrice = 0d;
-//                }
-//            }
-//        }
 
         if (payPrice <= 0) payPrice = 0d;
 
         computeDTO.setPayPrice(payPrice);
         computeDTO.setPayPostage(payPostage);
-//        computeDTO.setCouponPrice(couponPrice);
-//        computeDTO.setDeductionPrice(deductionPrice);
 
         return computeDTO;
     }
