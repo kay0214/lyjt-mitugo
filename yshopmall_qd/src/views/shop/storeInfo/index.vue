@@ -76,8 +76,9 @@
           <!-- 营业时间显示区域 -->
           <div>
             <el-table :data="formOpenTime" empty-text=" "
+                      :row-style="{marginBottom:'20px'}"
                       :cell-style="{borderBottomWidth:'0'}" :show-header="false"
-                      :style="{width:'700px',marginLeft:'110px',marginBottom:'20px'}"
+                      :style="{width:'700px',marginLeft:'110px'}"
                       >
               <el-table-column :width="150" label="营业日">
                 <template slot-scope="scope">
@@ -117,7 +118,9 @@
           <el-form-item label="店铺服务" prop="storeService">
             <el-checkbox-group v-model="form.storeService">
                 <template v-for="item in dict.store_service" >
-                  <el-checkbox :label="item.label" :key="item.value" :value="item.value"></el-checkbox>
+                  <el-checkbox  :label="item.value" :key="item.value" :value="item.value">
+                    {{item.label}}
+                  </el-checkbox>
                 </template>
             </el-checkbox-group>
           </el-form-item>
@@ -451,5 +454,8 @@
   }
   .el-table::before{
     height: 0;
+  }
+  .el-table__empty-block{
+    min-height: 0;
   }
 </style>
