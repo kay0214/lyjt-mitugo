@@ -119,6 +119,16 @@ public class YxCouponsController extends BaseController {
     public ApiResult<Paging<YxCouponsQueryVo>> getYxCouponsPageList(@Valid @RequestBody(required = false) YxCouponsQueryParam yxCouponsQueryParam) throws Exception{
         yxCouponsQueryParam.setKeyword("aa");
         Paging<YxCouponsQueryVo> paging = yxCouponsService.getYxCouponsPageList(yxCouponsQueryParam);
+        if(paging.getRecords()!=null && paging.getRecords().size()>0){
+            for (YxCouponsQueryVo item:paging.getRecords()) {
+                // 卡券缩略图
+                YxImageInfo thumbnail = yxImageInfoService.getOne(new QueryWrapper<YxImageInfo>().eq("type_id", item.getId()).eq("img_type", LocalLiveConstants.IMG_TYPE_COUPONS)
+                        .eq("img_category", ShopConstants.IMG_CATEGORY_PIC).eq("del_flag", 0));
+                if (thumbnail != null){
+                    item.setImage(thumbnail.getImgUrl());
+                }
+            }
+        }
         return ApiResult.ok(paging);
     }
 
@@ -133,6 +143,14 @@ public class YxCouponsController extends BaseController {
     @ApiOperation(value = "本地生活卡券,热销榜单", notes = "本地生活卡券,热销榜单")
     public ApiResult<List<YxCouponsQueryVo>> getCouponsHotList(@Valid @RequestBody(required = false) YxCouponsQueryParam yxCouponsQueryParam) throws Exception{
         List<YxCouponsQueryVo> paging = yxCouponsService.getCouponsHotList(yxCouponsQueryParam);
+        for (YxCouponsQueryVo item:paging) {
+            // 卡券缩略图
+            YxImageInfo thumbnail = yxImageInfoService.getOne(new QueryWrapper<YxImageInfo>().eq("type_id", item.getId()).eq("img_type", LocalLiveConstants.IMG_TYPE_COUPONS)
+                    .eq("img_category", ShopConstants.IMG_CATEGORY_PIC).eq("del_flag", 0));
+            if (thumbnail != null){
+                item.setImage(thumbnail.getImgUrl());
+            }
+        }
         return ApiResult.ok(paging);
     }
 
