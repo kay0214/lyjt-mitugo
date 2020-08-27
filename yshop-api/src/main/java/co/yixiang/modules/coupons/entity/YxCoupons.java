@@ -30,6 +30,10 @@ public class YxCoupons extends BaseEntity {
 @TableId(value = "id", type = IdType.AUTO)
 private Integer id;
 
+/** 所属商户 */
+@ApiModelProperty(value = "所属商户")
+private Integer belong;
+
 @ApiModelProperty(value = "卡券编号")
 private String couponNum;
 

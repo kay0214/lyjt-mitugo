@@ -83,4 +83,9 @@ public class YxStoreCart extends BaseEntity {
     @ApiModelProperty(value = "商户ID")
     private Integer merId;
 
+    @ApiModelProperty(value = "实际支付金额")
+    private BigDecimal payPrice;
+    @ApiModelProperty(value = "产品总金额")
+    private BigDecimal totalPrice;
+
 }

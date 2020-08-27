@@ -6,15 +6,15 @@
         <el-col :span='4' style='paddingTop:6px;'>
           <div v-if="crud.props.searchToggle">
             <!-- 搜索 -->
-            <el-input v-model="query.cateName" clearable size="small" placeholder="请输入店铺名称" style="width: 200px;" class="filter-item" @keyup.enter.native="crud.toQuery" />
+            <el-input v-model="query.storeName" clearable size="small" placeholder="请输入店铺名称" style="width: 200px;" class="filter-item" @keyup.enter.native="crud.toQuery" />
             <el-button class="filter-item" size="mini" type="success" icon="el-icon-search" @click="crud.toQuery">搜索</el-button>
           </div>
         </el-col>
-        <el-col :span='6'>
+        <!-- <el-col :span='6'>
           <crudOperation :permission="permission" />
-        </el-col>
+        </el-col> -->
       </el-row>
-      
+
       <!--表单组件-->
       <el-dialog :close-on-click-modal="false" :before-close="crud.cancelCU" :visible.sync="crud.status.cu > 0" :title="crud.status.title" width="900px">
         <!--        <el-form ref="form" :model="form" :rules="rules" size="small" label-width="80px">-->
@@ -34,7 +34,74 @@
           <el-form-item label="店铺电话" prop="storeMobile">
             <el-input v-model="form.storeMobile" style="width: 700px;" />
           </el-form-item>
+          <el-form-item label="营业时间" prop="openTime">
+            <el-button @click="addOpenTime = !addOpenTime" plain>添加营业时间</el-button>
+          </el-form-item>
+          <div v-if="addOpenTime">
+            <el-row style="marginLeft:120px;marginBottom:18px;">
+              <el-col :span='8'>
+            <el-select v-model="form.BusinessDayBegin" style='width:100px' placeholder="请选择">
+              <el-option
+                v-for="item in selections.week"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value">
+              </el-option>
+            </el-select>
+            至
+            <el-select v-model="form.BusinessDayEnd" style='width:100px' placeholder="请选择">
+              <el-option
+                v-for="item in selections.week"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value">
+              </el-option>
+            </el-select>
+            </el-col>
+            <el-col :span='12'>
+              <el-time-picker
+                is-range
+                v-model="BusinessTime"
+                range-separator="至"
+                start-placeholder="开始时间"
+                end-placeholder="结束时间"
+                placeholder="选择时间范围">
+              </el-time-picker>
+            </el-col>
+            <el-col :span='4'>
+              <el-button :loading="crud.cu === 2" type="primary" @click="addOpenTimeSub">添加</el-button>
+            </el-col>
+          </el-row>
+          </div>
+          <!-- 营业时间显示区域 -->
+          <div>
+            <el-table :data="formOpenTime" empty-text=" "
+                      :row-style="{marginBottom:'20px'}"
+                      :cell-style="{borderBottomWidth:'0'}" :show-header="false"
+                      :style="{width:'700px',marginLeft:'110px'}"
+                      >
+              <el-table-column :width="150" label="营业日">
+                <template slot-scope="scope">
+                  <div :style="{padding:'10px',borderRadius:'5px',borderStyle:'solid',borderWidth:'1px',borderColor:'#DCDFE6'}">
+                    {{scope.row.openDay}}
+                  </div>
+                </template>
 
+              </el-table-column>
+              <el-table-column :width="300" label="营业时间">
+                <template slot-scope="scope">
+                  <div :style="{padding:'10px',borderRadius:'5px',borderStyle:'solid',borderWidth:'1px',borderColor:'#DCDFE6'}">
+                    {{scope.row.openTime}}
+                  </div>
+                </template>
+              </el-table-column>
+              <el-table-column :width="50">
+                <template slot-scope="scope">
+                  <i class="el-icon-delete" @click="deleteOpenTime(scope.$index)"></i>
+                </template>
+              </el-table-column>
+            </el-table>
+          </div>
           <el-form-item label="人均消费" prop="perCapita">
             <el-input v-model="form.perCapita" style="width: 700px;" />
           </el-form-item>
@@ -51,7 +118,9 @@
           <el-form-item label="店铺服务" prop="storeService">
             <el-checkbox-group v-model="form.storeService">
                 <template v-for="item in dict.store_service" >
-                  <el-checkbox :label="item.label" :key="item.value" :value="item.value"></el-checkbox>
+                  <el-checkbox  :label="item.value" :key="item.value" :value="item.value">
+                    {{item.label}}
+                  </el-checkbox>
                 </template>
             </el-checkbox-group>
           </el-form-item>
@@ -59,7 +128,7 @@
             <MaterialList v-model="picArr" style="width: 700px" type="image" :num="1" :width="150" :height="150" />
           </el-form-item>
           <el-form-item label="轮播图" prop="slider">
-            <MaterialList v-model="sliderImageArr" 
+            <MaterialList v-model="sliderImageArr"
             style="width: 700px" type="image" :num="4" :width="150" :height="150"
             @setValue="setSliderImageArr" />
           </el-form-item>
@@ -81,7 +150,7 @@
           <el-form-item label="地图坐标纬度" v-show="false">
             <el-input v-model="form.coordinateY" />
           </el-form-item>
-          
+
         </el-form>
         <div slot="footer" class="dialog-footer">
           <el-button type="text" @click="crud.cancelCU">取消</el-button>
@@ -128,7 +197,7 @@
 </template>
 
 <script>
-  import crudYxStoreInfo from '@/api/yxStoreInfo'
+  import crudYxStoreInfo,{get as getStoreInfo} from '@/api/yxStoreInfo'
   import editor from '../../components/Editor'
   import picUpload from '@/components/pic-upload'
   import mulpicUpload from '@/components/mul-pic-upload'
@@ -139,10 +208,11 @@
   import pagination from '@crud/Pagination'
   import MaterialList from "@/components/material";
   import {onsale} from '@/api/yxStoreInfo'
+  import {parseTime} from '@/utils/index'
 
   // crud交由presenter持有
   const defaultCrud = CRUD({ title: '店铺表', url: 'api/yxStoreInfo', sort: 'id,desc',optShow: {
-      add: true,
+      add: false,
       edit: false,
       del: false,
       download: false
@@ -158,8 +228,20 @@
       return {
         map:null,
         geocoder: null,
+        addOpenTime:false,//添加营业时间状态
+        formOpenTime:[],
+        BusinessTime:[new Date(),new Date()],
         selections: {
-          storeService: [{label:"有WIFI",value:1},{label:"有宝宝椅",value:4}]
+          storeService: [{label:"有WIFI",value:1},{label:"有宝宝椅",value:4}],
+          week:[ /*注意：value不能换，取值是根据Index*/
+            {label:"周日",value:0},
+            {label:"周一",value:1},
+            {label:"周二",value:2},
+            {label:"周三",value:3},
+            {label:"周四",value:4},
+            {label:"周五",value:5},
+            {label:"周六",value:6},
+          ]
         },
         sliderImageArr:[],
         picArr: [],
@@ -227,7 +309,7 @@
             this.$refs.form.validateField('pic');
           }
         })
-        
+
       },
       sliderImageArr(val) {
         this.form.slider = val.join(',');
@@ -240,7 +322,7 @@
     },
     mounted(){
       const that = this;
-      
+
     },
     methods: {
       // 初始化地图
@@ -284,7 +366,7 @@
         const that = this;
         //通过getLocation();方法获取位置信息值
         that.geocoder.getLocation(this.form.storeProvince + this.form.storeAddress);
-        
+
       },
       setSliderImageArr(urls){
         this.sliderImageArr = urls
@@ -304,6 +386,7 @@
         }
         this.$nextTick(()=>{
           this.initMap()
+          getStoreInfo(form.id)
         })
       },
       onSale(id, status) {
@@ -325,7 +408,28 @@
             })
           })
           .catch(() => { })
+      },
+      addOpenTimeSub(){//添加营业时间
+        let openDay="",openTime=[]
+        if(this.form.BusinessDayBegin == this.form.BusinessDayEnd){
+          openDay=this.selections.week[this.form.BusinessDayBegin].label
+        }else{
+          openDay=this.selections.week[this.form.BusinessDayBegin].label+"至"+this.selections.week[this.form.BusinessDayEnd].label
+        }
+        this.BusinessTime.map(item=>{
+          openTime.push(parseTime(item,'{h}:{i}:{s}'))
+        })
+        this.formOpenTime.push({
+          openDay,
+          openTime:openTime.join('~'),
+        })
+        this.form.openDays=this.formOpenTime
+      },
+      deleteOpenTime(index){//刪除营业时间
+        this.formOpenTime.splice(index,1)
+        this.form.openDays=this.formOpenTime
       }
+
     },
 
   }
@@ -347,5 +451,11 @@
     width: 32px;
     height: 32px;
     line-height: 32px;
+  }
+  .el-table::before{
+    height: 0;
+  }
+  .el-table__empty-block{
+    min-height: 0;
   }
 </style>

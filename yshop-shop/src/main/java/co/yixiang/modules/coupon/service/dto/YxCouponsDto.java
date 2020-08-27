@@ -8,6 +8,7 @@
 */
 package co.yixiang.modules.coupon.service.dto;
 
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import java.sql.Timestamp;
 import java.math.BigDecimal;
@@ -198,4 +199,13 @@ public class YxCouponsDto implements Serializable {
 
     /** 幻灯片 */
     private List<String> sliderImage;
+
+    /** 可被核销次数 */
+    private Integer useCount;
+
+    /** 已被核销次数 */
+    private Integer usedCount;
+
+    /** 当前卡券状态 */
+    private Integer status;
 }

@@ -165,4 +165,22 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
         }
         FileUtil.downloadExcel(list, response);
     }
+
+    /**
+     * 根据核销码查询卡券信息
+     *
+     * @param verifyCode
+     * @param uid
+     * @return
+     */
+    @Override
+    public YxCouponsDto getCouponByVerifyCode(String verifyCode, int uid) {
+//        YxCouponOrderDetail
+        // 查询到couponid 可核销次数已核销次数
+        // 查询优惠券信息
+        // 判断核销次数
+        // 判断卡券状态
+        // 判断有效期
+        return null;
+    }
 }

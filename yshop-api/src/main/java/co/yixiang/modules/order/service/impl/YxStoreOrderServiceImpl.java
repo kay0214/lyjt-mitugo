@@ -33,9 +33,7 @@ import co.yixiang.modules.order.web.param.OrderParam;
 import co.yixiang.modules.order.web.param.RefundParam;
 import co.yixiang.modules.order.web.param.YxStoreOrderQueryParam;
 import co.yixiang.modules.order.web.vo.YxStoreOrderQueryVo;
-import co.yixiang.modules.shop.entity.YxStoreCart;
-import co.yixiang.modules.shop.entity.YxStoreCoupon;
-import co.yixiang.modules.shop.entity.YxStoreCouponUser;
+import co.yixiang.modules.shop.entity.*;
 import co.yixiang.modules.shop.mapper.YxStoreCartMapper;
 import co.yixiang.modules.shop.mapper.YxStoreCouponMapper;
 import co.yixiang.modules.shop.mapper.YxStoreCouponUserMapper;
@@ -169,6 +167,8 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
 
     @Autowired
     private YxStoreInfoMapper yxStoreInfoMapper;
+    @Autowired
+    private YxStoreProductAttrService productAttrService;
 
     /**
      * 订单退款
@@ -1653,6 +1653,55 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
     }
 
     /**
+     * 获取订单价格
+     *
+     * @param cartInfo
+     * @return
+     */
+    @Override
+    public PriceGroupDTO getOrderPriceGroupNoFree(List<YxStoreCartQueryVo> cartInfo) {
+
+        String storePostageStr = "0";//邮费基础价
+        Double storePostage = 0d;
+        if (StrUtil.isNotEmpty(storePostageStr)) storePostage = Double.valueOf(storePostageStr);
+
+//        String storeFreePostageStr = systemConfigService.getData(SystemConfigConstants.STORE_FREE_POSTAGE);//满额包邮
+//        Double storeFreePostage = 0d;
+//        if (StrUtil.isNotEmpty(storeFreePostageStr)) storeFreePostage = Double.valueOf(storeFreePostageStr);
+
+        Double totalPrice = getOrderSumPrice(cartInfo, "truePrice");//获取订单总金额
+        Double costPrice = getOrderSumPrice(cartInfo, "costPrice");//获取订单成本价
+        Double vipPrice = getOrderSumPrice(cartInfo, "vipTruePrice");//获取订单会员优惠金额
+
+        /*if (storeFreePostage == 0) {//包邮
+            storePostage = 0d;
+        } else {
+            for (YxStoreCartQueryVo storeCart : cartInfo) {
+                if (storeCart.getProductInfo().getIsPostage() == 0) {//不包邮
+                    storePostage = NumberUtil.add(storePostage
+                            , storeCart.getProductInfo().getPostage()).doubleValue();
+                }
+            }
+            //如果总价大于等于满额包邮 邮费等于0
+            if (storeFreePostage <= totalPrice) storePostage = 0d;
+        }
+*/
+        for (YxStoreCartQueryVo storeCart : cartInfo) {
+            if (storeCart.getProductInfo().getIsPostage() == 0) {//不包邮
+                storePostage = NumberUtil.add(storePostage
+                        , storeCart.getProductInfo().getPostage()).doubleValue();
+            }
+        }
+        PriceGroupDTO priceGroupDTO = new PriceGroupDTO();
+        priceGroupDTO.setStorePostage(storePostage);
+//        priceGroupDTO.setStoreFreePostage(storeFreePostage);
+        priceGroupDTO.setTotalPrice(totalPrice);
+        priceGroupDTO.setCostPrice(costPrice);
+        priceGroupDTO.setVipPrice(vipPrice);
+
+        return priceGroupDTO;
+    }
+    /**
      * 获取某字段价格
      *
      * @param cartInfo
@@ -2141,12 +2190,31 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
                 //增加状态
                 orderStatusService.create(orderInfo.getId(), "pay_success", "用户付款成功");
 
-                //购物车状态修改
+                /*//购物车状态修改
                 QueryWrapper<YxStoreCart> cartQueryWrapper = new QueryWrapper<>();
-                wrapper.in("id", orderInfo.getCartId());
+                cartQueryWrapper.in("id", orderInfo.getCartId());
+
                 YxStoreCart cartObj = new YxStoreCart();
                 cartObj.setIsPay(1);
-                storeCartMapper.update(cartObj, cartQueryWrapper);
+                *//*cartObj.setPayPrice();
+                cartObj.setTotalPrice();*//*
+                storeCartMapper.update(cartObj, cartQueryWrapper);*/
+
+                //修改购物车表
+                QueryWrapper<YxStoreCart> cartQueryWrapper = new QueryWrapper<>();
+                List<String> listCart = new ArrayList<>();
+                listCart.add(orderInfo.getCartId());
+                if( orderInfo.getCartId().contains(",")){
+                    String[] carIds = orderInfo.getCartId().split(",");
+                    listCart = new ArrayList<>();
+                    listCart = Arrays.asList(carIds);
+                }
+                cartQueryWrapper.in("id", listCart);
+                List<YxStoreCart> storeCartList = yxStoreCartService.list(cartQueryWrapper);
+                //
+                getProductCartInfoOrderId(orderInfo,storeCartList);
+                //保存信息
+                yxStoreCartService.saveOrUpdateBatch(storeCartList);
 
                 //模板消息推送
                 YxWechatUserQueryVo wechatUser = wechatUserService.getYxWechatUserById(orderInfo.getUid());
@@ -2168,6 +2236,56 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
             return yxStoreInfo.getStoreName();
         }
         return null;
+    }
+
+    /**
+     * 计算实际支付金额&总金额（购物车表）
+     * @param orderInfo
+     * @param storeCartList
+     */
+    public void getProductCartInfoOrderId(YxStoreOrderQueryVo orderInfo,List<YxStoreCart> storeCartList) {
+        //总金额
+        BigDecimal totlePrice = orderInfo.getTotalPrice();
+
+        for(YxStoreCart storeCart:storeCartList){
+            //产品金额
+            BigDecimal bigPrice = BigDecimal.ZERO;
+            YxStoreProduct product = productService.getProductInfo(storeCart.getProductId());
+            BigDecimal postagePrice =BigDecimal.ZERO;
+            if (StrUtil.isNotEmpty(storeCart.getProductAttrUnique())) {
+                YxStoreProductAttrValue productAttrValue = productAttrService
+                        .uniqueByAttrInfo(storeCart.getProductAttrUnique());
+                bigPrice = productAttrValue.getPrice();
+            } else {
+                bigPrice =  product.getPrice();
+            }
+            //产品是否包邮 todo 邮费定义好之后，需修改
+            if(product.getIsPostage()==0){
+                //不包邮
+                postagePrice = product.getPostage();
+                /*if(orderInfo.getPayPostage().compareTo(postagePrice)>0&&postagePrice.compareTo(BigDecimal.ZERO)>0) {
+                    postagePrice = orderInfo.getPayPostage().subtract(postagePrice);
+                }*/
+            }
+            //支付比例：
+            BigDecimal pricePayProduct = product.getPrice();
+            if(orderInfo.getDeductionPrice().compareTo(BigDecimal.ZERO)>0){
+                //抵扣金额>0
+                BigDecimal bigProportion = bigPrice.divide(totlePrice,BigDecimal.ROUND_HALF_UP);
+                //支付比例：
+                //订单金额*支付比例= 产品的支付金额
+                pricePayProduct = orderInfo.getPayPrice().multiply(bigProportion);
+            }
+            if(postagePrice.compareTo(BigDecimal.ZERO)>0){
+                //实际支付= 支付金额+邮费
+                pricePayProduct=pricePayProduct.add(postagePrice);
+            }
+            //实际支付金额
+            storeCart.setPayPrice(pricePayProduct);
+            //产品金额
+            storeCart.setTotalPrice(bigPrice);
+            storeCart.setIsPay(1);
+        }
     }
 
 }
