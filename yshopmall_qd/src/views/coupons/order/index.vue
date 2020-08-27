@@ -103,6 +103,21 @@
           <el-form-item label="更新时间" prop="updateTime">
             <el-input v-model="form.updateTime" style="width: 370px;" />
           </el-form-item>
+          <el-form-item label="唯一id(md5加密)类似id" prop="unique">
+            <el-input v-model="form.unique" style="width: 370px;" />
+          </el-form-item>
+          <el-form-item label="支付方式" prop="payType">
+            <el-input v-model="form.payType" style="width: 370px;" />
+          </el-form-item>
+          <el-form-item label="支付渠道(0微信公众号1微信小程序)">
+            <el-input v-model="form.isChannel" style="width: 370px;" />
+          </el-form-item>
+          <el-form-item label="佣金">
+            <el-input v-model="form.commission" style="width: 370px;" />
+          </el-form-item>
+          <el-form-item label="分佣状态 0:未分佣 1:已分佣">
+            <el-input v-model="form.rebateStatus" style="width: 370px;" />
+          </el-form-item>
         </el-form>
         <div slot="footer" class="dialog-footer">
           <el-button type="text" @click="crud.cancelCU">取消</el-button>
@@ -152,6 +167,11 @@
             <span>{{ parseTime(scope.row.updateTime) }}</span>
           </template>
         </el-table-column>
+        <el-table-column v-if="columns.visible('unique')" prop="unique" label="唯一id(md5加密)类似id" />
+        <el-table-column v-if="columns.visible('payType')" prop="payType" label="支付方式" />
+        <el-table-column v-if="columns.visible('isChannel')" prop="isChannel" label="支付渠道(0微信公众号1微信小程序)" />
+        <el-table-column v-if="columns.visible('commission')" prop="commission" label="佣金" />
+        <el-table-column v-if="columns.visible('rebateStatus')" prop="rebateStatus" label="分佣状态 0:未分佣 1:已分佣" />
         <el-table-column v-permission="['admin','yxCouponOrder:edit','yxCouponOrder:del']" label="操作" width="150px" align="center">
           <template slot-scope="scope">
             <udOperation
@@ -178,7 +198,7 @@ import MaterialList from "@/components/material";
 
 // crud交由presenter持有
 const defaultCrud = CRUD({ title: '卡券订单表', url: 'api/yxCouponOrder', sort: 'id,desc', crudMethod: { ...crudYxCouponOrder }})
-const defaultForm = { id: null, orderId: null, uid: null, realName: null, userPhone: null, totalNum: null, totalPrice: null, couponId: null, couponPrice: null, payStaus: null, payTime: null, useCount: null, usedCount: null, status: null, refundStatus: null, refundReasonWapExplain: null, refundReasonTime: null, refundReason: null, refundPrice: null, mark: null, merId: null, parentId: null, parentType: null, shareId: null, shareParentId: null, shareParentType: null, verifyCode: null, delFlag: null, createUserId: null, updateUserId: null, createTime: null, updateTime: null }
+const defaultForm = { id: null, orderId: null, uid: null, realName: null, userPhone: null, totalNum: null, totalPrice: null, couponId: null, couponPrice: null, payStaus: null, payTime: null, useCount: null, usedCount: null, status: null, refundStatus: null, refundReasonWapExplain: null, refundReasonTime: null, refundReason: null, refundPrice: null, mark: null, merId: null, parentId: null, parentType: null, shareId: null, shareParentId: null, shareParentType: null, verifyCode: null, delFlag: null, createUserId: null, updateUserId: null, createTime: null, updateTime: null, unique: null, payType: null, isChannel: null, commission: null, rebateStatus: null }
 export default {
   name: 'YxCouponOrder',
   components: { pagination, crudOperation, rrOperation, udOperation ,MaterialList},
@@ -245,6 +265,12 @@ export default {
         ],
         updateTime: [
           { required: true, message: '更新时间不能为空', trigger: 'blur' }
+        ],
+        unique: [
+          { required: true, message: '唯一id(md5加密)类似id不能为空', trigger: 'blur' }
+        ],
+        payType: [
+          { required: true, message: '支付方式不能为空', trigger: 'blur' }
         ]
       }    }
   },
