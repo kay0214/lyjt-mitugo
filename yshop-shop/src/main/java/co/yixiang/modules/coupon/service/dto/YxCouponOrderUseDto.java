@@ -14,7 +14,7 @@ import java.io.Serializable;
 
 /**
 * @author huiy
-* @date 2020-08-14
+* @date 2020-08-27
 */
 @Data
 public class YxCouponOrderUseDto implements Serializable {
@@ -67,5 +67,10 @@ public class YxCouponOrderUseDto implements Serializable {
     /** 更新时间 */
 
     private Timestamp updateTime;
+
+
+    /** 卡券id */
+
+    private Integer couponId;
 
 }

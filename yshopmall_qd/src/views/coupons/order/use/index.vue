@@ -16,6 +16,9 @@
           <el-form-item label="核销商铺id" prop="storeId">
             <el-input v-model="form.storeId" style="width: 370px;" />
           </el-form-item>
+          <el-form-item label="卡券id" prop="couponId">
+            <el-input v-model="form.couponId" style="width: 370px;" />
+          </el-form-item>
           <el-form-item label="店铺名称" prop="storeName">
             <el-input v-model="form.storeName" style="width: 370px;" />
           </el-form-item>
@@ -64,6 +67,7 @@
             <span>{{ parseTime(scope.row.updateTime) }}</span>
           </template>
         </el-table-column>
+        <el-table-column v-if="columns.visible('couponId')" prop="couponId" label="卡券id" />
         <el-table-column v-permission="['admin','yxCouponOrderUse:edit','yxCouponOrderUse:del']" label="操作" width="150px" align="center">
           <template slot-scope="scope">
             <udOperation
@@ -90,14 +94,14 @@ import MaterialList from "@/components/material";
 
 // crud交由presenter持有
 const defaultCrud = CRUD({ title: '卡券核销表', url: 'api/yxCouponOrderUse', sort: 'id,desc', crudMethod: { ...crudYxCouponOrderUse }})
-const defaultForm = { id: null, orderId: null, storeId: null, storeName: null, usedCount: null, delFlag: null, createUserId: null, updateUserId: null, createTime: null, updateTime: null }
+const defaultForm = { id: null, orderId: null, storeId: null, storeName: null, usedCount: null, delFlag: null, createUserId: null, updateUserId: null, createTime: null, updateTime: null, couponId: null }
 export default {
   name: 'YxCouponOrderUse',
   components: { pagination, crudOperation, rrOperation, udOperation ,MaterialList},
   mixins: [presenter(defaultCrud), header(), form(defaultForm), crud()],
   data() {
     return {
-      
+
       permission: {
         add: ['admin', 'yxCouponOrderUse:add'],
         edit: ['admin', 'yxCouponOrderUse:edit'],
@@ -121,6 +125,9 @@ export default {
         ],
         updateTime: [
           { required: true, message: '更新时间不能为空', trigger: 'blur' }
+        ],
+        couponId: [
+          { required: true, message: '卡券id不能为空', trigger: 'blur' }
         ]
       }    }
   },

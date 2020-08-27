@@ -17,7 +17,7 @@ import java.io.Serializable;
 
 /**
 * @author huiy
-* @date 2020-08-14
+* @date 2020-08-27
 */
 @Data
 @TableName("yx_coupon_order_use")
@@ -72,6 +72,11 @@ public class YxCouponOrderUse implements Serializable {
     @NotNull
     @TableField(fill= FieldFill.INSERT_UPDATE)
     private Timestamp updateTime;
+
+
+    /** 卡券id */
+    @NotNull
+    private Integer couponId;
 
 
     public void copy(YxCouponOrderUse source){
