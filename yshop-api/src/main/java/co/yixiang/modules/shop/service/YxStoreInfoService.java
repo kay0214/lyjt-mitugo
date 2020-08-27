@@ -56,5 +56,5 @@ public interface YxStoreInfoService extends BaseService<YxStoreInfo> {
      * @return
      * @throws Exception
      */
-    Paging<LocalLiveListVo> getLocalLiveList(LocalLiveQueryParam localLiveQueryParam) throws Exception;
+    Paging<LocalLiveListVo> getLocalLiveList(LocalLiveQueryParam localLiveQueryParam,String location) throws Exception;
 }

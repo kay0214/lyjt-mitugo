@@ -2,6 +2,7 @@ package co.yixiang.modules.shop.service.impl;
 
 import co.yixiang.common.constant.CommonConstant;
 import co.yixiang.common.service.impl.BaseServiceImpl;
+import co.yixiang.common.util.DistanceMeterUtil;
 import co.yixiang.common.web.vo.Paging;
 import co.yixiang.constant.ShopConstants;
 import co.yixiang.enums.CommonEnum;
@@ -24,12 +25,14 @@ import co.yixiang.modules.shop.service.YxStoreProductService;
 import co.yixiang.modules.shop.web.param.YxStoreInfoQueryParam;
 import co.yixiang.modules.shop.web.vo.YxStoreInfoDetailQueryVo;
 import co.yixiang.modules.shop.web.vo.YxStoreInfoQueryVo;
+import co.yixiang.utils.LocationUtils;
 import co.yixiang.utils.StringUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.metadata.OrderItem;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
+import org.gavaghan.geodesy.GlobalCoordinates;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -181,12 +184,19 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
      * @throws Exception
      */
     @Override
-    public Paging<LocalLiveListVo> getLocalLiveList(LocalLiveQueryParam localLiveQueryParam) throws Exception {
+    public Paging<LocalLiveListVo> getLocalLiveList(LocalLiveQueryParam localLiveQueryParam,String location) throws Exception {
         Page page = setPageParam(localLiveQueryParam, OrderItem.desc("create_time"));
         IPage<LocalLiveListVo> iPage = yxStoreInfoMapper.getLocalLiveList(page, localLiveQueryParam);
         List<LocalLiveListVo> localLiveListVoList = iPage.getRecords();
         iPage.setTotal(localLiveListVoList.size());
         for (LocalLiveListVo localLiveListVo : localLiveListVoList){
+            // 设置距离
+            // 维度  京都
+            String[] locationArr = location.split(",");
+            GlobalCoordinates source = new GlobalCoordinates(Double.parseDouble(localLiveListVo.getCoordinateY()),Double.parseDouble(localLiveListVo.getCoordinateX()));
+            GlobalCoordinates target = new GlobalCoordinates(Double.parseDouble(locationArr[1]),Double.parseDouble(locationArr[0]));
+            double distance = DistanceMeterUtil.getDistanceMeter(source,target);
+            localLiveListVo.setDistance(distance+"");
             QueryWrapper<YxImageInfo> imageInfoQueryWrapper = new QueryWrapper<>();
             imageInfoQueryWrapper.lambda().eq(YxImageInfo::getTypeId, localLiveListVo.getId())
                     .eq(YxImageInfo::getImgType, ShopConstants.IMG_TYPE_STORE).eq(YxImageInfo::getImgCategory, ShopConstants.IMG_CATEGORY_PIC);
@@ -195,7 +205,9 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
                 localLiveListVo.setImg(yxImageInfo.getImgUrl());
             }
             List<LocalLiveCouponsVo> localLiveCouponsVoList = yxCouponsService.getCouponsLitByBelog(localLiveListVo.getId());
+
             localLiveListVo.setLocalLiveCouponsVoList(localLiveCouponsVoList);
+
         }
         return new Paging(iPage);
     }

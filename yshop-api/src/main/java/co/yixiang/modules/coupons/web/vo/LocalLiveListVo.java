@@ -24,6 +24,15 @@ public class LocalLiveListVo {
     @ApiModelProperty(value = "店铺缩略图")
     private String img;
 
+    @ApiModelProperty(value = "地图坐标经度")
+    private String coordinateX;
+
+    @ApiModelProperty(value = "地图坐标纬度")
+    private String coordinateY;
+
+    @ApiModelProperty(value = "距离")
+    private String distance;
+
     @ApiModelProperty(value = "店铺卡券")
     private List<LocalLiveCouponsVo> localLiveCouponsVoList;
 }
