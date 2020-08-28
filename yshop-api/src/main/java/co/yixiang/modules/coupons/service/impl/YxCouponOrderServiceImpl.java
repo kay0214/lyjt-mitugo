@@ -17,8 +17,10 @@ import co.yixiang.enums.BillEnum;
 import co.yixiang.enums.OrderInfoEnum;
 import co.yixiang.exception.ErrorRequestException;
 import co.yixiang.modules.coupons.entity.YxCouponOrder;
+import co.yixiang.modules.coupons.entity.YxCouponOrderDetail;
 import co.yixiang.modules.coupons.entity.YxCoupons;
 import co.yixiang.modules.coupons.mapper.YxCouponOrderMapper;
+import co.yixiang.modules.coupons.service.YxCouponOrderDetailService;
 import co.yixiang.modules.coupons.service.YxCouponOrderService;
 import co.yixiang.modules.coupons.service.YxCouponsService;
 import co.yixiang.modules.coupons.web.param.YxCouponOrderQueryParam;
@@ -123,6 +125,9 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
 
     @Autowired
     private YxMiniPayService miniPayService;
+
+    @Autowired
+    private YxCouponOrderDetailService yxCouponOrderDetailService;
 
     @Override
     public YxCouponOrderQueryVo getYxCouponOrderById(Serializable id) throws Exception {
@@ -564,8 +569,13 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         yxCouponOrder.setStatus(4);
         this.updateById(yxCouponOrder);
 
-
-
-
+        List<YxCouponOrderDetail> list = this.yxCouponOrderDetailService.list(new QueryWrapper<YxCouponOrderDetail>().eq("order_id", yxCouponOrder.getOrderId()));
+        if (null == list || list.size() <= 0) {
+            return;
+        }
+        for (YxCouponOrderDetail item : list) {
+            item.setStatus(4);
+        }
+        this.yxCouponOrderDetailService.updateBatchById(list);
     }
 }
