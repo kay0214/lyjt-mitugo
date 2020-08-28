@@ -118,7 +118,7 @@ public class YxCouponOrderController {
     }
 
     @Log("核销卡券")
-    @ApiOperation("B端:核销卡券")
+    @ApiOperation("B端：核销卡券")
     @GetMapping(value = "/useCoupon/{verifyCode}")
     public ResponseEntity<Object> updateCouponOrder(@PathVariable String verifyCode) {
         int uid = SecurityUtils.getUserId().intValue();
@@ -133,9 +133,4 @@ public class YxCouponOrderController {
         }
         return new ResponseEntity<>(map, HttpStatus.OK);
     }
-    // 查询核销记录
-
-
-    // 查询核销记录分页
-
 }
