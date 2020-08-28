@@ -266,6 +266,10 @@ public class SysUserServiceImpl extends BaseServiceImpl<SysUserMapper, User> imp
         usersRoles.setRoleId(5L);
         // 根据用户的角色设定用户user表里用户的角色
         resources.setUserRole(1);
+        // 默认用户生效
+        resources.setEnabled(true);
+        resources.setDeptId(1L);
+        resources.setJobId(13L);
         boolean result = this.save(resources);
 
         usersRoles.setUserId(resources.getId());

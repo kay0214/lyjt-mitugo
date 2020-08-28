@@ -7,6 +7,7 @@ import co.yixiang.common.service.impl.BaseServiceImpl;
 import co.yixiang.common.utils.QueryHelpPlus;
 import co.yixiang.constant.ShopConstants;
 import co.yixiang.dozer.service.IGenerator;
+import co.yixiang.modules.mybatis.GeoPoint;
 import co.yixiang.modules.shop.domain.*;
 import co.yixiang.modules.shop.service.*;
 import co.yixiang.modules.shop.service.dto.YxMerchantsDetailDto;
@@ -25,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.*;
 
 // 默认不使用缓存
@@ -255,6 +257,7 @@ public class YxMerchantsDetailServiceImpl extends BaseServiceImpl<YxMerchantsDet
         yxExamineLog.setTypeId(resources.getId());
         yxExamineLog.setStatus(resources.getExamineStatus());
         yxExamineLog.setRemark(resources.getExamineRemark());
+        yxExamineLog.setDelFlag(0);
         yxExamineLogService.save(yxExamineLog);
         // 审核通过生成一个默认店铺
         if (1 == resources.getExamineStatus()) {
@@ -273,6 +276,9 @@ public class YxMerchantsDetailServiceImpl extends BaseServiceImpl<YxMerchantsDet
             yxStoreInfo.setStatus(1);
             yxStoreInfo.setStoreProvince("");
             yxStoreInfo.setStoreAddress("");
+            yxStoreInfo.setPerCapita(BigDecimal.ZERO);
+            yxStoreInfo.setDelFlag(0);
+            yxStoreInfo.setCoordinate(new GeoPoint(BigDecimal.ZERO, BigDecimal.ZERO));
             yxStoreInfoService.save(yxStoreInfo);
         }
         return true;
