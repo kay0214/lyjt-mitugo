@@ -1757,11 +1757,6 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
 
         //支付单号
         String payOrderNo = IdUtil.getSnowflake(0, 0).nextIdStr();
-       /* //所有订单的合计
-        Double totalPrice = cacheDTO.getPriceGroup().getTotalPrice();
-        Double payPrice = cacheDTO.getPriceGroup().getTotalPrice();
-        Double payPostage = cacheDTO.getPriceGroup().getStorePostage();*/
-//        OtherDTO other = cacheDTO.getOther();
 
         Double totalPrice = 0d;
         Double payPrice = 0d;
@@ -1771,14 +1766,50 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
         BigDecimal bigOrderTotlePrice = new BigDecimal(0);
         BigDecimal bigOrderPayPostage = new BigDecimal(0);
 
-        for (YxStoreStoreCartQueryVo storeStoreCartQueryVo : storeCartQueryVoList) {
-            payPostage = storeStoreCartQueryVo.getStorePostage().doubleValue();
+        List<Integer> couIds = new ArrayList<Integer>();
 
-            List<String> cartIds = new ArrayList<>();
+        if (ObjectUtil.isNotEmpty(param.getCouponIdList())) {
+            couIds = param.getCouponIdList();
+        }
+        for (YxStoreStoreCartQueryVo storeStoreCartQueryVo : storeCartQueryVoList) {
+            //邮费
+            payPostage = storeStoreCartQueryVo.getStorePostage().doubleValue();
+            //订单支付金额
             bigOrderPayPrice = storeStoreCartQueryVo.getOrderSumPrice();
+            //订单总金额
             bigOrderTotlePrice = storeStoreCartQueryVo.getOrderSumPrice();
             Integer totalNum = 0;
 
+            //优惠券
+            int couponId = 0;
+            double couponPrice = 0; //优惠券金额
+            if (CollectionUtils.isNotEmpty(couIds)) {
+                //
+                List<YxStoreCouponUser> couponUserList = couponUserService.getCouponList(couIds, uid,null);
+                if (CollectionUtils.isNotEmpty(couponUserList)) {
+                    couponUserList = couponUserService.getCouponList(couIds, uid,storeStoreCartQueryVo.getStoreId());
+                    if(CollectionUtils.isEmpty(couponUserList)){
+                        //当前店铺没有可用优惠券
+                        continue;
+                    }
+                    if (couponUserList.size() > 1) {
+                        throw new ErrorRequestException("亲，只能有一张优惠券哦");
+                    } else {
+                        YxStoreCouponUser couponUser = couponUserList.get(0);
+                        if (couponUser.getUseMinPrice().compareTo(bigOrderPayPrice) > 0) {
+                            //优惠券最低消费小于支付金额
+                            throw new ErrorRequestException("不满足优惠劵的使用条件");
+                        }
+                        couponId = couponUser.getId();
+                        bigOrderPayPrice = bigOrderPayPrice.subtract(couponUser.getCouponPrice());
+                        couponUserService.useCoupon(couponId);//更新优惠券状态
+                        couponPrice = couponUser.getCouponPrice().doubleValue();
+                    }
+                } else {
+                    throw new ErrorRequestException("使用优惠劵失败");
+                }
+            }
+            List<String> cartIds = new ArrayList<>();
             for (YxStoreCartQueryVo cart : storeStoreCartQueryVo.getCartList()) {
                 //校验产品
                 yxStoreCartService.checkProductStock(uid, cart.getProductId(), cart.getCartNum(),
@@ -1806,12 +1837,6 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
                 payPostage = 0d;
             }
 
-            //优惠券
-            int couponId = 0;
-            if (ObjectUtil.isNotEmpty(param.getCouponId())) {
-                couponId = param.getCouponId().intValue();
-            }
-
             int useIntegral = param.getUseIntegral().intValue();
 
             boolean deduction = false;//拼团等
@@ -1820,26 +1845,6 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
             if (deduction) {
                 couponId = 0;
                 useIntegral = 0;
-            }
-            double couponPrice = 0; //优惠券金额
-            if (couponId > 0) {//使用优惠券
-                YxStoreCouponUser couponUser = couponUserService.getCoupon(couponId, uid);
-                YxStoreCoupon coupon = yxStoreCouponMapper.selectById(couponId);
-                if (ObjectUtil.isNull(couponUser) || ObjectUtil.isNull(coupon))
-                    throw new ErrorRequestException("使用优惠劵失败");
-                if (storeStoreCartQueryVo.getStoreId() == coupon.getBelong()) {
-                    //同一店铺
-                    if (couponUser.getUseMinPrice().compareTo(bigOrderPayPrice) > 0) {
-                        //优惠券最低消费小于支付金额
-                        throw new ErrorRequestException("不满足优惠劵的使用条件");
-                    }
-                    bigOrderPayPrice = bigOrderPayPrice.subtract(couponUser.getCouponPrice());
-                    couponUserService.useCoupon(couponId);//更新优惠券状态
-                    couponPrice = couponUser.getCouponPrice().doubleValue();
-                } else {
-                    couponId = 0;
-                }
-
             }
             //生成分布式唯一值
             String orderSn = IdUtil.getSnowflake(0, 0).nextIdStr();

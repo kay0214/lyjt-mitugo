@@ -293,4 +293,15 @@ public class YxStoreCouponUserServiceImpl extends BaseServiceImpl<YxStoreCouponU
         save(couponUser);
 
     }
+
+    @Override
+    public List<YxStoreCouponUser> getCouponList(List<Integer> ids, int uid, Integer storeId) {
+        QueryWrapper<YxStoreCouponUser> wrapper= new QueryWrapper<>();
+        wrapper.eq("is_fail",0).eq("status",0).eq("uid",uid)
+                .in("id",ids);
+        if(null!=storeId){
+            wrapper.eq("store_id",storeId);
+        }
+        return yxStoreCouponUserMapper.selectList(wrapper);
+    }
 }
