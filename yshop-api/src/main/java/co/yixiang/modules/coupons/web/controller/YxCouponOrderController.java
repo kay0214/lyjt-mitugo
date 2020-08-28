@@ -389,5 +389,29 @@ public class YxCouponOrderController extends BaseController {
         yxCouponOrderService.orderApplyRefund(param,uid);
         return ApiResult.ok("ok");
     }
+
+    /**
+     * 个人中心 我的卡券列表
+     * 传订单状态 uid
+     */
+    @PostMapping("/getPageList")
+    @ApiOperation(value = "个人中心 我的卡券列表",notes = "个人中心 我的卡券列表",response = YxCouponOrderQueryVo.class)
+    public ApiResult<Paging<YxCouponOrderQueryVo>> getMyCouponOrderPageList(@Valid @RequestBody(required = false) YxCouponOrderQueryParam yxCouponOrderQueryParam) throws Exception{
+        int uid = SecurityUtils.getUserId().intValue();
+        Paging<YxCouponOrderQueryVo> paging = yxCouponOrderService.getMyCouponOrderPageList(yxCouponOrderQueryParam,uid);
+        return ApiResult.ok(paging);
+    }
+
+    /**
+     * 获取卡券订单表
+     */
+    @PostMapping("/info")
+    @ApiOperation(value = "获取YxCouponOrder对象详情",notes = "查看卡券订单表",response = YxCouponOrderQueryVo.class)
+    public ApiResult<YxCouponOrderQueryVo> getMyCouponOrder(@Valid @RequestBody IdParam idParam) throws Exception{
+        int uid = SecurityUtils.getUserId().intValue();
+        YxCouponOrderQueryVo yxCouponOrderQueryVo = yxCouponOrderService.getYxCouponOrderById(idParam.getId());
+        return ApiResult.ok(yxCouponOrderQueryVo);
+    }
+
 }
 

@@ -11,13 +11,11 @@ import co.yixiang.common.web.vo.Paging;
 import co.yixiang.constant.LocalLiveConstants;
 import co.yixiang.constant.ShopConstants;
 import co.yixiang.constant.SystemConfigConstants;
-import co.yixiang.enums.AppFromEnum;
-import co.yixiang.enums.BillDetailEnum;
-import co.yixiang.enums.BillEnum;
-import co.yixiang.enums.OrderInfoEnum;
+import co.yixiang.enums.*;
 import co.yixiang.exception.ErrorRequestException;
 import co.yixiang.modules.coupons.entity.YxCouponOrder;
 import co.yixiang.modules.coupons.entity.YxCoupons;
+import co.yixiang.modules.coupons.mapper.CouponOrderMap;
 import co.yixiang.modules.coupons.mapper.YxCouponOrderMapper;
 import co.yixiang.modules.coupons.service.YxCouponOrderService;
 import co.yixiang.modules.coupons.service.YxCouponsService;
@@ -30,10 +28,12 @@ import co.yixiang.modules.image.entity.YxImageInfo;
 import co.yixiang.modules.image.service.YxImageInfoService;
 import co.yixiang.modules.monitor.service.RedisService;
 import co.yixiang.modules.order.entity.YxStoreOrder;
+import co.yixiang.modules.order.entity.YxStoreOrderCartInfo;
 import co.yixiang.modules.order.mapping.OrderMap;
 import co.yixiang.modules.order.web.dto.ComputeDTO;
 import co.yixiang.modules.order.web.dto.CouponCacheDTO;
 import co.yixiang.modules.order.web.dto.PriceGroupDTO;
+import co.yixiang.modules.order.web.dto.StatusDTO;
 import co.yixiang.modules.order.web.param.OrderParam;
 import co.yixiang.modules.order.web.param.RefundParam;
 import co.yixiang.modules.order.web.vo.YxStoreOrderQueryVo;
@@ -41,6 +41,7 @@ import co.yixiang.modules.shop.entity.YxStoreInfo;
 import co.yixiang.modules.shop.service.YxStoreInfoService;
 import co.yixiang.modules.shop.service.YxSystemConfigService;
 import co.yixiang.modules.shop.service.YxSystemStoreService;
+import co.yixiang.modules.shop.web.vo.YxStoreCartQueryVo;
 import co.yixiang.modules.shop.web.vo.YxSystemStoreQueryVo;
 import co.yixiang.modules.user.entity.YxUserBill;
 import co.yixiang.modules.user.entity.YxWechatUser;
@@ -52,6 +53,7 @@ import co.yixiang.modules.user.web.vo.YxUserAddressQueryVo;
 import co.yixiang.modules.user.web.vo.YxUserQueryVo;
 import co.yixiang.mp.service.YxMiniPayService;
 import co.yixiang.utils.OrderUtil;
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.metadata.OrderItem;
@@ -67,6 +69,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -97,16 +100,10 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
     private YxUserService userService;
 
     @Autowired
-    private YxUserAddressService userAddressService;
-
-    @Autowired
     private YxSystemStoreService systemStoreService;
 
     @Autowired
     private RedisTemplate<String, String> redisTemplate;
-
-    @Autowired
-    private OrderMap orderMap;
 
     @Autowired
     private YxUserBillService billService;
@@ -125,6 +122,9 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
 
     @Autowired
     private YxMiniPayService miniPayService;
+
+    @Autowired
+    private CouponOrderMap couponOrderMap;
 
     @Override
     public YxCouponOrderQueryVo getYxCouponOrderById(Serializable id) throws Exception{
@@ -544,5 +544,47 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
 
         //增加状态
         //orderStatusService.create(order.getId(), "apply_refund", "用户申请退款，原因：" + param.getText());
+    }
+
+    /**
+     * 个人中心 我的卡券列表
+     * @param yxCouponOrderQueryParam
+     * @param uid
+     * @return
+     */
+    @Override
+    public List<YxCouponOrderQueryVo> getMyCouponOrderPageList(YxCouponOrderQueryParam yxCouponOrderQueryParam, int uid) {
+
+        QueryWrapper<YxCouponOrder> wrapper = new QueryWrapper<>();
+        wrapper.eq("uid", uid);
+        wrapper.eq("del_flag", CommonEnum.DEL_STATUS_0.getValue()).orderByDesc("add_time");
+
+        switch (OrderStatusEnum.toType(yxCouponOrderQueryParam.getType())) {
+            case STATUS_1://待付款
+                wrapper.eq("status", 0).eq("refund_status", 0).eq("pay_staus", 0);
+                break;
+            case STATUS_2://待使用
+                wrapper.eq("status", 4).eq("refund_status", 0).eq("pay_staus", 1);
+                break;
+            case STATUS_3://已使用
+                wrapper.in("status", 5,6).eq("refund_status", 0).eq("pay_staus", 1);
+                break;
+            case STATUS_4://已过期
+                wrapper.eq("status", 1);
+                break;
+            case STATUS_MINUS_1://退款售后
+                wrapper.in("status", 7,8,9);
+                break;
+        }
+
+        Page<YxCouponOrder> pageModel = new Page<>(yxCouponOrderQueryParam.getPage(), yxCouponOrderQueryParam.getLimit());
+
+        IPage<YxCouponOrder> pageList = yxCouponOrderMapper.selectPage(pageModel, wrapper);
+        List<YxCouponOrderQueryVo> list = couponOrderMap.toDto(pageList.getRecords());
+        for (YxCouponOrderQueryVo item : list) {
+            // TODO: 2020/8/28  
+        }
+
+        return list;
     }
 }

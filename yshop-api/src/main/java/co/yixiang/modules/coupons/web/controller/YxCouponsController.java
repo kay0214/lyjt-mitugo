@@ -117,7 +117,6 @@ public class YxCouponsController extends BaseController {
     @PostMapping("/getPageList")
     @ApiOperation(value = "获取YxCoupons分页列表",notes = "本地生活, 卡券表分页列表",response = YxCouponsQueryVo.class)
     public ApiResult<Paging<YxCouponsQueryVo>> getYxCouponsPageList(@Valid @RequestBody(required = false) YxCouponsQueryParam yxCouponsQueryParam) throws Exception{
-        yxCouponsQueryParam.setKeyword("aa");
         Paging<YxCouponsQueryVo> paging = yxCouponsService.getYxCouponsPageList(yxCouponsQueryParam);
         if(paging.getRecords()!=null && paging.getRecords().size()>0){
             for (YxCouponsQueryVo item:paging.getRecords()) {

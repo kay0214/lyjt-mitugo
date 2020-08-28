@@ -24,8 +24,8 @@ public class DistanceMeterUtil {
 
     public static void main(String[] args) {
 
-        GlobalCoordinates source = new GlobalCoordinates(36.064248,120.380606);
-        GlobalCoordinates target = new GlobalCoordinates(36.168228,120.426103);
+        GlobalCoordinates source = new GlobalCoordinates(36.10479556493948,120.47267931274416);
+        GlobalCoordinates target = new GlobalCoordinates(36.07515,120.41283);
 
         double meter1 = getDistanceMeter(source, target);
 
