@@ -13,13 +13,9 @@ import java.util.List;
  * @Date 2019/10/28
  **/
 @Data
-public class OrderParam implements Serializable {
+public class OrderNewParam implements Serializable {
     @ApiModelProperty(value = "地址id")
     private String addressId;
-    private Integer bargainId;
-    private Integer combinationId;
-    @ApiModelProperty(value = "优惠券id")
-    private Integer couponId;
     @ApiModelProperty(value = "routine 小程序支付渠道")
     private String from;
     @ApiModelProperty(value = "备注")
@@ -29,16 +25,12 @@ public class OrderParam implements Serializable {
     private String payType;
     @ApiModelProperty(value = "电话")
     private String phone;
-    private Integer pinkId = 0;
     @ApiModelProperty(value = "姓名")
     private String realName;
-    private Integer seckillId;
     @ApiModelProperty(value = "配送方式 1：快递 ，2=门店自提")
     private Integer shippingType;
     @ApiModelProperty(value = "使用的积分")
     private Double useIntegral;
-    private Integer isChannel = 1;
-    private Integer storeId;
     @ApiModelProperty(value = "优惠券id(多个）")
     private List<Integer> couponIdList;
 }
