@@ -34,7 +34,7 @@
           <el-form-item label="店铺电话" prop="storeMobile">
             <el-input v-model="form.storeMobile" style="width: 700px;" />
           </el-form-item>
-          <el-form-item label="营业时间" prop="openTime">
+          <el-form-item label="营业时间" prop="openTime" :style='zIndex=1'>
             <el-button @click="addOpenTime = !addOpenTime" plain>添加营业时间</el-button>
           </el-form-item>
           <div v-if="addOpenTime" style="margin-bottom:20px;">
@@ -209,6 +209,7 @@
   import MaterialList from "@/components/material";
   import {onsale} from '@/api/yxStoreInfo'
   import {parseTime} from '@/utils/index'
+  import { isvalidPhone } from '@/utils/validate'
 
   // crud交由presenter持有
   const defaultCrud = CRUD({ title: '店铺表', url: 'api/yxStoreInfo', sort: 'id,desc',optShow: {
@@ -224,7 +225,16 @@
     components: {editor, picUpload, mulpicUpload,pagination, crudOperation, rrOperation, udOperation ,MaterialList},
     mixins: [presenter(defaultCrud), header(), form(defaultForm), crud()],
     dicts:['industry_category','store_service'],
-    data() {
+    data() {// 自定义验证
+      const validPhone = (rule, value, callback) => {
+        if (!value) {
+          callback(new Error('必填项'))
+        } else if (!isvalidPhone(value)) {
+          callback(new Error('请输入正确的11位手机号码'))
+        } else {
+          callback()
+        }
+      }
       return {
         map:null,
         geocoder: null,
@@ -261,19 +271,26 @@
             { required: true, message: '管理人用户名不能为空', trigger: 'blur' }
           ],
           perCapita: [
-            { required: true, message: '人均消费不能为空', trigger: 'blur' }
+            { required: true, message: '人均消费不能为空', trigger: 'blur' },
+            { validator: ((rule,value,callback)=>{
+              if(parseFloat(value)>999999.99){
+                callback(new Error("最大值为：999999.99"));
+              }else{
+                callback()
+              }
+            }), trigger: 'blur'}
           ],
           industryCategory: [
             { required: true/*, message: '管理人用户名不能为空', trigger: 'blur'*/ }
           ],
           storeService: [
-            { required: true /*,message: '不能为空', trigger: 'blur'*/ }
+            { required: true ,message: '至少选择一个店铺服务', /*trigger: 'blur'*/ }
           ],
           imageArr: [
-            { required: true}
+            { required: true,message: '必选项'}
           ],
           sliderImageArr: [
-            { required: true }
+            { required: true,message: '必选项' }
           ],
           /*merId: [
             { required: true, message: '商户id不能为空', trigger: 'blur' }
@@ -282,10 +299,12 @@
             { required: true, message: '合伙人id不能为空', trigger: 'blur' }
           ],*/
           manageMobile: [
-            { required: true, message: '管理人电话不能为空', trigger: 'blur' }
+            { required: true, message: '管理人电话不能为空', trigger: 'blur' },
+            { validator: validPhone, trigger: 'blur' }
           ],
           storeMobile: [
-            { required: true, message: '店铺电话不能为空', trigger: 'blur' }
+            { required: true, message: '店铺电话不能为空', trigger: 'blur' },
+            { validator: validPhone, trigger: 'blur' }
           ],
           introduction: [
             { required: true, message: '店铺介绍不能为空', trigger: 'blur' }
@@ -295,10 +314,11 @@
           ],
           storeAddress: [
             { required: true, message: '店铺详细地址不能为空', trigger: 'blur' }
-          ]/*,
-          updateTime: [
-            { required: true, message: '更新时间不能为空', trigger: 'blur' }
-          ]*/
+          ]
+          ,
+          openTime: [
+            { required: true, message: '营业时间至少有一项', trigger: 'blur' }
+          ]
         }    }
     },
     watch: {
@@ -432,10 +452,12 @@
           openDay,
           openTime:openTime.join('~'),
         })
+        this.form.openTime=this.formOpenTime
         this.form.openDays=this.formOpenTime
       },
       deleteOpenTime(index){//刪除营业时间
         this.formOpenTime.splice(index,1)
+        this.form.openTime=this.formOpenTime
         this.form.openDays=this.formOpenTime
       }
 
