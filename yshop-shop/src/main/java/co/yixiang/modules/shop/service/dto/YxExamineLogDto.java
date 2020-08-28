@@ -10,6 +10,7 @@ package co.yixiang.modules.shop.service.dto;
 
 import lombok.Data;
 
+import javax.validation.constraints.NotBlank;
 import java.io.Serializable;
 import java.sql.Timestamp;
 
@@ -84,4 +85,6 @@ public class YxExamineLogDto implements Serializable {
 
     /** 商户联系电话 */
     private String contactMobile;
+    /** 商户名称 */
+    private String merchantsName;
 }
