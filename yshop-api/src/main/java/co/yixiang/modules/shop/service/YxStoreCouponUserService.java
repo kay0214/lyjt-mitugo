@@ -70,4 +70,5 @@ public interface YxStoreCouponUserService extends BaseService<YxStoreCouponUser>
      * @return
      */
     List<YxStoreCouponUser> beUsableCouponListStore(int uid, double price,int storeId);
+    List<YxStoreCouponUser> getCouponList(List<Integer> ids, int uid, Integer storeId);
 }

@@ -31,6 +31,13 @@
             <artifactId>jts</artifactId>
             <version>${jts.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>com.hyjf.framework</groupId>
+            <artifactId>rocketmq-spring-boot-starter</artifactId>
+            <version>1.1.0</version>
+        </dependency>
+
         <dependency>
             <groupId>co.yixiang</groupId>
             <artifactId>yshop-mp</artifactId>

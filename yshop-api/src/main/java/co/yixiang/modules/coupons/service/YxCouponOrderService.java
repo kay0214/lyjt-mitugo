@@ -123,4 +123,11 @@ public interface YxCouponOrderService extends BaseService<YxCouponOrder> {
      * @return
      */
     List<YxCouponOrderQueryVo> getMyCouponOrderPageList(YxCouponOrderQueryParam yxCouponOrderQueryParam, int uid);
+
+    /**
+     * 支付成功处理订单状态
+     *
+     * @param yxCouponOrder
+     */
+    void updatePaySuccess(YxCouponOrder yxCouponOrder);
 }

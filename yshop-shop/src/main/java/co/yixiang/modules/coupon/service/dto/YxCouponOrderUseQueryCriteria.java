@@ -18,4 +18,7 @@ import co.yixiang.annotation.Query;
 */
 @Data
 public class YxCouponOrderUseQueryCriteria{
+
+    /** 创建人 根据创建人关联店铺 */
+    private Integer createUserId;
 }

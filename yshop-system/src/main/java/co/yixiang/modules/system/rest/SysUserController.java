@@ -133,7 +133,7 @@ public class SysUserController {
     @Log("新增商户")
     @ApiOperation("新增商户")
     @PostMapping(value = "/createMerchants")
-    @PreAuthorize("@el.check('admin','user:add')")
+    @PreAuthorize("@el.check('admin','yxMerchantsDetail:insert')")
     public ResponseEntity<Object> createMerchants(@Validated @RequestBody User resources){
         // 这个地方配置好权限只能平台或者合伙人过来创建商户
         // checkLevel(resources);

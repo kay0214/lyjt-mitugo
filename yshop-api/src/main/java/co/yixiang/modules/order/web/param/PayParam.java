@@ -1,5 +1,6 @@
 package co.yixiang.modules.order.web.param;
 
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -11,7 +12,10 @@ import java.io.Serializable;
  **/
 @Data
 public class PayParam implements Serializable {
+    @ApiModelProperty(value = "routine 小程序支付渠道")
     private String from;
+    @ApiModelProperty(value = "yue :余额支付，weixin：微信支付")
     private String paytype;
+    @ApiModelProperty(value = "订单唯一")
     private String uni;
 }
