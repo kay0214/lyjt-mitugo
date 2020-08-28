@@ -9,6 +9,8 @@ import co.yixiang.common.web.controller.BaseController;
 import co.yixiang.constant.SystemConfigConstants;
 import co.yixiang.enums.BillDetailEnum;
 import co.yixiang.enums.OrderInfoEnum;
+import co.yixiang.modules.coupons.entity.YxCouponOrder;
+import co.yixiang.modules.coupons.service.YxCouponOrderService;
 import co.yixiang.modules.order.entity.YxStoreOrder;
 import co.yixiang.modules.order.service.YxStoreOrderService;
 import co.yixiang.modules.order.web.vo.YxStoreOrderQueryVo;
@@ -18,6 +20,7 @@ import co.yixiang.modules.user.service.YxUserRechargeService;
 import co.yixiang.mp.config.WxMpConfiguration;
 import co.yixiang.mp.config.WxPayConfiguration;
 import co.yixiang.utils.BigNum;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.github.binarywang.wxpay.bean.notify.WxPayNotifyResponse;
 import com.github.binarywang.wxpay.bean.notify.WxPayOrderNotifyResult;
 import com.github.binarywang.wxpay.bean.notify.WxPayRefundNotifyResult;
@@ -59,6 +62,8 @@ public class WechatController extends BaseController {
     private final YxStoreOrderService orderService;
     private final YxSystemConfigService systemConfigService;
     private final YxUserRechargeService userRechargeService;
+    @Autowired
+    private YxCouponOrderService yxCouponOrderService;
 
 
     /**
@@ -258,6 +263,7 @@ public class WechatController extends BaseController {
             String orderId = notifyResult.getOutTradeNo();
             String attach = notifyResult.getAttach();
             if(BillDetailEnum.TYPE_3.getValue().equals(attach)){
+                // 商品购买
                 List<YxStoreOrderQueryVo> lsitOrder = orderService.getOrderInfoList(orderId,0);
                 if(CollectionUtils.isEmpty(lsitOrder)) return WxPayNotifyResponse.success("处理成功!");
                 if(OrderInfoEnum.PAY_STATUS_1.getValue().equals(lsitOrder.get(0).getPaid())){
@@ -272,6 +278,18 @@ public class WechatController extends BaseController {
                     return WxPayNotifyResponse.success("处理成功!");
                 }
                 userRechargeService.updateRecharge(userRecharge);
+            } else if (BillDetailEnum.TYPE_8.getValue().equals(attach)) {
+                // 本地生活购买
+                YxCouponOrder yxCouponOrder = this.yxCouponOrderService.getOne(new QueryWrapper<YxCouponOrder>().eq("order_id",orderId));
+                if(yxCouponOrder == null) {
+                    return WxPayNotifyResponse.success("处理成功!");
+                }
+                if(OrderInfoEnum.PAY_STATUS_1.getValue().equals(yxCouponOrder.getPayStaus())){
+                    return WxPayNotifyResponse.success("处理成功!");
+                }
+                yxCouponOrder.setPayType("weixin");
+                yxCouponOrder.setIsChannel(1);
+                yxCouponOrderService.updatePaySuccess(yxCouponOrder);
             }
             return WxPayNotifyResponse.success("处理成功!");
         } catch (WxPayException e) {

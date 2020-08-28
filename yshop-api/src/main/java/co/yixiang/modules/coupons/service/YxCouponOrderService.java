@@ -115,4 +115,11 @@ public interface YxCouponOrderService extends BaseService<YxCouponOrder> {
      * @param uid
      */
     void orderApplyRefund(RefundParam param, int uid);
+
+    /**
+     * 支付成功处理订单状态
+     *
+     * @param yxCouponOrder
+     */
+    void updatePaySuccess(YxCouponOrder yxCouponOrder);
 }

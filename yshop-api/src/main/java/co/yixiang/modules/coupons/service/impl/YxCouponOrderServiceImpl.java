@@ -29,14 +29,12 @@ import co.yixiang.modules.coupons.web.vo.YxCouponsQueryVo;
 import co.yixiang.modules.image.entity.YxImageInfo;
 import co.yixiang.modules.image.service.YxImageInfoService;
 import co.yixiang.modules.monitor.service.RedisService;
-import co.yixiang.modules.order.entity.YxStoreOrder;
 import co.yixiang.modules.order.mapping.OrderMap;
 import co.yixiang.modules.order.web.dto.ComputeDTO;
 import co.yixiang.modules.order.web.dto.CouponCacheDTO;
 import co.yixiang.modules.order.web.dto.PriceGroupDTO;
 import co.yixiang.modules.order.web.param.OrderParam;
 import co.yixiang.modules.order.web.param.RefundParam;
-import co.yixiang.modules.order.web.vo.YxStoreOrderQueryVo;
 import co.yixiang.modules.shop.entity.YxStoreInfo;
 import co.yixiang.modules.shop.service.YxStoreInfoService;
 import co.yixiang.modules.shop.service.YxSystemConfigService;
@@ -127,20 +125,20 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
     private YxMiniPayService miniPayService;
 
     @Override
-    public YxCouponOrderQueryVo getYxCouponOrderById(Serializable id) throws Exception{
+    public YxCouponOrderQueryVo getYxCouponOrderById(Serializable id) throws Exception {
         return yxCouponOrderMapper.getYxCouponOrderById(id);
     }
 
     @Override
-    public Paging<YxCouponOrderQueryVo> getYxCouponOrderPageList(YxCouponOrderQueryParam yxCouponOrderQueryParam) throws Exception{
-        Page page = setPageParam(yxCouponOrderQueryParam,OrderItem.desc("create_time"));
-        IPage<YxCouponOrderQueryVo> iPage = yxCouponOrderMapper.getYxCouponOrderPageList(page,yxCouponOrderQueryParam);
+    public Paging<YxCouponOrderQueryVo> getYxCouponOrderPageList(YxCouponOrderQueryParam yxCouponOrderQueryParam) throws Exception {
+        Page page = setPageParam(yxCouponOrderQueryParam, OrderItem.desc("create_time"));
+        IPage<YxCouponOrderQueryVo> iPage = yxCouponOrderMapper.getYxCouponOrderPageList(page, yxCouponOrderQueryParam);
         return new Paging(iPage);
     }
 
 
     @Override
-    public PriceGroupDTO getOrderPriceGroup(CouponOrderQueryVo couponOrderQueryVo){
+    public PriceGroupDTO getOrderPriceGroup(CouponOrderQueryVo couponOrderQueryVo) {
         String storePostageStr = systemConfigService.getData(SystemConfigConstants.STORE_POSTAGE);//邮费基础价
         Double storePostage = 0d;
         if (StrUtil.isNotEmpty(storePostageStr)) storePostage = Double.valueOf(storePostageStr);
@@ -215,7 +213,9 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
     @Transactional(rollbackFor = Exception.class)
     public YxCouponOrder createOrder(int uid, String key, OrderParam param) {
         YxUserQueryVo userInfo = userService.getYxUserById(uid);
-        if (ObjectUtil.isNull(userInfo)) {throw new ErrorRequestException("用户不存在");}
+        if (ObjectUtil.isNull(userInfo)) {
+            throw new ErrorRequestException("用户不存在");
+        }
 
         CouponCacheDTO cacheDTO = getCacheOrderInfo(uid, key);
         if (ObjectUtil.isNull(cacheDTO)) {
@@ -350,6 +350,7 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
 
     /**
      * 缓存数据
+     *
      * @param uid
      * @param couponsQueryVos
      * @param priceGroup
@@ -367,6 +368,7 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
 
     /**
      * 删除缓存
+     *
      * @param uid
      * @param key
      */
@@ -433,6 +435,7 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
 
     /**
      * 计算价格
+     *
      * @param uid
      * @param key
      * @param couponId
@@ -443,7 +446,9 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
     @Override
     public ComputeDTO computedOrder(int uid, String key, int couponId, int useIntegral, int shippingType) {
         YxUserQueryVo userInfo = userService.getYxUserById(uid);
-        if (ObjectUtil.isNull(userInfo)) {throw new ErrorRequestException("用户不存在");}
+        if (ObjectUtil.isNull(userInfo)) {
+            throw new ErrorRequestException("用户不存在");
+        }
 
         CouponCacheDTO cacheDTO = getCacheOrderInfo(uid, key);
         if (ObjectUtil.isNull(cacheDTO)) {
@@ -476,13 +481,14 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
 
     /**
      * 通过卡券ID 获取卡券信息和所属公司信息
+     *
      * @param couponId
      * @return
      */
     @Override
     public CouponInfoQueryVo getCouponInfo(Integer couponId) {
         YxCoupons yxCoupons = couponsService.getOne(new QueryWrapper<YxCoupons>().eq("id", couponId).eq("del_flag", 0));
-        if (yxCoupons == null){
+        if (yxCoupons == null) {
             throw new ErrorRequestException("卡券不存在, 请检查卡券ID是否正确!");
         }
 
@@ -491,18 +497,18 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         // 卡券缩略图
         YxImageInfo thumbnail = yxImageInfoService.getOne(new QueryWrapper<YxImageInfo>().eq("type_id", yxCoupons.getId()).eq("img_type", LocalLiveConstants.IMG_TYPE_COUPONS)
                 .eq("img_category", ShopConstants.IMG_CATEGORY_PIC).eq("del_flag", 0));
-        if (thumbnail != null){
+        if (thumbnail != null) {
             couponInfoQueryVo.setImage(thumbnail.getImgUrl());
         }
         YxStoreInfo storeInfo = storeInfoService.getOne(new QueryWrapper<YxStoreInfo>().eq("id", yxCoupons.getBelong()).eq("del_flag", 0));
-        if (storeInfo != null){
+        if (storeInfo != null) {
             couponInfoQueryVo.setStoreInfo(storeInfo);
         }
         return couponInfoQueryVo;
     }
 
     @Override
-    public WxPayMpOrderResult wxAppPay(String orderId,String ip) throws WxPayException {
+    public WxPayMpOrderResult wxAppPay(String orderId, String ip) throws WxPayException {
         YxCouponOrder orderInfo = getOrderInfo(orderId, 0);
         if (ObjectUtil.isNull(orderInfo)) throw new ErrorRequestException("订单不存在");
         if (orderInfo.getPayStaus().equals(OrderInfoEnum.PAY_STATUS_1.getValue()))
@@ -514,16 +520,16 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         if (ObjectUtil.isNull(wechatUser)) throw new ErrorRequestException("用户错误");
 
 
-
         BigDecimal bigDecimal = new BigDecimal(100);
 
         return miniPayService.couponWxPay(orderId, wechatUser.getRoutineOpenid(), "小程序本地生活购买",
                 bigDecimal.multiply(orderInfo.getTotalPrice()).intValue(),
-                BillDetailEnum.TYPE_3.getValue(),ip);
+                BillDetailEnum.TYPE_8.getValue(), ip);
     }
 
     /**
      * 提交订单退款
+     *
      * @param param
      * @param uid
      */
@@ -544,5 +550,22 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
 
         //增加状态
         //orderStatusService.create(order.getId(), "apply_refund", "用户申请退款，原因：" + param.getText());
+    }
+
+    /**
+     * 支付成功处理订单状态
+     *
+     * @param yxCouponOrder
+     */
+    @Override
+    public void updatePaySuccess(YxCouponOrder yxCouponOrder) {
+        yxCouponOrder.setPayStaus(OrderInfoEnum.PAY_STATUS_1.getValue());
+        yxCouponOrder.setPayTime(OrderUtil.getSecondTimestampTwo());
+        yxCouponOrder.setStatus(4);
+        this.updateById(yxCouponOrder);
+
+
+
+
     }
 }
