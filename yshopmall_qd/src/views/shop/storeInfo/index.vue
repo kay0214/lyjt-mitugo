@@ -103,7 +103,7 @@
             </el-table>
           </div>
           <el-form-item label="人均消费" prop="perCapita">
-            <el-input v-model="form.perCapita" style="width: 700px;" />
+            <el-input v-model="form.perCapita" style="width: 700px;" οnkeyup="if(isNaN(value))execCommand('undo')" onafterpaste="if(isNaN(value))execCommand('undo')"/>
           </el-form-item>
           <el-form-item label="行业类别" prop="industryCategory">
             <el-select v-model="form.industryCategory" placeholder="请选择">
@@ -275,6 +275,8 @@
             { validator: ((rule,value,callback)=>{
               if(parseFloat(value)>999999.99){
                 callback(new Error("最大值为：999999.99"));
+              }else if(parseFloat(value)<0){
+                callback(new Error("不能为负值"));
               }else{
                 callback()
               }
