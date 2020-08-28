@@ -29,11 +29,15 @@ import co.yixiang.modules.order.service.YxStoreOrderCartInfoService;
 import co.yixiang.modules.order.service.YxStoreOrderService;
 import co.yixiang.modules.order.service.YxStoreOrderStatusService;
 import co.yixiang.modules.order.web.dto.*;
+import co.yixiang.modules.order.web.param.OrderNewParam;
 import co.yixiang.modules.order.web.param.OrderParam;
 import co.yixiang.modules.order.web.param.RefundParam;
 import co.yixiang.modules.order.web.param.YxStoreOrderQueryParam;
 import co.yixiang.modules.order.web.vo.YxStoreOrderQueryVo;
-import co.yixiang.modules.shop.entity.*;
+import co.yixiang.modules.shop.entity.YxStoreCart;
+import co.yixiang.modules.shop.entity.YxStoreCouponUser;
+import co.yixiang.modules.shop.entity.YxStoreProduct;
+import co.yixiang.modules.shop.entity.YxStoreProductAttrValue;
 import co.yixiang.modules.shop.mapper.YxStoreCartMapper;
 import co.yixiang.modules.shop.mapper.YxStoreCouponMapper;
 import co.yixiang.modules.shop.mapper.YxStoreCouponUserMapper;
@@ -1727,7 +1731,7 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public List<YxStoreOrder> createOrderNew(int uid, String key, OrderParam param) {
+    public List<YxStoreOrder> createOrderNew(int uid, String key, OrderNewParam param) {
         List<YxStoreOrder> orderList = new ArrayList<YxStoreOrder>();
         YxUserQueryVo userInfo = userService.getYxUserById(uid);
         if (ObjectUtil.isNull(userInfo)) throw new ErrorRequestException("用户不存在");
@@ -1927,7 +1931,7 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
             storeOrder.setGainIntegral(BigDecimal.valueOf(gainIntegral));
             storeOrder.setMark(param.getMark());
             storeOrder.setCombinationId(combinationId);
-            storeOrder.setPinkId(param.getPinkId());
+            storeOrder.setPinkId(0);
             storeOrder.setSeckillId(seckillId);
             storeOrder.setBargainId(bargainId);
             storeOrder.setCost(storeStoreCartQueryVo.getOrderCostPrice());
@@ -1982,13 +1986,6 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
 
             //保存购物车商品信息
             orderCartInfoService.saveCartInfo(storeOrder.getId(), storeStoreCartQueryVo.getCartList());
-
-         /*   //购物车状态修改
-            QueryWrapper<YxStoreCart> wrapper = new QueryWrapper<>();
-            wrapper.in("id", cartIds);
-            YxStoreCart cartObj = new YxStoreCart();
-            cartObj.setIsPay(1);
-            storeCartMapper.update(cartObj, wrapper);*/
 
             //增加状态
             orderStatusService.create(storeOrder.getId(), "cache_key_create_order", "订单生成");

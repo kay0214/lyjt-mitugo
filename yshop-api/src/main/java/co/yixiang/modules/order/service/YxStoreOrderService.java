@@ -9,6 +9,7 @@ import co.yixiang.modules.manage.web.param.OrderPriceParam;
 import co.yixiang.modules.manage.web.param.OrderRefundParam;
 import co.yixiang.modules.order.entity.YxStoreOrder;
 import co.yixiang.modules.order.web.dto.*;
+import co.yixiang.modules.order.web.param.OrderNewParam;
 import co.yixiang.modules.order.web.param.OrderParam;
 import co.yixiang.modules.order.web.param.RefundParam;
 import co.yixiang.modules.order.web.param.YxStoreOrderQueryParam;
@@ -132,7 +133,7 @@ public interface YxStoreOrderService extends BaseService<YxStoreOrder> {
      * @param param
      * @return
      */
-    public List<YxStoreOrder> createOrderNew(int uid, String key, OrderParam param);
+    public List<YxStoreOrder> createOrderNew(int uid, String key, OrderNewParam param);
 
     /**
      * 订单信息列表
