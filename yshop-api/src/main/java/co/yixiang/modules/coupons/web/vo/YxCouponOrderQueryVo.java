@@ -1,9 +1,11 @@
 package co.yixiang.modules.coupons.web.vo;
 
+import co.yixiang.common.mybatis.GeoPoint;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import javax.validation.constraints.NotBlank;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
@@ -118,8 +120,34 @@ public class YxCouponOrderQueryVo implements Serializable {
     @ApiModelProperty(value = "更新时间")
     private Date updateTime;
 
+    @ApiModelProperty(value = "店铺id")
+    private Integer storeId;
+
     @ApiModelProperty(value = "店铺名称")
     private String storeName;
+
+    @ApiModelProperty(value = "店铺详细地址")
+    private String storeAddress;
+
+    @ApiModelProperty(value = "距离")
+    private String distance;
+
+    private GeoPoint coordinate;
+
+    @ApiModelProperty(value = "地图坐标经度")
+    private String coordinateX;
+
+    @ApiModelProperty(value = "地图坐标纬度")
+    private String coordinateY;
+
+    @ApiModelProperty(value = "卡券有效期")
+    private String expireDate;
+
+    @ApiModelProperty(value = "使用时间段")
+    private String availableTime;
+
+    @ApiModelProperty(value = "购买时间")
+    private String buyTime;
 
     @ApiModelProperty(value = "卡券List")
     private List<YxCouponOrderDetailQueryVo> detailList;

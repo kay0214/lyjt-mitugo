@@ -130,4 +130,13 @@ public interface YxCouponOrderService extends BaseService<YxCouponOrder> {
      * @param yxCouponOrder
      */
     void updatePaySuccess(YxCouponOrder yxCouponOrder);
+
+    /**
+     * 获取卡券订单详情
+     *
+     * @param id
+     * @param location
+     * @return
+     */
+    YxCouponOrderQueryVo getYxCouponOrderDetail(String id, String location);
 }

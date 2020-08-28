@@ -7,6 +7,7 @@ import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import co.yixiang.common.service.impl.BaseServiceImpl;
+import co.yixiang.common.util.DistanceMeterUtil;
 import co.yixiang.common.web.vo.Paging;
 import co.yixiang.constant.LocalLiveConstants;
 import co.yixiang.constant.ShopConstants;
@@ -54,6 +55,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.binarywang.wxpay.bean.order.WxPayMpOrderResult;
 import com.github.binarywang.wxpay.exception.WxPayException;
 import lombok.extern.slf4j.Slf4j;
+import org.gavaghan.geodesy.GlobalCoordinates;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -642,5 +644,68 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
             item.setStatus(4);
         }
         this.yxCouponOrderDetailService.updateBatchById(list);
+    }
+
+    /**
+     * 获取卡券订单详情
+     *
+     * @param id
+     * @param location
+     * @return
+     */
+    @Override
+    public YxCouponOrderQueryVo getYxCouponOrderDetail(String id, String location) {
+        YxCouponOrderQueryVo item = new YxCouponOrderQueryVo();
+        BeanUtils.copyBeanProp(item, this.yxCouponOrderDetailService.getById(id));
+
+        // 获取卡券list
+        List<YxCouponOrderDetail> detailList = this.yxCouponOrderDetailService.list(new QueryWrapper<YxCouponOrderDetail>().eq("order_id", item.getOrderId()));
+        // 获取该订单购买的优惠券id
+        Integer couponId = detailList.get(0).getCouponId();
+        // 根据优惠券id获取优惠券信息
+        YxCoupons yxCoupons = this.couponsService.getOne(new QueryWrapper<YxCoupons>().eq("", couponId));
+        // 拼接有效期
+        String expireDate = DateUtils.parseDateToStr(DateUtils.getDate(), yxCoupons.getExpireDateStart()) + " ~ " + DateUtils.parseDateToStr(DateUtils.getDate(), yxCoupons.getExpireDateEnd());
+        // 根据优惠券所属获取商户信息
+        YxStoreInfo yxStoreInfo = this.storeInfoService.getById(yxCoupons.getBelong());
+        List<YxCouponOrderDetailQueryVo> voList = new ArrayList<>();
+        for (YxCouponOrderDetail yxCouponOrderDetail : detailList) {
+            YxCouponOrderDetailQueryVo vo = new YxCouponOrderDetailQueryVo();
+            BeanUtils.copyBeanProp(vo, yxCouponOrderDetail);
+            // 有效期
+            vo.setExpireDate(expireDate);
+            // 卡券类型;1:代金券, 2:折扣券, 3:满减券
+            vo.setCouponType(yxCoupons.getCouponType());
+            // 代金券面额
+            vo.setDenomination(yxCoupons.getDenomination());
+            // 折扣券折扣率
+            vo.setDiscount(yxCoupons.getDiscount());
+            // 使用门槛
+            vo.setThreshold(yxCoupons.getThreshold());
+            // 优惠金额
+            vo.setDiscountAmount(yxCoupons.getDiscountAmount());
+            voList.add(vo);
+        }
+
+        // 店铺id
+        item.setStoreId(yxStoreInfo.getId());
+        // 店铺名称
+        item.setStoreName(yxStoreInfo.getStoreName());
+        // 店铺详细地址
+        item.setStoreAddress(yxStoreInfo.getStoreAddress());
+        // 店铺经纬度信息
+        item.setCoordinate(yxStoreInfo.getCoordinate());
+        item.setCoordinateX(yxStoreInfo.getCoordinateX());
+        item.setCoordinateY(yxStoreInfo.getCoordinateY());
+        // 计算当前位置距离店铺距离
+        String[] locationArr = location.split(",");
+        GlobalCoordinates source = new GlobalCoordinates(Double.parseDouble(yxStoreInfo.getCoordinateY()), Double.parseDouble(yxStoreInfo.getCoordinateX()));
+        GlobalCoordinates target = new GlobalCoordinates(Double.parseDouble(locationArr[1]), Double.parseDouble(locationArr[0]));
+        double distance = DistanceMeterUtil.getDistanceMeter(source, target);
+        item.setDistance(distance + "");
+        // 卡卷详情
+        item.setDetailList(voList);
+
+        return item;
     }
 }
