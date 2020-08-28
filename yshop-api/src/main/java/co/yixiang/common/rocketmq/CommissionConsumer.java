@@ -1,6 +1,6 @@
 package co.yixiang.common.rocketmq;
 
-import co.yixiang.common.constant.MQConstant;
+import co.yixiang.constant.MQConstant;
 import co.yixiang.common.rocketmq.service.CommissionService;
 import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;

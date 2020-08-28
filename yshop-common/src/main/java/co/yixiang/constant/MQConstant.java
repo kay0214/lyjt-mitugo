@@ -1,7 +1,7 @@
 /*
  * @Copyright: 2005-2018 www.hyjf.com. All rights reserved.
  */
-package co.yixiang.common.constant;
+package co.yixiang.constant;
 
 /**
  * @author zhangqingqing
