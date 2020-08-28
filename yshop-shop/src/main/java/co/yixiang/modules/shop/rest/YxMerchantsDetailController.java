@@ -12,6 +12,7 @@ import co.yixiang.modules.shop.service.YxStoreInfoService;
 import co.yixiang.modules.shop.service.dto.YxMerchantsDetailDto;
 import co.yixiang.modules.shop.service.dto.YxMerchantsDetailQueryCriteria;
 import co.yixiang.utils.SecurityUtils;
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -109,7 +110,7 @@ public class YxMerchantsDetailController {
             map.put("status", "2");
             map.put("statusDesc", "无可用商户认证信息，请先到蜜兔管理平台提交审核");
             return new ResponseEntity<>(map, HttpStatus.OK);
-        } else if(1 != yxMerchantsDetail.getExamineStatus()) {
+        } else if (1 != yxMerchantsDetail.getExamineStatus()) {
             map.put("status", "3");
             map.put("statusDesc", "商户认证信息未审批或审批未通过，请先到蜜兔管理平台核实");
             return new ResponseEntity<>(map, HttpStatus.OK);
@@ -117,6 +118,7 @@ public class YxMerchantsDetailController {
 
         map.put("status", "0");
         map.put("statusDesc", "成功");
+        map.put("data", JSON.toJSONString(yxMerchantsDetail));
         return new ResponseEntity<>(map, HttpStatus.OK);
     }
 }

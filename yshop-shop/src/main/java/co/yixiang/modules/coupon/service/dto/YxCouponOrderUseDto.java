@@ -9,6 +9,8 @@
 package co.yixiang.modules.coupon.service.dto;
 
 import lombok.Data;
+
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.io.Serializable;
 
@@ -70,7 +72,26 @@ public class YxCouponOrderUseDto implements Serializable {
 
 
     /** 卡券id */
-
     private Integer couponId;
 
+    /** 卡券名称 */
+    private String couponName;
+
+    /** 用户昵称 */
+    private String nickName;
+
+    /** 卡券类型;1:代金券, 2:折扣券, 3:满减券 */
+    private Integer couponType;
+
+    /** 代金券面额, coupon_type为1时使用 */
+    private BigDecimal denomination;
+
+    /** 折扣券折扣率, coupon_type为2时使用 */
+    private BigDecimal discount;
+
+    /** 使用门槛, coupon_type为3时使用 */
+    private BigDecimal threshold;
+
+    /** 优惠金额, coupon_type为3时使用 */
+    private BigDecimal discountAmount;
 }
