@@ -358,25 +358,25 @@ public class YxCouponOrderController extends BaseController {
         return ApiResult.result(flag);
     }
 
-    /**
-    * 获取卡券订单表
-    */
-    @PostMapping("/info")
-    @ApiOperation(value = "获取YxCouponOrder对象详情",notes = "查看卡券订单表",response = YxCouponOrderQueryVo.class)
-    public ApiResult<YxCouponOrderQueryVo> getYxCouponOrder(@Valid @RequestBody IdParam idParam) throws Exception{
-        YxCouponOrderQueryVo yxCouponOrderQueryVo = yxCouponOrderService.getYxCouponOrderById(idParam.getId());
-        return ApiResult.ok(yxCouponOrderQueryVo);
-    }
+//    /**
+//    * 获取卡券订单表
+//    */
+//    @PostMapping("/info")
+//    @ApiOperation(value = "获取YxCouponOrder对象详情",notes = "查看卡券订单表",response = YxCouponOrderQueryVo.class)
+//    public ApiResult<YxCouponOrderQueryVo> getYxCouponOrder(@Valid @RequestBody IdParam idParam) throws Exception{
+//        YxCouponOrderQueryVo yxCouponOrderQueryVo = yxCouponOrderService.getYxCouponOrderById(idParam.getId());
+//        return ApiResult.ok(yxCouponOrderQueryVo);
+//    }
 
-    /**
-     * 卡券订单表分页列表
-     */
-    @PostMapping("/getPageList")
-    @ApiOperation(value = "获取YxCouponOrder分页列表",notes = "卡券订单表分页列表",response = YxCouponOrderQueryVo.class)
-    public ApiResult<Paging<YxCouponOrderQueryVo>> getYxCouponOrderPageList(@Valid @RequestBody(required = false) YxCouponOrderQueryParam yxCouponOrderQueryParam) throws Exception{
-        Paging<YxCouponOrderQueryVo> paging = yxCouponOrderService.getYxCouponOrderPageList(yxCouponOrderQueryParam);
-        return ApiResult.ok(paging);
-    }
+//    /**
+//     * 卡券订单表分页列表
+//     */
+//    @PostMapping("/getPageList")
+//    @ApiOperation(value = "获取YxCouponOrder分页列表",notes = "卡券订单表分页列表",response = YxCouponOrderQueryVo.class)
+//    public ApiResult<Paging<YxCouponOrderQueryVo>> getYxCouponOrderPageList(@Valid @RequestBody(required = false) YxCouponOrderQueryParam yxCouponOrderQueryParam) throws Exception{
+//        Paging<YxCouponOrderQueryVo> paging = yxCouponOrderService.getYxCouponOrderPageList(yxCouponOrderQueryParam);
+//        return ApiResult.ok(paging);
+//    }
 
     /**
      * 提交订单退款审核

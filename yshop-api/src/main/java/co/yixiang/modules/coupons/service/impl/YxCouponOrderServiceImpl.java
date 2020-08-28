@@ -22,39 +22,31 @@ import co.yixiang.modules.coupons.service.YxCouponOrderDetailService;
 import co.yixiang.modules.coupons.service.YxCouponOrderService;
 import co.yixiang.modules.coupons.service.YxCouponsService;
 import co.yixiang.modules.coupons.web.param.YxCouponOrderQueryParam;
-import co.yixiang.modules.coupons.web.vo.CouponInfoQueryVo;
-import co.yixiang.modules.coupons.web.vo.CouponOrderQueryVo;
-import co.yixiang.modules.coupons.web.vo.YxCouponOrderQueryVo;
-import co.yixiang.modules.coupons.web.vo.YxCouponsQueryVo;
+import co.yixiang.modules.coupons.web.vo.*;
 import co.yixiang.modules.image.entity.YxImageInfo;
 import co.yixiang.modules.image.service.YxImageInfoService;
 import co.yixiang.modules.monitor.service.RedisService;
-import co.yixiang.modules.order.entity.YxStoreOrder;
-import co.yixiang.modules.order.entity.YxStoreOrderCartInfo;
-import co.yixiang.modules.order.mapping.OrderMap;
 import co.yixiang.modules.order.web.dto.ComputeDTO;
 import co.yixiang.modules.order.web.dto.CouponCacheDTO;
 import co.yixiang.modules.order.web.dto.PriceGroupDTO;
-import co.yixiang.modules.order.web.dto.StatusDTO;
 import co.yixiang.modules.order.web.param.OrderParam;
 import co.yixiang.modules.order.web.param.RefundParam;
 import co.yixiang.modules.shop.entity.YxStoreInfo;
 import co.yixiang.modules.shop.service.YxStoreInfoService;
 import co.yixiang.modules.shop.service.YxSystemConfigService;
 import co.yixiang.modules.shop.service.YxSystemStoreService;
-import co.yixiang.modules.shop.web.vo.YxStoreCartQueryVo;
 import co.yixiang.modules.shop.web.vo.YxSystemStoreQueryVo;
 import co.yixiang.modules.user.entity.YxUserBill;
 import co.yixiang.modules.user.entity.YxWechatUser;
-import co.yixiang.modules.user.service.YxUserAddressService;
 import co.yixiang.modules.user.service.YxUserBillService;
 import co.yixiang.modules.user.service.YxUserService;
 import co.yixiang.modules.user.service.YxWechatUserService;
 import co.yixiang.modules.user.web.vo.YxUserAddressQueryVo;
 import co.yixiang.modules.user.web.vo.YxUserQueryVo;
 import co.yixiang.mp.service.YxMiniPayService;
+import co.yixiang.utils.BeanUtils;
+import co.yixiang.utils.DateUtils;
 import co.yixiang.utils.OrderUtil;
-import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.metadata.OrderItem;
@@ -70,7 +62,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -514,7 +505,7 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
     }
 
     @Override
-    public WxPayMpOrderResult wxAppPay(String orderId,String ip) throws WxPayException {
+    public WxPayMpOrderResult wxAppPay(String orderId, String ip) throws WxPayException {
         YxCouponOrder orderInfo = getOrderInfo(orderId, 0);
         if (ObjectUtil.isNull(orderInfo)) throw new ErrorRequestException("订单不存在");
         if (orderInfo.getPayStaus().equals(OrderInfoEnum.PAY_STATUS_1.getValue()))
@@ -560,6 +551,7 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
 
     /**
      * 个人中心 我的卡券列表
+     *
      * @param yxCouponOrderQueryParam
      * @param uid
      * @return
@@ -579,13 +571,13 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
                 wrapper.eq("status", 4).eq("refund_status", 0).eq("pay_staus", 1);
                 break;
             case STATUS_3://已使用
-                wrapper.in("status", 5,6).eq("refund_status", 0).eq("pay_staus", 1);
+                wrapper.in("status", 5, 6).eq("refund_status", 0).eq("pay_staus", 1);
                 break;
             case STATUS_4://已过期
                 wrapper.eq("status", 1);
                 break;
             case STATUS_MINUS_1://退款售后
-                wrapper.in("status", 7,8,9);
+                wrapper.in("status", 7, 8, 9);
                 break;
         }
 
@@ -594,7 +586,37 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         IPage<YxCouponOrder> pageList = yxCouponOrderMapper.selectPage(pageModel, wrapper);
         List<YxCouponOrderQueryVo> list = couponOrderMap.toDto(pageList.getRecords());
         for (YxCouponOrderQueryVo item : list) {
-            // TODO: 2020/8/28
+            // 获取卡券list
+            List<YxCouponOrderDetail> detailList = this.yxCouponOrderDetailService.list(new QueryWrapper<YxCouponOrderDetail>().eq("order_id", item.getOrderId()));
+            // 获取该订单购买的优惠券id
+            Integer couponId = detailList.get(0).getCouponId();
+            // 根据优惠券id获取优惠券信息
+            YxCoupons yxCoupons = this.couponsService.getOne(new QueryWrapper<YxCoupons>().eq("", couponId));
+            // 拼接有效期
+            String expireDate = DateUtils.parseDateToStr(DateUtils.getDate(), yxCoupons.getExpireDateStart()) + " ~ " + DateUtils.parseDateToStr(DateUtils.getDate(), yxCoupons.getExpireDateEnd());
+            // 根据优惠券所属获取商户信息
+            YxStoreInfo yxStoreInfo = this.storeInfoService.getById(yxCoupons.getBelong());
+            List<YxCouponOrderDetailQueryVo> voList = new ArrayList<>();
+            for (YxCouponOrderDetail yxCouponOrderDetail : detailList) {
+                YxCouponOrderDetailQueryVo vo = new YxCouponOrderDetailQueryVo();
+                BeanUtils.copyBeanProp(vo, yxCouponOrderDetail);
+                // 有效期
+                vo.setExpireDate(expireDate);
+                // 卡券类型;1:代金券, 2:折扣券, 3:满减券
+                vo.setCouponType(yxCoupons.getCouponType());
+                // 代金券面额
+                vo.setDenomination(yxCoupons.getDenomination());
+                // 折扣券折扣率
+                vo.setDiscount(yxCoupons.getDiscount());
+                // 使用门槛
+                vo.setThreshold(yxCoupons.getThreshold());
+                // 优惠金额
+                vo.setDiscountAmount(yxCoupons.getDiscountAmount());
+                voList.add(vo);
+            }
+
+            item.setStoreName(yxStoreInfo.getStoreName());
+            item.setDetailList(voList);
         }
 
         return list;
