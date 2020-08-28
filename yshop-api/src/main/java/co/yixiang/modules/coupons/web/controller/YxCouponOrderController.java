@@ -396,9 +396,9 @@ public class YxCouponOrderController extends BaseController {
      */
     @PostMapping("/getPageList")
     @ApiOperation(value = "个人中心 我的卡券列表",notes = "个人中心 我的卡券列表",response = YxCouponOrderQueryVo.class)
-    public ApiResult<Paging<YxCouponOrderQueryVo>> getMyCouponOrderPageList(@Valid @RequestBody(required = false) YxCouponOrderQueryParam yxCouponOrderQueryParam) throws Exception{
+    public ApiResult<List<YxCouponOrderQueryVo>> getMyCouponOrderPageList(@Valid @RequestBody(required = false) YxCouponOrderQueryParam yxCouponOrderQueryParam) throws Exception{
         int uid = SecurityUtils.getUserId().intValue();
-        Paging<YxCouponOrderQueryVo> paging = yxCouponOrderService.getMyCouponOrderPageList(yxCouponOrderQueryParam,uid);
+        List<YxCouponOrderQueryVo> paging = yxCouponOrderService.getMyCouponOrderPageList(yxCouponOrderQueryParam,uid);
         return ApiResult.ok(paging);
     }
 
