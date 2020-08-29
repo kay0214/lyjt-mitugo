@@ -86,9 +86,10 @@ public class YxCouponsCategoryServiceImpl extends BaseServiceImpl<YxCouponsCateg
             if(imageInfoList!=null && imageInfoList.size()>0){
                 dto.setPath(imageInfoList.get(0).getImgUrl());
             }
+            list.add(dto);
         }
 //        Paging<YxCouponsCategory> yxCouponsCategoryIPage = baseMapper.selectPage();
-        map.put("content", generator.convert(categoryList, YxCouponsCategoryDto.class));
+        map.put("content", list);
         map.put("totalElements", categoryList.size());
         return map;
     }
