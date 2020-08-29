@@ -65,6 +65,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
                 roleService.mapToGrantedAuthorities(user),
                 user.getEnabled(),
                 user.getCreateTime(),
+                user.getUserRole(),
                 user.getLastPasswordResetTime()
         );
     }
