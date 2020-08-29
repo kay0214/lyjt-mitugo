@@ -62,13 +62,13 @@
             <!-- 以下是个人认证 -->
             <div v-if="!crud.status.add && (form.merchantsType==0 || examineEdit)">
               <el-form-item label="手持证件照">
-                <MaterialList v-model="perIdCard" type="image" :num="1" :width="150" :height="150" />
+                <MaterialList v-model="perIdCard" type="image" :num="1" :width="150" :height="150" :readOnly='Boolean(examineEdit)'/>
               </el-form-item> 
               <el-form-item label="证件照人像面">
-                <MaterialList v-model="perIdCardFace" type="image" :num="1" :width="150" :height="150" />
+                <MaterialList v-model="perIdCardFace" type="image" :num="1" :width="150" :height="150" :readOnly='Boolean(examineEdit)' />
               </el-form-item> 
               <el-form-item label="证件照国徽面">
-                <MaterialList v-model="perIdCardBack" type="image" :num="1" :width="150" :height="150" />
+                <MaterialList v-model="perIdCardBack" type="image" :num="1" :width="150" :height="150" :readOnly='Boolean(examineEdit)'/>
               </el-form-item>
               <el-form-item label="银行账号">
                 <el-input v-model="form.bankNo" style="width: 370px;" />
@@ -135,22 +135,22 @@
                 </el-select>
               </el-form-item>  
               <el-form-item label="营业执照">
-                <MaterialList v-model="businessLicenseImg" type="image" :num="1" :width="150" :height="150" />
+                <MaterialList v-model="businessLicenseImg" type="image" :num="1" :width="150" :height="150" :readOnly='Boolean(examineEdit)'/>
               </el-form-item>
               <el-form-item label="银行开户证明">
-                <MaterialList v-model="bankOpenProveImg" type="image" :num="1" :width="150" :height="150" />
+                <MaterialList v-model="bankOpenProveImg" type="image" :num="1" :width="150" :height="150" :readOnly='Boolean(examineEdit)'/>
               </el-form-item>
               <el-form-item label="法人身份证头像面">
-                <MaterialList v-model="legalIdCardFace" type="image" :num="1" :width="150" :height="150" />
+                <MaterialList v-model="legalIdCardFace" type="image" :num="1" :width="150" :height="150" :readOnly='Boolean(examineEdit)'/>
               </el-form-item>
               <el-form-item label="法人身份证国徽面">
-                <MaterialList v-model="legalIdCardBack" type="image" :num="1" :width="150" :height="150" />
+                <MaterialList v-model="legalIdCardBack" type="image" :num="1" :width="150" :height="150" :readOnly='Boolean(examineEdit)'/>
               </el-form-item>
               <el-form-item label="门店照及经营场所">
-                <MaterialList v-model="storeImg" type="image" :num="1" :width="150" :height="150" />
+                <MaterialList v-model="storeImg" type="image" :num="1" :width="150" :height="150" :readOnly='Boolean(examineEdit)'/>
               </el-form-item> 
               <el-form-item label="医疗机构许可证">
-                <MaterialList v-model="licenceImg" type="image" :num="1" :width="150" :height="150" />
+                <MaterialList v-model="licenceImg" type="image" :num="1" :width="150" :height="150" :readOnly='Boolean(examineEdit)'/>
               </el-form-item>       
             </div>
         </el-form>
@@ -375,33 +375,33 @@ export default {
       this.crud.resetForm(JSON.parse(JSON.stringify(data)))
       /*图片默认值赋值*/
       // 个人认证
-      if (form.personIdCard) {
-        this.perIdCard = form.personIdCard.split(',')
+      if (this.form.personIdCard) {
+        this.perIdCard = this.form.personIdCard.split(',')
       }
-      if (form.personIdCardFace) {
-        this.perIdCardFace = form.personIdCardFace.split(',')
+      if (this.form.personIdCardFace) {
+        this.perIdCardFace = this.form.personIdCardFace.split(',')
       }
-      if (form.personIdCardBack) {
-        this.perIdCardBack = form.personIdCardBack.split(',')
+      if (this.form.personIdCardBack) {
+        this.perIdCardBack = this.form.personIdCardBack.split(',')
       }
       // 企业和个体户
-      if (form.businessLicenseImg) {
-        this.businessLicenseImg = form.businessLicenseImg.split(',')
+      if (this.form.businessLicenseImg) {
+        this.businessLicenseImg = this.form.businessLicenseImg.split(',')
       }
-      if (form.bankOpenProveImg) {
-        this.bankOpenProveImg = form.bankOpenProveImg.split(',')
+      if (this.form.bankOpenProveImg) {
+        this.bankOpenProveImg = this.form.bankOpenProveImg.split(',')
       }
-      if (form.legalIdCardFace) {
-        this.legalIdCardFace = form.legalIdCardFace.split(',')
+      if (this.form.legalIdCardFace) {
+        this.legalIdCardFace = this.form.legalIdCardFace.split(',')
       }
-      if (form.legalIdCardBack) {
-        this.legalIdCardBack = form.legalIdCardBack.split(',')
+      if (this.form.legalIdCardBack) {
+        this.legalIdCardBack = this.form.legalIdCardBack.split(',')
       }
-      if (form.storeImg) {
-        this.storeImg = form.storeImg.split(',')
+      if (this.form.storeImg) {
+        this.storeImg = this.form.storeImg.split(',')
       }
-      if (form.licenceImg) {
-        this.licenceImg = form.licenceImg.split(',')
+      if (this.form.licenceImg) {
+        this.licenceImg = this.form.licenceImg.split(',')
       }
       this.formDisabled=true
     },
