@@ -71,7 +71,7 @@ public class CouponsCategoryController {
         return new ResponseEntity<>(yxCouponsCategoryService.getAllList(request),HttpStatus.OK);
     }
 
-    @PostMapping("/add")
+    @PostMapping("")
     @Log("新增卡券分类表")
     @ApiOperation("新增卡券分类表")
     @PreAuthorize("@el.check('admin','yxCouponsCategory:add')")
