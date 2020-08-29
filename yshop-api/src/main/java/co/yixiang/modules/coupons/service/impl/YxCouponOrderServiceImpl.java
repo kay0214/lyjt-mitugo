@@ -563,7 +563,7 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
 
         QueryWrapper<YxCouponOrder> wrapper = new QueryWrapper<>();
         wrapper.eq("uid", uid);
-        wrapper.eq("del_flag", CommonEnum.DEL_STATUS_0.getValue()).orderByDesc("add_time");
+        wrapper.eq("del_flag", CommonEnum.DEL_STATUS_0.getValue()).orderByDesc("create_time");
 
         switch (OrderStatusEnum.toType(yxCouponOrderQueryParam.getType())) {
             case STATUS_1://待付款
