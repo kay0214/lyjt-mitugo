@@ -149,7 +149,7 @@ public class CouponsCategoryController {
     @Log("删除卡券分类表")
     @ApiOperation("删除卡券分类表")
     @PreAuthorize("@el.check('admin','yxCouponsCategory:del')")
-    @DeleteMapping(value = "/delCouponCate/{ids}")
+    @DeleteMapping(value = "/{ids}")
     public ResponseEntity<Object> delete(@PathVariable String ids) {
         String[] idsArr = ids.split(",");
         boolean delStatus = false;
