@@ -97,6 +97,7 @@ public class User implements Serializable {
     private Integer userRole;
 
     /* 下级用户*/
+    @TableField(exist = false)
     private List<Long> childUser;
 
 

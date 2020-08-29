@@ -143,11 +143,11 @@ public class SysUserServiceImpl extends BaseServiceImpl<SysUserMapper, User> imp
             Set<Long> roleIdSet = roleSet.stream().map(x->x.getId()).collect(Collectors.toSet());
             if (roleIdSet.contains(1L)) {
                 user.setUserRole(0);
-            }else if (roleIdSet.contains(4)) {
+            }else if (roleIdSet.contains(4L)) {
                 user.setUserRole(1);
                 List<User> childUserList = userMapper.selectList(new QueryWrapper<User>().lambda().eq(User::getParentId,user.getId()));
                 user.setChildUser(!CollectionUtils.isEmpty(childUserList) ? childUserList.stream().map(User::getId).collect(Collectors.toList()) : null);
-            }else if (roleIdSet.contains(5)) {
+            }else if (roleIdSet.contains(5L)) {
                 user.setUserRole(2);
                 user.setChildUser(Arrays.asList(user.getId()));
             }
