@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import java.io.Serializable;
 
+import java.math.BigDecimal;
 import java.util.Date;
 
 /**
@@ -74,5 +75,6 @@ private Integer totalScore;
 
 @ApiModelProperty(value = "推荐用二维码地址")
 private String qrCodeUrl;
-
+    @ApiModelProperty(value = "商户可提金额")
+    private BigDecimal withdrawalAmount;
 }

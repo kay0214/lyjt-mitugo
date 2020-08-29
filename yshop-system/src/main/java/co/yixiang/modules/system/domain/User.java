@@ -10,6 +10,7 @@ import lombok.Data;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
@@ -95,6 +96,10 @@ public class User implements Serializable {
     /** 用户角色：0->平台运营,1->合伙人,2->商户 */
     private Integer userRole;
 
+    /* 下级用户*/
+    @TableField(exist = false)
+    private List<Long> childUser;
+
 
     /** 商户联系人 */
     private String merchantsContact;
@@ -134,6 +139,9 @@ public class User implements Serializable {
 
     /** 商户是否认证通过 0:未认证 1：已认证 */
     private Integer examineStatus;
+
+    //可提现金额
+//    private BigDecimal withdrawalAmount;
 
 
     @Override

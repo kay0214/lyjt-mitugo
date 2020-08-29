@@ -23,7 +23,7 @@ public interface SystemUserService extends BaseService<SystemUser> {
      * @param id
      * @return
      */
-    SystemUserQueryVo getUserById(Serializable id) throws Exception;
+    SystemUserQueryVo getUserById(Serializable id);
 
     /**
      * 获取分页对象

@@ -1,11 +1,12 @@
 package co.yixiang.modules.user.service;
 
-import co.yixiang.modules.user.entity.YxUserBill;
 import co.yixiang.common.service.BaseService;
+import co.yixiang.common.web.vo.Paging;
+import co.yixiang.modules.order.web.vo.YxStoreOrderQueryVo;
+import co.yixiang.modules.user.entity.YxUserBill;
 import co.yixiang.modules.user.web.dto.BillDTO;
 import co.yixiang.modules.user.web.param.YxUserBillQueryParam;
 import co.yixiang.modules.user.web.vo.YxUserBillQueryVo;
-import co.yixiang.common.web.vo.Paging;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -48,4 +49,9 @@ public interface YxUserBillService extends BaseService<YxUserBill> {
      */
     Paging<YxUserBillQueryVo> getYxUserBillPageList(YxUserBillQueryParam yxUserBillQueryParam) throws Exception;
 
+    /**
+     * 确认收货保存商户资金和可用资金
+     * @param order
+     */
+    void saveMerchantsBill(YxStoreOrderQueryVo order);
 }

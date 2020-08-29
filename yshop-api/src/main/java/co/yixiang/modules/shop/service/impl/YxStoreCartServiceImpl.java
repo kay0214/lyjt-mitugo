@@ -392,6 +392,7 @@ public class YxStoreCartServiceImpl extends BaseServiceImpl<YxStoreCartMapper, Y
             YxStoreInfoQueryVo yxStoreInfoQueryVo = yxStoreInfoMapper.getYxStoreInfoById(carStore.getStoreId());
             yxStoreStoreValidVo.setStoreId(yxStoreInfoQueryVo.getId());
             yxStoreStoreValidVo.setStoreName(yxStoreInfoQueryVo.getStoreName());
+            yxStoreStoreValidVo.setMerId(yxStoreInfoQueryVo.getMerId());
             yxStoreStoreInvalidVo.setStoreId(yxStoreInfoQueryVo.getId());
             yxStoreStoreInvalidVo.setStoreName(yxStoreInfoQueryVo.getStoreName());
             yxStoreStoreInvalidVo.setMerId(yxStoreInfoQueryVo.getMerId());

@@ -1,65 +1,65 @@
 <template>
   <el-dialog :append-to-body="true" :close-on-click-modal="false" :before-close="cancel" :visible.sync="dialog" :title="isAdd ? '新增' : '编辑'" width="900px">
     <el-form ref="form" :model="form" :inline="true" :rules="rules" size="small" label-width="80px">
-      <el-form-item style="margin-bottom: 0px;" label="商品分类">
+      <el-form-item style="margin-bottom: 0px;" label="商品分类" prop='storeCategory'>
         <treeselect v-model="form.storeCategory.id" :options="cates" style="width: 370px;" placeholder="选择商品分类" />
       </el-form-item>
 
-      <el-form-item label="商品名称">
+      <el-form-item label="商品名称" prop='storeName'>
         <el-input v-model="form.storeName" style="width: 500px;" />
       </el-form-item>
-      <el-form-item label="关键字">
+      <el-form-item label="关键字" prop='keyword'>
         <el-input v-model="form.keyword" style="width: 500px;" />
       </el-form-item>
-      <el-form-item label="单位名">
+      <el-form-item label="单位名" prop='unitName'>
         <el-input v-model="form.unitName" style="width: 320px;" />
       </el-form-item>
-      <el-form-item label="产品条码">
+      <el-form-item label="产品条码" prop='barCode'>
         <el-input v-model="form.barCode" style="width: 320px;" />
       </el-form-item>
-      <el-form-item label="商品图片">
+      <el-form-item label="商品图片" prop='imageArr'>
         <MaterialList v-model="form.imageArr" style="width: 500px" type="image" :num="1" :width="150" :height="150" />
       </el-form-item>
-      <el-form-item label="轮播图">
+      <el-form-item label="轮播图" prop='sliderImageArr'>
         <MaterialList v-model="form.sliderImageArr" style="width: 500px" type="image" :num="4" :width="150" :height="150" />
       </el-form-item>
-      <el-form-item label="商品简介">
+      <el-form-item label="商品简介" prop='storeInfo'>
         <el-input v-model="form.storeInfo" style="width: 500px;" rows="5" type="textarea" />
       </el-form-item>
-      <el-form-item label="产品描述">
+      <el-form-item label="产品描述" prop='description'>
         <editor v-model="form.description" />
       </el-form-item>
-      <el-form-item label="销售价">
-        <el-input v-model="form.price" />
+      <el-form-item label="销售价" prop='price'>
+        <el-input v-model="form.price" οnkeyup="if(isNaN(value))execCommand('undo')" onafterpaste="if(isNaN(value))execCommand('undo')"/>
       </el-form-item>
-      <el-form-item label="原价">
-        <el-input v-model="form.otPrice" />
+      <el-form-item label="原价" prop='otPrice'>
+        <el-input v-model="form.otPrice" οnkeyup="if(isNaN(value))execCommand('undo')" onafterpaste="if(isNaN(value))execCommand('undo')"/>
       </el-form-item>
      <!-- <el-form-item label="成本价">
         <el-input v-model="form.cost" />
       </el-form-item>-->
-      <el-form-item label="平台结算价">
-        <el-input v-model="form.settlement" />
+      <el-form-item label="平台结算价" prop='settlement'>
+        <el-input v-model="form.settlement" οnkeyup="if(isNaN(value))execCommand('undo')" onafterpaste="if(isNaN(value))execCommand('undo')"/>
       </el-form-item>
 
-      <el-form-item label="排序">
+      <el-form-item label="排序" prop='sort'>
         <el-input v-model="form.sort" />
       </el-form-item>
      <!-- <el-form-item label="销量">
         <el-input v-model="form.sales" />
       </el-form-item>-->
 
-      <el-form-item label="库存">
-        <el-input v-model="form.stock"/>
+      <el-form-item label="库存" prop='stock'>
+        <el-input v-model="form.stock" οnkeyup="this.value=this.value.replace(//D/g,'')" onafterpaste="this.value=this.value.replace(//D/g,'')"/>
       </el-form-item>
-      <el-form-item label="佣金">
-        <el-input v-model="form.commission"/>
+      <el-form-item label="佣金" prop='commission'>
+        <el-input v-model="form.commission" οnkeyup="if(isNaN(value))execCommand('undo')" onafterpaste="if(isNaN(value))execCommand('undo')"/>
       </el-form-item>
-      <el-form-item label="是否包邮">
+      <el-form-item label="是否包邮" prop='isPostage'>
         <el-radio v-model="form.isPostage" :label="1">是</el-radio>
         <el-radio v-model="form.isPostage" :label="0" style="width: 200px;">否</el-radio>
       </el-form-item>
-      <el-form-item v-if='!form.isPostage' label="邮费">
+      <el-form-item v-if='!form.isPostage' prop='postage' :rules="form.isPostage?[{required:false}]:rules.postage" label="邮费">
         <el-input v-model="form.postage" />
       </el-form-item>
      <!-- <el-form-item label="优品推荐">
@@ -69,7 +69,7 @@
       <!--<el-form-item label="获得积分">
         <el-input v-model="form.giveIntegral" />
       </el-form-item>-->
-      <el-form-item label="虚拟销量">
+      <el-form-item label="虚拟销量" prop='ficti'>
         <el-input v-model="form.ficti" />
       </el-form-item>
     </el-form>
@@ -98,6 +98,25 @@ export default {
     }
   },
   data() {
+    //浮点数上限校验
+    const validateNum=(r,value,callback)=>{
+      if(parseFloat(value)>999999.99){
+        callback(new Error("最大值为：999999.99"));
+      }else if(parseFloat(value)<0){
+        callback(new Error("不能为负值"));
+      }else{
+        callback()
+      }
+    }
+    const validateInt=(r,value,callback)=>{
+      if(parseInt(value)>16777215){
+        callback(new Error("最大值为：16777215"));
+      }else if(parseInt(value)<0){
+        callback(new Error("不能为负值"));
+      }else{
+        callback()
+      }
+    }
     return {
       loading: false, dialog: false, cates: [],
       form: {
@@ -143,6 +162,64 @@ export default {
         soureLink: ''
       },
       rules: {
+        storeCategory:[
+          { required: true,message: '必填项', trigger: 'blur'}
+        ],
+        storeName:[
+          { required: true,message: '必填项', trigger: 'blur'}
+        ],
+        keyword:[
+          { required: true,message: '必填项', trigger: 'blur'}
+        ],
+        unitName:[
+          { required: true,message: '必填项', trigger: 'blur'}
+        ],
+        barCode:[
+          { required: true,message: '必填项', trigger: 'blur'}
+        ],
+        imageArr:[
+          { required: true,message: '必填项', trigger: 'blur'}
+        ],
+        sliderImageArr:[
+          { required: true,message: '必填项', trigger: 'blur'}
+        ],
+        storeInfo:[
+          { required: true,message: '必填项', trigger: 'blur'}
+        ],
+        description:[
+          { required: true,message: '必填项', trigger: 'blur'}
+        ],
+        price:[
+          { required: true,message: '必填项', trigger: 'blur'},
+          { validator: validateNum, trigger: 'blur'}
+        ],
+        otPrice:[
+          { required: true,message: '必填项', trigger: 'blur'},
+          { validator: validateNum, trigger: 'blur'}
+        ],
+        settlement:[
+          { required: true,message: '必填项', trigger: 'blur'},
+          { validator: validateNum, trigger: 'blur'}
+        ],
+        sort:[
+          { required: true,message: '必填项', trigger: 'blur'}
+        ],
+        stock:[
+          { required: true,message: '必填项', trigger: 'blur'},
+          { validator: validateInt, trigger: 'blur'},
+        ],
+        commission:[
+          { required: true,message: '必填项', trigger: 'blur'}
+        ],
+        isPostage:[
+          { required: true,message: '必填项', trigger: 'blur'}
+        ],
+        postage:[
+          { required: true,message: '必填项'}
+        ],
+        ficti:[
+          { required: true,message: '必填项', trigger: 'blur'}
+        ],
       }
     }
   },
@@ -163,10 +240,16 @@ export default {
       this.resetForm()
     },
     doSubmit() {
-      this.loading = true
-      if (this.isAdd) {
-        this.doAdd()
-      } else this.doEdit()
+     this.$refs['form'].validate(valid=>{
+       if(!valid){
+         return;
+       }else{
+        this.loading = true
+        if (this.isAdd) {
+          this.doAdd()
+        } else this.doEdit()
+       }
+     })
     },
     doAdd() {
       add(this.form).then(res => {

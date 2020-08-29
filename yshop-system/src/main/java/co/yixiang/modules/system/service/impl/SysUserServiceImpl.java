@@ -28,12 +28,14 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 // 默认不使用缓存
 //import org.springframework.cache.annotation.CacheConfig;
@@ -135,6 +137,21 @@ public class SysUserServiceImpl extends BaseServiceImpl<SysUserMapper, User> imp
         user.setJob(jobService.getById(user.getJobId()));
         //用户所属部门
         user.setDept(deptService.getById(user.getDeptId()));
+        // 加入用户角色等级
+        Set<Role> roleSet = new HashSet<>(roleMapper.findByUsers_Id(user.getId()));
+        if (!CollectionUtils.isEmpty(roleSet)) {
+            Set<Long> roleIdSet = roleSet.stream().map(x->x.getId()).collect(Collectors.toSet());
+            if (roleIdSet.contains(1L)) {
+                user.setUserRole(0);
+            }else if (roleIdSet.contains(4L)) {
+                user.setUserRole(1);
+                List<User> childUserList = userMapper.selectList(new QueryWrapper<User>().lambda().eq(User::getParentId,user.getId()));
+                user.setChildUser(!CollectionUtils.isEmpty(childUserList) ? childUserList.stream().map(User::getId).collect(Collectors.toList()) : null);
+            }else if (roleIdSet.contains(5L)) {
+                user.setUserRole(2);
+                user.setChildUser(Arrays.asList(user.getId()));
+            }
+        }
         return generator.convert(user, UserDto.class);
     }
 

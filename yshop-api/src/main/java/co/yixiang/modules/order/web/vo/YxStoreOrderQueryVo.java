@@ -201,6 +201,8 @@ public class YxStoreOrderQueryVo implements Serializable {
     private String paymentNo;
     @ApiModelProperty(value = "店铺名称")
     private String storeName;
+    @ApiModelProperty(value = "redis的key")
+    private String uniqueKey;
     private List<YxStoreCartQueryVo> cartInfo;
 
     private StatusDTO _status;

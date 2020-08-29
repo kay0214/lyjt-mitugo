@@ -36,6 +36,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -463,4 +464,24 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<StoreOrderMapper, Y
         }
     }
 
+    /**
+     * 查找超时未付款的订单，将其状态设置为已取消
+     */
+    @Override
+    public void cancelOrder() {
+        Date now = new Date();
+        long time = 30 * 60 * 1000;
+        Date beforeDate = new Date(now.getTime() - time);//30分钟前的时间
+        int intBeforeDate = OrderUtil.dateToTimestamp(beforeDate);
+        QueryWrapper<YxStoreOrder> orderQueryWrapper = new QueryWrapper<YxStoreOrder>();
+        orderQueryWrapper.eq("is_del", 0).eq("paid", 0).eq("status", 0).eq("refund_status", 0).le("add_time", intBeforeDate);
+        List<YxStoreOrder> listOrder = yxStoreOrderMapper.selectList(orderQueryWrapper);
+        if (CollectionUtils.isEmpty(listOrder)) {
+            return;
+        }
+        //超时未付款，状态为已取消
+        YxStoreOrder order = new YxStoreOrder();
+        order.setStatus(99);
+        yxStoreOrderMapper.update(order, orderQueryWrapper);
+    }
 }

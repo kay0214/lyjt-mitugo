@@ -5,6 +5,7 @@
  */
 package co.yixiang.utils;
 
+import cn.hutool.json.JSON;
 import cn.hutool.json.JSONObject;
 import co.yixiang.exception.BadRequestException;
 import org.springframework.http.HttpStatus;
@@ -12,6 +13,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 获取当前登录的用户
@@ -54,5 +58,16 @@ public class SecurityUtils {
         Object obj = getUserDetails();
         JSONObject json = new JSONObject(obj);
         return json.get("id", Long.class);
+    }
+
+    /**
+     * 当前登录用户信息
+     * @author zhangyk
+     * @date 2020/8/29 15:52
+     */
+    public static CurrUser getCurrUser(){
+        Object obj = getUserDetails();
+        JSONObject json = new JSONObject(obj);
+        return json.toBean(CurrUser.class);
     }
 }

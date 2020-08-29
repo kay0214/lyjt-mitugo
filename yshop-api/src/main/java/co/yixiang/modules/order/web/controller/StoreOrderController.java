@@ -110,28 +110,28 @@ public class StoreOrderController extends BaseController {
      * 订单确认
      */
     @PostMapping("/order/confirm")
-    @ApiOperation(value = "订单确认",notes = "订单确认")
-    public ApiResult<ConfirmOrderDTO> confirm(@RequestBody String jsonStr){
+    @ApiOperation(value = "订单确认", notes = "订单确认")
+    public ApiResult<ConfirmOrderDTO> confirm(@RequestBody String jsonStr) {
         JSONObject jsonObject = JSON.parseObject(jsonStr);
         String cartId = jsonObject.getString("cartId");
-        if(StrUtil.isEmpty(cartId)){
+        if (StrUtil.isEmpty(cartId)) {
             return ApiResult.fail("请提交购买的商品");
         }
         int uid = SecurityUtils.getUserId().intValue();
-        Map<String, Object> cartGroup = cartService.getUserProductCartList(uid,cartId,1);
-        if(ObjectUtil.isNotEmpty(cartGroup.get("invalid"))){
+        Map<String, Object> cartGroup = cartService.getUserProductCartList(uid, cartId, 1);
+        if (ObjectUtil.isNotEmpty(cartGroup.get("invalid"))) {
             return ApiResult.fail("有失效的商品请重新提交");
         }
-        if(ObjectUtil.isEmpty(cartGroup.get("valid"))){
+        if (ObjectUtil.isEmpty(cartGroup.get("valid"))) {
             return ApiResult.fail("请提交购买的商品");
         }
-        List<YxStoreCartQueryVo> cartInfo = (List<YxStoreCartQueryVo>)cartGroup.get("valid");
+        List<YxStoreCartQueryVo> cartInfo = (List<YxStoreCartQueryVo>) cartGroup.get("valid");
         PriceGroupDTO priceGroup = storeOrderService.getOrderPriceGroup(cartInfo);
 
         ConfirmOrderDTO confirmOrderDTO = new ConfirmOrderDTO();
 
         confirmOrderDTO.setUsableCoupon(couponUserService
-                .beUsableCoupon(uid,priceGroup.getTotalPrice()));
+                .beUsableCoupon(uid, priceGroup.getTotalPrice()));
         //积分抵扣
         OtherDTO other = new OtherDTO();
         other.setIntegralRatio(systemConfigService.getData(SystemConfigConstants.INTERGRAL_RATIO));
@@ -142,7 +142,7 @@ public class StoreOrderController extends BaseController {
         int combinationId = 0;
         int secKillId = 0;
         int bargainId = 0;
-        if(cartId.split(",").length == 1){
+        if (cartId.split(",").length == 1) {
             YxStoreCartQueryVo cartQueryVo = cartService.getYxStoreCartById(Integer
                     .valueOf(cartId));
             combinationId = cartQueryVo.getCombinationId();
@@ -152,10 +152,11 @@ public class StoreOrderController extends BaseController {
 
 
         //拼团砍价秒杀类产品不参与抵扣
-        if(combinationId > 0 || secKillId > 0 || bargainId > 0) confirmOrderDTO.setDeduction(true);
+        if (combinationId > 0 || secKillId > 0 || bargainId > 0) confirmOrderDTO.setDeduction(true);
 
         //判断积分是否满足订单额度
-        if(priceGroup.getTotalPrice() < Double.valueOf(other.getIntegralFull())) confirmOrderDTO.setEnableIntegral(false);
+        if (priceGroup.getTotalPrice() < Double.valueOf(other.getIntegralFull()))
+            confirmOrderDTO.setEnableIntegral(false);
 
         confirmOrderDTO.setEnableIntegralNum(Double.valueOf(other.getIntegralMax()));
 
@@ -164,14 +165,14 @@ public class StoreOrderController extends BaseController {
 
         confirmOrderDTO.setCartInfo(cartInfo);
         confirmOrderDTO.setPriceGroup(priceGroup);
-        confirmOrderDTO.setOrderKey(storeOrderService.cacheOrderInfo(uid,cartInfo,
-                                    priceGroup,other));
+        confirmOrderDTO.setOrderKey(storeOrderService.cacheOrderInfo(uid, cartInfo,
+                priceGroup, other));
 
 
         confirmOrderDTO.setUserInfo(userService.getYxUserById(uid));
 
         //门店
-        confirmOrderDTO.setSystemStore(systemStoreService.getStoreInfo("",""));
+        confirmOrderDTO.setSystemStore(systemStoreService.getStoreInfo("", ""));
 
         return ApiResult.ok(confirmOrderDTO);
     }
@@ -180,151 +181,152 @@ public class StoreOrderController extends BaseController {
      * 订单创建
      */
     @PostMapping("/order/create/{key}")
-    @ApiOperation(value = "订单创建",notes = "订单创建")
-    public ApiResult<Map<String,Object>> create(@Valid @RequestBody OrderParam param,
-                                             @PathVariable String key, HttpServletRequest request){
+    @ApiOperation(value = "订单创建", notes = "订单创建")
+    public ApiResult<Map<String, Object>> create(@Valid @RequestBody OrderParam param,
+                                                 @PathVariable String key, HttpServletRequest request) {
 
-        Map<String,Object> map = new LinkedHashMap<>();
+        Map<String, Object> map = new LinkedHashMap<>();
         int uid = SecurityUtils.getUserId().intValue();
-        if(StrUtil.isEmpty(key)) return ApiResult.fail("参数错误");
+        if (StrUtil.isEmpty(key)) return ApiResult.fail("参数错误");
 
-        YxStoreOrderQueryVo storeOrder = storeOrderService.getOrderInfo(key,uid);
-        if(ObjectUtil.isNotNull(storeOrder)){
-            map.put("status","EXTEND_ORDER");
+        YxStoreOrderQueryVo storeOrder = storeOrderService.getOrderInfo(key, uid);
+        if (ObjectUtil.isNotNull(storeOrder)) {
+            map.put("status", "EXTEND_ORDER");
             OrderExtendDTO orderExtendDTO = new OrderExtendDTO();
             orderExtendDTO.setKey(key);
             orderExtendDTO.setOrderId(storeOrder.getOrderId());
-            map.put("result",orderExtendDTO);
-            return ApiResult.ok(map,"订单已生成");
+            map.put("result", orderExtendDTO);
+            return ApiResult.ok(map, "订单已生成");
         }
 
         // 砍价
-        if(ObjectUtil.isNotNull(param.getBargainId())){
+        if (ObjectUtil.isNotNull(param.getBargainId())) {
             YxStoreBargainUser storeBargainUser = storeBargainUserService.
-                    getBargainUserInfo(param.getBargainId(),uid);
-            if(ObjectUtil.isNull(storeBargainUser)) return ApiResult.fail("砍价失败");
-            if(storeBargainUser.getStatus().equals(OrderInfoEnum.BARGAIN_STATUS_3.getValue())) return ApiResult.fail("砍价已支付");
+                    getBargainUserInfo(param.getBargainId(), uid);
+            if (ObjectUtil.isNull(storeBargainUser)) return ApiResult.fail("砍价失败");
+            if (storeBargainUser.getStatus().equals(OrderInfoEnum.BARGAIN_STATUS_3.getValue()))
+                return ApiResult.fail("砍价已支付");
 
-            storeBargainUserService.setBargainUserStatus(param.getBargainId(),uid);
+            storeBargainUserService.setBargainUserStatus(param.getBargainId(), uid);
 
         }
         // 拼团
-        if(ObjectUtil.isNotNull(param.getPinkId())){
+        if (ObjectUtil.isNotNull(param.getPinkId())) {
             int pinkId = param.getPinkId();
-            if(pinkId > 0){
-                YxStoreOrder yxStoreOrder = storeOrderService.getOrderPink(pinkId,uid,1);
-                if(ObjectUtil.isNotNull(yxStoreOrder)){
-                    if(storePinkService.getIsPinkUid(pinkId,uid) > 0){
-                        map.put("status","ORDER_EXIST");
+            if (pinkId > 0) {
+                YxStoreOrder yxStoreOrder = storeOrderService.getOrderPink(pinkId, uid, 1);
+                if (ObjectUtil.isNotNull(yxStoreOrder)) {
+                    if (storePinkService.getIsPinkUid(pinkId, uid) > 0) {
+                        map.put("status", "ORDER_EXIST");
                         OrderExtendDTO orderExtendDTO = new OrderExtendDTO();
                         orderExtendDTO.setOrderId(yxStoreOrder.getOrderId());
-                        map.put("result",orderExtendDTO);
-                        return ApiResult.ok(map,"订单生成失败，你已经在该团内不能再参加了");
+                        map.put("result", orderExtendDTO);
+                        return ApiResult.ok(map, "订单生成失败，你已经在该团内不能再参加了");
                     }
                 }
 
-                YxStoreOrder yxStoreOrderT = storeOrderService.getOrderPink(pinkId,uid,0);
-                if(ObjectUtil.isNotNull(yxStoreOrderT)){
-                    map.put("status","ORDER_EXIST");
+                YxStoreOrder yxStoreOrderT = storeOrderService.getOrderPink(pinkId, uid, 0);
+                if (ObjectUtil.isNotNull(yxStoreOrderT)) {
+                    map.put("status", "ORDER_EXIST");
                     OrderExtendDTO orderExtendDTO = new OrderExtendDTO();
                     orderExtendDTO.setOrderId(yxStoreOrder.getOrderId());
-                    map.put("result",orderExtendDTO);
-                    return ApiResult.ok(map,"订单生成失败，你已经参加该团了，请先支付订单");
+                    map.put("result", orderExtendDTO);
+                    return ApiResult.ok(map, "订单生成失败，你已经参加该团了，请先支付订单");
                 }
             }
 
         }
 
 
-        if(param.getFrom().equals("weixin"))  param.setIsChannel(0);
+        if (param.getFrom().equals("weixin")) param.setIsChannel(0);
         //创建订单
         YxStoreOrder order = null;
-        try{
-             lock.lock();
-             order = storeOrderService.createOrder(uid,key,param);
-        }finally {
-             lock.unlock();
+        try {
+            lock.lock();
+            order = storeOrderService.createOrder(uid, key, param);
+        } finally {
+            lock.unlock();
         }
 
 
-        if(ObjectUtil.isNull(order)) throw new ErrorRequestException("订单生成失败");
+        if (ObjectUtil.isNull(order)) throw new ErrorRequestException("订单生成失败");
 
         String orderId = order.getOrderId();
 
         OrderExtendDTO orderDTO = new OrderExtendDTO();
         orderDTO.setKey(key);
         orderDTO.setOrderId(orderId);
-        map.put("status","SUCCESS");
-        map.put("result",orderDTO);
+        map.put("status", "SUCCESS");
+        map.put("result", orderDTO);
         //开始处理支付
-        if(StrUtil.isNotEmpty(orderId)){
+        if (StrUtil.isNotEmpty(orderId)) {
             //处理金额为0的情况
-            if(order.getPayPrice().doubleValue() <= 0){
-                storeOrderService.yuePay(orderId,uid);
-                return ApiResult.ok(map,"支付成功");
+            if (order.getPayPrice().doubleValue() <= 0) {
+                storeOrderService.yuePay(orderId, uid);
+                return ApiResult.ok(map, "支付成功");
             }
 
-            switch (PayTypeEnum.toType(param.getPayType())){
+            switch (PayTypeEnum.toType(param.getPayType())) {
                 case WEIXIN:
-                     try {
-                         Map<String,String> jsConfig = new HashMap<>();
-                         if(param.getFrom().equals("weixinh5")){
-                             WxPayMwebOrderResult wxPayMwebOrderResult = storeOrderService
-                                     .wxH5Pay(orderId);
-                             log.info("wxPayMwebOrderResult:{}",wxPayMwebOrderResult);
-                             jsConfig.put("mweb_url",wxPayMwebOrderResult.getMwebUrl());
-                             orderDTO.setJsConfig(jsConfig);
-                             map.put("result",orderDTO);
-                             map.put("status","WECHAT_H5_PAY");
-                             return ApiResult.ok(map);
-                         }else if(param.getFrom().equals("routine")){
-                             map.put("status","WECHAT_PAY");
-                             WxPayMpOrderResult wxPayMpOrderResult = storeOrderService
-                                     .wxAppPay(orderId, IpUtils.getIpAddress(request));
-                             jsConfig.put("appId",wxPayMpOrderResult.getAppId());
-                             jsConfig.put("timeStamp",wxPayMpOrderResult.getTimeStamp());
-                             jsConfig.put("nonceStr",wxPayMpOrderResult.getNonceStr());
-                             jsConfig.put("package",wxPayMpOrderResult.getPackageValue());
-                             jsConfig.put("signType",wxPayMpOrderResult.getSignType());
-                             jsConfig.put("paySign",wxPayMpOrderResult.getPaySign());
-                             orderDTO.setJsConfig(jsConfig);
-                             map.put("result",orderDTO);
-                             return ApiResult.ok(map,"订单创建成功");
-                         }else if(param.getFrom().equals("app")){//app支付
-                             map.put("status","WECHAT_APP_PAY");
-                             WxPayAppOrderResult wxPayAppOrderResult = storeOrderService
-                                     .appPay(orderId);
-                             jsConfig.put("appid",wxPayAppOrderResult.getAppId());
-                             jsConfig.put("partnerid",wxPayAppOrderResult.getPartnerId());
-                             jsConfig.put("prepayid",wxPayAppOrderResult.getPrepayId());
-                             jsConfig.put("package",wxPayAppOrderResult.getPackageValue());
-                             jsConfig.put("noncestr",wxPayAppOrderResult.getNonceStr());
-                             jsConfig.put("timestamp",wxPayAppOrderResult.getTimeStamp());
-                             jsConfig.put("sign",wxPayAppOrderResult.getSign());
-                             orderDTO.setJsConfig(jsConfig);
-                             map.put("result",orderDTO);
-                             return ApiResult.ok(map,"订单创建成功");
-                         } else{//公众号
-                             map.put("status","WECHAT_PAY");
-                             WxPayMpOrderResult wxPayMpOrderResult = storeOrderService
-                                     .wxPay(orderId);
-                             jsConfig.put("appId",wxPayMpOrderResult.getAppId());
-                             jsConfig.put("timestamp",wxPayMpOrderResult.getTimeStamp());
-                             jsConfig.put("nonceStr",wxPayMpOrderResult.getNonceStr());
-                             jsConfig.put("package",wxPayMpOrderResult.getPackageValue());
-                             jsConfig.put("signType",wxPayMpOrderResult.getSignType());
-                             jsConfig.put("paySign",wxPayMpOrderResult.getPaySign());
-                             orderDTO.setJsConfig(jsConfig);
-                             map.put("result",orderDTO);
-                             return ApiResult.ok(map,"订单创建成功");
-                         }
+                    try {
+                        Map<String, String> jsConfig = new HashMap<>();
+                        if (param.getFrom().equals("weixinh5")) {
+                            WxPayMwebOrderResult wxPayMwebOrderResult = storeOrderService
+                                    .wxH5Pay(orderId);
+                            log.info("wxPayMwebOrderResult:{}", wxPayMwebOrderResult);
+                            jsConfig.put("mweb_url", wxPayMwebOrderResult.getMwebUrl());
+                            orderDTO.setJsConfig(jsConfig);
+                            map.put("result", orderDTO);
+                            map.put("status", "WECHAT_H5_PAY");
+                            return ApiResult.ok(map);
+                        } else if (param.getFrom().equals("routine")) {
+                            map.put("status", "WECHAT_PAY");
+                            WxPayMpOrderResult wxPayMpOrderResult = storeOrderService
+                                    .wxAppPay(orderId, IpUtils.getIpAddress(request));
+                            jsConfig.put("appId", wxPayMpOrderResult.getAppId());
+                            jsConfig.put("timeStamp", wxPayMpOrderResult.getTimeStamp());
+                            jsConfig.put("nonceStr", wxPayMpOrderResult.getNonceStr());
+                            jsConfig.put("package", wxPayMpOrderResult.getPackageValue());
+                            jsConfig.put("signType", wxPayMpOrderResult.getSignType());
+                            jsConfig.put("paySign", wxPayMpOrderResult.getPaySign());
+                            orderDTO.setJsConfig(jsConfig);
+                            map.put("result", orderDTO);
+                            return ApiResult.ok(map, "订单创建成功");
+                        } else if (param.getFrom().equals("app")) {//app支付
+                            map.put("status", "WECHAT_APP_PAY");
+                            WxPayAppOrderResult wxPayAppOrderResult = storeOrderService
+                                    .appPay(orderId);
+                            jsConfig.put("appid", wxPayAppOrderResult.getAppId());
+                            jsConfig.put("partnerid", wxPayAppOrderResult.getPartnerId());
+                            jsConfig.put("prepayid", wxPayAppOrderResult.getPrepayId());
+                            jsConfig.put("package", wxPayAppOrderResult.getPackageValue());
+                            jsConfig.put("noncestr", wxPayAppOrderResult.getNonceStr());
+                            jsConfig.put("timestamp", wxPayAppOrderResult.getTimeStamp());
+                            jsConfig.put("sign", wxPayAppOrderResult.getSign());
+                            orderDTO.setJsConfig(jsConfig);
+                            map.put("result", orderDTO);
+                            return ApiResult.ok(map, "订单创建成功");
+                        } else {//公众号
+                            map.put("status", "WECHAT_PAY");
+                            WxPayMpOrderResult wxPayMpOrderResult = storeOrderService
+                                    .wxPay(orderId);
+                            jsConfig.put("appId", wxPayMpOrderResult.getAppId());
+                            jsConfig.put("timestamp", wxPayMpOrderResult.getTimeStamp());
+                            jsConfig.put("nonceStr", wxPayMpOrderResult.getNonceStr());
+                            jsConfig.put("package", wxPayMpOrderResult.getPackageValue());
+                            jsConfig.put("signType", wxPayMpOrderResult.getSignType());
+                            jsConfig.put("paySign", wxPayMpOrderResult.getPaySign());
+                            orderDTO.setJsConfig(jsConfig);
+                            map.put("result", orderDTO);
+                            return ApiResult.ok(map, "订单创建成功");
+                        }
 
-                     } catch (WxPayException e) {
+                    } catch (WxPayException e) {
                         return ApiResult.fail(e.getMessage());
                     }
                 case YUE:
-                    storeOrderService.yuePay(orderId,uid);
-                    return ApiResult.ok(map,"余额支付成功");
+                    storeOrderService.yuePay(orderId, uid);
+                    return ApiResult.ok(map, "余额支付成功");
             }
         }
 
@@ -334,22 +336,22 @@ public class StoreOrderController extends BaseController {
 
 
     /**
-     *  订单支付
+     * 订单支付
      */
-    @Log(value = "订单支付",type = 1)
+    @Log(value = "订单支付", type = 1)
     @PostMapping("/order/pay")
-    @ApiOperation(value = "订单支付",notes = "订单支付")
-    public ApiResult<Map<String,Object>> pay(@Valid @RequestBody PayParam param, HttpServletRequest request){
+    @ApiOperation(value = "订单支付", notes = "订单支付")
+    public ApiResult<Map<String, Object>> pay(@Valid @RequestBody PayParam param, HttpServletRequest request) {
 
-        Map<String,Object> map = new LinkedHashMap<>();
+        Map<String, Object> map = new LinkedHashMap<>();
         int uid = SecurityUtils.getUserId().intValue();
-        if(StrUtil.isEmpty(param.getUni())) return ApiResult.fail("参数错误");
+        if (StrUtil.isEmpty(param.getUni())) return ApiResult.fail("参数错误");
 
         YxStoreOrderQueryVo storeOrder = storeOrderService
-                .getOrderInfo(param.getUni(),uid);
-        if(ObjectUtil.isNull(storeOrder)) return ApiResult.fail("订单不存在");
+                .getOrderInfo(param.getUni(), uid);
+        if (ObjectUtil.isNull(storeOrder)) return ApiResult.fail("订单不存在");
 
-        if(storeOrder.getPaid().equals(OrderInfoEnum.REFUND_STATUS_1.getValue())) return ApiResult.fail("该订单已支付");
+        if (storeOrder.getPaid().equals(OrderInfoEnum.REFUND_STATUS_1.getValue())) return ApiResult.fail("该订单已支付");
 
 
         String orderId = storeOrder.getOrderId();
@@ -357,63 +359,63 @@ public class StoreOrderController extends BaseController {
         OrderExtendDTO orderDTO = new OrderExtendDTO();
 
         orderDTO.setOrderId(orderId);
-        map.put("status","SUCCESS");
-        map.put("result",orderDTO);
+        map.put("status", "SUCCESS");
+        map.put("result", orderDTO);
         //开始处理支付
-        if(StrUtil.isNotEmpty(orderId)){
-            switch (PayTypeEnum.toType(param.getPaytype())){
+        if (StrUtil.isNotEmpty(orderId)) {
+            switch (PayTypeEnum.toType(param.getPaytype())) {
                 case WEIXIN:
                     try {
-                        Map<String,String> jsConfig = new HashMap<>();
-                        if(param.getFrom().equals("weixinh5")){
+                        Map<String, String> jsConfig = new HashMap<>();
+                        if (param.getFrom().equals("weixinh5")) {
                             WxPayMwebOrderResult wxPayMwebOrderResult = storeOrderService
                                     .wxH5Pay(orderId);
-                            log.info("wxPayMwebOrderResult:{}",wxPayMwebOrderResult);
-                            jsConfig.put("mweb_url",wxPayMwebOrderResult.getMwebUrl());
+                            log.info("wxPayMwebOrderResult:{}", wxPayMwebOrderResult);
+                            jsConfig.put("mweb_url", wxPayMwebOrderResult.getMwebUrl());
                             orderDTO.setJsConfig(jsConfig);
-                            map.put("result",orderDTO);
-                            map.put("status","WECHAT_H5_PAY");
+                            map.put("result", orderDTO);
+                            map.put("status", "WECHAT_H5_PAY");
                             return ApiResult.ok(map);
-                        }else if(param.getFrom().equals("routine")){
-                            map.put("status","WECHAT_PAY");
+                        } else if (param.getFrom().equals("routine")) {
+                            map.put("status", "WECHAT_PAY");
                             WxPayMpOrderResult wxPayMpOrderResult = storeOrderService
                                     .wxAppPay(orderId, IpUtils.getIpAddress(request));
-                            jsConfig.put("appId",wxPayMpOrderResult.getAppId());
-                            jsConfig.put("timeStamp",wxPayMpOrderResult.getTimeStamp());
-                            jsConfig.put("nonceStr",wxPayMpOrderResult.getNonceStr());
-                            jsConfig.put("package",wxPayMpOrderResult.getPackageValue());
-                            jsConfig.put("signType",wxPayMpOrderResult.getSignType());
-                            jsConfig.put("paySign",wxPayMpOrderResult.getPaySign());
+                            jsConfig.put("appId", wxPayMpOrderResult.getAppId());
+                            jsConfig.put("timeStamp", wxPayMpOrderResult.getTimeStamp());
+                            jsConfig.put("nonceStr", wxPayMpOrderResult.getNonceStr());
+                            jsConfig.put("package", wxPayMpOrderResult.getPackageValue());
+                            jsConfig.put("signType", wxPayMpOrderResult.getSignType());
+                            jsConfig.put("paySign", wxPayMpOrderResult.getPaySign());
                             orderDTO.setJsConfig(jsConfig);
-                            map.put("result",orderDTO);
-                            return ApiResult.ok(map,"订单创建成功");
-                        }else if(param.getFrom().equals("app")){//app支付
-                            map.put("status","WECHAT_APP_PAY");
+                            map.put("result", orderDTO);
+                            return ApiResult.ok(map, "订单创建成功");
+                        } else if (param.getFrom().equals("app")) {//app支付
+                            map.put("status", "WECHAT_APP_PAY");
                             WxPayAppOrderResult wxPayAppOrderResult = storeOrderService
                                     .appPay(orderId);
-                            jsConfig.put("appid",wxPayAppOrderResult.getAppId());
-                            jsConfig.put("partnerid",wxPayAppOrderResult.getPartnerId());
-                            jsConfig.put("prepayid",wxPayAppOrderResult.getPrepayId());
-                            jsConfig.put("package",wxPayAppOrderResult.getPackageValue());
-                            jsConfig.put("noncestr",wxPayAppOrderResult.getNonceStr());
-                            jsConfig.put("timestamp",wxPayAppOrderResult.getTimeStamp());
-                            jsConfig.put("sign",wxPayAppOrderResult.getSign());
+                            jsConfig.put("appid", wxPayAppOrderResult.getAppId());
+                            jsConfig.put("partnerid", wxPayAppOrderResult.getPartnerId());
+                            jsConfig.put("prepayid", wxPayAppOrderResult.getPrepayId());
+                            jsConfig.put("package", wxPayAppOrderResult.getPackageValue());
+                            jsConfig.put("noncestr", wxPayAppOrderResult.getNonceStr());
+                            jsConfig.put("timestamp", wxPayAppOrderResult.getTimeStamp());
+                            jsConfig.put("sign", wxPayAppOrderResult.getSign());
                             orderDTO.setJsConfig(jsConfig);
-                            map.put("result",orderDTO);
-                            return ApiResult.ok(map,"订单创建成功");
-                        }else{
-                            map.put("status","WECHAT_PAY");
+                            map.put("result", orderDTO);
+                            return ApiResult.ok(map, "订单创建成功");
+                        } else {
+                            map.put("status", "WECHAT_PAY");
                             WxPayMpOrderResult wxPayMpOrderResult = storeOrderService
                                     .wxPay(orderId);
                             //重新组装
-                            jsConfig.put("appId",wxPayMpOrderResult.getAppId());
-                            jsConfig.put("timestamp",wxPayMpOrderResult.getTimeStamp());
-                            jsConfig.put("nonceStr",wxPayMpOrderResult.getNonceStr());
-                            jsConfig.put("package",wxPayMpOrderResult.getPackageValue());
-                            jsConfig.put("signType",wxPayMpOrderResult.getSignType());
-                            jsConfig.put("paySign",wxPayMpOrderResult.getPaySign());
+                            jsConfig.put("appId", wxPayMpOrderResult.getAppId());
+                            jsConfig.put("timestamp", wxPayMpOrderResult.getTimeStamp());
+                            jsConfig.put("nonceStr", wxPayMpOrderResult.getNonceStr());
+                            jsConfig.put("package", wxPayMpOrderResult.getPackageValue());
+                            jsConfig.put("signType", wxPayMpOrderResult.getSignType());
+                            jsConfig.put("paySign", wxPayMpOrderResult.getPaySign());
                             orderDTO.setJsConfig(jsConfig);
-                            map.put("result",orderDTO);
+                            map.put("result", orderDTO);
                             return ApiResult.ok(map);
                         }
 
@@ -421,8 +423,8 @@ public class StoreOrderController extends BaseController {
                         return ApiResult.fail(e.getMessage());
                     }
                 case YUE:
-                    storeOrderService.yuePay(orderId,uid);
-                    return ApiResult.ok(map,"余额支付成功");
+                    storeOrderService.yuePay(orderId, uid);
+                    return ApiResult.ok(map, "余额支付成功");
             }
         }
 
@@ -433,52 +435,52 @@ public class StoreOrderController extends BaseController {
     /**
      * 订单列表
      */
-    @Log(value = "查看订单列表",type = 1)
+    @Log(value = "查看订单列表", type = 1)
     @GetMapping("/order/list")
-    @ApiOperation(value = "订单列表",notes = "订单列表")
-    public ApiResult<List<YxStoreOrderQueryVo>> orderList(YxStoreOrderQueryParam queryParam){
+    @ApiOperation(value = "订单列表", notes = "订单列表")
+    public ApiResult<List<YxStoreOrderQueryVo>> orderList(YxStoreOrderQueryParam queryParam) {
         int uid = SecurityUtils.getUserId().intValue();
-        return ApiResult.ok(storeOrderService.orderList(uid,queryParam.getType().intValue(),
-                queryParam.getPage().intValue(),queryParam.getLimit().intValue()));
+        return ApiResult.ok(storeOrderService.orderList(uid, queryParam.getType().intValue(),
+                queryParam.getPage().intValue(), queryParam.getLimit().intValue()));
     }
 
 
     /**
      * 订单详情
      */
-    @Log(value = "查看订单详情",type = 1)
+    @Log(value = "查看订单详情", type = 1)
     @GetMapping("/order/detail/{key}")
-    @ApiOperation(value = "订单详情",notes = "订单详情")
-    public ApiResult<YxStoreOrderQueryVo> detail(@PathVariable String key){
+    @ApiOperation(value = "订单详情", notes = "订单详情")
+    public ApiResult<YxStoreOrderQueryVo> detail(@PathVariable String key) {
         int uid = SecurityUtils.getUserId().intValue();
-        if(StrUtil.isEmpty(key)) return ApiResult.fail("参数错误");
-        YxStoreOrderQueryVo storeOrder = storeOrderService.getOrderInfo(key,uid);
-        if(ObjectUtil.isNull(storeOrder)){
+        if (StrUtil.isEmpty(key)) return ApiResult.fail("参数错误");
+        YxStoreOrderQueryVo storeOrder = storeOrderService.getOrderInfo(key, uid);
+        if (ObjectUtil.isNull(storeOrder)) {
             return ApiResult.fail("订单不存在");
         }
         storeOrder.setStoreName(storeOrderService.getStoreName(storeOrder.getStoreId()));
         //门店
-        if(OrderInfoEnum.SHIPPIING_TYPE_2.getValue().equals(storeOrder.getShippingType())){
+        if (OrderInfoEnum.SHIPPIING_TYPE_2.getValue().equals(storeOrder.getShippingType())) {
             String mapKey = RedisUtil.get(SystemConfigConstants.TENGXUN_MAP_KEY);
-            if(StrUtil.isBlank(mapKey)) return ApiResult.fail("请配置腾讯地图key");
+            if (StrUtil.isBlank(mapKey)) return ApiResult.fail("请配置腾讯地图key");
             String apiUrl = systemConfigService.getData(SystemConfigConstants.API_URL);
-            if(StrUtil.isEmpty(apiUrl)){
+            if (StrUtil.isEmpty(apiUrl)) {
                 return ApiResult.fail("未配置api地址");
             }
             //生成二维码
-            String name = storeOrder.getVerifyCode()+"_yshop.jpg";
+            String name = storeOrder.getVerifyCode() + "_yshop.jpg";
             YxSystemAttachment attachment = systemAttachmentService.getInfo(name);
-            String fileDir = path+"qrcode"+ File.separator;
+            String fileDir = path + "qrcode" + File.separator;
             String qrcodeUrl = "";
-            if(ObjectUtil.isNull(attachment)){
+            if (ObjectUtil.isNull(attachment)) {
                 //生成二维码
                 File file = FileUtil.mkdir(new File(fileDir));
                 QrCodeUtil.generate(storeOrder.getVerifyCode(), 180, 180,
-                        FileUtil.file(fileDir+name));
-                systemAttachmentService.attachmentAdd(name,String.valueOf(FileUtil.size(file)),
-                        fileDir+name,"qrcode/"+name);
-                qrcodeUrl = apiUrl + "/api/file/qrcode/"+name;
-            }else{
+                        FileUtil.file(fileDir + name));
+                systemAttachmentService.attachmentAdd(name, String.valueOf(FileUtil.size(file)),
+                        fileDir + name, "qrcode/" + name);
+                qrcodeUrl = apiUrl + "/api/file/qrcode/" + name;
+            } else {
                 qrcodeUrl = apiUrl + "/api/file/" + attachment.getSattDir();
             }
             storeOrder.setCode(qrcodeUrl);
@@ -493,21 +495,21 @@ public class StoreOrderController extends BaseController {
      * 计算订单金额
      */
     @PostMapping("/order/computed/{key}")
-    @ApiOperation(value = "计算订单金额",notes = "计算订单金额")
-    public ApiResult<Map<String,Object>> computedOrder(@RequestBody String jsonStr,
-                                                    @PathVariable String key){
+    @ApiOperation(value = "计算订单金额", notes = "计算订单金额")
+    public ApiResult<Map<String, Object>> computedOrder(@RequestBody String jsonStr,
+                                                        @PathVariable String key) {
 
-        Map<String,Object> map = new LinkedHashMap<>();
+        Map<String, Object> map = new LinkedHashMap<>();
         int uid = SecurityUtils.getUserId().intValue();
-        if(StrUtil.isEmpty(key)) return ApiResult.fail("参数错误");
-        YxStoreOrderQueryVo storeOrder = storeOrderService.getOrderInfo(key,uid);
-        if(ObjectUtil.isNotNull(storeOrder)){
-            map.put("status","EXTEND_ORDER");
+        if (StrUtil.isEmpty(key)) return ApiResult.fail("参数错误");
+        YxStoreOrderQueryVo storeOrder = storeOrderService.getOrderInfo(key, uid);
+        if (ObjectUtil.isNotNull(storeOrder)) {
+            map.put("status", "EXTEND_ORDER");
             OrderExtendDTO orderExtendDTO = new OrderExtendDTO();
             orderExtendDTO.setKey(key);
             orderExtendDTO.setOrderId(storeOrder.getOrderId());
-            map.put("result",orderExtendDTO);
-            return ApiResult.ok(map,"订单已生成");
+            map.put("result", orderExtendDTO);
+            return ApiResult.ok(map, "订单已生成");
         }
 
         JSONObject jsonObject = JSON.parseObject(jsonStr);
@@ -516,41 +518,41 @@ public class StoreOrderController extends BaseController {
         String shippingType = jsonObject.getString("shipping_type");
         String useIntegral = jsonObject.getString("useIntegral");
         // 砍价
-        if(ObjectUtil.isNotNull(jsonObject.getInteger("bargainId"))){
+        if (ObjectUtil.isNotNull(jsonObject.getInteger("bargainId"))) {
             YxStoreBargainUser storeBargainUser = storeBargainUserService.getBargainUserInfo(jsonObject.getInteger("bargainId")
-                    ,uid);
-            if(ObjectUtil.isNull(storeBargainUser)) return ApiResult.fail("砍价失败");
-            if(storeBargainUser.getStatus() == 3) return ApiResult.fail("砍价已支付");
+                    , uid);
+            if (ObjectUtil.isNull(storeBargainUser)) return ApiResult.fail("砍价失败");
+            if (storeBargainUser.getStatus() == 3) return ApiResult.fail("砍价已支付");
         }
         // 拼团
-        if(ObjectUtil.isNotNull(jsonObject.getInteger("pinkId"))){
+        if (ObjectUtil.isNotNull(jsonObject.getInteger("pinkId"))) {
             int pinkId = jsonObject.getInteger("pinkId");
-            YxStoreOrder yxStoreOrder = storeOrderService.getOrderPink(pinkId,uid,1);
-            if(storePinkService.getIsPinkUid(pinkId,uid) > 0){
-                map.put("status","ORDER_EXIST");
+            YxStoreOrder yxStoreOrder = storeOrderService.getOrderPink(pinkId, uid, 1);
+            if (storePinkService.getIsPinkUid(pinkId, uid) > 0) {
+                map.put("status", "ORDER_EXIST");
                 OrderExtendDTO orderExtendDTO = new OrderExtendDTO();
                 orderExtendDTO.setOrderId(yxStoreOrder.getOrderId());
-                map.put("result",orderExtendDTO);
-                return ApiResult.ok(map,"订单生成失败，你已经在该团内不能再参加了");
+                map.put("result", orderExtendDTO);
+                return ApiResult.ok(map, "订单生成失败，你已经在该团内不能再参加了");
             }
-            YxStoreOrder yxStoreOrderT = storeOrderService.getOrderPink(pinkId,uid,0);
-            if(ObjectUtil.isNotNull(yxStoreOrderT)){
-                map.put("status","ORDER_EXIST");
+            YxStoreOrder yxStoreOrderT = storeOrderService.getOrderPink(pinkId, uid, 0);
+            if (ObjectUtil.isNotNull(yxStoreOrderT)) {
+                map.put("status", "ORDER_EXIST");
                 OrderExtendDTO orderExtendDTO = new OrderExtendDTO();
                 orderExtendDTO.setOrderId(yxStoreOrder.getOrderId());
-                map.put("result",orderExtendDTO);
-                return ApiResult.ok(map,"订单生成失败，你已经参加该团了，请先支付订单");
+                map.put("result", orderExtendDTO);
+                return ApiResult.ok(map, "订单生成失败，你已经参加该团了，请先支付订单");
             }
 
         }
-        ComputeDTO computeDTO = storeOrderService.computedOrder(uid,key,
+        ComputeDTO computeDTO = storeOrderService.computedOrder(uid, key,
                 Integer.valueOf(couponId),
                 Integer.valueOf(useIntegral),
                 Integer.valueOf(shippingType));
 
 
-        map.put("result",computeDTO);
-        map.put("status","NONE");
+        map.put("result", computeDTO);
+        map.put("status", "NONE");
         return ApiResult.ok(map);
     }
 
@@ -558,15 +560,15 @@ public class StoreOrderController extends BaseController {
     /**
      * 订单收货
      */
-    @Log(value = "订单收货",type = 1)
+    @Log(value = "订单收货", type = 1)
     @PostMapping("/order/take")
-    @ApiOperation(value = "订单收货",notes = "订单收货")
-    public ApiResult<Object> orderTake(@RequestBody String jsonStr){
+    @ApiOperation(value = "订单收货", notes = "订单收货")
+    public ApiResult<Object> orderTake(@RequestBody String jsonStr) {
         JSONObject jsonObject = JSON.parseObject(jsonStr);
         String orderId = jsonObject.getString("uni");
-        if(StrUtil.isEmpty(orderId)) return ApiResult.fail("参数错误");
+        if (StrUtil.isEmpty(orderId)) return ApiResult.fail("参数错误");
         int uid = SecurityUtils.getUserId().intValue();
-        storeOrderService.takeOrder(orderId,uid);
+        storeOrderService.takeOrder(orderId, uid);
 
         return ApiResult.ok("ok");
 
@@ -576,11 +578,11 @@ public class StoreOrderController extends BaseController {
      * 订单产品信息
      */
     @PostMapping("/order/product")
-    @ApiOperation(value = "订单产品信息",notes = "订单产品信息")
-    public ApiResult<Object> product(@RequestBody String jsonStr){
+    @ApiOperation(value = "订单产品信息", notes = "订单产品信息")
+    public ApiResult<Object> product(@RequestBody String jsonStr) {
         JSONObject jsonObject = JSON.parseObject(jsonStr);
         String unique = jsonObject.getString("unique");
-        if(StrUtil.isEmpty(unique)) return ApiResult.fail("参数错误");
+        if (StrUtil.isEmpty(unique)) return ApiResult.fail("参数错误");
 
         YxStoreOrderCartInfo orderCartInfo = orderCartInfoService.findByUni(unique);
 
@@ -600,7 +602,7 @@ public class StoreOrderController extends BaseController {
         productDTO.setImage(cartInfo.getProductInfo().getImage());
         productDTO.setPrice(cartInfo.getProductInfo().getPrice().doubleValue());
         productDTO.setStoreName(cartInfo.getProductInfo().getStoreName());
-        if(ObjectUtil.isNotEmpty(cartInfo.getProductInfo().getAttrInfo())){
+        if (ObjectUtil.isNotEmpty(cartInfo.getProductInfo().getAttrInfo())) {
             ProductAttrDTO productAttrDTO = new ProductAttrDTO();
             productAttrDTO.setImage(cartInfo.getProductInfo().getAttrInfo().getImage());
             productAttrDTO.setPrice(cartInfo.getProductInfo().getAttrInfo().getPrice().doubleValue());
@@ -619,21 +621,21 @@ public class StoreOrderController extends BaseController {
     /**
      * 订单评价
      */
-    @Log(value = "评价商品",type = 1)
+    @Log(value = "评价商品", type = 1)
     @PostMapping("/order/comment")
-    @ApiOperation(value = "订单评价",notes = "订单评价")
-    public ApiResult<Object> comment(@Valid @RequestBody YxStoreProductReply productReply){
+    @ApiOperation(value = "订单评价", notes = "订单评价")
+    public ApiResult<Object> comment(@Valid @RequestBody YxStoreProductReply productReply) {
         int uid = SecurityUtils.getUserId().intValue();
         YxStoreOrderCartInfo orderCartInfo = orderCartInfoService
                 .findByUni(productReply.getUnique());
-        if(ObjectUtil.isEmpty(orderCartInfo)) return ApiResult.fail("评价产品不存在");
+        if (ObjectUtil.isEmpty(orderCartInfo)) return ApiResult.fail("评价产品不存在");
 
         int count = productReplyService.getInfoCount(orderCartInfo.getOid()
-                ,productReply.getUnique());
-        if(count > 0) return ApiResult.fail("该产品已评价");
+                , productReply.getUnique());
+        if (count > 0) return ApiResult.fail("该产品已评价");
 
-        if(productReply.getProductScore() < 1) return ApiResult.fail("请为产品评分");
-        if(productReply.getServiceScore() < 1) return ApiResult.fail("请为商家服务评分");
+        if (productReply.getProductScore() < 1) return ApiResult.fail("请为产品评分");
+        if (productReply.getServiceScore() < 1) return ApiResult.fail("请为商家服务评分");
 
         productReply.setUid(uid);
         productReply.setOid(orderCartInfo.getOid());
@@ -641,7 +643,7 @@ public class StoreOrderController extends BaseController {
         productReply.setAddTime(OrderUtil.getSecondTimestampTwo());
         productReply.setReplyType("product");
 //        所在商户
-        YxStoreProduct product =  yxStoreProductService.getProductInfo(orderCartInfo.getProductId());
+        YxStoreProduct product = yxStoreProductService.getProductInfo(orderCartInfo.getProductId());
         productReply.setMerId(product.getMerId());
 
         productReplyService.save(productReply);
@@ -651,7 +653,7 @@ public class StoreOrderController extends BaseController {
         storeOrder.setId(orderCartInfo.getOid());
         storeOrderService.updateById(storeOrder);
 
-        orderStatusService.create(orderCartInfo.getOid(),"check_order_over","用户评价");
+        orderStatusService.create(orderCartInfo.getOid(), "check_order_over", "用户评价");
 
         return ApiResult.ok("ok");
 
@@ -662,13 +664,13 @@ public class StoreOrderController extends BaseController {
      * 订单删除
      */
     @PostMapping("/order/del")
-    @ApiOperation(value = "订单删除",notes = "订单删除")
-    public ApiResult<Object> orderDel(@RequestBody String jsonStr){
+    @ApiOperation(value = "订单删除", notes = "订单删除")
+    public ApiResult<Object> orderDel(@RequestBody String jsonStr) {
         JSONObject jsonObject = JSON.parseObject(jsonStr);
         String orderId = jsonObject.getString("uni");
-        if(StrUtil.isEmpty(orderId)) return ApiResult.fail("参数错误");
+        if (StrUtil.isEmpty(orderId)) return ApiResult.fail("参数错误");
         int uid = SecurityUtils.getUserId().intValue();
-        storeOrderService.removeOrder(orderId,uid);
+        storeOrderService.removeOrder(orderId, uid);
 
         return ApiResult.ok("ok");
 
@@ -678,8 +680,8 @@ public class StoreOrderController extends BaseController {
      * 订单退款理由
      */
     @GetMapping("/order/refund/reason")
-    @ApiOperation(value = "订单退款理由",notes = "订单退款理由")
-    public ApiResult<Object> refundReason(){
+    @ApiOperation(value = "订单退款理由", notes = "订单退款理由")
+    public ApiResult<Object> refundReason() {
         ArrayList<String> list = new ArrayList<>();
         list.add("收货地址填错了");
         list.add("与描述不符");
@@ -694,42 +696,42 @@ public class StoreOrderController extends BaseController {
     /**
      * 订单退款审核
      */
-    @Log(value = "提交订单退款",type = 1)
+    @Log(value = "提交订单退款", type = 1)
     @PostMapping("/order/refund/verify")
-    @ApiOperation(value = "订单退款审核",notes = "订单退款审核")
-    public ApiResult<Object> refundVerify(@RequestBody RefundParam param){
+    @ApiOperation(value = "订单退款审核", notes = "订单退款审核")
+    public ApiResult<Object> refundVerify(@RequestBody RefundParam param) {
         int uid = SecurityUtils.getUserId().intValue();
-        storeOrderService.orderApplyRefund(param,uid);
+        storeOrderService.orderApplyRefund(param, uid);
         return ApiResult.ok("ok");
     }
 
     /**
      * 订单取消   未支付的订单回退积分,回退优惠券,回退库存
      */
-    @Log(value = "取消订单",type = 1)
+    @Log(value = "取消订单", type = 1)
     @PostMapping("/order/cancel")
-    @ApiOperation(value = "订单取消",notes = "订单取消")
-    public ApiResult<Object> cancelOrder(@RequestBody String jsonStr){
+    @ApiOperation(value = "订单取消", notes = "订单取消")
+    public ApiResult<Object> cancelOrder(@RequestBody String jsonStr) {
         int uid = SecurityUtils.getUserId().intValue();
         JSONObject jsonObject = JSON.parseObject(jsonStr);
         String orderId = jsonObject.getString("id");
-        if(StrUtil.isEmpty(orderId)) return ApiResult.fail("参数错误");
+        if (StrUtil.isEmpty(orderId)) return ApiResult.fail("参数错误");
 
-        storeOrderService.cancelOrder(orderId,uid);
+        storeOrderService.cancelOrder(orderId, uid);
 
         return ApiResult.ok("ok");
     }
 
 
-    /**@Valid
-     * 获取物流信息,根据传的订单编号 ShipperCode快递公司编号 和物流单号,
+    /**
+     * @Valid 获取物流信息, 根据传的订单编号 ShipperCode快递公司编号 和物流单号,
      */
     @PostMapping("/order/express")
-    @ApiOperation(value = "获取物流信息",notes = "获取物流信息",response = ExpressParam.class)
-    public ApiResult<Object> express( @RequestBody ExpressParam expressInfoDo){
+    @ApiOperation(value = "获取物流信息", notes = "获取物流信息", response = ExpressParam.class)
+    public ApiResult<Object> express(@RequestBody ExpressParam expressInfoDo) {
         ExpressInfo expressInfo = expressService.getExpressInfo(expressInfoDo.getOrderCode(),
                 expressInfoDo.getShipperCode(), expressInfoDo.getLogisticCode());
-        if(!expressInfo.isSuccess()) return ApiResult.fail(expressInfo.getReason());
+        if (!expressInfo.isSuccess()) return ApiResult.fail(expressInfo.getReason());
         return ApiResult.ok(expressInfo);
     }
 
@@ -737,8 +739,8 @@ public class StoreOrderController extends BaseController {
      * 订单核销
      */
     @PostMapping("/order/order_verific")
-    @ApiOperation(value = "订单核销",notes = "订单核销")
-    public ApiResult<Object> orderVerify( @RequestBody OrderVerifyParam param){
+    @ApiOperation(value = "订单核销", notes = "订单核销")
+    public ApiResult<Object> orderVerify(@RequestBody OrderVerifyParam param) {
         YxStoreOrder storeOrder = new YxStoreOrder();
         storeOrder.setVerifyCode(param.getVerifyCode());
         storeOrder.setIsDel(OrderInfoEnum.CANCEL_STATUS_0.getValue());
@@ -746,22 +748,22 @@ public class StoreOrderController extends BaseController {
         storeOrder.setRefundStatus(OrderInfoEnum.REFUND_STATUS_0.getValue());
 
         YxStoreOrder order = storeOrderService.getOne(Wrappers.query(storeOrder));
-        if(order == null) return ApiResult.fail("核销的订单不存在或未支付或已退款");
+        if (order == null) return ApiResult.fail("核销的订单不存在或未支付或已退款");
 
         int uid = SecurityUtils.getUserId().intValue();
-        boolean checkStatus = systemStoreStaffService.checkStatus(uid,order.getStoreId());
-        if(!checkStatus) return ApiResult.fail("您没有当前店铺核销权限！");
+        boolean checkStatus = systemStoreStaffService.checkStatus(uid, order.getStoreId());
+        if (!checkStatus) return ApiResult.fail("您没有当前店铺核销权限！");
 
-        if(order.getStatus() > 0)  return ApiResult.fail("订单已经核销");
+        if (order.getStatus() > 0) return ApiResult.fail("订单已经核销");
 
-        if(order.getCombinationId() > 0 && order.getPinkId() > 0){
+        if (order.getCombinationId() > 0 && order.getPinkId() > 0) {
             YxStorePinkQueryVo storePink = storePinkService.getYxStorePinkById(order.getPinkId());
-            if(!OrderInfoEnum.PINK_STATUS_2.getValue().equals(storePink.getStatus())){
+            if (!OrderInfoEnum.PINK_STATUS_2.getValue().equals(storePink.getStatus())) {
                 return ApiResult.fail("拼团订单暂未成功无法核销");
             }
         }
 
-        if(OrderInfoEnum.CONFIRM_STATUS_0.getValue().equals(param.getIsConfirm())){
+        if (OrderInfoEnum.CONFIRM_STATUS_0.getValue().equals(param.getIsConfirm())) {
             return ApiResult.ok(order);
         }
 
@@ -775,7 +777,7 @@ public class StoreOrderController extends BaseController {
      */
     @AnonymousAccess
     @GetMapping("/order/admin/order_verific/{code}")
-    public ApiResult<Object> orderAminVerify(@PathVariable String code){
+    public ApiResult<Object> orderAminVerify(@PathVariable String code) {
         YxStoreOrder storeOrder = new YxStoreOrder();
         storeOrder.setVerifyCode(code);
         storeOrder.setIsDel(OrderInfoEnum.CANCEL_STATUS_0.getValue());
@@ -783,14 +785,14 @@ public class StoreOrderController extends BaseController {
         storeOrder.setRefundStatus(OrderInfoEnum.REFUND_STATUS_0.getValue());
 
         YxStoreOrder order = storeOrderService.getOne(Wrappers.query(storeOrder));
-        if(order == null) return ApiResult.fail("核销的订单不存在或未支付或已退款");
+        if (order == null) return ApiResult.fail("核销的订单不存在或未支付或已退款");
 
 
-        if(order.getStatus() > 0)  return ApiResult.fail("订单已经核销");
+        if (order.getStatus() > 0) return ApiResult.fail("订单已经核销");
 
-        if(order.getCombinationId() > 0 && order.getPinkId() > 0){
+        if (order.getCombinationId() > 0 && order.getPinkId() > 0) {
             YxStorePinkQueryVo storePink = storePinkService.getYxStorePinkById(order.getPinkId());
-            if(!OrderInfoEnum.PINK_STATUS_2.getValue().equals(storePink.getStatus())){
+            if (!OrderInfoEnum.PINK_STATUS_2.getValue().equals(storePink.getStatus())) {
                 return ApiResult.fail("拼团订单暂未成功无法核销");
             }
         }
@@ -803,31 +805,34 @@ public class StoreOrderController extends BaseController {
     /**
      * 订单确认
      */
+    @AnonymousAccess
     @PostMapping("/order/confirmNew")
-    @ApiOperation(value = "订单确认（带店铺信息）",notes = "订单确认（带店铺信息）")
-    public ApiResult<ConfirmNewOrderDTO> confirmNew(@RequestBody String jsonStr){
+    @ApiOperation(value = "订单确认（带店铺信息）", notes = "订单确认（带店铺信息）")
+    public ApiResult<ConfirmNewOrderDTO> confirmNew(@RequestBody String jsonStr) {
         JSONObject jsonObject = JSON.parseObject(jsonStr);
         String cartId = jsonObject.getString("cartId");
-        if(StrUtil.isEmpty(cartId)){
+        if (StrUtil.isEmpty(cartId)) {
             return ApiResult.fail("请提交购买的商品");
         }
-        int uid = SecurityUtils.getUserId().intValue();
-        YxStoreStoreCartVo cartGroup = cartService.getUserStoreCartList(uid,cartId,1);
-        if(ObjectUtil.isNotEmpty(cartGroup.getInvalid())){
+//        int uid = SecurityUtils.getUserId().intValue();
+        int uid = 28;
+
+        YxStoreStoreCartVo cartGroup = cartService.getUserStoreCartList(uid, cartId, 1);
+        if (ObjectUtil.isNotEmpty(cartGroup.getInvalid())) {
             return ApiResult.fail("有失效的商品请重新提交");
         }
-        if(ObjectUtil.isEmpty(cartGroup.getValid())){
+        if (ObjectUtil.isEmpty(cartGroup.getValid())) {
             return ApiResult.fail("请提交购买的商品");
         }
-        List<YxStoreStoreCartQueryVo> cartStoreInfo = (List<YxStoreStoreCartQueryVo>)cartGroup.getValid();
+        List<YxStoreStoreCartQueryVo> cartStoreInfo = (List<YxStoreStoreCartQueryVo>) cartGroup.getValid();
 
-        for(YxStoreStoreCartQueryVo storeStoreCartQueryVo:cartStoreInfo){
+        for (YxStoreStoreCartQueryVo storeStoreCartQueryVo : cartStoreInfo) {
             //设置价格
-            Double sumPrice = storeOrderService.getOrderSumPrice(storeStoreCartQueryVo.getCartList(),"truePrice");
+            Double sumPrice = storeOrderService.getOrderSumPrice(storeStoreCartQueryVo.getCartList(), "truePrice");
             storeStoreCartQueryVo.setOrderSumPrice(new BigDecimal(sumPrice));
-            Double costPrice = storeOrderService.getOrderSumPrice(storeStoreCartQueryVo.getCartList(),"costPrice");
+            Double costPrice = storeOrderService.getOrderSumPrice(storeStoreCartQueryVo.getCartList(), "costPrice");
             storeStoreCartQueryVo.setOrderCostPrice(new BigDecimal(costPrice));
-            Double vipTruePrice = storeOrderService.getOrderSumPrice(storeStoreCartQueryVo.getCartList(),"vipTruePrice");
+            Double vipTruePrice = storeOrderService.getOrderSumPrice(storeStoreCartQueryVo.getCartList(), "vipTruePrice");
             storeStoreCartQueryVo.setOrderVipTruePrice(new BigDecimal(vipTruePrice));
 
             PriceGroupDTO priceGroup = storeOrderService.getOrderPriceGroup(storeStoreCartQueryVo.getCartList());
@@ -835,7 +840,7 @@ public class StoreOrderController extends BaseController {
             storeStoreCartQueryVo.setStorePostage(new BigDecimal(priceGroup.getStorePostage()));
 
             storeStoreCartQueryVo.setUsableCoupon(couponUserService
-                    .beUsableCouponListStore(uid,sumPrice,storeStoreCartQueryVo.getStoreId()));
+                    .beUsableCouponListStore(uid, sumPrice, storeStoreCartQueryVo.getStoreId()));
 
         }
 
@@ -845,7 +850,7 @@ public class StoreOrderController extends BaseController {
 
         confirmOrderDTO.setCartInfo(cartStoreInfo);
 
-        confirmOrderDTO.setOrderKey(storeOrderService.cacheOrderStroeInfo(uid,cartStoreInfo));
+        confirmOrderDTO.setOrderKey(storeOrderService.cacheOrderStroeInfo(uid, cartStoreInfo));
 
         confirmOrderDTO.setUserInfo(userService.getYxUserById(uid));
         return ApiResult.ok(confirmOrderDTO);
@@ -854,13 +859,14 @@ public class StoreOrderController extends BaseController {
     /**
      * 订单创建
      */
+    @AnonymousAccess
     @PostMapping("/order/createOrder/{key}")
-    @ApiOperation(value = "订单创建（多个订单）",notes = "（多个订单）")
-    public ApiResult<Map<String, Object>> createOrderList(@Valid @RequestBody OrderParam param,
-                                                          @PathVariable String key, HttpServletRequest request){
+    @ApiOperation(value = "订单创建（多个订单）", notes = "（多个订单）")
+    public ApiResult<Map<String, Object>> createOrderList(@Valid @RequestBody OrderNewParam param,
+                                                          @PathVariable String key, HttpServletRequest request) {
 
         Map<String, Object> map = new LinkedHashMap<>();
-        int uid = SecurityUtils.getUserId().intValue();
+        int uid = 28;
         if (StrUtil.isEmpty(key)) return ApiResult.fail("参数错误");
 
         List<YxStoreOrderQueryVo> orderList = storeOrderService.getOrderInfoList(key, uid);
@@ -876,8 +882,6 @@ public class StoreOrderController extends BaseController {
             map.put("result", orderExtendDTO);
             return ApiResult.ok(map, "订单已生成");
         }
-
-        if (param.getFrom().equals("weixin")) param.setIsChannel(0);
         //创建订单
         List<YxStoreOrder> orderCreateList = new ArrayList<YxStoreOrder>();
         try {
