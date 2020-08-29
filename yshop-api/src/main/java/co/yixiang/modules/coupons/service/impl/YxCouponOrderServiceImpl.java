@@ -66,7 +66,6 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 
@@ -304,8 +303,9 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
             couponOrderDetail.setUsedCount(0);
             couponOrderDetail.setStatus(0);
             // TODO 先用时间戳、扩展字段长度后再用uuid生成核销码
-            String verifyCode  = System.currentTimeMillis() + "";
-            couponOrderDetail.setVerifyCode(verifyCode.substring(1,13));
+            String verifyCode = System.currentTimeMillis() + "";
+            couponOrderDetail.setVerifyCode(verifyCode.substring(1, 13));
+            couponOrderDetail.setRemark("");
             couponOrderDetail.setCreateUserId(uid);
             couponOrderDetail.setCreateTime(DateTime.now());
             details.add(couponOrderDetail);
