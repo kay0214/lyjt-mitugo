@@ -603,39 +603,21 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
             }
 
             BeanUtils.copyBeanProp(item, item1);
-            // 获取卡券list
-            List<YxCouponOrderDetail> detailList = this.yxCouponOrderDetailService.list(new QueryWrapper<YxCouponOrderDetail>().eq("order_id", item.getOrderId()));
             // 获取该订单购买的优惠券id
-            Integer couponId = detailList.get(0).getCouponId();
             // 根据优惠券id获取优惠券信息
-            YxCoupons yxCoupons = this.couponsService.getOne(new QueryWrapper<YxCoupons>().eq("id", couponId));
+            YxCoupons yxCoupons = this.couponsService.getOne(new QueryWrapper<YxCoupons>().eq("id", item1.getCouponId()));
             // 拼接有效期
             String expireDate = DateUtils.parseDateToStr(DateUtils.getDate(), yxCoupons.getExpireDateStart()) + " ~ " + DateUtils.parseDateToStr(DateUtils.getDate(), yxCoupons.getExpireDateEnd());
             // 根据优惠券所属获取商户信息
             YxStoreInfo yxStoreInfo = this.storeInfoService.getById(yxCoupons.getBelong());
-            List<YxCouponOrderDetailQueryVo> voList = new ArrayList<>();
-            for (YxCouponOrderDetail yxCouponOrderDetail : detailList) {
-                YxCouponOrderDetailQueryVo vo = new YxCouponOrderDetailQueryVo();
-                BeanUtils.copyBeanProp(vo, yxCouponOrderDetail);
-                // 有效期
-                vo.setExpireDate(expireDate);
-                // 卡券类型;1:代金券, 2:折扣券, 3:满减券
-                vo.setCouponType(yxCoupons.getCouponType());
-                // 代金券面额
-                vo.setDenomination(yxCoupons.getDenomination());
-                // 折扣券折扣率
-                vo.setDiscount(yxCoupons.getDiscount());
-                // 使用门槛
-                vo.setThreshold(yxCoupons.getThreshold());
-                // 优惠金额
-                vo.setDiscountAmount(yxCoupons.getDiscountAmount());
-                // 优惠券名称
-                vo.setCouponName(yxCoupons.getCouponName());
-                voList.add(vo);
-            }
-
+            // 有效期
+            item.setExpireDate(expireDate);
+            // 卡券类型;1:代金券, 2:折扣券, 3:满减券
+            item.setCouponType(yxCoupons.getCouponType());
+            // 优惠券名称
+            item.setCouponName(yxCoupons.getCouponName());
             item.setStoreName(yxStoreInfo.getStoreName());
-            item.setDetailList(voList);
+            item.setCreateTimeStr(DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD,item.getCreateTime()));
             list.add(item);
         }
 

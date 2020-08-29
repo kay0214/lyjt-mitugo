@@ -152,6 +152,15 @@ public class YxCouponOrderQueryVo implements Serializable {
     @ApiModelProperty(value = "缩略图")
     private String image;
 
+    @ApiModelProperty(value = "卡券类型;1:代金券, 2:折扣券, 3:满减券")
+    private Integer couponType;
+
+    @ApiModelProperty(value = "卡券名称")
+    private String couponName;
+
+    @ApiModelProperty(value = "创建时间")
+    private String createTimeStr;
+
     @ApiModelProperty(value = "卡券List")
     private List<YxCouponOrderDetailQueryVo> detailList;
 }
