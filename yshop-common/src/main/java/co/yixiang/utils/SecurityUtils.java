@@ -55,4 +55,15 @@ public class SecurityUtils {
         JSONObject json = new JSONObject(obj);
         return json.get("id", Long.class);
     }
+
+    /**
+     * 获取登录用户角色等级
+     * @author zhangyk
+     * @date 2020/8/29 14:47
+     */
+    public static Integer getUserRole(){
+        Object obj = getUserDetails();
+        JSONObject json = new JSONObject(obj);
+        return json.get("userRole", Long.class).intValue();
+    }
 }
