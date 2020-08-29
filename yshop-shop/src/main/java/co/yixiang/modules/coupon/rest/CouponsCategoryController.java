@@ -55,7 +55,7 @@ public class CouponsCategoryController {
     @Log("查询卡券分类")
     @ApiOperation(value = "查询卡券分类")
     @GetMapping(value = "/categoryTree")
-    @PreAuthorize("hasAnyRole('admin','YXSTORECATEGORY_ALL','YXSTORECATEGORY_SELECT')")
+    @PreAuthorize("hasAnyRole('admin','YXSTORECATEGORY_ALL','YXCOUPONSCATEGORY_SELECT')")
     public ResponseEntity getCouponsCategorys(YxCouponsCategoryQueryCriteria criteria, Pageable pageable){
 
         List<YxCouponsCategory> categoryDTOList = yxCouponsCategoryService.queryAll(criteria);
