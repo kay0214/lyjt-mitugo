@@ -47,7 +47,7 @@ public interface YxCouponOrderService extends BaseService<YxCouponOrder> {
 
     Double getOrderSumPrice(CouponOrderQueryVo couponOrderQueryVo, String key);
 
-    String cacheOrderInfo(int uid, List<YxCouponsQueryVo> couponsQueryVoList, PriceGroupDTO priceGroup);
+    String cacheOrderInfo(int uid, List<YxCouponsQueryVo> couponsQueryVoList, Integer quantity, PriceGroupDTO priceGroup);
 
     /**
      * 卡券创建订单

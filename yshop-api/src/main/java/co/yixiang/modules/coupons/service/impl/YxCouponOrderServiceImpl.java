@@ -37,13 +37,11 @@ import co.yixiang.modules.shop.entity.YxStoreInfo;
 import co.yixiang.modules.shop.service.YxStoreInfoService;
 import co.yixiang.modules.shop.service.YxSystemConfigService;
 import co.yixiang.modules.shop.service.YxSystemStoreService;
-import co.yixiang.modules.shop.web.vo.YxSystemStoreQueryVo;
 import co.yixiang.modules.user.entity.YxUserBill;
 import co.yixiang.modules.user.entity.YxWechatUser;
 import co.yixiang.modules.user.service.YxUserBillService;
 import co.yixiang.modules.user.service.YxUserService;
 import co.yixiang.modules.user.service.YxWechatUserService;
-import co.yixiang.modules.user.web.vo.YxUserAddressQueryVo;
 import co.yixiang.modules.user.web.vo.YxUserQueryVo;
 import co.yixiang.mp.service.YxMiniPayService;
 import co.yixiang.utils.BeanUtils;
@@ -56,6 +54,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.binarywang.wxpay.bean.order.WxPayMpOrderResult;
 import com.github.binarywang.wxpay.exception.WxPayException;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.gavaghan.geodesy.GlobalCoordinates;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -66,6 +65,7 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 
@@ -218,26 +218,25 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         if (ObjectUtil.isNull(userInfo)) {
             throw new ErrorRequestException("用户不存在");
         }
+        // 查询分享人id 没有分享人的话传值为0、查库肯定查不到数据
+        YxUserQueryVo shareUserInfo = userService.getYxUserById(param.getSpread());
 
         CouponCacheDTO cacheDTO = getCacheOrderInfo(uid, key);
         if (ObjectUtil.isNull(cacheDTO)) {
             throw new ErrorRequestException("订单已过期,请刷新当前页面");
         }
+        Integer couponId = cacheDTO.getYxCouponOrder().getCouponId();
+        Integer totalNum = cacheDTO.getYxCouponOrder().getTotalNum();
+        // 获取卡券信息
+        YxCoupons yxCoupons = this.couponsService.getById(couponId);
+        if (totalNum > yxCoupons.getInventory()) {
+            throw new ErrorRequestException("库存不足");
+        }
 
-        YxCoupons coupons = yxCouponsMapper.selectById(param.getCouponId());
+        YxCoupons coupons = yxCouponsMapper.selectById(couponId);
         Double totalPrice = cacheDTO.getPriceGroup().getTotalPrice();
-        Double payPrice = cacheDTO.getPriceGroup().getTotalPrice();
-        Double payPostage = cacheDTO.getPriceGroup().getStorePostage();
 
-        Integer totalNum = 0;
-        Integer gainIntegral = 0;
-        List<String> cartIds = new ArrayList<>();
-        int combinationId = 0;
-        int seckillId = 0;
-        int bargainId = 0;
-
-
-        if (payPrice <= 0) payPrice = 0d;
+        if (totalPrice <= 0) totalPrice = 0d;
 
         //生成分布式唯一值
         String orderSn = IdUtil.getSnowflake(0, 0).nextIdStr();
@@ -245,19 +244,30 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         YxCouponOrder couponOrder = new YxCouponOrder();
         couponOrder.setUid(uid);
         couponOrder.setOrderId(orderSn);
-        couponOrder.setRealName("");
-        couponOrder.setUserPhone("");
+        couponOrder.setRealName(StringUtils.isNotBlank(userInfo.getRealName()) ? userInfo.getRealName() : "");
+        couponOrder.setUserPhone(StringUtils.isNotBlank(userInfo.getPhone()) ? userInfo.getPhone() : "");
         couponOrder.setTotalNum(totalNum);
         couponOrder.setTotalPrice(BigDecimal.valueOf(totalPrice));
-        couponOrder.setTotalPrice(BigDecimal.valueOf(payPrice));
         couponOrder.setPayStaus(OrderInfoEnum.PAY_STATUS_0.getValue());
 
         couponOrder.setPayType(param.getPayType());
         couponOrder.setMark(param.getMark());
-        couponOrder.setCouponId(param.getCouponId());
-        couponOrder.setUseCount(coupons.getWriteOff());
+        couponOrder.setCouponId(couponId);
+        // 订单表存放核销的总次数
+        couponOrder.setUseCount(NumberUtil.mul(coupons.getWriteOff(), totalNum).intValue());
         couponOrder.setCouponPrice(coupons.getSellingPrice());
-        // 分享人的相关未做
+        // 商户ID
+        couponOrder.setMerId(coupons.getBelong());
+        // 推荐人id和类型
+        couponOrder.setParentId(userInfo.getParentId());
+        couponOrder.setParentType(userInfo.getParentType());
+        // 分享人Id
+        couponOrder.setShareId(param.getSpread());
+        // 获取分享人的推荐人id和类型
+        if (null != shareUserInfo) {
+            couponOrder.setShareParentId(shareUserInfo.getParentId());
+            couponOrder.setShareParentType(shareUserInfo.getParentType());
+        }
 
         if (AppFromEnum.ROUNTINE.getValue().equals(param.getFrom())) {
             couponOrder.setIsChannel(OrderInfoEnum.PAY_CHANNEL_1.getValue());
@@ -266,32 +276,49 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         }
         couponOrder.setCreateTime(DateTime.now());
         couponOrder.setUnique(key);
-        //处理门店
-        if (OrderInfoEnum.SHIPPIING_TYPE_2.getValue().equals(param.getShippingType())) {
-            YxSystemStoreQueryVo systemStoreQueryVo = systemStoreService.getYxSystemStoreById(param.getStoreId());
-            if (systemStoreQueryVo == null) throw new ErrorRequestException("暂无门店无法选择门店自提");
-            couponOrder.setVerifyCode(StrUtil.sub(orderSn, orderSn.length(), -12));
-        }
+        // 购买时的分佣金额
+        couponOrder.setCommission(yxCoupons.getCommission());
+        // 分佣状态
+        couponOrder.setRebateStatus(0);
+        // 订单状态
+        couponOrder.setStatus(0);
+//        //处理门店 卡券为电子产品不需要判断自提
+//        if (OrderInfoEnum.SHIPPIING_TYPE_2.getValue().equals(param.getShippingType())) {
+//            YxSystemStoreQueryVo systemStoreQueryVo = systemStoreService.getYxSystemStoreById(param.getStoreId());
+//            if (systemStoreQueryVo == null) throw new ErrorRequestException("暂无门店无法选择门店自提");
+//            couponOrder.setVerifyCode(StrUtil.sub(orderSn, orderSn.length(), -12));
+//        }
 
         boolean res = save(couponOrder);
         if (!res) throw new ErrorRequestException("订单生成失败");
 
-        YxCouponOrderDetail couponOrderDetail = new YxCouponOrderDetail();
-        couponOrderDetail.setUid(uid);
-        couponOrderDetail.setOrderId(orderSn);
-        couponOrderDetail.setCouponId(coupons.getId());
-
-        // 插入detail表相关未做
-
+        // 插入detail表相关
+        List<YxCouponOrderDetail> details = new ArrayList<>();
+        for (int row = 0; row < totalNum; row++) {
+            YxCouponOrderDetail couponOrderDetail = new YxCouponOrderDetail();
+            couponOrderDetail.setOrderId(orderSn);
+            couponOrderDetail.setUid(uid);
+            couponOrderDetail.setCouponId(couponId);
+            couponOrderDetail.setUseCount(coupons.getWriteOff());
+            couponOrderDetail.setUsedCount(0);
+            couponOrderDetail.setStatus(0);
+            couponOrderDetail.setVerifyCode(UUID.randomUUID().toString());
+            couponOrderDetail.setCreateUserId(uid);
+            couponOrderDetail.setCreateTime(DateTime.now());
+            details.add(couponOrderDetail);
+        }
+        res = this.yxCouponOrderDetailService.saveBatch(details);
+        if (!res) throw new ErrorRequestException("订单详情生成失败");
         //减库存加销量
+        coupons.setInventory(coupons.getInventory() - totalNum);
+        coupons.setSales(coupons.getSales() + totalNum);
+        res = this.couponsService.updateById(coupons);
+        if (!res) throw new ErrorRequestException("减库存加销量失败");
 
         //删除缓存
         delCacheOrderInfo(uid, key);
-
         //增加状态 (订单操作纪律, 卡券无此表)
 //        orderStatusService.create(couponOrder.getId(), "cache_key_create_coupon_order", "订单生成");
-
-
         //使用MQ延时消息
         //mqProducer.sendMsg("yshop-topic",storeOrder.getId().toString());
         //log.info("投递延时订单id： [{}]：", storeOrder.getId());
@@ -361,11 +388,15 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
      * @return
      */
     @Override
-    public String cacheOrderInfo(int uid, List<YxCouponsQueryVo> couponsQueryVos, PriceGroupDTO priceGroup) {
+    public String cacheOrderInfo(int uid, List<YxCouponsQueryVo> couponsQueryVos, Integer quantity, PriceGroupDTO priceGroup) {
         String key = IdUtil.simpleUUID();
         CouponCacheDTO couponCacheDTO = new CouponCacheDTO();
         couponCacheDTO.setCouponsQueryVoList(couponsQueryVos);
         couponCacheDTO.setPriceGroup(priceGroup);
+        YxCouponOrder yxCouponOrder = new YxCouponOrder();
+        yxCouponOrder.setTotalNum(quantity);
+        yxCouponOrder.setCouponId(couponsQueryVos.get(0).getId());
+        couponCacheDTO.setYxCouponOrder(yxCouponOrder);
         redisService.saveCode("user_coupon_order_" + uid + key, couponCacheDTO, 600L);
         return key;
     }
@@ -617,7 +648,7 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
             // 优惠券名称
             item.setCouponName(yxCoupons.getCouponName());
             item.setStoreName(yxStoreInfo.getStoreName());
-            item.setCreateTimeStr(DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD,item.getCreateTime()));
+            item.setCreateTimeStr(DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD, item.getCreateTime()));
             list.add(item);
         }
 

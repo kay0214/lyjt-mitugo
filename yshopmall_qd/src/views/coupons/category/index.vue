@@ -10,8 +10,8 @@
           <el-form-item label="分类名称" prop="cateName">
             <el-input v-model="form.cateName" style="width: 370px;" />
           </el-form-item>
-          <el-form-item label="分类图片" prop="img">
-            <MaterialList v-model="form.img" style="width: 100%" type="image" :num="1" :width="150" :height="150" />
+          <el-form-item label="分类图片" prop="path">
+            <MaterialList v-model="pathArr" style="width: 100%" type="image" :num="1" :width="150" :height="150" />
           </el-form-item>
           <el-form-item label="是否显示" prop="isShow">
             <el-radio-group v-model="form.isShow">
@@ -64,14 +64,16 @@ import MaterialList from "@/components/material";
 
 // crud交由presenter持有
 const defaultCrud = CRUD({ title: '卡券分类表', url: 'api/yxCouponsCategory', sort: 'id,desc', crudMethod: { ...crudYxCouponsCategory }})
-const defaultForm = { id: null, pid: null, cateName: null, sort: null, isShow: 0, delFlag: null, createUserId: null, updateUserId: null, createTime: null, updateTime: null }
+const defaultForm = { id: null, pid: null, cateName: null, sort: null, isShow: 0, delFlag: null, createUserId: null, updateUserId: null, createTime: null, updateTime: null,path: null }
+const pathArr = []
+if (defaultForm.path) { pathArr[0] = defaultForm.path }
 export default {
   name: 'YxCouponsCategory',
   components: { pagination, crudOperation, rrOperation, udOperation ,MaterialList},
   mixins: [presenter(defaultCrud), header(), form(defaultForm), crud()],
   data() {
     return {
-
+      pathArr: pathArr,
       permission: {
         add: ['admin', 'yxCouponsCategory:add'],
         edit: ['admin', 'yxCouponsCategory:edit'],
@@ -91,6 +93,12 @@ export default {
     }
   },
   watch: {
+    pathArr(value) {
+      this.form.path = value.join(',')
+      if (this.$refs.form) {
+        this.$refs.form.validateField('path')
+      }
+    }
   },
   methods: {
     // 获取数据前设置好接口地址
@@ -98,6 +106,12 @@ export default {
       return true
     }, // 新增与编辑前做的操作
     [CRUD.HOOK.afterToCU](crud, form) {
+      let pathArr = [];
+      if (form.path) {
+        pathArr.push(form.path)
+      }
+      console.log(pathArr)
+      this.pathArr = pathArr;
     },
   }
 }

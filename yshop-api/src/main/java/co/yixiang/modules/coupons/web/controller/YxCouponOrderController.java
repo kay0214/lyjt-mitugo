@@ -158,7 +158,8 @@ public class YxCouponOrderController extends BaseController {
         confirmOrderDTO.setAddressInfo(yxUserAddressService.getUserDefaultAddress(uid));
 
         confirmOrderDTO.setPriceGroup(priceGroup);
-        confirmOrderDTO.setOrderKey(yxCouponOrderService.cacheOrderInfo(uid, queryVoList, priceGroup));
+        // 这里把购买信息塞入redis、然后后面的查询总价接口和订单入库都从redis取值
+        confirmOrderDTO.setOrderKey(yxCouponOrderService.cacheOrderInfo(uid, queryVoList, Integer.valueOf(quantity), priceGroup));
 
         confirmOrderDTO.setUserInfo(userService.getYxUserById(uid));
 
@@ -394,7 +395,7 @@ public class YxCouponOrderController extends BaseController {
      * 传订单状态 uid
      */
     @PostMapping("/getPageList")
-    @ApiOperation(value = "个人中心 我的卡券列表",notes = "卡券列表")
+    @ApiOperation(value = "个人中心 我的卡券列表", notes = "卡券列表")
     public ApiResult<List<YxCouponOrderQueryVo>> getMyCouponOrderPageList(@Valid @RequestBody(required = false) YxCouponOrderQueryParam yxCouponOrderQueryParam) throws Exception {
         int uid = SecurityUtils.getUserId().intValue();
         List<YxCouponOrderQueryVo> paging = yxCouponOrderService.getMyCouponOrderPageList(yxCouponOrderQueryParam, uid);
@@ -405,7 +406,7 @@ public class YxCouponOrderController extends BaseController {
      * 获取卡券订单表
      */
     @PostMapping("/info")
-    @ApiOperation(value = "查看卡券订单详情",notes = "卡券订单详情")
+    @ApiOperation(value = "查看卡券订单详情", notes = "卡券订单详情")
     public ApiResult<YxCouponOrderQueryVo> getMyCouponOrder(@Valid @RequestBody IdParam idParam, @RequestHeader("location") String location) throws Exception {
         YxCouponOrderQueryVo yxCouponOrderQueryVo = yxCouponOrderService.getYxCouponOrderDetail(idParam.getId(), location);
         return ApiResult.ok(yxCouponOrderQueryVo);
