@@ -68,4 +68,6 @@ public class YxCouponsCategoryDto implements Serializable {
 
     private Timestamp updateTime;
 
+    private String path;
+
 }

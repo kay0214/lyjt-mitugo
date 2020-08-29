@@ -192,21 +192,20 @@ public class CouponsCategoryController {
                     delImageInfo.setUpdateTime(DateTime.now().toTimestamp());
                     yxImageInfoService.updateById(delImageInfo);
                 }
-
-                // 写入分类对应的图片关联表
-                YxImageInfo imageInfo = new YxImageInfo();
-                imageInfo.setTypeId(typeId);
-                // 卡券分类 img_type 为 5
-                imageInfo.setImgType(LocalLiveConstants.IMG_TYPE_COUPONS_CATEGORY);
-                imageInfo.setImgCategory(ShopConstants.IMG_CATEGORY_PIC);
-                imageInfo.setImgUrl(path);
-                imageInfo.setDelFlag(0);
-                imageInfo.setCreateUserId(loginUserId);
-                imageInfo.setUpdateUserId(loginUserId);
-                imageInfo.setCreateTime(DateTime.now().toTimestamp());
-                imageInfo.setUpdateTime(DateTime.now().toTimestamp());
-                yxImageInfoService.save(imageInfo);
             }
+            // 写入分类对应的图片关联表
+            YxImageInfo imageInfo = new YxImageInfo();
+            imageInfo.setTypeId(typeId);
+            // 卡券分类 img_type 为 5
+            imageInfo.setImgType(LocalLiveConstants.IMG_TYPE_COUPONS_CATEGORY);
+            imageInfo.setImgCategory(ShopConstants.IMG_CATEGORY_PIC);
+            imageInfo.setImgUrl(path);
+            imageInfo.setDelFlag(0);
+            imageInfo.setCreateUserId(loginUserId);
+            imageInfo.setUpdateUserId(loginUserId);
+            imageInfo.setCreateTime(DateTime.now().toTimestamp());
+            imageInfo.setUpdateTime(DateTime.now().toTimestamp());
+            yxImageInfoService.save(imageInfo);
         }
     }
 }

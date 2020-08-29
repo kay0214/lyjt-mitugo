@@ -19,6 +19,7 @@ import co.yixiang.modules.coupons.entity.YxCouponOrderDetail;
 import co.yixiang.modules.coupons.entity.YxCoupons;
 import co.yixiang.modules.coupons.mapper.CouponOrderMap;
 import co.yixiang.modules.coupons.mapper.YxCouponOrderMapper;
+import co.yixiang.modules.coupons.mapper.YxCouponsMapper;
 import co.yixiang.modules.coupons.service.YxCouponOrderDetailService;
 import co.yixiang.modules.coupons.service.YxCouponOrderService;
 import co.yixiang.modules.coupons.service.YxCouponsService;
@@ -83,6 +84,8 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
 
     @Autowired
     private YxCouponOrderMapper yxCouponOrderMapper;
+    @Autowired
+    private YxCouponsMapper yxCouponsMapper;
 
     @Autowired
     private YxSystemConfigService systemConfigService;
@@ -221,19 +224,10 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
             throw new ErrorRequestException("订单已过期,请刷新当前页面");
         }
 
+        YxCoupons coupons = yxCouponsMapper.selectById(param.getCouponId());
         Double totalPrice = cacheDTO.getPriceGroup().getTotalPrice();
         Double payPrice = cacheDTO.getPriceGroup().getTotalPrice();
         Double payPostage = cacheDTO.getPriceGroup().getStorePostage();
-
-        YxUserAddressQueryVo userAddress = null;
-
-        userAddress = new YxUserAddressQueryVo();
-        userAddress.setRealName(param.getRealName());
-        userAddress.setPhone(param.getPhone());
-        userAddress.setProvince("");
-        userAddress.setCity("");
-        userAddress.setDistrict("");
-        userAddress.setDetail("");
 
         Integer totalNum = 0;
         Integer gainIntegral = 0;
@@ -260,6 +254,10 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
 
         couponOrder.setPayType(param.getPayType());
         couponOrder.setMark(param.getMark());
+        couponOrder.setCouponId(param.getCouponId());
+        couponOrder.setUseCount(coupons.getWriteOff());
+        couponOrder.setCouponPrice(coupons.getSellingPrice());
+        // 分享人的相关未做
 
         if (AppFromEnum.ROUNTINE.getValue().equals(param.getFrom())) {
             couponOrder.setIsChannel(OrderInfoEnum.PAY_CHANNEL_1.getValue());
@@ -277,6 +275,13 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
 
         boolean res = save(couponOrder);
         if (!res) throw new ErrorRequestException("订单生成失败");
+
+        YxCouponOrderDetail couponOrderDetail = new YxCouponOrderDetail();
+        couponOrderDetail.setUid(uid);
+        couponOrderDetail.setOrderId(orderSn);
+        couponOrderDetail.setCouponId(coupons.getId());
+
+        // 插入detail表相关未做
 
         //减库存加销量
 
@@ -563,7 +568,7 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
 
         QueryWrapper<YxCouponOrder> wrapper = new QueryWrapper<>();
         wrapper.eq("uid", uid);
-        wrapper.eq("del_flag", CommonEnum.DEL_STATUS_0.getValue()).orderByDesc("add_time");
+        wrapper.eq("del_flag", CommonEnum.DEL_STATUS_0.getValue()).orderByDesc("create_time");
 
         switch (OrderStatusEnum.toType(yxCouponOrderQueryParam.getType())) {
             case STATUS_1://待付款
@@ -586,39 +591,34 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         Page<YxCouponOrder> pageModel = new Page<>(yxCouponOrderQueryParam.getPage(), yxCouponOrderQueryParam.getLimit());
 
         IPage<YxCouponOrder> pageList = yxCouponOrderMapper.selectPage(pageModel, wrapper);
-        List<YxCouponOrderQueryVo> list = couponOrderMap.toDto(pageList.getRecords());
-        for (YxCouponOrderQueryVo item : list) {
-            // 获取卡券list
-            List<YxCouponOrderDetail> detailList = this.yxCouponOrderDetailService.list(new QueryWrapper<YxCouponOrderDetail>().eq("order_id", item.getOrderId()));
+        List<YxCouponOrderQueryVo> list = new ArrayList<>();
+        for (YxCouponOrder item1 : pageList.getRecords()) {
+            YxCouponOrderQueryVo item = new YxCouponOrderQueryVo();
+            // 卡券缩略图
+            YxImageInfo thumbnail = yxImageInfoService.getOne(new QueryWrapper<YxImageInfo>().eq("type_id", item1.getCouponId()).eq("img_type", LocalLiveConstants.IMG_TYPE_COUPONS)
+                    .eq("img_category", ShopConstants.IMG_CATEGORY_PIC).eq("del_flag", 0));
+
+            if (thumbnail != null) {
+                item.setImage(thumbnail.getImgUrl());
+            }
+
+            BeanUtils.copyBeanProp(item, item1);
             // 获取该订单购买的优惠券id
-            Integer couponId = detailList.get(0).getCouponId();
             // 根据优惠券id获取优惠券信息
-            YxCoupons yxCoupons = this.couponsService.getOne(new QueryWrapper<YxCoupons>().eq("", couponId));
+            YxCoupons yxCoupons = this.couponsService.getOne(new QueryWrapper<YxCoupons>().eq("id", item1.getCouponId()));
             // 拼接有效期
             String expireDate = DateUtils.parseDateToStr(DateUtils.getDate(), yxCoupons.getExpireDateStart()) + " ~ " + DateUtils.parseDateToStr(DateUtils.getDate(), yxCoupons.getExpireDateEnd());
             // 根据优惠券所属获取商户信息
             YxStoreInfo yxStoreInfo = this.storeInfoService.getById(yxCoupons.getBelong());
-            List<YxCouponOrderDetailQueryVo> voList = new ArrayList<>();
-            for (YxCouponOrderDetail yxCouponOrderDetail : detailList) {
-                YxCouponOrderDetailQueryVo vo = new YxCouponOrderDetailQueryVo();
-                BeanUtils.copyBeanProp(vo, yxCouponOrderDetail);
-                // 有效期
-                vo.setExpireDate(expireDate);
-                // 卡券类型;1:代金券, 2:折扣券, 3:满减券
-                vo.setCouponType(yxCoupons.getCouponType());
-                // 代金券面额
-                vo.setDenomination(yxCoupons.getDenomination());
-                // 折扣券折扣率
-                vo.setDiscount(yxCoupons.getDiscount());
-                // 使用门槛
-                vo.setThreshold(yxCoupons.getThreshold());
-                // 优惠金额
-                vo.setDiscountAmount(yxCoupons.getDiscountAmount());
-                voList.add(vo);
-            }
-
+            // 有效期
+            item.setExpireDate(expireDate);
+            // 卡券类型;1:代金券, 2:折扣券, 3:满减券
+            item.setCouponType(yxCoupons.getCouponType());
+            // 优惠券名称
+            item.setCouponName(yxCoupons.getCouponName());
             item.setStoreName(yxStoreInfo.getStoreName());
-            item.setDetailList(voList);
+            item.setCreateTimeStr(DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD,item.getCreateTime()));
+            list.add(item);
         }
 
         return list;
