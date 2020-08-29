@@ -55,7 +55,7 @@ public class CouponsCategoryController {
     @Log("查询卡券分类")
     @ApiOperation(value = "查询卡券分类")
     @GetMapping(value = "/categoryTree")
-    @PreAuthorize("hasAnyRole('admin','YXSTORECATEGORY_ALL','YXSTORECATEGORY_SELECT')")
+    @PreAuthorize("hasAnyRole('admin','YXSTORECATEGORY_ALL','YXCOUPONSCATEGORY_SELECT')")
     public ResponseEntity getCouponsCategorys(YxCouponsCategoryQueryCriteria criteria, Pageable pageable){
 
         List<YxCouponsCategory> categoryDTOList = yxCouponsCategoryService.queryAll(criteria);
@@ -71,7 +71,7 @@ public class CouponsCategoryController {
         return new ResponseEntity<>(yxCouponsCategoryService.getAllList(request),HttpStatus.OK);
     }
 
-    @PostMapping("/add")
+    @PostMapping("")
     @Log("新增卡券分类表")
     @ApiOperation("新增卡券分类表")
     @PreAuthorize("@el.check('admin','yxCouponsCategory:add')")
@@ -149,7 +149,7 @@ public class CouponsCategoryController {
     @Log("删除卡券分类表")
     @ApiOperation("删除卡券分类表")
     @PreAuthorize("@el.check('admin','yxCouponsCategory:del')")
-    @DeleteMapping(value = "/delCouponCate/{ids}")
+    @DeleteMapping(value = "/{ids}")
     public ResponseEntity<Object> delete(@PathVariable String ids) {
         String[] idsArr = ids.split(",");
         boolean delStatus = false;

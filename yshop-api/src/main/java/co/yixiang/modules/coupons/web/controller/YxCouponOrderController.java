@@ -62,7 +62,7 @@ import java.util.concurrent.locks.ReentrantLock;
 @Slf4j
 @RestController
 @RequestMapping("/yxCouponOrder")
-@Api("卡券订单表 API")
+@Api(value = "本地生活订单", tags = "本地生活:订单", description = "订单")
 public class YxCouponOrderController extends BaseController {
 
     @Autowired
@@ -394,7 +394,7 @@ public class YxCouponOrderController extends BaseController {
      * 传订单状态 uid
      */
     @PostMapping("/getPageList")
-    @ApiOperation(value = "个人中心 我的卡券列表", notes = "个人中心 我的卡券列表", response = YxCouponOrderQueryVo.class)
+    @ApiOperation(value = "个人中心 我的卡券列表",notes = "卡券列表")
     public ApiResult<List<YxCouponOrderQueryVo>> getMyCouponOrderPageList(@Valid @RequestBody(required = false) YxCouponOrderQueryParam yxCouponOrderQueryParam) throws Exception {
         int uid = SecurityUtils.getUserId().intValue();
         List<YxCouponOrderQueryVo> paging = yxCouponOrderService.getMyCouponOrderPageList(yxCouponOrderQueryParam, uid);
@@ -405,7 +405,7 @@ public class YxCouponOrderController extends BaseController {
      * 获取卡券订单表
      */
     @PostMapping("/info")
-    @ApiOperation(value = "获取YxCouponOrder对象详情", notes = "查看卡券订单表", response = YxCouponOrderQueryVo.class)
+    @ApiOperation(value = "查看卡券订单详情",notes = "卡券订单详情")
     public ApiResult<YxCouponOrderQueryVo> getMyCouponOrder(@Valid @RequestBody IdParam idParam, @RequestHeader("location") String location) throws Exception {
         YxCouponOrderQueryVo yxCouponOrderQueryVo = yxCouponOrderService.getYxCouponOrderDetail(idParam.getId(), location);
         return ApiResult.ok(yxCouponOrderQueryVo);
