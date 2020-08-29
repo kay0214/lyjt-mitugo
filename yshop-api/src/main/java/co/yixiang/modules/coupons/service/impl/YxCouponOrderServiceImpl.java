@@ -44,6 +44,7 @@ import co.yixiang.modules.user.service.YxUserService;
 import co.yixiang.modules.user.service.YxWechatUserService;
 import co.yixiang.modules.user.web.vo.YxUserQueryVo;
 import co.yixiang.mp.service.YxMiniPayService;
+import co.yixiang.utils.Base64Utils;
 import co.yixiang.utils.BeanUtils;
 import co.yixiang.utils.DateUtils;
 import co.yixiang.utils.OrderUtil;
@@ -302,7 +303,9 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
             couponOrderDetail.setUseCount(coupons.getWriteOff());
             couponOrderDetail.setUsedCount(0);
             couponOrderDetail.setStatus(0);
-            couponOrderDetail.setVerifyCode(UUID.randomUUID().toString());
+            // TODO 先用时间戳、扩展字段长度后再用uuid生成核销码
+            String verifyCode  = System.currentTimeMillis() + "";
+            couponOrderDetail.setVerifyCode(verifyCode.substring(1,13));
             couponOrderDetail.setCreateUserId(uid);
             couponOrderDetail.setCreateTime(DateTime.now());
             details.add(couponOrderDetail);
@@ -715,6 +718,8 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
             vo.setThreshold(yxCoupons.getThreshold());
             // 优惠金额
             vo.setDiscountAmount(yxCoupons.getDiscountAmount());
+            // 核销码加密
+            vo.setVerifyCode(Base64Utils.encode(vo.getVerifyCode()));
             voList.add(vo);
         }
 
