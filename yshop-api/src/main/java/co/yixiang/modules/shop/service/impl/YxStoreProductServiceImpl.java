@@ -6,13 +6,19 @@ import co.yixiang.common.web.vo.Paging;
 import co.yixiang.enums.CommonEnum;
 import co.yixiang.enums.ProductEnum;
 import co.yixiang.exception.ErrorRequestException;
+import co.yixiang.modules.commission.entity.YxCommissionRate;
+import co.yixiang.modules.commission.service.YxCommissionRateService;
+import co.yixiang.modules.shop.entity.YxStoreInfo;
 import co.yixiang.modules.shop.entity.YxStoreProduct;
 import co.yixiang.modules.shop.entity.YxStoreProductAttrValue;
 import co.yixiang.modules.shop.mapper.YxStoreInfoMapper;
 import co.yixiang.modules.shop.mapper.YxStoreProductAttrValueMapper;
 import co.yixiang.modules.shop.mapper.YxStoreProductMapper;
 import co.yixiang.modules.shop.mapping.YxStoreProductMap;
-import co.yixiang.modules.shop.service.*;
+import co.yixiang.modules.shop.service.YxStoreProductAttrService;
+import co.yixiang.modules.shop.service.YxStoreProductRelationService;
+import co.yixiang.modules.shop.service.YxStoreProductReplyService;
+import co.yixiang.modules.shop.service.YxStoreProductService;
 import co.yixiang.modules.shop.web.dto.ProductDTO;
 import co.yixiang.modules.shop.web.param.YxStoreProductQueryParam;
 import co.yixiang.modules.shop.web.vo.YxStoreProductAttrQueryVo;
@@ -68,8 +74,8 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
     private YxStoreProductMap storeProductMap;
     @Autowired
     private YxStoreInfoMapper storeInfoMapper;
-
-
+    @Autowired
+    private YxCommissionRateService commissionRateService;
 
     /**
      * 增加库存 减少销量
@@ -101,6 +107,11 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
         }else{
             yxStoreProductMapper.decStockIncSales(num,productId);
         }
+        //todo 更新店铺销量
+        YxStoreProduct product = this.getById(productId);
+        YxStoreInfo yxStoreInfo = storeInfoMapper.selectById(product.getStoreId());
+        //设置销量
+
     }
 
     /**
@@ -166,6 +177,15 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
 //        productDTO.setSystemStore(systemStoreService.getStoreInfo(latitude,longitude));
         productDTO.setSystemStore(storeInfoMapper.getYxStoreInfoById(storeProductQueryVo.getStoreId()));
         productDTO.setMapKey(RedisUtil.get(ShopKeyUtils.getTengXunMapKey()));
+        //佣金
+        YxCommissionRate commissionRate = commissionRateService.getOne(new QueryWrapper<YxCommissionRate>().eq("del_flag",0));
+        BigDecimal bigCommission = storeProduct.getCommission();
+
+        if(ObjectUtil.isNotNull(commissionRate)){
+            //佣金= 佣金*分享
+            bigCommission = bigCommission.multiply(commissionRate.getShareRate());
+        }
+        storeProduct.setCommission(bigCommission);
 
         return productDTO;
     }

@@ -3,7 +3,10 @@
  */
 package co.yixiang.modules.shop.service.impl;
 
+import cn.hutool.core.util.ObjectUtil;
 import co.yixiang.common.service.impl.BaseServiceImpl;
+import co.yixiang.modules.commission.entity.YxCommissionRate;
+import co.yixiang.modules.commission.service.YxCommissionRateService;
 import co.yixiang.modules.shop.entity.YxStoreProductAttr;
 import co.yixiang.modules.shop.entity.YxStoreProductAttrValue;
 import co.yixiang.modules.shop.mapper.YxStoreProductAttrMapper;
@@ -17,12 +20,10 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.math.BigDecimal;
+import java.util.*;
 
 
 /**
@@ -43,6 +44,8 @@ public class YxStoreProductAttrServiceImpl extends BaseServiceImpl<YxStoreProduc
     private final YxStoreProductAttrValueMapper yxStoreProductAttrValueMapper;
 
     private final ProductAttrMap productAttrMap;
+
+    private YxCommissionRateService commissionRateService;
 
     @Override
     public void incProductAttrStock(int num, int productId, String unique) {
@@ -66,13 +69,23 @@ public class YxStoreProductAttrServiceImpl extends BaseServiceImpl<YxStoreProduc
         List<YxStoreProductAttrValue>  productAttrValues = yxStoreProductAttrValueMapper
                 .selectList(wrapper2);
 
+        //
+        if(!CollectionUtils.isEmpty(productAttrValues)){
+            for(YxStoreProductAttrValue attrValue:productAttrValues){
+                YxCommissionRate commissionRate = commissionRateService.getOne(new QueryWrapper<YxCommissionRate>().eq("del_flag",0));
+                BigDecimal bigCommission = attrValue.getCommission();
+                if(ObjectUtil.isNotNull(commissionRate)){
+                    //佣金= 佣金*分享
+                    bigCommission = attrValue.getCommission().multiply(commissionRate.getShareRate());
+                }
+                attrValue.setCommission(bigCommission);
+            }
+        }
         List<Map<String, YxStoreProductAttrValue>> mapList = new ArrayList<>();
 
         Map<String, YxStoreProductAttrValue> map = new LinkedHashMap<>();
         for (YxStoreProductAttrValue value : productAttrValues) {
-
             map.put(value.getSuk(),value);
-           // mapList.add(map);
         }
 
         List<YxStoreProductAttrQueryVo> yxStoreProductAttrQueryVoList = new ArrayList<>();
