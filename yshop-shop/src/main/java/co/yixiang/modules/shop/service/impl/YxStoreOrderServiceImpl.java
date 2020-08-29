@@ -8,18 +8,24 @@ package co.yixiang.modules.shop.service.impl;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.StrUtil;
 import co.yixiang.common.service.impl.BaseServiceImpl;
 import co.yixiang.common.utils.QueryHelpPlus;
 import co.yixiang.dozer.service.IGenerator;
+import co.yixiang.enums.BillEnum;
 import co.yixiang.enums.OrderInfoEnum;
 import co.yixiang.exception.BadRequestException;
 import co.yixiang.exception.EntityExistException;
+import co.yixiang.exception.ErrorRequestException;
+import co.yixiang.modules.activity.domain.YxStoreCouponUser;
 import co.yixiang.modules.activity.domain.YxStorePink;
 import co.yixiang.modules.activity.service.YxStorePinkService;
+import co.yixiang.modules.activity.service.mapper.YxStoreCouponUserMapper;
 import co.yixiang.modules.shop.domain.*;
 import co.yixiang.modules.shop.service.*;
 import co.yixiang.modules.shop.service.dto.*;
 import co.yixiang.modules.shop.service.mapper.StoreOrderMapper;
+import co.yixiang.modules.shop.service.mapper.StoreProductAttrValueMapper;
 import co.yixiang.modules.shop.service.mapper.StoreProductMapper;
 import co.yixiang.modules.shop.service.mapper.UserMapper;
 import co.yixiang.mp.service.YxMiniPayService;
@@ -27,6 +33,7 @@ import co.yixiang.mp.service.YxPayService;
 import co.yixiang.utils.FileUtil;
 import co.yixiang.utils.OrderUtil;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.github.binarywang.wxpay.exception.WxPayException;
 import com.github.pagehelper.PageInfo;
@@ -72,6 +79,10 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<StoreOrderMapper, Y
     private final YxStoreCartService storeCartService;
     private final StoreOrderMapper yxStoreOrderMapper;
     private final StoreProductMapper yxStoreProductMapper;
+
+    private YxStoreOrderCartInfoService orderCartInfoService;
+    private YxStoreCouponUserMapper yxStoreCouponUserMapper;
+    private StoreProductAttrValueMapper storeProductAttrValueMapper;
 
     @Override
     public OrderCountDto getOrderCount() {
@@ -479,8 +490,141 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<StoreOrderMapper, Y
         if (CollectionUtils.isEmpty(listOrder)) {
             return;
         }
-        YxStoreOrder order = new YxStoreOrder();
-        order.setIsDel(1);
-        yxStoreOrderMapper.update(order, orderQueryWrapper);
+        for(YxStoreOrder order:listOrder){
+            cancelOrderByTask(order);
+        }
+    }
+
+    /**
+     * 系统自动主动取消未付款取消订单
+     *
+     * @param order
+     */
+    public void cancelOrderByTask(YxStoreOrder order) {
+        try {
+            if (ObjectUtil.isNull(order)) throw new ErrorRequestException("订单不存在");
+
+            if (order.getIsDel() == OrderInfoEnum.CANCEL_STATUS_1.getValue()) throw new ErrorRequestException("订单已取消");
+
+            //回退积分
+            regressionIntegral(order);
+            //退回库存
+            regressionStock(order);
+            //退回优惠券
+            regressionCoupon(order);
+
+            YxStoreOrder storeOrder = new YxStoreOrder();
+            storeOrder.setIsDel(OrderInfoEnum.CANCEL_STATUS_1.getValue());
+            storeOrder.setId(order.getId());
+            yxStoreOrderMapper.updateById(storeOrder);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    public void regressionIntegral(YxStoreOrder order) {
+        if (order.getPaid() > 0 || order.getStatus() == -2 || order.getIsDel() == 1) {
+            return;
+        }
+        if (order.getUseIntegral().doubleValue() <= 0) return;
+
+        if (order.getStatus() != -2 && order.getRefundStatus() != 2
+                && ObjectUtil.isNotNull(order.getBackIntegral())
+                && order.getBackIntegral().doubleValue() >= order.getUseIntegral().doubleValue()) {
+            return;
+        }
+
+        YxUser userQueryVo = userService.getById(order.getUid());
+
+        //增加积分
+        userService.incIntegral(order.getUid(), order.getUseIntegral().doubleValue());
+
+        //增加流水
+        YxUserBill userBill = new YxUserBill();
+        userBill.setUid(order.getUid());
+        userBill.setTitle("积分回退");
+        userBill.setLinkId(order.getId().toString());
+        userBill.setCategory("integral");
+        userBill.setType("deduction");
+        userBill.setNumber(order.getUseIntegral());
+        userBill.setBalance(userQueryVo.getIntegral());
+        userBill.setMark("购买商品失败,回退积分");
+        userBill.setStatus(BillEnum.STATUS_1.getValue());
+        userBill.setPm(BillEnum.PM_1.getValue());
+        userBill.setAddTime(OrderUtil.getSecondTimestampTwo());
+        yxUserBillService.save(userBill);
+
+        //更新回退积分
+        YxStoreOrder storeOrder = new YxStoreOrder();
+        storeOrder.setBackIntegral(order.getUseIntegral());
+        storeOrder.setId(order.getId());
+        yxStoreOrderMapper.updateById(storeOrder);
+    }
+
+    /**
+     * 退回库存
+     *
+     * @param order
+     */
+    public void regressionStock(YxStoreOrder order) {
+        if (order.getPaid() > 0 || order.getStatus() == -2 || order.getIsDel() == 1) {
+            return;
+        }
+        QueryWrapper<YxStoreOrderCartInfo> wrapper = new QueryWrapper<>();
+        wrapper.in("cart_id", Arrays.asList(order.getCartId().split(",")));
+
+        List<YxStoreOrderCartInfo> cartInfoList = orderCartInfoService.list(wrapper);
+        for (YxStoreOrderCartInfo cartInfo : cartInfoList) {
+            YxStoreCart cart = JSONObject.parseObject(cartInfo.getCartInfo()
+                    , YxStoreCart.class);
+            /*if (order.getCombinationId() > 0) {//拼团
+                combinationService.incStockDecSales(cart.getCartNum(), order.getCombinationId());
+            } else if (order.getSeckillId() > 0) {//秒杀
+                storeSeckillService.incStockDecSales(cart.getCartNum(), order.getSeckillId());
+            } else if (order.getBargainId() > 0) {//砍价
+                storeBargainService.incStockDecSales(cart.getCartNum(), order.getBargainId());
+            } else {
+                productService.incProductStock(cart.getCartNum(), cart.getProductId()
+                        , cart.getProductAttrUnique());
+            }*/
+            incProductStock(cart.getCartNum(), cart.getProductId()
+                    , cart.getProductAttrUnique());
+        }
+    }
+    /**
+     * 退回优惠券
+     *
+     * @param order
+     */
+    public void regressionCoupon(YxStoreOrder order) {
+        if (order.getPaid() > 0 || order.getStatus() == -2 || order.getIsDel() == 1) {
+            return;
+        }
+
+        QueryWrapper<YxStoreCouponUser> wrapper = new QueryWrapper<>();
+        if (order.getCouponId() > 0) {
+            wrapper.eq("id", order.getCouponId()).eq("status", 1).eq("uid", order.getUid());
+            YxStoreCouponUser couponUser = yxStoreCouponUserMapper.selectOne(wrapper);
+
+            if (ObjectUtil.isNotNull(couponUser)) {
+                YxStoreCouponUser storeCouponUser = new YxStoreCouponUser();
+                QueryWrapper<YxStoreCouponUser> wrapperT = new QueryWrapper<>();
+                wrapperT.eq("id", order.getCouponId()).eq("uid", order.getUid());
+                storeCouponUser.setStatus(0);
+                storeCouponUser.setUseTime(0);
+                yxStoreCouponUserMapper.update(storeCouponUser, wrapperT);
+            }
+        }
+
+    }
+
+    public void incProductStock(int num, int productId, String unique) {
+        if(StrUtil.isNotEmpty(unique)){
+            storeProductAttrValueMapper.incStockDecSales(num,productId,unique);
+            yxStoreProductMapper.decSales(num,productId);
+        }else{
+            yxStoreProductMapper.incStockDecSales(num,productId);
+        }
     }
 }

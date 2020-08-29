@@ -29,4 +29,9 @@ public interface UserMapper extends CoreMapper<YxUser> {
     @Update("update yx_user set brokerage_price = brokerage_price+ ${price} where uid = #{id}")
     void incBrokeragePrice(@Param("price")double price,@Param("id") int id);
 
+    @Update("update yx_user set integral=integral+#{integral}" +
+            " where uid=#{uid}")
+    int incIntegral(@Param("integral") double integral,@Param("uid") int uid);
+
+
 }

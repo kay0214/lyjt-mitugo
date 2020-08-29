@@ -174,4 +174,9 @@ public class YxUserServiceImpl extends BaseServiceImpl<UserMapper, YxUser> imple
     public void incBrokeragePrice(double price, Integer uid) {
         yxUserMapper.incBrokeragePrice(price,uid);
     }
+
+    @Override
+    public void incIntegral(int uid, double integral) {
+        yxUserMapper.incIntegral(integral, uid);
+    }
 }

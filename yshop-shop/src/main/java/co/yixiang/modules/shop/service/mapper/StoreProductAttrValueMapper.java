@@ -8,6 +8,8 @@ package co.yixiang.modules.shop.service.mapper;
 import co.yixiang.common.mapper.CoreMapper;
 import co.yixiang.modules.shop.domain.YxStoreProductAttrValue;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Update;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -18,4 +20,8 @@ import org.springframework.stereotype.Repository;
 @Mapper
 public interface StoreProductAttrValueMapper extends CoreMapper<YxStoreProductAttrValue> {
 
+    @Update("update yx_store_product_attr_value set stock=stock+#{num}, sales=sales-#{num}" +
+            " where product_id=#{productId} and `unique`=#{unique}")
+    int incStockDecSales(@Param("num") int num,@Param("productId") int productId,
+                         @Param("unique")  String unique);
 }
