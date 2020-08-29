@@ -2,6 +2,8 @@ package co.yixiang.modules.coupon.service.impl;
 
 import co.yixiang.common.service.impl.BaseServiceImpl;
 import co.yixiang.common.utils.QueryHelpPlus;
+import co.yixiang.constant.LocalLiveConstants;
+import co.yixiang.constant.ShopConstants;
 import co.yixiang.dozer.service.IGenerator;
 import co.yixiang.modules.coupon.domain.CouponsCategoryRequest;
 import co.yixiang.modules.coupon.domain.YxCouponsCategory;
@@ -9,7 +11,10 @@ import co.yixiang.modules.coupon.service.YxCouponsCategoryService;
 import co.yixiang.modules.coupon.service.dto.YxCouponsCategoryDto;
 import co.yixiang.modules.coupon.service.dto.YxCouponsCategoryQueryCriteria;
 import co.yixiang.modules.coupon.service.mapper.YxCouponsCategoryMapper;
+import co.yixiang.modules.shop.domain.YxImageInfo;
+import co.yixiang.modules.shop.service.YxImageInfoService;
 import co.yixiang.modules.shop.service.dto.YxStoreCategoryDto;
+import co.yixiang.utils.BeanUtils;
 import co.yixiang.utils.StringUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.github.pagehelper.PageInfo;
@@ -38,6 +43,8 @@ public class YxCouponsCategoryServiceImpl extends BaseServiceImpl<YxCouponsCateg
 
     @Autowired
     private YxCouponsCategoryMapper yxCouponsCategoryMapper;
+    @Autowired
+    private YxImageInfoService yxImageInfoService;
 
     /**
      * 写入 ()
@@ -63,6 +70,23 @@ public class YxCouponsCategoryServiceImpl extends BaseServiceImpl<YxCouponsCateg
                 .orderByDesc(YxCouponsCategory::getId)
                 .orderByAsc(YxCouponsCategory::getSort);
         List<YxCouponsCategory> categoryList = baseMapper.selectList(queryWrapper);
+        List<YxCouponsCategoryDto> list = new ArrayList<>();
+        for (YxCouponsCategory item :categoryList) {
+
+            YxCouponsCategoryDto dto = new YxCouponsCategoryDto();
+            BeanUtils.copyBeanProp(item,dto);
+            QueryWrapper<YxImageInfo> imageInfoQueryWrapper = new QueryWrapper<>();
+            imageInfoQueryWrapper.lambda()
+                    .and(type -> type.eq(YxImageInfo::getTypeId, item.getId()))
+                    .and(imgCate -> imgCate.eq(YxImageInfo::getImgCategory, ShopConstants.IMG_CATEGORY_PIC))
+                    .and(imgType -> imgType.eq(YxImageInfo::getImgType, LocalLiveConstants.IMG_TYPE_COUPONS_CATEGORY))
+                    .and(del -> del.eq(YxImageInfo::getDelFlag, false));
+
+            List<YxImageInfo> imageInfoList = yxImageInfoService.list(imageInfoQueryWrapper);
+            if(imageInfoList!=null && imageInfoList.size()>0){
+                dto.setPath(imageInfoList.get(0).getImgUrl());
+            }
+        }
 //        Paging<YxCouponsCategory> yxCouponsCategoryIPage = baseMapper.selectPage();
         map.put("content", generator.convert(categoryList, YxCouponsCategoryDto.class));
         map.put("totalElements", categoryList.size());
