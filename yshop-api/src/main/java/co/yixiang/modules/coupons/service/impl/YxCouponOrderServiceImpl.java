@@ -19,6 +19,7 @@ import co.yixiang.modules.coupons.entity.YxCouponOrderDetail;
 import co.yixiang.modules.coupons.entity.YxCoupons;
 import co.yixiang.modules.coupons.mapper.CouponOrderMap;
 import co.yixiang.modules.coupons.mapper.YxCouponOrderMapper;
+import co.yixiang.modules.coupons.mapper.YxCouponsMapper;
 import co.yixiang.modules.coupons.service.YxCouponOrderDetailService;
 import co.yixiang.modules.coupons.service.YxCouponOrderService;
 import co.yixiang.modules.coupons.service.YxCouponsService;
@@ -83,6 +84,8 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
 
     @Autowired
     private YxCouponOrderMapper yxCouponOrderMapper;
+    @Autowired
+    private YxCouponsMapper yxCouponsMapper;
 
     @Autowired
     private YxSystemConfigService systemConfigService;
@@ -221,19 +224,10 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
             throw new ErrorRequestException("订单已过期,请刷新当前页面");
         }
 
+        YxCoupons coupons = yxCouponsMapper.selectById(param.getCouponId());
         Double totalPrice = cacheDTO.getPriceGroup().getTotalPrice();
         Double payPrice = cacheDTO.getPriceGroup().getTotalPrice();
         Double payPostage = cacheDTO.getPriceGroup().getStorePostage();
-
-        YxUserAddressQueryVo userAddress = null;
-
-        userAddress = new YxUserAddressQueryVo();
-        userAddress.setRealName(param.getRealName());
-        userAddress.setPhone(param.getPhone());
-        userAddress.setProvince("");
-        userAddress.setCity("");
-        userAddress.setDistrict("");
-        userAddress.setDetail("");
 
         Integer totalNum = 0;
         Integer gainIntegral = 0;
@@ -260,6 +254,10 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
 
         couponOrder.setPayType(param.getPayType());
         couponOrder.setMark(param.getMark());
+        couponOrder.setCouponId(param.getCouponId());
+        couponOrder.setUseCount(coupons.getWriteOff());
+        couponOrder.setCouponPrice(coupons.getSellingPrice());
+        // 分享人的相关未做
 
         if (AppFromEnum.ROUNTINE.getValue().equals(param.getFrom())) {
             couponOrder.setIsChannel(OrderInfoEnum.PAY_CHANNEL_1.getValue());
@@ -277,6 +275,13 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
 
         boolean res = save(couponOrder);
         if (!res) throw new ErrorRequestException("订单生成失败");
+
+        YxCouponOrderDetail couponOrderDetail = new YxCouponOrderDetail();
+        couponOrderDetail.setUid(uid);
+        couponOrderDetail.setOrderId(orderSn);
+        couponOrderDetail.setCouponId(coupons.getId());
+
+        // 插入detail表相关未做
 
         //减库存加销量
 
