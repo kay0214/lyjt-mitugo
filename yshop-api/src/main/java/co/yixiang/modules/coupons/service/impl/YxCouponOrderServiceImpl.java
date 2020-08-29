@@ -277,7 +277,7 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         couponOrder.setCreateTime(DateTime.now());
         couponOrder.setUnique(key);
         // 购买时的分佣金额
-        couponOrder.setCommission(yxCoupons.getCommission());
+        couponOrder.setCommission(NumberUtil.mul(yxCoupons.getCommission(), totalNum));
         // 分佣状态
         couponOrder.setRebateStatus(0);
         // 订单状态
@@ -623,8 +623,10 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         }
 
         Page<YxCouponOrder> pageModel = new Page<>(yxCouponOrderQueryParam.getPage(), yxCouponOrderQueryParam.getLimit());
-
         IPage<YxCouponOrder> pageList = yxCouponOrderMapper.selectPage(pageModel, wrapper);
+        if (null == pageList.getRecords() || pageList.getRecords().size() <= 0) {
+            return new ArrayList<YxCouponOrderQueryVo>();
+        }
         List<YxCouponOrderQueryVo> list = new ArrayList<>();
         for (YxCouponOrder item1 : pageList.getRecords()) {
             YxCouponOrderQueryVo item = new YxCouponOrderQueryVo();
