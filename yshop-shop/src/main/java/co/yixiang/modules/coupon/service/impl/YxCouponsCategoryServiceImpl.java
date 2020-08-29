@@ -74,7 +74,7 @@ public class YxCouponsCategoryServiceImpl extends BaseServiceImpl<YxCouponsCateg
         for (YxCouponsCategory item :categoryList) {
 
             YxCouponsCategoryDto dto = new YxCouponsCategoryDto();
-            BeanUtils.copyBeanProp(item,dto);
+            BeanUtils.copyBeanProp(dto,item);
             QueryWrapper<YxImageInfo> imageInfoQueryWrapper = new QueryWrapper<>();
             imageInfoQueryWrapper.lambda()
                     .and(type -> type.eq(YxImageInfo::getTypeId, item.getId()))
