@@ -14,6 +14,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -53,6 +54,8 @@ public class JwtUser implements UserDetails {
     private Timestamp createTime;
 
     private final Integer userRole;
+
+    private final List<Long> childUser;
 
     @JsonIgnore
     private final Date lastPasswordResetDate;

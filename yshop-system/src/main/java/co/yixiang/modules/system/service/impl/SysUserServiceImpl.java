@@ -145,8 +145,11 @@ public class SysUserServiceImpl extends BaseServiceImpl<SysUserMapper, User> imp
                 user.setUserRole(0);
             }else if (roleIdSet.contains(4)) {
                 user.setUserRole(1);
+                List<User> childUserList = userMapper.selectList(new QueryWrapper<User>().lambda().eq(User::getParentId,user.getId()));
+                user.setChildUser(!CollectionUtils.isEmpty(childUserList) ? childUserList.stream().map(User::getId).collect(Collectors.toList()) : null);
             }else if (roleIdSet.contains(5)) {
                 user.setUserRole(2);
+                user.setChildUser(Arrays.asList(user.getId()));
             }
         }
         return generator.convert(user, UserDto.class);

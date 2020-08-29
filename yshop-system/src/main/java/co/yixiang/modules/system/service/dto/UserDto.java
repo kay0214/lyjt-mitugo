@@ -14,6 +14,7 @@ import lombok.Data;
 import java.sql.Timestamp;
 import java.io.Serializable;
 import java.sql.Timestamp;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -74,6 +75,9 @@ public class UserDto implements Serializable {
     /** 用户角色：0->平台运营,1->合伙人,2->商户 */
 
     private Integer userRole;
+
+    // 下级用户id
+    private List<Long> childUser;
 
 
     /** 商户联系人 */
