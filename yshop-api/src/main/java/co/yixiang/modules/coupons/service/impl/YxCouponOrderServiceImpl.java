@@ -594,6 +594,14 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         List<YxCouponOrderQueryVo> list = new ArrayList<>();
         for (YxCouponOrder item1 : pageList.getRecords()) {
             YxCouponOrderQueryVo item = new YxCouponOrderQueryVo();
+            // 卡券缩略图
+            YxImageInfo thumbnail = yxImageInfoService.getOne(new QueryWrapper<YxImageInfo>().eq("type_id", item1.getCouponId()).eq("img_type", LocalLiveConstants.IMG_TYPE_COUPONS)
+                    .eq("img_category", ShopConstants.IMG_CATEGORY_PIC).eq("del_flag", 0));
+
+            if (thumbnail != null) {
+                item.setImage(thumbnail.getImgUrl());
+            }
+
             BeanUtils.copyBeanProp(item, item1);
             // 获取卡券list
             List<YxCouponOrderDetail> detailList = this.yxCouponOrderDetailService.list(new QueryWrapper<YxCouponOrderDetail>().eq("order_id", item.getOrderId()));
@@ -621,6 +629,8 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
                 vo.setThreshold(yxCoupons.getThreshold());
                 // 优惠金额
                 vo.setDiscountAmount(yxCoupons.getDiscountAmount());
+                // 优惠券名称
+                vo.setCouponName(yxCoupons.getCouponName());
                 voList.add(vo);
             }
 
