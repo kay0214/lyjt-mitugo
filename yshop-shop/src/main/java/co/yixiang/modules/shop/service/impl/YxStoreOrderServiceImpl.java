@@ -479,9 +479,8 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<StoreOrderMapper, Y
         if (CollectionUtils.isEmpty(listOrder)) {
             return;
         }
-        //超时未付款，状态为已取消
         YxStoreOrder order = new YxStoreOrder();
-        order.setStatus(99);
+        order.setIsDel(1);
         yxStoreOrderMapper.update(order, orderQueryWrapper);
     }
 }

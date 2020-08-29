@@ -10,9 +10,9 @@ export function add(data) {
 
 export function del(ids) {
   return request({
-    url: 'api/yxCouponsCategory/',
-    method: 'delete',
-    data: ids
+    url: 'api/yxCouponsCategory/' + ids,
+    method: 'delete'
+    // data: ids
   })
 }
 
