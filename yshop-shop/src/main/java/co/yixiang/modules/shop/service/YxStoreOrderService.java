@@ -65,4 +65,9 @@ public interface YxStoreOrderService  extends BaseService<YxStoreOrder>{
     OrderTimeDataDto getOrderTimeData();
 
     Map<String,Object> chartCount();
+    /**
+     * 查找超时未付款的订单，将其状态设置为已取消
+     */
+    void cancelOrder();
+
 }
