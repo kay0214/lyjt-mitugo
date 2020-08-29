@@ -586,8 +586,10 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         Page<YxCouponOrder> pageModel = new Page<>(yxCouponOrderQueryParam.getPage(), yxCouponOrderQueryParam.getLimit());
 
         IPage<YxCouponOrder> pageList = yxCouponOrderMapper.selectPage(pageModel, wrapper);
-        List<YxCouponOrderQueryVo> list = couponOrderMap.toDto(pageList.getRecords());
-        for (YxCouponOrderQueryVo item : list) {
+        List<YxCouponOrderQueryVo> list = new ArrayList<>();
+        for (YxCouponOrder item1 : pageList.getRecords()) {
+            YxCouponOrderQueryVo item = new YxCouponOrderQueryVo();
+            BeanUtils.copyBeanProp(item, item1);
             // 获取卡券list
             List<YxCouponOrderDetail> detailList = this.yxCouponOrderDetailService.list(new QueryWrapper<YxCouponOrderDetail>().eq("order_id", item.getOrderId()));
             // 获取该订单购买的优惠券id
@@ -619,6 +621,7 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
 
             item.setStoreName(yxStoreInfo.getStoreName());
             item.setDetailList(voList);
+            list.add(item);
         }
 
         return list;
