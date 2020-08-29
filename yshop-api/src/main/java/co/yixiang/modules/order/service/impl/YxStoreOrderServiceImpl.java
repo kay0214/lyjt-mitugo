@@ -173,6 +173,8 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
     private YxStoreInfoMapper yxStoreInfoMapper;
     @Autowired
     private YxStoreProductAttrService productAttrService;
+    @Autowired
+    private YxUserBillService userBillService;
 
     /**
      * 订单退款
@@ -604,6 +606,9 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
 
         //增加状态
         orderStatusService.create(order.getId(), "user_take_delivery", "用户已收货");
+
+        // 商户资金明细生成
+        userBillService.saveMerchantsBill(order);
 
         //奖励积分
         gainUserIntegral(order);
@@ -2145,17 +2150,6 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
                 userService.incPayCount(orderInfo.getUid());
                 //增加状态
                 orderStatusService.create(orderInfo.getId(), "pay_success", "用户付款成功");
-
-                /*//购物车状态修改
-                QueryWrapper<YxStoreCart> cartQueryWrapper = new QueryWrapper<>();
-                cartQueryWrapper.in("id", orderInfo.getCartId());
-
-                YxStoreCart cartObj = new YxStoreCart();
-                cartObj.setIsPay(1);
-                *//*cartObj.setPayPrice();
-                cartObj.setTotalPrice();*//*
-                storeCartMapper.update(cartObj, cartQueryWrapper);*/
-
                 //修改购物车表
                 QueryWrapper<YxStoreCart> cartQueryWrapper = new QueryWrapper<>();
                 List<String> listCart = new ArrayList<>();
@@ -2215,13 +2209,12 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
             } else {
                 bigPrice =  product.getPrice();
             }
-            //产品是否包邮 todo 邮费定义好之后，需修改
-            if(product.getIsPostage()==0){
-                //不包邮
-                postagePrice = product.getPostage();
-                /*if(orderInfo.getPayPostage().compareTo(postagePrice)>0&&postagePrice.compareTo(BigDecimal.ZERO)>0) {
-                    postagePrice = orderInfo.getPayPostage().subtract(postagePrice);
-                }*/
+            if(orderInfo.getPayPostage().compareTo(BigDecimal.ZERO)>0){
+                //支付邮费不为0
+                if(product.getIsPostage()==0){
+                    //不包邮
+                    postagePrice = product.getPostage();
+                }
             }
             //支付比例：
             BigDecimal pricePayProduct = product.getPrice();

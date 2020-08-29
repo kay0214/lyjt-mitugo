@@ -139,6 +139,9 @@ public class User implements Serializable {
     /** 商户是否认证通过 0:未认证 1：已认证 */
     private Integer examineStatus;
 
+    //可提现金额
+//    private BigDecimal withdrawalAmount;
+
 
     @Override
     public int hashCode() {

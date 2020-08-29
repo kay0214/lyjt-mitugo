@@ -1,7 +1,14 @@
 package co.yixiang.modules.user.service.impl;
 
+import co.yixiang.common.service.impl.BaseServiceImpl;
+import co.yixiang.common.web.vo.Paging;
 import co.yixiang.enums.BillDetailEnum;
+import co.yixiang.enums.BillEnum;
 import co.yixiang.enums.BillInfoEnum;
+import co.yixiang.modules.manage.entity.SystemUser;
+import co.yixiang.modules.manage.service.SystemUserService;
+import co.yixiang.modules.manage.web.vo.SystemUserQueryVo;
+import co.yixiang.modules.order.web.vo.YxStoreOrderQueryVo;
 import co.yixiang.modules.user.entity.YxUserBill;
 import co.yixiang.modules.user.mapper.YxUserBillMapper;
 import co.yixiang.modules.user.mapping.BiillMap;
@@ -11,18 +18,17 @@ import co.yixiang.modules.user.web.dto.BillOrderDTO;
 import co.yixiang.modules.user.web.dto.BillOrderRecordDTO;
 import co.yixiang.modules.user.web.param.YxUserBillQueryParam;
 import co.yixiang.modules.user.web.vo.YxUserBillQueryVo;
-import co.yixiang.common.service.impl.BaseServiceImpl;
-import co.yixiang.common.web.vo.Paging;
+import co.yixiang.utils.OrderUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.metadata.OrderItem;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.*;
@@ -45,6 +51,8 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<YxUserBillMapper, YxU
     private YxUserBillMapper yxUserBillMapper;
     @Autowired
     private BiillMap biillMap;
+    @Autowired
+    private SystemUserService systemUserService;
 
     /**
      * 签到了多少次
@@ -172,4 +180,35 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<YxUserBillMapper, YxU
         return new Paging(iPage);
     }
 
+    /**
+     * 确认收货保存商户资金和可用资金
+     * @param order
+     */
+    @Override
+    @Transactional
+    public void saveMerchantsBill(YxStoreOrderQueryVo order){
+        //更新user表的可提现金额
+        //订单支付金额
+        BigDecimal bigAmount = order.getPayPrice();
+        SystemUserQueryVo systemUserQueryVo = systemUserService.getUserById(order.getMerId());
+        bigAmount = bigAmount.add(systemUserQueryVo.getWithdrawalAmount());
+        SystemUser systemUser = systemUserService.getById(order.getMerId());
+//        systemUser.setWithdrawalAmount(bigAmount);
+        systemUserService.updateById(systemUser);
+        //插入资金明细
+        YxUserBill userBill = new YxUserBill();
+        userBill.setUid(order.getMerId());
+        userBill.setLinkId(order.getOrderId());
+        userBill.setTitle("商户返现");
+        userBill.setCategory(BillDetailEnum.CATEGORY_2.getValue());
+        userBill.setType(BillDetailEnum.TYPE_9.getValue());
+        userBill.setNumber(order.getPayPrice());
+        userBill.setUsername(systemUserQueryVo.getUsername());
+        userBill.setBalance(bigAmount);
+        userBill.setMerId(order.getMerId());
+        userBill.setMark("订单确认收货，商户返现");
+        userBill.setAddTime(OrderUtil.getSecondTimestampTwo());
+        userBill.setStatus(BillEnum.STATUS_1.getValue());
+        yxUserBillMapper.insert(userBill);
+    }
 }

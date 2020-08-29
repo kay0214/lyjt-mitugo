@@ -35,7 +35,7 @@ public class SystemUserServiceImpl extends BaseServiceImpl<SystemUserMapper, Sys
     private SystemUserMapper userMapper;
 
     @Override
-    public SystemUserQueryVo getUserById(Serializable id) throws Exception{
+    public SystemUserQueryVo getUserById(Serializable id){
         return userMapper.getUserById(id);
     }
 

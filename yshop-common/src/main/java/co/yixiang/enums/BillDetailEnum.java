@@ -24,6 +24,7 @@ public enum BillDetailEnum {
 	TYPE_6("system_add","系统添加"),
 	TYPE_7("system_sub","系统减少"),
 	TYPE_8("pay_coupon","本地生活购买"),
+	TYPE_9("mer_recurrence","商户返现"),
 
 
 	CATEGORY_1("now_money","金额"),

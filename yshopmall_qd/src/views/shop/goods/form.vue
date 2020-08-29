@@ -59,7 +59,7 @@
         <el-radio v-model="form.isPostage" :label="1">是</el-radio>
         <el-radio v-model="form.isPostage" :label="0" style="width: 200px;">否</el-radio>
       </el-form-item>
-      <el-form-item v-if='!form.isPostage' prop='postage' label="邮费">
+      <el-form-item v-if='!form.isPostage' prop='postage' :rules="form.isPostage?[{required:false}]:rules.postage" label="邮费">
         <el-input v-model="form.postage" />
       </el-form-item>
      <!-- <el-form-item label="优品推荐">
@@ -214,9 +214,9 @@ export default {
         isPostage:[
           { required: true,message: '必填项', trigger: 'blur'}
         ],
-        // postage:[
-        //   { required: true,message: '必填项'}
-        // ],
+        postage:[
+          { required: true,message: '必填项'}
+        ],
         ficti:[
           { required: true,message: '必填项', trigger: 'blur'}
         ],
