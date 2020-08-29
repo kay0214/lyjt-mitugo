@@ -183,6 +183,10 @@ public class StoreOrderController {
                 case "-4":
                     criteria.setIsDel(1);
                     break;
+                    //已取消
+                case "99":
+                    criteria.setStatus(99);
+                    break;
             }
         }
         //订单类型查询
@@ -466,6 +470,10 @@ public class StoreOrderController {
                     break;
                 case "-4":
                     criteria.setIsDel(1);
+                    break;
+                //已取消
+                case "99":
+                    criteria.setStatus(99);
                     break;
             }
         }

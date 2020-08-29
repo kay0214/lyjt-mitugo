@@ -11,7 +11,7 @@
             <span class="el-upload-list__item-preview" @click="zoomMaterial(index)">
               <i class="el-icon-view" />
             </span>
-            <span class="el-upload-list__item-delete" @click="deleteMaterial(index)">
+            <span v-if="!readonly" class="el-upload-list__item-delete" @click="deleteMaterial(index)">
               <i class="el-icon-delete" />
             </span>
             <span v-if="index != value.length-1" class="el-upload-list__item-preview" @click="moveMaterial(index,'down')">
@@ -52,7 +52,7 @@
           </div>
           <el-tabs v-model="materialgroupObjId" v-loading="materialgroupLoading" tab-position="left" @tab-click="tabClick">
             <el-tab-pane
-              v-for="(item,index) in materialgroupList"
+              v-for="(item) in materialgroupList"
               :key="item.id"
               :name="item.id"
             >
@@ -162,7 +162,10 @@ export default {
     },
     // 素材类型
     type: {
-      type: String
+      type: String,
+      default() {
+        return ''
+      }
     },
     // 素材限制数量，默认5个
     num: {
@@ -183,6 +186,13 @@ export default {
       type: Number,
       default() {
         return 150
+      }
+    },
+    // 只读
+    readonly: {
+      type: Boolean,
+      default() {
+        return false
       }
     }
   },
@@ -219,12 +229,12 @@ export default {
   },
   methods: {
     moveMaterial(index, type) {
-      if (type == 'up') {
+      if (type === 'up') {
         const tempOption = this.value[index - 1]
         this.$set(this.value, index - 1, this.value[index])
         this.$set(this.value, index, tempOption)
       }
-      if (type == 'down') {
+      if (type === 'down') {
         const tempOption = this.value[index + 1]
         this.$set(this.value, index + 1, this.value[index])
         this.$set(this.value, index, tempOption)
@@ -327,7 +337,7 @@ export default {
       this.materialgroupObjId = materialgroupObj.id
       this.page.currentPage = 1
       this.page.total = 0
-      if (materialgroupObj.id != '-1') {
+      if (materialgroupObj.id !== '-1') {
         this.groupId = materialgroupObj.id
       } else {
         this.groupId = null
@@ -385,7 +395,7 @@ export default {
       })
     },
     materialUrl(item) {
-      const that = this
+      // const that = this
       this.$prompt('素材链接', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
@@ -429,7 +439,7 @@ export default {
       this.uploadProgress = 0
       addObj({
         type: '1',
-        groupId: this.groupId != '-1' ? this.groupId : null,
+        groupId: this.groupId !== '-1' ? this.groupId : null,
         name: file.name,
         url: response.link
       }).then(() => {

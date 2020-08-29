@@ -81,6 +81,7 @@ public class YxExamineLogServiceImpl extends BaseServiceImpl<YxExamineLogMapper,
                 YxMerchantsDetail yxMerchantsDetail = yxMerchantsDetailMapper.selectById(dto.getTypeId());
                 dto.setContacts(yxMerchantsDetail.getContacts());
                 dto.setContactMobile(yxMerchantsDetail.getContactMobile());
+                dto.setMerchantsName(yxMerchantsDetail.getMerchantsName());
             }
         }
         return result;

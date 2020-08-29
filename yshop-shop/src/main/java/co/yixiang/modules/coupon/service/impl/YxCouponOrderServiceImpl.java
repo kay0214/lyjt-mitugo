@@ -1,7 +1,9 @@
 package co.yixiang.modules.coupon.service.impl;
 
+import co.yixiang.common.rocketmq.MqProducer;
 import co.yixiang.common.service.impl.BaseServiceImpl;
 import co.yixiang.common.utils.QueryHelpPlus;
+import co.yixiang.constant.MQConstant;
 import co.yixiang.dozer.service.IGenerator;
 import co.yixiang.modules.coupon.domain.YxCouponOrder;
 import co.yixiang.modules.coupon.domain.YxCouponOrderDetail;
@@ -17,8 +19,10 @@ import co.yixiang.modules.coupon.service.mapper.YxCouponOrderMapper;
 import co.yixiang.modules.shop.domain.YxStoreInfo;
 import co.yixiang.modules.shop.service.YxStoreInfoService;
 import co.yixiang.utils.FileUtil;
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.github.pagehelper.PageInfo;
+import com.hyjf.framework.starter.recketmq.MessageContent;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,6 +56,8 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
     private YxStoreInfoService yxStoreInfoService;
     @Autowired
     private YxCouponOrderUseService yxCouponOrderUseService;
+    @Autowired
+    private MqProducer mqProducer;
 
     @Override
     //@Cacheable
@@ -201,10 +207,15 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         this.yxCouponOrderUseService.save(yxCouponOrderUse);
 
         if (isFirst) {
-            // TODO 分佣mq发送 admin模块的MQ缺少生产端
-//            commonMqProducer.messageSend2(new MessageContent(MQConstant.EGRET_TOPIC, MQConstant.EGRET_XPYUN_CODE_TAG, UUID.randomUUID().toString(), xpyunCommonRequest));
+            // 分佣mq发送
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("orderId", yxCouponOrder.getOrderId());
+            jsonObject.put("orderType", "1");
+//            Map<String, String> map = new HashMap<>();
+//            map.put("orderId", yxCouponOrder.getOrderId());
+//            map.put("orderType", "1");
+            mqProducer.messageSend2(new MessageContent(MQConstant.MITU_TOPIC, MQConstant.MITU_COMMISSION_TAG, UUID.randomUUID().toString(), jsonObject));
         }
-
         return true;
     }
 }
