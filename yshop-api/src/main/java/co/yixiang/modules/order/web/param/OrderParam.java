@@ -24,7 +24,7 @@ public class OrderParam implements Serializable {
     private String from;
     @ApiModelProperty(value = "备注")
     private String mark;
-    @NotBlank(message="请选择支付方式")
+    @NotBlank(message = "请选择支付方式")
     @ApiModelProperty(value = "yue :余额支付，weixin：微信支付")
     private String payType;
     @ApiModelProperty(value = "电话")
@@ -41,4 +41,6 @@ public class OrderParam implements Serializable {
     private Integer storeId;
     @ApiModelProperty(value = "优惠券id(多个）")
     private List<Integer> couponIdList;
+    @ApiModelProperty(value = "分享人id")
+    private Integer spread;
 }
