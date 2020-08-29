@@ -16,6 +16,8 @@ import co.yixiang.modules.activity.mapper.YxStoreSeckillMapper;
 import co.yixiang.modules.activity.service.YxStoreBargainService;
 import co.yixiang.modules.activity.service.YxStoreCombinationService;
 import co.yixiang.modules.activity.service.YxStoreSeckillService;
+import co.yixiang.modules.commission.entity.YxCommissionRate;
+import co.yixiang.modules.commission.service.YxCommissionRateService;
 import co.yixiang.modules.order.entity.YxStoreOrder;
 import co.yixiang.modules.order.service.YxStoreOrderService;
 import co.yixiang.modules.shop.entity.YxStoreCart;
@@ -25,11 +27,13 @@ import co.yixiang.modules.shop.mapper.YxStoreInfoMapper;
 import co.yixiang.modules.shop.mapping.CartMap;
 import co.yixiang.modules.shop.service.YxStoreCartService;
 import co.yixiang.modules.shop.service.YxStoreProductAttrService;
+import co.yixiang.modules.shop.service.YxStoreProductAttrValueService;
 import co.yixiang.modules.shop.service.YxStoreProductService;
 import co.yixiang.modules.shop.web.vo.*;
 import co.yixiang.modules.user.entity.YxUser;
 import co.yixiang.modules.user.service.YxUserService;
 import co.yixiang.utils.OrderUtil;
+import co.yixiang.utils.StringUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
@@ -85,7 +89,10 @@ public class YxStoreCartServiceImpl extends BaseServiceImpl<YxStoreCartMapper, Y
 
     @Autowired
     private CartMap cartMap;
-
+    @Autowired
+    private YxCommissionRateService commissionRateService;
+    @Autowired
+    private YxStoreProductAttrValueService productAttrValueService;
     /**
      * 删除购物车
      * @param uid
@@ -528,7 +535,7 @@ public class YxStoreCartServiceImpl extends BaseServiceImpl<YxStoreCartMapper, Y
      */
     @Override
     public int addCartShareId(int uid, int productId, int cartNum, String productAttrUnique,
-                              String type, int isNew, int combinationId, int seckillId, int bargainId, int shareUserId, BigDecimal commission) {
+                              String type, int isNew, int combinationId, int seckillId, int bargainId, int shareUserId) {
 
         checkProductStock(uid,productId,cartNum,productAttrUnique,combinationId,seckillId,bargainId);
         QueryWrapper<YxStoreCart> wrapper = new QueryWrapper<>();
@@ -572,7 +579,21 @@ public class YxStoreCartServiceImpl extends BaseServiceImpl<YxStoreCartMapper, Y
         //推荐人类型:1商户;2合伙人;3用户
         storeCart.setParentType(yxUser.getParentType());
         //佣金
-        storeCart.setCommission(commission);
+        BigDecimal bigCommission = BigDecimal.ZERO;
+        if(StringUtils.isNotBlank(productAttrUnique)){
+            QueryWrapper<YxStoreProductAttrValue>  queryWrapper = new QueryWrapper<>();
+            queryWrapper.eq("unique",productAttrUnique);
+            YxStoreProductAttrValue attrValue = productAttrValueService.getOne(queryWrapper);
+            bigCommission = attrValue.getCommission();
+        }else{
+            bigCommission = product.getCommission();
+        }
+        YxCommissionRate commissionRate = commissionRateService.getOne(new QueryWrapper<YxCommissionRate>().eq("del_flag",0));
+        if(ObjectUtil.isNotNull(commissionRate)){
+            //佣金= 佣金*分享
+            bigCommission = bigCommission.multiply(commissionRate.getShareRate());
+        }
+        storeCart.setCommission(bigCommission);
         //商户ID
         storeCart.setMerId(product.getMerId());
         if(ObjectUtil.isNotNull(cart)){

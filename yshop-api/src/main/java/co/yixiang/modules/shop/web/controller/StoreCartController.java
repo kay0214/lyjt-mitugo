@@ -25,7 +25,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.math.BigDecimal;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -76,11 +75,11 @@ public class StoreCartController extends BaseController {
             //分享人id
             shareUserId=jsonObject.getInteger("spread");
         }
-        BigDecimal bigDecimalComm = BigDecimal.ZERO;
+        /*BigDecimal bigDecimalComm = BigDecimal.ZERO;
         if(ObjectUtil.isNotNull(jsonObject.get("commission"))){
             //佣金
             bigDecimalComm=jsonObject.getBigDecimal("commission");
-        }
+        }*/
         Integer cartNum = jsonObject.getInteger("cartNum");
         if(ObjectUtil.isNull(cartNum)){
             return ApiResult.fail("购物车数量参数有误");
@@ -119,7 +118,7 @@ public class StoreCartController extends BaseController {
         /*map.put("cartId",storeCartService.addCart(uid,productId,cartNum,uniqueId
                 ,"product",isNew,combinationId,seckillId,bargainId));*/
         map.put("cartId",storeCartService.addCartShareId(uid,productId,cartNum,uniqueId
-                ,"product",isNew,combinationId,seckillId,bargainId,shareUserId,bigDecimalComm));
+                ,"product",isNew,combinationId,seckillId,bargainId,shareUserId));
         return ApiResult.ok(map);
     }
 

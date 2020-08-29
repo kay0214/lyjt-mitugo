@@ -9,7 +9,6 @@ import co.yixiang.modules.shop.web.vo.YxStoreCartQueryVo;
 import co.yixiang.modules.shop.web.vo.YxStoreStoreCartVo;
 
 import java.io.Serializable;
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -75,5 +74,5 @@ public interface YxStoreCartService extends BaseService<YxStoreCart> {
      * @return
      */
     int addCartShareId(int uid, int productId, int cartNum, String productAttrUnique,
-                       String type, int isNew, int combinationId, int seckillId, int bargainId, int shareUserId, BigDecimal bigDecimalComm);
+                       String type, int isNew, int combinationId, int seckillId, int bargainId, int shareUserId);
 }
