@@ -64,8 +64,8 @@ public class UserController extends BaseController {
      * 用户资料
      */
     @GetMapping("/userinfo")
-    @ApiOperation(value = "获取用户信息",notes = "获取用户信息",response = YxUserQueryVo.class)
-    public ApiResult<Object> userInfo(){
+    @ApiOperation(value = "获取用户信息", notes = "获取用户信息", response = YxUserQueryVo.class)
+    public ApiResult<Object> userInfo() {
         int uid = SecurityUtils.getUserId().intValue();
 
         //update count
@@ -76,12 +76,12 @@ public class UserController extends BaseController {
     /**
      * 获取个人中心菜单
      */
-    @Log(value = "进入用户中心",type = 1)
+    @Log(value = "进入用户中心", type = 1)
     @GetMapping("/menu/user")
-    @ApiOperation(value = "获取个人中心菜单",notes = "获取个人中心菜单")
-    public ApiResult<Map<String,Object>> userMenu(){
-        Map<String,Object> map = new LinkedHashMap<>();
-        map.put("routine_my_menus",systemGroupDataService.getDatas(ShopConstants.YSHOP_MY_MENUES));
+    @ApiOperation(value = "获取个人中心菜单", notes = "获取个人中心菜单")
+    public ApiResult<Map<String, Object>> userMenu() {
+        Map<String, Object> map = new LinkedHashMap<>();
+        map.put("routine_my_menus", systemGroupDataService.getDatas(ShopConstants.YSHOP_MY_MENUES));
         return ApiResult.ok(map);
     }
 
@@ -89,13 +89,14 @@ public class UserController extends BaseController {
      * 个人中心
      */
     @GetMapping("/user")
-    @ApiOperation(value = "个人中心",notes = "个人中心")
-    public ApiResult<Object> user(){
+    @ApiOperation(value = "个人中心", notes = "个人中心")
+    public ApiResult<Object> user() {
         int uid = SecurityUtils.getUserId().intValue();
         YxUserQueryVo yxUserQueryVo = yxUserService.getNewYxUserById(uid);
+        yxUserQueryVo.setTodayCommission(userBillService.todayCommissionSum(uid));
+        yxUserQueryVo.setAllCommission(userBillService.totalCommissionSum(uid));
 
-
-        if(yxUserQueryVo.getLevel() > 0) {
+        if (yxUserQueryVo.getLevel() > 0) {
             yxUserQueryVo.setVip(true);
             YxSystemUserLevelQueryVo systemUserLevelQueryVo = systemUserLevelService
                     .getYxSystemUserLevelById(yxUserQueryVo.getLevel());
@@ -110,8 +111,8 @@ public class UserController extends BaseController {
      * 订单统计数据
      */
     @GetMapping("/order/data")
-    @ApiOperation(value = "订单统计数据",notes = "订单统计数据")
-    public ApiResult<Object> orderData(){
+    @ApiOperation(value = "订单统计数据", notes = "订单统计数据")
+    public ApiResult<Object> orderData() {
         int uid = SecurityUtils.getUserId().intValue();
         return ApiResult.ok(orderService.orderData(uid));
     }
@@ -120,24 +121,24 @@ public class UserController extends BaseController {
      * 获取收藏产品
      */
     @GetMapping("/collect/user")
-    @ApiOperation(value = "获取收藏产品",notes = "获取收藏产品")
-    public ApiResult<Object> collectUser(@RequestParam(value = "page",defaultValue = "1") int page,
-                                         @RequestParam(value = "limit",defaultValue = "10") int limit){
+    @ApiOperation(value = "获取收藏产品", notes = "获取收藏产品")
+    public ApiResult<Object> collectUser(@RequestParam(value = "page", defaultValue = "1") int page,
+                                         @RequestParam(value = "limit", defaultValue = "10") int limit) {
         int uid = SecurityUtils.getUserId().intValue();
-        return ApiResult.ok(relationService.userCollectProduct(page,limit,uid));
+        return ApiResult.ok(relationService.userCollectProduct(page, limit, uid));
     }
 
     /**
      * 用户资金统计
      */
     @GetMapping("/user/balance")
-    @ApiOperation(value = "用户资金统计",notes = "用户资金统计")
-    public ApiResult<Object> collectUser(){
+    @ApiOperation(value = "用户资金统计", notes = "用户资金统计")
+    public ApiResult<Object> collectUser() {
         int uid = SecurityUtils.getUserId().intValue();
-        Map<String,Object> map = new LinkedHashMap<>();
-        map.put("now_money",yxUserService.getYxUserById(uid).getNowMoney());
-        map.put("orderStatusSum",orderService.orderData(uid).getSumPrice());
-        map.put("recharge",0);
+        Map<String, Object> map = new LinkedHashMap<>();
+        map.put("now_money", yxUserService.getYxUserById(uid).getNowMoney());
+        map.put("orderStatusSum", orderService.orderData(uid).getSumPrice());
+        map.put("recharge", 0);
         return ApiResult.ok(map);
     }
 
@@ -146,13 +147,13 @@ public class UserController extends BaseController {
      */
     @AnonymousAccess
     @GetMapping("/user/activity")
-    @ApiOperation(value = "获取活动状态",notes = "获取活动状态")
+    @ApiOperation(value = "获取活动状态", notes = "获取活动状态")
     @Deprecated
-    public ApiResult<Object> activity(){
-        Map<String,Object> map = new LinkedHashMap<>();
-        map.put("is_bargin",false);
-        map.put("is_pink",false);
-        map.put("is_seckill",false);
+    public ApiResult<Object> activity() {
+        Map<String, Object> map = new LinkedHashMap<>();
+        map.put("is_bargin", false);
+        map.put("is_pink", false);
+        map.put("is_seckill", false);
         return ApiResult.ok(map);
     }
 
@@ -160,8 +161,8 @@ public class UserController extends BaseController {
      * 签到用户信息
      */
     @PostMapping("/sign/user")
-    @ApiOperation(value = "签到用户信息",notes = "签到用户信息")
-    public ApiResult<Object> sign(@RequestBody String jsonStr){
+    @ApiOperation(value = "签到用户信息", notes = "签到用户信息")
+    public ApiResult<Object> sign(@RequestBody String jsonStr) {
         JSONObject jsonObject = JSON.parseObject(jsonStr);
         int uid = SecurityUtils.getUserId().intValue();
         YxUserQueryVo userQueryVo = yxUserService.getYxUserById(uid);
@@ -171,7 +172,7 @@ public class UserController extends BaseController {
         userQueryVo.setSumSignDay(sumSignDay);
         userQueryVo.setIsDaySign(isDaySign);
         userQueryVo.setIsYesterDaySign(isYesterDaySign);
-        if(!isDaySign && !isYesterDaySign) userQueryVo.setSignNum(0);
+        if (!isDaySign && !isYesterDaySign) userQueryVo.setSignNum(0);
         return ApiResult.ok(userQueryVo);
     }
 
@@ -179,8 +180,8 @@ public class UserController extends BaseController {
      * 签到配置
      */
     @GetMapping("/sign/config")
-    @ApiOperation(value = "签到配置",notes = "签到配置")
-    public ApiResult<Object> signConfig(){
+    @ApiOperation(value = "签到配置", notes = "签到配置")
+    public ApiResult<Object> signConfig() {
         return ApiResult.ok(systemGroupDataService.getDatas(ShopConstants.YSHOP_SIGN_DAY_NUM));
     }
 
@@ -188,10 +189,10 @@ public class UserController extends BaseController {
      * 签到列表
      */
     @GetMapping("/sign/list")
-    @ApiOperation(value = "签到列表",notes = "签到列表")
-    public ApiResult<Object> signList(YxUserSignQueryParam queryParam){
+    @ApiOperation(value = "签到列表", notes = "签到列表")
+    public ApiResult<Object> signList(YxUserSignQueryParam queryParam) {
         int uid = SecurityUtils.getUserId().intValue();
-        return ApiResult.ok(userSignService.getSignList(uid,queryParam.getPage().intValue(),
+        return ApiResult.ok(userSignService.getSignList(uid, queryParam.getPage().intValue(),
                 queryParam.getLimit().intValue()));
     }
 
@@ -199,39 +200,39 @@ public class UserController extends BaseController {
      * 签到列表（年月）
      */
     @GetMapping("/sign/month")
-    @ApiOperation(value = "签到列表（年月）",notes = "签到列表（年月）")
-    public ApiResult<Object> signMonthList(YxUserSignQueryParam queryParam){
+    @ApiOperation(value = "签到列表（年月）", notes = "签到列表（年月）")
+    public ApiResult<Object> signMonthList(YxUserSignQueryParam queryParam) {
         int uid = SecurityUtils.getUserId().intValue();
         return ApiResult.ok(userBillService.getUserBillList(queryParam.getPage().intValue(),
-                queryParam.getLimit().intValue(),uid,5));
+                queryParam.getLimit().intValue(), uid, 5));
     }
 
     /**
      * 开始签到
      */
     @PostMapping("/sign/integral")
-    @ApiOperation(value = "开始签到",notes = "开始签到")
-    public ApiResult<Object> signIntegral(){
+    @ApiOperation(value = "开始签到", notes = "开始签到")
+    public ApiResult<Object> signIntegral() {
         int uid = SecurityUtils.getUserId().intValue();
         boolean isDaySign = userSignService.getToDayIsSign(uid);
-        if(isDaySign) return ApiResult.fail("已签到");
+        if (isDaySign) return ApiResult.fail("已签到");
         int integral = 0;
         try {
             lock.lock();
             integral = userSignService.sign(uid);
-        }finally {
+        } finally {
             lock.unlock();
         }
 
-        Map<String,Object> map = new LinkedHashMap<>();
-        map.put("integral",integral);
-        return ApiResult.ok(map,"签到获得" + integral + "积分");
+        Map<String, Object> map = new LinkedHashMap<>();
+        map.put("integral", integral);
+        return ApiResult.ok(map, "签到获得" + integral + "积分");
     }
 
 
     @PostMapping("/user/edit")
-    @ApiOperation(value = "用户修改信息",notes = "用修改信息")
-    public ApiResult<Object> edit(@Validated @RequestBody UserEditParam param){
+    @ApiOperation(value = "用户修改信息", notes = "用修改信息")
+    public ApiResult<Object> edit(@Validated @RequestBody UserEditParam param) {
         int uid = SecurityUtils.getUserId().intValue();
 
         YxUser yxUser = new YxUser();
@@ -243,8 +244,6 @@ public class UserController extends BaseController {
 
         return ApiResult.ok("修改成功");
     }
-
-
 
 
 }

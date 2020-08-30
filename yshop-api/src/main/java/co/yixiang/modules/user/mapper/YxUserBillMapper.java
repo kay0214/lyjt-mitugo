@@ -1,8 +1,5 @@
 package co.yixiang.modules.user.mapper;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import co.yixiang.modules.user.entity.YxUserBill;
 import co.yixiang.modules.user.web.dto.BillDTO;
 import co.yixiang.modules.user.web.dto.BillOrderRecordDTO;
@@ -11,7 +8,10 @@ import co.yixiang.modules.user.web.dto.UserBillDTO;
 import co.yixiang.modules.user.web.param.YxUserBillQueryParam;
 import co.yixiang.modules.user.web.vo.YxUserBillQueryVo;
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Constants;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.springframework.stereotype.Repository;
@@ -54,11 +54,11 @@ public interface YxUserBillMapper extends BaseMapper<YxUserBill> {
 
     @Select("SELECT FROM_UNIXTIME(add_time,'%Y-%m') as time " +
             " FROM yx_user_bill ${ew.customSqlSegment}")
-    List<String> getBillOrderList(@Param(Constants.WRAPPER) Wrapper<YxUserBill> userWrapper,Page page);
+    List<String> getBillOrderList(@Param(Constants.WRAPPER) Wrapper<YxUserBill> userWrapper, Page page);
 
     @Select("SELECT FROM_UNIXTIME(add_time,'%Y-%m') as time,group_concat(id SEPARATOR ',') ids " +
             " FROM yx_user_bill ${ew.customSqlSegment}")
-    List<BillDTO> getBillList(@Param(Constants.WRAPPER) Wrapper<YxUserBill> userWrapper,Page page);
+    List<BillDTO> getBillList(@Param(Constants.WRAPPER) Wrapper<YxUserBill> userWrapper, Page page);
 
     @Select("SELECT FROM_UNIXTIME(add_time,'%Y-%m-%d %H:%i') as add_time,title,number,pm " +
             " FROM yx_user_bill ${ew.customSqlSegment}")
@@ -75,9 +75,19 @@ public interface YxUserBillMapper extends BaseMapper<YxUserBill> {
             "and uid=#{uid} and TO_DAYS(NOW()) - TO_DAYS(add_time) <= 1")
     BigDecimal sumYesterdayPrice(@Param("uid") int uid);
 
+    @Select("select IFNULL(sum(number),0) from yx_user_bill " +
+            "where status=1 and type='brokerage' and pm=1 and category='now_money' " +
+            "and uid=#{uid} and add_time >= UNIX_TIMESTAMP(CAST(SYSDATE() AS DATE))")
+    BigDecimal todayCommissionSum(@Param("uid") int uid);
+
+    @Select("select IFNULL(sum(number),0) from yx_user_bill " +
+            "where status=1 and type='brokerage' and pm=1 and category='now_money' " +
+            "and uid=#{uid}")
+    BigDecimal totalCommissionSum(@Param("uid") int uid);
 
     /**
      * 根据ID获取查询对象
+     *
      * @param id
      * @return
      */
@@ -85,6 +95,7 @@ public interface YxUserBillMapper extends BaseMapper<YxUserBill> {
 
     /**
      * 获取分页对象
+     *
      * @param page
      * @param yxUserBillQueryParam
      * @return

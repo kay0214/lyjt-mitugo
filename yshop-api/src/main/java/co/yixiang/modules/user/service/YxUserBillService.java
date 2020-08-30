@@ -25,7 +25,7 @@ public interface YxUserBillService extends BaseService<YxUserBill> {
 
     int cumulativeAttendance(int uid);
 
-    Map<String,Object> spreadOrder(int uid, int page, int limit);
+    Map<String, Object> spreadOrder(int uid, int page, int limit);
 
     List<BillDTO> getUserBillList(int page, int limit, int uid, int type);
 
@@ -33,10 +33,21 @@ public interface YxUserBillService extends BaseService<YxUserBill> {
 
     BigDecimal yesterdayCommissionSum(int uid);
 
+    BigDecimal todayCommissionSum(int uid);
+
+    /**
+     * 计算累计收益
+     *
+     * @param uid
+     * @return
+     */
+    BigDecimal totalCommissionSum(int uid);
+
     List<YxUserBillQueryVo> userBillList(int uid, int page, int limit, String category);
 
     /**
      * 根据ID获取查询对象
+     *
      * @param id
      * @return
      */
@@ -44,6 +55,7 @@ public interface YxUserBillService extends BaseService<YxUserBill> {
 
     /**
      * 获取分页对象
+     *
      * @param yxUserBillQueryParam
      * @return
      */
@@ -51,6 +63,7 @@ public interface YxUserBillService extends BaseService<YxUserBill> {
 
     /**
      * 确认收货保存商户资金和可用资金
+     *
      * @param order
      */
     void saveMerchantsBill(YxStoreOrderQueryVo order);

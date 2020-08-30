@@ -164,4 +164,9 @@ private String pwd;*/
 
     private String vipName;
 
+    @ApiModelProperty(value = "今天累计收益")
+    private BigDecimal todayCommission;
+
+    @ApiModelProperty(value = "总累计收益")
+    private BigDecimal allCommission;
 }
