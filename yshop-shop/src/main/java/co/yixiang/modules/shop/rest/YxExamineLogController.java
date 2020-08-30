@@ -13,6 +13,8 @@ import co.yixiang.logging.aop.log.Log;
 import co.yixiang.modules.shop.service.YxExamineLogService;
 import co.yixiang.modules.shop.service.dto.YxExamineLogDto;
 import co.yixiang.modules.shop.service.dto.YxExamineLogQueryCriteria;
+import co.yixiang.utils.CurrUser;
+import co.yixiang.utils.SecurityUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.AllArgsConstructor;
@@ -56,6 +58,11 @@ public class YxExamineLogController {
     @ApiOperation("查询审核记录")
     @PreAuthorize("@el.check('admin','yxExamineLog:list')")
     public ResponseEntity<Object> getYxExamineLogs(YxExamineLogQueryCriteria criteria, Pageable pageable) {
+        CurrUser currUser = SecurityUtils.getCurrUser();
+        criteria.setUserRole(currUser.getUserRole());
+        if (null != currUser.getChildUser()) {
+            criteria.setChildUser(currUser.getChildUser());
+        }
         return new ResponseEntity<>(yxExamineLogService.queryAll(criteria, pageable), HttpStatus.OK);
     }
 }
