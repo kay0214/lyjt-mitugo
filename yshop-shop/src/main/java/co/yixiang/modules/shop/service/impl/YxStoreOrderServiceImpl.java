@@ -23,10 +23,7 @@ import co.yixiang.modules.activity.service.mapper.YxStoreCouponUserMapper;
 import co.yixiang.modules.shop.domain.*;
 import co.yixiang.modules.shop.service.*;
 import co.yixiang.modules.shop.service.dto.*;
-import co.yixiang.modules.shop.service.mapper.StoreOrderMapper;
-import co.yixiang.modules.shop.service.mapper.StoreProductAttrValueMapper;
-import co.yixiang.modules.shop.service.mapper.StoreProductMapper;
-import co.yixiang.modules.shop.service.mapper.UserMapper;
+import co.yixiang.modules.shop.service.mapper.*;
 import co.yixiang.mp.service.YxMiniPayService;
 import co.yixiang.mp.service.YxPayService;
 import co.yixiang.utils.FileUtil;
@@ -79,6 +76,7 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<StoreOrderMapper, Y
     private final YxStoreCartService storeCartService;
     private final StoreOrderMapper yxStoreOrderMapper;
     private final StoreProductMapper yxStoreProductMapper;
+    private final YxStoreInfoMapper yxStoreInfoMapper;
 
     private YxStoreOrderCartInfoService orderCartInfoService;
     private YxStoreCouponUserMapper yxStoreCouponUserMapper;
@@ -153,7 +151,7 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<StoreOrderMapper, Y
 //        getPage(pageable);
 //        PageInfo<YxStoreOrder> page = new PageInfo<>(queryAll(criteria));
         QueryWrapper<YxStoreOrder> queryWrapper = new QueryWrapper<>();
-        queryWrapper.orderByDesc("create_time");
+        queryWrapper.lambda().orderByDesc(YxStoreOrder::getAddTime);
         if (0 != criteria.getUserRole()) {
             if (null == criteria.getChildUser() || criteria.getChildUser().size() <= 0) {
                 Map<String, Object> map = new LinkedHashMap<>(2);
@@ -220,7 +218,7 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<StoreOrderMapper, Y
                 yxStoreOrder.getRefundStatus());
 
         if (yxStoreOrder.getStoreId() > 0) {
-            String storeName = systemStoreService.getById(yxStoreOrder.getStoreId()).getName();
+            String storeName = yxStoreInfoMapper.selectById(yxStoreOrder.getStoreId()).getStoreName();
             yxStoreOrderDto.setStoreName(storeName);
         }
 

@@ -129,6 +129,14 @@ public class YxCouponOrderController {
 //        return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    @ApiOperation(value = "退款")
+    @PostMapping(value = "/yxStoreOrder/refund")
+    @PreAuthorize("@el.check('admin','yxCouponOrder:refund')")
+    public ResponseEntity refund(@Validated @RequestBody YxCouponOrder resources) {
+//        yxCouponOrderService.refund(resources);
+        return new ResponseEntity(HttpStatus.OK);
+    }
+
     @Log("核销卡券")
     @ApiOperation("B端：核销卡券")
     @GetMapping(value = "/useCoupon/{verifyCode}")
