@@ -15,6 +15,7 @@ import co.yixiang.modules.shop.domain.YxStoreProductChange;
 import co.yixiang.modules.shop.service.YxStoreInfoService;
 import co.yixiang.modules.shop.service.YxStoreProductService;
 import co.yixiang.modules.shop.service.dto.YxStoreProductQueryCriteria;
+import co.yixiang.utils.CurrUser;
 import co.yixiang.utils.OrderUtil;
 import co.yixiang.utils.SecurityUtils;
 import com.alibaba.fastjson.JSON;
@@ -56,6 +57,11 @@ public class StoreProductController {
     @GetMapping(value = "/yxStoreProduct")
     @PreAuthorize("hasAnyRole('admin','YXSTOREPRODUCT_ALL','YXSTOREPRODUCT_SELECT')")
     public ResponseEntity getYxStoreProducts(YxStoreProductQueryCriteria criteria, Pageable pageable){
+        CurrUser currUser = SecurityUtils.getCurrUser();
+        criteria.setUserRole(currUser.getUserRole());
+        if (null != currUser.getChildUser()) {
+            criteria.setChildUser(currUser.getChildUser());
+        }
         return new ResponseEntity(yxStoreProductService.queryAll(criteria,pageable),HttpStatus.OK);
     }
 
