@@ -20,8 +20,10 @@ import co.yixiang.modules.coupon.service.mapper.YxCouponsMapper;
 import co.yixiang.modules.shop.domain.YxImageInfo;
 import co.yixiang.modules.shop.service.YxImageInfoService;
 import co.yixiang.utils.FileUtil;
+import co.yixiang.utils.StringUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.github.pagehelper.PageInfo;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
@@ -65,10 +67,36 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
     @Override
     //@Cacheable
     public Map<String, Object> queryAll(YxCouponsQueryCriteria criteria, Pageable pageable) {
-        getPage(pageable);
-        PageInfo<YxCoupons> page = new PageInfo<>(queryAll(criteria));
+//        getPage(pageable);
+//        PageInfo<YxCoupons> page = new PageInfo<>(queryAll(criteria));
+        QueryWrapper<YxCoupons> queryWrapper = new QueryWrapper<>();
+        queryWrapper.orderByDesc("create_time");
+        if (0 != criteria.getUserRole()) {
+            if (null == criteria.getChildUser() || criteria.getChildUser().size() <= 0) {
+                Map<String, Object> map = new LinkedHashMap<>(2);
+                map.put("content", new ArrayList<>());
+                map.put("totalElements", 0);
+                return map;
+            }
+            queryWrapper.lambda().in(YxCoupons::getBelong, criteria.getChildUser()).eq(YxCoupons::getDelFlag, 0);
+        }
+
+        if (StringUtils.isNotBlank(criteria.getCouponName())) {
+            queryWrapper.lambda().like(YxCoupons::getCouponName, criteria.getCouponName());
+        }
+        if (null != criteria.getCouponType()) {
+            queryWrapper.lambda().eq(YxCoupons::getCouponType, criteria.getCouponType());
+        }
+        if (null != criteria.getIsShow()) {
+            queryWrapper.lambda().eq(YxCoupons::getIsShow, criteria.getIsShow());
+        }
+        if (null != criteria.getIsHot()) {
+            queryWrapper.lambda().eq(YxCoupons::getIsHot, criteria.getIsHot());
+        }
+        IPage<YxCoupons> ipage = this.page(new Page<>(pageable.getPageNumber() + 1, pageable.getPageSize()), queryWrapper);
+
         Map<String, Object> map = new LinkedHashMap<>(2);
-        List<YxCouponsDto> yxCouponsDtoList = generator.convert(page.getList(), YxCouponsDto.class);
+        List<YxCouponsDto> yxCouponsDtoList = generator.convert(ipage.getRecords(), YxCouponsDto.class);
         if (yxCouponsDtoList.size() > 0) {
             // 查询缩略图和幻灯片
             for (YxCouponsDto yxCouponsDto : yxCouponsDtoList) {
@@ -111,7 +139,7 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
             }
         }
         map.put("content", yxCouponsDtoList);
-        map.put("totalElements", page.getTotal());
+        map.put("totalElements", ipage.getTotal());
         return map;
     }
 
@@ -190,7 +218,7 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
             return yxCouponsDto;
         }
         // 判断是否本商铺发放的卡券
-        if(!yxCoupons.getCreateUserId().equals(uid)) {
+        if (!yxCoupons.getCreateUserId().equals(uid)) {
             yxCouponsDto.setStatus(-3);
             yxCouponsDto.setStatusDesc("非本商户卡券");
             return yxCouponsDto;

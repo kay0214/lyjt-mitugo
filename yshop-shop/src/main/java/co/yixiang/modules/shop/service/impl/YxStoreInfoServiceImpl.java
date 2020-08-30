@@ -318,4 +318,27 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
     public void updateDelFlg(Integer id) {
         yxStoreInfoMapper.updateDelFlg(id);
     }
+
+    /**
+     * 根据商户uid获取所有商户的storeId
+     *
+     * @param childUser
+     * @return
+     */
+    @Override
+    public List<Long> getStoreIdByMerId(List<Long> childUser) {
+        if (null == childUser || childUser.size() <= 0) {
+            return new ArrayList<>();
+        }
+        List<YxStoreInfo> list = this.list(new QueryWrapper<YxStoreInfo>().lambda().in(YxStoreInfo::getMerId, childUser));
+        if (null == list || list.size() <= 0) {
+            return new ArrayList<>();
+        }
+        List<Long> result = new ArrayList<>();
+        for (YxStoreInfo item : list) {
+            result.add(item.getId().longValue());
+        }
+
+        return result;
+    }
 }
