@@ -37,6 +37,7 @@ import co.yixiang.modules.shop.entity.YxStoreInfo;
 import co.yixiang.modules.shop.service.YxStoreInfoService;
 import co.yixiang.modules.shop.service.YxSystemConfigService;
 import co.yixiang.modules.shop.service.YxSystemStoreService;
+import co.yixiang.modules.user.entity.YxUser;
 import co.yixiang.modules.user.entity.YxUserBill;
 import co.yixiang.modules.user.entity.YxWechatUser;
 import co.yixiang.modules.user.service.YxUserBillService;
@@ -125,6 +126,9 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
 
     @Autowired
     private CouponOrderMap couponOrderMap;
+
+    @Autowired
+    private YxUserBillService yxUserBillService;
 
     @Override
     public YxCouponOrderQueryVo getYxCouponOrderById(Serializable id) throws Exception {
@@ -680,6 +684,26 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
             item.setStatus(4);
         }
         this.yxCouponOrderDetailService.updateBatchById(list);
+
+        YxUser yxUser = this.userService.getById(yxCouponOrder.getUid());
+        // 插入资金明细
+        YxUserBill yxUserBill = new YxUserBill();
+        yxUserBill.setUid(yxCouponOrder.getUid());
+        yxUserBill.setLinkId(yxCouponOrder.getOrderId());
+        yxUserBill.setPm(0);
+        yxUserBill.setTitle("小程序本地生活购买");
+        yxUserBill.setCategory("now_money");
+        yxUserBill.setType("pay_product");
+        yxUserBill.setNumber(yxCouponOrder.getTotalPrice());
+        // 目前只支持微信付款、没有余额
+        yxUserBill.setBalance(BigDecimal.ZERO);
+        yxUserBill.setAddTime(DateUtils.getNowTime());
+        yxUserBill.setStatus(1);
+        yxUserBill.setMerId(yxCouponOrder.getMerId());
+
+        yxUserBill.setUserType(1);
+        yxUserBill.setUsername(yxUser.getUsername());
+        this.yxUserBillService.save(yxUserBill);
     }
 
     /**
