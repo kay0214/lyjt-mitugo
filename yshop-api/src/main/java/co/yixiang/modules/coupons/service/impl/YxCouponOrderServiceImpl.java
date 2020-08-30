@@ -720,11 +720,11 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         BeanUtils.copyBeanProp(item, this.yxCouponOrderDetailService.getById(id));
 
         // 获取卡券list
-        List<YxCouponOrderDetail> detailList = this.yxCouponOrderDetailService.list(new QueryWrapper<YxCouponOrderDetail>().eq("order_id", item.getOrderId()));
+        List<YxCouponOrderDetail> detailList = this.yxCouponOrderDetailService.list(new QueryWrapper<YxCouponOrderDetail>().lambda().eq(YxCouponOrderDetail::getOrderId, item.getOrderId()));
         // 获取该订单购买的优惠券id
         Integer couponId = detailList.get(0).getCouponId();
         // 根据优惠券id获取优惠券信息
-        YxCoupons yxCoupons = this.couponsService.getOne(new QueryWrapper<YxCoupons>().eq("", couponId));
+        YxCoupons yxCoupons = this.couponsService.getOne(new QueryWrapper<YxCoupons>().lambda().eq(YxCoupons::getId, couponId));
         // 拼接有效期
         String expireDate = DateUtils.parseDateToStr(DateUtils.getDate(), yxCoupons.getExpireDateStart()) + " ~ " + DateUtils.parseDateToStr(DateUtils.getDate(), yxCoupons.getExpireDateEnd());
         // 根据优惠券所属获取商户信息
