@@ -15,6 +15,7 @@ import co.yixiang.modules.coupon.service.YxCouponOrderDetailService;
 import co.yixiang.modules.coupon.service.YxCouponOrderService;
 import co.yixiang.modules.coupon.service.YxCouponOrderUseService;
 import co.yixiang.modules.coupon.service.YxCouponsService;
+import co.yixiang.modules.coupon.service.dto.YxCouponOrderDetailDto;
 import co.yixiang.modules.coupon.service.dto.YxCouponOrderDto;
 import co.yixiang.modules.coupon.service.dto.YxCouponOrderQueryCriteria;
 import co.yixiang.modules.coupon.service.dto.YxCouponsDto;
@@ -118,6 +119,9 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
                     .eq("img_category", ShopConstants.IMG_CATEGORY_PIC).eq("del_flag", 0));
             yxCouponOrderDto.setImage(thumbnail.getImgUrl());
             yxCouponOrderDto.setYxCouponsDto(generator.convert(yxCoupons, YxCouponsDto.class));
+            // 卡券详情
+            List<YxCouponOrderDetail> detailList = this.yxCouponOrderDetailService.list(new QueryWrapper<YxCouponOrderDetail>().lambda().eq(YxCouponOrderDetail::getCouponId, couponId));
+            yxCouponOrderDto.setDetailList(generator.convert(detailList, YxCouponOrderDetailDto.class));
             list.add(yxCouponOrderDto);
         }
 
