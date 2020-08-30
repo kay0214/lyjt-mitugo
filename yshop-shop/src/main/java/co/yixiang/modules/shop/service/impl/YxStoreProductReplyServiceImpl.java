@@ -63,7 +63,7 @@ public class YxStoreProductReplyServiceImpl extends BaseServiceImpl<StoreProduct
 //        getPage(pageable);
 //        PageInfo<YxStoreProductReply> page = new PageInfo<>(queryAll(criteria));
         QueryWrapper<YxStoreProductReply> queryWrapper = new QueryWrapper<>();
-        queryWrapper.orderByDesc("create_time");
+        queryWrapper.lambda().orderByDesc(YxStoreProductReply::getAddTime);
         if (0 != criteria.getUserRole()) {
             if (null == criteria.getChildUser() || criteria.getChildUser().size() <= 0) {
                 Map<String, Object> map = new LinkedHashMap<>(2);
