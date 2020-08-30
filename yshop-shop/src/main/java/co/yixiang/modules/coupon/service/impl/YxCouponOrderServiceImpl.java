@@ -84,15 +84,21 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
             }
             queryWrapper.lambda().in(YxCouponOrder::getMerId, criteria.getChildUser()).eq(YxCouponOrder::getDelFlag, 0);
         }
-        if (StringUtils.isNotBlank(criteria.getRealName())) {
-            queryWrapper.lambda().like(YxCouponOrder::getRealName, criteria.getRealName());
+        if (null != criteria.getOrderStatus()) {
+            queryWrapper.lambda().eq(YxCouponOrder::getStatus, criteria.getOrderStatus());
         }
-        if (StringUtils.isNotBlank(criteria.getOrderId())) {
-            queryWrapper.lambda().eq(YxCouponOrder::getOrderId, criteria.getOrderId());
+        if (StringUtils.isNotBlank(criteria.getOrderType()) && StringUtils.isNotBlank(criteria.getValue())) {
+            if ("orderId".equals(criteria.getOrderType())) {
+                queryWrapper.lambda().like(YxCouponOrder::getOrderId, criteria.getValue());
+            }
+            if ("realName".equals(criteria.getOrderType())) {
+                queryWrapper.lambda().like(YxCouponOrder::getRealName, criteria.getValue());
+            }
+            if ("userPhone".equals(criteria.getOrderType())) {
+                queryWrapper.lambda().like(YxCouponOrder::getUserPhone, criteria.getValue());
+            }
         }
-        if (null != criteria.getStatus()) {
-            queryWrapper.lambda().eq(YxCouponOrder::getStatus, criteria.getStatus());
-        }
+
         IPage<YxCouponOrder> ipage = this.page(new Page<>(pageable.getPageNumber() + 1, pageable.getPageSize()), queryWrapper);
         if (ipage.getTotal() <= 0) {
             Map<String, Object> map = new LinkedHashMap<>(2);
