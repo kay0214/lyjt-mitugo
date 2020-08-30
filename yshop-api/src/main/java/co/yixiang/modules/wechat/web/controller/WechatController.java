@@ -11,7 +11,6 @@ import co.yixiang.enums.BillDetailEnum;
 import co.yixiang.enums.OrderInfoEnum;
 import co.yixiang.modules.coupons.entity.YxCouponOrder;
 import co.yixiang.modules.coupons.service.YxCouponOrderService;
-import co.yixiang.modules.coupons.web.vo.YxCouponOrderQueryVo;
 import co.yixiang.modules.order.entity.YxStoreOrder;
 import co.yixiang.modules.order.service.YxStoreOrderService;
 import co.yixiang.modules.order.web.vo.YxStoreOrderQueryVo;
@@ -24,6 +23,7 @@ import co.yixiang.mp.config.WxMpConfiguration;
 import co.yixiang.mp.config.WxPayConfiguration;
 import co.yixiang.utils.BigNum;
 import co.yixiang.utils.OrderUtil;
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.github.binarywang.wxpay.bean.notify.WxPayNotifyResponse;
 import com.github.binarywang.wxpay.bean.notify.WxPayOrderNotifyResult;
@@ -318,6 +318,7 @@ public class WechatController extends BaseController {
             WxPayOrderNotifyResult notifyResult = wxPayService.parseOrderNotifyResult(xmlData);
             String orderId = notifyResult.getOutTradeNo();
             String attach = notifyResult.getAttach();
+            log.info("收到支付异步回调" + JSON.toJSONString(notifyResult));
             if(BillDetailEnum.TYPE_3.getValue().equals(attach)){
                 // 商品购买
                 List<YxStoreOrderQueryVo> lsitOrder = orderService.getOrderInfoList(orderId,0);
