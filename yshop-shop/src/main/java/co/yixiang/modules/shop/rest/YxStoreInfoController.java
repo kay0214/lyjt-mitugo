@@ -12,6 +12,7 @@ import co.yixiang.modules.shop.service.UserService;
 import co.yixiang.modules.shop.service.YxStoreInfoService;
 import co.yixiang.modules.shop.service.dto.YxStoreInfoDto;
 import co.yixiang.modules.shop.service.dto.YxStoreInfoQueryCriteria;
+import co.yixiang.utils.CurrUser;
 import co.yixiang.utils.SecurityUtils;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -68,11 +69,10 @@ public class YxStoreInfoController {
     @PreAuthorize("@el.check('admin','yxStoreInfo:list')")
     public ResponseEntity<Object> getYxStoreInfos(YxStoreInfoQueryCriteria criteria, Pageable pageable) {
         criteria.setDelFlag(0);
-        int sysUserId = SecurityUtils.getUserId().intValue();
-        User userSys = userService.getById(sysUserId);
-        if(userSys.getUserRole().equals(2)){
-            //登录用户角色=商户
-            criteria.setMerId(sysUserId);
+        CurrUser currUser = SecurityUtils.getCurrUser();
+        criteria.setUserRole(currUser.getUserRole());
+        if (null != currUser.getChildUser()) {
+            criteria.setChildUser(currUser.getChildUser());
         }
         return new ResponseEntity<>(yxStoreInfoService.queryAll(criteria, pageable), HttpStatus.OK);
     }

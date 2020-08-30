@@ -17,7 +17,7 @@ import co.yixiang.annotation.Query;
 * @date 2020-08-14
 */
 @Data
-public class YxStoreInfoQueryCriteria{
+public class YxStoreInfoQueryCriteria extends BaseCriteria{
     /** 店铺名称 */
     @Query(type = Query.Type.INNER_LIKE)
     private String storeName;

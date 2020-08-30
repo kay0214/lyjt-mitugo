@@ -14,6 +14,7 @@ import co.yixiang.modules.shop.service.dto.YxMerchantsDetailDto;
 import co.yixiang.modules.shop.service.dto.YxMerchantsDetailQueryCriteria;
 import co.yixiang.modules.shop.service.mapper.YxMerchantsDetailMapper;
 import co.yixiang.utils.FileUtil;
+import co.yixiang.utils.SecretUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -277,7 +278,7 @@ public class YxMerchantsDetailServiceImpl extends BaseServiceImpl<YxMerchantsDet
             User user = this.userService.getById(yxMerchantsDetail.getUid());
             YxStoreInfo yxStoreInfo = new YxStoreInfo();
             // 店铺编号
-            yxStoreInfo.setStoreNid("S" + UUID.randomUUID());
+            yxStoreInfo.setStoreNid("S" + SecretUtil.createRandomStr(8) + resources.getId());
             yxStoreInfo.setStoreName("未命名店铺");
             yxStoreInfo.setManageUserName(yxMerchantsDetail.getContacts());
             yxStoreInfo.setMerId(yxMerchantsDetail.getUid());
