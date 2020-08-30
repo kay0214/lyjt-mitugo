@@ -200,4 +200,8 @@ public class YxCouponOrderDto implements Serializable {
 
     /** 卡券核销记录 */
     List<YxCouponOrderUse> couponOrderUseList;
+
+    YxCouponsDto yxCouponsDto;
+
+    private String image;
 }
