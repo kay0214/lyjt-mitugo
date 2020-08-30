@@ -7,6 +7,7 @@ import co.yixiang.constant.LocalLiveConstants;
 import co.yixiang.constant.MQConstant;
 import co.yixiang.constant.ShopConstants;
 import co.yixiang.dozer.service.IGenerator;
+import co.yixiang.exception.BadRequestException;
 import co.yixiang.modules.coupon.domain.YxCouponOrder;
 import co.yixiang.modules.coupon.domain.YxCouponOrderDetail;
 import co.yixiang.modules.coupon.domain.YxCouponOrderUse;
@@ -24,12 +25,14 @@ import co.yixiang.modules.shop.domain.YxImageInfo;
 import co.yixiang.modules.shop.domain.YxStoreInfo;
 import co.yixiang.modules.shop.service.YxImageInfoService;
 import co.yixiang.modules.shop.service.YxStoreInfoService;
+import co.yixiang.mp.service.YxMiniPayService;
 import co.yixiang.utils.FileUtil;
 import co.yixiang.utils.StringUtils;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.github.binarywang.wxpay.exception.WxPayException;
 import com.hyjf.framework.starter.recketmq.MessageContent;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -41,6 +44,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -68,6 +72,8 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
     private YxImageInfoService yxImageInfoService;
     @Autowired
     private MqProducer mqProducer;
+    @Autowired
+    private YxMiniPayService miniPayService;
 
     @Override
     //@Cacheable
@@ -280,5 +286,28 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
             mqProducer.messageSend2(new MessageContent(MQConstant.MITU_TOPIC, MQConstant.MITU_COMMISSION_TAG, UUID.randomUUID().toString(), jsonObject));
         }
         return true;
+    }
+
+    /**
+     * 卡券订单退款
+     *
+     * @param resources
+     */
+    @Override
+    public void refund(YxCouponOrderDto resources) {
+        if (resources.getRefundPrice().compareTo(BigDecimal.ZERO) <= 0) {
+            throw new BadRequestException("请输入退款金额");
+        }
+        if (resources.getRefundPrice().compareTo(resources.getTotalPrice()) > 0) {
+            throw new BadRequestException("退款金额不可大于支付金额");
+        }
+
+        BigDecimal bigDecimal = new BigDecimal("100");
+        try {
+            miniPayService.refundCouponOrderNew(resources.getOrderId(), bigDecimal.multiply(resources.getRefundPrice()).intValue(), resources.getOrderId(), bigDecimal.multiply(resources.getTotalPrice()).intValue());
+        } catch (WxPayException e) {
+            log.info("refund-error:{}", e.getMessage());
+            throw new BadRequestException("退款失败:" + e.getMessage());
+        }
     }
 }

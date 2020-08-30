@@ -48,4 +48,11 @@ public interface YxCouponOrderService  extends BaseService<YxCouponOrder>{
      * @return
      */
     boolean updateCouponOrder(String verifyCode, int uid);
+
+    /**
+     * 卡券订单退款
+     *
+     * @param resources
+     */
+    void refund(YxCouponOrderDto resources);
 }

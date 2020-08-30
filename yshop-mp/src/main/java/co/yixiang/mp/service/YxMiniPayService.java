@@ -111,6 +111,27 @@ public class YxMiniPayService {
         wxPayService.refund(wxPayRefundRequest);
     }
 
+    /**
+     * 退款
+     * @param orderId
+     * @param totalFee
+     * @throws WxPayException
+     */
+    public void refundCouponOrderNew(String orderId, Integer totalFee,String payNo,Integer payPrice) throws WxPayException {
+        String apiUrl = redisHandler.getVal(ShopKeyUtils.getApiUrl());
+        if (StrUtil.isBlank(apiUrl)) throw new ErrorRequestException("请配置api地址");
+
+        WxPayService wxPayService = WxPayConfiguration.getWxAppPayService();
+        WxPayRefundRequest wxPayRefundRequest = new WxPayRefundRequest();
+
+        wxPayRefundRequest.setTotalFee(payPrice);//订单总金额
+        wxPayRefundRequest.setOutTradeNo(payNo);
+        wxPayRefundRequest.setOutRefundNo(orderId);
+        wxPayRefundRequest.setRefundFee(totalFee);//退款金额
+        wxPayRefundRequest.setNotifyUrl(apiUrl + "/api/notify/couponRefund");
+
+        wxPayService.refund(wxPayRefundRequest);
+    }
 
     /**
      * 企业打款
