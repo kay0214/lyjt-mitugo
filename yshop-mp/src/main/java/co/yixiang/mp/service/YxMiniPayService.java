@@ -1,7 +1,6 @@
 /**
  * Copyright (C) 2018-2020
  * All rights reserved, Designed By www.yixiang.co
-
  */
 package co.yixiang.mp.service;
 
@@ -17,6 +16,7 @@ import com.github.binarywang.wxpay.bean.request.WxPayUnifiedOrderRequest;
 import com.github.binarywang.wxpay.exception.WxPayException;
 import com.github.binarywang.wxpay.service.WxPayService;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 /**
@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
  * @Author hupeng <610796224@qq.com>
  * @Date 2020/3/12
  **/
+@Slf4j
 @Service
 @AllArgsConstructor
 public class YxMiniPayService {
@@ -41,7 +42,7 @@ public class YxMiniPayService {
      * @throws WxPayException
      */
     public WxPayMpOrderResult wxPay(String orderId, String openId, String body,
-                                    Integer totalFee,String attach,String ip) throws WxPayException {
+                                    Integer totalFee, String attach, String ip) throws WxPayException {
 
         String apiUrl = redisHandler.getVal(ShopKeyUtils.getApiUrl());
         if (StrUtil.isBlank(apiUrl)) throw new ErrorRequestException("请配置api地址");
@@ -95,7 +96,7 @@ public class YxMiniPayService {
      * @param totalFee
      * @throws WxPayException
      */
-    public void refundOrderNew(String orderId, Integer totalFee,String payNo,Integer payPrice) throws WxPayException {
+    public void refundOrderNew(String orderId, Integer totalFee, String payNo, Integer payPrice) throws WxPayException {
         String apiUrl = redisHandler.getVal(ShopKeyUtils.getApiUrl());
         if (StrUtil.isBlank(apiUrl)) throw new ErrorRequestException("请配置api地址");
 
@@ -117,7 +118,7 @@ public class YxMiniPayService {
      * @param totalFee
      * @throws WxPayException
      */
-    public void refundCouponOrderNew(String orderId, Integer totalFee,String payNo,Integer payPrice) throws WxPayException {
+    public void refundCouponOrderNew(String orderId, Integer totalFee, String payNo, Integer payPrice) throws WxPayException {
         String apiUrl = redisHandler.getVal(ShopKeyUtils.getApiUrl());
         if (StrUtil.isBlank(apiUrl)) throw new ErrorRequestException("请配置api地址");
 
@@ -141,7 +142,7 @@ public class YxMiniPayService {
      * @param amount
      * @throws WxPayException
      */
-    public void entPay(String openid,String no,String userName,Integer amount) throws WxPayException{
+    public void entPay(String openid, String no, String userName, Integer amount) throws WxPayException {
         WxPayService wxPayService = WxPayConfiguration.getWxAppPayService();
         EntPayRequest entPayRequest = new EntPayRequest();
 
@@ -158,7 +159,7 @@ public class YxMiniPayService {
 
 
     public WxPayMpOrderResult couponWxPay(String orderId, String openId, String body,
-                                          Integer totalFee,String attach,String ip) throws WxPayException {
+                                          Integer totalFee, String attach, String ip) throws WxPayException {
         String apiUrl = redisHandler.getVal(ShopKeyUtils.getApiUrl());
         if (StrUtil.isBlank(apiUrl)) throw new ErrorRequestException("请配置api地址");
 
@@ -172,6 +173,7 @@ public class YxMiniPayService {
         orderRequest.setTotalFee(totalFee);
         orderRequest.setSpbillCreateIp(ip);
 //        orderRequest.setNotifyUrl(apiUrl + "/api/wechat/notify");
+        log.info("回调地址：" + apiUrl + "/api/wechat/notifyNew");
         orderRequest.setNotifyUrl(apiUrl + "/api/wechat/notifyNew");
         orderRequest.setAttach(attach);
 
