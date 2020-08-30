@@ -67,6 +67,7 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 
@@ -781,29 +782,46 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
     @Override
     public OrderCountVO orderData(int uid) {
         OrderCountVO countVO = new OrderCountVO();
+        // 待付款数量
         QueryWrapper<YxCouponOrder> wrapper1 = new QueryWrapper<>();
         wrapper1.eq("uid", uid);
         wrapper1.eq("del_flag", CommonEnum.DEL_STATUS_0.getValue());
         wrapper1.eq("status", 0).eq("refund_status", 0).eq("pay_staus", 0);
         countVO.setWaitPayCount(this.count(wrapper1));
 
+        // 待使用数量
         QueryWrapper<YxCouponOrder> wrapper2 = new QueryWrapper<>();
         wrapper2.eq("uid", uid);
         wrapper2.eq("del_flag", CommonEnum.DEL_STATUS_0.getValue());
         wrapper2.in("status", 4, 5).eq("refund_status", 0).eq("pay_staus", 1);
         countVO.setWaitUseCount(this.count(wrapper2));
 
+        // 已使用数量
         QueryWrapper<YxCouponOrder> wrapper3 = new QueryWrapper<>();
         wrapper3.eq("uid", uid);
         wrapper3.eq("del_flag", CommonEnum.DEL_STATUS_0.getValue());
         wrapper3.eq("status", 6).eq("refund_status", 0).eq("pay_staus", 1);
         countVO.setUsedCount(this.count(wrapper3));
 
+        // 退款数量
         QueryWrapper<YxCouponOrder> wrapper4 = new QueryWrapper<>();
         wrapper4.eq("uid", uid);
         wrapper4.eq("del_flag", CommonEnum.DEL_STATUS_0.getValue());
         wrapper4.in("status", 7, 8, 9);
         countVO.setRefundCount(this.count(wrapper4));
+
+        // 累计订单数量
+        QueryWrapper<YxCouponOrder> wrapper5 = new QueryWrapper<>();
+        wrapper5.eq("uid", uid);
+        countVO.setTotalCount(this.count(wrapper5));
+
+        // 总消费
+        QueryWrapper<YxCouponOrder> wrapper6 = new QueryWrapper<>();
+        wrapper6.eq("uid", uid);
+        wrapper6.eq("refund_status", 0).eq("pay_staus", 1);
+        wrapper6.select("isnull(sum(total_price),0) as total ");
+        Map<String, Object> map = this.getMap(wrapper6);
+        countVO.setSumPrice(new BigDecimal(String.valueOf(map.get("total"))));
         return countVO;
     }
 }
