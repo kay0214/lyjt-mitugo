@@ -776,6 +776,8 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         item.setDistance(distance + "");
         // 卡卷详情
         item.setDetailList(voList);
+        // 券面信息
+        item.setYxCoupons(yxCoupons);
 
         return item;
     }
