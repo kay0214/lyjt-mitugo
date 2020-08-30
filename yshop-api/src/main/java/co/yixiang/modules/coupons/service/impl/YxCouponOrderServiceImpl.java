@@ -719,11 +719,18 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
     public YxCouponOrderQueryVo getYxCouponOrderDetail(String id, String location) {
         YxCouponOrderQueryVo item = new YxCouponOrderQueryVo();
         BeanUtils.copyBeanProp(item, this.yxCouponOrderDetailService.getById(id));
-
         // 获取卡券list
         List<YxCouponOrderDetail> detailList = this.yxCouponOrderDetailService.list(new QueryWrapper<YxCouponOrderDetail>().lambda().eq(YxCouponOrderDetail::getOrderId, item.getOrderId()));
         // 获取该订单购买的优惠券id
         Integer couponId = detailList.get(0).getCouponId();
+
+        // 卡券缩略图
+        YxImageInfo thumbnail = yxImageInfoService.getOne(new QueryWrapper<YxImageInfo>().eq("type_id", couponId).eq("img_type", LocalLiveConstants.IMG_TYPE_COUPONS)
+                .eq("img_category", ShopConstants.IMG_CATEGORY_PIC).eq("del_flag", 0));
+
+        if (thumbnail != null) {
+            item.setImage(thumbnail.getImgUrl());
+        }
         // 根据优惠券id获取优惠券信息
         YxCoupons yxCoupons = this.couponsService.getOne(new QueryWrapper<YxCoupons>().lambda().eq(YxCoupons::getId, couponId));
         // 拼接有效期
