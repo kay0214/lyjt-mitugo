@@ -238,6 +238,7 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         }
 
         YxCoupons coupons = yxCouponsMapper.selectById(couponId);
+        YxStoreInfo yxStoreInfo = this.storeInfoService.getById(coupons.getBelong());
         Double totalPrice = cacheDTO.getPriceGroup().getTotalPrice();
 
         if (totalPrice <= 0) totalPrice = 0d;
@@ -261,7 +262,7 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         couponOrder.setUseCount(NumberUtil.mul(coupons.getWriteOff(), totalNum).intValue());
         couponOrder.setCouponPrice(coupons.getSellingPrice());
         // 商户ID
-        couponOrder.setMerId(coupons.getBelong());
+        couponOrder.setMerId(yxStoreInfo.getMerId());
         // 推荐人id和类型
         couponOrder.setParentId(userInfo.getParentId());
         couponOrder.setParentType(userInfo.getParentType());

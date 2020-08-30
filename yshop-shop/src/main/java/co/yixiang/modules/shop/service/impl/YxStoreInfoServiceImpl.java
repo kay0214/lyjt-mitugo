@@ -80,6 +80,9 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
             }
             queryWrapper.lambda().in(YxStoreInfo::getMerId, criteria.getChildUser()).eq(YxStoreInfo::getDelFlag, 0);
         }
+        if (StringUtils.isNotBlank(criteria.getStoreName())) {
+            queryWrapper.lambda().like(YxStoreInfo::getStoreName, criteria.getStoreName());
+        }
         IPage<YxStoreInfo> ipage = this.page(new Page<>(pageable.getPageNumber() + 1, pageable.getPageSize()), queryWrapper);
 
         Map<String, Object> map = new LinkedHashMap<>(2);
@@ -97,6 +100,7 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
 
     /**
      * 更新店铺信息
+     *
      * @param request
      * @return
      */
@@ -241,6 +245,7 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
 
     /**
      * 获取店铺编辑信息
+     *
      * @param storeId
      * @return
      */
@@ -268,6 +273,7 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
 
     /**
      * 店铺服务
+     *
      * @param storeId
      * @return
      */
@@ -287,6 +293,7 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
 
     /**
      * 营业时间
+     *
      * @param storeId
      * @return
      */

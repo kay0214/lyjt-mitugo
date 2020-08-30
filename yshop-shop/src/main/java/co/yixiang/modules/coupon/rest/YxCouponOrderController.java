@@ -12,6 +12,7 @@ import co.yixiang.modules.coupon.service.YxCouponOrderUseService;
 import co.yixiang.modules.coupon.service.dto.YxCouponOrderDto;
 import co.yixiang.modules.coupon.service.dto.YxCouponOrderQueryCriteria;
 import co.yixiang.utils.Base64Utils;
+import co.yixiang.utils.CurrUser;
 import co.yixiang.utils.SecurityUtils;
 import co.yixiang.utils.StringUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -49,6 +50,11 @@ public class YxCouponOrderController {
     @ApiOperation("查询卡券订单表")
     @PreAuthorize("@el.check('admin','yxCouponOrder:list')")
     public ResponseEntity<Object> getYxCouponOrders(YxCouponOrderQueryCriteria criteria, Pageable pageable) {
+        CurrUser currUser = SecurityUtils.getCurrUser();
+        criteria.setUserRole(currUser.getUserRole());
+        if (null != currUser.getChildUser()) {
+            criteria.setChildUser(currUser.getChildUser());
+        }
         return new ResponseEntity<>(yxCouponOrderService.queryAll(criteria, pageable), HttpStatus.OK);
     }
 

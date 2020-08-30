@@ -19,9 +19,11 @@ import co.yixiang.modules.coupon.service.mapper.YxCouponOrderMapper;
 import co.yixiang.modules.shop.domain.YxStoreInfo;
 import co.yixiang.modules.shop.service.YxStoreInfoService;
 import co.yixiang.utils.FileUtil;
+import co.yixiang.utils.StringUtils;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.github.pagehelper.PageInfo;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.hyjf.framework.starter.recketmq.MessageContent;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -62,11 +64,33 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
     @Override
     //@Cacheable
     public Map<String, Object> queryAll(YxCouponOrderQueryCriteria criteria, Pageable pageable) {
-        getPage(pageable);
-        PageInfo<YxCouponOrder> page = new PageInfo<>(queryAll(criteria));
+//        getPage(pageable);
+//        PageInfo<YxCouponOrder> page = new PageInfo<>(queryAll(criteria));
+        QueryWrapper<YxCouponOrder> queryWrapper = new QueryWrapper<>();
+        queryWrapper.orderByDesc("create_time");
+        if (0 != criteria.getUserRole()) {
+            if (null == criteria.getChildUser() || criteria.getChildUser().size() <= 0) {
+                Map<String, Object> map = new LinkedHashMap<>(2);
+                map.put("content", new ArrayList<>());
+                map.put("totalElements", 0);
+                return map;
+            }
+            queryWrapper.lambda().in(YxCouponOrder::getMerId, criteria.getChildUser()).eq(YxCouponOrder::getDelFlag, 0);
+        }
+        if (StringUtils.isNotBlank(criteria.getRealName())) {
+            queryWrapper.lambda().like(YxCouponOrder::getRealName, criteria.getRealName());
+        }
+        if (StringUtils.isNotBlank(criteria.getOrderId())) {
+            queryWrapper.lambda().eq(YxCouponOrder::getOrderId, criteria.getOrderId());
+        }
+        if (null != criteria.getStatus()) {
+            queryWrapper.lambda().eq(YxCouponOrder::getStatus, criteria.getStatus());
+        }
+        IPage<YxCouponOrder> ipage = this.page(new Page<>(pageable.getPageNumber() + 1, pageable.getPageSize()), queryWrapper);
+
         Map<String, Object> map = new LinkedHashMap<>(2);
-        map.put("content", generator.convert(page.getList(), YxCouponOrderDto.class));
-        map.put("totalElements", page.getTotal());
+        map.put("content", generator.convert(ipage.getRecords(), YxCouponOrderDto.class));
+        map.put("totalElements", ipage.getTotal());
         return map;
     }
 
