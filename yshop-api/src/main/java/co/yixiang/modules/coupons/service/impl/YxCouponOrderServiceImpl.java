@@ -718,7 +718,7 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
     @Override
     public YxCouponOrderQueryVo getYxCouponOrderDetail(String id, String location) {
         YxCouponOrderQueryVo item = new YxCouponOrderQueryVo();
-        BeanUtils.copyBeanProp(item, this.yxCouponOrderDetailService.getById(id));
+        BeanUtils.copyBeanProp(item, this.yxCouponOrderMapper.selectById(id));
         // 获取卡券list
         List<YxCouponOrderDetail> detailList = this.yxCouponOrderDetailService.list(new QueryWrapper<YxCouponOrderDetail>().lambda().eq(YxCouponOrderDetail::getOrderId, item.getOrderId()));
         // 获取该订单购买的优惠券id
