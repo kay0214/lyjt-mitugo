@@ -18,4 +18,8 @@ import co.yixiang.annotation.Query;
 */
 @Data
 public class YxMerchantsDetailQueryCriteria{
+
+    private  Integer userRole;
+
+    private  List<Long> childUser;
 }
