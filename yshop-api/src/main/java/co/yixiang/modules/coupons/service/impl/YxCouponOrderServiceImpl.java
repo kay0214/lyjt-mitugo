@@ -614,10 +614,10 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
                 wrapper.eq("status", 0).eq("refund_status", 0).eq("pay_staus", 0);
                 break;
             case STATUS_2://待使用
-                wrapper.eq("status", 4).eq("refund_status", 0).eq("pay_staus", 1);
+                wrapper.in("status", 4, 5).eq("refund_status", 0).eq("pay_staus", 1);
                 break;
             case STATUS_3://已使用
-                wrapper.in("status", 5, 6).eq("refund_status", 0).eq("pay_staus", 1);
+                wrapper.eq("status", 6).eq("refund_status", 0).eq("pay_staus", 1);
                 break;
             case STATUS_4://已过期
                 wrapper.eq("status", 1);
@@ -770,5 +770,40 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         item.setDetailList(voList);
 
         return item;
+    }
+
+    /**
+     * 计算卡券各种订单数量
+     *
+     * @param uid
+     * @return
+     */
+    @Override
+    public OrderCountVO orderData(int uid) {
+        OrderCountVO countVO = new OrderCountVO();
+        QueryWrapper<YxCouponOrder> wrapper1 = new QueryWrapper<>();
+        wrapper1.eq("uid", uid);
+        wrapper1.eq("del_flag", CommonEnum.DEL_STATUS_0.getValue());
+        wrapper1.eq("status", 0).eq("refund_status", 0).eq("pay_staus", 0);
+        countVO.setWaitPayCount(this.count(wrapper1));
+
+        QueryWrapper<YxCouponOrder> wrapper2 = new QueryWrapper<>();
+        wrapper2.eq("uid", uid);
+        wrapper2.eq("del_flag", CommonEnum.DEL_STATUS_0.getValue());
+        wrapper2.in("status", 4, 5).eq("refund_status", 0).eq("pay_staus", 1);
+        countVO.setWaitUseCount(this.count(wrapper2));
+
+        QueryWrapper<YxCouponOrder> wrapper3 = new QueryWrapper<>();
+        wrapper3.eq("uid", uid);
+        wrapper3.eq("del_flag", CommonEnum.DEL_STATUS_0.getValue());
+        wrapper3.eq("status", 6).eq("refund_status", 0).eq("pay_staus", 1);
+        countVO.setUsedCount(this.count(wrapper3));
+
+        QueryWrapper<YxCouponOrder> wrapper4 = new QueryWrapper<>();
+        wrapper4.eq("uid", uid);
+        wrapper4.eq("del_flag", CommonEnum.DEL_STATUS_0.getValue());
+        wrapper4.in("status", 7, 8, 9);
+        countVO.setRefundCount(this.count(wrapper4));
+        return countVO;
     }
 }

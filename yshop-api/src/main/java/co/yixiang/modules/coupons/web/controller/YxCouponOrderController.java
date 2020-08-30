@@ -412,5 +412,14 @@ public class YxCouponOrderController extends BaseController {
         return ApiResult.ok(yxCouponOrderQueryVo);
     }
 
+    /**
+     * 订单统计数据
+     */
+    @GetMapping("/couponOrder/data")
+    @ApiOperation(value = "订单统计数据",notes = "订单统计数据")
+    public ApiResult<Object> orderData(){
+        int uid = SecurityUtils.getUserId().intValue();
+        return ApiResult.ok(yxCouponOrderService.orderData(uid));
+    }
 }
 
