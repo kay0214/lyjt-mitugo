@@ -15,7 +15,7 @@ import java.util.List;
 * @date 2020-05-12
 */
 @Data
-public class YxStoreOrderQueryCriteria{
+public class YxStoreOrderQueryCriteria extends BaseCriteria{
 
     // 模糊
     @Query(type = Query.Type.UNIX_TIMESTAMP)
