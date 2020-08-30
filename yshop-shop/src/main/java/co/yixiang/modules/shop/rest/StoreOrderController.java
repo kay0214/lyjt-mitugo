@@ -32,7 +32,9 @@ import co.yixiang.modules.shop.service.param.ExpressParam;
 import co.yixiang.mp.service.YxTemplateService;
 import co.yixiang.tools.express.ExpressService;
 import co.yixiang.tools.express.dao.ExpressInfo;
+import co.yixiang.utils.CurrUser;
 import co.yixiang.utils.OrderUtil;
+import co.yixiang.utils.SecurityUtils;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -136,7 +138,14 @@ public class StoreOrderController {
                                            @RequestParam(name = "orderType") String orderType) {
 
 
-        criteria.setShippingType(1);//默认查询所有快递订单
+        CurrUser currUser = SecurityUtils.getCurrUser();
+        criteria.setUserRole(currUser.getUserRole());
+        if (null != currUser.getChildUser()) {
+            criteria.setChildUser(currUser.getChildUser());
+        }
+
+        //默认查询所有快递订单
+        criteria.setShippingType(1);
         //订单状态查询
         if (StrUtil.isNotEmpty(orderStatus)) {
             switch (orderStatus) {
@@ -424,6 +433,12 @@ public class StoreOrderController {
                                              Pageable pageable,
                                              String orderStatus,
                                              String orderType){
+        CurrUser currUser = SecurityUtils.getCurrUser();
+        criteria.setUserRole(currUser.getUserRole());
+        if (null != currUser.getChildUser()) {
+            criteria.setChildUser(currUser.getChildUser());
+        }
+
         criteria.setShippingType(1);//默认查询所有快递订单
         //订单状态查询
         if (StrUtil.isNotEmpty(orderStatus)) {

@@ -16,13 +16,13 @@ import lombok.Data;
  * @date 2020-08-19
  */
 @Data
-public class YxExamineLogQueryCriteria {
+public class YxExamineLogQueryCriteria extends BaseCriteria{
 
-    /** 查找指定卡券类型 */
+    /** 审批类型 1:提现 2:商户信息 */
     @Query(type = Query.Type.EQUAL)
     private Integer type;
 
-    /** 查找指定卡券类型 */
+    /** 冗余字段：被审核人信息 */
     @Query(type = Query.Type.LEFT_LIKE)
     private String username;
 }

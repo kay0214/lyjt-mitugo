@@ -17,4 +17,6 @@ public class BaseCriteria {
     private  Integer userRole;
 
     private List<Long> childUser;
+
+    private List<Long> childStoreId;
 }

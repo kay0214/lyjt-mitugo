@@ -20,4 +20,13 @@ public class YxCouponOrderQueryCriteria extends BaseCriteria {
     @Query(type = Query.Type.EQUAL)
     private Integer status;
 
+    @Query(type = Query.Type.EQUAL)
+    private Integer orderStatus;
+
+    @Query(type = Query.Type.EQUAL)
+    private String orderType;
+
+    @Query(type = Query.Type.EQUAL)
+    private String value;
+
 }

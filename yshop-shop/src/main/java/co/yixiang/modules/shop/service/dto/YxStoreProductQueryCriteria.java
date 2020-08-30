@@ -13,7 +13,7 @@ import lombok.Data;
 * @date 2020-05-12
 */
 @Data
-public class YxStoreProductQueryCriteria{
+public class YxStoreProductQueryCriteria extends BaseCriteria{
 
     // 模糊
     @Query(type = Query.Type.INNER_LIKE)

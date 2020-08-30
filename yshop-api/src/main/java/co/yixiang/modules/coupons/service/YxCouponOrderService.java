@@ -4,10 +4,7 @@ import co.yixiang.common.service.BaseService;
 import co.yixiang.common.web.vo.Paging;
 import co.yixiang.modules.coupons.entity.YxCouponOrder;
 import co.yixiang.modules.coupons.web.param.YxCouponOrderQueryParam;
-import co.yixiang.modules.coupons.web.vo.CouponInfoQueryVo;
-import co.yixiang.modules.coupons.web.vo.CouponOrderQueryVo;
-import co.yixiang.modules.coupons.web.vo.YxCouponOrderQueryVo;
-import co.yixiang.modules.coupons.web.vo.YxCouponsQueryVo;
+import co.yixiang.modules.coupons.web.vo.*;
 import co.yixiang.modules.order.web.dto.ComputeDTO;
 import co.yixiang.modules.order.web.dto.CouponCacheDTO;
 import co.yixiang.modules.order.web.dto.PriceGroupDTO;
@@ -31,6 +28,7 @@ public interface YxCouponOrderService extends BaseService<YxCouponOrder> {
 
     /**
      * 根据ID获取查询对象
+     *
      * @param id
      * @return
      */
@@ -38,6 +36,7 @@ public interface YxCouponOrderService extends BaseService<YxCouponOrder> {
 
     /**
      * 获取分页对象
+     *
      * @param yxCouponOrderQueryParam
      * @return
      */
@@ -51,6 +50,7 @@ public interface YxCouponOrderService extends BaseService<YxCouponOrder> {
 
     /**
      * 卡券创建订单
+     *
      * @param uid
      * @param key
      * @param param
@@ -62,6 +62,7 @@ public interface YxCouponOrderService extends BaseService<YxCouponOrder> {
 
     /**
      * 删除缓存
+     *
      * @param uid
      * @param key
      */
@@ -69,6 +70,7 @@ public interface YxCouponOrderService extends BaseService<YxCouponOrder> {
 
     /**
      * 余额支付
+     *
      * @param orderId
      * @param uid
      */
@@ -76,6 +78,7 @@ public interface YxCouponOrderService extends BaseService<YxCouponOrder> {
 
     /**
      * 获取订单信息
+     *
      * @param unique
      * @param uid
      * @return
@@ -86,6 +89,7 @@ public interface YxCouponOrderService extends BaseService<YxCouponOrder> {
 
     /**
      * 计算订单价格
+     *
      * @param uid
      * @param key
      * @param couponId
@@ -97,6 +101,7 @@ public interface YxCouponOrderService extends BaseService<YxCouponOrder> {
 
     /**
      * 通过卡券ID 获取卡券信息和所属公司信息
+     *
      * @param couponId
      * @return
      */
@@ -104,13 +109,15 @@ public interface YxCouponOrderService extends BaseService<YxCouponOrder> {
 
     /**
      * 小程序支付
+     *
      * @param orderId
      * @return
      */
-    WxPayMpOrderResult wxAppPay(String orderId,String ip) throws WxPayException;
+    WxPayMpOrderResult wxAppPay(String orderId, String ip) throws WxPayException;
 
     /**
      * 提交订单退款
+     *
      * @param param
      * @param uid
      */
@@ -118,6 +125,7 @@ public interface YxCouponOrderService extends BaseService<YxCouponOrder> {
 
     /**
      * 个人中心 我的卡券列表
+     *
      * @param yxCouponOrderQueryParam
      * @param uid
      * @return
@@ -139,4 +147,12 @@ public interface YxCouponOrderService extends BaseService<YxCouponOrder> {
      * @return
      */
     YxCouponOrderQueryVo getYxCouponOrderDetail(String id, String location);
+
+    /**
+     * 计算卡券订单数量
+     *
+     * @param uid
+     * @return
+     */
+    OrderCountVO orderData(int uid);
 }

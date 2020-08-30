@@ -49,12 +49,18 @@ public class YxCouponOrderController {
     @Log("查询卡券订单表")
     @ApiOperation("查询卡券订单表")
     @PreAuthorize("@el.check('admin','yxCouponOrder:list')")
-    public ResponseEntity<Object> getYxCouponOrders(YxCouponOrderQueryCriteria criteria, Pageable pageable) {
+    public ResponseEntity<Object> getYxCouponOrders(YxCouponOrderQueryCriteria criteria, Pageable pageable,
+                                                    @RequestParam(name = "orderStatus") Integer orderStatus,
+                                                    @RequestParam(name = "orderType") String orderType,
+                                                    @RequestParam(name = "orderType") String value) {
         CurrUser currUser = SecurityUtils.getCurrUser();
         criteria.setUserRole(currUser.getUserRole());
         if (null != currUser.getChildUser()) {
             criteria.setChildUser(currUser.getChildUser());
         }
+        criteria.setOrderStatus(orderStatus);
+        criteria.setOrderType(orderType);
+        criteria.setValue(value);
         return new ResponseEntity<>(yxCouponOrderService.queryAll(criteria, pageable), HttpStatus.OK);
     }
 
@@ -121,6 +127,14 @@ public class YxCouponOrderController {
 //            yxCouponOrderService.removeById(id);
 //        });
 //        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @ApiOperation(value = "退款")
+    @PostMapping(value = "/yxStoreOrder/refund")
+    @PreAuthorize("@el.check('admin','yxCouponOrder:refund')")
+    public ResponseEntity refund(@Validated @RequestBody YxCouponOrder resources) {
+//        yxCouponOrderService.refund(resources);
+        return new ResponseEntity(HttpStatus.OK);
     }
 
     @Log("核销卡券")

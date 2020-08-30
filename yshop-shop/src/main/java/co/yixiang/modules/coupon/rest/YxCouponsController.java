@@ -19,10 +19,7 @@ import co.yixiang.modules.shop.domain.YxStoreInfo;
 import co.yixiang.modules.shop.service.UserService;
 import co.yixiang.modules.shop.service.YxImageInfoService;
 import co.yixiang.modules.shop.service.YxStoreInfoService;
-import co.yixiang.utils.Base64Utils;
-import co.yixiang.utils.OrderUtil;
-import co.yixiang.utils.SecurityUtils;
-import co.yixiang.utils.StringUtils;
+import co.yixiang.utils.*;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -69,6 +66,12 @@ public class YxCouponsController {
     @ApiOperation("查询卡券表")
     @PreAuthorize("@el.check('admin','yxCoupons:list')")
     public ResponseEntity<Object> getYxCouponss(YxCouponsQueryCriteria criteria, Pageable pageable) {
+        CurrUser currUser = SecurityUtils.getCurrUser();
+        criteria.setUserRole(currUser.getUserRole());
+        if (null != currUser.getChildUser()) {
+            criteria.setChildUser(currUser.getChildUser());
+            criteria.setChildStoreId(this.yxStoreInfoService.getStoreIdByMerId(currUser.getChildUser()));
+        }
         return new ResponseEntity<>(yxCouponsService.queryAll(criteria, pageable), HttpStatus.OK);
     }
 

@@ -158,6 +158,16 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<YxUserBillMapper, YxU
     }
 
     @Override
+    public BigDecimal todayCommissionSum(int uid) {
+        return yxUserBillMapper.todayCommissionSum(uid);
+    }
+
+    @Override
+    public BigDecimal totalCommissionSum(int uid) {
+        return yxUserBillMapper.totalCommissionSum(uid);
+    }
+
+    @Override
     public List<YxUserBillQueryVo> userBillList(int uid, int page,
                                                 int limit, String category) {
         QueryWrapper<YxUserBill> wrapper = new QueryWrapper<>();
