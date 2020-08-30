@@ -117,7 +117,9 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
             // 卡券缩略图
             YxImageInfo thumbnail = yxImageInfoService.getOne(new QueryWrapper<YxImageInfo>().eq("type_id", couponId).eq("img_type", LocalLiveConstants.IMG_TYPE_COUPONS)
                     .eq("img_category", ShopConstants.IMG_CATEGORY_PIC).eq("del_flag", 0));
-            yxCouponOrderDto.setImage(thumbnail.getImgUrl());
+            if (null != thumbnail && StringUtils.isNotBlank(thumbnail.getImgUrl())) {
+                yxCouponOrderDto.setImage(thumbnail.getImgUrl());
+            }
             yxCouponOrderDto.setYxCouponsDto(generator.convert(yxCoupons, YxCouponsDto.class));
             // 卡券详情
             List<YxCouponOrderDetail> detailList = this.yxCouponOrderDetailService.list(new QueryWrapper<YxCouponOrderDetail>().lambda().eq(YxCouponOrderDetail::getCouponId, couponId));
