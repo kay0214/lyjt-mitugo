@@ -826,7 +826,7 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         QueryWrapper<YxCouponOrder> wrapper6 = new QueryWrapper<>();
         wrapper6.eq("uid", uid);
         wrapper6.eq("refund_status", 0).eq("pay_staus", 1);
-        wrapper6.select("isnull(sum(total_price),0) as total ");
+        wrapper6.select("ifnull(sum(total_price),0) as total ");
         Map<String, Object> map = this.getMap(wrapper6);
         countVO.setSumPrice(new BigDecimal(String.valueOf(map.get("total"))));
         return countVO;
