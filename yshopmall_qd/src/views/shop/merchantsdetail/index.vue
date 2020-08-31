@@ -512,19 +512,19 @@ export default {
         examineRemark:this.form.examineRemark,
         id:101//this.form.id
       }).then(res=>{
+        this.examineEdit=1;
         if(res){
           Notification.success({
             title: '审核成功'
           })
           this.crud.toQuery()
-          this.formDisabled=false
-          this.dialogVisible=Boolean(this.crud.status.cu);
         }else{
           Notification.error({
             title: "审核失败，请重新尝试"
           })
         }
-        this.examineEdit=1;
+        this.formDisabled=false
+        this.dialogVisible=Boolean(this.crud.status.cu);
       })
     },
     //审核驳回 /** 审批状态examineStatus：0->待审核,1->通过,2->驳回 */
@@ -535,19 +535,19 @@ export default {
         examineRemark:this.form.examineRemark,
         id:this.form.id
       }).then(res=>{
+        this.examineEdit=1;
         if(res){
           Notification.success({
             title: '驳回已完成'
           })
           this.crud.toQuery()
-          this.formDisabled=false
-          this.dialogVisible=Boolean(this.crud.status.cu);
         }else{
           Notification.error({
             title: "驳回失败，请重新尝试"
           })
         }
-        this.examineEdit=1;
+        this.formDisabled=false
+        this.dialogVisible=Boolean(this.crud.status.cu);
       })
     },
     //新增、编辑、审核弹出框关闭
