@@ -202,13 +202,15 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
         List<LocalLiveListVo> localLiveListVoList = iPage.getRecords();
         iPage.setTotal(localLiveListVoList.size());
         for (LocalLiveListVo localLiveListVo : localLiveListVoList){
-            // 设置距离
-            // 维度  京都
-            String[] locationArr = location.split(",");
-            GlobalCoordinates source = new GlobalCoordinates(Double.parseDouble(localLiveListVo.getCoordinateY()),Double.parseDouble(localLiveListVo.getCoordinateX()));
-            GlobalCoordinates target = new GlobalCoordinates(Double.parseDouble(locationArr[1]),Double.parseDouble(locationArr[0]));
-            double distance = DistanceMeterUtil.getDistanceMeter(source,target);
-            localLiveListVo.setDistance(distance+"");
+            if(StringUtils.isNotBlank(location)) {
+                // 设置距离
+                // 维度  京都
+                String[] locationArr = location.split(",");
+                GlobalCoordinates source = new GlobalCoordinates(Double.parseDouble(localLiveListVo.getCoordinateY()), Double.parseDouble(localLiveListVo.getCoordinateX()));
+                GlobalCoordinates target = new GlobalCoordinates(Double.parseDouble(locationArr[1]), Double.parseDouble(locationArr[0]));
+                double distance = DistanceMeterUtil.getDistanceMeter(source, target);
+                localLiveListVo.setDistance(distance + "");
+            }
             QueryWrapper<YxImageInfo> imageInfoQueryWrapper = new QueryWrapper<>();
             imageInfoQueryWrapper.lambda().eq(YxImageInfo::getTypeId, localLiveListVo.getId())
                     .eq(YxImageInfo::getImgType, ShopConstants.IMG_TYPE_STORE).eq(YxImageInfo::getImgCategory, ShopConstants.IMG_CATEGORY_PIC);
