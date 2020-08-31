@@ -45,9 +45,9 @@ import java.util.Map;
 //import org.springframework.cache.annotation.Cacheable;
 
 /**
-* @author liusy
-* @date 2020-08-31
-*/
+ * @author liusy
+ * @date 2020-08-31
+ */
 @Service
 @AllArgsConstructor
 //@CacheConfig(cacheNames = "yxCoupons")
@@ -92,6 +92,9 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
         }
         if (null != criteria.getIsHot()) {
             queryWrapper.lambda().eq(YxCoupons::getIsHot, criteria.getIsHot());
+        }
+        if (null != criteria.getCouponCategory()) {
+            queryWrapper.lambda().eq(YxCoupons::getCouponCategory, criteria.getCouponCategory());
         }
         IPage<YxCoupons> ipage = this.page(new Page<>(pageable.getPageNumber() + 1, pageable.getPageSize()), queryWrapper);
 
