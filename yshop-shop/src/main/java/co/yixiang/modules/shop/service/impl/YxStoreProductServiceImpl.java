@@ -80,7 +80,7 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<StoreProductMappe
 //        getPage(pageable);
 //        PageInfo<YxStoreProduct> page = new PageInfo<>(queryAll(criteria));
         QueryWrapper<YxStoreProduct> queryWrapper = new QueryWrapper<>();
-        queryWrapper.orderByDesc("create_time");
+        queryWrapper.lambda().orderByDesc(YxStoreProduct::getAddTime);
         if (0 != criteria.getUserRole()) {
             if (null == criteria.getChildUser() || criteria.getChildUser().size() <= 0) {
                 Map<String, Object> map = new LinkedHashMap<>(2);
@@ -396,6 +396,7 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<StoreProductMappe
 
     /**
      * 组合规则属性算法
+     *
      * @param jsonStr
      * @return
      */
@@ -468,7 +469,6 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<StoreProductMappe
     }
 
     /**
-     *
      * @param request
      */
     @Override
