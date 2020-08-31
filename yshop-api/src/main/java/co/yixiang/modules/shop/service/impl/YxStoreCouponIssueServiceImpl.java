@@ -107,7 +107,7 @@ public class YxStoreCouponIssueServiceImpl extends BaseServiceImpl<YxStoreCoupon
                 .selectList(pageModel);
         for (YxStoreCouponIssueQueryVo couponIssue : list) {
             //店铺名称
-            YxStoreInfo storeInfo = yxStoreInfoService.getById(couponIssue.getBelong());
+            YxStoreInfo storeInfo = yxStoreInfoService.getById(couponIssue.getStoreId());
             couponIssue.setStoreName(storeInfo.getStoreName());
 
             int count = couponCount(couponIssue.getId(),uid);

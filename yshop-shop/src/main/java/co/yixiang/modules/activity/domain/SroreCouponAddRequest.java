@@ -17,7 +17,7 @@ import java.math.BigDecimal;
 public class SroreCouponAddRequest {
 
     /** 所属商户 */
-    private Integer belong;
+    private Integer storeId;
 
     /** 优惠券名称 */
     @NotBlank(message = "请填写优惠券名称")

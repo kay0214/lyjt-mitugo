@@ -90,7 +90,7 @@ public class StoreCouponController {
         YxStoreCoupon yxStoreCoupon = new YxStoreCoupon();
         BeanUtil.copyProperties(resources, yxStoreCoupon);
         // 优惠券直接绑定到商铺 不可修改
-        yxStoreCoupon.setBelong(findStoreInfo.getId());
+        yxStoreCoupon.setStoreId(findStoreInfo.getId());
         yxStoreCoupon.setAddTime(OrderUtil.getSecondTimestampTwo());
         return new ResponseEntity(yxStoreCouponService.save(yxStoreCoupon),HttpStatus.CREATED);
     }

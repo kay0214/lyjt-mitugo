@@ -60,7 +60,7 @@ public class YxStoreCouponServiceImpl extends BaseServiceImpl<YxStoreCouponMappe
                 map.put("totalElements", 0);
                 return map;
             }
-            queryWrapper.lambda().in(YxStoreCoupon::getBelong, criteria.getChildStoreId()).eq(YxStoreCoupon::getIsDel, 0);
+            queryWrapper.lambda().in(YxStoreCoupon::getStoreId, criteria.getChildStoreId()).eq(YxStoreCoupon::getIsDel, 0);
         }
         IPage<YxStoreCoupon> ipage = this.page(new Page<>(pageable.getPageNumber() + 1, pageable.getPageSize()), queryWrapper);
 

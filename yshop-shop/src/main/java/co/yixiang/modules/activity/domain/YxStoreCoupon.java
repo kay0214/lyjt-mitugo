@@ -33,7 +33,7 @@ public class YxStoreCoupon implements Serializable {
     private Integer id;
 
     /** 所属商户 */
-    private Integer belong;
+    private Integer storeId;
 
     /** 优惠券名称 */
     @NotBlank(message = "请填写优惠券名称")
@@ -77,12 +77,6 @@ public class YxStoreCoupon implements Serializable {
 
     /** 是否删除 */
     private Integer isDel;
-
-
-    /** 卡券所属商铺 */
-    @NotNull
-    private Integer storeId;
-
 
     public void copy(YxStoreCoupon source){
         BeanUtil.copyProperties(source,this, CopyOptions.create().setIgnoreNullValue(true));
