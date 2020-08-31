@@ -24,6 +24,9 @@ public class OrderInfo {
     @ApiModelProperty(value = "用户id")
     private Integer uid;
 
+    @ApiModelProperty(value = "佣金类型")
+    private Integer brokerageType;
+
     @ApiModelProperty(value = "用户名")
     private String username;
 
