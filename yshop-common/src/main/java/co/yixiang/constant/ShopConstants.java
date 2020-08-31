@@ -95,7 +95,7 @@ public interface ShopConstants {
 	/**
 	 * 热门搜索
 	 */
-	String YSHOP_HOT_SEARCH = "yshop_hot_search";
+	String YSHOP_HOT_SEARCH = "shop_hot";
 
 
 	/**

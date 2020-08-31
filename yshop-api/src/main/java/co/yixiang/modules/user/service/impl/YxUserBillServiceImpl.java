@@ -203,7 +203,7 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<YxUserBillMapper, YxU
         SystemUserQueryVo systemUserQueryVo = systemUserService.getUserById(order.getMerId());
         bigAmount = bigAmount.add(systemUserQueryVo.getWithdrawalAmount());
         SystemUser systemUser = systemUserService.getById(order.getMerId());
-//        systemUser.setWithdrawalAmount(bigAmount);
+        systemUser.setWithdrawalAmount(bigAmount);
         systemUserService.updateById(systemUser);
         //插入资金明细
         YxUserBill userBill = new YxUserBill();

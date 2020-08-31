@@ -87,6 +87,6 @@ public class SystemUser extends BaseEntity {
     @ApiModelProperty(value = "推荐用二维码地址")
     private String qrCodeUrl;
 
-    /*@ApiModelProperty(value = "商户可提金额")
-    private BigDecimal withdrawalAmount;*/
+    @ApiModelProperty(value = "商户可提金额")
+    private BigDecimal withdrawalAmount;
 }
