@@ -35,8 +35,8 @@ import java.util.List;
  * 优惠券前台领取表 服务实现类
  * </p>
  *
- * @author hupeng
- * @since 2019-10-27
+ * @author liusy
+ * @since 2020-08-31
  */
 @Slf4j
 @Service

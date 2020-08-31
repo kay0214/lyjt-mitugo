@@ -19,8 +19,8 @@ import java.util.List;
  * 优惠券前台领取表 Mapper 接口
  * </p>
  *
- * @author hupeng
- * @since 2019-10-27
+ * @author liusy
+ * @since 2020-08-31
  */
 @Repository
 public interface YxStoreCouponIssueMapper extends BaseMapper<YxStoreCouponIssue> {
@@ -29,7 +29,7 @@ public interface YxStoreCouponIssueMapper extends BaseMapper<YxStoreCouponIssue>
             "A.is_permanent as isPermanent,A.remain_count as remainCount," +
             "A.total_count as totalCount,A.id,B.coupon_price as couponPrice," +
             "B.use_min_price as useMinPrice, " +
-            "B.belong as belong" +
+            "B.store_id as storeId" +
             " from yx_store_coupon_issue A left join yx_store_coupon B " +
             "on A.cid = B.id " +
             "where A.status =1 " +

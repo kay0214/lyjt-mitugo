@@ -11,8 +11,8 @@ import java.io.Serializable;
  * 优惠券前台领取表 查询结果对象
  * </p>
  *
- * @author hupeng
- * @date 2019-10-27
+ * @author liusy
+ * @date 2020-08-31
  */
 @Data
 @ApiModel(value = "YxStoreCouponIssueQueryVo对象", description = "优惠券前台领取表查询参数")
@@ -23,6 +23,9 @@ public class YxStoreCouponIssueQueryVo implements Serializable {
 
     @ApiModelProperty(value = "优惠券ID")
     private Integer cid;
+
+    @ApiModelProperty(value = "卡券所属商铺")
+    private Integer storeId;
 
     @ApiModelProperty(value = "优惠券领取开启时间")
     private Integer startTime;

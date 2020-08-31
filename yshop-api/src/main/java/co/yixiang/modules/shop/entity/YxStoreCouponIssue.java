@@ -13,8 +13,8 @@ import lombok.EqualsAndHashCode;
  * 优惠券前台领取表
  * </p>
  *
- * @author hupeng
- * @since 2019-10-27
+ * @author liusy
+ * @since 2020-08-31
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -26,8 +26,13 @@ public class YxStoreCouponIssue extends BaseEntity {
     @TableId(value = "id", type = IdType.AUTO)
     private Integer id;
 
+    private String cname;
+
     @ApiModelProperty(value = "优惠券ID")
     private Integer cid;
+
+    @ApiModelProperty(value = "卡券所属商铺")
+    private Integer storeId;
 
     @ApiModelProperty(value = "优惠券领取开启时间")
     private Integer startTime;
