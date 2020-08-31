@@ -27,6 +27,7 @@
           <a :href="scope.row.image" style="color: #42b983" target="_blank"><img :src="scope.row.image" alt="点击打开" class="el-avatar"></a>
         </template>
       </el-table-column>
+      <el-table-column prop="store.storeName" label="商铺名称" />
       <el-table-column prop="storeName" label="商品名称" />
       <el-table-column prop="storeCategory.cateName" label="分类名称" />
       <el-table-column prop="price" label="商品价格" />

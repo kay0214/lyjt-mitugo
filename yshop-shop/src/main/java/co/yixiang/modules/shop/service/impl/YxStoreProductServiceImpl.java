@@ -93,13 +93,17 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<StoreProductMappe
         if (null != criteria.getIsDel()) {
             queryWrapper.lambda().eq(YxStoreProduct::getIsDel, criteria.getIsDel());
         }
+        if (null != criteria.getIsShow()) {
+            queryWrapper.lambda().eq(YxStoreProduct::getIsShow, criteria.getIsShow());
+        }
         if (StringUtils.isNotBlank(criteria.getStoreName())) {
             queryWrapper.lambda().like(YxStoreProduct::getStoreName, criteria.getStoreName());
         }
         IPage<YxStoreProduct> ipage = this.page(new Page<>(pageable.getPageNumber() + 1, pageable.getPageSize()), queryWrapper);
-
+        List<YxStoreProduct> productList = getStoreName(ipage.getRecords());
         Map<String, Object> map = new LinkedHashMap<>(2);
-        map.put("content", generator.convert(ipage.getRecords(), YxStoreProductDto.class));
+
+        map.put("content", generator.convert(productList, YxStoreProductDto.class));
         map.put("totalElements", ipage.getTotal());
 //        int sysUserId = SecurityUtils.getUserId().intValue();
 //        User userSys = userService.getById(sysUserId);
@@ -130,6 +134,18 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<StoreProductMappe
         return yxStoreProductList;
     }
 
+    public List<YxStoreProduct> getStoreName(List<YxStoreProduct> storeProductList) {
+        storeProductList.forEach(yxStoreProduct -> {
+            yxStoreProduct.setStoreCategory(yxStoreCategoryService.getById(yxStoreProduct.getCateId()));
+            YxStoreInfoDto yxStoreInfoDto = new YxStoreInfoDto();
+            YxStoreInfo yxStoreInfo = yxStoreInfoService.getById(yxStoreProduct.getStoreId());
+            if (ObjectUtil.isNotNull(yxStoreInfo)) {
+                BeanUtils.copyProperties(yxStoreInfo, yxStoreInfoDto);
+            }
+            yxStoreProduct.setStore(yxStoreInfoDto);
+        });
+        return storeProductList;
+    }
 
     @Override
     public void download(List<YxStoreProductDto> all, HttpServletResponse response) throws IOException {
@@ -396,7 +412,6 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<StoreProductMappe
 
     /**
      * 组合规则属性算法
-     *
      * @param jsonStr
      * @return
      */
@@ -469,6 +484,7 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<StoreProductMappe
     }
 
     /**
+     *
      * @param request
      */
     @Override
