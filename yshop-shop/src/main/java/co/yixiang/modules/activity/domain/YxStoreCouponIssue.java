@@ -1,7 +1,5 @@
 /**
  * Copyright (C) 2018-2020
- * All rights reserved, Designed By www.yixiang.co
-
  */
 package co.yixiang.modules.activity.domain;
 
@@ -18,8 +16,8 @@ import java.io.Serializable;
 import java.sql.Timestamp;
 
 /**
-* @author hupeng
-* @date 2020-05-13
+* @author liusy
+* @date 2020-08-31
 */
 @Data
 @TableName("yx_store_coupon_issue")
@@ -75,7 +73,11 @@ public class YxStoreCouponIssue implements Serializable {
     private Timestamp startTimeDate;
 
 
-    public void copy(YxStoreCouponIssue source){
-        BeanUtil.copyProperties(source,this, CopyOptions.create().setIgnoreNullValue(true));
+    /** 卡券所属商铺 */
+    private Integer storeId;
+
+
+    public void copy(YxStoreCouponIssue source) {
+        BeanUtil.copyProperties(source, this, CopyOptions.create().setIgnoreNullValue(true));
     }
 }

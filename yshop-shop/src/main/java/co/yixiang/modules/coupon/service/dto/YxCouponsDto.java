@@ -16,8 +16,8 @@ import java.io.Serializable;
 import java.util.List;
 
 /**
-* @author huiy
-* @date 2020-08-14
+* @author liusy
+* @date 2020-08-31
 */
 @Data
 public class YxCouponsDto implements Serializable {
@@ -193,6 +193,16 @@ public class YxCouponsDto implements Serializable {
     /** 卡券详情 */
 
     private String content;
+
+
+    /** 卡券所属商铺 */
+
+    private Integer storeId;
+
+
+    /** 卡券简介 */
+
+    private String couponInfo;
 
     /** 卡券缩略图 */
     private String image;

@@ -4,7 +4,7 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, belong, coupon_num, coupon_name, coupon_type, coupon_category, denomination, discount, threshold, discount_amount, selling_price, original_price, settlement_price, commission, quantity_limit, inventory, sales, ficti, write_off, expire_date_start, expire_date_end, is_hot, is_show, outtime_refund, need_order, aways_refund, use_condition, available_time_start, available_time_end, del_flag, create_user_id, update_user_id, create_time, update_time, content
+        id, store_id, coupon_num, coupon_name, coupon_type, coupon_category, denomination, discount, threshold, discount_amount, selling_price, original_price, settlement_price, commission, quantity_limit, inventory, sales, ficti, write_off, expire_date_start, expire_date_end, is_hot, is_show, outtime_refund, need_order, aways_refund, use_condition, available_time_start, available_time_end, del_flag, create_user_id, update_user_id, create_time, update_time, content
     </sql>
 
     <select id="getYxCouponsById" resultType="co.yixiang.modules.coupons.web.vo.YxCouponsQueryVo">

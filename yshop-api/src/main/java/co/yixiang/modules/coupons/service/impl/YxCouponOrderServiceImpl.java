@@ -239,7 +239,7 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         }
 
         YxCoupons coupons = yxCouponsMapper.selectById(couponId);
-        YxStoreInfo yxStoreInfo = this.storeInfoService.getById(coupons.getBelong());
+        YxStoreInfo yxStoreInfo = this.storeInfoService.getById(coupons.getStoreId());
         Double totalPrice = cacheDTO.getPriceGroup().getTotalPrice();
 
         if (totalPrice <= 0) totalPrice = 0d;
@@ -544,7 +544,7 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         if (thumbnail != null) {
             couponInfoQueryVo.setImage(thumbnail.getImgUrl());
         }
-        YxStoreInfo storeInfo = storeInfoService.getOne(new QueryWrapper<YxStoreInfo>().eq("id", yxCoupons.getBelong()).eq("del_flag", 0));
+        YxStoreInfo storeInfo = storeInfoService.getOne(new QueryWrapper<YxStoreInfo>().eq("id", yxCoupons.getStoreId()).eq("del_flag", 0));
         if (storeInfo != null) {
             couponInfoQueryVo.setStoreInfo(storeInfo);
         }
@@ -651,7 +651,7 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
             // 拼接有效期
             String expireDate = DateUtils.parseDateToStr(DateUtils.getDate(), yxCoupons.getExpireDateStart()) + " ~ " + DateUtils.parseDateToStr(DateUtils.getDate(), yxCoupons.getExpireDateEnd());
             // 根据优惠券所属获取商户信息
-            YxStoreInfo yxStoreInfo = this.storeInfoService.getById(yxCoupons.getBelong());
+            YxStoreInfo yxStoreInfo = this.storeInfoService.getById(yxCoupons.getStoreId());
             // 有效期
             item.setExpireDate(expireDate);
             // 卡券类型;1:代金券, 2:折扣券, 3:满减券
@@ -736,7 +736,7 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         // 拼接有效期
         String expireDate = DateUtils.parseDateToStr(DateUtils.getDate(), yxCoupons.getExpireDateStart()) + " ~ " + DateUtils.parseDateToStr(DateUtils.getDate(), yxCoupons.getExpireDateEnd());
         // 根据优惠券所属获取商户信息
-        YxStoreInfo yxStoreInfo = this.storeInfoService.getById(yxCoupons.getBelong());
+        YxStoreInfo yxStoreInfo = this.storeInfoService.getById(yxCoupons.getStoreId());
         List<YxCouponOrderDetailQueryVo> voList = new ArrayList<>();
         for (YxCouponOrderDetail yxCouponOrderDetail : detailList) {
             YxCouponOrderDetailQueryVo vo = new YxCouponOrderDetailQueryVo();

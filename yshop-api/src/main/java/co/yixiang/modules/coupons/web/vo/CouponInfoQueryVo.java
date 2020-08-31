@@ -20,7 +20,7 @@ public class CouponInfoQueryVo implements Serializable {
 
     /** 所属商户 */
     @ApiModelProperty(value = "所属商户")
-    private Integer belong;
+    private Integer storeId;
 
     @ApiModelProperty(value = "卡券编号")
     private String couponNum;

@@ -11,8 +11,8 @@ import java.math.BigDecimal;
  * 优惠券表 查询结果对象
  * </p>
  *
- * @author nxl
- * @date 2020-08-24
+ * @author liusy
+ * @date 2020-08-31
  */
 @Data
 @ApiModel(value="YxStoreCouponQueryVo对象", description="优惠券表查询参数")
@@ -23,7 +23,7 @@ public class YxStoreCouponQueryVo implements Serializable{
 private Integer id;
 
 @ApiModelProperty(value = "卡券所属商铺")
-private Integer belong;
+private Integer storeId;
 
 @ApiModelProperty(value = "优惠券名称")
 private String title;

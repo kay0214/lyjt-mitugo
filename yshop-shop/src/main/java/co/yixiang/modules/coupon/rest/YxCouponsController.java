@@ -38,9 +38,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @author huiy
- * @date 2020-08-14
- */
+* @author liusy
+* @date 2020-08-31
+*/
 @Slf4j
 @AllArgsConstructor
 @Api(tags = "卡券表管理")
@@ -146,7 +146,7 @@ public class YxCouponsController {
         YxCoupons yxCoupons = new YxCoupons();
         BeanUtil.copyProperties(request, yxCoupons);
         // 添加以后不可修改所属商铺
-        yxCoupons.setBelong(findStoreInfo.getId());
+        yxCoupons.setStoreId(findStoreInfo.getId());
         yxCoupons.setCouponNum(couponNum);
         yxCoupons.setIsShow(0);
         yxCoupons.setIsHot(0);

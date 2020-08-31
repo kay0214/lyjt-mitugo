@@ -18,8 +18,8 @@ import java.io.IOException;
 import javax.servlet.http.HttpServletResponse;
 
 /**
-* @author huiy
-* @date 2020-08-14
+* @author liusy
+* @date 2020-08-31
 */
 public interface YxCouponsService  extends BaseService<YxCoupons>{
 

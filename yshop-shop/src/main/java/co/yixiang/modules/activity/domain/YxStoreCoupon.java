@@ -21,8 +21,8 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 
 /**
-* @author hupeng
-* @date 2020-05-13
+* @author liusy
+* @date 2020-08-31
 */
 @Data
 @TableName("yx_store_coupon")
@@ -33,7 +33,7 @@ public class YxStoreCoupon implements Serializable {
     private Integer id;
 
     /** 所属商户 */
-    private Integer belong;
+    private Integer storeId;
 
     /** 优惠券名称 */
     @NotBlank(message = "请填写优惠券名称")
@@ -77,7 +77,6 @@ public class YxStoreCoupon implements Serializable {
 
     /** 是否删除 */
     private Integer isDel;
-
 
     public void copy(YxStoreCoupon source){
         BeanUtil.copyProperties(source,this, CopyOptions.create().setIgnoreNullValue(true));

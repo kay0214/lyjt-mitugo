@@ -36,8 +36,8 @@ import java.util.List;
  * 本地生活, 卡券表 服务实现类
  * </p>
  *
- * @author hupeng
- * @since 2020-08-13
+ * @author zqq
+ * @since 2020-08-31
  */
 @Slf4j
 @Service
@@ -79,7 +79,7 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
     @Override
     public List<YxCouponsQueryVo> getCouponsInfoByStoreId(int storeId){
         QueryWrapper<YxCoupons> wrapper = new QueryWrapper<YxCoupons>();
-        wrapper.eq("del_flag", CommonEnum.DEL_STATUS_0.getValue()).eq("is_show",1).eq("belong",storeId);
+        wrapper.eq("del_flag", CommonEnum.DEL_STATUS_0.getValue()).eq("is_show",1).eq("store_id",storeId);
         List<YxCoupons> storeProductList =  this.list(wrapper);
         List<YxCouponsQueryVo> queryVoList = yxCouponsMap.toDto(storeProductList);
         return queryVoList;
@@ -92,7 +92,7 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
      */
     @Override
     public List<LocalLiveCouponsVo> getCouponsLitByBelog(int id) {
-        List<YxCoupons> yxCoupons = baseMapper.selectList(new QueryWrapper<YxCoupons>().last("limit 3").eq("belong", id).eq("del_flag", 0));
+        List<YxCoupons> yxCoupons = baseMapper.selectList(new QueryWrapper<YxCoupons>().last("limit 3").eq("store_id", id).eq("del_flag", 0));
         List<LocalLiveCouponsVo> localLiveCouponsVoList = new ArrayList<>();
         for (YxCoupons coupons : yxCoupons){
             LocalLiveCouponsVo localLiveCouponsVo = new LocalLiveCouponsVo();

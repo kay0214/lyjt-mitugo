@@ -35,8 +35,8 @@ import java.util.List;
  * 优惠券前台领取表 服务实现类
  * </p>
  *
- * @author hupeng
- * @since 2019-10-27
+ * @author liusy
+ * @since 2020-08-31
  */
 @Slf4j
 @Service
@@ -107,7 +107,7 @@ public class YxStoreCouponIssueServiceImpl extends BaseServiceImpl<YxStoreCoupon
                 .selectList(pageModel);
         for (YxStoreCouponIssueQueryVo couponIssue : list) {
             //店铺名称
-            YxStoreInfo storeInfo = yxStoreInfoService.getById(couponIssue.getBelong());
+            YxStoreInfo storeInfo = yxStoreInfoService.getById(couponIssue.getStoreId());
             couponIssue.setStoreName(storeInfo.getStoreName());
 
             int count = couponCount(couponIssue.getId(),uid);
@@ -153,7 +153,7 @@ public class YxStoreCouponIssueServiceImpl extends BaseServiceImpl<YxStoreCoupon
             throw new ErrorRequestException("抱歉优惠卷已经领取完了");
         }
 
-        storeCouponUserService.addUserCouponNew(uid,couponIssueQueryVo.getCid(),couponQueryVo.getBelong());
+        storeCouponUserService.addUserCouponNew(uid,couponIssueQueryVo.getCid(),couponQueryVo.getStoreId());
 
         storeCouponIssueUserService.addUserIssue(uid,id);
 

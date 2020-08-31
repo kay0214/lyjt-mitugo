@@ -11,8 +11,8 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 
 /**
-* @author hupeng
-* @date 2020-05-13
+* @author liusy
+* @date 2020-08-31
 */
 @Data
 public class YxStoreCouponUserDto implements Serializable {
@@ -54,5 +54,8 @@ public class YxStoreCouponUserDto implements Serializable {
 
     // 是否有效
     private Integer isFail;
+
+    /** 商铺id */
+    private Integer storeId;
 
 }

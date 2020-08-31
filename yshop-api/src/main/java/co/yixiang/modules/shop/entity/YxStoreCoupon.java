@@ -15,8 +15,8 @@ import java.math.BigDecimal;
  * 优惠券表
  * </p>
  *
- * @author nxl
- * @since 2020-08-24
+ * @author liusy
+ * @since 2020-08-31
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -30,7 +30,7 @@ public class YxStoreCoupon extends BaseEntity {
     private Integer id;
 
     @ApiModelProperty(value = "卡券所属商铺")
-    private Integer belong;
+    private Integer storeId;
 
     @ApiModelProperty(value = "优惠券名称")
     private String title;
