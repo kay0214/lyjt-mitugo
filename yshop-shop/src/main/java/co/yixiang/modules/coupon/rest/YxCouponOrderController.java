@@ -6,6 +6,7 @@ import co.yixiang.exception.BadRequestException;
 import co.yixiang.logging.aop.log.Log;
 import co.yixiang.modules.coupon.domain.CouponOrderModifyRequest;
 import co.yixiang.modules.coupon.domain.YxCouponOrder;
+import co.yixiang.modules.coupon.domain.YxCouponOrderDetail;
 import co.yixiang.modules.coupon.domain.YxCouponOrderUse;
 import co.yixiang.modules.coupon.service.YxCouponOrderService;
 import co.yixiang.modules.coupon.service.YxCouponOrderUseService;
@@ -132,8 +133,9 @@ public class YxCouponOrderController {
     @ApiOperation(value = "退款")
     @PostMapping(value = "/yxStoreOrder/refund")
     @PreAuthorize("@el.check('admin','yxCouponOrder:refund')")
-    public ResponseEntity refund(@Validated @RequestBody YxCouponOrder resources) {
-//        yxCouponOrderService.refund(resources);
+    public ResponseEntity refund(@Validated @RequestBody YxCouponOrderDto resources) {
+        yxCouponOrderService.refund(resources);
+
         return new ResponseEntity(HttpStatus.OK);
     }
 

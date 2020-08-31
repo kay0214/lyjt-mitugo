@@ -442,13 +442,13 @@ public class StoreBargainController extends BaseController {
                         String.valueOf(FileUtil.size(new File(spreadPicPath))),
                         spreadPicPath,"qrcode/"+spreadPicName);
 
-                spreadUrl = apiUrl + "/api/file/qrcode/"+spreadPicName;
+                spreadUrl = apiUrl + "/file/qrcode/"+spreadPicName;
 
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }else{
-            spreadUrl = apiUrl + "/api/file/" + attachmentT.getSattDir();
+            spreadUrl = apiUrl + "/file/" + attachmentT.getSattDir();
         }
         Map<String,Object> map = new LinkedHashMap<>();
         map.put("url",spreadUrl);

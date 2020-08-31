@@ -1,6 +1,7 @@
 package co.yixiang.modules.coupons.web.vo;
 
 import co.yixiang.common.mybatis.GeoPoint;
+import co.yixiang.modules.coupons.entity.YxCoupons;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -160,6 +161,9 @@ public class YxCouponOrderQueryVo implements Serializable {
 
     @ApiModelProperty(value = "创建时间")
     private String createTimeStr;
+
+    @ApiModelProperty(value = "卡券信息")
+    private YxCoupons yxCoupons;
 
     @ApiModelProperty(value = "卡券List")
     private List<YxCouponOrderDetailQueryVo> detailList;

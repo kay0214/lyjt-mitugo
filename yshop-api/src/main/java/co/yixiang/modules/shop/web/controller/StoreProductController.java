@@ -176,9 +176,9 @@ public class StoreProductController extends BaseController {
             systemAttachmentService.attachmentAdd(name,String.valueOf(FileUtil.size(file)),
                     fileDir+name,"qrcode/"+name);
 
-            qrcodeUrl = apiUrl + "/api/file/qrcode/"+name;
+            qrcodeUrl = apiUrl + "/file/qrcode/"+name;
         }else{
-            qrcodeUrl = apiUrl + "/api/file/" + attachment.getSattDir();
+            qrcodeUrl = apiUrl + "/file/" + attachment.getSattDir();
         }
         String spreadPicName = id+"_"+uid + "_" + pageType + "_"+userType+"_product_user_spread.jpg";
         String spreadPicPath = fileDir+spreadPicName;

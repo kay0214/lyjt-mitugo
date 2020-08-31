@@ -479,9 +479,9 @@ public class StoreOrderController extends BaseController {
                         FileUtil.file(fileDir + name));
                 systemAttachmentService.attachmentAdd(name, String.valueOf(FileUtil.size(file)),
                         fileDir + name, "qrcode/" + name);
-                qrcodeUrl = apiUrl + "/api/file/qrcode/" + name;
+                qrcodeUrl = apiUrl + "/file/qrcode/" + name;
             } else {
-                qrcodeUrl = apiUrl + "/api/file/" + attachment.getSattDir();
+                qrcodeUrl = apiUrl + "/file/" + attachment.getSattDir();
             }
             storeOrder.setCode(qrcodeUrl);
             storeOrder.setMapKey(mapKey);

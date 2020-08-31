@@ -1,11 +1,13 @@
 package co.yixiang.modules.coupons.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.util.ObjectUtil;
 import co.yixiang.common.service.impl.BaseServiceImpl;
 import co.yixiang.common.web.vo.Paging;
 import co.yixiang.constant.LocalLiveConstants;
 import co.yixiang.constant.ShopConstants;
 import co.yixiang.enums.CommonEnum;
+import co.yixiang.exception.ErrorRequestException;
 import co.yixiang.modules.coupons.entity.YxCoupons;
 import co.yixiang.modules.coupons.mapper.YxCouponsMapper;
 import co.yixiang.modules.coupons.service.YxCouponsService;
@@ -111,6 +113,9 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
     @Override
     public YxCoupons getCouponsById(Integer id) {
         YxCoupons yxCoupons = yxCouponsMapper.selectById(id);
+        if(ObjectUtil.isNull(yxCoupons)){
+            throw new ErrorRequestException("卡券不存在或已下架");
+        }
         return yxCoupons;
     }
 }

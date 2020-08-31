@@ -180,12 +180,12 @@ public class UserBillController extends BaseController {
                             String.valueOf(FileUtil.size(new File(spreadPicPath))),
                             spreadPicPath, "qrcode/" + spreadPicName, uid, inviteCode);
 
-                    spreadUrl = apiUrl + "/api/file/qrcode/" + spreadPicName;
+                    spreadUrl = apiUrl + "/file/qrcode/" + spreadPicName;
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             } else {
-                spreadUrl = apiUrl + "/api/file/" + attachmentT.getSattDir();
+                spreadUrl = apiUrl + "/file/" + attachmentT.getSattDir();
             }
         } else {//其他
             String userType = userInfo.getUserType();
@@ -261,13 +261,13 @@ public class UserBillController extends BaseController {
                             String.valueOf(FileUtil.size(new File(spreadPicPath))),
                             spreadPicPath, "qrcode/" + spreadPicName);
 
-                    spreadUrl = apiUrl + "/api/file/qrcode/" + spreadPicName;
+                    spreadUrl = apiUrl + "/file/qrcode/" + spreadPicName;
 
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             } else {
-                spreadUrl = apiUrl + "/api/file/" + attachmentT.getSattDir();
+                spreadUrl = apiUrl + "/file/" + attachmentT.getSattDir();
             }
 
         }

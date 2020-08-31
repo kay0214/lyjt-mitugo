@@ -718,7 +718,7 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
     @Override
     public YxCouponOrderQueryVo getYxCouponOrderDetail(String id, String location) {
         YxCouponOrderQueryVo item = new YxCouponOrderQueryVo();
-        BeanUtils.copyBeanProp(item, this.yxCouponOrderDetailService.getById(id));
+        BeanUtils.copyBeanProp(item, this.yxCouponOrderMapper.selectById(id));
         // 获取卡券list
         List<YxCouponOrderDetail> detailList = this.yxCouponOrderDetailService.list(new QueryWrapper<YxCouponOrderDetail>().lambda().eq(YxCouponOrderDetail::getOrderId, item.getOrderId()));
         // 获取该订单购买的优惠券id
@@ -776,6 +776,8 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         item.setDistance(distance + "");
         // 卡卷详情
         item.setDetailList(voList);
+        // 券面信息
+        item.setYxCoupons(yxCoupons);
 
         return item;
     }
@@ -829,6 +831,13 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         wrapper6.select("ifnull(sum(total_price),0) as total ");
         Map<String, Object> map = this.getMap(wrapper6);
         countVO.setSumPrice(new BigDecimal(String.valueOf(map.get("total"))));
+
+        // 已过期
+        QueryWrapper<YxCouponOrder> wrapper7 = new QueryWrapper<>();
+        wrapper7.eq("uid", uid);
+        wrapper7.eq("del_flag", CommonEnum.DEL_STATUS_0.getValue());
+        wrapper7.eq("status", 1);
+        countVO.setOutTimeCount(this.count(wrapper7));
         return countVO;
     }
 }
