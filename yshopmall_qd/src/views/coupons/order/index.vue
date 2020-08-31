@@ -4,14 +4,15 @@
       <el-tabs v-model="orderStatus" type="card" @tab-click="handleOrder">
         
           <el-tab-pane 
-          v-for="item in orderStatusList"
+          v-for="(item,index) in orderStatusList"
           :key='item.value'
-          :name='item.value'>
+          :label="item.value"
+          :name='index.toString()'>
             <span slot="label"><i class="el-icon-bank-card"></i> {{item.label}}</span>
           </el-tab-pane>
-          <el-tab-pane name="" :key="-1">
+          <!-- <el-tab-pane name="" :key="-1">
           <span slot="label"><i class="el-icon-s-order"></i> 全部订单</span>
-        </el-tab-pane>
+        </el-tab-pane> -->
         </el-tabs>
       <!--工具栏-->
       <div class="head-container">
@@ -80,7 +81,7 @@
           <el-table-column v-if="columns.visible('status')" prop="status" label="订单状态">
             <!--（0:待支付 1:已过期 2:待发放3:支付失败4:待使用5:已使用6:已核销7:退款中8:已退款9:退款驳回-->
             <template slot-scope="scope">
-              <span>{{orderStatusList[scope.row.status].label}}</span>
+              <span>{{orderStatusList[scope.row.status*1+1].label}}</span>
               <br/>
               <div v-if="parseInt(scope.row.status)==7||parseInt(scope.row.status)==8">
                   退款原因：{{scope.row.refundReasonWapExplain}}<br/>
@@ -147,6 +148,7 @@ export default {
       orderStatus:'',
       orderType: '',
       orderStatusList:[ //顺序不能变，value和index需要对应关系
+        { value: ' ', label: '全部订单' },
         { value: '0', label: '待支付' },
         { value: '1', label: '已过期' },
         { value: '2', label: '待发放' },
@@ -179,7 +181,7 @@ export default {
     },
     formatTime,
     handleOrder(tab, event) {
-      this.crud.query.orderStatus = tab.name
+      this.crud.query.orderStatus = tab.label
       this.crud.page.page = 1
       this.crud.toQuery()
     },    
