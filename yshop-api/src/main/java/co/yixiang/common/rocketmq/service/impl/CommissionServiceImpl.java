@@ -191,7 +191,7 @@ public class CommissionServiceImpl implements CommissionService {
             //拉新池
             yxFundsAccount = updatePullNewPoint(orderInfo, yxCommissionRate, yxFundsAccount);
         } else {
-            fundsRate = fundsRate.add(yxCommissionRate.getParentRate());
+            fundsRate = fundsRate.add(yxCommissionRate.getParentRate()).add(yxCommissionRate.getReferenceRate());
         }
         //分享人
         if (null != orderInfo.getShareId() && orderInfo.getShareId() == 3) {
