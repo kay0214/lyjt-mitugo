@@ -180,11 +180,18 @@ public class YxUser implements Serializable {
     /** 推荐人用户ID */
     private Integer parentId;
 
-    /** 直推人数 */
-    private Integer pushCount;
 
     /** 推荐人类型:1商户;2合伙人;3用户 */
     private Integer parentType;
+
+
+    /** 直推人数 */
+    private Integer pushCount;
+
+
+    /** 银行预留手机号 */
+    private String bankMobile;
+
 
     public void copy(YxUser source){
         BeanUtil.copyProperties(source,this, CopyOptions.create().setIgnoreNullValue(true));

@@ -5,7 +5,6 @@ package co.yixiang.modules.shop.rest;
 
 import co.yixiang.dozer.service.IGenerator;
 import co.yixiang.logging.aop.log.Log;
-import co.yixiang.modules.shop.domain.User;
 import co.yixiang.modules.shop.domain.YxStoreInfoRequest;
 import co.yixiang.modules.shop.domain.YxStoreInfoResponse;
 import co.yixiang.modules.shop.service.UserService;
@@ -54,11 +53,10 @@ public class YxStoreInfoController {
     @PreAuthorize("@el.check('admin','yxStoreInfo:list')")
     public void download(HttpServletResponse response, YxStoreInfoQueryCriteria criteria) throws IOException {
         criteria.setDelFlag(0);
-        int sysUserId = SecurityUtils.getUserId().intValue();
-        User userSys = userService.getById(sysUserId);
-        if(userSys.getUserRole().equals(2)){
-            //登录用户角色=商户
-            criteria.setMerId(sysUserId);
+        CurrUser currUser = SecurityUtils.getCurrUser();
+        criteria.setUserRole(currUser.getUserRole());
+        if (null != currUser.getChildUser()) {
+            criteria.setChildUser(currUser.getChildUser());
         }
         yxStoreInfoService.download(generator.convert(yxStoreInfoService.queryAll(criteria), YxStoreInfoDto.class), response);
     }

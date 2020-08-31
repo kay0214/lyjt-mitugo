@@ -99,7 +99,7 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
             QueryWrapper<YxStoreInfo> wrapper = new QueryWrapper<YxStoreInfo>();
             wrapper.eq("del_flag", CommonEnum.DEL_STATUS_0.getValue()).eq("status",0);
             if(StringUtils.isNotBlank(yxStoreInfoQueryParam.getStoreName())){
-                wrapper.likeRight("store_name", yxStoreInfoQueryParam.getStoreName());
+                wrapper.like("store_name", yxStoreInfoQueryParam.getStoreName());
             }
             wrapper.orderByDesc("create_time");
             Page<YxStoreInfo> pageModel = new Page<YxStoreInfo>(yxStoreInfoQueryParam.getPage(),

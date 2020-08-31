@@ -233,7 +233,7 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
         }
         //商品名
         if(StrUtil.isNotEmpty(productQueryParam.getName())){
-            wrapper.likeRight("store_name",productQueryParam.getName());
+            wrapper.like("store_name",productQueryParam.getName());
         }
 
         wrapper.orderByDesc("sort");

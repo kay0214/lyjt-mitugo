@@ -18,8 +18,8 @@ import java.util.List;
 @Mapper
 public interface UserBillMapper extends CoreMapper<YxUserBill> {
 
-    @Select("<script> select b.title,b.pm,b.category,b.type,b.number,b.add_time ,u.nickname " +
-            "from yx_user_bill b left join yx_user u on u.uid=b.uid  where 1=1  "  +
+    @Select("<script> select b.title,b.pm,b.category,b.type,b.number,b.add_time ,b.username " +
+            "from yx_user_bill b where 1=1  "  +
             "<if test =\"pm !='' and pm != null\">and b.pm=#{pm}</if> " +
             "<if test =\"username !='' and username != null\">and b.username LIKE CONCAT('%',#{username},'%')</if>" +
             "<if test =\"title != '' and title != null\">and b.title LIKE CONCAT('%',#{title},'%')</if> " +
@@ -31,8 +31,8 @@ public interface UserBillMapper extends CoreMapper<YxUserBill> {
      * @param linkId
      * @return
      */
-    @Select("<script> select b.title,b.pm,b.category,b.type,b.number,b.add_time ,u.nickname " +
-            "from yx_user_bill b left join yx_user u on u.uid=b.uid  where 1=1  "  +
+    @Select("<script> select b.title,b.pm,b.category,b.type,b.number,b.add_time ,b.username as username " +
+            "from yx_user_bill b where 1=1  "  +
             "<if test = \"linkId != '' and linkId != null\"> and b.link_id=#{linkId}</if> </script>")
     List<YxUserBillDto> withdrawReviewLog(@Param("linkId") Integer linkId);
 }
