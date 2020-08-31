@@ -317,9 +317,10 @@
         <el-table-column label="服务支持">
           <!--  0:不支持 1支持 -->
           <template slot-scope="scope">
-            <el-tag v-if="scope.row.outtimeRefund === 1">过期退</el-tag>
-            <el-tag v-if="scope.row.needOrder === 1">免预约</el-tag>
-            <el-tag v-if="scope.row.awaysRefund === 1">随时退</el-tag>
+            <el-tag v-if="scope.row.outtimeRefund === 1">过期退</el-tag> 
+            <el-tag v-if="scope.row.needOrder === 1">免预约</el-tag> 
+            <el-tag v-if="scope.row.awaysRefund === 1">随时退</el-tag> 
+            <span v-if="scope.row.awaysRefund !== 1 && scope.row.needOrder !== 1 && scope.row.awaysRefund !== 1"> - </span>
           </template>
         </el-table-column>
         <!--  0:不支持 1支持 -->
@@ -369,7 +370,7 @@
           </template>
         </el-table-column>
         <!-- <el-table-column v-if="columns.visible('content')" prop="content" label="卡券详情" /> -->
-        <el-table-column v-permission="['admin','yxCoupons:edit','yxCoupons:del']" fixed="right" label="操作" width="220px" align="center">
+        <el-table-column v-permission="['admin','yxCoupons:edit','yxCoupons:del']" fixed="right" label="操作" width="120px" align="center">
           <template slot-scope="scope">
             <udOperation
               :data="scope.row"

@@ -189,10 +189,10 @@ public class CreatShareProductServiceImpl implements CreatShareProductService {
             systemAttachmentService.attachmentAdd(spreadPicName,
                     String.valueOf(FileUtil.size(new File(spreadPicPath))),
                     spreadPicPath,"qrcode/"+spreadPicName);
-            spreadUrl = apiUrl + "/api/file/qrcode/"+spreadPicName;
+            spreadUrl = apiUrl + "/file/qrcode/"+spreadPicName;
             //保存到本地 生成文件名字
         }else {
-            spreadUrl = apiUrl + "/api/file/" + attachmentT.getSattDir();
+            spreadUrl = apiUrl + "/file/" + attachmentT.getSattDir();
         }
 
         return spreadUrl;

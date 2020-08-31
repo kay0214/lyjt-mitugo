@@ -180,9 +180,9 @@ public class YxStoreInfoController extends BaseController {
             systemAttachmentService.attachmentAdd(name, String.valueOf(FileUtil.size(file)),
                     fileDir + name, "qrcode/" + name);
 
-            qrcodeUrl = apiUrl + "/api/file/qrcode/" + name;
+            qrcodeUrl = apiUrl + "/file/qrcode/" + name;
         } else {
-            qrcodeUrl = apiUrl + "/api/file/" + attachment.getSattDir();
+            qrcodeUrl = apiUrl + "/file/" + attachment.getSattDir();
         }
         String spreadPicName = id + "_" + uid + "_store_" + userType + "_product_user_spread.jpg";
         String spreadPicPath = fileDir + spreadPicName;
