@@ -17,8 +17,8 @@ import java.math.BigDecimal;
 import java.io.Serializable;
 
 /**
-* @author huiy
-* @date 2020-08-14
+* @author liusy
+* @date 2020-08-31
 */
 @Data
 @TableName("yx_coupons")
@@ -28,8 +28,6 @@ public class YxCoupons implements Serializable {
     @TableId(value = "id", type = IdType.AUTO)
     private Integer id;
 
-    /** 卡券所属商户 */
-    private Integer belong;
 
     /** 卡券编号 */
     @NotBlank
@@ -171,13 +169,11 @@ public class YxCoupons implements Serializable {
 
 
     /** 创建时间 */
-    @NotNull
     @TableField(fill= FieldFill.INSERT)
     private Timestamp createTime;
 
 
     /** 更新时间 */
-    @NotNull
     @TableField(fill= FieldFill.INSERT_UPDATE)
     private Timestamp updateTime;
 
@@ -186,6 +182,13 @@ public class YxCoupons implements Serializable {
     @NotBlank
     private String content;
 
+    /** 卡券所属商铺 */
+    @NotNull
+    private Integer storeId;
+
+    /** 卡券简介 */
+    @NotBlank
+    private String couponInfo;
 
     public void copy(YxCoupons source){
         BeanUtil.copyProperties(source,this, CopyOptions.create().setIgnoreNullValue(true));

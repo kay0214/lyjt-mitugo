@@ -45,9 +45,9 @@ import java.util.Map;
 //import org.springframework.cache.annotation.Cacheable;
 
 /**
- * @author huiy
- * @date 2020-08-14
- */
+* @author liusy
+* @date 2020-08-31
+*/
 @Service
 @AllArgsConstructor
 //@CacheConfig(cacheNames = "yxCoupons")
@@ -78,7 +78,7 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
                 map.put("totalElements", 0);
                 return map;
             }
-            queryWrapper.lambda().in(YxCoupons::getBelong, criteria.getChildUser()).eq(YxCoupons::getDelFlag, 0);
+            queryWrapper.lambda().in(YxCoupons::getStoreId, criteria.getChildUser()).eq(YxCoupons::getDelFlag, 0);
         }
 
         if (StringUtils.isNotBlank(criteria.getCouponName())) {
@@ -189,6 +189,8 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
             map.put("创建时间", yxCoupons.getCreateTime());
             map.put("更新时间", yxCoupons.getUpdateTime());
             map.put("卡券详情", yxCoupons.getContent());
+            map.put("卡券所属商铺", yxCoupons.getStoreId());
+            map.put("卡券简介", yxCoupons.getCouponInfo());
             list.add(map);
         }
         FileUtil.downloadExcel(list, response);
