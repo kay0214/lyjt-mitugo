@@ -214,16 +214,21 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
             wrapper.eq("is_new",1);
         }
         //销量排序
-        if(productQueryParam.getSalesOrder().equals("desc")){
-            wrapper.orderByDesc("sales");
-        }else if(productQueryParam.getSalesOrder().equals("asc")) {
-            wrapper.orderByAsc("sales");
+        if(ObjectUtil.isNotNull(productQueryParam.getSalesOrder())){
+            if(productQueryParam.getSalesOrder().equals("desc")){
+                wrapper.orderByDesc("sales");
+            }else if(productQueryParam.getSalesOrder().equals("asc")) {
+                wrapper.orderByAsc("sales");
+            }
         }
+
         //价格排序
-        if(productQueryParam.getPriceOrder().equals("desc")){
-            wrapper.orderByDesc("price");
-        }else if(productQueryParam.getPriceOrder().equals("asc")){
-            wrapper.orderByAsc("price");
+        if(ObjectUtil.isNotNull(productQueryParam.getPriceOrder())){
+            if(productQueryParam.getPriceOrder().equals("desc")){
+                wrapper.orderByDesc("price");
+            }else if(productQueryParam.getPriceOrder().equals("asc")){
+                wrapper.orderByAsc("price");
+            }
         }
         //商品名
         if(StrUtil.isNotEmpty(productQueryParam.getName())){
