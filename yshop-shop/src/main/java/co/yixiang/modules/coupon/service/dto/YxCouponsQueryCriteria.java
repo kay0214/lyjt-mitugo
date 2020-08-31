@@ -27,6 +27,9 @@ public class YxCouponsQueryCriteria extends BaseCriteria {
     @Query(type = Query.Type.EQUAL)
     private Integer couponType;
 
+    @Query(type = Query.Type.EQUAL)
+    private Integer couponCategory;
+
     /** 查找是否上架 */
     @Query(type = Query.Type.EQUAL)
     private Integer isShow;
