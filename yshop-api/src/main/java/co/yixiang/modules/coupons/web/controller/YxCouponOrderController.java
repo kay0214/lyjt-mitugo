@@ -422,5 +422,21 @@ public class YxCouponOrderController extends BaseController {
         int uid = SecurityUtils.getUserId().intValue();
         return ApiResult.ok(yxCouponOrderService.orderData(uid));
     }
+
+    /**
+     * 订单取消
+     */
+    @PostMapping("/cancel")
+    @ApiOperation(value = "取消YxCouponOrder对象", notes = "取消卡券订单表", response = ApiResult.class)
+    public ApiResult<Boolean> cancelYxCouponOrder(@Valid @RequestBody IdParam idParam) throws Exception {
+        boolean flag;
+        try {
+            lock.lock();
+            flag = yxCouponOrderService.updateOrderStatusCancel(idParam.getId());
+        } finally {
+            lock.unlock();
+        }
+        return ApiResult.result(flag);
+    }
 }
 
