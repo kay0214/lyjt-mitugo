@@ -769,11 +769,13 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         item.setCoordinateX(yxStoreInfo.getCoordinateX());
         item.setCoordinateY(yxStoreInfo.getCoordinateY());
         // 计算当前位置距离店铺距离
-        String[] locationArr = location.split(",");
-        GlobalCoordinates source = new GlobalCoordinates(Double.parseDouble(yxStoreInfo.getCoordinateY()), Double.parseDouble(yxStoreInfo.getCoordinateX()));
-        GlobalCoordinates target = new GlobalCoordinates(Double.parseDouble(locationArr[1]), Double.parseDouble(locationArr[0]));
-        double distance = DistanceMeterUtil.getDistanceMeter(source, target);
-        item.setDistance(distance + "");
+        if(StringUtils.isNotBlank(location)) {
+            String[] locationArr = location.split(",");
+            GlobalCoordinates source = new GlobalCoordinates(Double.parseDouble(yxStoreInfo.getCoordinateY()), Double.parseDouble(yxStoreInfo.getCoordinateX()));
+            GlobalCoordinates target = new GlobalCoordinates(Double.parseDouble(locationArr[1]), Double.parseDouble(locationArr[0]));
+            double distance = DistanceMeterUtil.getDistanceMeter(source, target);
+            item.setDistance(distance + "");
+        }
         // 卡卷详情
         item.setDetailList(voList);
         // 券面信息

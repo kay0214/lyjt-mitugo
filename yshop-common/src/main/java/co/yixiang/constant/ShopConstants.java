@@ -95,7 +95,7 @@ public interface ShopConstants {
 	/**
 	 * 热门搜索
 	 */
-	String YSHOP_HOT_SEARCH = "yshop_hot_search";
+	String YSHOP_HOT_SEARCH = "shop_hot";
 
 
 	/**
@@ -196,5 +196,7 @@ public interface ShopConstants {
 	 * 图片类别-医疗机构许可证
 	 */
 	int IMG_LICENCE=9;
+
+	String COMMISSION_ORDER="COMMISSION_ORDER:";
 
 }

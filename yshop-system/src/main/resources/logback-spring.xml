@@ -18,6 +18,12 @@
         </layout>
     </appender>
 
+    <logger name="jdbc.sqlonly" level="OFF"/>
+    <logger name="jdbc.sqltiming" level="OFF"/>
+    <logger name="jdbc.audit" level="OFF"/>
+    <logger name="jdbc.resultset" level="OFF"/>
+    <logger name="jdbc.connection" level="OFF"/>
+
     <!-- 开发环境. 多个使用逗号隔开. -->
     <springProfile name="dev">
         <logger name="org.springframework.web" level="INFO"/>

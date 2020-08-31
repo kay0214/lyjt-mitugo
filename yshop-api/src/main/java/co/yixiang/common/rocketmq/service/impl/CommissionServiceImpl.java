@@ -5,6 +5,7 @@ package co.yixiang.common.rocketmq.service.impl;
 
 import co.yixiang.common.rocketmq.entity.OrderInfo;
 import co.yixiang.common.rocketmq.service.CommissionService;
+import co.yixiang.constant.ShopConstants;
 import co.yixiang.modules.commission.entity.YxCommissionRate;
 import co.yixiang.modules.commission.mapper.YxCommissionRateMapper;
 import co.yixiang.modules.coupons.entity.YxCouponOrder;
@@ -26,6 +27,7 @@ import co.yixiang.modules.user.mapper.YxPointDetailMapper;
 import co.yixiang.modules.user.mapper.YxUserBillMapper;
 import co.yixiang.modules.user.mapper.YxWechatUserMapper;
 import co.yixiang.utils.OrderUtil;
+import co.yixiang.utils.RedisUtil;
 import co.yixiang.utils.StringUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import lombok.extern.slf4j.Slf4j;
@@ -79,8 +81,14 @@ public class CommissionServiceImpl implements CommissionService {
     YxStoreCartMapper yxStoreCartMapper;
 
     @Override
-    @Transactional(propagation= Propagation.REQUIRED)
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void updateInfo(String orderId, String orderType) {
+        String value = RedisUtil.get(ShopConstants.COMMISSION_ORDER + orderType + orderId);
+        if (null != value) {
+            log.info("订单重复分佣，订单类型:{},订单号：{}", orderType, orderId);
+            return;
+        }
+        RedisUtil.set(ShopConstants.COMMISSION_ORDER + orderType + orderId, 1, 5);
         if (orderType.equals("0")) {
             //商品购买
             updateOrderInfo(orderId);
@@ -92,6 +100,7 @@ public class CommissionServiceImpl implements CommissionService {
             log.info("订单类型错误，类型为：{}", orderType);
             return;
         }
+        RedisUtil.del(ShopConstants.COMMISSION_ORDER + orderType + orderId);
     }
 
     /**
@@ -111,19 +120,20 @@ public class CommissionServiceImpl implements CommissionService {
         OrderInfo orderInfo = new OrderInfo();
         YxWechatUser yxWechatUser = yxWechatUserMapper.selectById(yxStoreOrder.getUid());
         String cartIds = yxStoreOrder.getCartId();
-        if(StringUtils.isBlank(cartIds)){
+        if (StringUtils.isBlank(cartIds)) {
             log.info("分佣失败，该订单无可分佣商品,订单号：{}", orderId);
             return;
         }
         List<String> cartIdList = Arrays.asList(cartIds.split(","));
         for (String cartId : cartIdList) {
             YxStoreCart yxStoreCart = yxStoreCartMapper.selectById(Integer.parseInt(cartId));
-            if (yxStoreCart.getCommission().compareTo(BigDecimal.ZERO)<=0) {
-                log.info("分佣失败，该商品可分佣金额为0,订单号：{}==>>>商品号：{}", orderId,cartId);
+            if (yxStoreCart.getCommission().compareTo(BigDecimal.ZERO) <= 0) {
+                log.info("分佣失败，该商品可分佣金额为0,订单号：{}==>>>商品号：{}", orderId, cartId);
                 continue;
             }
             BeanUtils.copyProperties(yxStoreCart, orderInfo);
             orderInfo.setOrderId(orderId);
+            orderInfo.setBrokerageType(0);
             orderInfo.setCartId(cartId);
             orderInfo.setUsername(yxWechatUser.getNickname());
             orderInfo.setCommission(yxStoreCart.getCommission().multiply(new BigDecimal(yxStoreCart.getCartNum().toString())));
@@ -142,7 +152,7 @@ public class CommissionServiceImpl implements CommissionService {
             log.info("分佣失败，该订单重复分佣,订单号：{}", orderId);
             return;
         }
-        if (yxCouponOrder.getCommission().compareTo(BigDecimal.ZERO)<=0) {
+        if (yxCouponOrder.getCommission().compareTo(BigDecimal.ZERO) <= 0) {
             log.info("分佣失败，该订单可分佣金额为0,订单号：{}", orderId);
             return;
         }
@@ -151,6 +161,7 @@ public class CommissionServiceImpl implements CommissionService {
         YxWechatUser yxWechatUser = yxWechatUserMapper.selectById(yxCouponOrder.getUid());
         OrderInfo orderInfo = new OrderInfo();
         BeanUtils.copyProperties(yxCouponOrder, orderInfo);
+        orderInfo.setBrokerageType(1);
         orderInfo.setPayPrice(yxCouponOrder.getCouponPrice());
         orderInfo.setUsername(yxWechatUser.getNickname());
         orderInfo.setCommission(yxCouponOrder.getCommission().multiply(new BigDecimal(yxCouponOrder.getTotalNum().toString())));
@@ -176,11 +187,11 @@ public class CommissionServiceImpl implements CommissionService {
             //更新佣金金额
             yxWechatUser.setNowMoney(yxWechatUser.getNowMoney().add(parentBonus));
             yxWechatUserMapper.updateById(yxWechatUser);
-            insertBill(orderInfo.getParentId(),1, parentBonus, yxWechatUser.getNickname(),yxWechatUser.getNowMoney());
+            insertBill(orderInfo.getParentId(), orderInfo.getBrokerageType(), parentBonus, yxWechatUser.getNickname(), yxWechatUser.getNowMoney(), orderInfo.getParentType());
             //拉新池
             yxFundsAccount = updatePullNewPoint(orderInfo, yxCommissionRate, yxFundsAccount);
         } else {
-            fundsRate = fundsRate.add(yxCommissionRate.getParentRate());
+            fundsRate = fundsRate.add(yxCommissionRate.getParentRate()).add(yxCommissionRate.getReferenceRate());
         }
         //分享人
         if (null != orderInfo.getShareId() && orderInfo.getShareId() == 3) {
@@ -190,7 +201,7 @@ public class CommissionServiceImpl implements CommissionService {
             //更新佣金金额
             yxWechatUser.setNowMoney(yxWechatUser.getNowMoney().add(shareBonus));
             yxWechatUserMapper.updateById(yxWechatUser);
-            insertBill(orderInfo.getShareId(),1, shareBonus, yxWechatUser.getNickname(),yxWechatUser.getNowMoney());
+            insertBill(orderInfo.getShareId(), orderInfo.getBrokerageType(), shareBonus, yxWechatUser.getNickname(), yxWechatUser.getNowMoney(), 1);
 
         } else {
             fundsRate = fundsRate.add(yxCommissionRate.getShareRate());
@@ -203,7 +214,7 @@ public class CommissionServiceImpl implements CommissionService {
             //更新佣金金额
             yxWechatUser.setNowMoney(yxWechatUser.getNowMoney().add(shareParentBonus));
             yxWechatUserMapper.updateById(yxWechatUser);
-            insertBill(orderInfo.getShareParentId(),1, shareParentBonus, yxWechatUser.getNickname(),yxWechatUser.getNowMoney());
+            insertBill(orderInfo.getShareParentId(), orderInfo.getBrokerageType(), shareParentBonus, yxWechatUser.getNickname(), yxWechatUser.getNowMoney(), orderInfo.getShareParentType());
         } else {
             fundsRate = fundsRate.add(yxCommissionRate.getShareParentRate());
         }
@@ -218,7 +229,7 @@ public class CommissionServiceImpl implements CommissionService {
         //平台
         BigDecimal fundsBonus = orderInfo.getCommission().multiply(fundsRate);
         YxFundsDetail yxFundsDetail = new YxFundsDetail();
-        yxFundsDetail.setType(1);
+        yxFundsDetail.setType(orderInfo.getBrokerageType() == 0 ? 1 : 2);
         yxFundsDetail.setUid(orderInfo.getUid());
         yxFundsDetail.setUsername(orderInfo.getUsername());
         yxFundsDetail.setOrderId(orderInfo.getOrderId());
@@ -233,7 +244,7 @@ public class CommissionServiceImpl implements CommissionService {
         //拉新积分
         BigDecimal referencePoint = orderInfo.getCommission().multiply(yxCommissionRate.getReferenceRate());
         SystemUser merInfo = systemUserMapper.selectById(orderInfo.getMerId());
-        insertPointDetail(orderInfo,referencePoint,merInfo.getParentId(),new BigDecimal("0"),0);
+        insertPointDetail(orderInfo, referencePoint, merInfo.getParentId(), new BigDecimal("0"), 0);
         yxFundsAccount.setReferencePoint(yxFundsAccount.getReferencePoint().add(referencePoint));
         yxFundsAccount.setPrice(yxFundsAccount.getPrice().add(referencePoint));
         return yxFundsAccount;
@@ -253,7 +264,7 @@ public class CommissionServiceImpl implements CommissionService {
         SystemUser merInfo = systemUserMapper.selectById(orderInfo.getMerId());
         //合伙人收益
         BigDecimal partnerPoint = orderInfo.getCommission().multiply(yxCommissionRate.getPartnerRate());
-        insertPointDetail(orderInfo,merchantsPoint,merInfo.getParentId(),partnerPoint,1);
+        insertPointDetail(orderInfo, merchantsPoint, merInfo.getParentId(), partnerPoint, 1);
         merInfo.setTotalScore(merInfo.getTotalScore().add(merchantsPoint));
         systemUserMapper.updateById(merInfo);
 
@@ -261,9 +272,9 @@ public class CommissionServiceImpl implements CommissionService {
         partnerInfo.setTotalScore(partnerInfo.getTotalScore().add(partnerPoint));
         systemUserMapper.updateById(partnerInfo);
         //插入明细数据(商户)
-        insertBill(orderInfo.getMerId(),1, merchantsPoint, merInfo.getUsername(),merInfo.getTotalScore());
+        insertBill(orderInfo.getMerId(), orderInfo.getBrokerageType(), merchantsPoint, merInfo.getUsername(), merInfo.getTotalScore(), 2);
         //插入明细数据(合伙人)
-        insertBill(merInfo.getParentId(),1, partnerPoint, partnerInfo.getUsername(),partnerInfo.getTotalScore());
+        insertBill(merInfo.getParentId(), orderInfo.getBrokerageType(), partnerPoint, partnerInfo.getUsername(), partnerInfo.getTotalScore(), 3);
         BigDecimal totalPoint = yxFundsAccount.getBonusPoint().add(merchantsPoint).add(partnerPoint);
         //分红总积分
         yxFundsAccount.setBonusPoint(totalPoint);
@@ -273,19 +284,20 @@ public class CommissionServiceImpl implements CommissionService {
 
     /**
      * 插入积分明细
+     *
      * @param orderInfo
      * @param merchantsPoint
      * @param parentId
      * @param partnerPoint
      * @param type
      */
-    public void insertPointDetail(OrderInfo orderInfo,BigDecimal merchantsPoint,Integer parentId,BigDecimal partnerPoint,Integer type){
+    public void insertPointDetail(OrderInfo orderInfo, BigDecimal merchantsPoint, Integer parentId, BigDecimal partnerPoint, Integer type) {
         YxPointDetail yxPointDetail = new YxPointDetail();
         yxPointDetail.setUid(orderInfo.getUid());
         yxPointDetail.setUsername(orderInfo.getUsername());
         yxPointDetail.setType(type);
         yxPointDetail.setOrderId(orderInfo.getOrderId());
-        yxPointDetail.setOrderType(0);
+        yxPointDetail.setOrderType(orderInfo.getBrokerageType());
         yxPointDetail.setOrderPrice(orderInfo.getPayPrice());
         yxPointDetail.setCommission(orderInfo.getCommission());
         yxPointDetail.setMerchantsId(orderInfo.getMerId());
@@ -303,15 +315,16 @@ public class CommissionServiceImpl implements CommissionService {
      * @param parentBonus
      * @param
      */
-    public void insertBill(Integer uid,Integer userType,BigDecimal parentBonus,String userName, BigDecimal nowMoney) {
+    public void insertBill(Integer uid, Integer brokerageType, BigDecimal parentBonus, String userName, BigDecimal nowMoney, Integer userType) {
         //插入明细数据
         YxUserBill yxUserBill = new YxUserBill();
         yxUserBill.setUid(uid);
         yxUserBill.setUsername(userName);
         yxUserBill.setPm(1);
         yxUserBill.setTitle("商品返佣");
-        yxUserBill.setCategory(userType==1?"now_money":"integral");
+        yxUserBill.setCategory(userType == 1 ? "now_money" : "integral");
         yxUserBill.setType("brokerage");
+        yxUserBill.setBrokerageType(brokerageType);
         yxUserBill.setNumber(parentBonus);
         yxUserBill.setBalance(nowMoney.add(parentBonus));
         yxUserBill.setAddTime(OrderUtil.getSecondTimestampTwo());

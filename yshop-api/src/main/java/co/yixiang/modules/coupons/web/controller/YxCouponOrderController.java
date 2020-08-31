@@ -408,7 +408,7 @@ public class YxCouponOrderController extends BaseController {
      */
     @PostMapping("/info")
     @ApiOperation(value = "查看卡券订单详情", notes = "卡券订单详情")
-    public ApiResult<YxCouponOrderQueryVo> getMyCouponOrder(@Valid @RequestBody IdParam idParam, @RequestHeader("location") String location) throws Exception {
+    public ApiResult<YxCouponOrderQueryVo> getMyCouponOrder(@Valid @RequestBody IdParam idParam, @RequestHeader(value = "location", required = false) String location) throws Exception {
         YxCouponOrderQueryVo yxCouponOrderQueryVo = yxCouponOrderService.getYxCouponOrderDetail(idParam.getId(), location);
         return ApiResult.ok(yxCouponOrderQueryVo);
     }

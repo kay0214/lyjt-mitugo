@@ -52,8 +52,8 @@ public class PointDetailController {
     }
 
     @GetMapping(value = "/dividends")
-    @Log("积分明细, 拉新")
-    @ApiOperation("查询积分明细, 拉新")
+    @Log("积分明细, 分红池")
+    @ApiOperation("查询积分明细, 分红池")
     @PreAuthorize("@el.check('admin','yxPointDetail:list')")
     public ResponseEntity<Object> getYxPointDetailsDividends(YxPointDetailQueryCriteria criteria, Pageable pageable){
         // 只取拉新用户
