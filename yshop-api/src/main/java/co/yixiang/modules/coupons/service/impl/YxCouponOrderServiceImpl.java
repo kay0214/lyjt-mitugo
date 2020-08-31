@@ -858,7 +858,7 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         if (null == yxCouponOrder) {
             throw new BadRequestException("未查询到订单信息");
         }
-        if(10 == yxCouponOrder.getStatus()) {
+        if (10 == yxCouponOrder.getStatus()) {
             throw new BadRequestException("订单已是取消状态");
         }
         // 更新卡券信息
@@ -873,6 +873,6 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         yxCoupons.setSales(yxCoupons.getSales() - yxCouponOrder.getTotalNum());
         yxCoupons.setInventory(yxCoupons.getInventory() + yxCouponOrder.getTotalNum());
         this.couponsService.updateById(yxCoupons);
-        return false;
+        return true;
     }
 }
