@@ -48,6 +48,9 @@ private String category;
 @ApiModelProperty(value = "明细类型")
 private String type;
 
+    @ApiModelProperty(value = "佣金类型")
+    private Integer brokerageType;
+
 @ApiModelProperty(value = "明细数字")
 private BigDecimal number;
 
