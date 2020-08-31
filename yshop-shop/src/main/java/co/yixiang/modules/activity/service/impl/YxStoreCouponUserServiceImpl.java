@@ -37,9 +37,9 @@ import java.util.Map;
 //import org.springframework.cache.annotation.Cacheable;
 
 /**
- * @author hupeng
- * @date 2020-05-13
- */
+* @author liusy
+* @date 2020-08-31
+*/
 @Service
 @AllArgsConstructor
 //@CacheConfig(cacheNames = "yxStoreCouponUser")
@@ -90,6 +90,7 @@ public class YxStoreCouponUserServiceImpl extends BaseServiceImpl<YxStoreCouponU
             map.put("获取方式", yxStoreCouponUser.getType());
             map.put("状态（0：未使用，1：已使用, 2:已过期）", yxStoreCouponUser.getStatus());
             map.put("是否有效", yxStoreCouponUser.getIsFail());
+            map.put("商铺id", yxStoreCouponUser.getStoreId());
             list.add(map);
         }
         FileUtil.downloadExcel(list, response);
