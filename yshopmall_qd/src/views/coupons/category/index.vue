@@ -63,7 +63,12 @@ import pagination from '@crud/Pagination'
 import MaterialList from "@/components/material";
 
 // crud交由presenter持有
-const defaultCrud = CRUD({ title: '卡券分类表', url: 'api/yxCouponsCategory', sort: 'id,desc', crudMethod: { ...crudYxCouponsCategory }})
+const defaultCrud = CRUD({ title: '卡券分类表', url: 'api/yxCouponsCategory', sort: 'id,desc', crudMethod: { ...crudYxCouponsCategory },optShow: {
+      add: true,
+      edit: true,
+      del: true,
+      download: false
+    }})
 const defaultForm = { id: null, pid: null, cateName: null, sort: null, isShow: 0, delFlag: null, createUserId: null, updateUserId: null, createTime: null, updateTime: null,path: null }
 const pathArr = []
 if (defaultForm.path) { pathArr[0] = defaultForm.path }
@@ -88,6 +93,9 @@ export default {
         ],
         isShow: [
           { required: true, message: '是否推荐. 0:不推荐, 1:推荐不能为空', trigger: 'blur' }
+        ],
+        path:[
+          {required: true, message: '分类图片不能为空', trigger: 'blur' }
         ]
       }
     }
@@ -110,7 +118,6 @@ export default {
       if (form.path) {
         pathArr.push(form.path)
       }
-      console.log(pathArr)
       this.pathArr = pathArr;
     },
   }
