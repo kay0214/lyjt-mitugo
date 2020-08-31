@@ -37,7 +37,7 @@
     <pForm ref="formp" :is-add="isAdd" />
     <!--表格渲染-->
     <el-table v-loading="loading" :data="data" size="small" style="width: 100%;">
-      <el-table-column prop="nickname" label="用户昵称" />
+      <el-table-column prop="username" label="用户昵称" />
       <el-table-column prop="title" label="账单标题" />
       <el-table-column prop="category" label="明细种类">
         <template slot-scope="scope">
