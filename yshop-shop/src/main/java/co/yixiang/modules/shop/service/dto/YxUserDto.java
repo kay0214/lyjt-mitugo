@@ -150,4 +150,8 @@ public class YxUserDto implements Serializable {
 
     /** 直推人数 */
     private Integer pushCount;
+
+    /** 银行预留手机号 */
+    private String bankMobile;
+
 }
