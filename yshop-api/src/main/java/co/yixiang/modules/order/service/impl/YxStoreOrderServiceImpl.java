@@ -593,6 +593,7 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
      */
     @CacheEvict(cacheNames = ShopConstants.YSHOP_REDIS_INDEX_KEY, allEntries = true)
     @Override
+    @Transactional
     public void takeOrder(String orderId, int uid) {
         YxStoreOrderQueryVo order = getOrderInfo(orderId, uid);
         if (ObjectUtil.isNull(order)) throw new ErrorRequestException("订单不存在");
