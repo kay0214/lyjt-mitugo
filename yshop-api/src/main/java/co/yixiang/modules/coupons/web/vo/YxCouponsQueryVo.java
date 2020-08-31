@@ -14,8 +14,8 @@ import java.util.List;
  * 本地生活, 卡券表 查询结果对象
  * </p>
  *
- * @author hupeng
- * @date 2020-08-13
+ * @author zqq
+ * @date 2020-08-31
  */
 @Data
 @ApiModel(value="YxCouponsQueryVo对象", description="本地生活, 卡券表查询参数")
@@ -25,9 +25,8 @@ public class YxCouponsQueryVo implements Serializable{
 @ApiModelProperty(value = "卡券主键")
 private Integer id;
 
-/** 所属商户 */
-@ApiModelProperty(value = "所属商户")
-private Integer belong;
+@ApiModelProperty(value = "卡券所属商铺")
+private Integer storeId;
 
 @ApiModelProperty(value = "卡券编号")
 private String couponNum;
@@ -109,6 +108,9 @@ private String availableTimeStart;
 
 @ApiModelProperty(value = "可用时间止")
 private String availableTimeEnd;
+
+@ApiModelProperty(value = "卡券简介")
+private String couponInfo;
 
 @ApiModelProperty(value = "是否删除（0：未删除，1：已删除）")
 private Integer delFlag;

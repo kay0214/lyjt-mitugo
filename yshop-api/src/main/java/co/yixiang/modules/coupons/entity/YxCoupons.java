@@ -16,8 +16,8 @@ import java.util.Date;
  * 本地生活, 卡券表
  * </p>
  *
- * @author hupeng
- * @since 2020-08-13
+ * @author liusy
+ * @since 2020-08-31
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -30,9 +30,8 @@ public class YxCoupons extends BaseEntity {
 @TableId(value = "id", type = IdType.AUTO)
 private Integer id;
 
-/** 所属商户 */
-@ApiModelProperty(value = "所属商户")
-private Integer belong;
+@ApiModelProperty(value = "卡券所属商铺")
+private Integer storeId;
 
 @ApiModelProperty(value = "卡券编号")
 private String couponNum;
