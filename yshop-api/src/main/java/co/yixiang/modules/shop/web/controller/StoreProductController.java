@@ -285,6 +285,9 @@ public class StoreProductController extends BaseController {
                 productAndStoreQueryVo.setStoreName(yxStoreInfoQueryVoList.get(0).getStoreName());
                 productAndStoreQueryVo.setIndustryCategoryInfo(yxStoreInfoQueryVoList.get(0).getIndustryCategoryInfo());
                 productAndStoreQueryVo.setStoreId(yxStoreInfoQueryVoList.get(0).getId());
+                productAndStoreQueryVo.setStoreAddress(yxStoreInfoQueryVoList.get(0).getStoreProvince()+yxStoreInfoQueryVoList.get(0).getStoreAddress());
+                productAndStoreQueryVo.setStoreImage(yxImageInfoService.selectImgByParam(yxStoreInfoQueryVoList.get(0).getId(),CommonConstant.IMG_TYPE_STORE,CommonConstant.IMG_CATEGORY_PIC));
+
             }
         }
         return ApiResult.ok(productAndStoreQueryVo);

@@ -28,5 +28,8 @@ public class YxStoreProductAndStoreQueryVo implements Serializable {
     private String industryCategoryInfo;
     @ApiModelProperty(value = "共几家")
     private Integer sumStoe = 0;
-
+    @ApiModelProperty(value = "店铺缩略图")
+    private String storeImage;
+    @ApiModelProperty(value = "店铺详细地址")
+    private String storeAddress;
 }
