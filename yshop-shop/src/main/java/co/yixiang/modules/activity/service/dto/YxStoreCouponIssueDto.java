@@ -52,6 +52,6 @@ public class YxStoreCouponIssueDto implements Serializable {
     private Timestamp startTimeDate;
 
     /** 卡券所属商铺 */
-    private Integer belong;
+    private Integer storeId;
 
 }

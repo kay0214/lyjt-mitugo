@@ -16,9 +16,9 @@ import java.io.Serializable;
 import java.sql.Timestamp;
 
 /**
- * @author liusy
- * @date 2020-08-31
- */
+* @author liusy
+* @date 2020-08-31
+*/
 @Data
 @TableName("yx_store_coupon_issue")
 public class YxStoreCouponIssue implements Serializable {
@@ -74,7 +74,7 @@ public class YxStoreCouponIssue implements Serializable {
 
 
     /** 卡券所属商铺 */
-    private Integer belong;
+    private Integer storeId;
 
 
     public void copy(YxStoreCouponIssue source) {
