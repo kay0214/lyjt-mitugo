@@ -10,22 +10,19 @@ import co.yixiang.logging.aop.log.Log;
 import co.yixiang.modules.activity.domain.YxStoreCouponIssue;
 import co.yixiang.modules.activity.service.YxStoreCouponIssueService;
 import co.yixiang.modules.activity.service.dto.YxStoreCouponIssueQueryCriteria;
+import co.yixiang.modules.shop.service.YxStoreInfoService;
+import co.yixiang.utils.CurrUser;
 import co.yixiang.utils.OrderUtil;
+import co.yixiang.utils.SecurityUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
 * @author hupeng
@@ -36,17 +33,22 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("api")
 public class StoreCouponIssueController {
 
-    private final YxStoreCouponIssueService yxStoreCouponIssueService;
-
-    public StoreCouponIssueController(YxStoreCouponIssueService yxStoreCouponIssueService) {
-        this.yxStoreCouponIssueService = yxStoreCouponIssueService;
-    }
+    @Autowired
+    private YxStoreCouponIssueService yxStoreCouponIssueService;
+    @Autowired
+    private YxStoreInfoService yxStoreInfoService;
 
     @Log("查询已发布")
     @ApiOperation(value = "查询已发布")
     @GetMapping(value = "/yxStoreCouponIssue")
     @PreAuthorize("hasAnyRole('admin','YXSTORECOUPONISSUE_ALL','YXSTORECOUPONISSUE_SELECT')")
     public ResponseEntity getYxStoreCouponIssues(YxStoreCouponIssueQueryCriteria criteria, Pageable pageable){
+        CurrUser currUser = SecurityUtils.getCurrUser();
+        criteria.setUserRole(currUser.getUserRole());
+        if (null != currUser.getChildUser()) {
+            criteria.setChildUser(currUser.getChildUser());
+            criteria.setChildStoreId(this.yxStoreInfoService.getStoreIdByMerId(currUser.getChildUser()));
+        }
         criteria.setIsDel(0);
         return new ResponseEntity(yxStoreCouponIssueService.queryAll(criteria,pageable),HttpStatus.OK);
     }
