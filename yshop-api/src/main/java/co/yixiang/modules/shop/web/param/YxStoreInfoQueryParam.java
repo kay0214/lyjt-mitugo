@@ -23,4 +23,10 @@ public class YxStoreInfoQueryParam extends QueryParam {
     private static final long serialVersionUID = 1L;
     @ApiModelProperty(value = "店铺名称")
     private String storeName;
+    //价格排序
+    @ApiModelProperty(value = "评分排序")
+    private String scoreOrder;
+    //销量
+    @ApiModelProperty(value = "销量排序")
+    private String salesOrder;
 }

@@ -13,6 +13,7 @@ import org.springframework.stereotype.Repository;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.List;
 
 /**
  * <p>
@@ -56,4 +57,19 @@ public interface YxStoreInfoMapper extends BaseMapper<YxStoreInfo> {
      * @return
      */
     IPage<LocalLiveListVo> getLocalLiveList(@Param("page") Page page, @Param("param") LocalLiveQueryParam localLiveQueryParam);
+
+
+    /**
+     * 根据销量排序
+     * @param sort
+     * @return
+     */
+    List<YxStoreInfoQueryVo> selectInfoListBySales(String sort);
+
+    /**
+     * 根据评分排序
+     * @param sort
+     * @return
+     */
+    List<YxStoreInfoQueryVo> selectInfoListBySocre(String sort);
 }

@@ -28,6 +28,7 @@ import co.yixiang.modules.user.service.YxUserService;
 import co.yixiang.mp.config.ShopKeyUtils;
 import co.yixiang.utils.CommonsUtils;
 import co.yixiang.utils.RedisUtil;
+import co.yixiang.utils.StringUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.metadata.OrderItem;
@@ -214,16 +215,21 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
             wrapper.eq("is_new",1);
         }
         //销量排序
-        if(productQueryParam.getSalesOrder().equals("desc")){
-            wrapper.orderByDesc("sales");
-        }else if(productQueryParam.getSalesOrder().equals("asc")) {
-            wrapper.orderByAsc("sales");
+        if(ObjectUtil.isNotNull(productQueryParam.getSalesOrder())&& StringUtils.isNotBlank(productQueryParam.getSalesOrder())){
+            if(productQueryParam.getSalesOrder().equals("desc")){
+                wrapper.orderByDesc("sales");
+            }else if(productQueryParam.getSalesOrder().equals("asc")) {
+                wrapper.orderByAsc("sales");
+            }
         }
+
         //价格排序
-        if(productQueryParam.getPriceOrder().equals("desc")){
-            wrapper.orderByDesc("price");
-        }else if(productQueryParam.getPriceOrder().equals("asc")){
-            wrapper.orderByAsc("price");
+        if(ObjectUtil.isNotNull(productQueryParam.getPriceOrder())&& StringUtils.isNotBlank(productQueryParam.getPriceOrder())){
+            if(productQueryParam.getPriceOrder().equals("desc")){
+                wrapper.orderByDesc("price");
+            }else if(productQueryParam.getPriceOrder().equals("asc")){
+                wrapper.orderByAsc("price");
+            }
         }
         //商品名
         if(StrUtil.isNotEmpty(productQueryParam.getName())){

@@ -1,5 +1,6 @@
 package co.yixiang.modules.shop.service.impl;
 
+import cn.hutool.core.util.ObjectUtil;
 import co.yixiang.common.constant.CommonConstant;
 import co.yixiang.common.service.impl.BaseServiceImpl;
 import co.yixiang.common.util.DistanceMeterUtil;
@@ -25,7 +26,6 @@ import co.yixiang.modules.shop.service.YxStoreProductService;
 import co.yixiang.modules.shop.web.param.YxStoreInfoQueryParam;
 import co.yixiang.modules.shop.web.vo.YxStoreInfoDetailQueryVo;
 import co.yixiang.modules.shop.web.vo.YxStoreInfoQueryVo;
-import co.yixiang.utils.LocationUtils;
 import co.yixiang.utils.StringUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -93,16 +93,28 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
      */
     @Override
     public List<YxStoreInfoQueryVo> getStoreInfoList(YxStoreInfoQueryParam yxStoreInfoQueryParam){
-        QueryWrapper<YxStoreInfo> wrapper = new QueryWrapper<YxStoreInfo>();
-        wrapper.eq("del_flag", CommonEnum.DEL_STATUS_0.getValue()).eq("status",0);
-        if(StringUtils.isNotBlank(yxStoreInfoQueryParam.getStoreName())){
-            wrapper.likeRight("store_name", yxStoreInfoQueryParam.getStoreName());
+        List<YxStoreInfoQueryVo> list = new ArrayList<>();
+        if(StringUtils.isBlank(yxStoreInfoQueryParam.getSalesOrder())&&StringUtils.isBlank(yxStoreInfoQueryParam.getScoreOrder())){
+            //默认
+            QueryWrapper<YxStoreInfo> wrapper = new QueryWrapper<YxStoreInfo>();
+            wrapper.eq("del_flag", CommonEnum.DEL_STATUS_0.getValue()).eq("status",0);
+            if(StringUtils.isNotBlank(yxStoreInfoQueryParam.getStoreName())){
+                wrapper.likeRight("store_name", yxStoreInfoQueryParam.getStoreName());
+            }
+            wrapper.orderByDesc("create_time");
+            Page<YxStoreInfo> pageModel = new Page<YxStoreInfo>(yxStoreInfoQueryParam.getPage(),
+                    yxStoreInfoQueryParam.getLimit());
+            IPage<YxStoreInfo> pageList = yxStoreInfoMapper.selectPage(pageModel,wrapper);
+            list= yxStoreInfoMap.toDto(pageList.getRecords());
         }
-        wrapper.orderByDesc("create_time");
-        Page<YxStoreInfo> pageModel = new Page<YxStoreInfo>(yxStoreInfoQueryParam.getPage(),
-                yxStoreInfoQueryParam.getLimit());
-        IPage<YxStoreInfo> pageList = yxStoreInfoMapper.selectPage(pageModel,wrapper);
-        List<YxStoreInfoQueryVo> list = yxStoreInfoMap.toDto(pageList.getRecords());
+        if(ObjectUtil.isNotNull(yxStoreInfoQueryParam.getSalesOrder())&&StringUtils.isNotBlank(yxStoreInfoQueryParam.getSalesOrder())){
+            //根据销量排序
+            list= yxStoreInfoMapper.selectInfoListBySales(yxStoreInfoQueryParam.getSalesOrder());
+        }
+        if(ObjectUtil.isNotNull(yxStoreInfoQueryParam.getScoreOrder())&&StringUtils.isNotBlank(yxStoreInfoQueryParam.getScoreOrder())){
+            //根据评分排序
+            list = yxStoreInfoMapper.selectInfoListBySocre(yxStoreInfoQueryParam.getScoreOrder());
+        }
         if(!CollectionUtils.isEmpty(list)){
             for(YxStoreInfoQueryVo yxStoreInfoQueryVo:list){
                 //行业类别

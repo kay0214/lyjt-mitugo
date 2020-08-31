@@ -30,7 +30,9 @@
     <sql id="Base_Column_List">
         id, store_nid, store_name, manage_user_name, mer_id, partner_id, manage_mobile, store_mobile, status, per_capita, industry_category, store_province, store_address, coordinate, coordinate_x, coordinate_y, del_flag, create_user_id, update_user_id, create_time, update_time, introduction
     </sql>
-
+    <sql id="Base_Column_List_Store">
+        id, store_nid, store_name, manage_user_name, mer_id, partner_id, manage_mobile, store_mobile, status, per_capita, industry_category, store_province, store_address, coordinate, coordinate_x, coordinate_y, del_flag, create_user_id, update_user_id, create_time, update_time, introduction
+    </sql>
     <select id="getYxStoreInfoById" resultType="co.yixiang.modules.shop.web.vo.YxStoreInfoQueryVo">
         select <include refid="Base_Column_List"/> from yx_store_info where id = #{id}
     </select>
@@ -56,4 +58,78 @@
         order by a
     </select>
 
+    <select id="selectInfoListBySales" resultType="co.yixiang.modules.shop.web.vo.YxStoreInfoQueryVo">
+        SELECT
+            si.id,
+            si.store_nid,
+            si.store_name,
+            si.manage_user_name,
+            si.mer_id,
+            si.partner_id,
+            si.manage_mobile,
+            si.store_mobile,
+            si. STATUS,
+            si.per_capita,
+            si.industry_category,
+            si.store_province,
+            si.store_address,
+            si.coordinate,
+            si.coordinate_x,
+            si.coordinate_y,
+            si.del_flag,
+            si.create_user_id,
+            si.update_user_id,
+            si.create_time,
+            si.update_time,
+            si.introduction,
+            IFNULL(SUM(sp.sales), 0) AS sales
+        FROM
+            yx_store_info si
+        LEFT JOIN yx_store_product sp ON sp.store_id = si.id
+        GROUP BY
+            si.id
+        ORDER BY
+            sales ${sort},
+            si.create_time DESC;
+    </select>
+
+    <select id="selectInfoListBySocre" resultType="co.yixiang.modules.shop.web.vo.YxStoreInfoQueryVo">
+        SELECT
+            si.id,
+            si.store_nid,
+            si.store_name,
+            si.manage_user_name,
+            si.mer_id,
+            si.partner_id,
+            si.manage_mobile,
+            si.store_mobile,
+            si.`status`,
+            si.per_capita,
+            si.industry_category,
+            si.store_province,
+            si.store_address,
+            si.coordinate,
+            si.coordinate_x,
+            si.coordinate_y,
+            si.del_flag,
+            si.create_user_id,
+            si.update_user_id,
+            si.create_time,
+            si.update_time,
+            si.introduction,
+            IFNULL(
+                SUM(
+                    spr.product_score + service_score
+                ),
+                0
+            ) AS socre
+        FROM
+            yx_store_info si
+        LEFT JOIN yx_store_product_reply spr ON si.mer_id = spr.mer_id
+        GROUP BY
+            si.id
+        ORDER BY
+            socre ${sort},
+            si.create_time DESC;
+    </select>
 </mapper>

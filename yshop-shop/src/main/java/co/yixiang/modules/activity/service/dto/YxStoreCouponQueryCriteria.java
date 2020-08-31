@@ -6,6 +6,7 @@
 package co.yixiang.modules.activity.service.dto;
 
 import co.yixiang.annotation.Query;
+import co.yixiang.modules.shop.service.dto.BaseCriteria;
 import lombok.Data;
 
 /**
@@ -13,7 +14,7 @@ import lombok.Data;
 * @date 2020-05-13
 */
 @Data
-public class YxStoreCouponQueryCriteria{
+public class YxStoreCouponQueryCriteria extends BaseCriteria {
 
     @Query
     private Integer isDel;
