@@ -82,16 +82,7 @@ public class StoreCouponController {
         // 当前登录用户ID (此账户应为商铺管理员)
         int loginUserId = SecurityUtils.getUserId().intValue();
 
-
-        User getOneUser = userService.getOne(new QueryWrapper<User>().eq("id", loginUserId).eq("merchants_status", 0));
-        if (getOneUser == null){
-            throw new BadRequestException("当前登录用户异常!");
-        }
-        if (getOneUser.getUserRole() != 2){
-            throw new BadRequestException("当前登录用户非商户, 不可操作!");
-        }
-
-        YxStoreInfo findStoreInfo = yxStoreInfoService.getOne(new QueryWrapper<YxStoreInfo>().eq("mer_id", getOneUser.getId()).eq("del_flag", 0));
+        YxStoreInfo findStoreInfo = yxStoreInfoService.getOne(new QueryWrapper<YxStoreInfo>().eq("mer_id", loginUserId).eq("del_flag", 0));
         if (findStoreInfo == null){
             throw new BadRequestException("当前商户未绑定商铺!");
         }
