@@ -16,6 +16,7 @@ import co.yixiang.modules.user.service.YxSystemUserLevelService;
 import co.yixiang.modules.user.service.YxUserBillService;
 import co.yixiang.modules.user.service.YxUserService;
 import co.yixiang.modules.user.service.YxUserSignService;
+import co.yixiang.modules.user.web.param.UserCardParam;
 import co.yixiang.modules.user.web.param.UserEditParam;
 import co.yixiang.modules.user.web.param.YxUserSignQueryParam;
 import co.yixiang.modules.user.web.vo.YxSystemUserLevelQueryVo;
@@ -243,6 +244,22 @@ public class UserController extends BaseController {
         yxUserService.updateById(yxUser);
 
         return ApiResult.ok("修改成功");
+    }
+
+    @PostMapping("/user/bank_card")
+    @ApiOperation(value = "用户修改信息", notes = "用修改信息")
+    public ApiResult<Object> bankCard(@Validated @RequestBody UserCardParam param) {
+        int uid = SecurityUtils.getUserId().intValue();
+
+        YxUser yxUser = new YxUser();
+        yxUser.setUid(uid);
+        yxUser.setBankNo(param.getBankNo());
+        yxUser.setRealName(param.getRealName());
+        yxUser.setBankMobile(param.getBankMobile());
+
+        yxUserService.updateById(yxUser);
+
+        return ApiResult.ok("绑定成功");
     }
 
 

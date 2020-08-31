@@ -169,4 +169,7 @@ private String pwd;*/
 
     @ApiModelProperty(value = "总累计收益")
     private BigDecimal allCommission;
+
+    @ApiModelProperty(value = "预留手机号")
+    private String bankMobile;
 }
