@@ -16,6 +16,8 @@ import java.util.UUID;
 public class SecretUtil {
 
     private static String RANDOM_SEED = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    private static String RANDOM_INT_SEED = "0123456789";
+
 
     /**
      * 指定位数的随机字符串
