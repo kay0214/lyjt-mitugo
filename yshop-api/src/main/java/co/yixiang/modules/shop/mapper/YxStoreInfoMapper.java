@@ -64,12 +64,12 @@ public interface YxStoreInfoMapper extends BaseMapper<YxStoreInfo> {
      * @param sort
      * @return
      */
-    List<YxStoreInfoQueryVo> selectInfoListBySales(String sort);
+    List<YxStoreInfoQueryVo> selectInfoListBySales(String sort,String storeName);
 
     /**
      * 根据评分排序
      * @param sort
      * @return
      */
-    List<YxStoreInfoQueryVo> selectInfoListBySocre(String sort);
+    List<YxStoreInfoQueryVo> selectInfoListBySocre(String sort,String storeName);
 }
