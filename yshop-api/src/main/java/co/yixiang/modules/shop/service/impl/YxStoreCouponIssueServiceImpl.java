@@ -153,7 +153,7 @@ public class YxStoreCouponIssueServiceImpl extends BaseServiceImpl<YxStoreCoupon
             throw new ErrorRequestException("抱歉优惠卷已经领取完了");
         }
 
-        storeCouponUserService.addUserCouponNew(uid,couponIssueQueryVo.getCid(),couponQueryVo.getBelong());
+        storeCouponUserService.addUserCouponNew(uid,couponIssueQueryVo.getCid(),couponQueryVo.getStoreId());
 
         storeCouponIssueUserService.addUserIssue(uid,id);
 
