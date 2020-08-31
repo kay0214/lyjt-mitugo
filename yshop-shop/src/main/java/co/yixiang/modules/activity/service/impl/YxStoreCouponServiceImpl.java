@@ -1,7 +1,6 @@
 /**
  * Copyright (C) 2018-2020
  * All rights reserved, Designed By www.yixiang.co
-
  */
 package co.yixiang.modules.activity.service.impl;
 
@@ -14,7 +13,9 @@ import co.yixiang.modules.activity.service.dto.YxStoreCouponDto;
 import co.yixiang.modules.activity.service.dto.YxStoreCouponQueryCriteria;
 import co.yixiang.modules.activity.service.mapper.YxStoreCouponMapper;
 import co.yixiang.utils.FileUtil;
-import com.github.pagehelper.PageInfo;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -34,9 +35,9 @@ import java.util.Map;
 //import org.springframework.cache.annotation.Cacheable;
 
 /**
-* @author hupeng
-* @date 2020-05-13
-*/
+ * @author hupeng
+ * @date 2020-05-13
+ */
 @Service
 @AllArgsConstructor
 //@CacheConfig(cacheNames = "yxStoreCoupon")
@@ -48,18 +49,31 @@ public class YxStoreCouponServiceImpl extends BaseServiceImpl<YxStoreCouponMappe
     @Override
     //@Cacheable
     public Map<String, Object> queryAll(YxStoreCouponQueryCriteria criteria, Pageable pageable) {
-        getPage(pageable);
-        PageInfo<YxStoreCoupon> page = new PageInfo<>(queryAll(criteria));
+//        getPage(pageable);
+//        PageInfo<YxStoreCoupon> page = new PageInfo<>(queryAll(criteria));
+        QueryWrapper<YxStoreCoupon> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().orderByDesc(YxStoreCoupon::getAddTime);
+        if (0 != criteria.getUserRole()) {
+            if (null == criteria.getChildStoreId() || criteria.getChildStoreId().size() <= 0) {
+                Map<String, Object> map = new LinkedHashMap<>(2);
+                map.put("content", new ArrayList<>());
+                map.put("totalElements", 0);
+                return map;
+            }
+            queryWrapper.lambda().in(YxStoreCoupon::getBelong, criteria.getChildStoreId()).eq(YxStoreCoupon::getIsDel, 0);
+        }
+        IPage<YxStoreCoupon> ipage = this.page(new Page<>(pageable.getPageNumber() + 1, pageable.getPageSize()), queryWrapper);
+
         Map<String, Object> map = new LinkedHashMap<>(2);
-        map.put("content", generator.convert(page.getList(), YxStoreCouponDto.class));
-        map.put("totalElements", page.getTotal());
+        map.put("content", generator.convert(ipage.getRecords(), YxStoreCouponDto.class));
+        map.put("totalElements", ipage.getTotal());
         return map;
     }
 
 
     @Override
     //@Cacheable
-    public List<YxStoreCoupon> queryAll(YxStoreCouponQueryCriteria criteria){
+    public List<YxStoreCoupon> queryAll(YxStoreCouponQueryCriteria criteria) {
         return baseMapper.selectList(QueryHelpPlus.getPredicate(YxStoreCoupon.class, criteria));
     }
 
@@ -68,7 +82,7 @@ public class YxStoreCouponServiceImpl extends BaseServiceImpl<YxStoreCouponMappe
     public void download(List<YxStoreCouponDto> all, HttpServletResponse response) throws IOException {
         List<Map<String, Object>> list = new ArrayList<>();
         for (YxStoreCouponDto yxStoreCoupon : all) {
-            Map<String,Object> map = new LinkedHashMap<>();
+            Map<String, Object> map = new LinkedHashMap<>();
             map.put("优惠券名称", yxStoreCoupon.getTitle());
             map.put("兑换消耗积分值", yxStoreCoupon.getIntegral());
             map.put("兑换的优惠券面值", yxStoreCoupon.getCouponPrice());
