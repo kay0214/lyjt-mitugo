@@ -5,6 +5,7 @@ package co.yixiang.common.rocketmq.service.impl;
 
 import co.yixiang.common.rocketmq.entity.OrderInfo;
 import co.yixiang.common.rocketmq.service.CommissionService;
+import co.yixiang.constant.ShopConstants;
 import co.yixiang.modules.commission.entity.YxCommissionRate;
 import co.yixiang.modules.commission.mapper.YxCommissionRateMapper;
 import co.yixiang.modules.coupons.entity.YxCouponOrder;
@@ -26,6 +27,7 @@ import co.yixiang.modules.user.mapper.YxPointDetailMapper;
 import co.yixiang.modules.user.mapper.YxUserBillMapper;
 import co.yixiang.modules.user.mapper.YxWechatUserMapper;
 import co.yixiang.utils.OrderUtil;
+import co.yixiang.utils.RedisUtil;
 import co.yixiang.utils.StringUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import lombok.extern.slf4j.Slf4j;
@@ -79,8 +81,14 @@ public class CommissionServiceImpl implements CommissionService {
     YxStoreCartMapper yxStoreCartMapper;
 
     @Override
-    @Transactional(propagation= Propagation.REQUIRED)
+    @Transactional(propagation= Propagation.REQUIRED,rollbackFor = Exception.class)
     public void updateInfo(String orderId, String orderType) {
+        String value = RedisUtil.get(ShopConstants.COMMISSION_ORDER + orderType + orderId);
+        if(null != value){
+            log.info("订单重复分佣，订单类型:{},订单号：{}", orderType,orderId);
+            return;
+        }
+        RedisUtil.set(ShopConstants.COMMISSION_ORDER + orderType + orderId,1,5);
         if (orderType.equals("0")) {
             //商品购买
             updateOrderInfo(orderId);
@@ -92,6 +100,7 @@ public class CommissionServiceImpl implements CommissionService {
             log.info("订单类型错误，类型为：{}", orderType);
             return;
         }
+        RedisUtil.del(ShopConstants.COMMISSION_ORDER + orderType + orderId);
     }
 
     /**
@@ -182,7 +191,7 @@ public class CommissionServiceImpl implements CommissionService {
             //拉新池
             yxFundsAccount = updatePullNewPoint(orderInfo, yxCommissionRate, yxFundsAccount);
         } else {
-            fundsRate = fundsRate.add(yxCommissionRate.getParentRate());
+            fundsRate = fundsRate.add(yxCommissionRate.getParentRate()).add(yxCommissionRate.getReferenceRate());
         }
         //分享人
         if (null != orderInfo.getShareId() && orderInfo.getShareId() == 3) {
