@@ -2,21 +2,23 @@
   <div class="app-container">
     <div class="container">
       <el-tabs v-model="orderStatus" type="card" @tab-click="handleOrder">
-        <el-tab-pane name="">
-          <span slot="label"><i class="el-icon-s-order"></i> 全部订单</span>
-        </el-tab-pane>
+        
           <el-tab-pane 
-          v-for="item in orderStatusList"
+          v-for="(item,index) in orderStatusList"
           :key='item.value'
-          :name='item.value'>
+          :label="item.value"
+          :name='index.toString()'>
             <span slot="label"><i class="el-icon-bank-card"></i> {{item.label}}</span>
           </el-tab-pane>
+          <!-- <el-tab-pane name="" :key="-1">
+          <span slot="label"><i class="el-icon-s-order"></i> 全部订单</span>
+        </el-tab-pane> -->
         </el-tabs>
       <!--工具栏-->
       <div class="head-container">
         <div>
           <!-- 搜索 -->
-          <el-input v-model="query.value" clearable placeholder="输入搜索内容" style="width: 200px;" class="filter-item" @keyup.enter.native="toQuery" />
+          <el-input v-model="query.value" clearable placeholder="输入搜索内容" style="width: 200px;" class="filter-item" @keyup.enter.native="crud.toQuery" />
           <el-select v-model="query.orderType" clearable placeholder="类型" class="filter-item" style="width: 130px">
             <el-option v-for="item in queryTypeOptions" :key="item.key" :label="item.display_name" :value="item.key" />
           </el-select>
@@ -31,14 +33,14 @@
             start-placeholder="开始日期"
             end-placeholder="结束日期"
           />
-          <el-button class="filter-item" size="mini" type="success" icon="el-icon-search" @click="toQuery">搜索</el-button>
+          <el-button class="filter-item" size="mini" type="success" icon="el-icon-search" @click="crud.toQuery">搜索</el-button>
           <!-- 新增 -->
           <el-button
             type="danger"
             class="filter-item"
             size="mini"
             icon="el-icon-refresh"
-            @click="toQuery"
+            @click="crud.toQuery"
           >刷新</el-button>
         </div>
         <!--表单组件-->
@@ -79,7 +81,7 @@
           <el-table-column v-if="columns.visible('status')" prop="status" label="订单状态">
             <!--（0:待支付 1:已过期 2:待发放3:支付失败4:待使用5:已使用6:已核销7:退款中8:已退款9:退款驳回-->
             <template slot-scope="scope">
-              <span>{{orderStatusList[scope.row.status].label}}</span>
+              <span>{{orderStatusList[scope.row.status*1+1].label}}</span>
               <br/>
               <div v-if="parseInt(scope.row.status)==7||parseInt(scope.row.status)==8">
                   退款原因：{{scope.row.refundReasonWapExplain}}<br/>
@@ -123,7 +125,6 @@ import rrOperation from '@crud/RR.operation'
 import crudOperation from '@crud/CRUD.operation'
 import udOperation from '@crud/UD.operation'
 import pagination from '@crud/Pagination'
-import initData from '@/mixins/crud'
 import { formatTime } from '@/utils/index'
 import eDetail from './detail'
 
@@ -134,7 +135,7 @@ const defaultForm = {  orderId: null,  mark: null }
 export default {
   name: 'YxCouponOrder',
   components: { pagination, crudOperation, rrOperation, udOperation , eDetail},
-  mixins: [presenter(defaultCrud), header(), form(defaultForm), crud(), initData],
+  mixins: [presenter(defaultCrud), header(), form(defaultForm), crud()],
   data() {
     return {
       permission: {
@@ -147,6 +148,7 @@ export default {
       orderStatus:'',
       orderType: '',
       orderStatusList:[ //顺序不能变，value和index需要对应关系
+        { value: ' ', label: '全部订单' },
         { value: '0', label: '待支付' },
         { value: '1', label: '已过期' },
         { value: '2', label: '待发放' },
@@ -166,6 +168,8 @@ export default {
       createTime: '',
     }
   },
+  computed:{
+  },
   watch: {
   },
   methods: {
@@ -177,8 +181,9 @@ export default {
     },
     formatTime,
     handleOrder(tab, event) {
-      this.orderStatus = tab.name
-      this.toQuery()
+      this.crud.query.orderStatus = tab.label
+      this.crud.page.page = 1
+      this.crud.toQuery()
     },    
     beforeInit() {
       this.url = 'api/yxCouponOrder'

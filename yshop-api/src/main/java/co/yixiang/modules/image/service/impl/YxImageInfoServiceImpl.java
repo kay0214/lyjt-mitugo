@@ -103,7 +103,7 @@ public class YxImageInfoServiceImpl extends BaseServiceImpl<YxImageInfoMapper, Y
     @Override
     public YxImageInfo selectOneImg(int typeId, Integer imgType, Integer cateTypeId) {
 
-        List<YxImageInfo> yxImageInfoList = yxImageInfoMapper.selectList(new QueryWrapper<YxImageInfo>().lambda().eq(YxImageInfo::getTypeId, typeId).eq(YxImageInfo::getImgType, imgType).eq(YxImageInfo::getImgCategory, cateTypeId));
+        List<YxImageInfo> yxImageInfoList = yxImageInfoMapper.selectList(new QueryWrapper<YxImageInfo>().lambda().eq(YxImageInfo::getTypeId, typeId).eq(YxImageInfo::getImgType, imgType).eq(YxImageInfo::getImgCategory, cateTypeId).eq(YxImageInfo::getDelFlag,0));
         if(null == yxImageInfoList||yxImageInfoList.size()<=0){
             return null;
         }

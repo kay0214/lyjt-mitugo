@@ -17,6 +17,7 @@ import co.yixiang.modules.shop.domain.User;
 import co.yixiang.modules.shop.domain.YxStoreInfo;
 import co.yixiang.modules.shop.service.UserService;
 import co.yixiang.modules.shop.service.YxStoreInfoService;
+import co.yixiang.utils.CurrUser;
 import co.yixiang.utils.OrderUtil;
 import co.yixiang.utils.SecurityUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -56,6 +57,12 @@ public class StoreCouponController {
     @GetMapping(value = "/yxStoreCoupon")
     @PreAuthorize("hasAnyRole('admin','YXSTORECOUPON_ALL','YXSTORECOUPON_SELECT')")
     public ResponseEntity getYxStoreCoupons(YxStoreCouponQueryCriteria criteria, Pageable pageable){
+        CurrUser currUser = SecurityUtils.getCurrUser();
+        criteria.setUserRole(currUser.getUserRole());
+        if (null != currUser.getChildUser()) {
+            criteria.setChildUser(currUser.getChildUser());
+            criteria.setChildStoreId(this.yxStoreInfoService.getStoreIdByMerId(currUser.getChildUser()));
+        }
         return new ResponseEntity(yxStoreCouponService.queryAll(criteria,pageable),HttpStatus.OK);
     }
 
