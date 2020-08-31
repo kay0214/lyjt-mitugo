@@ -1,7 +1,6 @@
 /**
  * Copyright (C) 2018-2020
  * All rights reserved, Designed By www.yixiang.co
-
  */
 package co.yixiang.modules.activity.service.impl;
 
@@ -16,6 +15,7 @@ import co.yixiang.modules.activity.service.mapper.YxStoreCouponUserMapper;
 import co.yixiang.modules.shop.domain.YxUser;
 import co.yixiang.modules.shop.service.YxUserService;
 import co.yixiang.utils.FileUtil;
+import co.yixiang.utils.StringUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.github.pagehelper.PageInfo;
 import lombok.AllArgsConstructor;
@@ -37,9 +37,9 @@ import java.util.Map;
 //import org.springframework.cache.annotation.Cacheable;
 
 /**
-* @author hupeng
-* @date 2020-05-13
-*/
+ * @author hupeng
+ * @date 2020-05-13
+ */
 @Service
 @AllArgsConstructor
 //@CacheConfig(cacheNames = "yxStoreCouponUser")
@@ -48,17 +48,21 @@ public class YxStoreCouponUserServiceImpl extends BaseServiceImpl<YxStoreCouponU
 
     private final IGenerator generator;
     private final YxUserService userService;
+
     @Override
     //@Cacheable
     public Map<String, Object> queryAll(YxStoreCouponUserQueryCriteria criteria, Pageable pageable) {
         getPage(pageable);
         PageInfo<YxStoreCouponUser> page = new PageInfo<>(queryAll(criteria));
-        List<YxStoreCouponUserDto> storeOrderDTOS = generator.convert(page.getList(),YxStoreCouponUserDto.class);
+        List<YxStoreCouponUserDto> storeOrderDTOS = generator.convert(page.getList(), YxStoreCouponUserDto.class);
         for (YxStoreCouponUserDto couponUserDTO : storeOrderDTOS) {
-            couponUserDTO.setNickname(userService.getOne(new QueryWrapper<YxUser>().eq("uid",couponUserDTO.getUid())).getNickname());
+            YxUser user = userService.getOne(new QueryWrapper<YxUser>().eq("uid", couponUserDTO.getUid()));
+            if (null != user && StringUtils.isNotBlank(user.getNickname())) {
+                couponUserDTO.setNickname(user.getNickname());
+            }
         }
-        Map<String,Object> map = new LinkedHashMap<>(2);
-        map.put("content",storeOrderDTOS);
+        Map<String, Object> map = new LinkedHashMap<>(2);
+        map.put("content", storeOrderDTOS);
         map.put("totalElements", page.getTotal());
         return map;
     }
@@ -66,14 +70,15 @@ public class YxStoreCouponUserServiceImpl extends BaseServiceImpl<YxStoreCouponU
 
     @Override
     //@Cacheable
-    public List<YxStoreCouponUser> queryAll(YxStoreCouponUserQueryCriteria criteria){
+    public List<YxStoreCouponUser> queryAll(YxStoreCouponUserQueryCriteria criteria) {
         return baseMapper.selectList(QueryHelpPlus.getPredicate(YxStoreCouponUser.class, criteria));
     }
+
     @Override
     public void download(List<YxStoreCouponUserDto> all, HttpServletResponse response) throws IOException {
         List<Map<String, Object>> list = new ArrayList<>();
         for (YxStoreCouponUserDto yxStoreCouponUser : all) {
-            Map<String,Object> map = new LinkedHashMap<>();
+            Map<String, Object> map = new LinkedHashMap<>();
             map.put("兑换的项目id", yxStoreCouponUser.getCid());
             map.put("优惠券所属用户", yxStoreCouponUser.getUid());
             map.put("优惠券名称", yxStoreCouponUser.getCouponTitle());
