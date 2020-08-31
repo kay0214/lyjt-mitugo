@@ -192,7 +192,7 @@ public class CommissionServiceImpl implements CommissionService {
             //更新佣金金额
             yxWechatUser.setNowMoney(yxWechatUser.getNowMoney().add(shareBonus));
             yxWechatUserMapper.updateById(yxWechatUser);
-            insertBill(orderInfo.getShareId(),orderInfo.getBrokerageType(), shareBonus, yxWechatUser.getNickname(),yxWechatUser.getNowMoney(),orderInfo.getShareId());
+            insertBill(orderInfo.getShareId(),orderInfo.getBrokerageType(), shareBonus, yxWechatUser.getNickname(),yxWechatUser.getNowMoney(),1);
 
         } else {
             fundsRate = fundsRate.add(yxCommissionRate.getShareRate());
