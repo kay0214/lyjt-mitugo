@@ -75,9 +75,11 @@ public class StoreProductController {
         //
         int sysUserId = SecurityUtils.getUserId().intValue();
         YxStoreInfo store = yxStoreInfoService.getOne(new QueryWrapper<YxStoreInfo>().eq("mer_id", sysUserId));
-        resources.setStoreId(store.getId());
+        if(ObjectUtil.isNotNull(store)){
+            resources.setStoreId(store.getId());
+            resources.setMerId(store.getMerId());
+        }
         resources.setAddTime(OrderUtil.getSecondTimestampTwo());
-        resources.setMerId(store.getMerId());
         if(ObjectUtil.isEmpty(resources.getGiveIntegral())) resources.setGiveIntegral(BigDecimal.ZERO);
         if(ObjectUtil.isEmpty(resources.getCost())) resources.setCost(BigDecimal.ZERO);
         return new ResponseEntity(yxStoreProductService.saveProduct(resources),HttpStatus.CREATED);
