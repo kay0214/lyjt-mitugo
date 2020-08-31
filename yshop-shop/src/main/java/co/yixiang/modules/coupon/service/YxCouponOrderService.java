@@ -43,11 +43,11 @@ public interface YxCouponOrderService  extends BaseService<YxCouponOrder>{
     /**
      * 卡券核销
      *
-     * @param verifyCode
+     * @param decodeVerifyCode
      * @param uid
      * @return
      */
-    boolean updateCouponOrder(String verifyCode, int uid);
+    boolean updateCouponOrder(String decodeVerifyCode, int uid);
 
     /**
      * 卡券订单退款

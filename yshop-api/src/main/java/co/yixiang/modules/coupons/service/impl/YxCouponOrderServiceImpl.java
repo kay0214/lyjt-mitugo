@@ -310,8 +310,8 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
             couponOrderDetail.setUseCount(coupons.getWriteOff());
             couponOrderDetail.setUsedCount(0);
             couponOrderDetail.setStatus(0);
-            // TODO 先用时间戳、扩展字段长度后再用uuid生成核销码
-            String verifyCode = System.currentTimeMillis() + "";
+            // 先用时间戳、扩展字段长度后再用uuid生成核销码
+            String verifyCode = IdUtil.getSnowflake(0, 0).nextIdStr();
             couponOrderDetail.setVerifyCode(verifyCode.substring(1, 13));
             couponOrderDetail.setRemark("");
             couponOrderDetail.setCreateUserId(uid);
@@ -756,7 +756,7 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
             // 优惠金额
             vo.setDiscountAmount(yxCoupons.getDiscountAmount());
             // 核销码加密
-            vo.setVerifyCode(Base64Utils.encode(vo.getVerifyCode()));
+            vo.setVerifyCode(Base64Utils.encode(vo.getVerifyCode() + "," + vo.getUid()));
             voList.add(vo);
         }
 
