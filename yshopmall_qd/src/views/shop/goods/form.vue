@@ -8,9 +8,9 @@
       <el-form-item label="商品名称" prop='storeName'>
         <el-input v-model="form.storeName" style="width: 500px;" />
       </el-form-item>
-      <el-form-item label="关键字" prop='keyword'>
+      <!-- <el-form-item label="关键字" prop='keyword'>
         <el-input v-model="form.keyword" style="width: 500px;" />
-      </el-form-item>
+      </el-form-item> -->
       <el-form-item label="单位名" prop='unitName'>
         <el-input v-model="form.unitName" style="width: 320px;" />
       </el-form-item>
@@ -168,9 +168,9 @@ export default {
         storeName:[
           { required: true,message: '必填项', trigger: 'blur'}
         ],
-        keyword:[
-          { required: true,message: '必填项', trigger: 'blur'}
-        ],
+        // keyword:[
+        //   { required: true,message: '必填项', trigger: 'blur'}
+        // ],
         unitName:[
           { required: true,message: '必填项', trigger: 'blur'}
         ],
