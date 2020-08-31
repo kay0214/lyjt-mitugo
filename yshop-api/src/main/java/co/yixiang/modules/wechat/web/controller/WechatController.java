@@ -15,11 +15,15 @@ import co.yixiang.modules.order.entity.YxStoreOrder;
 import co.yixiang.modules.order.service.YxStoreOrderService;
 import co.yixiang.modules.order.web.vo.YxStoreOrderQueryVo;
 import co.yixiang.modules.shop.service.YxSystemConfigService;
+import co.yixiang.modules.user.entity.YxUserBill;
 import co.yixiang.modules.user.entity.YxUserRecharge;
+import co.yixiang.modules.user.service.YxUserBillService;
 import co.yixiang.modules.user.service.YxUserRechargeService;
 import co.yixiang.mp.config.WxMpConfiguration;
 import co.yixiang.mp.config.WxPayConfiguration;
 import co.yixiang.utils.BigNum;
+import co.yixiang.utils.OrderUtil;
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.github.binarywang.wxpay.bean.notify.WxPayNotifyResponse;
 import com.github.binarywang.wxpay.bean.notify.WxPayOrderNotifyResult;
@@ -64,6 +68,8 @@ public class WechatController extends BaseController {
     private final YxUserRechargeService userRechargeService;
     @Autowired
     private YxCouponOrderService yxCouponOrderService;
+    @Autowired
+    private YxUserBillService yxUserBillService;
 
 
     /**
@@ -175,6 +181,56 @@ public class WechatController extends BaseController {
             return WxPayNotifyResponse.fail(e.getMessage());
         }
     }
+
+
+    /**
+     * 微信退款回调
+     * @param xmlData
+     * @return
+     * @throws WxPayException
+     */
+    @AnonymousAccess
+    @ApiOperation(value = "退款回调通知处理",notes = "退款回调通知处理")
+    @PostMapping("/notify/couponRefund")
+    public String parseCouponRefundNotifyResult(@RequestBody String xmlData) {
+        try {
+            WxPayService wxPayService = WxPayConfiguration.getPayService();
+            WxPayRefundNotifyResult result = wxPayService.parseRefundNotifyResult(xmlData);
+            String orderId = result.getReqInfo().getOutTradeNo();
+            BigDecimal refundFee = BigNum.div(result.getReqInfo().getRefundFee(), 100);
+            YxCouponOrder orderInfo = yxCouponOrderService.getOrderInfo(orderId,0);
+            if(orderInfo.getRefundStatus() == 2){
+                return WxPayNotifyResponse.success("处理成功!");
+            }
+            YxCouponOrder couponOrder = new YxCouponOrder();
+            //修改状态
+            couponOrder.setId(orderInfo.getId());
+            couponOrder.setRefundStatus(2);
+            couponOrder.setRefundPrice(refundFee);
+            yxCouponOrderService.updateById(couponOrder);
+
+            // 插入bill表
+            YxUserBill userBill = new YxUserBill();
+            userBill.setUid(couponOrder.getUid());
+            userBill.setLinkId(couponOrder.getOrderId());
+            userBill.setPm(1);
+            userBill.setTitle("本地生活订单退款");
+            userBill.setCategory("now_money");
+            userBill.setType("pay_product_refund");
+            userBill.setNumber(refundFee);
+            userBill.setBalance(BigDecimal.ZERO);
+            userBill.setMark("");
+            userBill.setAddTime(OrderUtil.getSecondTimestampTwo());
+            userBill.setStatus(1);
+            yxUserBillService.save(userBill);
+
+            return WxPayNotifyResponse.success("处理成功!");
+        } catch (WxPayException | IllegalAccessException e) {
+            log.error(e.getMessage());
+            return WxPayNotifyResponse.fail(e.getMessage());
+        }
+    }
+
     /**
      * 微信验证消息
      */
@@ -262,6 +318,7 @@ public class WechatController extends BaseController {
             WxPayOrderNotifyResult notifyResult = wxPayService.parseOrderNotifyResult(xmlData);
             String orderId = notifyResult.getOutTradeNo();
             String attach = notifyResult.getAttach();
+            log.info("收到支付异步回调" + JSON.toJSONString(notifyResult));
             if(BillDetailEnum.TYPE_3.getValue().equals(attach)){
                 // 商品购买
                 List<YxStoreOrderQueryVo> lsitOrder = orderService.getOrderInfoList(orderId,0);

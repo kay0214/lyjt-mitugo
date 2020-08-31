@@ -61,4 +61,12 @@ public interface YxStoreInfoService  extends BaseService<YxStoreInfo>{
     YxStoreInfoResponse getStoreInfo(int storeId);
 
     void updateDelFlg(Integer id);
+
+    /**
+     * 根据商户uid获取所有商户的storeId
+     *
+     * @param childUser
+     * @return
+     */
+    List<Long> getStoreIdByMerId(List<Long> childUser);
 }

@@ -151,4 +151,13 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
         }
         return times;
     }
+    /**
+     * 获得当前时间的时间戳  10位
+     *
+     * @return
+     */
+    public static Integer getNowTime() {
+        Long time = System.currentTimeMillis() / 1000;
+        return time.intValue();
+    }
 }

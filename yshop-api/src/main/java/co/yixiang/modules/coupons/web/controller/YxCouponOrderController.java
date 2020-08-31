@@ -213,6 +213,7 @@ public class YxCouponOrderController extends BaseController {
         OrderExtendDTO orderDTO = new OrderExtendDTO();
         orderDTO.setKey(key);
         orderDTO.setOrderId(orderId);
+        orderDTO.setId(order.getId());
         map.put("status", "SUCCESS");
         map.put("result", orderDTO);
         //开始处理支付
@@ -412,5 +413,14 @@ public class YxCouponOrderController extends BaseController {
         return ApiResult.ok(yxCouponOrderQueryVo);
     }
 
+    /**
+     * 订单统计数据
+     */
+    @GetMapping("/couponOrder/data")
+    @ApiOperation(value = "订单统计数据", notes = "订单统计数据")
+    public ApiResult<Object> orderData() {
+        int uid = SecurityUtils.getUserId().intValue();
+        return ApiResult.ok(yxCouponOrderService.orderData(uid));
+    }
 }
 

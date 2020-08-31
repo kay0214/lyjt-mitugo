@@ -19,7 +19,10 @@ import co.yixiang.modules.shop.service.dto.YxExamineLogQueryCriteria;
 import co.yixiang.modules.shop.service.mapper.YxExamineLogMapper;
 import co.yixiang.modules.shop.service.mapper.YxMerchantsDetailMapper;
 import co.yixiang.utils.FileUtil;
-import com.github.pagehelper.PageInfo;
+import co.yixiang.utils.StringUtils;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
@@ -58,11 +61,30 @@ public class YxExamineLogServiceImpl extends BaseServiceImpl<YxExamineLogMapper,
     @Override
     //@Cacheable
     public Map<String, Object> queryAll(YxExamineLogQueryCriteria criteria, Pageable pageable) {
-        getPage(pageable);
-        PageInfo<YxExamineLogDto> page = new PageInfo<>(queryAll(criteria));
+//        getPage(pageable);
+//        PageInfo<YxExamineLogDto> page = new PageInfo<>(queryAll(criteria));
+        QueryWrapper<YxExamineLog> queryWrapper = new QueryWrapper<>();
+        queryWrapper.orderByDesc("create_time");
+        if (0 != criteria.getUserRole()) {
+            if (null == criteria.getChildUser() || criteria.getChildUser().size() <= 0) {
+                Map<String, Object> map = new LinkedHashMap<>(2);
+                map.put("content", new ArrayList<>());
+                map.put("totalElements", 0);
+                return map;
+            }
+            queryWrapper.lambda().in(YxExamineLog::getCreateUserId, criteria.getChildUser()).eq(YxExamineLog::getDelFlag, 0);
+        }
+        if (null != criteria.getType()) {
+            queryWrapper.lambda().eq(YxExamineLog::getType, criteria.getType());
+        }
+        if (StringUtils.isNotBlank(criteria.getUsername())) {
+            queryWrapper.lambda().like(YxExamineLog::getUsername, criteria.getUsername());
+        }
+        IPage<YxExamineLog> ipage = this.page(new Page<>(pageable.getPageNumber() + 1, pageable.getPageSize()), queryWrapper);
+
         Map<String, Object> map = new LinkedHashMap<>(2);
-        map.put("content", generator.convert(page.getList(), YxExamineLogDto.class));
-        map.put("totalElements", page.getTotal());
+        map.put("content", generator.convert(ipage.getRecords(), YxExamineLogDto.class));
+        map.put("totalElements", ipage.getTotal());
         return map;
     }
 

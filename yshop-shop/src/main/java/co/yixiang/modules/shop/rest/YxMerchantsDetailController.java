@@ -11,6 +11,7 @@ import co.yixiang.modules.shop.service.YxMerchantsDetailService;
 import co.yixiang.modules.shop.service.YxStoreInfoService;
 import co.yixiang.modules.shop.service.dto.YxMerchantsDetailDto;
 import co.yixiang.modules.shop.service.dto.YxMerchantsDetailQueryCriteria;
+import co.yixiang.utils.CurrUser;
 import co.yixiang.utils.SecurityUtils;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -50,6 +51,11 @@ public class YxMerchantsDetailController {
     @ApiOperation("查询商户详情表")
     @PreAuthorize("@el.check('admin','yxMerchantsDetail:list')")
     public ResponseEntity<Object> getYxMerchantsDetailsList(YxMerchantsDetailQueryCriteria criteria, Pageable pageable) {
+        CurrUser currUser = SecurityUtils.getCurrUser();
+        criteria.setUserRole(currUser.getUserRole());
+        if (null != currUser.getChildUser()) {
+            criteria.setChildUser(currUser.getChildUser());
+        }
         return new ResponseEntity<>(yxMerchantsDetailService.queryAll(criteria, pageable), HttpStatus.OK);
     }
 

@@ -37,6 +37,7 @@ import co.yixiang.modules.shop.entity.YxStoreInfo;
 import co.yixiang.modules.shop.service.YxStoreInfoService;
 import co.yixiang.modules.shop.service.YxSystemConfigService;
 import co.yixiang.modules.shop.service.YxSystemStoreService;
+import co.yixiang.modules.user.entity.YxUser;
 import co.yixiang.modules.user.entity.YxUserBill;
 import co.yixiang.modules.user.entity.YxWechatUser;
 import co.yixiang.modules.user.service.YxUserBillService;
@@ -66,6 +67,7 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 
@@ -125,6 +127,9 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
 
     @Autowired
     private CouponOrderMap couponOrderMap;
+
+    @Autowired
+    private YxUserBillService yxUserBillService;
 
     @Override
     public YxCouponOrderQueryVo getYxCouponOrderById(Serializable id) throws Exception {
@@ -234,6 +239,7 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         }
 
         YxCoupons coupons = yxCouponsMapper.selectById(couponId);
+        YxStoreInfo yxStoreInfo = this.storeInfoService.getById(coupons.getBelong());
         Double totalPrice = cacheDTO.getPriceGroup().getTotalPrice();
 
         if (totalPrice <= 0) totalPrice = 0d;
@@ -257,7 +263,7 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         couponOrder.setUseCount(NumberUtil.mul(coupons.getWriteOff(), totalNum).intValue());
         couponOrder.setCouponPrice(coupons.getSellingPrice());
         // 商户ID
-        couponOrder.setMerId(coupons.getBelong());
+        couponOrder.setMerId(yxStoreInfo.getMerId());
         // 推荐人id和类型
         couponOrder.setParentId(userInfo.getParentId());
         couponOrder.setParentType(userInfo.getParentType());
@@ -609,10 +615,10 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
                 wrapper.eq("status", 0).eq("refund_status", 0).eq("pay_staus", 0);
                 break;
             case STATUS_2://待使用
-                wrapper.eq("status", 4).eq("refund_status", 0).eq("pay_staus", 1);
+                wrapper.in("status", 4, 5).eq("refund_status", 0).eq("pay_staus", 1);
                 break;
             case STATUS_3://已使用
-                wrapper.in("status", 5, 6).eq("refund_status", 0).eq("pay_staus", 1);
+                wrapper.eq("status", 6).eq("refund_status", 0).eq("pay_staus", 1);
                 break;
             case STATUS_4://已过期
                 wrapper.eq("status", 1);
@@ -680,6 +686,26 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
             item.setStatus(4);
         }
         this.yxCouponOrderDetailService.updateBatchById(list);
+
+        YxUser yxUser = this.userService.getById(yxCouponOrder.getUid());
+        // 插入资金明细
+        YxUserBill yxUserBill = new YxUserBill();
+        yxUserBill.setUid(yxCouponOrder.getUid());
+        yxUserBill.setLinkId(yxCouponOrder.getOrderId());
+        yxUserBill.setPm(0);
+        yxUserBill.setTitle("小程序本地生活购买");
+        yxUserBill.setCategory("now_money");
+        yxUserBill.setType("pay_product");
+        yxUserBill.setNumber(yxCouponOrder.getTotalPrice());
+        // 目前只支持微信付款、没有余额
+        yxUserBill.setBalance(BigDecimal.ZERO);
+        yxUserBill.setAddTime(DateUtils.getNowTime());
+        yxUserBill.setStatus(1);
+        yxUserBill.setMerId(yxCouponOrder.getMerId());
+
+        yxUserBill.setUserType(1);
+        yxUserBill.setUsername(yxUser.getUsername());
+        this.yxUserBillService.save(yxUserBill);
     }
 
     /**
@@ -692,14 +718,21 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
     @Override
     public YxCouponOrderQueryVo getYxCouponOrderDetail(String id, String location) {
         YxCouponOrderQueryVo item = new YxCouponOrderQueryVo();
-        BeanUtils.copyBeanProp(item, this.yxCouponOrderDetailService.getById(id));
-
+        BeanUtils.copyBeanProp(item, this.yxCouponOrderMapper.selectById(id));
         // 获取卡券list
-        List<YxCouponOrderDetail> detailList = this.yxCouponOrderDetailService.list(new QueryWrapper<YxCouponOrderDetail>().eq("order_id", item.getOrderId()));
+        List<YxCouponOrderDetail> detailList = this.yxCouponOrderDetailService.list(new QueryWrapper<YxCouponOrderDetail>().lambda().eq(YxCouponOrderDetail::getOrderId, item.getOrderId()));
         // 获取该订单购买的优惠券id
         Integer couponId = detailList.get(0).getCouponId();
+
+        // 卡券缩略图
+        YxImageInfo thumbnail = yxImageInfoService.getOne(new QueryWrapper<YxImageInfo>().eq("type_id", couponId).eq("img_type", LocalLiveConstants.IMG_TYPE_COUPONS)
+                .eq("img_category", ShopConstants.IMG_CATEGORY_PIC).eq("del_flag", 0));
+
+        if (thumbnail != null) {
+            item.setImage(thumbnail.getImgUrl());
+        }
         // 根据优惠券id获取优惠券信息
-        YxCoupons yxCoupons = this.couponsService.getOne(new QueryWrapper<YxCoupons>().eq("", couponId));
+        YxCoupons yxCoupons = this.couponsService.getOne(new QueryWrapper<YxCoupons>().lambda().eq(YxCoupons::getId, couponId));
         // 拼接有效期
         String expireDate = DateUtils.parseDateToStr(DateUtils.getDate(), yxCoupons.getExpireDateStart()) + " ~ " + DateUtils.parseDateToStr(DateUtils.getDate(), yxCoupons.getExpireDateEnd());
         // 根据优惠券所属获取商户信息
@@ -743,7 +776,68 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         item.setDistance(distance + "");
         // 卡卷详情
         item.setDetailList(voList);
+        // 券面信息
+        item.setYxCoupons(yxCoupons);
 
         return item;
+    }
+
+    /**
+     * 计算卡券各种订单数量
+     *
+     * @param uid
+     * @return
+     */
+    @Override
+    public OrderCountVO orderData(int uid) {
+        OrderCountVO countVO = new OrderCountVO();
+        // 待付款数量
+        QueryWrapper<YxCouponOrder> wrapper1 = new QueryWrapper<>();
+        wrapper1.eq("uid", uid);
+        wrapper1.eq("del_flag", CommonEnum.DEL_STATUS_0.getValue());
+        wrapper1.eq("status", 0).eq("refund_status", 0).eq("pay_staus", 0);
+        countVO.setWaitPayCount(this.count(wrapper1));
+
+        // 待使用数量
+        QueryWrapper<YxCouponOrder> wrapper2 = new QueryWrapper<>();
+        wrapper2.eq("uid", uid);
+        wrapper2.eq("del_flag", CommonEnum.DEL_STATUS_0.getValue());
+        wrapper2.in("status", 4, 5).eq("refund_status", 0).eq("pay_staus", 1);
+        countVO.setWaitUseCount(this.count(wrapper2));
+
+        // 已使用数量
+        QueryWrapper<YxCouponOrder> wrapper3 = new QueryWrapper<>();
+        wrapper3.eq("uid", uid);
+        wrapper3.eq("del_flag", CommonEnum.DEL_STATUS_0.getValue());
+        wrapper3.eq("status", 6).eq("refund_status", 0).eq("pay_staus", 1);
+        countVO.setUsedCount(this.count(wrapper3));
+
+        // 退款数量
+        QueryWrapper<YxCouponOrder> wrapper4 = new QueryWrapper<>();
+        wrapper4.eq("uid", uid);
+        wrapper4.eq("del_flag", CommonEnum.DEL_STATUS_0.getValue());
+        wrapper4.in("status", 7, 8, 9);
+        countVO.setRefundCount(this.count(wrapper4));
+
+        // 累计订单数量
+        QueryWrapper<YxCouponOrder> wrapper5 = new QueryWrapper<>();
+        wrapper5.eq("uid", uid);
+        countVO.setTotalCount(this.count(wrapper5));
+
+        // 总消费
+        QueryWrapper<YxCouponOrder> wrapper6 = new QueryWrapper<>();
+        wrapper6.eq("uid", uid);
+        wrapper6.eq("refund_status", 0).eq("pay_staus", 1);
+        wrapper6.select("ifnull(sum(total_price),0) as total ");
+        Map<String, Object> map = this.getMap(wrapper6);
+        countVO.setSumPrice(new BigDecimal(String.valueOf(map.get("total"))));
+
+        // 已过期
+        QueryWrapper<YxCouponOrder> wrapper7 = new QueryWrapper<>();
+        wrapper7.eq("uid", uid);
+        wrapper7.eq("del_flag", CommonEnum.DEL_STATUS_0.getValue());
+        wrapper7.eq("status", 1);
+        countVO.setOutTimeCount(this.count(wrapper7));
+        return countVO;
     }
 }

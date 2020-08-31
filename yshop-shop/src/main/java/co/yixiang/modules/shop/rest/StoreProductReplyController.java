@@ -9,6 +9,8 @@ import co.yixiang.logging.aop.log.Log;
 import co.yixiang.modules.shop.domain.YxStoreProductReply;
 import co.yixiang.modules.shop.service.YxStoreProductReplyService;
 import co.yixiang.modules.shop.service.dto.YxStoreProductReplyQueryCriteria;
+import co.yixiang.utils.CurrUser;
+import co.yixiang.utils.SecurityUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.data.domain.Pageable;
@@ -45,7 +47,11 @@ public class StoreProductReplyController {
     @GetMapping(value = "/yxStoreProductReply")
     @PreAuthorize("hasAnyRole('admin','YXSTOREPRODUCTREPLY_ALL','YXSTOREPRODUCTREPLY_SELECT')")
     public ResponseEntity getYxStoreProductReplys(YxStoreProductReplyQueryCriteria criteria, Pageable pageable){
-        criteria.setIsDel(0);
+        CurrUser currUser = SecurityUtils.getCurrUser();
+        criteria.setUserRole(currUser.getUserRole());
+        if (null != currUser.getChildUser()) {
+            criteria.setChildUser(currUser.getChildUser());
+        }
         return new ResponseEntity(yxStoreProductReplyService.queryAll(criteria,pageable),HttpStatus.OK);
     }
 

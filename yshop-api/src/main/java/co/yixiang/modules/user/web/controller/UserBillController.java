@@ -89,11 +89,13 @@ public class UserBillController extends BaseController {
         BigDecimal lastDayCount = userBillService.yesterdayCommissionSum(uid);
         //累计提现金额
         BigDecimal extractCount = extractService.extractSum(uid);
+        // 累计佣金
+        BigDecimal totalCommission = userBillService.totalCommissionSum(uid);
 
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("lastDayCount", lastDayCount);
         map.put("extractCount", extractCount);
-        map.put("commissionCount", userQueryVo.getBrokeragePrice());
+        map.put("commissionCount", totalCommission);
 
         return ApiResult.ok(map);
     }

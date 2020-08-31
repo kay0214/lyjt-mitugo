@@ -29,16 +29,16 @@
               <el-form-item label="商户名称" prop="merchantsName">
                 <el-input v-model="form.merchantsName"  style="width: 350px;"/>
               </el-form-item>
-              <el-form-item label="商户地址">
+              <el-form-item label="商户地址" prop="address">
                 <el-input v-model="form.address" style="width: 370px;" />
               </el-form-item>
-              <el-form-item label="联系人">
+              <el-form-item label="联系人" prop="contacts">
                 <el-input v-model="form.contacts" style="width: 370px;" />
               </el-form-item>
-              <el-form-item label="联系电话">
+              <el-form-item label="联系电话" prop="contactMobile">
                 <el-input v-model="form.contactMobile" style="width: 370px;" />
               </el-form-item>
-              <el-form-item label="邮箱">
+              <el-form-item label="邮箱" prop="mailbox">
                 <el-input v-model="form.mailbox" style="width: 370px;" />
               </el-form-item>
             </div>
@@ -51,8 +51,27 @@
               </el-radio-group>
             </el-form-item>
             -->
-            <div v-if="!crud.status.add">
-              <el-form-item label="认证类型">
+            <div v-if="!crud.status.add">              
+              <el-form-item label="银行账号" prop="bankNo">
+                <el-input v-model="form.bankNo" style="width: 370px;" />
+              </el-form-item>
+              <el-form-item label="开户省市" prop="openAccountProvince">
+                <el-input v-model="form.openAccountProvince" style="width: 370px;" />
+              </el-form-item>
+              <el-form-item label="银行卡信息" prop="bankType">
+                <el-radio v-model="form.bankType" :label="0">对私账号</el-radio>
+                <el-radio v-model="form.bankType" :label="1" style="width: 200px;">对公账号</el-radio>
+              </el-form-item>
+              <el-form-item label="开户名称" prop="openAccountName">
+                <el-input v-model="form.openAccountName" style="width: 370px;" />
+              </el-form-item>
+              <el-form-item label="开户行" prop="openAccountBank">
+                <el-input v-model="form.openAccountBank" style="width: 370px;" />
+              </el-form-item>
+              <el-form-item label="开户支行" prop="openAccountSubbranch">
+                <el-input v-model="form.openAccountSubbranch" style="width: 370px;" />
+              </el-form-item>
+              <el-form-item label="认证类型" prop="merchantsType">
                 <el-radio v-model="form.merchantsType" :label="0">个人</el-radio>
                 <el-radio v-model="form.merchantsType" :label="1">企业</el-radio>
                 <el-radio v-model="form.merchantsType" :label="2" style="width: 200px;">个体商户</el-radio>
@@ -61,50 +80,31 @@
 
             <!-- 以下是个人认证 -->
             <div v-if="!crud.status.add && (form.merchantsType==0 || examineEdit)">
-              <el-form-item label="手持证件照">
+              <el-form-item label="手持证件照" prop="personIdCard">
                 <MaterialList v-model="perIdCard" type="image" :num="1" :width="150" :height="150" :readOnly='Boolean(examineEdit)'/>
               </el-form-item> 
-              <el-form-item label="证件照人像面">
+              <el-form-item label="证件照人像面" prop="personIdCardFace">
                 <MaterialList v-model="perIdCardFace" type="image" :num="1" :width="150" :height="150" :readOnly='Boolean(examineEdit)' />
               </el-form-item> 
-              <el-form-item label="证件照国徽面">
+              <el-form-item label="证件照国徽面" prop="personIdCardBack">
                 <MaterialList v-model="perIdCardBack" type="image" :num="1" :width="150" :height="150" :readOnly='Boolean(examineEdit)'/>
-              </el-form-item>
-              <el-form-item label="银行账号">
-                <el-input v-model="form.bankNo" style="width: 370px;" />
-              </el-form-item>
-              <el-form-item label="开户省市">
-                <el-input v-model="form.openAccountProvince" style="width: 370px;" />
-              </el-form-item>
-              <el-form-item label="银行卡信息">
-                <el-radio v-model="form.bankType" :label="0">对私账号</el-radio>
-                <el-radio v-model="form.bankType" :label="1" style="width: 200px;">对公账号</el-radio>
-              </el-form-item>
-              <el-form-item label="开户名称">
-                <el-input v-model="form.openAccountName" style="width: 370px;" />
-              </el-form-item>
-              <el-form-item label="开户行">
-                <el-input v-model="form.openAccountBank" style="width: 370px;" />
-              </el-form-item>
-              <el-form-item label="开户支行">
-                <el-input v-model="form.openAccountSubbranch" style="width: 370px;" />
               </el-form-item>
             </div>
             <!-- 以下是企业 -->
             <div v-if="!crud.status.add &&form.merchantsType==1">
-              <el-form-item label="企业所在省市区">
+              <el-form-item label="企业所在省市区" prop="companyProvince">
                 <el-input v-model="form.companyProvince" style="width: 370px;" />
               </el-form-item>
-              <el-form-item label="企业所在详细地址">
+              <el-form-item label="企业所在详细地址" prop="companyAddress">
                 <el-input v-model="form.companyAddress" style="width: 370px;" />
               </el-form-item>
-              <el-form-item label="公司名称">
+              <el-form-item label="公司名称" prop="companyName">
                 <el-input v-model="form.companyName" style="width: 370px;" />
               </el-form-item>
-              <el-form-item label="法定代表人">
+              <el-form-item label="法定代表人" prop="companyLegalPerson">
                 <el-input v-model="form.companyLegalPerson" style="width: 370px;" />
               </el-form-item>
-              <el-form-item label="公司电话">
+              <el-form-item label="公司电话" prop="companyPhone">
                 <el-input v-model="form.companyPhone" style="width: 370px;" />
               </el-form-item>
             </div>
@@ -112,7 +112,7 @@
             <!-- 以下企业与个体户 -->
             <div v-if="!crud.status.add && (form.merchantsType==1 || form.merchantsType==2)">
             <!-- 下拉框 取值从dict的business_category和qualifications_type、两个下拉框联动 -->
-              <el-form-item label="经营类目">
+              <el-form-item label="经营类目" prop="businessCategory">
                 <!-- <el-input v-model="form.businessCategory" style="width: 370px;" /> -->
                 <el-select v-model="form.businessCategory" placeholder="请选择" @change="businessCategoryChange">
                   <el-option
@@ -123,7 +123,7 @@
                   </el-option>
                 </el-select>
               </el-form-item>
-              <el-form-item label="主体资质类型">
+              <el-form-item label="主体资质类型" prop="qualificationsType">
                 <!-- <el-input v-model="form.qualificationsType" style="width: 370px;" /> -->
                 <el-select v-model="form.qualificationsType" placeholder="请选择">
                   <el-option
@@ -134,22 +134,22 @@
                   </el-option>
                 </el-select>
               </el-form-item>  
-              <el-form-item label="营业执照">
+              <el-form-item label="营业执照" prop="businessLicenseImg">
                 <MaterialList v-model="businessLicenseImg" type="image" :num="1" :width="150" :height="150" :readOnly='Boolean(examineEdit)'/>
               </el-form-item>
-              <el-form-item label="银行开户证明">
+              <el-form-item label="银行开户证明" prop="bankOpenProveImg">
                 <MaterialList v-model="bankOpenProveImg" type="image" :num="1" :width="150" :height="150" :readOnly='Boolean(examineEdit)'/>
               </el-form-item>
-              <el-form-item label="法人身份证头像面">
+              <el-form-item label="法人身份证头像面" prop="legalIdCardFace">
                 <MaterialList v-model="legalIdCardFace" type="image" :num="1" :width="150" :height="150" :readOnly='Boolean(examineEdit)'/>
               </el-form-item>
-              <el-form-item label="法人身份证国徽面">
+              <el-form-item label="法人身份证国徽面" prop="legalIdCardBack">
                 <MaterialList v-model="legalIdCardBack" type="image" :num="1" :width="150" :height="150" :readOnly='Boolean(examineEdit)'/>
               </el-form-item>
-              <el-form-item label="门店照及经营场所">
+              <el-form-item label="门店照及经营场所" prop="storeImg">
                 <MaterialList v-model="storeImg" type="image" :num="1" :width="150" :height="150" :readOnly='Boolean(examineEdit)'/>
               </el-form-item> 
-              <el-form-item label="医疗机构许可证">
+              <el-form-item label="医疗机构许可证" prop="licenceImg">
                 <MaterialList v-model="licenceImg" type="image" :num="1" :width="150" :height="150" :readOnly='Boolean(examineEdit)'/>
               </el-form-item>       
             </div>
@@ -264,7 +264,7 @@ export default {
           { min: 2, max: 20, message: '长度在 2 到 20 个字符', trigger: 'blur' }
         ],
         nickName: [
-          { required: true, message: '请输入用户昵称', trigger: 'blur' },
+          { required: true, message: '请输入商户名称', trigger: 'blur' },
           { min: 2, max: 20, message: '长度在 2 到 20 个字符', trigger: 'blur' }
         ],
         merchantsContact: [
@@ -273,7 +273,96 @@ export default {
         ],
         phone: [
           { required: true, trigger: 'blur', validator: validPhone }
-        ]
+        ],
+        merchantsName: [
+          { required: true, message: '请输入商户名称', trigger: 'blur' },
+          { min: 2, max: 20, message: '长度在 2 到 20 个字符', trigger: 'blur' }
+        ],
+        address: [
+          { required: true, message: '请输入商户地址', trigger: 'blur' },
+        ],
+        contacts: [
+          { required: true, message: '请输入商户联系人', trigger: 'blur' },
+          { min: 2, max: 20, message: '长度在 2 到 20 个字符', trigger: 'blur' }
+        ],
+        contactMobile: [
+          { required: true, trigger: 'blur', validator: validPhone }
+        ],
+        mailbox: [
+          { required: true, message: '必填项', trigger: 'blur' },
+        ],
+        merchantsType: [
+          { required: true, message: '必填项', trigger: 'blur' },
+        ],
+        //以下是个人认证
+        personIdCard: [
+          { required: true, message: '必填项', trigger: 'blur' },
+        ],
+        personIdCardFace: [
+          { required: true, message: '必填项', trigger: 'blur' },
+        ],
+        personIdCardBack: [
+          { required: true, message: '必填项', trigger: 'blur' },
+        ],
+        bankNo: [
+          { required: true, message: '必填项', trigger: 'blur' },
+        ],
+        openAccountProvince: [
+          { required: true, message: '必填项', trigger: 'blur' },
+        ],
+        bankType: [
+          { required: true, message: '必填项', trigger: 'blur' },
+        ],
+        openAccountName: [
+          { required: true, message: '必填项', trigger: 'blur' },
+        ],
+        openAccountBank: [
+          { required: true, message: '必填项', trigger: 'blur' },
+        ],
+        openAccountSubbranch: [
+          { required: true, message: '必填项', trigger: 'blur' },
+        ],
+        //以下是企业
+        companyProvince: [
+          { required: true, message: '必填项', trigger: 'blur' },
+        ],
+        companyAddress: [
+          { required: true, message: '必填项', trigger: 'blur' },
+        ],
+        companyName: [
+          { required: true, message: '必填项', trigger: 'blur' },
+        ],
+        companyLegalPerson: [
+          { required: true, message: '必填项', trigger: 'blur' },
+        ],
+        companyPhone: [
+          { required: true, message: '必填项', trigger: 'blur' },
+        ],
+        //以下是企业与个体户
+        businessCategory: [
+          { required: true, message: '必填项', trigger: 'blur' },
+        ],
+        qualificationsType: [
+          { required: true, message: '必填项', trigger: 'blur' },
+        ],
+        businessLicenseImg: [
+          { required: true, message: '必填项', trigger: 'blur' },
+        ],
+        bankOpenProveImg: [
+          { required: true, message: '必填项', trigger: 'blur' },
+        ],
+        legalIdCardFace: [
+          { required: true, message: '必填项', trigger: 'blur' },
+        ],
+        legalIdCardBack: [
+          { required: true, message: '必填项', trigger: 'blur' },
+        ],
+        storeImg: [
+          { required: true, message: '必填项', trigger: 'blur' },
+        ],
+        licenceImg: [
+          { required: true, message: '必填项', trigger: 'blur' },
+        ],
       },
       qualificationsType:[], //主体资质类型    
       examineEdit:0,  //审核状态
@@ -296,31 +385,40 @@ export default {
     // 个人认证
     perIdCard: function(val) {
       this.form.personIdCard = val.join(',')
+      this.$refs.form.validateField('personIdCard')
     },
     perIdCardFace: function(val) {
       this.form.personIdCardFace = val.join(',')
+      this.$refs.form.validateField('personIdCardFace')
     },
     perIdCardBack: function(val) {
       this.form.personIdCardBack = val.join(',')
+      this.$refs.form.validateField('personIdCardBack')
     },
     // 企业和个体户
     businessLicenseImg: function(val) {
       this.form.businessLicenseImg = val.join(',')
+      this.$refs.form.validateField('businessLicenseImg')
     },
     bankOpenProveImg: function(val) {
       this.form.bankOpenProveImg = val.join(',')
+      this.$refs.form.validateField('bankOpenProveImg')
     },
     legalIdCardFace: function(val) {
       this.form.legalIdCardFace = val.join(',')
+      this.$refs.form.validateField('legalIdCardFace')
     },
     legalIdCardBack: function(val) {
       this.form.legalIdCardBack = val.join(',')
+      this.$refs.form.validateField('legalIdCardBack')
     },
     storeImg: function(val) {
       this.form.storeImg = val.join(',')
+      this.$refs.form.validateField('storeImg')
     },
     licenceImg: function(val) {
       this.form.licenceImg = val.join(',')
+      this.$refs.form.validateField('licenceImg')
     },
   },
   methods: {

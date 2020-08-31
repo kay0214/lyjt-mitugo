@@ -3,8 +3,11 @@ package co.yixiang.modules.coupon.service.impl;
 import co.yixiang.common.rocketmq.MqProducer;
 import co.yixiang.common.service.impl.BaseServiceImpl;
 import co.yixiang.common.utils.QueryHelpPlus;
+import co.yixiang.constant.LocalLiveConstants;
 import co.yixiang.constant.MQConstant;
+import co.yixiang.constant.ShopConstants;
 import co.yixiang.dozer.service.IGenerator;
+import co.yixiang.exception.BadRequestException;
 import co.yixiang.modules.coupon.domain.YxCouponOrder;
 import co.yixiang.modules.coupon.domain.YxCouponOrderDetail;
 import co.yixiang.modules.coupon.domain.YxCouponOrderUse;
@@ -13,15 +16,23 @@ import co.yixiang.modules.coupon.service.YxCouponOrderDetailService;
 import co.yixiang.modules.coupon.service.YxCouponOrderService;
 import co.yixiang.modules.coupon.service.YxCouponOrderUseService;
 import co.yixiang.modules.coupon.service.YxCouponsService;
+import co.yixiang.modules.coupon.service.dto.YxCouponOrderDetailDto;
 import co.yixiang.modules.coupon.service.dto.YxCouponOrderDto;
 import co.yixiang.modules.coupon.service.dto.YxCouponOrderQueryCriteria;
+import co.yixiang.modules.coupon.service.dto.YxCouponsDto;
 import co.yixiang.modules.coupon.service.mapper.YxCouponOrderMapper;
+import co.yixiang.modules.shop.domain.YxImageInfo;
 import co.yixiang.modules.shop.domain.YxStoreInfo;
+import co.yixiang.modules.shop.service.YxImageInfoService;
 import co.yixiang.modules.shop.service.YxStoreInfoService;
+import co.yixiang.mp.service.YxMiniPayService;
 import co.yixiang.utils.FileUtil;
+import co.yixiang.utils.StringUtils;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.github.pagehelper.PageInfo;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.github.binarywang.wxpay.exception.WxPayException;
 import com.hyjf.framework.starter.recketmq.MessageContent;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,6 +44,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -57,16 +69,73 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
     @Autowired
     private YxCouponOrderUseService yxCouponOrderUseService;
     @Autowired
+    private YxImageInfoService yxImageInfoService;
+    @Autowired
     private MqProducer mqProducer;
+    @Autowired
+    private YxMiniPayService miniPayService;
 
     @Override
     //@Cacheable
     public Map<String, Object> queryAll(YxCouponOrderQueryCriteria criteria, Pageable pageable) {
-        getPage(pageable);
-        PageInfo<YxCouponOrder> page = new PageInfo<>(queryAll(criteria));
+//        getPage(pageable);
+//        PageInfo<YxCouponOrder> page = new PageInfo<>(queryAll(criteria));
+        QueryWrapper<YxCouponOrder> queryWrapper = new QueryWrapper<>();
+        queryWrapper.orderByDesc("create_time");
+        if (0 != criteria.getUserRole()) {
+            if (null == criteria.getChildUser() || criteria.getChildUser().size() <= 0) {
+                Map<String, Object> map = new LinkedHashMap<>(2);
+                map.put("content", new ArrayList<>());
+                map.put("totalElements", 0);
+                return map;
+            }
+            queryWrapper.lambda().in(YxCouponOrder::getMerId, criteria.getChildUser()).eq(YxCouponOrder::getDelFlag, 0);
+        }
+        if (null != criteria.getOrderStatus()) {
+            queryWrapper.lambda().eq(YxCouponOrder::getStatus, criteria.getOrderStatus());
+        }
+        if (StringUtils.isNotBlank(criteria.getOrderType()) && StringUtils.isNotBlank(criteria.getValue())) {
+            if ("orderId".equals(criteria.getOrderType())) {
+                queryWrapper.lambda().like(YxCouponOrder::getOrderId, criteria.getValue());
+            }
+            if ("realName".equals(criteria.getOrderType())) {
+                queryWrapper.lambda().like(YxCouponOrder::getRealName, criteria.getValue());
+            }
+            if ("userPhone".equals(criteria.getOrderType())) {
+                queryWrapper.lambda().like(YxCouponOrder::getUserPhone, criteria.getValue());
+            }
+        }
+
+        IPage<YxCouponOrder> ipage = this.page(new Page<>(pageable.getPageNumber() + 1, pageable.getPageSize()), queryWrapper);
+        if (ipage.getTotal() <= 0) {
+            Map<String, Object> map = new LinkedHashMap<>(2);
+            map.put("content", new ArrayList<>());
+            map.put("totalElements", 0);
+            return map;
+        }
+        List<YxCouponOrderDto> list = new ArrayList<>();
+        for (YxCouponOrder item : ipage.getRecords()) {
+            YxCouponOrderDto yxCouponOrderDto = generator.convert(item, YxCouponOrderDto.class);
+            // 购买卡券的id
+            Integer couponId = yxCouponOrderDto.getCouponId();
+            // 购买卡券的信息
+            YxCoupons yxCoupons = this.yxCouponsService.getById(couponId);
+            // 卡券缩略图
+            YxImageInfo thumbnail = yxImageInfoService.getOne(new QueryWrapper<YxImageInfo>().eq("type_id", couponId).eq("img_type", LocalLiveConstants.IMG_TYPE_COUPONS)
+                    .eq("img_category", ShopConstants.IMG_CATEGORY_PIC).eq("del_flag", 0));
+            if (null != thumbnail && StringUtils.isNotBlank(thumbnail.getImgUrl())) {
+                yxCouponOrderDto.setImage(thumbnail.getImgUrl());
+            }
+            yxCouponOrderDto.setYxCouponsDto(generator.convert(yxCoupons, YxCouponsDto.class));
+            // 卡券详情
+            List<YxCouponOrderDetail> detailList = this.yxCouponOrderDetailService.list(new QueryWrapper<YxCouponOrderDetail>().lambda().eq(YxCouponOrderDetail::getCouponId, couponId));
+            yxCouponOrderDto.setDetailList(generator.convert(detailList, YxCouponOrderDetailDto.class));
+            list.add(yxCouponOrderDto);
+        }
+
         Map<String, Object> map = new LinkedHashMap<>(2);
-        map.put("content", generator.convert(page.getList(), YxCouponOrderDto.class));
-        map.put("totalElements", page.getTotal());
+        map.put("content", list);
+        map.put("totalElements", ipage.getTotal());
         return map;
     }
 
@@ -217,5 +286,28 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
             mqProducer.messageSend2(new MessageContent(MQConstant.MITU_TOPIC, MQConstant.MITU_COMMISSION_TAG, UUID.randomUUID().toString(), jsonObject));
         }
         return true;
+    }
+
+    /**
+     * 卡券订单退款
+     *
+     * @param resources
+     */
+    @Override
+    public void refund(YxCouponOrderDto resources) {
+        if (resources.getRefundPrice().compareTo(BigDecimal.ZERO) <= 0) {
+            throw new BadRequestException("请输入退款金额");
+        }
+        if (resources.getRefundPrice().compareTo(resources.getTotalPrice()) > 0) {
+            throw new BadRequestException("退款金额不可大于支付金额");
+        }
+
+        BigDecimal bigDecimal = new BigDecimal("100");
+        try {
+            miniPayService.refundCouponOrderNew(resources.getOrderId(), bigDecimal.multiply(resources.getRefundPrice()).intValue(), resources.getOrderId(), bigDecimal.multiply(resources.getTotalPrice()).intValue());
+        } catch (WxPayException e) {
+            log.info("refund-error:{}", e.getMessage());
+            throw new BadRequestException("退款失败:" + e.getMessage());
+        }
     }
 }

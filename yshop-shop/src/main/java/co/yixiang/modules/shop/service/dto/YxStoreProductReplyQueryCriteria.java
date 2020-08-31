@@ -13,7 +13,7 @@ import lombok.Data;
 * @date 2020-05-12
 */
 @Data
-public class YxStoreProductReplyQueryCriteria{
+public class YxStoreProductReplyQueryCriteria extends BaseCriteria{
     @Query
     private Integer isDel;
 }

@@ -14,8 +14,10 @@ import co.yixiang.modules.shop.service.dto.YxMerchantsDetailDto;
 import co.yixiang.modules.shop.service.dto.YxMerchantsDetailQueryCriteria;
 import co.yixiang.modules.shop.service.mapper.YxMerchantsDetailMapper;
 import co.yixiang.utils.FileUtil;
+import co.yixiang.utils.SecretUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.github.pagehelper.PageInfo;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,12 +60,22 @@ public class YxMerchantsDetailServiceImpl extends BaseServiceImpl<YxMerchantsDet
     @Override
     //@Cacheable
     public Map<String, Object> queryAll(YxMerchantsDetailQueryCriteria criteria, Pageable pageable) {
-        getPage(pageable);
-        PageInfo<YxMerchantsDetailDto> page = new PageInfo<>(queryAll(criteria));
+        QueryWrapper<YxMerchantsDetail> queryWrapper = new QueryWrapper<>();
+        queryWrapper.orderByDesc("create_time");
+        if (0 != criteria.getUserRole()) {
+            if (null == criteria.getChildUser() || criteria.getChildUser().size() <= 0) {
+                Map<String, Object> map = new LinkedHashMap<>(2);
+                map.put("content", new ArrayList<>());
+                map.put("totalElements", 0);
+                return map;
+            }
+            queryWrapper.lambda().in(YxMerchantsDetail::getUid, criteria.getChildUser()).eq(YxMerchantsDetail::getDelFlag, 0);
+        }
+        IPage<YxMerchantsDetail> ipage = this.page(new Page<>(pageable.getPageNumber() + 1, pageable.getPageSize()), queryWrapper);
 
         Map<String, Object> map = new LinkedHashMap<>(2);
-        map.put("content", generator.convert(page.getList(), YxMerchantsDetailDto.class));
-        map.put("totalElements", page.getTotal());
+        map.put("content", generator.convert(ipage.getRecords(), YxMerchantsDetailDto.class));
+        map.put("totalElements", ipage.getTotal());
         return map;
     }
 
@@ -266,7 +278,7 @@ public class YxMerchantsDetailServiceImpl extends BaseServiceImpl<YxMerchantsDet
             User user = this.userService.getById(yxMerchantsDetail.getUid());
             YxStoreInfo yxStoreInfo = new YxStoreInfo();
             // 店铺编号
-            yxStoreInfo.setStoreNid("S" + UUID.randomUUID());
+            yxStoreInfo.setStoreNid("S" + SecretUtil.createRandomStr(8) + resources.getId());
             yxStoreInfo.setStoreName("未命名店铺");
             yxStoreInfo.setManageUserName(yxMerchantsDetail.getContacts());
             yxStoreInfo.setMerId(yxMerchantsDetail.getUid());
