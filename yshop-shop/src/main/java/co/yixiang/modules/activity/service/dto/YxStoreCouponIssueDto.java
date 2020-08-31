@@ -11,8 +11,8 @@ import java.io.Serializable;
 import java.sql.Timestamp;
 
 /**
-* @author hupeng
-* @date 2020-05-13
+* @author liusy
+* @date 2020-08-31
 */
 @Data
 public class YxStoreCouponIssueDto implements Serializable {
@@ -50,4 +50,8 @@ public class YxStoreCouponIssueDto implements Serializable {
     private Timestamp endTimeDate;
 
     private Timestamp startTimeDate;
+
+    /** 卡券所属商铺 */
+    private Integer belong;
+
 }

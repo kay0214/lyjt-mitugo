@@ -34,8 +34,8 @@ import java.util.Map;
 //import org.springframework.cache.annotation.Cacheable;
 
 /**
-* @author hupeng
-* @date 2020-05-13
+* @author liusy
+* @date 2020-08-31
 */
 @Service
 @AllArgsConstructor
@@ -81,6 +81,7 @@ public class YxStoreCouponIssueServiceImpl extends BaseServiceImpl<YxStoreCoupon
             map.put("优惠券添加时间", yxStoreCouponIssue.getAddTime());
             map.put(" endTimeDate",  yxStoreCouponIssue.getEndTimeDate());
             map.put(" startTimeDate",  yxStoreCouponIssue.getStartTimeDate());
+            map.put("卡券所属商铺", yxStoreCouponIssue.getBelong());
             list.add(map);
         }
         FileUtil.downloadExcel(list, response);
