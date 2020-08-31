@@ -3,7 +3,7 @@
     <!--工具栏-->
     <div class="head-container">
       <!-- 搜索 -->
-      <el-input v-model="nickname" clearable placeholder="输入用户昵称" style="width: 200px;" class="filter-item" @keyup.enter.native="toQuery" />
+      <el-input v-model="username" clearable placeholder="输入用户昵称" style="width: 200px;" class="filter-item" @keyup.enter.native="toQuery" />
       <el-select v-model="category" clearable placeholder="明细种类" class="filter-item" style="width: 130px">
         <el-option
           v-for="item in categoryOptions"
@@ -83,9 +83,9 @@ export default {
   mixins: [initData],
   data() {
     return {
-      delLoading: false, nickname: '', category: '', type: '',
+      delLoading: false, username: '', category: '', type: '',
       queryTypeOptions: [
-        { key: 'nickname', display_name: '用户昵称' },
+        { key: 'username', display_name: '用户昵称' },
         { key: 'phone', display_name: '手机号码' }
       ],
       categoryOptions: [
@@ -132,7 +132,7 @@ export default {
       this.params = {
         page: this.page,
         size: this.size,
-        nickname: this.nickname,
+        username: this.username,
         category: this.category,
         type: this.type
       }
@@ -177,7 +177,7 @@ export default {
         mark: data.mark,
         partnerId: data.partnerId,
         groupId: data.groupId,
-        nickname: data.nickname,
+        username: data.username,
         avatar: data.avatar,
         phone: data.phone,
         addTime: data.addTime,
@@ -208,7 +208,7 @@ export default {
       const _this = this.$refs.formp
       _this.form = {
         uid: data.uid,
-        nickname: data.nickname,
+        username: data.username,
         ptype: 1,
         money: 0
       }
