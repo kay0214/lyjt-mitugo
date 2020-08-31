@@ -197,4 +197,6 @@ public interface ShopConstants {
 	 */
 	int IMG_LICENCE=9;
 
+	String COMMISSION_ORDER="COMMISSION_ORDER:";
+
 }
