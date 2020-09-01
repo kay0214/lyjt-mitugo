@@ -15,10 +15,10 @@ import co.yixiang.dozer.service.IGenerator;
 import co.yixiang.modules.mybatis.GeoPoint;
 import co.yixiang.modules.shop.domain.*;
 import co.yixiang.modules.shop.service.YxStoreInfoService;
-import co.yixiang.modules.shop.service.YxSystemAttachmentService;
 import co.yixiang.modules.shop.service.dto.YxStoreInfoDto;
 import co.yixiang.modules.shop.service.dto.YxStoreInfoQueryCriteria;
 import co.yixiang.modules.shop.service.mapper.YxStoreInfoMapper;
+import co.yixiang.modules.shop.service.mapper.YxSystemAttachmentMapper;
 import co.yixiang.utils.BeanUtils;
 import co.yixiang.utils.FileUtil;
 import co.yixiang.utils.SecurityUtils;
@@ -64,7 +64,7 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
     @Autowired
     private YxStoreAttributeServiceImpl yxStoreAttributeService;
     @Autowired
-    private YxSystemAttachmentService yxSystemAttachmentService;
+    private YxSystemAttachmentMapper yxSystemAttachmentMapper;
 
     @Override
     //@Cacheable
@@ -200,8 +200,8 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
         }
         //删除详情图片
         QueryWrapper<YxSystemAttachment> queryWrapperAtt = new QueryWrapper();
-        queryWrapperAtt.like("name",""+request.getId()+"_%").like("name","%store%");
-        yxSystemAttachmentService.remove(queryWrapperAtt);
+        queryWrapperAtt.like("name",request.getId()+"_%").like("name","%store%");
+        yxSystemAttachmentMapper.delete(queryWrapperAtt);
 
         //批量保存数据
         yxStoreAttributeService.saveBatch(storeAttributeList);

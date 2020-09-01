@@ -5,7 +5,6 @@
  */
 package co.yixiang.modules.shop.service.impl;
 
-import cn.hutool.core.date.DateUtil;
 import co.yixiang.common.service.impl.BaseServiceImpl;
 import co.yixiang.common.utils.QueryHelpPlus;
 import co.yixiang.dozer.service.IGenerator;
@@ -15,6 +14,7 @@ import co.yixiang.modules.shop.service.dto.YxStoreCategoryDto;
 import co.yixiang.modules.shop.service.dto.YxStoreCategoryQueryCriteria;
 import co.yixiang.modules.shop.service.mapper.StoreCategoryMapper;
 import co.yixiang.utils.FileUtil;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.github.pagehelper.PageInfo;
 import lombok.AllArgsConstructor;
@@ -26,13 +26,7 @@ import org.springframework.util.CollectionUtils;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 // 默认不使用缓存
@@ -67,7 +61,9 @@ public class YxStoreCategoryServiceImpl extends BaseServiceImpl<StoreCategoryMap
     @Override
     //@Cacheable
     public List<YxStoreCategoryDto> queryAll(YxStoreCategoryQueryCriteria criteria){
-        return generator.convert(baseMapper.selectList(QueryHelpPlus.getPredicate(YxStoreCategory.class, criteria)),YxStoreCategoryDto.class);
+        QueryWrapper queryWrapper = QueryHelpPlus.getPredicate(YxStoreCategoryDto.class, criteria);
+        queryWrapper.orderByDesc("add_time");
+        return generator.convert(baseMapper.selectList(queryWrapper),YxStoreCategoryDto.class);
     }
 
 
