@@ -175,4 +175,6 @@ public interface YxStoreOrderService extends BaseService<YxStoreOrder> {
      */
     String getStoreName(Integer storeId);
 
+    ComputeDTO computedOrderNew(int uid, String key,List<Integer> couponIds);
+
 }

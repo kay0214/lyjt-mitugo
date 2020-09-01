@@ -44,6 +44,7 @@ import co.yixiang.tools.express.dao.ExpressInfo;
 import co.yixiang.utils.OrderUtil;
 import co.yixiang.utils.RedisUtil;
 import co.yixiang.utils.SecurityUtils;
+import co.yixiang.utils.StringUtils;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
@@ -805,7 +806,7 @@ public class StoreOrderController extends BaseController {
     /**
      * 订单确认
      */
-//    @AnonymousAccess
+    @AnonymousAccess
     @PostMapping("/order/confirmNew")
     @ApiOperation(value = "订单确认（带店铺信息）", notes = "订单确认（带店铺信息）")
     public ApiResult<ConfirmNewOrderDTO> confirmNew(@RequestBody String jsonStr) {
@@ -814,8 +815,8 @@ public class StoreOrderController extends BaseController {
         if (StrUtil.isEmpty(cartId)) {
             return ApiResult.fail("请提交购买的商品");
         }
-        int uid = SecurityUtils.getUserId().intValue();
-//        int uid = 28;
+//        int uid = SecurityUtils.getUserId().intValue();
+        int uid = 28;
         YxStoreStoreCartVo cartGroup = cartService.getUserStoreCartList(uid, cartId, 1);
         if (ObjectUtil.isNotEmpty(cartGroup.getInvalid())) {
             return ApiResult.fail("有失效的商品请重新提交");
@@ -940,6 +941,78 @@ public class StoreOrderController extends BaseController {
                 return ApiResult.ok(map, "余额支付成功");
         }
         return ApiResult.fail("订单生成失败");
+    }
+
+    /**
+     * 计算订单金额
+     */
+    @AnonymousAccess
+    @PostMapping("/order/computedNew/{key}")
+    @ApiOperation(value = "计算订单金额（新）", notes = "计算订单金额（新）")
+    public ApiResult<Map<String, Object>> computedNew(@RequestBody String jsonStr,
+                                                        @PathVariable String key) {
+
+        Map<String, Object> map = new LinkedHashMap<>();
+//        int uid = SecurityUtils.getUserId().intValue();
+        int uid = 28;
+        if (StrUtil.isEmpty(key)) return ApiResult.fail("参数错误");
+        YxStoreOrderQueryVo storeOrder = storeOrderService.getOrderInfo(key, uid);
+        if (ObjectUtil.isNotNull(storeOrder)) {
+            map.put("status", "EXTEND_ORDER");
+            OrderExtendDTO orderExtendDTO = new OrderExtendDTO();
+            orderExtendDTO.setKey(key);
+            orderExtendDTO.setOrderId(storeOrder.getOrderId());
+            map.put("result", orderExtendDTO);
+            return ApiResult.ok(map, "订单已生成");
+        }
+
+        JSONObject jsonObject = JSON.parseObject(jsonStr);
+        String addressId = jsonObject.getString("addressId");
+        String couponId = jsonObject.getString("couponId");
+        String[] couponIds = StringUtils.isNotBlank(couponId)?couponId.split(","):null;
+        List<Integer> listCoupon = new ArrayList<>();
+
+        if(null!=couponIds&&couponIds.length>0){
+            for(int i=0;i<couponIds.length;i++){
+                listCoupon.add(Integer.valueOf(couponIds[i]));
+            }
+        }
+        String shippingType = jsonObject.getString("shipping_type");
+        String useIntegral = jsonObject.getString("useIntegral");
+        // 砍价
+        /*if (ObjectUtil.isNotNull(jsonObject.getInteger("bargainId"))) {
+            YxStoreBargainUser storeBargainUser = storeBargainUserService.getBargainUserInfo(jsonObject.getInteger("bargainId")
+                    , uid);
+            if (ObjectUtil.isNull(storeBargainUser)) return ApiResult.fail("砍价失败");
+            if (storeBargainUser.getStatus() == 3) return ApiResult.fail("砍价已支付");
+        }
+        // 拼团
+        if (ObjectUtil.isNotNull(jsonObject.getInteger("pinkId"))) {
+            int pinkId = jsonObject.getInteger("pinkId");
+            YxStoreOrder yxStoreOrder = storeOrderService.getOrderPink(pinkId, uid, 1);
+            if (storePinkService.getIsPinkUid(pinkId, uid) > 0) {
+                map.put("status", "ORDER_EXIST");
+                OrderExtendDTO orderExtendDTO = new OrderExtendDTO();
+                orderExtendDTO.setOrderId(yxStoreOrder.getOrderId());
+                map.put("result", orderExtendDTO);
+                return ApiResult.ok(map, "订单生成失败，你已经在该团内不能再参加了");
+            }
+            YxStoreOrder yxStoreOrderT = storeOrderService.getOrderPink(pinkId, uid, 0);
+            if (ObjectUtil.isNotNull(yxStoreOrderT)) {
+                map.put("status", "ORDER_EXIST");
+                OrderExtendDTO orderExtendDTO = new OrderExtendDTO();
+                orderExtendDTO.setOrderId(yxStoreOrder.getOrderId());
+                map.put("result", orderExtendDTO);
+                return ApiResult.ok(map, "订单生成失败，你已经参加该团了，请先支付订单");
+            }
+
+        }*/
+        ComputeDTO computeDTO = storeOrderService.computedOrderNew(uid, key,
+                listCoupon);
+
+        map.put("result", computeDTO);
+        map.put("status", "NONE");
+        return ApiResult.ok(map);
     }
 
 }
