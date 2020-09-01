@@ -1,5 +1,6 @@
 package co.yixiang.modules.shop.rest;
 
+import co.yixiang.exception.BadRequestException;
 import co.yixiang.logging.aop.log.Log;
 import co.yixiang.modules.shop.service.YxPointDetailService;
 import co.yixiang.modules.shop.service.dto.YxPointDetailQueryCriteria;
@@ -15,6 +16,12 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
 * @author huiy
@@ -58,6 +65,19 @@ public class PointDetailController {
         if (null != currUser.getChildUser()) {
             criteria.setChildUser(currUser.getChildUser());
         }
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        if (criteria.getSearchTime() != null && criteria.getSearchTime().size() > 0){
+            try {
+                List<Date> timeList = new ArrayList<>();
+                Date startDate = simpleDateFormat.parse(criteria.getSearchTime().get(0));
+                Date endDate = simpleDateFormat.parse(criteria.getSearchTime().get(1));
+                timeList.add(startDate);
+                timeList.add(endDate);
+                criteria.setCreateTime(timeList);
+            }catch (ParseException e){
+                throw new BadRequestException("日期格式化错误!");
+            }
+        }
         // 只取拉新用户
         criteria.setType(0);
         return new ResponseEntity<>(yxPointDetailService.queryAll(criteria,pageable),HttpStatus.OK);
@@ -72,6 +92,19 @@ public class PointDetailController {
         criteria.setUserRole(currUser.getUserRole());
         if (null != currUser.getChildUser()) {
             criteria.setChildUser(currUser.getChildUser());
+        }
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        if (criteria.getSearchTime() != null && criteria.getSearchTime().size() > 0){
+            try {
+                List<Date> timeList = new ArrayList<>();
+                Date startDate = simpleDateFormat.parse(criteria.getSearchTime().get(0));
+                Date endDate = simpleDateFormat.parse(criteria.getSearchTime().get(1));
+                timeList.add(startDate);
+                timeList.add(endDate);
+                criteria.setCreateTime(timeList);
+            }catch (ParseException e){
+                throw new BadRequestException("日期格式化错误!");
+            }
         }
         // 只取拉新用户
         criteria.setType(1);
