@@ -6,7 +6,6 @@ import co.yixiang.exception.BadRequestException;
 import co.yixiang.logging.aop.log.Log;
 import co.yixiang.modules.coupon.domain.CouponOrderModifyRequest;
 import co.yixiang.modules.coupon.domain.YxCouponOrder;
-import co.yixiang.modules.coupon.domain.YxCouponOrderDetail;
 import co.yixiang.modules.coupon.domain.YxCouponOrderUse;
 import co.yixiang.modules.coupon.service.YxCouponOrderService;
 import co.yixiang.modules.coupon.service.YxCouponOrderUseService;

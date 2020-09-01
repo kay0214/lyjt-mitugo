@@ -190,12 +190,20 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
     /**
      * 卡券核销
      *
-     * @param verifyCode
+     * @param decodeVerifyCode
      * @param uid
      * @return
      */
     @Override
-    public boolean updateCouponOrder(String verifyCode, int uid) {
+    public boolean updateCouponOrder(String decodeVerifyCode, int uid) {
+        String[] decode = decodeVerifyCode.split(",");
+        if (decode.length != 2) {
+            throw new BadRequestException("无效核销码");
+        }
+        // 获取核销码
+        String verifyCode = decode[0];
+        // 获取核销用户的id
+        String useUid = decode[1];
         YxCouponOrderDetail yxCouponOrderDetail = this.yxCouponOrderDetailService.getOne(new QueryWrapper<YxCouponOrderDetail>().eq("verify_code", verifyCode));
         if (null == yxCouponOrderDetail) {
             log.info("核销为查询到卡券订单详情信息verifyCode：" + verifyCode);
@@ -205,6 +213,9 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         if (null == yxCouponOrder) {
             log.info("核销为查询到卡券订单信息verifyCode：" + verifyCode);
             return false;
+        }
+        if (!yxCouponOrder.getUid().equals(useUid)) {
+            throw new BadRequestException("核销码与用户信息不匹配");
         }
         // 查询优惠券信息
         YxCoupons yxCoupons = this.yxCouponsService.getById(yxCouponOrderDetail.getCouponId());

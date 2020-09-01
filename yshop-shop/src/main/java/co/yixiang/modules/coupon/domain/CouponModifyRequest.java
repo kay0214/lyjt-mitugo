@@ -145,4 +145,8 @@ public class CouponModifyRequest {
     /** 轮播图 */
     @NotBlank(message = "请上传卡券轮播图")
     private String sliderImage;
+
+    /** 卡券简介 */
+    @NotBlank(message = "卡券简介不可为空")
+    private String couponInfo;
 }
