@@ -280,7 +280,7 @@ public class SysUserServiceImpl extends BaseServiceImpl<SysUserMapper, User> imp
         User userName = this.getOne(new QueryWrapper<User>().lambda()
                 .eq(User::getUsername, resources.getUsername()));
         if (userName != null) {
-            throw new EntityExistException(User.class, "username", resources.getUsername());
+            throw new BadRequestException("新增用户" + resources.getUsername() + "已存在");
         }
         // 组装
         UsersRoles usersRoles = new UsersRoles();
