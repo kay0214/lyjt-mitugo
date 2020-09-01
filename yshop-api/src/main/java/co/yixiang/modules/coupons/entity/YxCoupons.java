@@ -135,4 +135,6 @@ private Date updateTime;
 @ApiModelProperty(value = "卡券详情")
 private String content;
 
+@ApiModelProperty(value = "排序")
+private Integer sort;
 }
