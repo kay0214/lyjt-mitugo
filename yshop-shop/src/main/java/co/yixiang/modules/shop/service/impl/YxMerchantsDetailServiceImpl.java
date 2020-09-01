@@ -7,6 +7,7 @@ import co.yixiang.common.service.impl.BaseServiceImpl;
 import co.yixiang.common.utils.QueryHelpPlus;
 import co.yixiang.constant.ShopConstants;
 import co.yixiang.dozer.service.IGenerator;
+import co.yixiang.exception.BadRequestException;
 import co.yixiang.modules.mybatis.GeoPoint;
 import co.yixiang.modules.shop.domain.*;
 import co.yixiang.modules.shop.service.*;
@@ -29,7 +30,10 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 // 默认不使用缓存
 //import org.springframework.cache.annotation.CacheConfig;
@@ -261,6 +265,9 @@ public class YxMerchantsDetailServiceImpl extends BaseServiceImpl<YxMerchantsDet
             log.info("审核获取商铺认证id：" + resources.getId() + "详细信息失败！");
             return false;
         }
+        if(1 == yxMerchantsDetail.getExamineStatus()) {
+            throw new BadRequestException("当前商户已被审核通过");
+        }
         yxMerchantsDetail.setExamineStatus(resources.getExamineStatus());
         this.updateById(yxMerchantsDetail);
         YxExamineLog yxExamineLog = new YxExamineLog();
@@ -273,10 +280,11 @@ public class YxMerchantsDetailServiceImpl extends BaseServiceImpl<YxMerchantsDet
         yxExamineLog.setRemark(resources.getExamineRemark());
         yxExamineLog.setDelFlag(0);
         yxExamineLogService.save(yxExamineLog);
+        YxStoreInfo yxStoreInfo = this.yxStoreInfoService.getOne(new QueryWrapper<YxStoreInfo>().lambda().eq(YxStoreInfo::getMerId, yxMerchantsDetail.getUid()));
         // 审核通过生成一个默认店铺
-        if (1 == resources.getExamineStatus()) {
+        if (1 == resources.getExamineStatus() && null == yxStoreInfo) {
             User user = this.userService.getById(yxMerchantsDetail.getUid());
-            YxStoreInfo yxStoreInfo = new YxStoreInfo();
+            yxStoreInfo = new YxStoreInfo();
             // 店铺编号
             yxStoreInfo.setStoreNid("S" + SecretUtil.createRandomStr(8) + resources.getId());
             yxStoreInfo.setStoreName("未命名店铺");

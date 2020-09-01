@@ -11,6 +11,7 @@ import co.yixiang.config.DataScope;
 import co.yixiang.dozer.service.IGenerator;
 import co.yixiang.exception.BadRequestException;
 import co.yixiang.logging.aop.log.Log;
+import co.yixiang.modules.shop.domain.YxMerchantsDetail;
 import co.yixiang.modules.system.domain.User;
 import co.yixiang.modules.system.domain.vo.UserPassVo;
 import co.yixiang.modules.system.service.DeptService;
@@ -142,6 +143,18 @@ public class SysUserController {
         // 默认密码 123456
         resources.setPassword(passwordEncoder.encode("123456"));
         return new ResponseEntity<>(userService.createMerchants(resources),HttpStatus.CREATED);
+    }
+
+    @Log("启用/禁用商户")
+    @ApiOperation("启用/禁用商户")
+    @PostMapping(value = "/updateStatus")
+    @PreAuthorize("@el.check('admin','yxMerchantsDetail:switch')")
+    public ResponseEntity<Object> updateMerchantsStatus(@Validated @RequestBody YxMerchantsDetail resources){
+        // 这个地方配置好权限只能平台或者合伙人过来创建商户
+        // checkLevel(resources);
+        int uid = SecurityUtils.getUserId().intValue();
+        resources.setUpdateUserId(uid);
+        return new ResponseEntity<>(userService.updateMerchantsStatus(resources),HttpStatus.CREATED);
     }
 
     @Log("修改用户")

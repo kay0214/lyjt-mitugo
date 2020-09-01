@@ -9,6 +9,7 @@
 package co.yixiang.modules.system.service;
 
 import co.yixiang.common.service.BaseService;
+import co.yixiang.modules.shop.domain.YxMerchantsDetail;
 import co.yixiang.modules.system.domain.User;
 import co.yixiang.modules.system.service.dto.UserDto;
 import co.yixiang.modules.system.service.dto.UserQueryCriteria;
@@ -100,4 +101,12 @@ public interface UserService  extends BaseService<User>{
     void update(User resources);
 
     void delete(Set<Long> ids);
+
+    /**
+     * 更新用户状态
+     *
+     * @param resources
+     * @return
+     */
+    boolean updateMerchantsStatus(YxMerchantsDetail resources);
 }
