@@ -30,7 +30,7 @@
                 <el-input v-model="form.merchantsName"  style="width: 350px;"/>
               </el-form-item>
               <el-form-item label="商户地址" prop="address">
-                <el-input v-model="form.address" style="width: 370px;" />
+                <el-input v-model="form.address" style="width: 370px;" maxlength="50" />
               </el-form-item>
               <el-form-item label="联系人" prop="contacts">
                 <el-input v-model="form.contacts" style="width: 370px;" />
