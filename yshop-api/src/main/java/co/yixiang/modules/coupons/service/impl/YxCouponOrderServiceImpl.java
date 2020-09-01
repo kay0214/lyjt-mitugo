@@ -13,6 +13,7 @@ import co.yixiang.constant.LocalLiveConstants;
 import co.yixiang.constant.ShopConstants;
 import co.yixiang.constant.SystemConfigConstants;
 import co.yixiang.enums.*;
+import co.yixiang.exception.BadRequestException;
 import co.yixiang.exception.ErrorRequestException;
 import co.yixiang.modules.coupons.entity.YxCouponOrder;
 import co.yixiang.modules.coupons.entity.YxCouponOrderDetail;
@@ -66,6 +67,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -308,8 +310,8 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
             couponOrderDetail.setUseCount(coupons.getWriteOff());
             couponOrderDetail.setUsedCount(0);
             couponOrderDetail.setStatus(0);
-            // TODO 先用时间戳、扩展字段长度后再用uuid生成核销码
-            String verifyCode = System.currentTimeMillis() + "";
+            // 先用时间戳、扩展字段长度后再用uuid生成核销码
+            String verifyCode = IdUtil.getSnowflake(0, 0).nextIdStr();
             couponOrderDetail.setVerifyCode(verifyCode.substring(1, 13));
             couponOrderDetail.setRemark("");
             couponOrderDetail.setCreateUserId(uid);
@@ -754,7 +756,7 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
             // 优惠金额
             vo.setDiscountAmount(yxCoupons.getDiscountAmount());
             // 核销码加密
-            vo.setVerifyCode(Base64Utils.encode(vo.getVerifyCode()));
+            vo.setVerifyCode(Base64Utils.encode(vo.getVerifyCode() + "," + vo.getUid()));
             voList.add(vo);
         }
 
@@ -769,7 +771,7 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         item.setCoordinateX(yxStoreInfo.getCoordinateX());
         item.setCoordinateY(yxStoreInfo.getCoordinateY());
         // 计算当前位置距离店铺距离
-        if(StringUtils.isNotBlank(location)) {
+        if (StringUtils.isNotBlank(location)) {
             String[] locationArr = location.split(",");
             GlobalCoordinates source = new GlobalCoordinates(Double.parseDouble(yxStoreInfo.getCoordinateY()), Double.parseDouble(yxStoreInfo.getCoordinateX()));
             GlobalCoordinates target = new GlobalCoordinates(Double.parseDouble(locationArr[1]), Double.parseDouble(locationArr[0]));
@@ -841,5 +843,36 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         wrapper7.eq("status", 1);
         countVO.setOutTimeCount(this.count(wrapper7));
         return countVO;
+    }
+
+    /**
+     * 取消订单并回滚卡券数量
+     *
+     * @param id
+     * @return
+     */
+    @Override
+    public boolean updateOrderStatusCancel(String id) {
+        // 查询卡券订单信息
+        YxCouponOrder yxCouponOrder = this.getById(id);
+        if (null == yxCouponOrder) {
+            throw new BadRequestException("未查询到订单信息");
+        }
+        if (10 == yxCouponOrder.getStatus()) {
+            throw new BadRequestException("订单已是取消状态");
+        }
+        // 更新卡券信息
+        yxCouponOrder.setStatus(10);
+        yxCouponOrder.setUpdateTime(new Date());
+        this.updateById(yxCouponOrder);
+        // 查询卡券信息
+        YxCoupons yxCoupons = this.couponsService.getById(yxCouponOrder.getCouponId());
+        if (null == yxCoupons) {
+            throw new BadRequestException("未查询到卡券信息");
+        }
+        yxCoupons.setSales(yxCoupons.getSales() - yxCouponOrder.getTotalNum());
+        yxCoupons.setInventory(yxCoupons.getInventory() + yxCouponOrder.getTotalNum());
+        this.couponsService.updateById(yxCoupons);
+        return true;
     }
 }

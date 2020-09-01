@@ -155,4 +155,12 @@ public interface YxCouponOrderService extends BaseService<YxCouponOrder> {
      * @return
      */
     OrderCountVO orderData(int uid);
+
+    /**
+     * 取消订单
+     *
+     * @param id
+     * @return
+     */
+    boolean updateOrderStatusCancel(String id);
 }

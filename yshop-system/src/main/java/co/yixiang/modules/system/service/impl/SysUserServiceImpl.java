@@ -281,8 +281,8 @@ public class SysUserServiceImpl extends BaseServiceImpl<SysUserMapper, User> imp
         UsersRoles usersRoles = new UsersRoles();
         // 注意这里需要写死数据库的商户角色的id
         usersRoles.setRoleId(5L);
-        // 根据用户的角色设定用户user表里用户的角色
-        resources.setUserRole(1);
+        // 根据用户的角色设定用户user表里用户的角色 2为商户
+        resources.setUserRole(2);
         // 默认用户生效
         resources.setEnabled(true);
         resources.setDeptId(1L);

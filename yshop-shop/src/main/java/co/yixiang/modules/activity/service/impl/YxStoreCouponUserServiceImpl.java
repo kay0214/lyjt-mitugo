@@ -17,7 +17,8 @@ import co.yixiang.modules.shop.service.YxUserService;
 import co.yixiang.utils.FileUtil;
 import co.yixiang.utils.StringUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.github.pagehelper.PageInfo;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -37,9 +38,9 @@ import java.util.Map;
 //import org.springframework.cache.annotation.Cacheable;
 
 /**
-* @author liusy
-* @date 2020-08-31
-*/
+ * @author liusy
+ * @date 2020-08-31
+ */
 @Service
 @AllArgsConstructor
 //@CacheConfig(cacheNames = "yxStoreCouponUser")
@@ -52,9 +53,22 @@ public class YxStoreCouponUserServiceImpl extends BaseServiceImpl<YxStoreCouponU
     @Override
     //@Cacheable
     public Map<String, Object> queryAll(YxStoreCouponUserQueryCriteria criteria, Pageable pageable) {
-        getPage(pageable);
-        PageInfo<YxStoreCouponUser> page = new PageInfo<>(queryAll(criteria));
-        List<YxStoreCouponUserDto> storeOrderDTOS = generator.convert(page.getList(), YxStoreCouponUserDto.class);
+//        getPage(pageable);
+//        PageInfo<YxStoreCouponUser> page = new PageInfo<>(queryAll(criteria));
+        QueryWrapper<YxStoreCouponUser> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().orderByDesc(YxStoreCouponUser::getAddTime);
+        if (0 != criteria.getUserRole()) {
+            if (null == criteria.getChildStoreId() || criteria.getChildStoreId().size() <= 0) {
+                Map<String, Object> map = new LinkedHashMap<>(2);
+                map.put("content", new ArrayList<>());
+                map.put("totalElements", 0);
+                return map;
+            }
+            queryWrapper.lambda().in(YxStoreCouponUser::getStoreId, criteria.getChildStoreId());
+        }
+        IPage<YxStoreCouponUser> ipage = this.page(new Page<>(pageable.getPageNumber() + 1, pageable.getPageSize()), queryWrapper);
+
+        List<YxStoreCouponUserDto> storeOrderDTOS = generator.convert(ipage.getRecords(), YxStoreCouponUserDto.class);
         for (YxStoreCouponUserDto couponUserDTO : storeOrderDTOS) {
             YxUser user = userService.getOne(new QueryWrapper<YxUser>().eq("uid", couponUserDTO.getUid()));
             if (null != user && StringUtils.isNotBlank(user.getNickname())) {
@@ -63,7 +77,7 @@ public class YxStoreCouponUserServiceImpl extends BaseServiceImpl<YxStoreCouponU
         }
         Map<String, Object> map = new LinkedHashMap<>(2);
         map.put("content", storeOrderDTOS);
-        map.put("totalElements", page.getTotal());
+        map.put("totalElements", ipage.getTotal());
         return map;
     }
 

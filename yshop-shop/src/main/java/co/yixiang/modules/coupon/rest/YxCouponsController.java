@@ -88,9 +88,9 @@ public class YxCouponsController {
         if (getOneUser == null) {
             throw new BadRequestException("当前登录用户异常!");
         }
-        if (getOneUser.getUserRole() != 2) {
-            throw new BadRequestException("当前登录用户非商户, 不可操作!");
-        }
+//        if (getOneUser.getUserRole() != 2) {
+//            throw new BadRequestException("当前登录用户非商户, 不可操作!");
+//        }
 
         YxStoreInfo findStoreInfo = yxStoreInfoService.getOne(new QueryWrapper<YxStoreInfo>().eq("mer_id", getOneUser.getId()).eq("del_flag", 0));
         if (findStoreInfo == null) {

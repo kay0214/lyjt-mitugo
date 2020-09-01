@@ -81,9 +81,19 @@ public class YxExamineLogServiceImpl extends BaseServiceImpl<YxExamineLogMapper,
             queryWrapper.lambda().like(YxExamineLog::getUsername, criteria.getUsername());
         }
         IPage<YxExamineLog> ipage = this.page(new Page<>(pageable.getPageNumber() + 1, pageable.getPageSize()), queryWrapper);
+        List<YxExamineLogDto> list = generator.convert(ipage.getRecords(), YxExamineLogDto.class);
+        // 查询商户认证数据
+        if (2 == criteria.getType()) {
+            for (YxExamineLogDto dto : list) {
+                YxMerchantsDetail yxMerchantsDetail = yxMerchantsDetailMapper.selectById(dto.getTypeId());
+                dto.setContacts(yxMerchantsDetail.getContacts());
+                dto.setContactMobile(yxMerchantsDetail.getContactMobile());
+                dto.setMerchantsName(yxMerchantsDetail.getMerchantsName());
+            }
+        }
 
         Map<String, Object> map = new LinkedHashMap<>(2);
-        map.put("content", generator.convert(ipage.getRecords(), YxExamineLogDto.class));
+        map.put("content", list);
         map.put("totalElements", ipage.getTotal());
         return map;
     }
