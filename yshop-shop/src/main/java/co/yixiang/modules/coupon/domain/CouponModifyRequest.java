@@ -147,6 +147,8 @@ public class CouponModifyRequest {
     private String sliderImage;
 
     /** 卡券简介 */
-    @NotBlank(message = "卡券简介不可为空")
     private String couponInfo;
+
+    /** 排序 */
+    private Integer sort;
 }

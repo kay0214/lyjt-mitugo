@@ -65,6 +65,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.io.File;
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.util.*;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -829,12 +830,12 @@ public class StoreOrderController extends BaseController {
         for (YxStoreStoreCartQueryVo storeStoreCartQueryVo : cartStoreInfo) {
             //设置价格
             Double sumPrice = storeOrderService.getOrderSumPrice(storeStoreCartQueryVo.getCartList(), "truePrice");
-            storeStoreCartQueryVo.setOrderSumPrice(new BigDecimal(sumPrice));
+            DecimalFormat df = new DecimalFormat("#.00");
+            storeStoreCartQueryVo.setOrderSumPrice(new BigDecimal(df.format(sumPrice)));
             Double costPrice = storeOrderService.getOrderSumPrice(storeStoreCartQueryVo.getCartList(), "costPrice");
             storeStoreCartQueryVo.setOrderCostPrice(new BigDecimal(costPrice));
             Double vipTruePrice = storeOrderService.getOrderSumPrice(storeStoreCartQueryVo.getCartList(), "vipTruePrice");
-            storeStoreCartQueryVo.setOrderVipTruePrice(new BigDecimal(vipTruePrice));
-
+            storeStoreCartQueryVo.setOrderVipTruePrice(new BigDecimal(df.format(vipTruePrice)));
             PriceGroupDTO priceGroup = storeOrderService.getOrderPriceGroup(storeStoreCartQueryVo.getCartList());
 
             storeStoreCartQueryVo.setStorePostage(new BigDecimal(priceGroup.getStorePostage()));

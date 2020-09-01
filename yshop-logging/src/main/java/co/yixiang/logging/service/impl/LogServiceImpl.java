@@ -117,10 +117,10 @@ public class LogServiceImpl extends BaseServiceImpl<LogMapper, co.yixiang.loggin
 
         if(methodName.contains(goodMethod)||methodName.contains(couponMethod)){
             Integer id = getId(joinPoint);
-            log.setProductType(0);
+            log.setProductType(1);
             log.setProductId(id);
             if(couponMethod.equals(methodName)) {
-                log.setProductType(1);
+                log.setProductType(2);
             }
         }
         StringBuilder params = new StringBuilder("{");
