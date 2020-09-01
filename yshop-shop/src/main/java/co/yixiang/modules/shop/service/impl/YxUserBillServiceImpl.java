@@ -52,10 +52,10 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<UserBillMapper, YxUse
         QueryWrapper<YxUserBill> queryWrapper = new QueryWrapper<>();
         queryWrapper.lambda().orderByDesc(YxUserBill::getAddTime);
         if(1 == criteria.getUserRole()) {
-            queryWrapper.lambda().eq(YxUserBill::getUid, criteria.getUid()).eq(YxUserBill::getUserType,2);
+            queryWrapper.lambda().eq(YxUserBill::getUid, criteria.getUid()).eq(YxUserBill::getUserType,3);
         }
         if(2 == criteria.getUserRole()) {
-            queryWrapper.lambda().eq(YxUserBill::getUid, criteria.getUid()).eq(YxUserBill::getUserType,3);
+            queryWrapper.lambda().eq(YxUserBill::getUid, criteria.getUid()).eq(YxUserBill::getUserType,2);
         }
         if (StringUtils.isNotBlank(criteria.getUsername())) {
             queryWrapper.lambda().like(YxUserBill::getUsername, criteria.getUsername());
