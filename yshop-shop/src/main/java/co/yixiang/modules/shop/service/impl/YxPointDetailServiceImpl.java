@@ -15,6 +15,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,8 +38,19 @@ public class YxPointDetailServiceImpl extends BaseServiceImpl<YxPointDetailMappe
     public Map<String, Object> queryAll(YxPointDetailQueryCriteria criteria, Pageable pageable) {
         getPage(pageable);
         PageInfo<YxPointDetail> page = new PageInfo<>(queryAll(criteria));
-        Map<String, Object> map = new LinkedHashMap<>(2);
+        Map<String, Object> map = new LinkedHashMap<>(3);
+
+        // 统计总金额
+        BigDecimal totalAmount = new BigDecimal(BigInteger.ZERO);
+        if (page.getTotal() > 0){
+            List<YxPointDetail> pointDetailList = page.getList();
+            for (YxPointDetail pointDetail : pointDetailList){
+                totalAmount = totalAmount.add(pointDetail.getOrderPrice());
+            }
+        }
+
         map.put("content", generator.convert(page.getList(), YxPointDetailDto.class));
+        map.put("totalAmount", totalAmount);
         map.put("totalElements", page.getTotal());
         return map;
     }
