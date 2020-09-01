@@ -159,8 +159,8 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
         yxStoreInfoDetailQueryVo.setSotreInfo(yxStoreInfoQueryVo);
         //卡券信息
         yxStoreInfoDetailQueryVo.setCouponsListInfo(yxCouponsService.getCouponsInfoByStoreId(yxStoreInfo.getId()));
-        //商品信息
-        yxStoreInfoDetailQueryVo.setProductListInfo(yxStoreProductService.getProductListByStoreId(yxStoreInfo.getId()));
+      /*  //商品信息
+        yxStoreInfoDetailQueryVo.setProductListInfo(yxStoreProductService.getProductListByStoreId(yxStoreInfo.getId()));*/
         return yxStoreInfoDetailQueryVo;
     }
 

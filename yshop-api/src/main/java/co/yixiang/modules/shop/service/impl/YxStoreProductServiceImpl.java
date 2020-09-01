@@ -32,6 +32,7 @@ import co.yixiang.utils.StringUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.metadata.OrderItem;
+import com.baomidou.mybatisplus.core.toolkit.ObjectUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -234,6 +235,11 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
         //商品名
         if(StrUtil.isNotEmpty(productQueryParam.getName())){
             wrapper.like("store_name",productQueryParam.getName());
+        }
+
+        //根据店铺id查询
+        if(ObjectUtils.isNotEmpty(productQueryParam.getStoreId())){
+            wrapper.eq("store_id",productQueryParam.getStoreId());
         }
 
         wrapper.orderByDesc("sort");
