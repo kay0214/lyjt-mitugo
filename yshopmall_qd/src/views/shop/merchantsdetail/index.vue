@@ -188,9 +188,9 @@
         <el-table-column v-if="columns.visible('contactMobile')" prop="contactMobile" label="联系人电话" />
         <el-table-column label="商户状态" align="center" v-permission="['admin','yxMerchantsDetail:switch']">
           <template slot-scope="scope">
-            <div @click="updateStatus(scope.row.uid,scope.row.delFlag)">
-              <el-tag v-if="scope.row.delFlag == 1">已禁用</el-tag>
-              <el-tag v-else-if="scope.row.delFlag == 0">启用中</el-tag>
+            <div @click="updateStatus(scope.row.uid,scope.row.status)">
+              <el-tag v-if="scope.row.status == 1">已禁用</el-tag>
+              <el-tag v-else-if="scope.row.status == 0">启用中</el-tag>
               <el-tag v-else></el-tag>
             </div>
           </template>
