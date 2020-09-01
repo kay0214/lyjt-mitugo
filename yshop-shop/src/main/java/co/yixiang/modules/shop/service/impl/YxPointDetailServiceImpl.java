@@ -44,7 +44,7 @@ public class YxPointDetailServiceImpl extends BaseServiceImpl<YxPointDetailMappe
 //        PageInfo<YxPointDetail> page = new PageInfo<>(queryAll(criteria));
 
         QueryWrapper<YxPointDetail> queryWrapper = new QueryWrapper<>();
-        queryWrapper.orderByDesc("create_time");
+        queryWrapper.lambda().orderByDesc(YxPointDetail::getCreateTime);
         if (0 != criteria.getUserRole()) {
             if (null == criteria.getChildUser() || criteria.getChildUser().size() <= 0) {
                 Map<String, Object> map = new LinkedHashMap<>(2);

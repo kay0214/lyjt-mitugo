@@ -8,7 +8,7 @@ import lombok.Data;
 * @date 2020-05-12
 */
 @Data
-public class YxUserBillQueryCriteria{
+public class YxUserBillQueryCriteria extends BaseCriteria{
 
     /** 用户名模糊查询 */
     @Query(type = Query.Type.EQUAL)

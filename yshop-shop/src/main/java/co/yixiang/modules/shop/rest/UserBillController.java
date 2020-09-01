@@ -4,7 +4,9 @@ import co.yixiang.logging.aop.log.Log;
 import co.yixiang.modules.shop.service.YxUserBillService;
 import co.yixiang.modules.shop.service.dto.WithdrawReviewQueryCriteria;
 import co.yixiang.modules.shop.service.dto.YxUserBillQueryCriteria;
+import co.yixiang.utils.CurrUser;
 import co.yixiang.utils.DateUtils;
+import co.yixiang.utils.SecurityUtils;
 import co.yixiang.utils.StringUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -36,6 +38,11 @@ public class UserBillController {
     @GetMapping(value = "/yxUserBill")
     @PreAuthorize("hasAnyRole('admin','YXUSERBILL_ALL','YXUSERBILL_SELECT')")
     public ResponseEntity getYxUserBills(YxUserBillQueryCriteria criteria, Pageable pageable){
+        CurrUser currUser = SecurityUtils.getCurrUser();
+        criteria.setUserRole(currUser.getUserRole());
+        if (null != currUser.getChildUser()) {
+            criteria.setChildUser(currUser.getChildUser());
+        }
         if (StringUtils.isNotBlank(criteria.getAddTimeStart()) && StringUtils.isBlank(criteria.getAddTimeEnd())){
             criteria.setAddTimeEnd(DateUtils.getDate());
         }
