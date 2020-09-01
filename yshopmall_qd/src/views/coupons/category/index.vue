@@ -24,7 +24,7 @@
             </el-radio-group>
           </el-form-item>
           <el-form-item label="排序" prop="sort">
-            <el-input v-model="form.sort" style="width: 370px;" />
+            <el-input v-model="form.sort" style="width: 370px;" maxlength="3" />
           </el-form-item>
         </el-form>
         <div slot="footer" class="dialog-footer">
