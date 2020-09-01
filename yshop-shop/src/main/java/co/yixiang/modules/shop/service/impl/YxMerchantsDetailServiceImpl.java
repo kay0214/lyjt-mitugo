@@ -262,8 +262,7 @@ public class YxMerchantsDetailServiceImpl extends BaseServiceImpl<YxMerchantsDet
         // 审核通过的直接返回不允许修改
         if (null != yxMerchantsDetail) {
             if (1 == yxMerchantsDetail.getExamineStatus()) {
-                log.info("用户：" + resources.getUid() + "已认证通过，不允许再次修改数据!");
-                return false;
+                throw new BadRequestException("已认证通过不可修改数据");
             }
             isNew = false;
         }
@@ -297,8 +296,7 @@ public class YxMerchantsDetailServiceImpl extends BaseServiceImpl<YxMerchantsDet
     public boolean updateExamineStatus(YxMerchantsDetailDto resources) {
         YxMerchantsDetail yxMerchantsDetail = getById(resources.getId());
         if (null == yxMerchantsDetail) {
-            log.info("审核获取商铺认证id：" + resources.getId() + "详细信息失败！");
-            return false;
+            throw new BadRequestException("商铺信息查询失败");
         }
         if (1 == yxMerchantsDetail.getExamineStatus()) {
             throw new BadRequestException("当前商户已被审核通过");
