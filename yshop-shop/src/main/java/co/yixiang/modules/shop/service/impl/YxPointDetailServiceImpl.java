@@ -8,7 +8,10 @@ import co.yixiang.modules.shop.service.YxPointDetailService;
 import co.yixiang.modules.shop.service.dto.YxPointDetailDto;
 import co.yixiang.modules.shop.service.dto.YxPointDetailQueryCriteria;
 import co.yixiang.modules.shop.service.mapper.YxPointDetailMapper;
-import com.github.pagehelper.PageInfo;
+import co.yixiang.utils.StringUtils;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -17,14 +20,15 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 /**
-* @author huiy
-* @date 2020-08-19
-*/
+ * @author huiy
+ * @date 2020-08-19
+ */
 @Service
 @AllArgsConstructor
 //@CacheConfig(cacheNames = "yxPointDetail")
@@ -36,29 +40,49 @@ public class YxPointDetailServiceImpl extends BaseServiceImpl<YxPointDetailMappe
     @Override
     //@Cacheable
     public Map<String, Object> queryAll(YxPointDetailQueryCriteria criteria, Pageable pageable) {
-        getPage(pageable);
-        PageInfo<YxPointDetail> page = new PageInfo<>(queryAll(criteria));
+//        getPage(pageable);
+//        PageInfo<YxPointDetail> page = new PageInfo<>(queryAll(criteria));
+
+        QueryWrapper<YxPointDetail> queryWrapper = new QueryWrapper<>();
+        queryWrapper.orderByDesc("create_time");
+        if (0 != criteria.getUserRole()) {
+            if (null == criteria.getChildUser() || criteria.getChildUser().size() <= 0) {
+                Map<String, Object> map = new LinkedHashMap<>(2);
+                map.put("content", new ArrayList<>());
+                map.put("totalElements", 0);
+                return map;
+            }
+            queryWrapper.lambda().in(YxPointDetail::getMerchantsId, criteria.getChildUser()).eq(YxPointDetail::getDelFlag, 0);
+        }
+        if (null != criteria.getType()) {
+            queryWrapper.lambda().eq(YxPointDetail::getType, criteria.getType());
+        }
+        if (StringUtils.isNotBlank(criteria.getUsername())) {
+            queryWrapper.lambda().eq(YxPointDetail::getUsername, criteria.getUsername());
+        }
+        IPage<YxPointDetail> ipage = this.page(new Page<>(pageable.getPageNumber() + 1, pageable.getPageSize()), queryWrapper);
+
         Map<String, Object> map = new LinkedHashMap<>(3);
 
         // 统计总金额
         BigDecimal totalAmount = new BigDecimal(BigInteger.ZERO);
-        if (page.getTotal() > 0){
-            List<YxPointDetail> pointDetailList = page.getList();
-            for (YxPointDetail pointDetail : pointDetailList){
+        if (ipage.getTotal() > 0) {
+            List<YxPointDetail> pointDetailList = ipage.getRecords();
+            for (YxPointDetail pointDetail : pointDetailList) {
                 totalAmount = totalAmount.add(pointDetail.getOrderPrice());
             }
         }
 
-        map.put("content", generator.convert(page.getList(), YxPointDetailDto.class));
+        map.put("content", generator.convert(ipage.getRecords(), YxPointDetailDto.class));
         map.put("totalAmount", totalAmount);
-        map.put("totalElements", page.getTotal());
+        map.put("totalElements", ipage.getTotal());
         return map;
     }
 
 
     @Override
     //@Cacheable
-    public List<YxPointDetail> queryAll(YxPointDetailQueryCriteria criteria){
+    public List<YxPointDetail> queryAll(YxPointDetailQueryCriteria criteria) {
         return baseMapper.selectList(QueryHelpPlus.getPredicate(YxPointDetail.class, criteria));
     }
 }

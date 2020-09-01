@@ -11,7 +11,7 @@ import java.util.List;
 * @date 2020-08-19
 */
 @Data
-public class YxPointDetailQueryCriteria{
+public class YxPointDetailQueryCriteria extends BaseCriteria{
 
     /** 用户名模糊查询 */
     @Query(type = Query.Type.EQUAL)
