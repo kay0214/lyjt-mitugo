@@ -9,6 +9,7 @@ import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import co.yixiang.common.service.impl.BaseServiceImpl;
+import co.yixiang.common.util.WxUtils;
 import co.yixiang.common.web.vo.Paging;
 import co.yixiang.constant.ShopConstants;
 import co.yixiang.constant.SystemConfigConstants;
@@ -36,6 +37,7 @@ import co.yixiang.mp.config.WxMpConfiguration;
 import co.yixiang.utils.OrderUtil;
 import co.yixiang.utils.RedisUtil;
 import co.yixiang.utils.StringUtils;
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.metadata.OrderItem;
@@ -637,7 +639,7 @@ public class YxUserServiceImpl extends BaseServiceImpl<YxUserMapper, YxUser> imp
             if (StrUtil.isBlank(appId) || StrUtil.isBlank(secret)) {
                 throw new ErrorRequestException("请先配置小程序");
             }
-            WxMaDefaultConfigImpl wxMaConfig = new WxMaDefaultConfigImpl();
+           /* WxMaDefaultConfigImpl wxMaConfig = new WxMaDefaultConfigImpl();
             wxMaConfig.setAppid(appId);
             wxMaConfig.setSecret(secret);
 
@@ -645,14 +647,31 @@ public class YxUserServiceImpl extends BaseServiceImpl<YxUserMapper, YxUser> imp
             WxMaJscode2SessionResult session = wxMaService.getUserService().getSessionInfo(code);
             //解密数据,防止 session 无 unionId
             WxMaUserInfo wxMpUser = wxMaService.getUserService()
-                    .getUserInfo(session.getSessionKey(), encryptedData, iv);
-            String openid = wxMpUser.getOpenId();
+                    .getUserInfo(session.getSessionKey(), encryptedData, iv);*/
+            String openId = "";
+            WxMaUserInfo wxMpUser = new WxMaUserInfo();
+            JSONObject userJSONObject =  WxUtils.getUserInfo(code,appId,secret);
+            if (userJSONObject != null) {
+                JSONObject unionIdJSONObject = WxUtils.decryptPhoneData(userJSONObject.getString("session_key"),encryptedData,iv);
+                if (unionIdJSONObject != null) {
+                    openId = unionIdJSONObject.getString("openId");
+                    wxMpUser.setOpenId(openId);
+                    wxMpUser.setGender(unionIdJSONObject.getString("gender"));
+                    wxMpUser.setNickName(unionIdJSONObject.getString("nickName"));
+                    wxMpUser.setUnionId(unionIdJSONObject.getString("unionId"));
+                    wxMpUser.setAvatarUrl(unionIdJSONObject.getString("avatarUrl"));
+                    wxMpUser.setLanguage(unionIdJSONObject.getString("language"));
+                    wxMpUser.setCity(unionIdJSONObject.getString("city"));
+                    wxMpUser.setProvince(unionIdJSONObject.getString("province"));
+                    wxMpUser.setCountry(unionIdJSONObject.getString("country"));
+                }
+            }
             //如果开启了UnionId
             if (StrUtil.isNotBlank(wxMpUser.getUnionId())) {
-                openid = wxMpUser.getUnionId();
+                openId = wxMpUser.getUnionId();
             }
 
-            YxUser yxUser = this.findByName(openid);
+            YxUser yxUser = this.findByName(openId);
             String username = "";
             if (ObjectUtil.isNull(yxUser)) {
                 //过滤掉表情
@@ -750,7 +769,7 @@ public class YxUserServiceImpl extends BaseServiceImpl<YxUserMapper, YxUser> imp
             }
             // 返回 token
             return map;
-        } catch (WxErrorException e) {
+        } catch (Exception e) {
             log.error(e.getMessage(), e);
             throw new BadRequestException(e.toString());
         }
