@@ -8,6 +8,7 @@ package co.yixiang.modules.shop.rest;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import co.yixiang.constant.ShopConstants;
+import co.yixiang.exception.ErrorRequestException;
 import co.yixiang.logging.aop.log.Log;
 import co.yixiang.modules.shop.domain.YxStoreInfo;
 import co.yixiang.modules.shop.domain.YxStoreProduct;
@@ -75,10 +76,11 @@ public class StoreProductController {
         //
         int sysUserId = SecurityUtils.getUserId().intValue();
         YxStoreInfo store = yxStoreInfoService.getOne(new QueryWrapper<YxStoreInfo>().eq("mer_id", sysUserId));
-        if(ObjectUtil.isNotNull(store)){
-            resources.setStoreId(store.getId());
-            resources.setMerId(store.getMerId());
+        if(ObjectUtil.isNull(store)){
+            throw new ErrorRequestException("商户id"+sysUserId+"未找到对应店铺信息！");
         }
+        resources.setStoreId(store.getId());
+        resources.setMerId(store.getMerId());
         resources.setAddTime(OrderUtil.getSecondTimestampTwo());
         if(ObjectUtil.isEmpty(resources.getGiveIntegral())) resources.setGiveIntegral(BigDecimal.ZERO);
         if(ObjectUtil.isEmpty(resources.getCost())) resources.setCost(BigDecimal.ZERO);
@@ -161,7 +163,6 @@ public class StoreProductController {
     }
 
     @ApiOperation(value = "商品促销修改")
-    //@CacheEvict(cacheNames = ShopConstants.YSHOP_REDIS_INDEX_KEY,allEntries = true)
     @PreAuthorize("hasAnyRole('admin','YXSTOREPRODUCT_ALL','YXSTOREPRODUCT_EDIT')")
     @PostMapping(value = "/yxStoreProduct/changeStatus")
     public ResponseEntity onBenefit(@RequestBody YxStoreProductChange request){

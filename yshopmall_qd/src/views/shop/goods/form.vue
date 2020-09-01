@@ -338,7 +338,7 @@ export default {
       }
     },
     getCates() {
-      getCates({ enabled: true }).then(res => {
+      getCates({ isShow: 1 }).then(res => {
         this.cates = res.content
       })
     }
