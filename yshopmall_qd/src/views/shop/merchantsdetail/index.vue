@@ -169,6 +169,7 @@
                   type="textarea"
                   :rows="5"
                   placeholder="请输入内容"
+                  maxlength="50"
                   v-model="form.examineRemark">
                 </el-input>
               </el-col>
@@ -547,7 +548,7 @@ export default {
     },
     //审核驳回 /** 审批状态examineStatus：0->待审核,1->通过,2->驳回 */
     examineEditCancelCU(){
-      this.examineEdit=0;
+      this.examineEdit=2;
       examineSubmit({
         examineStatus:2,
         examineRemark:this.form.examineRemark,
