@@ -47,7 +47,7 @@ export default {
   mixins: [initData],
   data(){
     return {
-      productType:['商品','卡券']
+      productType:['','商品','卡券']
     }
   },
   created() {
