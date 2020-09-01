@@ -53,7 +53,7 @@
         <el-input v-model="form.stock" οnkeyup="this.value=this.value.replace(//D/g,'')" onafterpaste="this.value=this.value.replace(//D/g,'')"/>
       </el-form-item>
       <el-form-item label="佣金" prop='commission'>
-        <el-input v-model="form.commission" οnkeyup="if(isNaN(value))execCommand('undo')" onafterpaste="if(isNaN(value))execCommand('undo')"/>
+        <el-input v-model="form.commission" readonly/>
       </el-form-item>
       <el-form-item label="是否包邮" prop='isPostage'>
         <el-radio v-model="form.isPostage" :label="1">是</el-radio>
@@ -107,7 +107,7 @@ export default {
       }else{
         callback()
       }
-    }
+    };
     const validateInt=(r,value,callback)=>{
       if(parseInt(value)>16777215){
         callback(new Error("最大值为：16777215"));
@@ -116,7 +116,17 @@ export default {
       }else{
         callback()
       }
-    }
+    };
+    //佣金校验 销售价price-平台结算价settlement>=0
+    let commissionValue=(r,value,callback)=>{
+      let val=this.form.price*1-this.form.settlement*1
+      if(val<0){
+        callback(new Error("佣金=销售价-平台结算价 (佣金>=0)"));
+      }else{
+        this.$set(this.form,'commission',val)
+        callback()
+      }
+    };
     return {
       loading: false, dialog: false, cates: [],
       form: {
@@ -191,7 +201,8 @@ export default {
         ],
         price:[
           { required: true,message: '必填项', trigger: 'blur'},
-          { validator: validateNum, trigger: 'blur'}
+          { validator: validateNum, trigger: 'blur'},
+          { validator: commissionValue, trigger: 'blur'}
         ],
         otPrice:[
           { required: true,message: '必填项', trigger: 'blur'},
@@ -199,7 +210,8 @@ export default {
         ],
         settlement:[
           { required: true,message: '必填项', trigger: 'blur'},
-          { validator: validateNum, trigger: 'blur'}
+          { validator: validateNum, trigger: 'blur'},
+          { validator: commissionValue, trigger: 'blur'}
         ],
         sort:[
           { required: true,message: '必填项', trigger: 'blur'}
@@ -209,7 +221,7 @@ export default {
           { validator: validateInt, trigger: 'blur'},
         ],
         commission:[
-          { required: true,message: '必填项', trigger: 'blur'}
+          // { required: true,message: '必填项', trigger: 'blur'}
         ],
         isPostage:[
           { required: true,message: '必填项', trigger: 'blur'}
