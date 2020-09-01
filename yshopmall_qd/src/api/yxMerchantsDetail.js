@@ -32,4 +32,12 @@ export function examine(data) {
   })
 }
 
+export function update(data) {
+  return request({
+    url: '/api/users/updateStatus',
+    method: 'post',
+    data
+  })
+}
+
 export default { add, edit, del }

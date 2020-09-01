@@ -186,9 +186,9 @@
         <el-table-column v-if="columns.visible('merchantsName')" prop="merchantsName" label="商户名称" />
         <el-table-column v-if="columns.visible('contacts')" prop="contacts" label="商户联系人" />
         <el-table-column v-if="columns.visible('contactMobile')" prop="contactMobile" label="联系人电话" />
-        <el-table-column label="商户状态" align="center">
+        <el-table-column label="商户状态" align="center" v-permission="['admin','yxMerchantsDetail:switch']">
           <template slot-scope="scope">
-            <div>
+            <div @click="updateStatus(scope.row.uid,scope.row.delFlag)">
               <el-tag v-if="scope.row.delFlag == 1">已禁用</el-tag>
               <el-tag v-else-if="scope.row.delFlag == 0">启用中</el-tag>
               <el-tag v-else></el-tag>
@@ -217,7 +217,7 @@
 </template>
 
 <script>
-import crudYxMerchantsDetail,{examine as examineSubmit} from '@/api/yxMerchantsDetail'
+import crudYxMerchantsDetail,{examine as examineSubmit,update} from '@/api/yxMerchantsDetail'
 import { isvalidPhone } from '@/utils/validate'
 import CRUD, { presenter, header, form, crud } from '@crud/crud'
 import rrOperation from '@crud/RR.operation'
@@ -561,7 +561,28 @@ export default {
           this.dialogVisible=Boolean(this.crud.status.cu);
           this.formDisabled=false
         }
-    }
+    },
+    //启禁用商户状态
+    updateStatus(uid,status) {
+      this.$confirm(`确定进行[${status ? '启用' : '禁用'}]操作?`, '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      })
+        .then(() => {
+          update({uid}).then(({ data }) => {
+            this.$message({
+              message: '操作成功',
+              type: 'success',
+              duration: 1000,
+              onClose: () => {
+                this.init()
+              }
+            })
+          })
+        })
+        .catch(() => { })
+    },
   }
 }
 
