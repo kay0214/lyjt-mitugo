@@ -138,6 +138,9 @@ public class SysUserServiceImpl extends BaseServiceImpl<SysUserMapper, User> imp
     @Override
     public UserDto findByName(String userName) {
         User user = userMapper.findByName(userName);
+        if (user == null) {
+            throw new BadRequestException("用户名或者密码不正确");
+        }
         //用户所属岗位
         user.setJob(jobService.getById(user.getJobId()));
         //用户所属部门
