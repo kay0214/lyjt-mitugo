@@ -62,7 +62,7 @@
                 <el-radio v-model="form.bankType" :label="0">对私账号</el-radio>
                 <el-radio v-model="form.bankType" :label="1" style="width: 200px;">对公账号</el-radio>
               </el-form-item>
-              <el-form-item label="开户名称" prop="openAccountName">
+              <el-form-item label="收款户名" prop="openAccountName">
                 <el-input v-model="form.openAccountName" style="width: 370px;" />
               </el-form-item>
               <el-form-item label="开户行" prop="openAccountBank">
