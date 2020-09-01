@@ -235,7 +235,7 @@ const defaultCrud = CRUD({ title: '商户详情表', url: 'api/yxMerchantsDetail
       del: false,
       download: false
     }})
-const defaultForm = { id: null, uid: null, examineStatus: null, address: null, contacts: null, contactMobile: null, mailbox: null, merchantsType: null, bankNo: null, openAccountProvince: null, bankType: null, openAccountName: null, openAccountBank: null, openAccountSubbranch: null, companyProvince: null, companyAddress: null, companyName: null, companyLegalPerson: null, companyPhone: null, businessCategory: null, qualificationsType: null, delFlag: null, createUserId: null, updateUserId: null, createTime: null, updateTime: null, merchantsName: null }
+const defaultForm = { id: null, uid: null, nickName:null, merchantsContact:null, phone:null, username:null, examineStatus: null, address: null, contacts: null, contactMobile: null, mailbox: null, merchantsType: null, bankNo: null, openAccountProvince: null, bankType: null, openAccountName: null, openAccountBank: null, openAccountSubbranch: null, companyProvince: null, companyAddress: null, companyName: null, companyLegalPerson: null, companyPhone: null, businessCategory: null, qualificationsType: null, delFlag: null, createUserId: null, updateUserId: null, createTime: null, updateTime: null, merchantsName: null }
 export default {
   name: 'YxMerchantsDetail',
   components: { pagination, crudOperation, rrOperation, udOperation ,MaterialList},
