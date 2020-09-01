@@ -549,13 +549,14 @@ export default {
         examineRemark:this.form.examineRemark,
         id:this.form.id
       }).then(res=>{
-        this.examineEdit=1;
         if(res){
           Notification.success({
             title: '审核成功'
           })
+          this.examineEdit=0;
           this.crud.toQuery()
         }else{
+          this.examineEdit=1;
           Notification.error({
             title: "审核失败，请重新尝试"
           })
@@ -572,13 +573,14 @@ export default {
         examineRemark:this.form.examineRemark,
         id:this.form.id
       }).then(res=>{
-        this.examineEdit=1;
         if(res){
           Notification.success({
             title: '驳回已完成'
           })
+          this.examineEdit=0;
           this.crud.toQuery()
         }else{
+          this.examineEdit=1;
           Notification.error({
             title: "驳回失败，请重新尝试"
           })
