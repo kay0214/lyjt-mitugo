@@ -476,31 +476,49 @@ export default {
       // 个人认证
       if (this.form.personIdCard) {
         this.perIdCard = this.form.personIdCard.split(',')
+      }else{
+        this.perIdCard = []
       }
       if (this.form.personIdCardFace) {
         this.perIdCardFace = this.form.personIdCardFace.split(',')
+      }else{
+        this.perIdCardFace = []
       }
       if (this.form.personIdCardBack) {
         this.perIdCardBack = this.form.personIdCardBack.split(',')
+      }else{
+        this.perIdCardBack = []
       }
       // 企业和个体户
       if (this.form.businessLicenseImg) {
         this.businessLicenseImg = this.form.businessLicenseImg.split(',')
+      }else{
+        this.businessLicenseImg = []
       }
       if (this.form.bankOpenProveImg) {
         this.bankOpenProveImg = this.form.bankOpenProveImg.split(',')
+      }else{
+        this.bankOpenProveImg = []
       }
       if (this.form.legalIdCardFace) {
         this.legalIdCardFace = this.form.legalIdCardFace.split(',')
+      }else{
+        this.legalIdCardFace = []
       }
       if (this.form.legalIdCardBack) {
         this.legalIdCardBack = this.form.legalIdCardBack.split(',')
+      }else{
+        this.legalIdCardBack = []
       }
       if (this.form.storeImg) {
         this.storeImg = this.form.storeImg.split(',')
+      }else{
+        this.storeImg = []
       }
       if (this.form.licenceImg) {
         this.licenceImg = this.form.licenceImg.split(',')
+      }else{
+        this.licenceImg = []
       }
       this.formDisabled=true
     },
