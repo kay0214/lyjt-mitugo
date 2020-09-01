@@ -17,14 +17,13 @@
         </el-date-picker>
         <el-button class="filter-item" size="mini" type="success" icon="el-icon-search" @click="crud.toQuery">搜索</el-button>
       </el-row>
-      <el-row :gutter='6' style="margin:20px;"><el-col :span='4'>累计总金额: <span>0</span></el-col><el-col :span='4'>剩余金额: <span>0</span></el-col></el-row>
+      <el-row :gutter='6' style="margin:20px;"><el-col :span='4'>累计总金额: <span>{{totalAmount}}</span></el-col></el-row>
       <!--表格渲染-->
       <el-table ref="table" v-loading="crud.loading" :data="crud.data" size="small" style="" @selection-change="crud.selectionChangeHandler">
         <el-table-column type="index" width="55" />
         <el-table-column v-if="columns.visible('username')" prop="username" label="用户昵称" />
         <el-table-column v-if="columns.visible('orderId')" prop="orderId" label="订单编号" />
-        <el-table-column v-if="columns.visible('orderPrice')" prop="orderPrice" label="明细种类" />
-        <el-table-column v-if="columns.visible('commission')" prop="commission" label="金额" />
+        <el-table-column v-if="columns.visible('orderPrice')" prop="orderPrice" label="金额" />
         <el-table-column v-if="columns.visible('createTime')" prop="createTime" label="订单日期">
           <template slot-scope="scope">
             <span>{{ parseTime(scope.row.createTime) }}</span>
@@ -55,7 +54,7 @@ export default {
   mixins: [presenter(defaultCrud), header(), form(defaultForm), crud()],
   data() {
     return {
-      renderDate:[],//检索时间
+      totalAmount:0,//累计金额
       permission: {
         add: ['admin', 'yxPointDetail:add'],
         edit: ['admin', 'yxPointDetail:edit'],
@@ -64,9 +63,15 @@ export default {
       rules: {}   
     }
   },
+  mounted(){
+    //获取累计金额
+    this.crud.refresh().then(res=>{
+      this.totalAmount=res.totalAmount
+    })
+  },
   watch: {
   },
-  methods: {
+  methods: {    
     // 获取数据前设置好接口地址
     [CRUD.HOOK.beforeRefresh]() {
       return true
