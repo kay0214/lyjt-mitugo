@@ -594,7 +594,7 @@ export default {
               type: 'success',
               duration: 1000,
               onClose: () => {
-                this.init()
+                this.crud.toQuery()
               }
             })
           })
