@@ -14,6 +14,11 @@
           <crudOperation :permission="permission" />
         </el-col> -->
       </el-row>
+      <el-row style="marginBottom:20px;">
+        店铺包邮金额：<el-input style='width:200px;marginRight:20px;margin-right:20px;' v-model='freePostage' :disabled="Boolean(!editFreePostage)"></el-input>
+        <el-button v-if='!editFreePostage' class="" size="mini" type="primary" icon="el-icon-edit" @click="editFreePostage=!editFreePostage">修改</el-button>
+        <el-button v-if='editFreePostage' :loading="editFreePostageStep===1" class="" size="mini" type="primary" icon="el-icon-edit" @click="updateFreePostage">提交修改</el-button>
+      </el-row>
 
       <!--表单组件-->
       <el-dialog :close-on-click-modal="false" :before-close="crud.cancelCU" :visible.sync="crud.status.cu > 0" :title="crud.status.title" width="900px">
@@ -197,7 +202,7 @@
 </template>
 
 <script>
-  import crudYxStoreInfo,{get as getStoreInfo} from '@/api/yxStoreInfo'
+  import crudYxStoreInfo,{get as getStoreInfo, getFree, setFree} from '@/api/yxStoreInfo'
   import editor from '../../components/Editor'
   import picUpload from '@/components/pic-upload'
   import mulpicUpload from '@/components/mul-pic-upload'
@@ -210,6 +215,7 @@
   import {onsale} from '@/api/yxStoreInfo'
   import {parseTime} from '@/utils/index'
   import { isvalidPhone } from '@/utils/validate'
+import { Notification } from 'element-ui'
 
   // crud交由presenter持有
   const defaultCrud = CRUD({ title: '店铺表', url: 'api/yxStoreInfo', sort: 'id,desc',optShow: {
@@ -241,6 +247,9 @@
         addOpenTime:false,//添加营业时间状态
         formOpenTime:[],
         BusinessTime:[new Date(),new Date()],
+        freePostage:0,//包邮金额
+        editFreePostage:false,
+        editFreePostageStep:0,
         selections: {
           storeService: [{label:"有WIFI",value:1},{label:"有宝宝椅",value:4}],
           week:[ /*注意：value不能换，取值是根据Index*/
@@ -344,7 +353,17 @@
     },
     mounted(){
       const that = this;
-
+      this.$nextTick(()=>{
+        getFree().then(res=>{
+          if(res.status===0){
+            this.freePostage=res.value
+          }else{
+            //获取包邮金额失败
+            console.log('获取包邮金额失败')
+            console.log(res)
+          }
+        })
+      })
     },
     methods: {
       // 初始化地图
@@ -461,6 +480,21 @@
         this.formOpenTime.splice(index,1)
         this.form.openTime=this.formOpenTime
         this.form.openDays=this.formOpenTime
+      },
+      //修改包邮金额
+      updateFreePostage(){
+        if(!this.editFreePostageStep){
+          this.editFreePostageStep=1
+          setFree({
+            freePostage:this.freePostage
+          }).then(res=>{
+            this.editFreePostage=false
+            this.editFreePostageStep=0
+            Notification.success({
+              title: '包邮金额修改成功'
+            })
+          })
+        }
       }
 
     },
