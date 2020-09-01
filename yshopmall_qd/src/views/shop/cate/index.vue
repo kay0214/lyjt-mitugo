@@ -116,7 +116,7 @@ export default {
       }
 
       // 获取所有部门
-      crudDept.getCates({ isShow: true }).then(res => {
+      crudDept.getCates({ isShow: "" }).then(res => {
         this.depts = []
         const dept = { id: 0, label: '顶级类目', children: [] }
         dept.children = res.content

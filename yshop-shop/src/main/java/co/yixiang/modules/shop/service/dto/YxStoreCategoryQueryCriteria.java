@@ -16,4 +16,7 @@ import lombok.Data;
 public class YxStoreCategoryQueryCriteria{
     @Query
     private String cateName;
+
+    @Query
+    private Integer isShow;
 }
