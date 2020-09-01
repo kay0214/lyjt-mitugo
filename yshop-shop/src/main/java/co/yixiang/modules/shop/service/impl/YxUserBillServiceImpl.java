@@ -51,14 +51,11 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<UserBillMapper, YxUse
 //        PageInfo<YxUserBillDto> page = new PageInfo<>(queryAll(criteria));
         QueryWrapper<YxUserBill> queryWrapper = new QueryWrapper<>();
         queryWrapper.lambda().orderByDesc(YxUserBill::getAddTime);
-        if (0 != criteria.getUserRole()) {
-            if (null == criteria.getChildUser() || criteria.getChildUser().size() <= 0) {
-                Map<String, Object> map = new LinkedHashMap<>(2);
-                map.put("content", new ArrayList<>());
-                map.put("totalElements", 0);
-                return map;
-            }
-            queryWrapper.lambda().in(YxUserBill::getUid, criteria.getChildUser());
+        if(1 == criteria.getUserRole()) {
+            queryWrapper.lambda().eq(YxUserBill::getUid, criteria.getUid()).eq(YxUserBill::getUserType,2);
+        }
+        if(2 == criteria.getUserRole()) {
+            queryWrapper.lambda().eq(YxUserBill::getUid, criteria.getUid()).eq(YxUserBill::getUserType,3);
         }
         if (StringUtils.isNotBlank(criteria.getUsername())) {
             queryWrapper.lambda().like(YxUserBill::getUsername, criteria.getUsername());
