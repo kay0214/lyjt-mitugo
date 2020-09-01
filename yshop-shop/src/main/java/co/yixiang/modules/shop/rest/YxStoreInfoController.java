@@ -147,6 +147,6 @@ public class YxStoreInfoController {
         YxSystemConfig yxSystemConfig = systemConfigService.findByKey(SystemConfigConstants.STORE_FREE_POSTAGE);//满额包邮
         yxSystemConfig.setValue(strPostager);
         systemConfigService.updateById(yxSystemConfig);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity(HttpStatus.OK);
     }
 }

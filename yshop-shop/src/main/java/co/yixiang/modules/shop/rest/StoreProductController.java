@@ -162,6 +162,7 @@ public class StoreProductController {
 
     @ApiOperation(value = "商品促销修改")
     //@CacheEvict(cacheNames = ShopConstants.YSHOP_REDIS_INDEX_KEY,allEntries = true)
+    @PreAuthorize("hasAnyRole('admin','YXSTOREPRODUCT_ALL','YXSTOREPRODUCT_EDIT')")
     @PostMapping(value = "/yxStoreProduct/changeStatus")
     public ResponseEntity onBenefit(@RequestBody YxStoreProductChange request){
         yxStoreProductService.changeStatus(request);
