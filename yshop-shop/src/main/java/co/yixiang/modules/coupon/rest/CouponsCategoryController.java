@@ -5,6 +5,7 @@ import cn.hutool.core.date.DateTime;
 import co.yixiang.annotation.AnonymousAccess;
 import co.yixiang.constant.LocalLiveConstants;
 import co.yixiang.constant.ShopConstants;
+import co.yixiang.exception.BadRequestException;
 import co.yixiang.logging.aop.log.Log;
 import co.yixiang.modules.coupon.domain.CouponsCategoryAddRequest;
 import co.yixiang.modules.coupon.domain.CouponsCategoryModifyRequest;
@@ -47,6 +48,7 @@ public class CouponsCategoryController {
 
     /**
      * Select 卡券分类
+     *
      * @param criteria
      * @param pageable
      * @return
@@ -56,37 +58,37 @@ public class CouponsCategoryController {
     @ApiOperation(value = "查询卡券分类")
     @GetMapping(value = "/categoryTree")
     @PreAuthorize("@el.check('admin','yxCouponsCategory:list')")
-    public ResponseEntity getCouponsCategorys(YxCouponsCategoryQueryCriteria criteria, Pageable pageable){
+    public ResponseEntity getCouponsCategorys(YxCouponsCategoryQueryCriteria criteria, Pageable pageable) {
 
         List<YxCouponsCategory> categoryDTOList = yxCouponsCategoryService.queryAll(criteria);
-        List<YxCouponsCategoryDto> categoryDtoLists =  CommonsUtils.convertBeanList(categoryDTOList, YxCouponsCategoryDto.class);
-        return new ResponseEntity(yxCouponsCategoryService.buildTree(categoryDtoLists),HttpStatus.OK);
+        List<YxCouponsCategoryDto> categoryDtoLists = CommonsUtils.convertBeanList(categoryDTOList, YxCouponsCategoryDto.class);
+        return new ResponseEntity(yxCouponsCategoryService.buildTree(categoryDtoLists), HttpStatus.OK);
     }
 
     @GetMapping
     @Log("查询卡券分类表")
     @ApiOperation("查询卡券分类表")
     @PreAuthorize("@el.check('admin','yxCouponsCategory:list')")
-    public ResponseEntity<Object> getYxCouponsCategorys(CouponsCategoryRequest request){
-        return new ResponseEntity<>(yxCouponsCategoryService.getAllList(request),HttpStatus.OK);
+    public ResponseEntity<Object> getYxCouponsCategorys(CouponsCategoryRequest request) {
+        return new ResponseEntity<>(yxCouponsCategoryService.getAllList(request), HttpStatus.OK);
     }
 
     @PostMapping("")
     @Log("新增卡券分类表")
     @ApiOperation("新增卡券分类表")
     @PreAuthorize("@el.check('admin','yxCouponsCategory:add')")
-    public ResponseEntity<Object> create(@Validated @RequestBody CouponsCategoryAddRequest categoryAddRequest){
+    public ResponseEntity<Object> create(@Validated @RequestBody CouponsCategoryAddRequest categoryAddRequest) {
         QueryWrapper<YxCouponsCategory> queryWrapper = new QueryWrapper<>();
         queryWrapper.lambda()
                 .and(cateName -> cateName.eq(YxCouponsCategory::getCateName, categoryAddRequest.getCateName()))
                 .and(delFlag -> delFlag.eq(YxCouponsCategory::getDelFlag, 0));
         int couponsCategoryCount = yxCouponsCategoryService.count(queryWrapper);
-        if (couponsCategoryCount > 0){
-            return new ResponseEntity<>("[" +categoryAddRequest.getCateName() + "]分类已存在!", HttpStatus.BAD_REQUEST);
+        if (couponsCategoryCount > 0) {
+            throw new BadRequestException("[" + categoryAddRequest.getCateName() + "]分类已存在!");
         }
 
         // 前端未设置值时, 默认初始化值
-        if (0 != categoryAddRequest.getIsShow() && 1 != categoryAddRequest.getIsShow()){
+        if (0 != categoryAddRequest.getIsShow() && 1 != categoryAddRequest.getIsShow()) {
             return new ResponseEntity<>("请传入正确的展示状态!", HttpStatus.BAD_REQUEST);
         }
 
@@ -105,9 +107,9 @@ public class CouponsCategoryController {
         yxCouponsCategory.setUpdateTime(DateTime.now().toTimestamp());
 
         // 写入分类数据
-        int insCouponCateStatus  = yxCouponsCategoryService.insCouponCate(yxCouponsCategory);
+        int insCouponCateStatus = yxCouponsCategoryService.insCouponCate(yxCouponsCategory);
         boolean couponCateStatus = insCouponCateStatus > 0 ? true : false;
-        if (couponCateStatus){
+        if (couponCateStatus) {
             categoryImg(yxCouponsCategory.getId(), categoryAddRequest.getPath(), loginUserId);
         }
         return new ResponseEntity<>(couponCateStatus, HttpStatus.CREATED);
@@ -117,14 +119,14 @@ public class CouponsCategoryController {
     @Log("修改卡券分类表")
     @ApiOperation("修改卡券分类表")
     @PreAuthorize("@el.check('admin','yxCouponsCategory:edit')")
-    public ResponseEntity<Object> update(@Validated @RequestBody CouponsCategoryModifyRequest request){
+    public ResponseEntity<Object> update(@Validated @RequestBody CouponsCategoryModifyRequest request) {
         QueryWrapper<YxCouponsCategory> queryWrapper = new QueryWrapper<>();
         queryWrapper.lambda()
                 .and(cateName -> cateName.eq(YxCouponsCategory::getCateName, request.getCateName()))
                 .and(delFlag -> delFlag.eq(YxCouponsCategory::getDelFlag, 0));
-        int couponsCategoryCount = yxCouponsCategoryService.count(queryWrapper);
-        if (couponsCategoryCount > 0){
-            return new ResponseEntity<>("[" +request.getCateName() + "]分类已存在!", HttpStatus.BAD_REQUEST);
+        YxCouponsCategory find = yxCouponsCategoryService.getOne(queryWrapper);
+        if (find != null && !find.getId().equals(request.getId())) {
+            throw new BadRequestException("[" + request.getCateName() + "]分类已存在!");
         }
 
         // 当前登录用户ID
@@ -140,7 +142,7 @@ public class CouponsCategoryController {
         yxCouponsCategory.setUpdateTime(DateTime.now().toTimestamp());
         boolean updateStatus = yxCouponsCategoryService.updateById(yxCouponsCategory);
 
-        if (updateStatus){
+        if (updateStatus) {
             categoryImg(request.getId(), request.getPath(), loginUserId);
         }
         return new ResponseEntity<>(updateStatus, HttpStatus.CREATED);
@@ -166,11 +168,12 @@ public class CouponsCategoryController {
 
     /**
      * 缩略图操作
+     *
      * @param typeId
-     * @param path   缩略图
+     * @param path        缩略图
      * @param loginUserId
      */
-    private void categoryImg(Integer typeId, String path, Integer loginUserId){
+    private void categoryImg(Integer typeId, String path, Integer loginUserId) {
         if (StringUtils.isNotBlank(path)) {
             // 查询图片是否存在(已存在则删除)
             QueryWrapper<YxImageInfo> imageInfoQueryWrapper = new QueryWrapper<>();

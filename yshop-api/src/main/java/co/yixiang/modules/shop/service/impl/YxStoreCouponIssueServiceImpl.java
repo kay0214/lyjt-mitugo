@@ -163,4 +163,29 @@ public class YxStoreCouponIssueServiceImpl extends BaseServiceImpl<YxStoreCoupon
 
     }
 
+    @Override
+    public List<YxStoreCouponIssueQueryVo> getCouponListByStoreId(int page, int limit, int uid,Integer storeId) {
+        Page<YxStoreCouponIssue> pageModel = new Page<>(page, limit);
+        List<YxStoreCouponIssueQueryVo> list = yxStoreCouponIssueMapper
+                .selectCouponListByStoreId(pageModel,storeId);
+        if(null==storeId){
+            list =  yxStoreCouponIssueMapper
+                    .selectList(pageModel);
+        }
+        for (YxStoreCouponIssueQueryVo couponIssue : list) {
+            //店铺名称
+            YxStoreInfo storeInfo = yxStoreInfoService.getById(couponIssue.getStoreId());
+            couponIssue.setStoreName(storeInfo.getStoreName());
+
+            int count = couponCount(couponIssue.getId(),uid);
+
+            if(count > 0){
+                couponIssue.setIsUse(true);
+            }else{
+                couponIssue.setIsUse(false);
+            }
+
+        }
+        return list;
+    }
 }

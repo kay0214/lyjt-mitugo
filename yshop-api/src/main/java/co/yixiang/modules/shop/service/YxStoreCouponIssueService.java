@@ -48,4 +48,6 @@ public interface YxStoreCouponIssueService extends BaseService<YxStoreCouponIssu
      * @param uid uid
      */
     void issueUserCouponNew(int id, int uid);
+
+    List<YxStoreCouponIssueQueryVo> getCouponListByStoreId(int page, int limit, int uid,Integer storeId);
 }

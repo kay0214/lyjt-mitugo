@@ -18,4 +18,5 @@ import lombok.EqualsAndHashCode;
 @ApiModel(value="YxStoreCouponQueryParam对象", description="优惠券表查询参数")
 public class YxStoreCouponQueryParam extends QueryParam {
     private static final long serialVersionUID = 1L;
+    private Integer stroeId;
 }

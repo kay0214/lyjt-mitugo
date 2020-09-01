@@ -77,8 +77,43 @@ public class YxMerchantsDetailServiceImpl extends BaseServiceImpl<YxMerchantsDet
         }
         IPage<YxMerchantsDetail> ipage = this.page(new Page<>(pageable.getPageNumber() + 1, pageable.getPageSize()), queryWrapper);
 
+        List<YxMerchantsDetailDto> list = new ArrayList<>();
+        for (YxMerchantsDetail vo : ipage.getRecords()) {
+            YxMerchantsDetailDto dto = generator.convert(vo, YxMerchantsDetailDto.class);
+            // 认证类型：0->个人,1->企业,2->个体商户
+            if (0 == dto.getMerchantsType()) {
+                // 手持证件照
+                dto.setPersonIdCard(yxImageInfoService.selectImgByParam(dto.getId(), ShopConstants.IMG_TYPE_MERCHANTS, ShopConstants.IMG_PERSON_IDCARD));
+                // 证件照人像面
+                dto.setPersonIdCardFace(yxImageInfoService.selectImgByParam(dto.getId(), ShopConstants.IMG_TYPE_MERCHANTS, ShopConstants.IMG_PERSON_IDCARD_FACE));
+                // 证件照国徽面
+                dto.setPersonIdCardBack(yxImageInfoService.selectImgByParam(dto.getId(), ShopConstants.IMG_TYPE_MERCHANTS, ShopConstants.IMG_PERSON_IDCARD_BACK));
+            } else {
+                // 营业执照
+                dto.setBusinessLicenseImg(yxImageInfoService.selectImgByParam(dto.getId(), ShopConstants.IMG_TYPE_MERCHANTS, ShopConstants.IMG_BUSINESS_LICENSE));
+                // 银行开户证明
+                dto.setBankOpenProveImg(yxImageInfoService.selectImgByParam(dto.getId(), ShopConstants.IMG_TYPE_MERCHANTS, ShopConstants.IMG_BANK_OPEN_PROVE));
+                // 法人身份证头像面
+                dto.setLegalIdCardFace(yxImageInfoService.selectImgByParam(dto.getId(), ShopConstants.IMG_TYPE_MERCHANTS, ShopConstants.IMG_LEGAL_IDCARD_FACE));
+                // 法人身份证国徽面
+                dto.setLegalIdCardBack(yxImageInfoService.selectImgByParam(dto.getId(), ShopConstants.IMG_TYPE_MERCHANTS, ShopConstants.IMG_LEGAL_IDCARD_BACK));
+                // 门店照及经营场所
+                dto.setStoreImg(yxImageInfoService.selectImgByParam(dto.getId(), ShopConstants.IMG_TYPE_MERCHANTS, ShopConstants.IMG_STORE));
+                // 医疗机构许可证
+                dto.setLicenceImg(yxImageInfoService.selectImgByParam(dto.getId(), ShopConstants.IMG_TYPE_MERCHANTS, ShopConstants.IMG_LICENCE));
+            }
+            // 获取审核意见
+            QueryWrapper<YxExamineLog> examineWrapper = new QueryWrapper<>();
+            examineWrapper.lambda().eq(YxExamineLog::getType, 2).eq(YxExamineLog::getTypeId, dto.getId()).orderByDesc(YxExamineLog::getCreateTime);
+            List<YxExamineLog> yxExamineLogs = this.yxExamineLogService.list(examineWrapper);
+            if (null != yxExamineLogs && yxExamineLogs.size() > 0) {
+                dto.setExamineRemark(yxExamineLogs.get(0).getRemark());
+            }
+            list.add(dto);
+        }
+
         Map<String, Object> map = new LinkedHashMap<>(2);
-        map.put("content", generator.convert(ipage.getRecords(), YxMerchantsDetailDto.class));
+        map.put("content", list);
         map.put("totalElements", ipage.getTotal());
         return map;
     }
@@ -227,8 +262,7 @@ public class YxMerchantsDetailServiceImpl extends BaseServiceImpl<YxMerchantsDet
         // 审核通过的直接返回不允许修改
         if (null != yxMerchantsDetail) {
             if (1 == yxMerchantsDetail.getExamineStatus()) {
-                log.info("用户：" + resources.getUid() + "已认证通过，不允许再次修改数据!");
-                return false;
+                throw new BadRequestException("已认证通过不可修改数据");
             }
             isNew = false;
         }
@@ -262,10 +296,9 @@ public class YxMerchantsDetailServiceImpl extends BaseServiceImpl<YxMerchantsDet
     public boolean updateExamineStatus(YxMerchantsDetailDto resources) {
         YxMerchantsDetail yxMerchantsDetail = getById(resources.getId());
         if (null == yxMerchantsDetail) {
-            log.info("审核获取商铺认证id：" + resources.getId() + "详细信息失败！");
-            return false;
+            throw new BadRequestException("商铺信息查询失败");
         }
-        if(1 == yxMerchantsDetail.getExamineStatus()) {
+        if (1 == yxMerchantsDetail.getExamineStatus()) {
             throw new BadRequestException("当前商户已被审核通过");
         }
         yxMerchantsDetail.setExamineStatus(resources.getExamineStatus());
