@@ -6,6 +6,7 @@
 package co.yixiang.logging.service.impl;
 
 import cn.hutool.core.lang.Dict;
+import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.json.JSONObject;
 import co.yixiang.common.service.impl.BaseServiceImpl;
@@ -22,6 +23,7 @@ import co.yixiang.utils.StringUtils;
 import co.yixiang.utils.ValidationUtil;
 import com.github.pagehelper.PageInfo;
 import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.reflect.CodeSignature;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -48,6 +50,10 @@ public class LogServiceImpl extends BaseServiceImpl<LogMapper, co.yixiang.loggin
     private final LogMapper logMapper;
 
     private final IGenerator generator;
+
+    String couponMethod = "co.yixiang.modules.coupon.rest.YxCouponsController.getYxCouponss";
+    String goodMethod = "co.yixiang.modules.shop.web.controller.StoreProductController.detail";
+
 
     public LogServiceImpl(LogMapper logMapper, IGenerator generator) {
         this.logMapper = logMapper;
@@ -109,6 +115,14 @@ public class LogServiceImpl extends BaseServiceImpl<LogMapper, co.yixiang.loggin
         // 方法路径
         String methodName = joinPoint.getTarget().getClass().getName()+"."+signature.getName()+"()";
 
+        if(methodName.contains(goodMethod)||methodName.contains(couponMethod)){
+            Integer id = getId(joinPoint);
+            log.setProductType(0);
+            log.setProductId(id);
+            if(couponMethod.equals(methodName)) {
+                log.setProductType(1);
+            }
+        }
         StringBuilder params = new StringBuilder("{");
         //参数值
         Object[] argValues = joinPoint.getArgs();
@@ -183,5 +197,21 @@ public class LogServiceImpl extends BaseServiceImpl<LogMapper, co.yixiang.loggin
     @Transactional(rollbackFor = Exception.class)
     public void delAllByInfo() {
         logMapper.deleteByLogType("INFO");
+    }
+
+    public Integer getId(ProceedingJoinPoint joinPoint){
+        String value = null;
+        Object[] args = joinPoint.getArgs();
+        String[] paramNames = ((CodeSignature) joinPoint.getSignature()).getParameterNames();
+        // 遍历请求中的参数名
+        for (String reqParam : paramNames) {
+            if(reqParam.equals("id")){
+                int index = ArrayUtil.indexOf(paramNames, reqParam);
+                if (index != -1) {
+                     value = String.valueOf(args[index]);
+                }
+            }
+        }
+        return Integer.parseInt(value);
     }
 }

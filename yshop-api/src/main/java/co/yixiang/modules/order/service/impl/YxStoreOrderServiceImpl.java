@@ -2237,5 +2237,125 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
             storeCart.setIsPay(1);
         }
     }
+    @Override
+    public ComputeDTO computedOrderNew(int uid, String key,List<Integer> couponIds) {
+        YxUserQueryVo userInfo = userService.getYxUserById(uid);
+        if (ObjectUtil.isNull(userInfo)) throw new ErrorRequestException("用户不存在");
+//        CacheDTO cacheDTO = getCacheOrderInfo(uid, key);
+        CacheStoreDTO cacheStoreDTO = getCacheStoreOrderInfo(uid, key);
+        if (ObjectUtil.isNull(cacheStoreDTO)) {
+            throw new ErrorRequestException("订单已过期,请刷新当前页面");
+        }
+        ComputeDTO computeDTO = new ComputeDTO();
+        BigDecimal bigDecimalTotle = BigDecimal.ZERO;
+        BigDecimal bigDecimalPostagt = BigDecimal.ZERO;
+        List<YxStoreStoreCartQueryVo> storeCartQueryVoList =cacheStoreDTO.getCartInfo();
+        if(CollectionUtils.isEmpty(storeCartQueryVoList)){
+            log.error("--------订单为空，key:{}--------",key);
+            return null;
+        }
+        double couponPrice = 0;
+        for(YxStoreStoreCartQueryVo cartQueryVo:storeCartQueryVoList){
+            //所有订单支付金额
+            bigDecimalTotle = bigDecimalTotle.add(cartQueryVo.getOrderSumPrice());
+            //所有订单的邮费
+            bigDecimalPostagt = bigDecimalPostagt.add(cartQueryVo.getStorePostage());
+            //订单支付金额
+            BigDecimal bigOrderPayPrice = cartQueryVo.getOrderSumPrice();
+            if (CollectionUtils.isNotEmpty(couponIds)) {
+                //
+                List<YxStoreCouponUser> couponUserList = couponUserService.getCouponList(couponIds, uid,null);
+                if (CollectionUtils.isNotEmpty(couponUserList)) {
+                    couponUserList = couponUserService.getCouponList(couponIds, uid,cartQueryVo.getStoreId());
+                    if(CollectionUtils.isEmpty(couponUserList)){
+                        //当前店铺没有可用优惠券
+                        continue;
+                    }
+                    if (couponUserList.size() > 1) {
+                        throw new ErrorRequestException("亲，只能有一张优惠券哦");
+                    } else {
+                        YxStoreCouponUser couponUser = couponUserList.get(0);
+                        if (couponUser.getUseMinPrice().compareTo(bigOrderPayPrice) > 0) {
+                            //优惠券最低消费小于支付金额
+                            throw new ErrorRequestException("不满足优惠劵的使用条件");
+                        }
+                        //
+                        bigDecimalTotle = bigDecimalTotle.subtract(couponUser.getCouponPrice());
+                        //
+                        couponPrice = couponPrice + couponUser.getCouponPrice().doubleValue();
+                    }
+                }
+            }
+
+        }
+        computeDTO.setTotalPrice(bigDecimalTotle.doubleValue());
+        Double payPrice = bigDecimalTotle.doubleValue();
+        Double payPostage = bigDecimalPostagt.doubleValue();
+
+        //支付金额= 支付金额+邮费
+        payPrice = NumberUtil.add(payPrice, payPostage);
+
+       /* boolean deduction = false;//拼团秒杀砍价等
+        int combinationId = 0;
+        int seckillId = 0;
+        int bargainId = 0;
+        List<YxStoreCartQueryVo> cartInfo = cacheDTO.getCartInfo();
+        for (YxStoreCartQueryVo cart : cartInfo) {
+            combinationId = cart.getCombinationId();
+            seckillId = cart.getSeckillId();
+            bargainId = cart.getBargainId();
+        }
+        //拼团等不参与抵扣
+        if (combinationId > 0 || seckillId > 0 || bargainId > 0) deduction = true;
+
+
+        if (deduction) {
+            couponId = 0;
+            useIntegral = 0;
+        }*/
+
+        /*if (couponId > 0) {//使用优惠券
+            YxStoreCouponUser couponUser = couponUserService.getCoupon(couponId, uid);
+            if (ObjectUtil.isNull(couponUser)) throw new ErrorRequestException("使用优惠劵失败");
+
+            if (couponUser.getUseMinPrice().doubleValue() > payPrice) {
+                throw new ErrorRequestException("不满足优惠劵的使用条件");
+            }
+            payPrice = NumberUtil.sub(payPrice, couponUser.getCouponPrice()).doubleValue();
+
+            couponPrice = couponUser.getCouponPrice().doubleValue();
+
+        }*/
+
+        double deductionPrice = 0; //抵扣金额
+        // 积分抵扣
+       /* double deductionPrice = 0;
+        System.out.println("a:" + userInfo.getIntegral().doubleValue());
+        if (useIntegral > 0 && userInfo.getIntegral().doubleValue() > 0) {
+            Double integralMax = Double.valueOf(cacheDTO.getOther().getIntegralMax());
+            Double integralFull = Double.valueOf(cacheDTO.getOther().getIntegralFull());
+            Double integralRatio = Double.valueOf(cacheDTO.getOther().getIntegralRatio());
+            if (computeDTO.getTotalPrice() >= integralFull) {
+                Double userIntegral = userInfo.getIntegral().doubleValue();
+                if (integralMax > 0 && userIntegral >= integralMax) userIntegral = integralMax;
+                deductionPrice = NumberUtil.mul(userIntegral, integralRatio);
+                if (deductionPrice < payPrice) {
+                    payPrice = NumberUtil.sub(payPrice.doubleValue(), deductionPrice);
+                } else {
+                    deductionPrice = payPrice;
+                    payPrice = 0d;
+                }
+            }
+        }*/
+
+        if (payPrice <= 0) payPrice = 0d;
+
+        computeDTO.setPayPrice(payPrice);
+        computeDTO.setPayPostage(payPostage);
+        computeDTO.setCouponPrice(couponPrice);
+        computeDTO.setDeductionPrice(deductionPrice);
+
+        return computeDTO;
+    }
 
 }
