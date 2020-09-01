@@ -7,9 +7,12 @@ import cn.hutool.core.date.DateUtil;
 import co.yixiang.common.service.impl.BaseServiceImpl;
 import co.yixiang.common.utils.QueryHelpPlus;
 import co.yixiang.dozer.service.IGenerator;
+import co.yixiang.exception.BadRequestException;
 import co.yixiang.exception.EntityExistException;
 import co.yixiang.modules.shop.domain.YxMerchantsDetail;
+import co.yixiang.modules.shop.domain.YxStoreInfo;
 import co.yixiang.modules.shop.service.YxMerchantsDetailService;
+import co.yixiang.modules.shop.service.YxStoreInfoService;
 import co.yixiang.modules.system.domain.Role;
 import co.yixiang.modules.system.domain.User;
 import co.yixiang.modules.system.domain.UserAvatar;
@@ -67,6 +70,8 @@ public class SysUserServiceImpl extends BaseServiceImpl<SysUserMapper, User> imp
     private RoleService roleService;
     @Autowired
     private YxMerchantsDetailService yxMerchantsDetailService;
+    @Autowired
+    private YxStoreInfoService yxStoreInfoService;
 
     public SysUserServiceImpl(IGenerator generator, SysUserMapper userMapper, UserAvatarService userAvatarService, JobService jobService, DeptService deptService, RoleMapper roleMapper, RedisUtils redisUtils, UsersRolesService usersRolesService) {
         this.generator = generator;
@@ -140,14 +145,14 @@ public class SysUserServiceImpl extends BaseServiceImpl<SysUserMapper, User> imp
         // 加入用户角色等级
         Set<Role> roleSet = new HashSet<>(roleMapper.findByUsers_Id(user.getId()));
         if (!CollectionUtils.isEmpty(roleSet)) {
-            Set<Long> roleIdSet = roleSet.stream().map(x->x.getId()).collect(Collectors.toSet());
+            Set<Long> roleIdSet = roleSet.stream().map(x -> x.getId()).collect(Collectors.toSet());
             if (roleIdSet.contains(1L)) {
                 user.setUserRole(0);
-            }else if (roleIdSet.contains(4L)) {
+            } else if (roleIdSet.contains(4L)) {
                 user.setUserRole(1);
-                List<User> childUserList = userMapper.selectList(new QueryWrapper<User>().lambda().eq(User::getParentId,user.getId()));
+                List<User> childUserList = userMapper.selectList(new QueryWrapper<User>().lambda().eq(User::getParentId, user.getId()));
                 user.setChildUser(!CollectionUtils.isEmpty(childUserList) ? childUserList.stream().map(User::getId).collect(Collectors.toList()) : null);
-            }else if (roleIdSet.contains(5L)) {
+            } else if (roleIdSet.contains(5L)) {
                 user.setUserRole(2);
                 user.setChildUser(Arrays.asList(user.getId()));
             }
@@ -386,6 +391,45 @@ public class SysUserServiceImpl extends BaseServiceImpl<SysUserMapper, User> imp
             usersRolesService.lambdaUpdate().eq(UsersRoles::getUserId, id).remove();
         }
         this.removeByIds(ids);
+    }
+
+    /**
+     * 更新用户状态
+     *
+     * @param resources
+     * @return
+     */
+    @Override
+    public boolean updateMerchantsStatus(YxMerchantsDetail resources) {
+        User user = this.getById(resources.getUid());
+        if (null == user) {
+            throw new BadRequestException("未查询到该商户所属用户");
+        }
+        YxMerchantsDetail yxMerchantsDetail = this.yxMerchantsDetailService.getOne(new QueryWrapper<YxMerchantsDetail>().lambda().eq(YxMerchantsDetail::getUid, resources.getUid()));
+        if (null == yxMerchantsDetail) {
+            throw new BadRequestException("商户认证信息获取失败");
+        }
+        // 启用禁用
+        if (user.getEnabled()) {
+            // 禁用商户信息
+            yxMerchantsDetail.setStatus(1);
+            // 禁用商户改店铺状态为下架
+            YxStoreInfo findYxStoreInfo = this.yxStoreInfoService.getOne(new QueryWrapper<YxStoreInfo>().lambda().eq(YxStoreInfo::getMerId, resources.getUid()));
+            if (null != findYxStoreInfo) {
+                YxStoreInfo yxStoreInfo = new YxStoreInfo();
+                yxStoreInfo.setId(findYxStoreInfo.getId());
+                yxStoreInfo.setStatus(1);
+                this.yxStoreInfoService.updateById(yxStoreInfo);
+            }
+            user.setEnabled(false);
+        } else {
+            // 开启商户认证信息
+            yxMerchantsDetail.setStatus(0);
+            user.setEnabled(true);
+        }
+        this.yxMerchantsDetailService.updateById(yxMerchantsDetail);
+        this.updateById(user);
+        return true;
     }
 
 }

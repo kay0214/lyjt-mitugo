@@ -127,8 +127,10 @@ public class YxMerchantsDetail implements Serializable {
 
 
     /** 商户名称 */
-    @NotBlank
     private String merchantsName;
+
+    /** 商户状态：0启用,1禁用 */
+    private Integer status;
 
 
     public void copy(YxMerchantsDetail source) {
