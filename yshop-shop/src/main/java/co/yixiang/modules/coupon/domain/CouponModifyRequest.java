@@ -148,4 +148,7 @@ public class CouponModifyRequest {
 
     /** 卡券简介 */
     private String couponInfo;
+
+    /** 排序 */
+    private Integer sort;
 }

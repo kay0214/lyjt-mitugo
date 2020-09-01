@@ -147,4 +147,6 @@ public class CouponAddRequest implements Serializable {
     /** 卡券简介 */
     private String couponInfo;
 
+    /** 排序 */
+    private Integer sort;
 }
