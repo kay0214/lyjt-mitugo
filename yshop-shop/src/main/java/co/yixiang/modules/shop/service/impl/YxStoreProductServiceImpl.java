@@ -296,6 +296,9 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<StoreProductMappe
             Collections.sort(stringList);
             yxStoreProductAttrValue.setSuk(StrUtil.
                     join(",", stringList));
+            if(null==productFormatDTO.getPrice()||null==productFormatDTO.getCost()||null==productFormatDTO.getCommission()){
+                throw new BadRequestException("价格不能为空！!");
+            }
             yxStoreProductAttrValue.setPrice(BigDecimal.valueOf(productFormatDTO.getPrice()));
             yxStoreProductAttrValue.setCost(BigDecimal.valueOf(productFormatDTO.getCost()));
             yxStoreProductAttrValue.setStock(productFormatDTO.getSales());
@@ -389,6 +392,9 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<StoreProductMappe
                 .checkProductCategory(resources.getStoreCategory().getId());
         if (!check) throw new BadRequestException("商品分类必选选择二级");
         resources.setCateId(resources.getStoreCategory().getId().toString());
+        //
+        resources.setCommission(resources.getPrice().subtract(resources.getSettlement()));
+        //删除
         this.saveOrUpdate(resources);
     }
 
