@@ -15,6 +15,8 @@
       <el-table-column prop="requestIp" label="IP" />
       <el-table-column prop="address" label="地址来源" />
       <el-table-column prop="description" label="描述" />
+      <el-table-column prop="productType" label="商品类型" />
+      <el-table-column prop="productId" label="商品Id" />
       <el-table-column prop="createTime" label="创建日期" width="180px">
         <template slot-scope="scope">
           <span>{{ parseTime(scope.row.createTime) }}</span>
