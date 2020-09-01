@@ -7,6 +7,7 @@ import co.yixiang.common.util.DistanceMeterUtil;
 import co.yixiang.common.web.vo.Paging;
 import co.yixiang.constant.ShopConstants;
 import co.yixiang.enums.CommonEnum;
+import co.yixiang.exception.ErrorRequestException;
 import co.yixiang.modules.coupons.service.YxCouponsService;
 import co.yixiang.modules.coupons.web.param.LocalLiveQueryParam;
 import co.yixiang.modules.coupons.web.vo.LocalLiveCouponsVo;
@@ -17,13 +18,16 @@ import co.yixiang.modules.image.service.YxImageInfoService;
 import co.yixiang.modules.manage.entity.DictDetail;
 import co.yixiang.modules.manage.service.DictDetailService;
 import co.yixiang.modules.shop.entity.YxStoreAttribute;
+import co.yixiang.modules.shop.entity.YxStoreCouponIssue;
 import co.yixiang.modules.shop.entity.YxStoreInfo;
+import co.yixiang.modules.shop.mapper.YxStoreCouponIssueMapper;
 import co.yixiang.modules.shop.mapper.YxStoreInfoMapper;
 import co.yixiang.modules.shop.mapping.YxStoreInfoMap;
 import co.yixiang.modules.shop.service.YxStoreAttributeService;
 import co.yixiang.modules.shop.service.YxStoreInfoService;
 import co.yixiang.modules.shop.service.YxStoreProductService;
 import co.yixiang.modules.shop.web.param.YxStoreInfoQueryParam;
+import co.yixiang.modules.shop.web.vo.YxStoreCouponIssueQueryVo;
 import co.yixiang.modules.shop.web.vo.YxStoreInfoDetailQueryVo;
 import co.yixiang.modules.shop.web.vo.YxStoreInfoQueryVo;
 import co.yixiang.utils.StringUtils;
@@ -73,6 +77,8 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
 
     @Autowired
     private YxImageInfoMapper yxImageInfoMapper;
+    @Autowired
+    private YxStoreCouponIssueMapper couponIssueMapper;
 
     @Override
     public YxStoreInfoQueryVo getYxStoreInfoById(Serializable id){
@@ -142,6 +148,9 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
         YxStoreInfo yxStoreInfo = this.getOne(wrapper);
         YxStoreInfoQueryVo yxStoreInfoQueryVo = yxStoreInfoMap.toDto(yxStoreInfo);
         //行业类别
+        if(ObjectUtil.isNull(yxStoreInfo)){
+            throw new ErrorRequestException("店铺信息为空！");
+        }
         DictDetail dictDetail = dictDetailService.getDictDetailValueByType(CommonConstant.DICT_TYPE_INDUSTRY_CATEGORY,yxStoreInfoQueryVo.getIndustryCategory());
         if(null!=dictDetail){
             yxStoreInfoQueryVo.setIndustryCategoryInfo(dictDetail.getLabel());
@@ -161,6 +170,14 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
         yxStoreInfoDetailQueryVo.setCouponsListInfo(yxCouponsService.getCouponsInfoByStoreId(yxStoreInfo.getId()));
       /*  //商品信息
         yxStoreInfoDetailQueryVo.setProductListInfo(yxStoreProductService.getProductListByStoreId(yxStoreInfo.getId()));*/
+        //是否有可用优惠券
+        yxStoreInfoDetailQueryVo.setCouponUse(1);
+        Page<YxStoreCouponIssue> pageModel = new Page<>(1, 10);
+        List<YxStoreCouponIssueQueryVo> couponIssueQueryList = couponIssueMapper
+                .selectCouponListByStoreId(pageModel,id);
+        if(CollectionUtils.isEmpty(couponIssueQueryList)){
+            yxStoreInfoDetailQueryVo.setCouponUse(0);
+        }
         return yxStoreInfoDetailQueryVo;
     }
 

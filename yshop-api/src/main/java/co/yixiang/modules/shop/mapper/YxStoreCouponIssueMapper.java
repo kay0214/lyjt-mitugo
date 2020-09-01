@@ -71,4 +71,17 @@ public interface YxStoreCouponIssueMapper extends BaseMapper<YxStoreCouponIssue>
      */
     IPage<YxStoreCouponIssueQueryVo> getYxStoreCouponIssuePageList(@Param("page") Page page, @Param("param") YxStoreCouponIssueQueryParam yxStoreCouponIssueQueryParam);
 
+    @Select("select A.cid,A.end_time as endTime,A.start_time as startTime," +
+            "A.is_permanent as isPermanent,A.remain_count as remainCount," +
+            "A.total_count as totalCount,A.id,B.coupon_price as couponPrice," +
+            "B.use_min_price as useMinPrice, " +
+            "B.store_id as storeId" +
+            " from yx_store_coupon_issue A left join yx_store_coupon B " +
+            "on A.cid = B.id " +
+            "where A.status =1 " +
+            "AND (  (  A.start_time < unix_timestamp(now())  AND A.end_time > unix_timestamp(now()) ) " +
+            "OR (  A.start_time = 0  AND A.end_time = 0 ) )" +
+            " AND A.is_del = 0  AND B.store_id = #{storeId} AND " +
+            "( A.remain_count > 0 OR A.is_permanent = 1 ) ORDER BY B.sort DESC")
+    List<YxStoreCouponIssueQueryVo> selectCouponListByStoreId(@Param("page") Page page ,@Param("storeId") Integer storeId);
 }
