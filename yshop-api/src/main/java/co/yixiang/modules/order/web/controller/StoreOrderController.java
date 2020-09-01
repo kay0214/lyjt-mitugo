@@ -805,7 +805,7 @@ public class StoreOrderController extends BaseController {
     /**
      * 订单确认
      */
-    @AnonymousAccess
+//    @AnonymousAccess
     @PostMapping("/order/confirmNew")
     @ApiOperation(value = "订单确认（带店铺信息）", notes = "订单确认（带店铺信息）")
     public ApiResult<ConfirmNewOrderDTO> confirmNew(@RequestBody String jsonStr) {
@@ -814,9 +814,8 @@ public class StoreOrderController extends BaseController {
         if (StrUtil.isEmpty(cartId)) {
             return ApiResult.fail("请提交购买的商品");
         }
-//        int uid = SecurityUtils.getUserId().intValue();
-        int uid = 28;
-
+        int uid = SecurityUtils.getUserId().intValue();
+//        int uid = 28;
         YxStoreStoreCartVo cartGroup = cartService.getUserStoreCartList(uid, cartId, 1);
         if (ObjectUtil.isNotEmpty(cartGroup.getInvalid())) {
             return ApiResult.fail("有失效的商品请重新提交");
@@ -859,14 +858,13 @@ public class StoreOrderController extends BaseController {
     /**
      * 订单创建
      */
-    @AnonymousAccess
     @PostMapping("/order/createOrder/{key}")
     @ApiOperation(value = "订单创建（多个订单）", notes = "（多个订单）")
     public ApiResult<Map<String, Object>> createOrderList(@Valid @RequestBody OrderNewParam param,
                                                           @PathVariable String key, HttpServletRequest request) {
 
         Map<String, Object> map = new LinkedHashMap<>();
-        int uid = 28;
+        int uid = SecurityUtils.getUserId().intValue();
         if (StrUtil.isEmpty(key)) return ApiResult.fail("参数错误");
 
         List<YxStoreOrderQueryVo> orderList = storeOrderService.getOrderInfoList(key, uid);
