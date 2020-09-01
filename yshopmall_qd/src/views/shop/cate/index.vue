@@ -75,7 +75,12 @@ import picUpload from '@/components/pic-upload'
 import MaterialList from '@/components/material'
 
 // crud交由presenter持有
-const defaultCrud = CRUD({ title: '分类', url: 'api/yxStoreCategory', sort: 'sort,desc', crudMethod: { ...crudDept }})
+const defaultCrud = CRUD({ title: '分类', url: 'api/yxStoreCategory', sort: 'sort,desc', crudMethod: { ...crudDept },optShow: {
+  add: true,
+    edit: true,
+    del: true,
+    download: false
+}})
 const defaultForm = { id: null, cateName: null, pid: 0, isShow: 1 , sort:  1}
 export default {
   name: 'Dept',
