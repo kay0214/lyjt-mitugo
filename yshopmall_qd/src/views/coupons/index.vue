@@ -161,6 +161,9 @@
           <el-form-item label="使用条件" prop="useCondition">
             <el-input v-model="form.useCondition" style="width: 100%;" />
           </el-form-item>
+          <el-form-item label="排序" prop='sort'>
+            <el-input v-model="form.sort" οnkeyup="if(isNaN(value))execCommand('undo')" onafterpaste="if(isNaN(value))execCommand('undo')"/>
+          </el-form-item>
           <el-form-item label="图片(260*260/416*214)" prop="image">
             <!-- <pic-upload-two v-model="form.pic" /> -->
             <MaterialList v-model="imageArr" style="width: 100%" type="image" :num="1" :width="150" :height="150" />

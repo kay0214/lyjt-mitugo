@@ -59,7 +59,7 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
 
     @Override
     public Paging<YxCouponsQueryVo> getYxCouponsPageList(YxCouponsQueryParam yxCouponsQueryParam) throws Exception{
-        Page page = setPageParam(yxCouponsQueryParam,OrderItem.desc("create_time"));
+        Page page = setPageParam(yxCouponsQueryParam,OrderItem.desc("sort desc,create_time"));
         IPage<YxCouponsQueryVo> iPage = yxCouponsMapper.getYxCouponsPageList(page,yxCouponsQueryParam);
         iPage.setTotal(yxCouponsMapper.getCount(yxCouponsQueryParam));
         return new Paging(iPage);

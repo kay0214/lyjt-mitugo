@@ -191,7 +191,9 @@ export default {
         ficti: data.ficti,
         browse: data.browse,
         codePath: data.codePath,
-        soureLink: data.soureLink
+        soureLink: data.soureLink,
+        commission: data.commission,
+        settlement: data.settlement
       }
       _this.dialog = true
     }
