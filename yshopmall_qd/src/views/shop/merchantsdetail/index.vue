@@ -510,7 +510,7 @@ export default {
       examineSubmit({
         examineStatus:1,
         examineRemark:this.form.examineRemark,
-        id:101//this.form.id
+        id:this.form.id
       }).then(res=>{
         this.examineEdit=1;
         if(res){
