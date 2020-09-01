@@ -432,31 +432,49 @@ export default {
       // 个人认证
       if (form.personIdCard) {
         this.perIdCard = form.personIdCard.split(',')
+      }else{
+        this.perIdCard = []
       }
       if (form.personIdCardFace) {
         this.perIdCardFace = form.personIdCardFace.split(',')
+      }else{
+        this.perIdCardFace = []
       }
       if (form.personIdCardBack) {
         this.perIdCardBack = form.personIdCardBack.split(',')
+      }else{
+        this.perIdCardBack = []
       }
       // 企业和个体户
       if (form.businessLicenseImg) {
         this.businessLicenseImg = form.businessLicenseImg.split(',')
+      }else{
+        this.businessLicenseImg = []
       }
       if (form.bankOpenProveImg) {
         this.bankOpenProveImg = form.bankOpenProveImg.split(',')
+      }else{
+        this.bankOpenProveImg = []
       }
       if (form.legalIdCardFace) {
         this.legalIdCardFace = form.legalIdCardFace.split(',')
+      }else{
+        this.legalIdCardFace = []
       }
       if (form.legalIdCardBack) {
         this.legalIdCardBack = form.legalIdCardBack.split(',')
+      }else{
+        this.legalIdCardBack = []
       }
       if (form.storeImg) {
         this.storeImg = form.storeImg.split(',')
+      }else{
+        this.storeImg = []
       }
       if (form.licenceImg) {
         this.licenceImg = form.licenceImg.split(',')
+      }else{
+        this.licenceImg = []
       }
     },
     //获取主体资质类型列表
