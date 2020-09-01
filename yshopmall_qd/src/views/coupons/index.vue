@@ -212,7 +212,10 @@
           <el-form-item v-if="false" label="更新时间" prop="updateTime">
             <el-input v-model="form.updateTime" style="width: 100%;" />
           </el-form-item>
-          <el-form-item label="卡券详情" prop="content" required>
+          <el-form-item label="卡券简介" prop="couponInfo">
+            <el-input type="textarea" v-model="form.couponInfo" style="width: 100%;" />
+          </el-form-item>
+          <el-form-item label="图文详情" prop="content" required>
             <editor v-model="form.content" @change="()=>{$refs.form.validateField('content')}" />
           </el-form-item>
         </el-form>
@@ -504,6 +507,9 @@ export default {
         // ],
         useCondition: [
           { required: true, message: '使用条件不能为空', trigger: 'blur' }
+        ],
+        couponInfo: [
+          { required: true, message: '卡券简介不能为空', trigger: 'blur' }
         ],
         availableTime: [{
           validator: (rule, value, callback) => {
