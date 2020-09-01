@@ -73,6 +73,8 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<StoreProductMappe
 
     @Autowired
     private StoreProductAttrMapper storeProductAttrMapper;
+    @Autowired
+    private YxSystemAttachmentService yxSystemAttachmentService;
 
     @Override
     //@Cacheable
@@ -80,7 +82,7 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<StoreProductMappe
 //        getPage(pageable);
 //        PageInfo<YxStoreProduct> page = new PageInfo<>(queryAll(criteria));
         QueryWrapper<YxStoreProduct> queryWrapper = new QueryWrapper<>();
-        queryWrapper.lambda().orderByDesc(YxStoreProduct::getAddTime);
+        queryWrapper.lambda().orderByDesc(YxStoreProduct::getSort,YxStoreProduct::getAddTime);
         if (0 != criteria.getUserRole()) {
             if (null == criteria.getChildUser() || criteria.getChildUser().size() <= 0) {
                 Map<String, Object> map = new LinkedHashMap<>(2);
@@ -394,7 +396,10 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<StoreProductMappe
         resources.setCateId(resources.getStoreCategory().getId().toString());
         //
         resources.setCommission(resources.getPrice().subtract(resources.getSettlement()));
-        //删除
+        //删除详情图片
+        QueryWrapper<YxSystemAttachment> queryWrapperAtt = new QueryWrapper();
+        queryWrapperAtt.like("name",""+resources.getId()+"_%").like("name","%good%");
+        yxSystemAttachmentService.remove(queryWrapperAtt);
         this.saveOrUpdate(resources);
     }
 
