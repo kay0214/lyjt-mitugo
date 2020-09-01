@@ -84,6 +84,7 @@ public class StoreProductController {
         resources.setAddTime(OrderUtil.getSecondTimestampTwo());
         if(ObjectUtil.isEmpty(resources.getGiveIntegral())) resources.setGiveIntegral(BigDecimal.ZERO);
         if(ObjectUtil.isEmpty(resources.getCost())) resources.setCost(BigDecimal.ZERO);
+        resources.setCommission(resources.getPrice().subtract(resources.getSettlement()));
         return new ResponseEntity(yxStoreProductService.saveProduct(resources),HttpStatus.CREATED);
     }
 
