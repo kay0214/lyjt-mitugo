@@ -14,7 +14,9 @@ import java.util.List;
 @Data
 public class BaseCriteria {
 
-    private  Integer userRole;
+    private Integer userRole;
+
+    private Integer uid;
 
     private List<Long> childUser;
 

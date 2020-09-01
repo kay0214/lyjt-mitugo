@@ -16,6 +16,7 @@ import co.yixiang.modules.shop.service.*;
 import co.yixiang.modules.shop.service.dto.*;
 import co.yixiang.modules.shop.service.mapper.StoreProductAttrMapper;
 import co.yixiang.modules.shop.service.mapper.StoreProductMapper;
+import co.yixiang.modules.shop.service.mapper.YxSystemAttachmentMapper;
 import co.yixiang.utils.BeanUtils;
 import co.yixiang.utils.FileUtil;
 import co.yixiang.utils.OrderUtil;
@@ -75,6 +76,8 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<StoreProductMappe
     private StoreProductAttrMapper storeProductAttrMapper;
     @Autowired
     private YxSystemAttachmentService yxSystemAttachmentService;
+    @Autowired
+    private YxSystemAttachmentMapper yxSystemAttachmentMapper;
 
     @Override
     //@Cacheable
@@ -398,8 +401,8 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<StoreProductMappe
         resources.setCommission(resources.getPrice().subtract(resources.getSettlement()));
         //删除详情图片
         QueryWrapper<YxSystemAttachment> queryWrapperAtt = new QueryWrapper();
-        queryWrapperAtt.like("name",""+resources.getId()+"_%").like("name","%good%");
-        yxSystemAttachmentService.remove(queryWrapperAtt);
+        queryWrapperAtt.like("name",resources.getId()+"_%").like("name","%good%");
+        yxSystemAttachmentMapper.delete(queryWrapperAtt);
         this.saveOrUpdate(resources);
     }
 

@@ -76,6 +76,11 @@ public class StoreCategoryController {
         queryWrapper.lambda()
                 .and(cateName -> cateName.eq(YxStoreCategory::getCateName, resources.getCateName()))
                 .and(delFlag -> delFlag.eq(YxStoreCategory::getIsDel, 0));
+        if(null!=resources.getPid()&&0!=resources.getPid()){
+            queryWrapper.eq("pid",resources.getPid());
+        }else{
+            queryWrapper.eq("pid",0);
+        }
         int couponsCategoryCount = yxStoreCategoryService.count(queryWrapper);
         if (couponsCategoryCount > 0){
             throw new BadRequestException("[" +resources.getCateName() + "]分类已存在!");
@@ -104,10 +109,16 @@ public class StoreCategoryController {
         if(resources.getPid() > 0 && StrUtil.isBlank(resources.getPic())) {
             throw new BadRequestException("子分类图片必传");
         }
+        resources.getPid();
         QueryWrapper<YxStoreCategory> queryWrapper = new QueryWrapper<>();
         queryWrapper.lambda()
                 .and(cateName -> cateName.eq(YxStoreCategory::getCateName, resources.getCateName()))
                 .and(delFlag -> delFlag.eq(YxStoreCategory::getIsDel, 0));
+        if(null!=resources.getPid()&&0!=resources.getPid()){
+            queryWrapper.eq("pid",resources.getPid());
+        }else{
+            queryWrapper.eq("pid",0);
+        }
         int couponsCategoryCount = yxStoreCategoryService.count(queryWrapper);
         if (couponsCategoryCount > 0){
             throw new BadRequestException("[" +resources.getCateName() + "]分类已存在!");
