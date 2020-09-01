@@ -806,7 +806,7 @@ public class StoreOrderController extends BaseController {
     /**
      * 订单确认
      */
-    @AnonymousAccess
+//    @AnonymousAccess
     @PostMapping("/order/confirmNew")
     @ApiOperation(value = "订单确认（带店铺信息）", notes = "订单确认（带店铺信息）")
     public ApiResult<ConfirmNewOrderDTO> confirmNew(@RequestBody String jsonStr) {
@@ -815,8 +815,8 @@ public class StoreOrderController extends BaseController {
         if (StrUtil.isEmpty(cartId)) {
             return ApiResult.fail("请提交购买的商品");
         }
-//        int uid = SecurityUtils.getUserId().intValue();
-        int uid = 28;
+        int uid = SecurityUtils.getUserId().intValue();
+//        int uid = 28;
         YxStoreStoreCartVo cartGroup = cartService.getUserStoreCartList(uid, cartId, 1);
         if (ObjectUtil.isNotEmpty(cartGroup.getInvalid())) {
             return ApiResult.fail("有失效的商品请重新提交");
@@ -946,15 +946,15 @@ public class StoreOrderController extends BaseController {
     /**
      * 计算订单金额
      */
-    @AnonymousAccess
+//    @AnonymousAccess
     @PostMapping("/order/computedNew/{key}")
     @ApiOperation(value = "计算订单金额（新）", notes = "计算订单金额（新）")
     public ApiResult<Map<String, Object>> computedNew(@RequestBody String jsonStr,
                                                         @PathVariable String key) {
 
         Map<String, Object> map = new LinkedHashMap<>();
-//        int uid = SecurityUtils.getUserId().intValue();
-        int uid = 28;
+        int uid = SecurityUtils.getUserId().intValue();
+//        int uid = 28;
         if (StrUtil.isEmpty(key)) return ApiResult.fail("参数错误");
         YxStoreOrderQueryVo storeOrder = storeOrderService.getOrderInfo(key, uid);
         if (ObjectUtil.isNotNull(storeOrder)) {
