@@ -139,4 +139,6 @@ private List<String> sliderImage;
 @ApiModelProperty(value = "总销量(真实销量+虚拟销量)")
 private Integer totalSales;
 
+@ApiModelProperty(value = "排序")
+private Integer sort;
 }

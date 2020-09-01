@@ -62,7 +62,7 @@ public class Log  implements Serializable {
     private byte[] exceptionDetail;
 
     /**
-     * 商品类型 0:商品 1：卡券
+     * 商品类型 1:商品 2：卡券
      */
     private Integer productType;
 

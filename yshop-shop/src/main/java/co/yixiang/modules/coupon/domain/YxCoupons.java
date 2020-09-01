@@ -190,6 +190,9 @@ public class YxCoupons implements Serializable {
     @NotBlank
     private String couponInfo;
 
+    /** 排序 */
+    private Integer sort;
+
     public void copy(YxCoupons source){
         BeanUtil.copyProperties(source,this, CopyOptions.create().setIgnoreNullValue(true));
     }

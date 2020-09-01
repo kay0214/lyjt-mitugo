@@ -72,7 +72,7 @@ public class YxExamineLogServiceImpl extends BaseServiceImpl<YxExamineLogMapper,
                 map.put("totalElements", 0);
                 return map;
             }
-            queryWrapper.lambda().in(YxExamineLog::getCreateUserId, criteria.getChildUser()).eq(YxExamineLog::getDelFlag, 0);
+            queryWrapper.lambda().in(YxExamineLog::getUid, criteria.getChildUser()).eq(YxExamineLog::getDelFlag, 0);
         }
         if (null != criteria.getType()) {
             queryWrapper.lambda().eq(YxExamineLog::getType, criteria.getType());
