@@ -108,13 +108,13 @@
                   <el-button slot="reference" type="danger" icon="el-icon-delete" size="mini">删除</el-button>
                 </el-popover>
               </el-dropdown-item>
-              <el-dropdown-item>
+              <!--<el-dropdown-item>
                 <el-button
                   size="mini"
                   type="success"
                   @click="editC(scope.row)"
                 >促销单品</el-button>
-              </el-dropdown-item>
+              </el-dropdown-item>-->
               <!--<el-dropdown-item>
                 <el-button
                   size="mini"
@@ -173,7 +173,7 @@ export default {
         benefit:{
           value:'benefit',
           label:'促销'
-        }, 
+        },
         best :{
           value:'best',
           label:'精品'

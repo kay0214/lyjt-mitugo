@@ -3,12 +3,15 @@
  */
 package co.yixiang.modules.shop.rest;
 
+import co.yixiang.constant.SystemConfigConstants;
 import co.yixiang.dozer.service.IGenerator;
 import co.yixiang.logging.aop.log.Log;
 import co.yixiang.modules.shop.domain.YxStoreInfoRequest;
 import co.yixiang.modules.shop.domain.YxStoreInfoResponse;
+import co.yixiang.modules.shop.domain.YxSystemConfig;
 import co.yixiang.modules.shop.service.UserService;
 import co.yixiang.modules.shop.service.YxStoreInfoService;
+import co.yixiang.modules.shop.service.YxSystemConfigService;
 import co.yixiang.modules.shop.service.dto.YxStoreInfoDto;
 import co.yixiang.modules.shop.service.dto.YxStoreInfoQueryCriteria;
 import co.yixiang.utils.CurrUser;
@@ -45,6 +48,8 @@ public class YxStoreInfoController {
     private final IGenerator generator;
     @Autowired
     private UserService userService;
+    @Autowired
+    private YxSystemConfigService systemConfigService;
 
 
     @Log("导出数据")
@@ -123,5 +128,25 @@ public class YxStoreInfoController {
     public ResponseEntity<Object> getStoreInfoById(@PathVariable Integer id) {
         YxStoreInfoResponse yxStoreInfoResponse = yxStoreInfoService.getStoreInfo(id);
         return new ResponseEntity<>(yxStoreInfoResponse, HttpStatus.OK);
+    }
+
+    @GetMapping(value = "/getFreeShipping")
+    @Log("获取包邮金额")
+    @ApiOperation("获取包邮金额")
+    public ResponseEntity<Object> getFreeShipping() {
+        YxSystemConfig yxSystemConfig = systemConfigService.findByKey(SystemConfigConstants.STORE_FREE_POSTAGE);//满额包邮
+        return new ResponseEntity<>(yxSystemConfig, HttpStatus.OK);
+    }
+    @PostMapping(value = "/setFreeShipping")
+    @Log("修改包邮金额")
+    @ApiOperation("修改包邮金额")
+//    @PreAuthorize("@el.check('admin','yxStoreInfo:edit')")
+    public ResponseEntity<Object> setFreeShipping(@RequestBody String jsonStr) {
+        JSONObject jsonObject = JSON.parseObject(jsonStr);
+        String strPostager = jsonObject.getString("freePostage");
+        YxSystemConfig yxSystemConfig = systemConfigService.findByKey(SystemConfigConstants.STORE_FREE_POSTAGE);//满额包邮
+        yxSystemConfig.setValue(strPostager);
+        systemConfigService.updateById(yxSystemConfig);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }
