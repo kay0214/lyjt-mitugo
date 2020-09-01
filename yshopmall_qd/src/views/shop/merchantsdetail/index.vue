@@ -30,7 +30,7 @@
                 <el-input v-model="form.merchantsName"  style="width: 350px;"/>
               </el-form-item>
               <el-form-item label="商户地址" prop="address">
-                <el-input v-model="form.address" style="width: 370px;" />
+                <el-input v-model="form.address" style="width: 370px;" maxlength="50" />
               </el-form-item>
               <el-form-item label="联系人" prop="contacts">
                 <el-input v-model="form.contacts" style="width: 370px;" />
@@ -169,6 +169,7 @@
                   type="textarea"
                   :rows="5"
                   placeholder="请输入内容"
+                  maxlength="50"
                   v-model="form.examineRemark">
                 </el-input>
               </el-col>
@@ -547,7 +548,7 @@ export default {
     },
     //审核驳回 /** 审批状态examineStatus：0->待审核,1->通过,2->驳回 */
     examineEditCancelCU(){
-      this.examineEdit=0;
+      this.examineEdit=2;
       examineSubmit({
         examineStatus:2,
         examineRemark:this.form.examineRemark,
@@ -594,7 +595,7 @@ export default {
               type: 'success',
               duration: 1000,
               onClose: () => {
-                this.init()
+                this.crud.toQuery()
               }
             })
           })

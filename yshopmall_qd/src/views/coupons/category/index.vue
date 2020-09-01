@@ -24,7 +24,7 @@
             </el-radio-group>
           </el-form-item>
           <el-form-item label="排序" prop="sort">
-            <el-input v-model="form.sort" style="width: 370px;" />
+            <el-input v-model="form.sort" style="width: 370px;" maxlength="3" />
           </el-form-item>
         </el-form>
         <div slot="footer" class="dialog-footer">
@@ -67,7 +67,7 @@ import pagination from '@crud/Pagination'
 import MaterialList from "@/components/material";
 
 // crud交由presenter持有
-const defaultCrud = CRUD({ title: '卡券分类表', url: 'api/yxCouponsCategory', sort: 'id,desc', crudMethod: { ...crudYxCouponsCategory },optShow: {
+const defaultCrud = CRUD({ title: '分类', url: 'api/yxCouponsCategory', sort: 'id,desc', crudMethod: { ...crudYxCouponsCategory },optShow: {
       add: true,
       edit: true,
       del: true,
