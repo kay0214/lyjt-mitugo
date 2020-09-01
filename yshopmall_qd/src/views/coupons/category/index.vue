@@ -41,7 +41,7 @@
             {{scope.row.isShow === 1 ? "显示": "隐藏"}}
           </template>
         </el-table-column>
-        <el-table-column v-if="columns.visible('sort')" prop="sort" label="排序" />
+        <el-table-column v-if="columns.visible('sort')" prop="sort" label="排序" sortable/>
         <el-table-column v-permission="['admin','yxCouponsCategory:edit','yxCouponsCategory:del']" label="操作" width="150px" align="center">
           <template slot-scope="scope">
             <udOperation
@@ -52,7 +52,7 @@
         </el-table-column>
       </el-table>
       <!--分页组件-->
-      <pagination />
+      <!-- <pagination /> -->
     </div>
   </div>
 </template>
