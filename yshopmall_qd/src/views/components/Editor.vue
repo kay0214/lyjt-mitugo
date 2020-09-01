@@ -34,6 +34,21 @@ export default {
       'uploadApi'
     ])
   },
+  methods: {
+    checkVal(str) {
+      let num = 0,
+      reg = /<p>(&nbsp;|&nbsp;\s+)+<\/p>|<p>(<br>)+<\/p>/g;
+      while (num < str.length && str != "")
+      {
+        num++;
+        let k = str.match(reg);
+        if (k) {
+          str = str.replace(k[0], "");
+        }
+      }
+      return str == "";
+    }
+  },
   watch: {
     value: function(val) {
       this.editor.txt.html(val)
@@ -57,7 +72,9 @@ export default {
       }
     }
     this.editor.customConfig.onchange = (html) => {
-      this.info = html
+      if (!this.checkVal(html)) {
+        this.info = html
+      } else this.info = ''
       this.$emit('change', this.info)
       this.$emit('input', this.info)
     }

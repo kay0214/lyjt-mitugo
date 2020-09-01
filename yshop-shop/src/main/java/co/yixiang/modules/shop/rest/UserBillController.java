@@ -4,7 +4,9 @@ import co.yixiang.logging.aop.log.Log;
 import co.yixiang.modules.shop.service.YxUserBillService;
 import co.yixiang.modules.shop.service.dto.WithdrawReviewQueryCriteria;
 import co.yixiang.modules.shop.service.dto.YxUserBillQueryCriteria;
+import co.yixiang.utils.CurrUser;
 import co.yixiang.utils.DateUtils;
+import co.yixiang.utils.SecurityUtils;
 import co.yixiang.utils.StringUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -17,9 +19,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
-* @author hupeng
-* @date 2019-11-06
-*/
+ * @author hupeng
+ * @date 2019-11-06
+ */
 @Api(tags = "商城:用户账单表(资金明细)")
 @RestController
 @RequestMapping("api")
@@ -35,18 +37,26 @@ public class UserBillController {
     @ApiOperation(value = "查询")
     @GetMapping(value = "/yxUserBill")
     @PreAuthorize("hasAnyRole('admin','YXUSERBILL_ALL','YXUSERBILL_SELECT')")
-    public ResponseEntity getYxUserBills(YxUserBillQueryCriteria criteria, Pageable pageable){
-        if (StringUtils.isNotBlank(criteria.getAddTimeStart()) && StringUtils.isBlank(criteria.getAddTimeEnd())){
+    public ResponseEntity getYxUserBills(YxUserBillQueryCriteria criteria, Pageable pageable) {
+        int uid = SecurityUtils.getUserId().intValue();
+        CurrUser currUser = SecurityUtils.getCurrUser();
+        criteria.setUserRole(currUser.getUserRole());
+        criteria.setUid(uid);
+        if (null != currUser.getChildUser()) {
+            criteria.setChildUser(currUser.getChildUser());
+        }
+        if (StringUtils.isNotBlank(criteria.getAddTimeStart()) && StringUtils.isBlank(criteria.getAddTimeEnd())) {
             criteria.setAddTimeEnd(DateUtils.getDate());
         }
-        if (StringUtils.isBlank(criteria.getAddTimeStart()) && StringUtils.isNotBlank(criteria.getAddTimeEnd())){
+        if (StringUtils.isBlank(criteria.getAddTimeStart()) && StringUtils.isNotBlank(criteria.getAddTimeEnd())) {
             criteria.setAddTimeStart(DateUtils.getDate());
         }
-        return new ResponseEntity(yxUserBillService.queryAll(criteria,pageable), HttpStatus.OK);
+        return new ResponseEntity(yxUserBillService.queryAll(criteria, pageable), HttpStatus.OK);
     }
 
     /**
      * 查询提现记录的审批记录
+     *
      * @param criteria
      * @param pageable
      * @return
@@ -55,7 +65,7 @@ public class UserBillController {
     @ApiOperation(value = "查询提现审批记录")
     @GetMapping(value = "/withdrawReviewLog")
     public ResponseEntity<Object> getUserWithdrawList(WithdrawReviewQueryCriteria criteria, Pageable pageable) {
-        return new ResponseEntity(yxUserBillService.queryAll(criteria,pageable), HttpStatus.OK);
+        return new ResponseEntity(yxUserBillService.queryAll(criteria, pageable), HttpStatus.OK);
     }
 
 }
