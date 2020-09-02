@@ -68,4 +68,7 @@ public class YxUserExtract extends BaseEntity {
     @ApiModelProperty(value = "微信号")
     private String wechat;
 
+    @ApiModelProperty(value = "用户类型0:前台用户1后台用户")
+    private Integer userType;
+
 }

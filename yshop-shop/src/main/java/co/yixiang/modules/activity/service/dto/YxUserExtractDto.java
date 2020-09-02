@@ -5,6 +5,7 @@
  */
 package co.yixiang.modules.activity.service.dto;
 
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -57,4 +58,8 @@ public class YxUserExtractDto implements Serializable {
 
     // 微信号
     private String wechat;
+
+    /** 用户类型0:前台用户1后台用户 */
+    private Integer userType;
+
 }

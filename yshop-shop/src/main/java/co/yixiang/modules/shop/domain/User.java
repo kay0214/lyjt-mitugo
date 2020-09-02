@@ -1,24 +1,28 @@
 /**
-* Copyright (C) 2018-2020
-* All rights reserved, Designed By www.yixiang.co
-* 注意：
-* 本软件为www.yixiang.co开发研制，未经购买不得使用
-* 购买后可获得全部源代码（禁止转卖、分享、上传到码云、github等开源平台）
-* 一经发现盗用、分享等行为，将追究法律责任，后果自负
-*/
+ * Copyright (C) 2018-2020
+ * All rights reserved, Designed By www.yixiang.co
+ * 注意：
+ * 本软件为www.yixiang.co开发研制，未经购买不得使用
+ * 购买后可获得全部源代码（禁止转卖、分享、上传到码云、github等开源平台）
+ * 一经发现盗用、分享等行为，将追究法律责任，后果自负
+ */
 package co.yixiang.modules.shop.domain;
-import lombok.Data;
-import com.baomidou.mybatisplus.annotation.*;
+
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.bean.copier.CopyOptions;
-import javax.validation.constraints.*;
-import java.sql.Timestamp;
+import com.baomidou.mybatisplus.annotation.*;
+import lombok.Data;
+
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
+import java.math.BigDecimal;
+import java.sql.Timestamp;
 
 /**
-* @author zhangyk
-* @date 2020-08-15
-*/
+ * @author zhangyk
+ * @date 2020-08-15
+ */
 @Data
 @TableName("user")
 public class User implements Serializable {
@@ -61,7 +65,7 @@ public class User implements Serializable {
 
 
     /** 创建日期 */
-    @TableField(fill= FieldFill.INSERT)
+    @TableField(fill = FieldFill.INSERT)
     private Timestamp createTime;
 
 
@@ -105,12 +109,15 @@ public class User implements Serializable {
     /** 总积分 */
     private Integer totalScore;
 
+    /** 可提现金额 */
+    private BigDecimal withdrawalAmount;
+
 
     /** 推荐用二维码地址 */
     private String qrCodeUrl;
 
 
-    public void copy(User source){
-        BeanUtil.copyProperties(source,this, CopyOptions.create().setIgnoreNullValue(true));
+    public void copy(User source) {
+        BeanUtil.copyProperties(source, this, CopyOptions.create().setIgnoreNullValue(true));
     }
 }

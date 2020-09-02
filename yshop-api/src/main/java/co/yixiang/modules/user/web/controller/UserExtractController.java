@@ -89,6 +89,8 @@ public class UserExtractController extends BaseController {
     public ApiResult<Paging<YxUserExtractQueryVo>> getYxUserExtractPageList(@Valid @RequestBody(required = false) YxUserExtractQueryParam yxUserExtractQueryParam) throws Exception {
         int uid = SecurityUtils.getUserId().intValue();
         yxUserExtractQueryParam.setUid(uid);
+        // 查询前台用户
+        yxUserExtractQueryParam.setUserType(0);
         // 获取提现分页数据
         Paging<YxUserExtractQueryVo> paging = userExtractService.getYxUserExtractPageList(yxUserExtractQueryParam);
         // 获取总累计提现金额
