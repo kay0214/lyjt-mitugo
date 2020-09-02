@@ -23,7 +23,6 @@ import co.yixiang.utils.OrderUtil;
 import co.yixiang.utils.StringUtils;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -239,19 +238,22 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<StoreProductMappe
             List<String> stringList = productFormatDTO.getDetail().values()
                     .stream().collect(Collectors.toList());
             Collections.sort(stringList);
-            String sku = "";
+            /*String sku = "";
             sku = StrUtil.join(",", stringList);
             if (!"".equals(sku)) {
-                YxStoreProductAttrValue getProductAttrValue = yxStoreProductAttrValueService.getOne(new LambdaQueryWrapper<YxStoreProductAttrValue>().eq(YxStoreProductAttrValue::getSuk, sku));
-                if (getProductAttrValue != null) {
+                QueryWrapper<YxStoreProductAttrValue> queryWrapper = new QueryWrapper<>();
+                queryWrapper.eq("suk",sku);
+                List<YxStoreProductAttrValue> productAttrValueList = yxStoreProductAttrValueService.list(queryWrapper);
+                if(CollectionUtils.isEmpty(productAttrValueList)){
+                    sku = "";
+                }else{
+                    YxStoreProductAttrValue getProductAttrValue = productAttrValueList.get(0);
                     productFormatDTO.setCost(getProductAttrValue.getCost().doubleValue());
                     productFormatDTO.setPrice(getProductAttrValue.getPrice().doubleValue());
                     productFormatDTO.setSales(getProductAttrValue.getStock());
                     productFormatDTO.setPic(getProductAttrValue.getImage());
                     productFormatDTO.setCommission(getProductAttrValue.getCommission().doubleValue());
                     productFormatDTO.setCheck(false);
-                } else {
-                    sku = "";
                 }
             }
             if ("".equals(sku)) {
@@ -262,7 +264,13 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<StoreProductMappe
                 productFormatDTO.setCommission(yxStoreProductDTO.getCommission().doubleValue());
 
                 productFormatDTO.setCheck(false);
-            }
+            }*/
+            productFormatDTO.setCost(yxStoreProductDTO.getCost().doubleValue());
+            productFormatDTO.setPrice(yxStoreProductDTO.getPrice().doubleValue());
+            productFormatDTO.setPic(yxStoreProductDTO.getImage());
+            productFormatDTO.setCommission(yxStoreProductDTO.getCommission().doubleValue());
+
+            productFormatDTO.setCheck(false);
             newList.add(productFormatDTO);
         }
         return newList;
