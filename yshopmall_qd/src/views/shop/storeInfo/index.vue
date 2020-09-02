@@ -452,7 +452,7 @@ import { Notification } from 'element-ui'
                 type: 'success',
                 duration: 1000,
                 onClose: () => {
-                  this.init()
+                  this.crud.toQuery()
                 }
               })
             })
