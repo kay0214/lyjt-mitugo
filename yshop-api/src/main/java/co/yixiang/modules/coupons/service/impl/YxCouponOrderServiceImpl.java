@@ -727,6 +727,24 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         updateSystemUser.setTotalAmount(systemUser.getTotalAmount().add(truePrice));
         updateSystemUser.setWithdrawalAmount(systemUser.getWithdrawalAmount().add(truePrice));
         this.systemUserService.updateById(updateSystemUser);
+
+        // 插入商户资金明细
+        YxUserBill merBill = new YxUserBill();
+        merBill.setUid(yxCouponOrder.getMerId());
+        yxUserBill.setLinkId(yxCouponOrder.getOrderId());
+        yxUserBill.setPm(1);
+        yxUserBill.setTitle("小程序本地生活购买");
+        yxUserBill.setCategory(BillDetailEnum.CATEGORY_1.getValue());
+        yxUserBill.setType(BillDetailEnum.TYPE_9.getValue());
+        yxUserBill.setNumber(truePrice);
+        // 目前只支持微信付款、没有余额
+        yxUserBill.setBalance(updateSystemUser.getWithdrawalAmount());
+        yxUserBill.setAddTime(DateUtils.getNowTime());
+        yxUserBill.setStatus(1);
+        yxUserBill.setMerId(yxCouponOrder.getMerId());
+        yxUserBill.setUserType(2);
+        yxUserBill.setUsername(yxUser.getUsername());
+        this.yxUserBillService.save(yxUserBill);
     }
 
     /**
