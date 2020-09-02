@@ -16,9 +16,11 @@ import co.yixiang.modules.activity.service.dto.YxUserExtractDto;
 import co.yixiang.modules.activity.service.dto.YxUserExtractQueryCriteria;
 import co.yixiang.modules.activity.service.mapper.YxUserExtractMapper;
 import co.yixiang.modules.shop.domain.User;
+import co.yixiang.modules.shop.domain.YxExamineLog;
 import co.yixiang.modules.shop.domain.YxUser;
 import co.yixiang.modules.shop.domain.YxUserBill;
 import co.yixiang.modules.shop.service.UserService;
+import co.yixiang.modules.shop.service.YxExamineLogService;
 import co.yixiang.modules.shop.service.YxUserBillService;
 import co.yixiang.modules.shop.service.YxUserService;
 import co.yixiang.utils.FileUtil;
@@ -63,6 +65,8 @@ public class YxUserExtractServiceImpl extends BaseServiceImpl<YxUserExtractMappe
     private UserService userService;
     @Autowired
     private YxUserBillService yxUserBillService;
+    @Autowired
+    private YxExamineLogService yxExamineLogService;
 
     @Override
     //@Cacheable
@@ -127,6 +131,9 @@ public class YxUserExtractServiceImpl extends BaseServiceImpl<YxUserExtractMappe
         User user = new User();
         // 获取用户昵称
         String username = "";
+        // 审核记录里的status
+        Integer examineStatus = 0;
+        String mark = "";
         // 用户类型0:前台用户1后台用户
         if (0 == yxUserExtract.getUserType()) {
             yxUser = this.yxUserService.getOne(new QueryWrapper<YxUser>().lambda().eq(YxUser::getUid, yxUserExtract.getUid()));
@@ -148,10 +155,11 @@ public class YxUserExtractServiceImpl extends BaseServiceImpl<YxUserExtractMappe
         YxUserExtract updateExtract = new YxUserExtract();
         // 审核驳回
         if (resources.getStatus() == -1) {
+            examineStatus = 2;
             if (StrUtil.isEmpty(resources.getFailMsg())) {
                 throw new BadRequestException("请填写失败原因");
             }
-            String mark = "提现失败,退回佣金" + resources.getExtractPrice() + "元";
+            mark = "提现失败,退回佣金" + resources.getExtractPrice() + "元";
             // 恢复用户余额
             if (0 == yxUserExtract.getUserType()) {
                 updateYxUser.setNowMoney(yxUser.getNowMoney().add(yxUserExtract.getExtractPrice()));
@@ -169,6 +177,8 @@ public class YxUserExtractServiceImpl extends BaseServiceImpl<YxUserExtractMappe
         }
         // 发起申请时已扣减用户余额、审核通过后记录bill和审核记录
         if (resources.getStatus() == 1) {
+            examineStatus = 1;
+            mark = StringUtils.isNotBlank(resources.getMark()) ? resources.getMark() : "";
             YxUserBill yxUserBill = new YxUserBill();
             yxUserBill.setUid(yxUserExtract.getUid());
             yxUserBill.setUsername(username);
@@ -180,7 +190,7 @@ public class YxUserExtractServiceImpl extends BaseServiceImpl<YxUserExtractMappe
             yxUserBill.setType(BillDetailEnum.TYPE_4.getValue());
             yxUserBill.setNumber(yxUserExtract.getExtractPrice());
             yxUserBill.setBalance(BigDecimal.ZERO);
-            yxUserBill.setMark(StringUtils.isNotBlank(resources.getMark()) ? resources.getMark() : "");
+            yxUserBill.setMark(mark);
             yxUserBill.setAddTime(OrderUtil.getSecondTimestampTwo());
             yxUserBill.setStatus(1);
             yxUserBill.setUserType(yxUserExtract.getUserType());
@@ -189,10 +199,20 @@ public class YxUserExtractServiceImpl extends BaseServiceImpl<YxUserExtractMappe
             // 更新审核记录
             updateExtract.setId(yxUserExtract.getId());
             updateExtract.setStatus(1);
-            updateExtract.setFailMsg(StringUtils.isNotBlank(resources.getMark()) ? resources.getMark() : "");
+            updateExtract.setMark(mark);
         }
-
         this.updateById(updateExtract);
+        // 记录提现审核记录
+        YxExamineLog yxExamineLog = new YxExamineLog();
+        // 审批类型 1:提现 2:商户信息
+        yxExamineLog.setUid(resources.getUid());
+        yxExamineLog.setUsername(username);
+        yxExamineLog.setType(1);
+        yxExamineLog.setTypeId(resources.getId());
+        yxExamineLog.setStatus(examineStatus);
+        yxExamineLog.setRemark(mark);
+        yxExamineLog.setDelFlag(0);
+        yxExamineLogService.save(yxExamineLog);
         return true;
     }
 }
