@@ -51,8 +51,8 @@ public class UserExtractController {
         this.generator = generator;
     }
 
-    @Log("查询")
-    @ApiOperation(value = "查询")
+    @Log("查询提现记录")
+    @ApiOperation(value = "查询提现记录")
     @GetMapping(value = "/yxUserExtract")
     @PreAuthorize("hasAnyRole('admin','YXUSEREXTRACT_ALL','YXUSEREXTRACT_SELECT')")
     public ResponseEntity getYxUserExtracts(YxUserExtractQueryCriteria criteria, Pageable pageable) {
@@ -60,8 +60,8 @@ public class UserExtractController {
     }
 
 
-    @Log("修改")
-    @ApiOperation(value = "修改审核")
+    @Log("提现审核")
+    @ApiOperation(value = "提现审核")
     @PutMapping(value = "/yxUserExtract")
     @PreAuthorize("hasAnyRole('admin','YXUSEREXTRACT_ALL','YXUSEREXTRACT_EDIT')")
     public ResponseEntity update(@Validated @RequestBody YxUserExtract resources) {
