@@ -326,7 +326,7 @@
             <el-tag v-if="scope.row.outtimeRefund === 1">过期退</el-tag> 
             <el-tag v-if="scope.row.needOrder === 1">免预约</el-tag> 
             <el-tag v-if="scope.row.awaysRefund === 1">随时退</el-tag> 
-            <span v-if="scope.row.awaysRefund !== 1 && scope.row.needOrder !== 1 && scope.row.awaysRefund !== 1"> - </span>
+            <span v-if="scope.row.outtimeRefund !== 1 && scope.row.needOrder !== 1 && scope.row.awaysRefund !== 1"> - </span>
           </template>
         </el-table-column>
         <!--  0:不支持 1支持 -->
@@ -409,7 +409,7 @@ import { Message } from 'element-ui'
 const defaultCrud = CRUD({ title: '卡券表', url: 'api/yxCoupons', sort: 'id,desc', crudMethod: { ...crudYxCoupons },optShow: {
       add: true,
       edit: false,
-      del: false,
+      del: true,
       download: false
     }})
 const defaultForm = { id: null, couponNum: null, couponName: null, couponType: null, couponCategory: null, denomination: null, discount: null, threshold: null, discountAmount: null, sellingPrice: null, originalPrice: null, settlementPrice: null, commission: null, quantityLimit: null, inventory: null, sales: null, ficti: null, writeOff: null, expireDateStart: null, expireDateEnd: null, isHot: 0, isShow: 0, outtimeRefund: null, needOrder: null, awaysRefund: null, useCondition: null, availableTimeStart: null, availableTimeEnd: null, delFlag: null, createUserId: null, updateUserId: null, createTime: null, updateTime: null, content: null, expireDate: null, image: null, sliderImage: null }

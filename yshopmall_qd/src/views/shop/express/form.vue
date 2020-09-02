@@ -4,7 +4,7 @@
       <el-form-item label="快递公司编号" prop="code">
         <el-input v-model="form.code" style="width: 300px;" />
       </el-form-item>
-      <el-form-item label="快递公司名称">
+      <el-form-item label="快递公司名称" prop="name">
         <el-input v-model="form.name" style="width: 300px;" />
       </el-form-item>
       <el-form-item label="排序">
@@ -38,7 +38,10 @@ export default {
       },
       rules: {
         code: [
-          { required: true, message: 'please enter', trigger: 'blur' }
+          { required: true, message: '请输入快递公司编号', trigger: 'blur' }
+        ],
+        name: [
+          { required: true, message: '请输入快递公司名称', trigger: 'blur' }
         ]
       }
     }
