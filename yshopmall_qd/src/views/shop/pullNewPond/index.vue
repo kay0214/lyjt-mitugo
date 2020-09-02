@@ -8,11 +8,12 @@
         <el-input v-model="query.username" clearable placeholder="用户昵称" style="width: 200px;marginRight:20px;" class="filter-item" @keyup.enter.native="crud.toQuery" />        
         <el-date-picker          
           type="daterange"
-          v-model="query.createTime"
+          v-model="query.searchTime"
           range-separator="至"
           start-placeholder="订单日期"
           end-placeholder="订单日期"
           placeholder="选择时间范围"
+          value-format='yyyy-MM-dd HH:mm:ss'
           style="verticalAlign:top;marginRight:20px;">
         </el-date-picker>
         <el-button class="filter-item" size="mini" type="success" icon="el-icon-search" @click="crud.toQuery">搜索</el-button>
