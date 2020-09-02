@@ -236,7 +236,7 @@ const defaultCrud = CRUD({ title: '商户详情表', url: 'api/yxMerchantsDetail
       del: false,
       download: false
     }})
-const defaultForm = { id: null, uid: null, examineStatus: null, address: null, contacts: null, contactMobile: null, mailbox: null, merchantsType: null, bankNo: null, openAccountProvince: null, bankType: null, openAccountName: null, openAccountBank: null, openAccountSubbranch: null, companyProvince: null, companyAddress: null, companyName: null, companyLegalPerson: null, companyPhone: null, businessCategory: null, qualificationsType: null, delFlag: null, createUserId: null, updateUserId: null, createTime: null, updateTime: null, merchantsName: null }
+const defaultForm = { id: null, uid: null, nickName:null, merchantsContact:null, phone:null, username:null, examineStatus: null, address: null, contacts: null, contactMobile: null, mailbox: null, merchantsType: null, bankNo: null, openAccountProvince: null, bankType: null, openAccountName: null, openAccountBank: null, openAccountSubbranch: null, companyProvince: null, companyAddress: null, companyName: null, companyLegalPerson: null, companyPhone: null, businessCategory: null, qualificationsType: null, delFlag: null, createUserId: null, updateUserId: null, createTime: null, updateTime: null, merchantsName: null }
 export default {
   name: 'YxMerchantsDetail',
   components: { pagination, crudOperation, rrOperation, udOperation ,MaterialList},
@@ -432,31 +432,49 @@ export default {
       // 个人认证
       if (form.personIdCard) {
         this.perIdCard = form.personIdCard.split(',')
+      }else{
+        this.perIdCard = []
       }
       if (form.personIdCardFace) {
         this.perIdCardFace = form.personIdCardFace.split(',')
+      }else{
+        this.perIdCardFace = []
       }
       if (form.personIdCardBack) {
         this.perIdCardBack = form.personIdCardBack.split(',')
+      }else{
+        this.perIdCardBack = []
       }
       // 企业和个体户
       if (form.businessLicenseImg) {
         this.businessLicenseImg = form.businessLicenseImg.split(',')
+      }else{
+        this.businessLicenseImg = []
       }
       if (form.bankOpenProveImg) {
         this.bankOpenProveImg = form.bankOpenProveImg.split(',')
+      }else{
+        this.bankOpenProveImg = []
       }
       if (form.legalIdCardFace) {
         this.legalIdCardFace = form.legalIdCardFace.split(',')
+      }else{
+        this.legalIdCardFace = []
       }
       if (form.legalIdCardBack) {
         this.legalIdCardBack = form.legalIdCardBack.split(',')
+      }else{
+        this.legalIdCardBack = []
       }
       if (form.storeImg) {
         this.storeImg = form.storeImg.split(',')
+      }else{
+        this.storeImg = []
       }
       if (form.licenceImg) {
         this.licenceImg = form.licenceImg.split(',')
+      }else{
+        this.licenceImg = []
       }
     },
     //获取主体资质类型列表
@@ -531,13 +549,14 @@ export default {
         examineRemark:this.form.examineRemark,
         id:this.form.id
       }).then(res=>{
-        this.examineEdit=1;
         if(res){
           Notification.success({
             title: '审核成功'
           })
+          this.examineEdit=0;
           this.crud.toQuery()
         }else{
+          this.examineEdit=1;
           Notification.error({
             title: "审核失败，请重新尝试"
           })
@@ -554,13 +573,14 @@ export default {
         examineRemark:this.form.examineRemark,
         id:this.form.id
       }).then(res=>{
-        this.examineEdit=1;
         if(res){
           Notification.success({
             title: '驳回已完成'
           })
+          this.examineEdit=0;
           this.crud.toQuery()
         }else{
+          this.examineEdit=1;
           Notification.error({
             title: "驳回失败，请重新尝试"
           })

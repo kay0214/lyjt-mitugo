@@ -4,13 +4,13 @@
       <el-form-item label="用户昵称">
         <el-input v-model="form.nickname" :disabled="true" style="width: 370px;" />
       </el-form-item>
-      <el-form-item label="真实姓名">
+      <el-form-item label="真实姓名" prop='realName'>
         <el-input v-model="form.realName" style="width: 370px;" />
       </el-form-item>
-      <el-form-item label="用户备注">
+      <el-form-item label="用户备注" prop='mark'>
         <el-input v-model="form.mark" style="width: 370px;" />
       </el-form-item>
-      <el-form-item label="手机号码">
+      <el-form-item label="手机号码" prop='phone'>
         <el-input v-model="form.phone" style="width: 370px;" />
       </el-form-item>
       <el-form-item label="分销客">
@@ -33,6 +33,7 @@
 
 <script>
 import { add, edit } from '@/api/yxUser'
+import { isvalidPhone } from '@/utils/validate'
 export default {
   props: {
     isAdd: {
@@ -41,6 +42,14 @@ export default {
     }
   },
   data() {
+    // 自定义验证
+    const validPhone = (rule, value, callback) => {
+      if (!isvalidPhone(value)) {
+        callback(new Error('请输入正确的11位手机号码'))
+      } else {
+        callback()
+      }
+    }
     return {
       loading: false, dialog: false,
       form: {
@@ -79,6 +88,15 @@ export default {
         loginType: ''
       },
       rules: {
+        realName:[
+          { max: 4, message: '长度不超过 4 个字符', trigger: 'blur' }
+        ],
+        mark:[
+          { max: 200, message: '长度不超过 200 个字符', trigger: 'blur' }
+        ],
+        phone:[
+          { validator: validPhone,trigger: 'blur', }
+        ],
       }
     }
   },

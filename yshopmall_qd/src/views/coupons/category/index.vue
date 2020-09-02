@@ -90,7 +90,8 @@ export default {
       },
       rules: {
         cateName: [
-          { required: true, message: '分类名称不能为空', trigger: 'blur' }
+          { required: true, message: '分类名称不能为空', trigger: 'blur' },
+          { max: 20, message: '20个字符以内', trigger: 'blur' }
         ],
         sort: [
           { required: true, message: '排序不能为空', trigger: 'blur' }
