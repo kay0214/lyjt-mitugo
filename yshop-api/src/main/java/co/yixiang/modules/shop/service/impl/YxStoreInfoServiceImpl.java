@@ -227,10 +227,15 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
      */
     @Override
     public Paging<LocalLiveListVo> getLocalLiveList(LocalLiveQueryParam localLiveQueryParam,String location) throws Exception {
+        log.info("打个日志试试有没有进接口1");
         Page page = setPageParam(localLiveQueryParam, OrderItem.desc("create_time"));
+        log.info("打个日志试试有没有进接口2");
         IPage<LocalLiveListVo> iPage = yxStoreInfoMapper.getLocalLiveList(page, localLiveQueryParam);
+        log.info("打个日志试试有没有进接口3");
         List<LocalLiveListVo> localLiveListVoList = iPage.getRecords();
+        log.info("打个日志试试有没有进接口4");
         iPage.setTotal(localLiveListVoList.size());
+        log.info("打个日志试试有没有进接口5");
         for (LocalLiveListVo localLiveListVo : localLiveListVoList){
             if(StringUtils.isNotBlank(location)) {
                 // 设置距离
@@ -253,6 +258,7 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
             localLiveListVo.setLocalLiveCouponsVoList(localLiveCouponsVoList);
 
         }
+        log.info("打个日志试试有没有进接口6");
         return new Paging(iPage);
     }
 }
