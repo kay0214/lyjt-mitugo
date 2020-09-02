@@ -45,7 +45,8 @@
       <el-table-column prop="storeCategory.cateName" label="分类名称" />
       <el-table-column prop="price" label="商品价格" />
       <el-table-column prop="sales" label="销量" />
-      <el-table-column prop="stock" label="库存" />      
+      <el-table-column prop="stock" label="库存" />   
+      <el-table-column prop="commission" label="佣金" />    
       <el-table-column prop="isBest" label="精品推荐" >
           <template slot-scope="scope">
             <div @click="changeHotStatus(scope.row.id,scope.row.isBest,hotType.best)">
