@@ -2265,6 +2265,7 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
         }
         ComputeDTO computeDTO = new ComputeDTO();
         BigDecimal bigDecimalTotle = BigDecimal.ZERO;
+        BigDecimal bigDecimalPay = BigDecimal.ZERO;
         BigDecimal bigDecimalPostagt = BigDecimal.ZERO;
         List<YxStoreStoreCartQueryVo> storeCartQueryVoList =cacheStoreDTO.getCartInfo();
         if(CollectionUtils.isEmpty(storeCartQueryVoList)){
@@ -2273,6 +2274,7 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
         }
         double couponPrice = 0;
         for(YxStoreStoreCartQueryVo cartQueryVo:storeCartQueryVoList){
+            bigDecimalPay = bigDecimalPay.add(cartQueryVo.getOrderSumPrice());
             //所有订单支付金额
             bigDecimalTotle = bigDecimalTotle.add(cartQueryVo.getOrderSumPrice());
             //所有订单的邮费
@@ -2297,7 +2299,7 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
                             throw new ErrorRequestException("不满足优惠劵的使用条件");
                         }
                         //
-                        bigDecimalTotle = bigDecimalTotle.subtract(couponUser.getCouponPrice());
+                        bigDecimalPay = bigDecimalPay.subtract(couponUser.getCouponPrice());
                         //
                         couponPrice = couponPrice + couponUser.getCouponPrice().doubleValue();
                     }
@@ -2306,65 +2308,12 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
 
         }
         computeDTO.setTotalPrice(bigDecimalTotle.doubleValue());
-        Double payPrice = bigDecimalTotle.doubleValue();
+        Double payPrice = bigDecimalPay.doubleValue();
         Double payPostage = bigDecimalPostagt.doubleValue();
 
         //支付金额= 支付金额+邮费
         payPrice = NumberUtil.add(payPrice, payPostage);
-
-       /* boolean deduction = false;//拼团秒杀砍价等
-        int combinationId = 0;
-        int seckillId = 0;
-        int bargainId = 0;
-        List<YxStoreCartQueryVo> cartInfo = cacheDTO.getCartInfo();
-        for (YxStoreCartQueryVo cart : cartInfo) {
-            combinationId = cart.getCombinationId();
-            seckillId = cart.getSeckillId();
-            bargainId = cart.getBargainId();
-        }
-        //拼团等不参与抵扣
-        if (combinationId > 0 || seckillId > 0 || bargainId > 0) deduction = true;
-
-
-        if (deduction) {
-            couponId = 0;
-            useIntegral = 0;
-        }*/
-
-        /*if (couponId > 0) {//使用优惠券
-            YxStoreCouponUser couponUser = couponUserService.getCoupon(couponId, uid);
-            if (ObjectUtil.isNull(couponUser)) throw new ErrorRequestException("使用优惠劵失败");
-
-            if (couponUser.getUseMinPrice().doubleValue() > payPrice) {
-                throw new ErrorRequestException("不满足优惠劵的使用条件");
-            }
-            payPrice = NumberUtil.sub(payPrice, couponUser.getCouponPrice()).doubleValue();
-
-            couponPrice = couponUser.getCouponPrice().doubleValue();
-
-        }*/
-
         double deductionPrice = 0; //抵扣金额
-        // 积分抵扣
-       /* double deductionPrice = 0;
-        System.out.println("a:" + userInfo.getIntegral().doubleValue());
-        if (useIntegral > 0 && userInfo.getIntegral().doubleValue() > 0) {
-            Double integralMax = Double.valueOf(cacheDTO.getOther().getIntegralMax());
-            Double integralFull = Double.valueOf(cacheDTO.getOther().getIntegralFull());
-            Double integralRatio = Double.valueOf(cacheDTO.getOther().getIntegralRatio());
-            if (computeDTO.getTotalPrice() >= integralFull) {
-                Double userIntegral = userInfo.getIntegral().doubleValue();
-                if (integralMax > 0 && userIntegral >= integralMax) userIntegral = integralMax;
-                deductionPrice = NumberUtil.mul(userIntegral, integralRatio);
-                if (deductionPrice < payPrice) {
-                    payPrice = NumberUtil.sub(payPrice.doubleValue(), deductionPrice);
-                } else {
-                    deductionPrice = payPrice;
-                    payPrice = 0d;
-                }
-            }
-        }*/
-
         if (payPrice <= 0) payPrice = 0d;
 
         computeDTO.setPayPrice(payPrice);

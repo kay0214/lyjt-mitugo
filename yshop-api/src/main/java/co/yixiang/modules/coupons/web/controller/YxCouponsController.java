@@ -8,7 +8,6 @@ import co.yixiang.common.web.vo.Paging;
 import co.yixiang.constant.CacheConstant;
 import co.yixiang.constant.LocalLiveConstants;
 import co.yixiang.constant.ShopConstants;
-import co.yixiang.modules.coupons.entity.YxCoupons;
 import co.yixiang.modules.coupons.service.YxCouponsService;
 import co.yixiang.modules.coupons.web.param.YxCouponsQueryParam;
 import co.yixiang.modules.coupons.web.vo.YxCouponsQueryVo;
@@ -50,36 +49,6 @@ public class YxCouponsController extends BaseController {
 
     @Autowired
     private YxImageInfoService yxImageInfoService;
-
-    /**
-    * 添加本地生活, 卡券表
-    */
-    @PostMapping("/add")
-    @ApiOperation(value = "添加YxCoupons对象",notes = "添加本地生活, 卡券表",response = ApiResult.class)
-    public ApiResult<Boolean> addYxCoupons(@Valid @RequestBody YxCoupons yxCoupons) throws Exception{
-        boolean flag = yxCouponsService.save(yxCoupons);
-        return ApiResult.result(flag);
-    }
-
-    /**
-    * 修改本地生活, 卡券表
-    */
-    @PostMapping("/update")
-    @ApiOperation(value = "修改YxCoupons对象",notes = "修改本地生活, 卡券表",response = ApiResult.class)
-    public ApiResult<Boolean> updateYxCoupons(@Valid @RequestBody YxCoupons yxCoupons) throws Exception{
-        boolean flag = yxCouponsService.updateById(yxCoupons);
-        return ApiResult.result(flag);
-    }
-
-    /**
-    * 删除本地生活, 卡券表
-    */
-    @PostMapping("/delete")
-    @ApiOperation(value = "删除YxCoupons对象",notes = "删除本地生活, 卡券表",response = ApiResult.class)
-    public ApiResult<Boolean> deleteYxCoupons(@Valid @RequestBody IdParam idParam) throws Exception{
-        boolean flag = yxCouponsService.removeById(idParam.getId());
-        return ApiResult.result(flag);
-    }
 
     /**
     * 获取本地生活, 卡券详情

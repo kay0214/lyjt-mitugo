@@ -81,6 +81,9 @@ public class YxUserExtractServiceImpl extends BaseServiceImpl<YxUserExtractMappe
         userExtract.setAddTime(OrderUtil.getSecondTimestampTwo());
         userExtract.setBalance(balance);
         userExtract.setStatus(0);
+        userExtract.setUserType(1);
+        userExtract.setBankCode(userInfo.getBankNo());
+        userExtract.setBankAddress(userInfo.getBankName());
 
         if (StringUtils.isNotBlank(param.getName())) {
             userExtract.setRealName(param.getName());
