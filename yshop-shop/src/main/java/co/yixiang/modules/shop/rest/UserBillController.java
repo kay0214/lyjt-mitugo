@@ -19,10 +19,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 
@@ -66,7 +63,7 @@ public class UserBillController {
      */
     @Log("发起提现")
     @ApiOperation(value = "发起提现")
-    @GetMapping(value = "/withdraw")
+    @PostMapping(value = "/withdraw")
     @PreAuthorize("hasAnyRole('admin','YXUSERBILL_ALL','YXUSERBILL_WITHDRAW')")
     public ResponseEntity<Object> withdraw(@RequestBody YxUserExtract request) {
         int uid = SecurityUtils.getUserId().intValue();
