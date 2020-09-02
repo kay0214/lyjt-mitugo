@@ -85,6 +85,7 @@ public class YxImageInfoServiceImpl extends BaseServiceImpl<YxImageInfoMapper, Y
         imageInfoParam.setTypeId(typeId);
         imageInfoParam.setImgType(imgType);
         imageInfoParam.setImgCategory(cateTypeId);
+        imageInfoParam.setDelFlag(0);
         String strImg = "";
         List<YxImageInfo> imageInfoList = list(Wrappers.query(imageInfoParam));
         if (org.apache.commons.collections.CollectionUtils.isNotEmpty(imageInfoList)) {

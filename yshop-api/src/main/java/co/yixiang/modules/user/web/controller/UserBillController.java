@@ -16,6 +16,7 @@ import co.yixiang.enums.AppFromEnum;
 import co.yixiang.logging.aop.log.Log;
 import co.yixiang.modules.shop.service.YxSystemConfigService;
 import co.yixiang.modules.user.entity.YxSystemAttachment;
+import co.yixiang.modules.user.entity.YxUser;
 import co.yixiang.modules.user.service.YxSystemAttachmentService;
 import co.yixiang.modules.user.service.YxUserBillService;
 import co.yixiang.modules.user.service.YxUserExtractService;
@@ -90,12 +91,12 @@ public class UserBillController extends BaseController {
         //累计提现金额
         BigDecimal extractCount = extractService.extractSum(uid);
         // 累计佣金
-        BigDecimal totalCommission = userBillService.totalCommissionSum(uid);
+        YxUser yxUser = this.yxUserService.getById(uid);
 
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("lastDayCount", lastDayCount);
         map.put("extractCount", extractCount);
-        map.put("commissionCount", totalCommission);
+        map.put("commissionCount", yxUser.getBrokeragePrice());
 
         return ApiResult.ok(map);
     }

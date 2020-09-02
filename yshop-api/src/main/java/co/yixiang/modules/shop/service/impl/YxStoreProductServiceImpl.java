@@ -3,6 +3,7 @@ import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import co.yixiang.common.service.impl.BaseServiceImpl;
 import co.yixiang.common.web.vo.Paging;
+import co.yixiang.constant.CacheConstant;
 import co.yixiang.enums.CommonEnum;
 import co.yixiang.enums.ProductEnum;
 import co.yixiang.exception.ErrorRequestException;
@@ -29,6 +30,9 @@ import co.yixiang.mp.config.ShopKeyUtils;
 import co.yixiang.utils.CommonsUtils;
 import co.yixiang.utils.RedisUtil;
 import co.yixiang.utils.StringUtils;
+import com.alicp.jetcache.anno.CacheRefresh;
+import com.alicp.jetcache.anno.CacheType;
+import com.alicp.jetcache.anno.Cached;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.metadata.OrderItem;
@@ -267,6 +271,8 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
      * @return
      */
     @Override
+    @Cached(name="cachedGoodList-", expire = CacheConstant.DEFAULT_EXPIRE_TIME, cacheType = CacheType.BOTH)
+    @CacheRefresh(refresh = CacheConstant.DEFAULT_REFRESH_TIME, stopRefreshAfterLastAccess = CacheConstant.DEFAULT_STOP_REFRESH_TIME)
     public List<YxStoreProductQueryVo> getList(int page, int limit, int order) {
 
         QueryWrapper<YxStoreProduct> wrapper = new QueryWrapper<>();

@@ -1,8 +1,8 @@
 package co.yixiang.modules.coupons.web.vo;
 
-import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -10,7 +10,7 @@ import java.util.List;
  * @Author : huanghui
  */
 @Data
-public class CouponOrderQueryVo {
+public class CouponOrderQueryVo implements Serializable {
 
     /** 购买数量 */
     private Integer quantity;

@@ -157,3 +157,41 @@ logging:
   #当参数定义int简单类型并使用@apiModelPerperty标签时,如果不指名example属性,会导致swagger类型转换错误,信息如下
   #java.lang.NumberFormatException: For input string: ""
   level.io.swagger.models.parameters.AbstractSerializableParameter: error
+
+# 叮叮配置
+dingding:
+  log:
+    enabled: true
+    accessToken: f6b51497a6fa18dd05526c41533cedb5e4445e77de37733c68a0e0de01dd4b43
+    secret: SECac2971ad758c4d5d20908a4aa01e5e286248f93abd854e2199632560fd5f95e0
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: 'prometheus'
+  endpoint:
+    health:
+      show-details: ALWAYS
+
+jetcache:
+  statIntervalMinutes: 15
+  areaInCacheName: false
+  local:
+    default:
+      type: linkedhashmap
+      keyConvertor: fastjson
+      limit: 100
+  remote:
+    default:
+      type: redis
+      keyConvertor: fastjson
+      valueEncoder: java
+      valueDecoder: java
+      poolConfig:
+        minIdle: 2
+        maxIdle: 20
+        maxTotal: 50
+      host: ${spring.redis.host}
+      port: ${spring.redis.port}
+      password: ${spring.redis.password}
