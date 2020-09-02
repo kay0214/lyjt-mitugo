@@ -11,6 +11,7 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -79,6 +80,9 @@ public class YxUserExtract implements Serializable {
 
     /** 微信号 */
     private String wechat;
+
+    /** 0:预留 1:前台用户 2：后台商户 3：后台合伙人 */
+    private Integer userType;
 
 
     public void copy(YxUserExtract source){

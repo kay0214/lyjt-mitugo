@@ -67,8 +67,8 @@ public class YxCouponsCategoryServiceImpl extends BaseServiceImpl<YxCouponsCateg
         QueryWrapper<YxCouponsCategory> queryWrapper = new QueryWrapper<>();
         queryWrapper.lambda().select()
                 .and(StringUtils.isNoneBlank(request.getCateName()), cateName -> cateName.like(YxCouponsCategory::getCateName, request.getCateName()))
-                .orderByDesc(YxCouponsCategory::getId)
-                .orderByAsc(YxCouponsCategory::getSort);
+                .orderByDesc(YxCouponsCategory::getSort)
+                .orderByDesc(YxCouponsCategory::getCreateTime);
         List<YxCouponsCategory> categoryList = baseMapper.selectList(queryWrapper);
         List<YxCouponsCategoryDto> list = new ArrayList<>();
         for (YxCouponsCategory item :categoryList) {
@@ -110,7 +110,9 @@ public class YxCouponsCategoryServiceImpl extends BaseServiceImpl<YxCouponsCateg
     @Override
     //@Cacheable
     public List<YxCouponsCategory> queryAll(YxCouponsCategoryQueryCriteria criteria){
-        return baseMapper.selectList(QueryHelpPlus.getPredicate(YxCouponsCategory.class, criteria));
+        QueryWrapper queryWrapper = QueryHelpPlus.getPredicate(YxStoreCategoryDto.class, criteria);
+        queryWrapper.orderByDesc("sort","add_time");
+        return baseMapper.selectList(queryWrapper);
     }
 
 

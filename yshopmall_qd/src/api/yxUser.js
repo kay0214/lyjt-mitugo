@@ -38,3 +38,12 @@ export function editp(data) {
     data
   })
 }
+
+export function withdraw(data) {
+  return request({
+    url: 'api/withdraw',
+    method: 'post',
+    data
+  })
+}
+

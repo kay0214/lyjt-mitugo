@@ -463,6 +463,10 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<StoreOrderMapper, Y
             throw new BadRequestException("请输入退款金额");
         }
 
+        YxStoreOrder order = yxStoreOrderMapper.selectById(resources.getId());
+        if(ObjectUtil.isNull(order)){
+            return;
+        }
         if (resources.getPayType().equals("yue")) {
             //修改状态
             resources.setRefundStatus(2);
@@ -499,13 +503,13 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<StoreOrderMapper, Y
             yxStoreOrderStatusService.save(storeOrderStatus);
         } else {
             BigDecimal bigDecimal = new BigDecimal("100");
-            BigDecimal bigSumPrice = new BigDecimal(yxStoreOrderMapper.sumPayPrice(resources.getPaymentNo()));
+            BigDecimal bigSumPrice = new BigDecimal(Double.toString(yxStoreOrderMapper.sumPayPrice(order.getPaymentNo())));
             try {
                 if (OrderInfoEnum.PAY_CHANNEL_1.getValue().equals(resources.getIsChannel())) {
                     //修改->多个订单，同一个付款单号，orderId为退款单号
                    /* miniPayService.refundOrder(resources.getOrderId(),
                             bigDecimal.multiply(resources.getPayPrice()).intValue());*/
-                    miniPayService.refundOrderNew(resources.getOrderId(), bigDecimal.multiply(resources.getPayPrice()).intValue(), resources.getPaymentNo(), bigDecimal.multiply(bigSumPrice).intValue());
+                    miniPayService.refundOrderNew(resources.getOrderId(), bigDecimal.multiply(resources.getPayPrice()).intValue(), order.getPaymentNo(), bigDecimal.multiply(bigSumPrice).intValue());
                 } else {
                     /*payService.refundOrder(resources.getOrderId(),
                             bigDecimal.multiply(resources.getPayPrice()).intValue());*/

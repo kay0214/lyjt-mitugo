@@ -72,13 +72,13 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
         QueryWrapper<YxCoupons> queryWrapper = new QueryWrapper<>();
         queryWrapper.orderByDesc("create_time");
         if (0 != criteria.getUserRole()) {
-            if (null == criteria.getChildUser() || criteria.getChildUser().size() <= 0) {
+            if (null == criteria.getChildStoreId() || criteria.getChildStoreId().size() <= 0) {
                 Map<String, Object> map = new LinkedHashMap<>(2);
                 map.put("content", new ArrayList<>());
                 map.put("totalElements", 0);
                 return map;
             }
-            queryWrapper.lambda().in(YxCoupons::getStoreId, criteria.getChildUser()).eq(YxCoupons::getDelFlag, 0);
+            queryWrapper.lambda().in(YxCoupons::getStoreId, criteria.getChildStoreId()).eq(YxCoupons::getDelFlag, 0);
         }
 
         if (StringUtils.isNotBlank(criteria.getCouponName())) {

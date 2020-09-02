@@ -62,7 +62,7 @@ public class UserExtractController extends BaseController {
         int uid = SecurityUtils.getUserId().intValue();
         YxUserQueryVo userInfo = userService.getYxUserById(uid);
         Map<String, Object> map = new LinkedHashMap<>();
-        map.put("commissionCount", userInfo.getBrokeragePrice());
+        map.put("commissionCount", userInfo.getNowMoney());
         map.put("minPrice", systemConfigService.getData(SystemConfigConstants.USER_EXTRACT_MIN_PRICE));
         return ApiResult.ok(map);
     }
@@ -89,6 +89,8 @@ public class UserExtractController extends BaseController {
     public ApiResult<Paging<YxUserExtractQueryVo>> getYxUserExtractPageList(@Valid @RequestBody(required = false) YxUserExtractQueryParam yxUserExtractQueryParam) throws Exception {
         int uid = SecurityUtils.getUserId().intValue();
         yxUserExtractQueryParam.setUid(uid);
+        // 查询前台用户
+        yxUserExtractQueryParam.setUserType(1);
         // 获取提现分页数据
         Paging<YxUserExtractQueryVo> paging = userExtractService.getYxUserExtractPageList(yxUserExtractQueryParam);
         // 获取总累计提现金额

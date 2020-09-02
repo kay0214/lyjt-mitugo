@@ -60,6 +60,9 @@ public class YxPointDetailServiceImpl extends BaseServiceImpl<YxPointDetailMappe
         if (StringUtils.isNotBlank(criteria.getUsername())) {
             queryWrapper.lambda().eq(YxPointDetail::getUsername, criteria.getUsername());
         }
+        if (criteria.getCreateTime() != null && criteria.getCreateTime().size() > 0){
+            queryWrapper.lambda().between(YxPointDetail::getCreateTime, criteria.getCreateTime().get(0), criteria.getCreateTime().get(1));
+        }
         IPage<YxPointDetail> ipage = this.page(new Page<>(pageable.getPageNumber() + 1, pageable.getPageSize()), queryWrapper);
 
         Map<String, Object> map = new LinkedHashMap<>(3);

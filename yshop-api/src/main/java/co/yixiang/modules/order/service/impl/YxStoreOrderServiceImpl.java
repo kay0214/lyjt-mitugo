@@ -1739,6 +1739,10 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
     @Transactional(rollbackFor = Exception.class)
     public List<YxStoreOrder> createOrderNew(int uid, String key, OrderNewParam param) {
         List<YxStoreOrder> orderList = new ArrayList<YxStoreOrder>();
+        List<Map<String,Object>> listObjectSec = new ArrayList<>();
+        if(CollectionUtils.isNotEmpty(param.getMarkMap())){
+            listObjectSec = param.getMarkMap();
+        }
         YxUserQueryVo userInfo = userService.getYxUserById(uid);
         if (ObjectUtil.isNull(userInfo)) throw new ErrorRequestException("用户不存在");
 
@@ -1782,6 +1786,19 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
             couIds = param.getCouponIdList();
         }
         for (YxStoreStoreCartQueryVo storeStoreCartQueryVo : storeCartQueryVoList) {
+            //mark
+            String markValue ="";
+            if(CollectionUtils.isNotEmpty(listObjectSec)){
+                for(int i=0;i<listObjectSec.size();i++){
+                    Map<String,Object> mapParam = listObjectSec.get(i);
+                    String strStoreId = mapParam.get("storeId").toString();
+                    int mapStroe = Integer.parseInt(strStoreId);
+                    if(mapStroe==storeStoreCartQueryVo.getStoreId()){
+                        markValue=mapParam.get("mark").toString();
+                        break;
+                    }
+                }
+            }
             //邮费
             payPostage = storeStoreCartQueryVo.getStorePostage().doubleValue();
             //订单支付金额
@@ -1813,6 +1830,11 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
                         couponId = couponUser.getId();
                         bigOrderPayPrice = bigOrderPayPrice.subtract(couponUser.getCouponPrice());
                         couponUserService.useCoupon(couponId);//更新优惠券状态
+                        for(int ic=0;ic<couIds.size();ic++){
+                            if(couIds.get(ic)==couponId){
+                                couIds.remove(ic);
+                            }
+                        }
                         couponPrice = couponUser.getCouponPrice().doubleValue();
                     }
                 } else {
@@ -1862,55 +1884,6 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
             // 积分抵扣
             double deductionPrice = 0; //抵扣金额
             double usedIntegral = 0; //使用的积分
-            //积分抵扣开始
-     /*       if (useIntegral > 0 && userInfo.getIntegral().doubleValue() > 0) {
-                Double integralMax = Double.valueOf(cacheDTO.getOther().getIntegralMax());
-                Double integralFull = Double.valueOf(cacheDTO.getOther().getIntegralFull());
-                Double integralRatio = Double.valueOf(cacheDTO.getOther().getIntegralRatio());
-                if (totalPrice >= integralFull) {
-                    Double userIntegral = userInfo.getIntegral().doubleValue();
-                    if (integralMax > 0 && userIntegral >= integralMax) userIntegral = integralMax;
-                    deductionPrice = NumberUtil.mul(userIntegral, integralRatio);
-                    double subPice = 0d;
-                    if (deductionPrice < bigOrderPayPrice.doubleValue()) {
-                        subPice = NumberUtil.sub(bigOrderPayPrice.doubleValue(), deductionPrice);
-                        bigOrderPayPrice = BigDecimal.valueOf(subPice);
-                        usedIntegral = userIntegral;
-                    } else {
-                        subPice = bigOrderPayPrice.doubleValue();
-                        double doubleRatio = Double.valueOf(cacheDTO.getOther().getIntegralRatio());
-                        deductionPrice = payPrice.doubleValue();
-                        usedIntegral = NumberUtil.div(subPice, doubleRatio);
-                        bigOrderPayPrice = new BigDecimal(0);
-                    }
-                    userService.decIntegral(uid, usedIntegral);
-                    //积分流水
-                    YxUserBill userBill = new YxUserBill();
-                    userBill.setUid(uid);
-                    userBill.setTitle("积分抵扣");
-                    userBill.setLinkId(orderSn);
-                    userBill.setCategory("integral");
-                    userBill.setType("deduction");
-                    userBill.setNumber(BigDecimal.valueOf(usedIntegral));
-                    userBill.setBalance(userInfo.getIntegral());
-                    userBill.setMark("购买商品使用");
-                    userBill.setStatus(1);
-                    userBill.setPm(0);
-                    userBill.setAddTime(OrderUtil.getSecondTimestampTwo());
-                    //订单商品所属商户id
-                    userBill.setMerId(storeStoreCartQueryVo.getMerId());
-                    //  订单商品所属合伙人id
-                    userBill.setPartnerId(userInfo.getPartnerId());
-                    //用户类型 0:预留 1:前台用户 2：后台商户 3：后台合伙人
-                    userBill.setUserType(1);
-//                    用户名
-                    userBill.setUsername(userInfo.getUsername());
-                    billService.save(userBill);
-                }
-
-
-            }*/
-
             if (payPrice <= 0) payPrice = 0d;
 
             //组合数据
@@ -1935,7 +1908,7 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
             storeOrder.setPayType(param.getPayType());
             storeOrder.setUseIntegral(BigDecimal.valueOf(usedIntegral));
             storeOrder.setGainIntegral(BigDecimal.valueOf(gainIntegral));
-            storeOrder.setMark(param.getMark());
+            storeOrder.setMark(markValue);
             storeOrder.setCombinationId(combinationId);
             storeOrder.setPinkId(0);
             storeOrder.setSeckillId(seckillId);
@@ -2248,6 +2221,7 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
         }
         ComputeDTO computeDTO = new ComputeDTO();
         BigDecimal bigDecimalTotle = BigDecimal.ZERO;
+        BigDecimal bigDecimalPay = BigDecimal.ZERO;
         BigDecimal bigDecimalPostagt = BigDecimal.ZERO;
         List<YxStoreStoreCartQueryVo> storeCartQueryVoList =cacheStoreDTO.getCartInfo();
         if(CollectionUtils.isEmpty(storeCartQueryVoList)){
@@ -2256,6 +2230,7 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
         }
         double couponPrice = 0;
         for(YxStoreStoreCartQueryVo cartQueryVo:storeCartQueryVoList){
+            bigDecimalPay = bigDecimalPay.add(cartQueryVo.getOrderSumPrice());
             //所有订单支付金额
             bigDecimalTotle = bigDecimalTotle.add(cartQueryVo.getOrderSumPrice());
             //所有订单的邮费
@@ -2280,7 +2255,7 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
                             throw new ErrorRequestException("不满足优惠劵的使用条件");
                         }
                         //
-                        bigDecimalTotle = bigDecimalTotle.subtract(couponUser.getCouponPrice());
+                        bigDecimalPay = bigDecimalPay.subtract(couponUser.getCouponPrice());
                         //
                         couponPrice = couponPrice + couponUser.getCouponPrice().doubleValue();
                     }
@@ -2289,65 +2264,12 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
 
         }
         computeDTO.setTotalPrice(bigDecimalTotle.doubleValue());
-        Double payPrice = bigDecimalTotle.doubleValue();
+        Double payPrice = bigDecimalPay.doubleValue();
         Double payPostage = bigDecimalPostagt.doubleValue();
 
         //支付金额= 支付金额+邮费
         payPrice = NumberUtil.add(payPrice, payPostage);
-
-       /* boolean deduction = false;//拼团秒杀砍价等
-        int combinationId = 0;
-        int seckillId = 0;
-        int bargainId = 0;
-        List<YxStoreCartQueryVo> cartInfo = cacheDTO.getCartInfo();
-        for (YxStoreCartQueryVo cart : cartInfo) {
-            combinationId = cart.getCombinationId();
-            seckillId = cart.getSeckillId();
-            bargainId = cart.getBargainId();
-        }
-        //拼团等不参与抵扣
-        if (combinationId > 0 || seckillId > 0 || bargainId > 0) deduction = true;
-
-
-        if (deduction) {
-            couponId = 0;
-            useIntegral = 0;
-        }*/
-
-        /*if (couponId > 0) {//使用优惠券
-            YxStoreCouponUser couponUser = couponUserService.getCoupon(couponId, uid);
-            if (ObjectUtil.isNull(couponUser)) throw new ErrorRequestException("使用优惠劵失败");
-
-            if (couponUser.getUseMinPrice().doubleValue() > payPrice) {
-                throw new ErrorRequestException("不满足优惠劵的使用条件");
-            }
-            payPrice = NumberUtil.sub(payPrice, couponUser.getCouponPrice()).doubleValue();
-
-            couponPrice = couponUser.getCouponPrice().doubleValue();
-
-        }*/
-
         double deductionPrice = 0; //抵扣金额
-        // 积分抵扣
-       /* double deductionPrice = 0;
-        System.out.println("a:" + userInfo.getIntegral().doubleValue());
-        if (useIntegral > 0 && userInfo.getIntegral().doubleValue() > 0) {
-            Double integralMax = Double.valueOf(cacheDTO.getOther().getIntegralMax());
-            Double integralFull = Double.valueOf(cacheDTO.getOther().getIntegralFull());
-            Double integralRatio = Double.valueOf(cacheDTO.getOther().getIntegralRatio());
-            if (computeDTO.getTotalPrice() >= integralFull) {
-                Double userIntegral = userInfo.getIntegral().doubleValue();
-                if (integralMax > 0 && userIntegral >= integralMax) userIntegral = integralMax;
-                deductionPrice = NumberUtil.mul(userIntegral, integralRatio);
-                if (deductionPrice < payPrice) {
-                    payPrice = NumberUtil.sub(payPrice.doubleValue(), deductionPrice);
-                } else {
-                    deductionPrice = payPrice;
-                    payPrice = 0d;
-                }
-            }
-        }*/
-
         if (payPrice <= 0) payPrice = 0d;
 
         computeDTO.setPayPrice(payPrice);

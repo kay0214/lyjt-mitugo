@@ -2,6 +2,7 @@ package co.yixiang.modules.user.web.param;
 
 import co.yixiang.common.web.param.QueryParam;
 import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -19,5 +20,10 @@ import lombok.EqualsAndHashCode;
 public class YxUserExtractQueryParam extends QueryParam {
     private static final long serialVersionUID = 1L;
 
+    @ApiModelProperty(value = "用户uid")
     private Integer uid;
+
+    @ApiModelProperty(value = "0:预留 1:前台用户 2：后台商户 3：后台合伙人")
+    private Integer userType;
+
 }

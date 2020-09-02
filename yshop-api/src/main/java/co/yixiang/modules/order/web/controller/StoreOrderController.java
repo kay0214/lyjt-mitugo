@@ -4,7 +4,6 @@
 package co.yixiang.modules.order.web.controller;
 
 import cn.hutool.core.io.FileUtil;
-import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.qrcode.QrCodeUtil;
@@ -900,7 +899,7 @@ public class StoreOrderController extends BaseController {
             orderIdList.add(order.getOrderId());
             bigDecimalPrice = bigDecimalPrice.add(order.getPayPrice());
         }
-        String payNo = IdUtil.getSnowflake(0, 0).nextIdStr();
+        String payNo = orderCreateList.get(0).getPaymentNo();
         OrderExtendDTO orderDTO = new OrderExtendDTO();
         orderDTO.setKey(key);
         orderDTO.setOrderId(payNo);
@@ -980,34 +979,6 @@ public class StoreOrderController extends BaseController {
         }
         String shippingType = jsonObject.getString("shipping_type");
         String useIntegral = jsonObject.getString("useIntegral");
-        // 砍价
-        /*if (ObjectUtil.isNotNull(jsonObject.getInteger("bargainId"))) {
-            YxStoreBargainUser storeBargainUser = storeBargainUserService.getBargainUserInfo(jsonObject.getInteger("bargainId")
-                    , uid);
-            if (ObjectUtil.isNull(storeBargainUser)) return ApiResult.fail("砍价失败");
-            if (storeBargainUser.getStatus() == 3) return ApiResult.fail("砍价已支付");
-        }
-        // 拼团
-        if (ObjectUtil.isNotNull(jsonObject.getInteger("pinkId"))) {
-            int pinkId = jsonObject.getInteger("pinkId");
-            YxStoreOrder yxStoreOrder = storeOrderService.getOrderPink(pinkId, uid, 1);
-            if (storePinkService.getIsPinkUid(pinkId, uid) > 0) {
-                map.put("status", "ORDER_EXIST");
-                OrderExtendDTO orderExtendDTO = new OrderExtendDTO();
-                orderExtendDTO.setOrderId(yxStoreOrder.getOrderId());
-                map.put("result", orderExtendDTO);
-                return ApiResult.ok(map, "订单生成失败，你已经在该团内不能再参加了");
-            }
-            YxStoreOrder yxStoreOrderT = storeOrderService.getOrderPink(pinkId, uid, 0);
-            if (ObjectUtil.isNotNull(yxStoreOrderT)) {
-                map.put("status", "ORDER_EXIST");
-                OrderExtendDTO orderExtendDTO = new OrderExtendDTO();
-                orderExtendDTO.setOrderId(yxStoreOrder.getOrderId());
-                map.put("result", orderExtendDTO);
-                return ApiResult.ok(map, "订单生成失败，你已经参加该团了，请先支付订单");
-            }
-
-        }*/
         ComputeDTO computeDTO = storeOrderService.computedOrderNew(uid, key,
                 listCoupon);
 
