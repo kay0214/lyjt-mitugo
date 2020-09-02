@@ -113,11 +113,12 @@ public class UserServiceImpl extends BaseServiceImpl<UserSysMapper, User> implem
      * 用户发起提现申请
      *
      * @param uid
+     * @param userType
      * @param extractPrice
      * @return
      */
     @Override
-    public boolean updateUserWithdraw(Integer uid, BigDecimal extractPrice) {
+    public boolean updateUserWithdraw(Integer uid, Integer userType, BigDecimal extractPrice) {
         if (extractPrice.compareTo(BigDecimal.ZERO) <= 0) {
             throw new BadRequestException("提现金额必须大于0");
         }
@@ -145,7 +146,7 @@ public class UserServiceImpl extends BaseServiceImpl<UserSysMapper, User> implem
         yxUserExtract.setExtractPrice(extractPrice);
         yxUserExtract.setAddTime(OrderUtil.getSecondTimestampTwo());
         yxUserExtract.setStatus(0);
-        yxUserExtract.setUserType(1);
+        yxUserExtract.setUserType(userType);
         this.yxUserExtractService.save(yxUserExtract);
         return true;
     }

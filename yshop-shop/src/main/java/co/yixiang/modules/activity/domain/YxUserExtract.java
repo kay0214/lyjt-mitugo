@@ -81,7 +81,7 @@ public class YxUserExtract implements Serializable {
     /** 微信号 */
     private String wechat;
 
-    /** 用户类型0:前台用户1后台用户 */
+    /** 0:预留 1:前台用户 2：后台商户 3：后台合伙人 */
     private Integer userType;
 
 

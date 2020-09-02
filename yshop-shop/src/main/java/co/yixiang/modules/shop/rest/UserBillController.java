@@ -1,9 +1,7 @@
 package co.yixiang.modules.shop.rest;
 
-import co.yixiang.exception.BadRequestException;
 import co.yixiang.logging.aop.log.Log;
 import co.yixiang.modules.activity.domain.YxUserExtract;
-import co.yixiang.modules.shop.domain.User;
 import co.yixiang.modules.shop.service.UserService;
 import co.yixiang.modules.shop.service.YxUserBillService;
 import co.yixiang.modules.shop.service.dto.WithdrawReviewQueryCriteria;
@@ -20,8 +18,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import java.math.BigDecimal;
 
 /**
  * @author hupeng
@@ -67,7 +63,12 @@ public class UserBillController {
     @PreAuthorize("hasAnyRole('admin','YXUSERBILL_ALL','YXUSERBILL_WITHDRAW')")
     public ResponseEntity<Object> withdraw(@RequestBody YxUserExtract request) {
         int uid = SecurityUtils.getUserId().intValue();
-        boolean result = this.userService.updateUserWithdraw(uid, request.getExtractPrice());
+        // 0->平台运营,1->合伙人,2->商户
+        int userType = 2;
+        if (1 == SecurityUtils.getCurrUser().getUserRole()) {
+            userType = 3;
+        }
+        boolean result = this.userService.updateUserWithdraw(uid, userType, request.getExtractPrice());
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 

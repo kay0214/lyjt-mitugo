@@ -90,7 +90,7 @@ public class UserExtractController extends BaseController {
         int uid = SecurityUtils.getUserId().intValue();
         yxUserExtractQueryParam.setUid(uid);
         // 查询前台用户
-        yxUserExtractQueryParam.setUserType(0);
+        yxUserExtractQueryParam.setUserType(1);
         // 获取提现分页数据
         Paging<YxUserExtractQueryVo> paging = userExtractService.getYxUserExtractPageList(yxUserExtractQueryParam);
         // 获取总累计提现金额
