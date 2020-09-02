@@ -61,7 +61,7 @@ public class YxUserExtractServiceImpl extends BaseServiceImpl<YxUserExtractMappe
     @Override
     public void userExtract(int uid, UserExtParam param) {
         YxUserQueryVo userInfo = userService.getYxUserById(uid);
-        BigDecimal extractPrice = userInfo.getBrokeragePrice();
+        BigDecimal extractPrice = userInfo.getNowMoney();
         if (extractPrice.compareTo(BigDecimal.ZERO) <= 0) {
             throw new ErrorRequestException("佣金不足无法提现");
         }
@@ -115,23 +115,9 @@ public class YxUserExtractServiceImpl extends BaseServiceImpl<YxUserExtractMappe
 
         //更新佣金
         YxUser yxUser = new YxUser();
-        yxUser.setBrokeragePrice(balance);
+        yxUser.setNowMoney(balance);
         yxUser.setUid(uid);
         userService.updateById(yxUser);
-        //插入流水
-        YxUserBill userBill = new YxUserBill();
-        userBill.setUid(uid);
-        userBill.setTitle("佣金提现");
-        userBill.setLinkId(userExtract.getId().toString());
-        userBill.setCategory("now_money");
-        userBill.setType("extract");
-        userBill.setNumber(money);
-        userBill.setBalance(balance);
-        userBill.setMark(mark);
-        userBill.setStatus(BillEnum.STATUS_1.getValue());
-        userBill.setPm(BillEnum.PM_0.getValue());
-        userBill.setAddTime(OrderUtil.getSecondTimestampTwo());
-        billService.save(userBill);
     }
 
     @Override
