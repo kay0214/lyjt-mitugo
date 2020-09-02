@@ -53,7 +53,7 @@
         <el-input v-model="form.stock" οnkeyup="this.value=this.value.replace(//D/g,'')" onafterpaste="this.value=this.value.replace(//D/g,'')"/>
       </el-form-item>
       <el-form-item label="佣金" prop='commission'>
-        <el-input v-model="form.commission" readonly/>
+        <el-input v-model="commission" readonly/>
       </el-form-item>
       <el-form-item label="是否包邮" prop='isPostage'>
         <el-radio v-model="form.isPostage" :label="1">是</el-radio>
@@ -95,6 +95,13 @@ export default {
     isAdd: {
       type: Boolean,
       required: true
+    }
+  },
+  computed: {
+    commission: function () {
+      if(!isNaN(this.form.price) && !isNaN(this.form.settlement)) {
+        return this.form.price - this.form.settlement
+      } else return ''
     }
   },
   data() {
@@ -142,14 +149,9 @@ export default {
         barCode: '',
         cateId: 1,
         storeCategory: {id:null},
-        price: 0,
         vipPrice: 0,
-        otPrice: 0,
-        postage: 0,
         unitName: '',
-        sort: 0,
         sales: 0,
-        stock: 0,
         isShow: 1,
         isHot: 0,
         isBenefit: 0,
@@ -162,11 +164,9 @@ export default {
         merUse: 0,
         giveIntegral: 0,
         cost: 0,
-        settlement: 0,
         isSeckill: 0,
         isBargain: 0,
         isGood: 0,
-        ficti: 0,
         browse: 0,
         codePath: '',
         soureLink: ''
@@ -309,14 +309,9 @@ export default {
         barCode: '',
         cateId: 1,
         storeCategory: {},
-        price: 0,
         vipPrice: 0,
-        otPrice: 0,
-        postage: 0,
         unitName: '',
-        sort: 0,
         sales: 0,
-        stock: 0,
         isShow: 1,
         isHot: 0,
         isBenefit: 0,
@@ -332,7 +327,6 @@ export default {
         isSeckill: 0,
         isBargain: 0,
         isGood: 0,
-        ficti: 0,
         browse: 0,
         codePath: '',
       }
