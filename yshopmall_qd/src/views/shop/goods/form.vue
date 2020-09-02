@@ -125,12 +125,14 @@ export default {
       }
     };
     //佣金校验 销售价price-平台结算价settlement>=0
-    let commissionValue=(r,value,callback)=>{
+    let commissionValue=(r,value,callback)=>{      
       let val=this.form.price*1-this.form.settlement*1
       if(val<0){
         callback(new Error("佣金=销售价-平台结算价 (佣金>=0)"));
       }else{
-        this.$set(this.form,'commission',val)
+        if(!isNaN(val)){
+          this.$set(this.form,'commission',val)
+        }
         callback()
       }
     };
