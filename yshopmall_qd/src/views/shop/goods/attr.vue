@@ -394,7 +394,7 @@ export default {
       this.dialog = false
     },
     clear() {
-      this.$confirm(`确定要清空属性数据'}]操作?`, '提示', {
+      this.$confirm(`确定要清空属性数据操作?`, '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
