@@ -227,16 +227,13 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
      */
     @Override
     public Paging<LocalLiveListVo> getLocalLiveList(LocalLiveQueryParam localLiveQueryParam,String location) throws Exception {
-        log.info("打个日志试试有没有进接口1");
         Page page = setPageParam(localLiveQueryParam, OrderItem.desc("create_time"));
-        log.info("打个日志试试有没有进接口2");
         IPage<LocalLiveListVo> iPage = yxStoreInfoMapper.getLocalLiveList(page, localLiveQueryParam);
-        log.info("打个日志试试有没有进接口3");
         List<LocalLiveListVo> localLiveListVoList = iPage.getRecords();
-        log.info("打个日志试试有没有进接口4");
         iPage.setTotal(localLiveListVoList.size());
-        log.info("打个日志试试有没有进接口5");
+        log.info("打个日志试试有没有进接口：件数" + localLiveListVoList.size());
         for (LocalLiveListVo localLiveListVo : localLiveListVoList){
+            log.info("打个日志试试有没有进接口1");
             if(StringUtils.isNotBlank(location)) {
                 // 设置距离
                 // 维度  京都
@@ -246,19 +243,24 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
                 double distance = DistanceMeterUtil.getDistanceMeter(source, target);
                 localLiveListVo.setDistance(distance + "");
             }
+            log.info("打个日志试试有没有进接口2");
             QueryWrapper<YxImageInfo> imageInfoQueryWrapper = new QueryWrapper<>();
             imageInfoQueryWrapper.lambda().eq(YxImageInfo::getTypeId, localLiveListVo.getId())
                     .eq(YxImageInfo::getImgType, ShopConstants.IMG_TYPE_STORE).eq(YxImageInfo::getImgCategory, ShopConstants.IMG_CATEGORY_PIC);
+            log.info("打个日志试试有没有进接口3");
             YxImageInfo yxImageInfo = yxImageInfoMapper.selectOne(imageInfoQueryWrapper);
+            log.info("打个日志试试有没有进接口4");
             if (yxImageInfo != null) {
                 localLiveListVo.setImg(yxImageInfo.getImgUrl());
             }
+            log.info("打个日志试试有没有进接口5");
             List<LocalLiveCouponsVo> localLiveCouponsVoList = yxCouponsService.getCouponsLitByBelog(localLiveListVo.getId());
 
+            log.info("打个日志试试有没有进接口6");
             localLiveListVo.setLocalLiveCouponsVoList(localLiveCouponsVoList);
 
         }
-        log.info("打个日志试试有没有进接口6");
+        log.info("打个日志试试有没有进接口7");
         return new Paging(iPage);
     }
 }
