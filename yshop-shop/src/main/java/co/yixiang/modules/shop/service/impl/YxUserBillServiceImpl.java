@@ -6,7 +6,9 @@ package co.yixiang.modules.shop.service.impl;
 
 import co.yixiang.common.service.impl.BaseServiceImpl;
 import co.yixiang.dozer.service.IGenerator;
+import co.yixiang.modules.shop.domain.User;
 import co.yixiang.modules.shop.domain.YxUserBill;
+import co.yixiang.modules.shop.service.UserService;
 import co.yixiang.modules.shop.service.YxUserBillService;
 import co.yixiang.modules.shop.service.dto.WithdrawReviewQueryCriteria;
 import co.yixiang.modules.shop.service.dto.YxUserBillDto;
@@ -20,6 +22,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.pagehelper.PageInfo;
 import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -43,6 +46,8 @@ import java.util.Map;
 public class YxUserBillServiceImpl extends BaseServiceImpl<UserBillMapper, YxUserBill> implements YxUserBillService {
 
     private final IGenerator generator;
+    @Autowired
+    private UserService userService;
 
     @Override
     //@Cacheable
@@ -51,11 +56,11 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<UserBillMapper, YxUse
 //        PageInfo<YxUserBillDto> page = new PageInfo<>(queryAll(criteria));
         QueryWrapper<YxUserBill> queryWrapper = new QueryWrapper<>();
         queryWrapper.lambda().orderByDesc(YxUserBill::getAddTime);
-        if(1 == criteria.getUserRole()) {
-            queryWrapper.lambda().eq(YxUserBill::getUid, criteria.getUid()).eq(YxUserBill::getUserType,3);
+        if (1 == criteria.getUserRole()) {
+            queryWrapper.lambda().eq(YxUserBill::getUid, criteria.getUid()).eq(YxUserBill::getUserType, 3);
         }
-        if(2 == criteria.getUserRole()) {
-            queryWrapper.lambda().eq(YxUserBill::getUid, criteria.getUid()).eq(YxUserBill::getUserType,2);
+        if (2 == criteria.getUserRole()) {
+            queryWrapper.lambda().eq(YxUserBill::getUid, criteria.getUid()).eq(YxUserBill::getUserType, 2);
         }
         if (StringUtils.isNotBlank(criteria.getUsername())) {
             queryWrapper.lambda().like(YxUserBill::getUsername, criteria.getUsername());
@@ -69,12 +74,15 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<UserBillMapper, YxUse
         if (StringUtils.isNotBlank(criteria.getAddTimeStart()) && StringUtils.isNotBlank(criteria.getAddTimeEnd())) {
             queryWrapper.lambda().ge(YxUserBill::getAddTime, criteria.getAddTimeStart()).le(YxUserBill::getAddTime, criteria.getAddTimeEnd());
         }
+        User user = this.userService.getById(criteria.getUid());
 
         IPage<YxUserBill> ipage = this.page(new Page<>(pageable.getPageNumber() + 1, pageable.getPageSize()), queryWrapper);
 
-        Map<String, Object> map = new LinkedHashMap<>(2);
+        Map<String, Object> map = new LinkedHashMap<>(4);
         map.put("content", ipage.getRecords());
         map.put("totalElements", ipage.getTotal());
+        map.put("remainPrice", user.getWithdrawalAmount());
+        map.put("totalPrice", user.getTotalAmount());
         return map;
     }
 

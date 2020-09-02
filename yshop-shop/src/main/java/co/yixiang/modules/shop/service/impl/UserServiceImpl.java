@@ -14,14 +14,17 @@ import co.yixiang.dozer.service.IGenerator;
 import co.yixiang.exception.BadRequestException;
 import co.yixiang.modules.activity.domain.YxUserExtract;
 import co.yixiang.modules.activity.service.YxUserExtractService;
+import co.yixiang.modules.activity.service.mapper.YxUserExtractMapper;
 import co.yixiang.modules.shop.domain.User;
 import co.yixiang.modules.shop.domain.YxMerchantsDetail;
 import co.yixiang.modules.shop.service.UserService;
 import co.yixiang.modules.shop.service.dto.UserDto;
 import co.yixiang.modules.shop.service.dto.UserQueryCriteria;
 import co.yixiang.modules.shop.service.mapper.UserSysMapper;
+import co.yixiang.modules.shop.service.mapper.YxMerchantsDetailMapper;
 import co.yixiang.utils.FileUtil;
 import co.yixiang.utils.OrderUtil;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.github.pagehelper.PageInfo;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,10 +58,10 @@ public class UserServiceImpl extends BaseServiceImpl<UserSysMapper, User> implem
 
     private final IGenerator generator;
 
-    //    @Autowired
-//    private YxMerchantsDetailService yxMerchantsDetailService;
     @Autowired
-    private YxUserExtractService yxUserExtractService;
+    private YxMerchantsDetailMapper yxMerchantsDetailMapper;
+    @Autowired
+    private YxUserExtractMapper yxUserExtractMapper;
 
     @Override
     //@Cacheable
@@ -124,7 +127,7 @@ public class UserServiceImpl extends BaseServiceImpl<UserSysMapper, User> implem
         if (extractPrice.compareTo(user.getWithdrawalAmount()) < 0) {
             throw new BadRequestException("当前可用提现金额不足");
         }
-        YxMerchantsDetail yxMerchantsDetail = new YxMerchantsDetail();//this.yxMerchantsDetailService.getOne(new QueryWrapper<YxMerchantsDetail>().lambda().eq(YxMerchantsDetail::getUid, uid));
+        YxMerchantsDetail yxMerchantsDetail = this.yxMerchantsDetailMapper.selectOne(new QueryWrapper<YxMerchantsDetail>().lambda().eq(YxMerchantsDetail::getUid, uid));
         if (null == yxMerchantsDetail) {
             throw new BadRequestException("获取商户信息失败");
         }
@@ -145,7 +148,7 @@ public class UserServiceImpl extends BaseServiceImpl<UserSysMapper, User> implem
         yxUserExtract.setAddTime(OrderUtil.getSecondTimestampTwo());
         yxUserExtract.setStatus(0);
         yxUserExtract.setUserType(userType);
-        this.yxUserExtractService.save(yxUserExtract);
+        this.yxUserExtractMapper.insert(yxUserExtract);
         return true;
     }
 }
