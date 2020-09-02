@@ -1739,6 +1739,10 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
     @Transactional(rollbackFor = Exception.class)
     public List<YxStoreOrder> createOrderNew(int uid, String key, OrderNewParam param) {
         List<YxStoreOrder> orderList = new ArrayList<YxStoreOrder>();
+        List<Map<String,Object>> listObjectSec = new ArrayList<>();
+        if(CollectionUtils.isNotEmpty(param.getMarkMap())){
+            listObjectSec = param.getMarkMap();
+        }
         YxUserQueryVo userInfo = userService.getYxUserById(uid);
         if (ObjectUtil.isNull(userInfo)) throw new ErrorRequestException("用户不存在");
 
@@ -1782,6 +1786,19 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
             couIds = param.getCouponIdList();
         }
         for (YxStoreStoreCartQueryVo storeStoreCartQueryVo : storeCartQueryVoList) {
+            //mark
+            String markValue ="";
+            if(CollectionUtils.isNotEmpty(listObjectSec)){
+                for(int i=0;i<listObjectSec.size();i++){
+                    Map<String,Object> mapParam = listObjectSec.get(i);
+                    String strStoreId = mapParam.get("storeId").toString();
+                    int mapStroe = Integer.parseInt(strStoreId);
+                    if(mapStroe==storeStoreCartQueryVo.getStoreId()){
+                        markValue=mapParam.get("mark").toString();
+                        break;
+                    }
+                }
+            }
             //邮费
             payPostage = storeStoreCartQueryVo.getStorePostage().doubleValue();
             //订单支付金额
@@ -1935,7 +1952,7 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
             storeOrder.setPayType(param.getPayType());
             storeOrder.setUseIntegral(BigDecimal.valueOf(usedIntegral));
             storeOrder.setGainIntegral(BigDecimal.valueOf(gainIntegral));
-            storeOrder.setMark(param.getMark());
+            storeOrder.setMark(markValue);
             storeOrder.setCombinationId(combinationId);
             storeOrder.setPinkId(0);
             storeOrder.setSeckillId(seckillId);
