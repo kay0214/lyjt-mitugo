@@ -1830,6 +1830,11 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
                         couponId = couponUser.getId();
                         bigOrderPayPrice = bigOrderPayPrice.subtract(couponUser.getCouponPrice());
                         couponUserService.useCoupon(couponId);//更新优惠券状态
+                        for(int ic=0;ic<couIds.size();ic++){
+                            if(couIds.get(ic)==couponId){
+                                couIds.remove(ic);
+                            }
+                        }
                         couponPrice = couponUser.getCouponPrice().doubleValue();
                     }
                 } else {
