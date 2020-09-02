@@ -135,6 +135,10 @@ public class YxCouponsController extends BaseController {
             if (thumbnail != null) {
                 item.setImage(thumbnail.getImgUrl());
             }
+            // 拼接有效期
+            String expireDate = DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD, item.getExpireDateStart()) + " ~ " + DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD, item.getExpireDateEnd());
+            item.setExpireDate(expireDate);
+            item.setAvailableTime(item.getAvailableTimeStart() + " ~ " + item.getAvailableTimeEnd());
         }
         return ApiResult.ok(paging);
     }
