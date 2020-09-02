@@ -140,6 +140,7 @@ public class LocaLifeIndexController {
     @ApiOperation(value = "获取本地生活分页列表",notes = "卡券订单表分页列表",response = YxCouponOrderQueryVo.class)
     public ApiResult<Paging<LocalLiveListVo>> getYxCouponOrderPageList(@Valid @RequestBody(required = false) LocalLiveQueryParam localLiveQueryParam
     ,@RequestHeader(value = "location", required = false) String location) throws Exception{
+        log.info("打个日志试试有没有进接口");
         Paging<LocalLiveListVo> paging = yxStoreInfoService.getLocalLiveList(localLiveQueryParam,location);
         return ApiResult.ok(paging);
     }
