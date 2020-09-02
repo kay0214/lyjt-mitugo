@@ -1,6 +1,8 @@
 package co.yixiang;
 
 import co.yixiang.utils.SpringContextHolder;
+import com.alicp.jetcache.anno.config.EnableCreateCacheAnnotation;
+import com.alicp.jetcache.anno.config.EnableMethodCache;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -18,6 +20,8 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @EnableTransactionManagement
 @EnableCaching
 @MapperScan({"co.yixiang.modules.*.mapper"})
+@EnableMethodCache(basePackages = "co.yixiang.modules")
+@EnableCreateCacheAnnotation
 public class ApiRun {
 
     public static void main(String[] args) {

@@ -5,6 +5,7 @@ import co.yixiang.common.api.ApiResult;
 import co.yixiang.common.web.controller.BaseController;
 import co.yixiang.common.web.param.IdParam;
 import co.yixiang.common.web.vo.Paging;
+import co.yixiang.constant.CacheConstant;
 import co.yixiang.constant.LocalLiveConstants;
 import co.yixiang.constant.ShopConstants;
 import co.yixiang.modules.coupons.entity.YxCoupons;
@@ -13,6 +14,9 @@ import co.yixiang.modules.coupons.web.param.YxCouponsQueryParam;
 import co.yixiang.modules.coupons.web.vo.YxCouponsQueryVo;
 import co.yixiang.modules.image.entity.YxImageInfo;
 import co.yixiang.modules.image.service.YxImageInfoService;
+import com.alicp.jetcache.anno.CacheRefresh;
+import com.alicp.jetcache.anno.CacheType;
+import com.alicp.jetcache.anno.Cached;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -139,6 +143,8 @@ public class YxCouponsController extends BaseController {
      */
     @AnonymousAccess
     @PostMapping("/getCouponsHotList")
+    @Cached(name="cachedCouponsHotList-", expire = CacheConstant.DEFAULT_EXPIRE_TIME, cacheType = CacheType.BOTH)
+    @CacheRefresh(refresh = CacheConstant.DEFAULT_REFRESH_TIME, stopRefreshAfterLastAccess = CacheConstant.DEFAULT_STOP_REFRESH_TIME)
     @ApiOperation(value = "本地生活卡券,热销榜单", notes = "本地生活卡券,热销榜单")
     public ApiResult<List<YxCouponsQueryVo>> getCouponsHotList(@Valid @RequestBody(required = false) YxCouponsQueryParam yxCouponsQueryParam) throws Exception{
         List<YxCouponsQueryVo> paging = yxCouponsService.getCouponsHotList(yxCouponsQueryParam);

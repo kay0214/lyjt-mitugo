@@ -2,6 +2,7 @@ package co.yixiang.modules.coupons.web.vo;
 
 import lombok.Data;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -9,7 +10,7 @@ import java.util.List;
  * @Author : huanghui
  */
 @Data
-public class LocalLiveIndexVo {
+public class LocalLiveIndexVo implements Serializable {
 
     /** 本地生活Banner下导航 */
     List<LocalLifeSliderVo> localLiveMenu;
