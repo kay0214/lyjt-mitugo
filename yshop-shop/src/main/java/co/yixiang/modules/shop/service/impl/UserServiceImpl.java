@@ -17,13 +17,11 @@ import co.yixiang.modules.activity.service.YxUserExtractService;
 import co.yixiang.modules.shop.domain.User;
 import co.yixiang.modules.shop.domain.YxMerchantsDetail;
 import co.yixiang.modules.shop.service.UserService;
-import co.yixiang.modules.shop.service.YxMerchantsDetailService;
 import co.yixiang.modules.shop.service.dto.UserDto;
 import co.yixiang.modules.shop.service.dto.UserQueryCriteria;
 import co.yixiang.modules.shop.service.mapper.UserSysMapper;
 import co.yixiang.utils.FileUtil;
 import co.yixiang.utils.OrderUtil;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.github.pagehelper.PageInfo;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,8 +55,8 @@ public class UserServiceImpl extends BaseServiceImpl<UserSysMapper, User> implem
 
     private final IGenerator generator;
 
-    @Autowired
-    private YxMerchantsDetailService yxMerchantsDetailService;
+    //    @Autowired
+//    private YxMerchantsDetailService yxMerchantsDetailService;
     @Autowired
     private YxUserExtractService yxUserExtractService;
 
@@ -126,7 +124,7 @@ public class UserServiceImpl extends BaseServiceImpl<UserSysMapper, User> implem
         if (extractPrice.compareTo(user.getWithdrawalAmount()) < 0) {
             throw new BadRequestException("当前可用提现金额不足");
         }
-        YxMerchantsDetail yxMerchantsDetail = this.yxMerchantsDetailService.getOne(new QueryWrapper<YxMerchantsDetail>().lambda().eq(YxMerchantsDetail::getUid, uid));
+        YxMerchantsDetail yxMerchantsDetail = new YxMerchantsDetail();//this.yxMerchantsDetailService.getOne(new QueryWrapper<YxMerchantsDetail>().lambda().eq(YxMerchantsDetail::getUid, uid));
         if (null == yxMerchantsDetail) {
             throw new BadRequestException("获取商户信息失败");
         }
