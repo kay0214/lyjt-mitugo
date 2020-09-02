@@ -277,7 +277,11 @@ export default {
         this.$parent.init()
       }).catch(err => {
         this.loading = false
-        console.log(err.response.data.message)
+        this.$notify({
+          title: '添加失败：'+err.response.data.msg,
+          type: 'error',
+          duration: 2500
+        })
       })
     },
     doEdit() {
@@ -292,7 +296,11 @@ export default {
         this.$parent.init()
       }).catch(err => {
         this.loading = false
-        console.log(err.response.data.message)
+        this.$notify({
+          title: '修改失败：'+err.response.data.msg,
+          type: 'error',
+          duration: 2500
+        })
       })
     },
     resetForm() {
