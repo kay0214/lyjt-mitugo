@@ -13,6 +13,7 @@ import co.yixiang.modules.coupons.web.param.YxCouponsQueryParam;
 import co.yixiang.modules.coupons.web.vo.YxCouponsQueryVo;
 import co.yixiang.modules.image.entity.YxImageInfo;
 import co.yixiang.modules.image.service.YxImageInfoService;
+import co.yixiang.utils.DateUtils;
 import com.alicp.jetcache.anno.CacheRefresh;
 import com.alicp.jetcache.anno.CacheType;
 import com.alicp.jetcache.anno.Cached;
@@ -51,22 +52,22 @@ public class YxCouponsController extends BaseController {
     private YxImageInfoService yxImageInfoService;
 
     /**
-    * 获取本地生活, 卡券详情
-    */
+     * 获取本地生活, 卡券详情
+     */
     @AnonymousAccess
     @PostMapping("/info")
-    @ApiOperation(value = "获取YxCoupons对象详情",notes = "查看本地生活, 卡券表",response = YxCouponsQueryVo.class)
+    @ApiOperation(value = "获取YxCoupons对象详情", notes = "查看本地生活, 卡券表", response = YxCouponsQueryVo.class)
     public ApiResult<YxCouponsQueryVo> getYxCoupons(@Valid @RequestBody IdParam idParam) throws Exception {
         YxCouponsQueryVo yxCouponsQueryVo = yxCouponsService.getYxCouponsById(idParam.getId());
 
-        if (yxCouponsQueryVo != null){
+        if (yxCouponsQueryVo != null) {
             // 总销量
             yxCouponsQueryVo.setTotalSales(yxCouponsQueryVo.getSales() + yxCouponsQueryVo.getFicti());
         }
         // 卡券缩略图
         YxImageInfo thumbnail = yxImageInfoService.getOne(new QueryWrapper<YxImageInfo>().eq("type_id", idParam.getId()).eq("img_type", LocalLiveConstants.IMG_TYPE_COUPONS)
                 .eq("img_category", ShopConstants.IMG_CATEGORY_PIC).eq("del_flag", 0));
-        if (thumbnail != null){
+        if (thumbnail != null) {
             yxCouponsQueryVo.setImage(thumbnail.getImgUrl());
         }
         // 轮播图
@@ -80,6 +81,11 @@ public class YxCouponsController extends BaseController {
             }
             yxCouponsQueryVo.setSliderImage(sliderImages);
         }
+
+        // 拼接有效期
+        String expireDate = DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD, yxCouponsQueryVo.getExpireDateStart()) + " ~ " + DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD, yxCouponsQueryVo.getExpireDateEnd());
+        yxCouponsQueryVo.setExpireDate(expireDate);
+        yxCouponsQueryVo.setAvailableTime(yxCouponsQueryVo.getAvailableTimeStart() + " ~ " + yxCouponsQueryVo.getAvailableTimeEnd());
         return ApiResult.ok(yxCouponsQueryVo);
     }
 
@@ -88,17 +94,21 @@ public class YxCouponsController extends BaseController {
      */
     @AnonymousAccess
     @PostMapping("/getPageList")
-    @ApiOperation(value = "获取YxCoupons分页列表",notes = "本地生活, 卡券表分页列表",response = YxCouponsQueryVo.class)
-    public ApiResult<Paging<YxCouponsQueryVo>> getYxCouponsPageList(@Valid @RequestBody(required = false) YxCouponsQueryParam yxCouponsQueryParam) throws Exception{
+    @ApiOperation(value = "获取YxCoupons分页列表", notes = "本地生活, 卡券表分页列表", response = YxCouponsQueryVo.class)
+    public ApiResult<Paging<YxCouponsQueryVo>> getYxCouponsPageList(@Valid @RequestBody(required = false) YxCouponsQueryParam yxCouponsQueryParam) throws Exception {
         Paging<YxCouponsQueryVo> paging = yxCouponsService.getYxCouponsPageList(yxCouponsQueryParam);
-        if(paging.getRecords()!=null && paging.getRecords().size()>0){
-            for (YxCouponsQueryVo item:paging.getRecords()) {
+        if (paging.getRecords() != null && paging.getRecords().size() > 0) {
+            for (YxCouponsQueryVo item : paging.getRecords()) {
                 // 卡券缩略图
                 YxImageInfo thumbnail = yxImageInfoService.getOne(new QueryWrapper<YxImageInfo>().eq("type_id", item.getId()).eq("img_type", LocalLiveConstants.IMG_TYPE_COUPONS)
                         .eq("img_category", ShopConstants.IMG_CATEGORY_PIC).eq("del_flag", 0));
-                if (thumbnail != null){
+                if (thumbnail != null) {
                     item.setImage(thumbnail.getImgUrl());
                 }
+                // 拼接有效期
+                String expireDate = DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD, item.getExpireDateStart()) + " ~ " + DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD, item.getExpireDateEnd());
+                item.setExpireDate(expireDate);
+                item.setAvailableTime(item.getAvailableTimeStart() + " ~ " + item.getAvailableTimeEnd());
             }
         }
         return ApiResult.ok(paging);
@@ -106,22 +116,23 @@ public class YxCouponsController extends BaseController {
 
     /**
      * 本地生活卡券热销榜单
+     *
      * @param yxCouponsQueryParam
      * @return
      * @throws Exception
      */
     @AnonymousAccess
     @PostMapping("/getCouponsHotList")
-    @Cached(name="cachedCouponsHotList-", expire = CacheConstant.DEFAULT_EXPIRE_TIME, cacheType = CacheType.BOTH)
+    @Cached(name = "cachedCouponsHotList-", expire = CacheConstant.DEFAULT_EXPIRE_TIME, cacheType = CacheType.BOTH)
     @CacheRefresh(refresh = CacheConstant.DEFAULT_REFRESH_TIME, stopRefreshAfterLastAccess = CacheConstant.DEFAULT_STOP_REFRESH_TIME)
     @ApiOperation(value = "本地生活卡券,热销榜单", notes = "本地生活卡券,热销榜单")
-    public ApiResult<List<YxCouponsQueryVo>> getCouponsHotList(@Valid @RequestBody(required = false) YxCouponsQueryParam yxCouponsQueryParam) throws Exception{
+    public ApiResult<List<YxCouponsQueryVo>> getCouponsHotList(@Valid @RequestBody(required = false) YxCouponsQueryParam yxCouponsQueryParam) throws Exception {
         List<YxCouponsQueryVo> paging = yxCouponsService.getCouponsHotList(yxCouponsQueryParam);
-        for (YxCouponsQueryVo item:paging) {
+        for (YxCouponsQueryVo item : paging) {
             // 卡券缩略图
             YxImageInfo thumbnail = yxImageInfoService.getOne(new QueryWrapper<YxImageInfo>().eq("type_id", item.getId()).eq("img_type", LocalLiveConstants.IMG_TYPE_COUPONS)
                     .eq("img_category", ShopConstants.IMG_CATEGORY_PIC).eq("del_flag", 0));
-            if (thumbnail != null){
+            if (thumbnail != null) {
                 item.setImage(thumbnail.getImgUrl());
             }
         }
