@@ -37,10 +37,10 @@ public interface YxCouponsMapper extends BaseMapper<YxCoupons> {
      * @param yxCouponsQueryParam
      * @return
      */
-    @Select("select * from yx_coupons")
+    @Select("select * from yx_coupons where is_show = 1")
     IPage<YxCouponsQueryVo> getYxCouponsPageList(@Param("page") Page page, @Param("param") YxCouponsQueryParam yxCouponsQueryParam);
 
-    @Select("select * from (select *, (sales+ficti) as totalSales from yx_coupons) tmp order by totalSales desc limit 20")
+    @Select("select * from (select *, (sales+ficti) as totalSales from yx_coupons) tmp where is_hot = 1 order by totalSales desc limit 20")
     List<YxCouponsQueryVo> getCouponsHotList(@Param("param") YxCouponsQueryParam yxCouponsQueryParam);
 
     @Select("select count(1) from yx_coupons")

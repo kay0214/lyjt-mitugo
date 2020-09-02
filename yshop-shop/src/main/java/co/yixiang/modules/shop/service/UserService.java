@@ -12,6 +12,8 @@ import co.yixiang.modules.shop.domain.User;
 import co.yixiang.modules.shop.service.dto.UserDto;
 import co.yixiang.modules.shop.service.dto.UserQueryCriteria;
 import org.springframework.data.domain.Pageable;
+
+import java.math.BigDecimal;
 import java.util.Map;
 import java.util.List;
 import java.io.IOException;
@@ -45,4 +47,13 @@ public interface UserService  extends BaseService<User>{
     * @throws IOException /
     */
     void download(List<UserDto> all, HttpServletResponse response) throws IOException;
+
+    /**
+     * 用户提现
+     *
+     * @param uid
+     * @param extractPrice
+     * @return
+     */
+    boolean updateUserWithdraw(Integer uid, BigDecimal extractPrice);
 }

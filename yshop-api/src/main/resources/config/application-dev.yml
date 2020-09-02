@@ -150,3 +150,34 @@ mybatis-plus:
       logic-not-delete-value: 1
   mapper-locations: classpath*:mapper/**/*Mapper.xml
 
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: 'prometheus'
+  endpoint:
+    health:
+      show-details: ALWAYS
+
+jetcache:
+  statIntervalMinutes: 15
+  areaInCacheName: false
+  local:
+    default:
+      type: linkedhashmap
+      keyConvertor: fastjson
+      limit: 100
+  remote:
+    default:
+      type: redis
+      keyConvertor: fastjson
+      valueEncoder: java
+      valueDecoder: java
+      poolConfig:
+        minIdle: 2
+        maxIdle: 20
+        maxTotal: 50
+      host: ${spring.redis.host}
+      port: ${spring.redis.port}
+      password: ${spring.redis.password}
