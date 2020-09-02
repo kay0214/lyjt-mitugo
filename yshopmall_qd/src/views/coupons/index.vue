@@ -188,6 +188,7 @@
               start-placeholder="可用时段开始时间"
               end-placeholder="可用时段结束时间"
               placeholder="选择时间范围"
+              value-format='HH:mm:ss'
               style="width:100%;"
             />
           </el-form-item>
@@ -587,6 +588,10 @@ export default {
       if (this.$refs.form) {
         this.$refs.form.validateField('sliderImage')
       }
+    },
+    availableTime(value){
+      this.form.availableTimeEnd = value[1]
+      this.form.availableTimeStart = value[0]
     }
   },
   mounted() {
@@ -636,10 +641,10 @@ export default {
       this.form.expireDateStart = this.expireDate[0]
       this.form.expireDateEnd = this.expireDate[1]
     },
-    availabalChange(newValue) {
-      this.form.availableTimeStart = this.availableTime[0]
-      this.form.availableTimeEnd = this.availableTime[1]
-    },
+    // availabalChange(newValue) {
+    //   this.form.availableTimeStart = this.availableTime[0]
+    //   this.form.availableTimeEnd = this.availableTime[1]
+    // },
     setCommission() {
       const commission = this.form.sellingPrice - this.form.settlementPrice
       this.form.commission = isNaN(commission) ? null : commission
