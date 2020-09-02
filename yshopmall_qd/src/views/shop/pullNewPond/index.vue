@@ -13,7 +13,7 @@
           start-placeholder="订单日期"
           end-placeholder="订单日期"
           placeholder="选择时间范围"
-          value-format='yyyy-MM-dd HH:mm:ss'
+          value-format='yyyy-MM-dd'
           style="verticalAlign:top;marginRight:20px;">
         </el-date-picker>
         <el-button class="filter-item" size="mini" type="success" icon="el-icon-search" @click="crud.toQuery">搜索</el-button>
@@ -47,7 +47,7 @@ import pagination from '@crud/Pagination'
 import MaterialList from "@/components/material";
 
 // crud交由presenter持有
-const defaultCrud = CRUD({ title: '拉新池', url: 'api/yxPointDetail/dividends', sort: 'id,desc', crudMethod: { ...crudYxPointDetail }})
+const defaultCrud = CRUD({ title: '拉新池', url: 'api/yxPointDetail/pullNew', sort: 'id,desc', crudMethod: { ...crudYxPointDetail }})
 const defaultForm = { id: null, uid: null, username: null, type: null, orderId: null, orderType: null, orderPrice: null, commission: null, merchantsId: null, merchantsPoint: null, partnerId: null, partnerPoint: null, delFlag: null, createUserId: null, updateUserId: null, createTime: null, updateTime: null }
 export default {
   name: 'YxPointDetail',
