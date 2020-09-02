@@ -30,6 +30,27 @@
         @click="toQuery"
       >刷新</el-button>
 
+      <el-row :gutter='6' style="margin:20px;">
+        <el-col :span='4'>账户总收入: <span>{{remainPrice}}</span></el-col>
+        <el-col :span='4'>账户余额: <span>{{totalPrice}}</span></el-col>     
+        <el-popover
+          placement="top"
+          width="160"
+          v-model="visible">
+          <el-form ref='formWithdraw' :model="formWithdraw" :rules="rules">            
+          <p>
+            提现金额
+            <el-form-item prop='extractPrice'>
+              <el-input type='number' v-model="formWithdraw.extractPrice" placeholder="输入提现金额" />
+            </el-form-item>
+          </p>
+          <div style="text-align: right; margin: 0">
+            <el-button type="primary" size="mini" @click="withdraw($event,formWithdraw.extractPrice)">提现</el-button>
+          </div>
+          </el-form>
+          <el-button slot="reference" type="primary">提现</el-button>
+        </el-popover>   
+      </el-row>
 
     </div>
     <!--表单组件-->
@@ -74,16 +95,19 @@
 <script>
 import checkPermission from '@/utils/permission'
 import initData from '@/mixins/crud'
-import { del, onStatus } from '@/api/yxUser'
+import { del, onStatus, withdraw } from '@/api/yxUser'
 import eForm from './form'
 import pForm from './formp'
 import { formatTime } from '@/utils/index'
+import { Notification } from 'element-ui'
 export default {
   components: { eForm, pForm },
   mixins: [initData],
   data() {
     return {
-      delLoading: false, username: '', category: '', type: '',
+      delLoading: false, username: '', category: '', type: '',visible:false,formWithdraw:{},
+      remainPrice:0,// 账户余额
+      totalPrice :0,//累计总金额金额
       queryTypeOptions: [
         { key: 'username', display_name: '用户昵称' },
         { key: 'phone', display_name: '手机号码' }
@@ -95,12 +119,21 @@ export default {
       typeOptions: [
         { value: 'brokerage', label: '佣金' },
         { value: 'sign', label: '签到' }
-      ]
+      ],
+      rules:{
+        extractPrice:[
+          {required:true, message: '必填项', trigger: 'blur'},
+          {max:12, message: '必填项', trigger: 'blur'}
+        ]
+      }
     }
   },
   created() {
     this.$nextTick(() => {
-      this.init()
+      this.init().then(res=>{
+        res.remainPrice?this.remainPrice=res.remainPrice:{}
+        res.totalPrice?this.totalPrice=res.totalPrice:{}
+      })
     })
   },
   methods: {
@@ -213,6 +246,28 @@ export default {
         money: 0
       }
       _this.dialog = true
+    },
+    withdraw(btn,val){
+      this.$refs.formWithdraw.validate(function(ret,obj){
+        if(ret){
+          withdraw({extractPrice:val}).then(res=>{
+            if(res){
+              Notification.success({
+              title: '提现申请成功'
+              })
+            }else{
+              Notification.error({
+              title: '提现申请失败'
+              })
+            }
+          }).catch(err=>{
+            Notification.error({
+              title: err
+              })
+          })
+        }
+      })
+     
     }
   }
 }
