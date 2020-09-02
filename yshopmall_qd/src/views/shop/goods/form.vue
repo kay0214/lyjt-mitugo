@@ -99,7 +99,9 @@ export default {
   },
   computed: {
     commission: function () {
-      return this.form.price - this.form.settlement
+      if(!isNaN(this.form.price) && !isNaN(this.form.settlement)) {
+        return this.form.price - this.form.settlement
+      } else return ''
     }
   },
   data() {
@@ -147,14 +149,9 @@ export default {
         barCode: '',
         cateId: 1,
         storeCategory: {id:null},
-        price: 0,
         vipPrice: 0,
-        otPrice: 0,
-        postage: 0,
         unitName: '',
-        sort: 0,
         sales: 0,
-        stock: 0,
         isShow: 1,
         isHot: 0,
         isBenefit: 0,
@@ -167,11 +164,9 @@ export default {
         merUse: 0,
         giveIntegral: 0,
         cost: 0,
-        settlement: 0,
         isSeckill: 0,
         isBargain: 0,
         isGood: 0,
-        ficti: 0,
         browse: 0,
         codePath: '',
         soureLink: ''
@@ -314,14 +309,9 @@ export default {
         barCode: '',
         cateId: 1,
         storeCategory: {},
-        price: 0,
         vipPrice: 0,
-        otPrice: 0,
-        postage: 0,
         unitName: '',
-        sort: 0,
         sales: 0,
-        stock: 0,
         isShow: 1,
         isHot: 0,
         isBenefit: 0,
@@ -337,7 +327,6 @@ export default {
         isSeckill: 0,
         isBargain: 0,
         isGood: 0,
-        ficti: 0,
         browse: 0,
         codePath: '',
       }
