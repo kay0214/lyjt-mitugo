@@ -89,4 +89,7 @@ public class SystemUser extends BaseEntity {
 
     @ApiModelProperty(value = "商户可提金额")
     private BigDecimal withdrawalAmount;
+
+    @ApiModelProperty(value = "商户累计金额")
+    private BigDecimal totalAmount;
 }

@@ -173,7 +173,6 @@ public class YxMiniPayService {
         orderRequest.setTotalFee(totalFee);
         orderRequest.setSpbillCreateIp(ip);
 //        orderRequest.setNotifyUrl(apiUrl + "/api/wechat/notify");
-        log.info("回调地址：" + apiUrl + "/api/wechat/notifyNew");
         orderRequest.setNotifyUrl(apiUrl + "/api/wechat/notifyNew");
         orderRequest.setAttach(attach);
 
