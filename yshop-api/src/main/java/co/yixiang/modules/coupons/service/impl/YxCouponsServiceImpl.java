@@ -97,7 +97,9 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
         for (YxCoupons coupons : yxCoupons){
             LocalLiveCouponsVo localLiveCouponsVo = new LocalLiveCouponsVo();
             QueryWrapper<YxImageInfo> imageInfoQueryWrapper = new QueryWrapper<>();
-            imageInfoQueryWrapper.lambda().eq(YxImageInfo::getTypeId, coupons.getId())
+            imageInfoQueryWrapper.lambda()
+                    .eq(YxImageInfo::getDelFlag, 0)
+                    .eq(YxImageInfo::getTypeId, coupons.getId())
                     .eq(YxImageInfo::getImgType, LocalLiveConstants.IMG_TYPE_COUPONS).eq(YxImageInfo::getImgCategory, ShopConstants.IMG_CATEGORY_PIC);
             YxImageInfo yxImageInfo = yxImageInfoMapper.selectOne(imageInfoQueryWrapper);
 
