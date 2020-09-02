@@ -154,7 +154,7 @@ public class YxUserExtractServiceImpl extends BaseServiceImpl<YxUserExtractMappe
             String mark = "提现失败,退回佣金" + resources.getExtractPrice() + "元";
             // 恢复用户余额
             if (0 == yxUserExtract.getUserType()) {
-                updateYxUser.setBrokeragePrice(yxUser.getBrokeragePrice().add(yxUserExtract.getExtractPrice()));
+                updateYxUser.setNowMoney(yxUser.getNowMoney().add(yxUserExtract.getExtractPrice()));
                 this.yxUserService.update(updateYxUser, new QueryWrapper<YxUser>().lambda().eq(YxUser::getUid, yxUserExtract.getUid()));
             } else {
                 updateUser.setId(user.getId());
