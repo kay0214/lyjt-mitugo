@@ -59,8 +59,8 @@
       <el-table-column prop="isHot" label="热销榜单" >
           <template slot-scope="scope">
             <div @click="changeHotStatus(scope.row.id,scope.row.isHot,hotType.hot)">
-              <el-tag v-if="scope.row.isBest == 1">是</el-tag>
-              <el-tag v-else-if="scope.row.isBest == 0">否</el-tag>
+              <el-tag v-if="scope.row.isHot == 1">是</el-tag>
+              <el-tag v-else-if="scope.row.isHot == 0">否</el-tag>
               <el-tag v-else></el-tag>
             </div>
           </template>
@@ -443,7 +443,7 @@ export default {
       this.$refs.form2.getAttrs(data.id)
     },
     changeHotStatus(id,status,type){//设置精品或热销
-    this.$confirm(`确定 ${status ? '取消' : '设为'} [ `+type.label+` ]操作?`, '提示', {
+    this.$confirm(`确定 [${status ? '取消' : '设为'}  `+type.label+` ]操作?`, '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
@@ -452,14 +452,21 @@ export default {
           changeStatus({
             id,
             changeStatus:status?0:1,
-            changeType:type.value}).then(res => {
-            this.$refs[id+type.value].doClose()
-            this.init()
-            this.$notify({
-              title: '设置成功',
-              type: 'success',
-              duration: 2500
-            })
+            changeType:type.value}).then(res => { 
+              if(res){  
+                this.init()
+                this.$notify({
+                  title: '设置成功',
+                  type: 'success',
+                  duration: 2500
+                })
+              }else{
+                this.$notify({
+                  title: '设置失败，请重试',
+                  type: 'error',
+                  duration: 2500
+                })
+              }
           }).catch(err => {
             this.$refs[id+type.value].doClose()
             this.$notify({
@@ -469,39 +476,8 @@ export default {
             })
             console.log(err.response.data.msg)
           })
-          // update({uid}).then(({ data }) => {
-          //   this.$message({
-          //     message: '操作成功',
-          //     type: 'success',
-          //     duration: 1000,
-          //     onClose: () => {
-          //       this.crud.toQuery()
-          //     }
-          //   })
-          // })
         })
         .catch(() => { })
-
-      // changeStatus({
-      //   id,
-      //   changeStatus:status,
-      //   changeType:type.value}).then(res => {
-      //   this.$refs[id+type.value].doClose()
-      //   this.init()
-      //   this.$notify({
-      //     title: '设置成功',
-      //     type: 'success',
-      //     duration: 2500
-      //   })
-      // }).catch(err => {
-      //   this.$refs[id+type.value].doClose()
-      //   this.$notify({
-      //     title: err.response.data.message,
-      //     type: 'success',
-      //     duration: 2500
-      //   })
-      //   console.log(err.response.data.message)
-      // })
     }
   }
 }
