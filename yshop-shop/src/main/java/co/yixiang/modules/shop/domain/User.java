@@ -112,6 +112,9 @@ public class User implements Serializable {
     /** 可提现金额 */
     private BigDecimal withdrawalAmount;
 
+    /** 累计获取金额 */
+    private BigDecimal totalAmount;
+
 
     /** 推荐用二维码地址 */
     private String qrCodeUrl;

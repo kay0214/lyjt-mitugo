@@ -12,6 +12,7 @@ import co.yixiang.modules.coupons.service.YxCouponsService;
 import co.yixiang.modules.coupons.web.param.LocalLiveQueryParam;
 import co.yixiang.modules.coupons.web.vo.LocalLiveCouponsVo;
 import co.yixiang.modules.coupons.web.vo.LocalLiveListVo;
+import co.yixiang.modules.coupons.web.vo.YxCouponsQueryVo;
 import co.yixiang.modules.image.entity.YxImageInfo;
 import co.yixiang.modules.image.mapper.YxImageInfoMapper;
 import co.yixiang.modules.image.service.YxImageInfoService;
@@ -167,7 +168,8 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
         yxStoreInfoQueryVo.setOpenTimes(listOpenTiems);
         yxStoreInfoDetailQueryVo.setSotreInfo(yxStoreInfoQueryVo);
         //卡券信息
-        yxStoreInfoDetailQueryVo.setCouponsListInfo(yxCouponsService.getCouponsInfoByStoreId(yxStoreInfo.getId()));
+        List<YxCouponsQueryVo> lsitCoupons= yxCouponsService.getCouponsInfoByStoreId(yxStoreInfo.getId());
+        yxStoreInfoDetailQueryVo.setCouponsListInfo(getCouponsImg(lsitCoupons));
       /*  //商品信息
         yxStoreInfoDetailQueryVo.setProductListInfo(yxStoreProductService.getProductListByStoreId(yxStoreInfo.getId()));*/
         //是否有可用优惠券
@@ -179,6 +181,17 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
             yxStoreInfoDetailQueryVo.setCouponUse(0);
         }
         return yxStoreInfoDetailQueryVo;
+    }
+
+    private List<YxCouponsQueryVo> getCouponsImg( List<YxCouponsQueryVo> couponsQueryVoList){
+        if(CollectionUtils.isEmpty(couponsQueryVoList)){
+            return null;
+        }
+        //卡券缩略图
+        for(YxCouponsQueryVo couponsQueryVo:couponsQueryVoList){
+            couponsQueryVo.setImage(yxImageInfoService.selectImgByParam(couponsQueryVo.getId(),CommonConstant.IMG_TYPE_CARD,CommonConstant.IMG_CATEGORY_PIC));
+        }
+        return couponsQueryVoList;
     }
 
     public List<String> getStroeAttribute(int sotreId,int attributeType){
