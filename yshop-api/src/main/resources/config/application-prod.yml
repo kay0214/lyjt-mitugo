@@ -158,6 +158,16 @@ logging:
   #java.lang.NumberFormatException: For input string: ""
   level.io.swagger.models.parameters.AbstractSerializableParameter: error
 
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: 'prometheus'
+  endpoint:
+    health:
+      show-details: ALWAYS
+
 jetcache:
   statIntervalMinutes: 15
   areaInCacheName: false
