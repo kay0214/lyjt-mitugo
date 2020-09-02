@@ -45,7 +45,25 @@
       <el-table-column prop="storeCategory.cateName" label="分类名称" />
       <el-table-column prop="price" label="商品价格" />
       <el-table-column prop="sales" label="销量" />
-      <el-table-column prop="stock" label="库存" />
+      <el-table-column prop="stock" label="库存" />      
+      <el-table-column prop="isBest" label="精品推荐" >
+          <template slot-scope="scope">
+            <div @click="changeHotStatus(scope.row.id,scope.row.isBest,hotType.best)">
+              <el-tag v-if="scope.row.isBest == 1">是</el-tag>
+              <el-tag v-else-if="scope.row.isBest == 0">否</el-tag>
+              <el-tag v-else></el-tag>
+            </div>
+          </template>
+        </el-table-column>
+      <el-table-column prop="isHot" label="热销榜单" >
+          <template slot-scope="scope">
+            <div @click="changeHotStatus(scope.row.id,scope.row.isHot,hotType.hot)">
+              <el-tag v-if="scope.row.isBest == 1">是</el-tag>
+              <el-tag v-else-if="scope.row.isBest == 0">否</el-tag>
+              <el-tag v-else></el-tag>
+            </div>
+          </template>
+        </el-table-column>
       <el-table-column label="状态" align="center">
         <template slot-scope="scope">
           <div @click="onSale(scope.row.id,scope.row.isShow)">
@@ -55,33 +73,7 @@
         </template>
       </el-table-column>
       <el-table-column label="操作" width="205px" align="center">
-        <template slot-scope="scope">
-          <div v-if="showFlg" style='marginBottom:10px;'>
-            <el-popover
-              :ref="scope.row.id+hotType.hot.value"
-              placement="top"
-              width="180"
-            >
-              <p>确定设为热销榜单？</p>
-              <div style="text-align: right; margin: 0">
-                <el-button size="mini" type="text" @click="changeHotStatus(scope.row.id,0,hotType.hot)">取消</el-button>
-                <el-button :loading="delLoading" type="primary" size="mini" @click="changeHotStatus(scope.row.id,1,hotType.hot)">确定</el-button>
-              </div>
-              <el-button slot="reference" size="mini" type="danger" plain>热销榜单</el-button>
-            </el-popover>
-            <el-popover
-              :ref="scope.row.id+hotType.best.value"
-              placement="top"
-              width="180"
-            >
-              <p>确定设为精品推荐？</p>
-              <div style="text-align: right; margin: 0">
-                <el-button size="mini" type="text" @click="changeHotStatus(scope.row.id,0,hotType.best)">取消</el-button>
-                <el-button :loading="delLoading" type="primary" size="mini" @click="changeHotStatus(scope.row.id,1,hotType.best)">确定</el-button>
-              </div>
-              <el-button slot="reference" size="mini" type="primary" plain>精品推荐</el-button>
-            </el-popover>
-          </div>
+        <template slot-scope="scope">         
           <el-button slot="reference" type="danger" size="mini" @click="attr(scope.row)">规格属性</el-button>
           <el-dropdown size="mini" split-button type="primary" trigger="click">
             操作
@@ -450,26 +442,65 @@ export default {
       this.$refs.form2.getAttrs(data.id)
     },
     changeHotStatus(id,status,type){//设置精品或热销
-      changeStatus({
-        id,
-        changeStatus:status,
-        changeType:type.value}).then(res => {
-        this.$refs[id+type.value].doClose()
-        this.init()
-        this.$notify({
-          title: '设置成功',
-          type: 'success',
-          duration: 2500
-        })
-      }).catch(err => {
-        this.$refs[id+type.value].doClose()
-        this.$notify({
-          title: err.response.data.message,
-          type: 'success',
-          duration: 2500
-        })
-        console.log(err.response.data.message)
+    this.$confirm(`确定 ${status ? '取消' : '设为'} [ `+type.label+` ]操作?`, '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
       })
+        .then(() => {
+          changeStatus({
+            id,
+            changeStatus:status?0:1,
+            changeType:type.value}).then(res => {
+            this.$refs[id+type.value].doClose()
+            this.init()
+            this.$notify({
+              title: '设置成功',
+              type: 'success',
+              duration: 2500
+            })
+          }).catch(err => {
+            this.$refs[id+type.value].doClose()
+            this.$notify({
+              title: err.response.data.msg,
+              type: 'error',
+              duration: 2500
+            })
+            console.log(err.response.data.msg)
+          })
+          // update({uid}).then(({ data }) => {
+          //   this.$message({
+          //     message: '操作成功',
+          //     type: 'success',
+          //     duration: 1000,
+          //     onClose: () => {
+          //       this.crud.toQuery()
+          //     }
+          //   })
+          // })
+        })
+        .catch(() => { })
+
+      // changeStatus({
+      //   id,
+      //   changeStatus:status,
+      //   changeType:type.value}).then(res => {
+      //   this.$refs[id+type.value].doClose()
+      //   this.init()
+      //   this.$notify({
+      //     title: '设置成功',
+      //     type: 'success',
+      //     duration: 2500
+      //   })
+      // }).catch(err => {
+      //   this.$refs[id+type.value].doClose()
+      //   this.$notify({
+      //     title: err.response.data.message,
+      //     type: 'success',
+      //     duration: 2500
+      //   })
+      //   console.log(err.response.data.message)
+      // })
     }
   }
 }
