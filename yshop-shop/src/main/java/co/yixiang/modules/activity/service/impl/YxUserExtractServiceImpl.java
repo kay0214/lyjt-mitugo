@@ -59,8 +59,8 @@ public class YxUserExtractServiceImpl extends BaseServiceImpl<YxUserExtractMappe
     private final IGenerator generator;
     @Autowired
     private YxUserService yxUserService;
-    @Autowired
-    private UserService userService;
+//    @Autowired
+//    private UserService userService;
     @Autowired
     private YxUserBillService yxUserBillService;
 
@@ -135,7 +135,7 @@ public class YxUserExtractServiceImpl extends BaseServiceImpl<YxUserExtractMappe
             }
             username = yxUser.getUsername();
         } else {
-            user = this.userService.getById(resources.getUid());
+//            user = this.userService.getById(resources.getUid());
             if (null == user) {
                 throw new BadRequestException("查询用户信息失败");
             }
@@ -159,7 +159,7 @@ public class YxUserExtractServiceImpl extends BaseServiceImpl<YxUserExtractMappe
             } else {
                 updateUser.setId(user.getId());
                 updateUser.setWithdrawalAmount(user.getWithdrawalAmount().add(yxUserExtract.getExtractPrice()));
-                this.userService.updateById(updateUser);
+//                this.userService.updateById(updateUser);
             }
 
             // 更新审核记录
