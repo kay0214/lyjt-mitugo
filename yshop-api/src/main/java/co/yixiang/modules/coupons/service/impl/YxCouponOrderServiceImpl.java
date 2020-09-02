@@ -731,19 +731,19 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         // 插入商户资金明细
         YxUserBill merBill = new YxUserBill();
         merBill.setUid(yxCouponOrder.getMerId());
-        yxUserBill.setLinkId(yxCouponOrder.getOrderId());
-        yxUserBill.setPm(1);
-        yxUserBill.setTitle("小程序本地生活购买");
-        yxUserBill.setCategory(BillDetailEnum.CATEGORY_1.getValue());
-        yxUserBill.setType(BillDetailEnum.TYPE_9.getValue());
-        yxUserBill.setNumber(truePrice);
+        merBill.setLinkId(yxCouponOrder.getOrderId());
+        merBill.setPm(1);
+        merBill.setTitle("小程序本地生活购买");
+        merBill.setCategory(BillDetailEnum.CATEGORY_1.getValue());
+        merBill.setType(BillDetailEnum.TYPE_9.getValue());
+        merBill.setNumber(truePrice);
         // 目前只支持微信付款、没有余额
-        yxUserBill.setBalance(updateSystemUser.getWithdrawalAmount());
-        yxUserBill.setAddTime(DateUtils.getNowTime());
-        yxUserBill.setStatus(1);
-        yxUserBill.setMerId(yxCouponOrder.getMerId());
-        yxUserBill.setUserType(2);
-        yxUserBill.setUsername(yxUser.getUsername());
+        merBill.setBalance(updateSystemUser.getWithdrawalAmount());
+        merBill.setAddTime(DateUtils.getNowTime());
+        merBill.setStatus(1);
+        merBill.setMerId(yxCouponOrder.getMerId());
+        merBill.setUserType(2);
+        merBill.setUsername(systemUser.getUsername());
         this.yxUserBillService.save(yxUserBill);
     }
 
@@ -773,7 +773,7 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         // 根据优惠券id获取优惠券信息
         YxCoupons yxCoupons = this.couponsService.getOne(new QueryWrapper<YxCoupons>().lambda().eq(YxCoupons::getId, couponId));
         // 拼接有效期
-        String expireDate = DateUtils.parseDateToStr(DateUtils.getDate(), yxCoupons.getExpireDateStart()) + " ~ " + DateUtils.parseDateToStr(DateUtils.getDate(), yxCoupons.getExpireDateEnd());
+        String expireDate = DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD, yxCoupons.getExpireDateStart()) + " ~ " + DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD, yxCoupons.getExpireDateEnd());
         // 根据优惠券所属获取商户信息
         YxStoreInfo yxStoreInfo = this.storeInfoService.getById(yxCoupons.getStoreId());
         List<YxCouponOrderDetailQueryVo> voList = new ArrayList<>();

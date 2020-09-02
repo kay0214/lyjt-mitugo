@@ -70,14 +70,9 @@ public class YxExamineLogController {
     @GetMapping("/extract")
     @Log("查询审核记录")
     @ApiOperation("查询审核记录")
-    @PreAuthorize("@el.check('admin','yxExamineLog:list')")
+    @PreAuthorize("@el.check('admin','yxExamineLog:extract')")
     public ResponseEntity<Object> getExtractYxExamineLogs(YxExamineLogQueryCriteria criteria, Pageable pageable) {
-        CurrUser currUser = SecurityUtils.getCurrUser();
-        criteria.setUserRole(currUser.getUserRole());
-        if (null != currUser.getChildUser()) {
-            criteria.setChildUser(currUser.getChildUser());
-        }
         criteria.setType(1);
-        return new ResponseEntity<>(yxExamineLogService.queryAll(criteria, pageable), HttpStatus.OK);
+        return new ResponseEntity<>(yxExamineLogService.queryExtractAll(criteria, pageable), HttpStatus.OK);
     }
 }
