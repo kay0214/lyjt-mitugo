@@ -6,6 +6,7 @@ import lombok.Data;
 import javax.validation.constraints.NotBlank;
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @ClassName OrderParam
@@ -33,4 +34,6 @@ public class OrderNewParam implements Serializable {
     private Double useIntegral;
     @ApiModelProperty(value = "优惠券id(多个）")
     private List<Integer> couponIdList;
+    @ApiModelProperty(value = "备注(多个）")
+    private List<Map<String,Object>> markMap;
 }
