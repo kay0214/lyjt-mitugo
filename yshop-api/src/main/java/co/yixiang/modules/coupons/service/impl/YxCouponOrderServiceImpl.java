@@ -812,7 +812,7 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         item.setCoordinateX(yxStoreInfo.getCoordinateX());
         item.setCoordinateY(yxStoreInfo.getCoordinateY());
         // 计算当前位置距离店铺距离
-        if (StringUtils.isNotBlank(location)) {
+        if (co.yixiang.utils.StringUtils.isNotBlank(location) && co.yixiang.utils.StringUtils.isNotBlank(yxStoreInfo.getCoordinateY()) && co.yixiang.utils.StringUtils.isNotBlank(yxStoreInfo.getCoordinateX())) {
             String[] locationArr = location.split(",");
             GlobalCoordinates source = new GlobalCoordinates(Double.parseDouble(yxStoreInfo.getCoordinateY()), Double.parseDouble(yxStoreInfo.getCoordinateX()));
             GlobalCoordinates target = new GlobalCoordinates(Double.parseDouble(locationArr[1]), Double.parseDouble(locationArr[0]));
