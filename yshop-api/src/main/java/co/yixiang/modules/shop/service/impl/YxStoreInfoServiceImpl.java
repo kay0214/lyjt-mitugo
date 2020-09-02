@@ -235,10 +235,15 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
             if(StringUtils.isNotBlank(location)) {
                 // 设置距离
                 // 维度  京都
+                log.info("打个日志试试有没有进接口1" + location);
                 String[] locationArr = location.split(",");
+                log.info("打个日志试试有没有进接口2" + locationArr);
                 GlobalCoordinates source = new GlobalCoordinates(Double.parseDouble(localLiveListVo.getCoordinateY()), Double.parseDouble(localLiveListVo.getCoordinateX()));
+                log.info("打个日志试试有没有进接口3" + source);
                 GlobalCoordinates target = new GlobalCoordinates(Double.parseDouble(locationArr[1]), Double.parseDouble(locationArr[0]));
+                log.info("打个日志试试有没有进接口14" + target);
                 double distance = DistanceMeterUtil.getDistanceMeter(source, target);
+                log.info("打个日志试试有没有进接口5" + distance);
                 localLiveListVo.setDistance(distance + "");
             }
             QueryWrapper<YxImageInfo> imageInfoQueryWrapper = new QueryWrapper<>();
