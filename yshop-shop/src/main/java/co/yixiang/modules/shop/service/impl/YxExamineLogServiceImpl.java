@@ -11,6 +11,8 @@ package co.yixiang.modules.shop.service.impl;
 import co.yixiang.common.service.impl.BaseServiceImpl;
 import co.yixiang.common.utils.QueryHelpPlus;
 import co.yixiang.dozer.service.IGenerator;
+import co.yixiang.modules.activity.domain.YxUserExtract;
+import co.yixiang.modules.activity.service.mapper.YxUserExtractMapper;
 import co.yixiang.modules.shop.domain.YxExamineLog;
 import co.yixiang.modules.shop.domain.YxMerchantsDetail;
 import co.yixiang.modules.shop.service.YxExamineLogService;
@@ -57,6 +59,8 @@ public class YxExamineLogServiceImpl extends BaseServiceImpl<YxExamineLogMapper,
 //    private YxMerchantsDetailService yxMerchantsDetailService;
     @Autowired
     private YxMerchantsDetailMapper yxMerchantsDetailMapper;
+    @Autowired
+    private YxUserExtractMapper yxUserExtractMapper;
 
     @Override
     //@Cacheable
@@ -83,13 +87,11 @@ public class YxExamineLogServiceImpl extends BaseServiceImpl<YxExamineLogMapper,
         IPage<YxExamineLog> ipage = this.page(new Page<>(pageable.getPageNumber() + 1, pageable.getPageSize()), queryWrapper);
         List<YxExamineLogDto> list = generator.convert(ipage.getRecords(), YxExamineLogDto.class);
         // 查询商户认证数据
-        if (2 == criteria.getType()) {
-            for (YxExamineLogDto dto : list) {
-                YxMerchantsDetail yxMerchantsDetail = yxMerchantsDetailMapper.selectById(dto.getTypeId());
-                dto.setContacts(yxMerchantsDetail.getContacts());
-                dto.setContactMobile(yxMerchantsDetail.getContactMobile());
-                dto.setMerchantsName(yxMerchantsDetail.getMerchantsName());
-            }
+        for (YxExamineLogDto dto : list) {
+            YxMerchantsDetail yxMerchantsDetail = yxMerchantsDetailMapper.selectById(dto.getTypeId());
+            dto.setContacts(yxMerchantsDetail.getContacts());
+            dto.setContactMobile(yxMerchantsDetail.getContactMobile());
+            dto.setMerchantsName(yxMerchantsDetail.getMerchantsName());
         }
 
         Map<String, Object> map = new LinkedHashMap<>(2);
@@ -98,6 +100,34 @@ public class YxExamineLogServiceImpl extends BaseServiceImpl<YxExamineLogMapper,
         return map;
     }
 
+
+    @Override
+    //@Cacheable
+    public Map<String, Object> queryExtractAll(YxExamineLogQueryCriteria criteria, Pageable pageable) {
+//        getPage(pageable);
+//        PageInfo<YxExamineLogDto> page = new PageInfo<>(queryAll(criteria));
+        QueryWrapper<YxExamineLog> queryWrapper = new QueryWrapper<>();
+        queryWrapper.orderByDesc("create_time");
+        if (null != criteria.getType()) {
+            queryWrapper.lambda().eq(YxExamineLog::getType, criteria.getType());
+        }
+        if (StringUtils.isNotBlank(criteria.getUsername())) {
+            queryWrapper.lambda().like(YxExamineLog::getUsername, criteria.getUsername());
+        }
+        IPage<YxExamineLog> ipage = this.page(new Page<>(pageable.getPageNumber() + 1, pageable.getPageSize()), queryWrapper);
+        List<YxExamineLogDto> list = generator.convert(ipage.getRecords(), YxExamineLogDto.class);
+        // 查询提现数据
+        for (YxExamineLogDto dto : list) {
+            YxUserExtract yxUserExtract = yxUserExtractMapper.selectById(dto.getTypeId());
+            dto.setWechat(yxUserExtract.getWechat());
+            dto.setUserType(yxUserExtract.getUserType());
+        }
+
+        Map<String, Object> map = new LinkedHashMap<>(2);
+        map.put("content", list);
+        map.put("totalElements", ipage.getTotal());
+        return map;
+    }
 
     @Override
     //@Cacheable

@@ -33,6 +33,15 @@ public interface YxExamineLogService extends BaseService<YxExamineLog> {
      */
     Map<String, Object> queryAll(YxExamineLogQueryCriteria criteria, Pageable pageable);
 
+
+    /**
+     * 查询数据分页
+     * @param criteria 条件
+     * @param pageable 分页参数
+     * @return Map<String , Object>
+     */
+    Map<String, Object> queryExtractAll(YxExamineLogQueryCriteria criteria, Pageable pageable);
+
     /**
      * 查询所有数据不分页
      * @param criteria 条件参数
