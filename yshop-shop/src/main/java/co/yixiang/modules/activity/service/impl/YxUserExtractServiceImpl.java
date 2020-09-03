@@ -173,7 +173,9 @@ public class YxUserExtractServiceImpl extends BaseServiceImpl<YxUserExtractMappe
             // 更新审核记录
             updateExtract.setId(yxUserExtract.getId());
             updateExtract.setStatus(-1);
-            updateExtract.setFailMsg(mark);
+            updateExtract.setFailMsg(resources.getFailMsg());
+            updateExtract.setMark(mark);
+            updateExtract.setFailTime(OrderUtil.getSecondTimestampTwo());
         }
         // 发起申请时已扣减用户余额、审核通过后记录bill和审核记录
         if (resources.getStatus() == 1) {
