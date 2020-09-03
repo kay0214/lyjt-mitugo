@@ -84,7 +84,8 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<StoreProductMappe
 //        getPage(pageable);
 //        PageInfo<YxStoreProduct> page = new PageInfo<>(queryAll(criteria));
         QueryWrapper<YxStoreProduct> queryWrapper = new QueryWrapper<>();
-        queryWrapper.lambda().orderByDesc(YxStoreProduct::getSort,YxStoreProduct::getAddTime);
+        queryWrapper.lambda().orderByAsc(YxStoreProduct::getSort);
+        queryWrapper.lambda().orderByDesc(YxStoreProduct::getAddTime);
         if (0 != criteria.getUserRole()) {
             if (null == criteria.getChildUser() || criteria.getChildUser().size() <= 0) {
                 Map<String, Object> map = new LinkedHashMap<>(2);

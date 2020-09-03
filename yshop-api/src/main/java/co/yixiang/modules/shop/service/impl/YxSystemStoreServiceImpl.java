@@ -22,11 +22,13 @@ import com.baomidou.mybatisplus.core.metadata.OrderItem;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.List;
 
 
@@ -55,8 +57,12 @@ public class YxSystemStoreServiceImpl extends BaseServiceImpl<YxSystemStoreMappe
         Page<YxSystemStore> pageModel = new Page<>(page, limit);
         List<YxSystemStoreQueryVo> list = yxSystemStoreMapper.getStoreList(pageModel,Double.valueOf(longitude),Double.valueOf(latitude));
         list.forEach(item->{
-            String newDis = NumberUtil.round(Double.valueOf(item.getDistance()) / 1000,2).toString();
-            item.setDistance(newDis);
+            if(StringUtils.isNotBlank(latitude) && StringUtils.isNotBlank(longitude)) {
+                String newDis = NumberUtil.round(Double.valueOf(item.getDistance()) / 1000,2).toString();
+                item.setDistance(newDis + "km");
+            } else {
+                item.setDistance("");
+            }
         });
         return list;
     }
@@ -71,14 +77,14 @@ public class YxSystemStoreServiceImpl extends BaseServiceImpl<YxSystemStoreMappe
                 .query(systemStore)
                 .orderByDesc("id")
                 .last("limit 1"));
-        if(yxSystemStore == null) return null;
+        if(yxSystemStore == null) return new YxSystemStoreQueryVo();
         String mention = RedisUtil.get(ShopKeyUtils.getStoreSelfMention());
-        if(mention == null || Integer.valueOf(mention) == 2) return null;
+        if(mention == null || Integer.valueOf(mention) == 2) return new YxSystemStoreQueryVo();
         YxSystemStoreQueryVo systemStoreQueryVo = storeMap.toDto(yxSystemStore);
         if(StrUtil.isNotEmpty(latitude) && StrUtil.isNotEmpty(longitude)){
             double distance = LocationUtils.getDistance(Double.valueOf(latitude),Double.valueOf(longitude),
                     Double.valueOf(yxSystemStore.getLatitude()),Double.valueOf(yxSystemStore.getLongitude()));
-            systemStoreQueryVo.setDistance(String.valueOf(distance));
+            systemStoreQueryVo.setDistance(new BigDecimal(distance).divide(new BigDecimal(1000), 2, BigDecimal.ROUND_HALF_UP).toString() + "km");
         }
         return systemStoreQueryVo;
     }

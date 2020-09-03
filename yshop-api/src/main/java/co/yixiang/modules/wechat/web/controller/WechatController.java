@@ -27,6 +27,7 @@ import co.yixiang.utils.BigNum;
 import co.yixiang.utils.DateUtils;
 import co.yixiang.utils.OrderUtil;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.github.binarywang.wxpay.bean.notify.WxPayNotifyResponse;
 import com.github.binarywang.wxpay.bean.notify.WxPayOrderNotifyResult;
@@ -171,6 +172,7 @@ public class WechatController extends BaseController {
             String orderId = result.getReqInfo().getOutTradeNo();
             BigDecimal refundFee = BigNum.div(result.getReqInfo().getRefundFee(), 100);
             YxStoreOrderQueryVo orderInfo = orderService.getOrderInfo(orderId,0);
+            log.info("退款回调通知处理 ： "+ JSONObject.toJSONString(orderInfo));
             if(orderInfo.getRefundStatus() == 2){
                 return WxPayNotifyResponse.success("处理成功!");
             }
@@ -180,6 +182,7 @@ public class WechatController extends BaseController {
             storeOrder.setRefundStatus(2);
             storeOrder.setRefundPrice(refundFee);
             orderService.updateById(storeOrder);
+            log.info("退款回调通知处理 ，更新 ： "+ JSONObject.toJSONString(storeOrder));
             return WxPayNotifyResponse.success("处理成功!");
         } catch (WxPayException | IllegalAccessException e) {
             log.error(e.getMessage());

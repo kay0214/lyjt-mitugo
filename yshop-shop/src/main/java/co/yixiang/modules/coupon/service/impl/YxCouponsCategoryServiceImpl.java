@@ -30,9 +30,9 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
-* @author huiy
-* @date 2020-08-14
-*/
+ * @author huiy
+ * @date 2020-08-14
+ */
 @Service
 @AllArgsConstructor
 //@CacheConfig(cacheNames = "yxCouponsCategory")
@@ -48,6 +48,7 @@ public class YxCouponsCategoryServiceImpl extends BaseServiceImpl<YxCouponsCateg
 
     /**
      * 写入 ()
+     *
      * @param yxCouponsCategory
      * @return
      */
@@ -57,7 +58,6 @@ public class YxCouponsCategoryServiceImpl extends BaseServiceImpl<YxCouponsCateg
     }
 
     /**
-     *
      * @param request
      * @return
      */
@@ -67,14 +67,14 @@ public class YxCouponsCategoryServiceImpl extends BaseServiceImpl<YxCouponsCateg
         QueryWrapper<YxCouponsCategory> queryWrapper = new QueryWrapper<>();
         queryWrapper.lambda().select()
                 .and(StringUtils.isNoneBlank(request.getCateName()), cateName -> cateName.like(YxCouponsCategory::getCateName, request.getCateName()))
-                .orderByDesc(YxCouponsCategory::getSort)
-                .orderByDesc(YxCouponsCategory::getCreateTime);
+                .orderByAsc(YxCouponsCategory::getSort)
+                .orderByAsc(YxCouponsCategory::getCreateTime);
         List<YxCouponsCategory> categoryList = baseMapper.selectList(queryWrapper);
         List<YxCouponsCategoryDto> list = new ArrayList<>();
-        for (YxCouponsCategory item :categoryList) {
+        for (YxCouponsCategory item : categoryList) {
 
             YxCouponsCategoryDto dto = new YxCouponsCategoryDto();
-            BeanUtils.copyBeanProp(dto,item);
+            BeanUtils.copyBeanProp(dto, item);
             QueryWrapper<YxImageInfo> imageInfoQueryWrapper = new QueryWrapper<>();
             imageInfoQueryWrapper.lambda()
                     .and(type -> type.eq(YxImageInfo::getTypeId, item.getId()))
@@ -83,7 +83,7 @@ public class YxCouponsCategoryServiceImpl extends BaseServiceImpl<YxCouponsCateg
                     .and(del -> del.eq(YxImageInfo::getDelFlag, false));
 
             List<YxImageInfo> imageInfoList = yxImageInfoService.list(imageInfoQueryWrapper);
-            if(imageInfoList!=null && imageInfoList.size()>0){
+            if (imageInfoList != null && imageInfoList.size() > 0) {
                 dto.setPath(imageInfoList.get(0).getImgUrl());
             }
             list.add(dto);
@@ -109,9 +109,9 @@ public class YxCouponsCategoryServiceImpl extends BaseServiceImpl<YxCouponsCateg
 
     @Override
     //@Cacheable
-    public List<YxCouponsCategory> queryAll(YxCouponsCategoryQueryCriteria criteria){
-        QueryWrapper queryWrapper = QueryHelpPlus.getPredicate(YxStoreCategoryDto.class, criteria);
-        queryWrapper.orderByDesc("sort","create_time");
+    public List<YxCouponsCategory> queryAll(YxCouponsCategoryQueryCriteria criteria) {
+        QueryWrapper queryWrapper = QueryHelpPlus.getPredicate(YxCouponsCategoryDto.class, criteria);
+        queryWrapper.orderByAsc("sort", "create_time");
         return baseMapper.selectList(queryWrapper);
     }
 
@@ -119,7 +119,7 @@ public class YxCouponsCategoryServiceImpl extends BaseServiceImpl<YxCouponsCateg
     @Override
     public Object buildTree(List<YxCouponsCategoryDto> categoryDTOS) {
         Set<YxCouponsCategoryDto> trees = new LinkedHashSet<>();
-        Set<YxCouponsCategoryDto> cates= new LinkedHashSet<>();
+        Set<YxCouponsCategoryDto> cates = new LinkedHashSet<>();
         List<String> deptNames = categoryDTOS.stream().map(YxCouponsCategoryDto::getCateName)
                 .collect(Collectors.toList());
 
@@ -140,15 +140,14 @@ public class YxCouponsCategoryServiceImpl extends BaseServiceImpl<YxCouponsCateg
 //                    deptDTO.getChildren().add(it);
 //                }
 //            }
-            if(isChild)
+            if (isChild)
                 cates.add(deptDTO);
             for (YxCouponsCategory category : categories) {
-                if(category.getId()==deptDTO.getPid()&&!deptNames.contains(category.getCateName())){
+                if (category.getId() == deptDTO.getPid() && !deptNames.contains(category.getCateName())) {
                     cates.add(deptDTO);
                 }
             }
         }
-
 
 
         if (CollectionUtils.isEmpty(trees)) {
@@ -156,12 +155,11 @@ public class YxCouponsCategoryServiceImpl extends BaseServiceImpl<YxCouponsCateg
         }
 
 
-
-        Integer totalElements = categoryDTOS!=null?categoryDTOS.size():0;
+        Integer totalElements = categoryDTOS != null ? categoryDTOS.size() : 0;
 
         Map map = new HashMap();
-        map.put("totalElements",totalElements);
-        map.put("content",CollectionUtils.isEmpty(trees)?categoryDTOS:trees);
+        map.put("totalElements", totalElements);
+        map.put("content", CollectionUtils.isEmpty(trees) ? categoryDTOS : trees);
         return map;
     }
 }
