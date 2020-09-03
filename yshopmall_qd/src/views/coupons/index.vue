@@ -617,6 +617,10 @@ export default {
       return true
     }, // 新增与编辑前做的操作
     [CRUD.HOOK.afterToCU](crud, form) {
+      if(crud.status.edit>CRUD.STATUS.NORMAL){
+      // 编辑时有效 设置默认 有效期
+      this.expireDate=[form.expireDateStart,form.expireDateEnd]
+      }
       //  设置默认 可用时段
       this.form.availableTimeEnd = this.availableTime[0]
       this.form.availableTimeStart = this.availableTime[1]
