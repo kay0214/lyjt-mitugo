@@ -79,7 +79,7 @@
             </div>
 
             <!-- 以下是个人认证 -->
-            <div v-if="!crud.status.add && (form.merchantsType==0 || examineEdit)">
+            <div v-if="!crud.status.add && form.merchantsType == 0">
               <el-form-item label="手持证件照" prop="personIdCard">
                 <MaterialList v-model="perIdCard" type="image" :num="1" :width="150" :height="150" :readOnly='Boolean(examineEdit)'/>
               </el-form-item>
