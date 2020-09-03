@@ -309,13 +309,23 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         if (resources.getRefundPrice().compareTo(BigDecimal.ZERO) <= 0) {
             throw new BadRequestException("请输入退款金额");
         }
-        if (resources.getRefundPrice().compareTo(resources.getTotalPrice()) > 0) {
+        if (null == resources.getId()) {
+            throw new BadRequestException("缺少主键id");
+        }
+        YxCouponOrder yxCouponOrder = this.getById(resources.getId());
+        if (null == yxCouponOrder) {
+            throw new BadRequestException("退款查询信息失败");
+        }
+        if (resources.getRefundPrice().compareTo(yxCouponOrder.getTotalPrice()) > 0) {
             throw new BadRequestException("退款金额不可大于支付金额");
+        }
+        if (2 == yxCouponOrder.getRefundStatus()) {
+            throw new BadRequestException("该笔订单已退款");
         }
 
         BigDecimal bigDecimal = new BigDecimal("100");
         try {
-            miniPayService.refundCouponOrderNew(resources.getOrderId(), bigDecimal.multiply(resources.getRefundPrice()).intValue(), resources.getOrderId(), bigDecimal.multiply(resources.getTotalPrice()).intValue());
+            miniPayService.refundCouponOrderNew(yxCouponOrder.getOrderId(), bigDecimal.multiply(resources.getRefundPrice()).intValue(), yxCouponOrder.getOrderId(), bigDecimal.multiply(yxCouponOrder.getTotalPrice()).intValue());
         } catch (WxPayException e) {
             log.info("refund-error:{}", e.getMessage());
             throw new BadRequestException("退款失败:" + e.getMessage());
