@@ -371,8 +371,8 @@
       initMap() {
         const that = this;
         // 设置一个基础中心点
-        const lat = that.form.coordinateX ||116.397128;
-        const lng = that.form.coordinateY|| 39.916527;
+        const lat = that.form.coordinateY ||116.397128;
+        const lng = that.form.coordinateX|| 39.916527;
         const center = new qq.maps.LatLng(lng,lat);
         const map = new qq.maps.Map(document.getElementById('mapContainer'),{
           center: center,
@@ -399,8 +399,8 @@
               position: result.detail.location
             });
             // 设置经纬度
-            that.form.coordinateX = location.lat;
-            that.form.coordinateY = location.lng;
+            that.form.coordinateY = location.lat;
+            that.form.coordinateX = location.lng;
           }
         });
       },
