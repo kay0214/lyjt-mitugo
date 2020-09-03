@@ -568,7 +568,7 @@ export default {
         ],
         couponInfo: [
           { required: true, message: '卡券简介不能为空', trigger: 'blur' },
-          { max: 255, message: '不超过255个字符', trigger: 'blur' }
+          { max: 88, message: '不超过88个字符', trigger: 'blur' }
         ],
         availableTime: [{
           validator: (rule, value, callback) => {
