@@ -26,12 +26,12 @@
       <el-table-column label="发布数量">
         <template slot-scope="scope">
           <p>发布:{{ scope.row.totalCount }}</p>
-          <o>剩余:{{ scope.row.remainCount }}</o>
+          <p>剩余:{{ scope.row.remainCount }}</p>
         </template>
       </el-table-column>
       <el-table-column label="状态" align="center">
         <template slot-scope="scope">
-          <div>
+          <div @click="onStatus(scope.row)">
             <el-tag v-if="scope.row.status === 1" style="cursor: pointer" :type="''">开启</el-tag>
             <el-tag v-else :type=" 'info' ">关闭</el-tag>
           </div>
@@ -71,14 +71,19 @@
 <script>
 import checkPermission from '@/utils/permission'
 import initData from '@/mixins/crud'
-import { del } from '@/api/yxStoreCouponIssue'
+import { del,edit } from '@/api/yxStoreCouponIssue'
 import eForm from './formt'
 import { formatTimeTwo } from '@/utils/index'
+
 export default {
+  name:'Couponissue',
   components: { eForm },
   mixins: [initData],
   data() {
     return {
+      permission:{
+        onstatus:['admin','YXSTORECOUPONISSUE_EDIT']
+      },
       delLoading: false
     }
   },
@@ -136,7 +141,33 @@ export default {
         addTime: data.addTime
       }
       _this.dialog = true
-    }
+    },
+    onStatus(form) {
+      let ret=checkPermission(this.permission.onstatus)
+      if(!ret){
+        return ret
+      }
+      
+      this.$confirm(`确定进行[${form.status ? '关闭' : '开启'}]操作?`, '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      })
+        .then(() => {
+          form.status=form.status?"0":"1"
+          edit(form).then(({ data }) => {
+            this.$message({
+              message: '操作成功',
+              type: 'success',
+              duration: 1000,
+              onClose: () => {
+                this.toQuery()
+              }
+            })
+          })
+        })
+        .catch(() => { })
+    },
   }
 }
 </script>
