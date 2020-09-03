@@ -79,9 +79,9 @@
             </template>
           </el-table-column>
           <el-table-column v-if="columns.visible('status')" prop="status" label="订单状态">
-            <!--（0:待支付 1:已过期 2:待发放3:支付失败4:待使用5:已使用6:已核销7:退款中8:已退款9:退款驳回-->
+            <!--（0:待支付 1:已过期 2:待发放3:支付失败4:待使用5:已使用6:已核销7:退款中8:已退款9:退款驳回10:已取消-->
             <template slot-scope="scope">
-              <span>{{ scope.row.status < 10 ?JSON.parse(JSON.stringify(orderStatusList[scope.row.status*1+1])).label:""}}</span>
+              <span>{{ scope.row.status < 11 ?JSON.parse(JSON.stringify(orderStatusList[scope.row.status*1+1])).label:""}}</span>
               <br/>
               <div v-if="parseInt(scope.row.status)==7||parseInt(scope.row.status)==8">
                   退款原因：{{scope.row.refundReasonWapExplain}}<br/>
@@ -159,6 +159,7 @@ export default {
         { value: '7', label: '退款中' },
         { value: '8', label: '已退款' },
         { value: '9', label: '退款驳回'},
+        { value: '10', label: '已取消'},
       ],  
       queryTypeOptions: [
         { key: 'orderId', display_name: '订单号' },
