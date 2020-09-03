@@ -41,7 +41,7 @@ public class OnlineController {
 
     @ApiOperation("查询在线用户")
     @GetMapping
-    @PreAuthorize("@el.check()")
+    @PreAuthorize("@el.check('admin','online:list')")
     public ResponseEntity<Object> getAll(@RequestParam(value = "filter",defaultValue = "") String filter,
                                          @RequestParam(value = "type",defaultValue = "0") int type,
                                          Pageable pageable){
@@ -51,7 +51,7 @@ public class OnlineController {
     @Log("导出数据")
     @ApiOperation("导出数据")
     @GetMapping(value = "/download")
-    @PreAuthorize("@el.check()")
+    @PreAuthorize("@el.check('admin','online:list')")
     public void download(HttpServletResponse response,
                          @RequestParam(value = "filter",defaultValue = "") String filter,
                          @RequestParam(value = "type",defaultValue = "0") int type) throws IOException {
@@ -60,7 +60,7 @@ public class OnlineController {
 
     @ApiOperation("踢出用户")
     @DeleteMapping
-    @PreAuthorize("@el.check()")
+    @PreAuthorize("@el.check('admin','online:delete')")
     public ResponseEntity<Object> delete(@RequestBody Set<String> keys) throws Exception {
         //if(StrUtil.isNotEmpty("22")) throw new BadRequestException("演示环境禁止操作");
         for (String key : keys) {
@@ -71,7 +71,7 @@ public class OnlineController {
 
     @ApiOperation("踢出移动端用户")
     @PostMapping("/delete" )
-    @PreAuthorize("@el.check()")
+    @PreAuthorize("@el.check('admin','online:delete')")
     public ResponseEntity<Object> deletet(@RequestBody Set<String> keys) throws Exception {
         //if(StrUtil.isNotEmpty("22")) throw new BadRequestException("演示环境禁止操作");
         for (String key : keys) {
