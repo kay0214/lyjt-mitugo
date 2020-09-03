@@ -74,7 +74,12 @@ public class YxStoreProductReplyServiceImpl extends BaseServiceImpl<StoreProduct
             queryWrapper.lambda().in(YxStoreProductReply::getMerId, criteria.getChildUser()).eq(YxStoreProductReply::getIsDel, 0);
         }
         IPage<YxStoreProductReply> ipage = this.page(new Page<>(pageable.getPageNumber() + 1, pageable.getPageSize()), queryWrapper);
-
+        ipage.getRecords().forEach(yxStoreProductReply -> {
+            yxStoreProductReply.setUser(yxUserService.getById(yxStoreProductReply.getUid()));
+            ;
+            yxStoreProductReply.setStoreProduct(yxStoreProductService.getById(yxStoreProductReply.getProductId()));
+            yxStoreProductReply.setSysUser(userService.getById(yxStoreProductReply.getMerId()));
+        });
         Map<String, Object> map = new LinkedHashMap<>(2);
         map.put("content", generator.convert(ipage.getRecords(), YxStoreProductReplyDto.class));
         map.put("totalElements", ipage.getTotal());
