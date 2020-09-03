@@ -63,8 +63,7 @@ public class YxStoreCategoryServiceImpl extends BaseServiceImpl<StoreCategoryMap
         QueryWrapper queryWrapper = QueryHelpPlus.getPredicate(YxStoreCategoryDto.class, criteria);
         queryWrapper.orderByAsc("sort");
         queryWrapper.orderByDesc("add_time");
-//        queryWrapper.orderByDesc("sort","add_time");
-        return generator.convert(baseMapper.selectList(queryWrapper), YxStoreCategoryDto.class);
+        return generator.convert(baseMapper.selectList(queryWrapper),YxStoreCategoryDto.class);
     }
 
 
