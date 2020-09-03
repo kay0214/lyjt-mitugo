@@ -157,14 +157,14 @@ public class StoreProductController extends BaseController {
             //如果类型是小程序
             if(userType.equals(AppFromEnum.ROUNTINE.getValue())){
                 //小程序地址
-                siteUrl = siteUrl+"/"+pageType;
+                siteUrl = siteUrl+"/"+pageType+"/";
                 //生成二维码
                 QrCodeUtil.generate(siteUrl+"?productId="+id+"&spread="+uid+"&codeType="+AppFromEnum.ROUNTINE.getValue(), 180, 180,
                         FileUtil.file(fileDir+name));
             }
             else if(userType.equals(AppFromEnum.APP.getValue())){
                 //h5地址
-                siteUrl = siteUrl+"/"+pageType;
+                siteUrl = siteUrl+"/"+pageType+"/";
                 //生成二维码
                 QrCodeUtil.generate(siteUrl+"?productId="+id+"&spread="+uid+"&codeType="+AppFromEnum.APP.getValue(), 180, 180,
                         FileUtil.file(fileDir+name));
