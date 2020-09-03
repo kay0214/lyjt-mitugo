@@ -47,6 +47,7 @@
 <script>
 import { add, edit } from '@/api/yxStoreCouponIssue'
 export default {
+  name:'CouponissueForm',
   props: {
     isAdd: {
       type: Boolean,
