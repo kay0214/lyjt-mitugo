@@ -58,6 +58,7 @@ import com.baomidou.mybatisplus.core.metadata.OrderItem;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.binarywang.wxpay.bean.order.WxPayMpOrderResult;
 import com.github.binarywang.wxpay.exception.WxPayException;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.gavaghan.geodesy.GlobalCoordinates;
@@ -68,6 +69,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -591,6 +593,21 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         if (order.getRefundStatus() == 2) throw new ErrorRequestException("订单已退款");
         if (order.getRefundStatus() == 1) throw new ErrorRequestException("正在申请退款中");
         if (order.getStatus() == 1) throw new ErrorRequestException("订单当前无法退款");
+
+        // 根据卡券类型校验下是否可以退款
+        YxCoupons yxCoupons = this.couponsService.getById(order.getCouponId());
+        // 过期不过期   是否过期退  是否随时退
+        if(0 == yxCoupons.getAwaysRefund()) {
+            // 都不支持不可退款
+            if(0 == yxCoupons.getOuttimeRefund()) {
+                throw new ErrorRequestException("该订单卡券不支持退款");
+            } else {
+                // 支持过期退、判断没有过期不可退款
+//                expireDateEnd
+//                LocalDateTime expireDate = yxCoupons.getExpireDateEnd();
+            }
+        }
+
 
         YxCouponOrder storeOrder = new YxCouponOrder();
         storeOrder.setRefundStatus(OrderInfoEnum.REFUND_STATUS_1.getValue());
