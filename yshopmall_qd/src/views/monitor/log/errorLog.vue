@@ -10,6 +10,7 @@
           icon="el-icon-delete"
           size="mini"
           :loading="crud.delAllLoading"
+          v-permission="permission.clear"
           @click="confirmDelAll()"
         >
           清空
@@ -69,7 +70,10 @@ export default {
   mixins: [presenter(defaultCrud)],
   data() {
     return {
-      errorInfo: '', dialog: false
+      errorInfo: '', dialog: false,
+      permission: {
+        clear:['admin','logError:remove']
+      }
     }
   },
   created() {

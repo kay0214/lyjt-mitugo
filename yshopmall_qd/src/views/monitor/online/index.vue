@@ -14,6 +14,7 @@
           size="mini"
           :loading="delLoading"
           :disabled="crud.selections.length === 0"
+          v-permission="permission.logout"
           @click="doDelete(crud.selections)"
         >
           强退
@@ -73,7 +74,9 @@ export default {
   data() {
     return {
       delLoading: false,
-      permission: {}
+      permission: {
+        logout:['admin','online:delete']
+      }
     }
   },
   created() {
