@@ -96,7 +96,7 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
      */
     @Override
     public List<LocalLiveCouponsVo> getCouponsLitByBelog(int id) {
-        QueryWrapper queryWrapper = new QueryWrapper<YxCoupons>().last("limit 3").eq("store_id", id).eq("del_flag", 0);
+        QueryWrapper queryWrapper = new QueryWrapper<YxCoupons>().last("limit 3").eq("store_id", id).eq("del_flag", 0).eq("is_show", 1);
         queryWrapper.orderByAsc("sort");
         queryWrapper.orderByDesc("create_time");
         List<YxCoupons> yxCoupons = baseMapper.selectList(queryWrapper);

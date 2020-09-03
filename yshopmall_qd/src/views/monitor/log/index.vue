@@ -10,6 +10,7 @@
           icon="el-icon-delete"
           size="mini"
           :loading="crud.delAllLoading"
+          v-permission="permission.clear"
           @click="confirmDelAll()"
         >
           清空
@@ -66,6 +67,13 @@ export default {
   name: 'Log',
   components: { Search, crudOperation, pagination },
   mixins: [presenter(defaultCrud)],
+  data() {
+    return {
+      permission: {
+        clear:['admin','logInfo:remove']
+      }
+    }
+  },
   created() {
     this.crud.optShow = {
       add: false,
