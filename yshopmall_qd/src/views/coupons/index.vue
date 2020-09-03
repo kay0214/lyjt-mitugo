@@ -188,7 +188,8 @@
               start-placeholder="可用时段开始时间"
               end-placeholder="可用时段结束时间"
               placeholder="选择时间范围"
-              value-format='HH:mm:ss'
+              value-format='HH:mm'
+              format='HH:mm'
               style="width:100%;"
             />
           </el-form-item>
