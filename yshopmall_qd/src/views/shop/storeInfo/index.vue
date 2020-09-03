@@ -245,6 +245,7 @@
       return {
         map:null,
         geocoder: null,
+        marker: null,
         addOpenTime:false,//添加营业时间状态
         formOpenTime:[],
         BusinessTime:[new Date(),new Date()],
@@ -394,7 +395,7 @@
             console.log(result)
             const { location } = result.detail;
             that.map.setCenter(result.detail.location);
-            var marker = new qq.maps.Marker({
+            that.marker = new qq.maps.Marker({
               map:that.map,
               position: result.detail.location
             });
@@ -403,10 +404,12 @@
             that.form.coordinateY = location.lng;
           }
         });
+        that.codeAddress();
       },
       codeAddress() {
         const that = this;
         //通过getLocation();方法获取位置信息值
+        that.marker && that.marker.setMap(null);
         that.geocoder.getLocation(this.form.storeProvince + this.form.storeAddress);
 
       },
@@ -420,6 +423,8 @@
       [CRUD.HOOK.afterToCU](crud, form) {
         this.picArr = [];
         this.sliderImageArr = [];
+        this.map = null;
+        this.geocoder = null;
         if (form.imageArr && form.id) {
           this.picArr = form.imageArr.split(',')
         }
@@ -427,6 +432,7 @@
           this.sliderImageArr = form.sliderImageArr.split(',')
         }
         this.$nextTick(()=>{
+          document.getElementById('mapContainer').innerHTML = "";
           this.initMap()
           getStoreInfo(form.id).then(res=>{
             crud.resetForm(JSON.parse(JSON.stringify(res)))
