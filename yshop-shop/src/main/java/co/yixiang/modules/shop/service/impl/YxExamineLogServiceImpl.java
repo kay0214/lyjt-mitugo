@@ -121,6 +121,18 @@ public class YxExamineLogServiceImpl extends BaseServiceImpl<YxExamineLogMapper,
             YxUserExtract yxUserExtract = yxUserExtractMapper.selectById(dto.getTypeId());
             dto.setWechat(yxUserExtract.getWechat());
             dto.setUserType(yxUserExtract.getUserType());
+            dto.setExtractPrice(yxUserExtract.getExtractPrice());
+            switch (yxUserExtract.getExtractType()) {
+                case "bank":
+                    dto.setExtractType("银行卡");
+                    break;
+                case "alipay":
+                    dto.setExtractType("支付宝");
+                    break;
+                case "wx":
+                    dto.setExtractType("微信");
+                    break;
+            }
         }
 
         Map<String, Object> map = new LinkedHashMap<>(2);
