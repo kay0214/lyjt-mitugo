@@ -105,6 +105,7 @@
                         fit="contain"
                         :preview-src-list="[item.url]"
                         :z-index="999"
+                        @load="load"
                       />
                       <div>
                         <el-checkbox class="material-name" :label="item.url">
@@ -228,6 +229,13 @@ export default {
     ])
   },
   methods: {
+    load(event) {
+      if (event && event.path) {
+        const width = event.path[0].naturalWidth
+        const height = event.path[0].naturalHeight
+        event.path[2].innerHTML = '<div style="text-align:center;font-size:12px;margin:0">' + width + '*' + height + '</div>' + event.path[2].innerHTML
+      }
+    },
     moveMaterial(index, type) {
       if (type === 'up') {
         const tempOption = this.value[index - 1]
