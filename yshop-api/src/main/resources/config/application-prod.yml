@@ -66,7 +66,7 @@ jwt:
   # 令牌过期时间 此处单位/毫秒 ，默认2小时，可在此网站生成 https://www.convertworld.com/zh-hans/time/milliseconds.html
   token-validity-in-seconds: 72000000
   # 在线用户key
-  online-key: m-online-token
+  online-key: token:m-online-token
 
 
 #是否允许生成代码，生产环境设置为false

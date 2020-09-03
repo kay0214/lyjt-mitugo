@@ -149,7 +149,7 @@ public class SysUserServiceImpl extends BaseServiceImpl<SysUserMapper, User> imp
         Set<Role> roleSet = new HashSet<>(roleMapper.findByUsers_Id(user.getId()));
         if (!CollectionUtils.isEmpty(roleSet)) {
             Set<Long> roleIdSet = roleSet.stream().map(x -> x.getId()).collect(Collectors.toSet());
-            if (roleIdSet.contains(1L)) {
+            if (roleIdSet.contains(1L) || roleIdSet.contains(6L)) {
                 user.setUserRole(0);
             } else if (roleIdSet.contains(4L)) {
                 user.setUserRole(1);

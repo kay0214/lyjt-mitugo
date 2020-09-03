@@ -1,8 +1,8 @@
 <template>
   <el-dialog :append-to-body="true" :close-on-click-modal="false" :before-close="cancel" :visible.sync="dialog" :title="isAdd ? '新增' : '编辑'" width="900px">
     <el-form ref="form" :model="form" :inline="true" :rules="rules" size="small" label-width="80px">
-      <el-form-item style="margin-bottom: 0px;" label="商品分类" prop='storeCategory'>
-        <treeselect v-model="form.storeCategory.id" :options="cates" style="width: 370px;" placeholder="选择商品分类" />
+      <el-form-item label="商品分类" prop='storeCategory'>
+        <treeselect v-model="form.storeCategory.id" :options="cates" style="width: 370px;" placeholder="选择商品分类" noOptionsText='暂无数据' noResultsText='无数据'/>
       </el-form-item>
 
       <el-form-item label="商品名称" prop='storeName'>
@@ -277,7 +277,11 @@ export default {
         this.$parent.init()
       }).catch(err => {
         this.loading = false
-        console.log(err.response.data.message)
+        this.$notify({
+          title: '添加失败：'+err.response.data.msg,
+          type: 'error',
+          duration: 2500
+        })
       })
     },
     doEdit() {
@@ -292,7 +296,11 @@ export default {
         this.$parent.init()
       }).catch(err => {
         this.loading = false
-        console.log(err.response.data.message)
+        this.$notify({
+          title: '修改失败：'+err.response.data.msg,
+          type: 'error',
+          duration: 2500
+        })
       })
     },
     resetForm() {

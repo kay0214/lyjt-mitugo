@@ -204,10 +204,7 @@
         <el-table-column v-permission="['admin','yxMerchantsDetail:edit','yxMerchantsDetail:examine','yxMerchantsDetail:del']" label="操作" width="150px" align="center">
           <template slot-scope="scope">
             <el-button v-permission="permission.examine" size="mini" type="primary" icon="el-icon-s-check" @click="examineOpt(scope.row)" plain></el-button>
-            <udOperation
-              :data="scope.row"
-              :permission="permission"
-            />
+            <el-button v-permission="permission.edit" size="mini" type="primary" icon="el-icon-edit" @click="crud.toEdit(scope.row)" />
           </template>
         </el-table-column>
       </el-table>
