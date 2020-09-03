@@ -58,7 +58,6 @@ import com.baomidou.mybatisplus.core.metadata.OrderItem;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.binarywang.wxpay.bean.order.WxPayMpOrderResult;
 import com.github.binarywang.wxpay.exception.WxPayException;
-import io.swagger.annotations.ApiModelProperty;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.gavaghan.geodesy.GlobalCoordinates;
@@ -597,17 +596,18 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         // 根据卡券类型校验下是否可以退款
         YxCoupons yxCoupons = this.couponsService.getById(order.getCouponId());
         // 过期不过期   是否过期退  是否随时退
-        if(0 == yxCoupons.getAwaysRefund()) {
+        if (0 == yxCoupons.getAwaysRefund()) {
             // 都不支持不可退款
-            if(0 == yxCoupons.getOuttimeRefund()) {
+            if (0 == yxCoupons.getOuttimeRefund()) {
                 throw new ErrorRequestException("该订单卡券不支持退款");
             } else {
                 // 支持过期退、判断没有过期不可退款
-//                expireDateEnd
-//                LocalDateTime expireDate = yxCoupons.getExpireDateEnd();
+                LocalDateTime expireDate = DateUtils.dateToLocalDate(yxCoupons.getExpireDateEnd());
+                if (expireDate.isAfter(LocalDateTime.now())) {
+                    throw new ErrorRequestException("当前卡券未过期，请及时使用");
+                }
             }
         }
-
 
         YxCouponOrder storeOrder = new YxCouponOrder();
         storeOrder.setRefundStatus(OrderInfoEnum.REFUND_STATUS_1.getValue());
