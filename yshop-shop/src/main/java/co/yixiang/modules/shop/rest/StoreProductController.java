@@ -120,6 +120,7 @@ public class StoreProductController {
 
     @ApiOperation(value = "商品上架/下架")
     @CacheEvict(cacheNames = ShopConstants.YSHOP_REDIS_INDEX_KEY, allEntries = true)
+    @PreAuthorize("hasAnyRole('admin','YXSTOREPRODUCT_ALL','YXSTOREPRODUCT_EDIT')")
     @PostMapping(value = "/yxStoreProduct/onsale/{id}")
     public ResponseEntity onSale(@PathVariable Integer id, @RequestBody String jsonStr) {
         JSONObject jsonObject = JSON.parseObject(jsonStr);
@@ -130,6 +131,7 @@ public class StoreProductController {
 
     @ApiOperation(value = "生成属性")
     @PostMapping(value = "/yxStoreProduct/isFormatAttr/{id}")
+    @PreAuthorize("hasAnyRole('admin','YXSTOREPRODUCT_ALL','YXSTOREPRODUCT_EDIT')")
     public ResponseEntity isFormatAttr(@PathVariable Integer id, @RequestBody String jsonStr) {
         return new ResponseEntity(yxStoreProductService.isFormatAttr(id, jsonStr), HttpStatus.OK);
     }
@@ -137,6 +139,7 @@ public class StoreProductController {
     @ApiOperation(value = "设置保存属性")
     @CacheEvict(cacheNames = ShopConstants.YSHOP_REDIS_INDEX_KEY, allEntries = true)
     @PostMapping(value = "/yxStoreProduct/setAttr/{id}")
+    @PreAuthorize("hasAnyRole('admin','YXSTOREPRODUCT_ALL','YXSTOREPRODUCT_EDIT')")
     public ResponseEntity setAttr(@PathVariable Integer id, @RequestBody String jsonStr) {
         yxStoreProductService.createProductAttr(id, jsonStr);
         return new ResponseEntity(HttpStatus.OK);
@@ -145,6 +148,7 @@ public class StoreProductController {
     @ApiOperation(value = "清除属性")
     @CacheEvict(cacheNames = ShopConstants.YSHOP_REDIS_INDEX_KEY, allEntries = true)
     @PostMapping(value = "/yxStoreProduct/clearAttr/{id}")
+    @PreAuthorize("hasAnyRole('admin','YXSTOREPRODUCT_ALL','YXSTOREPRODUCT_EDIT')")
     public ResponseEntity clearAttr(@PathVariable Integer id) {
         yxStoreProductService.clearProductAttr(id, true);
         return new ResponseEntity(HttpStatus.OK);
