@@ -180,7 +180,9 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
         productDTO.setReply(replyService.getReply(id));
         int replyCount = replyService.productReplyCount(id);
         productDTO.setReplyCount(replyCount);
+        // 好评率
         productDTO.setReplyChance(replyService.doReply(id,replyCount));//百分比
+        productDTO.setReplyStar(replyService.doReplyStar(id,replyCount));// 小星星
 
         //门店
 //        productDTO.setSystemStore(systemStoreService.getStoreInfo(latitude,longitude));

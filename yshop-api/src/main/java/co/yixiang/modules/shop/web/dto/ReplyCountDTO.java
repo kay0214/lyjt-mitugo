@@ -23,6 +23,6 @@ public class ReplyCountDTO implements Serializable {
     @ApiModelProperty(value = "好评率")
     private String replyChance;
     @ApiModelProperty(value = "好评率（星号）")
-    private String replySstar;
+    private String replyStar;
 
 }
