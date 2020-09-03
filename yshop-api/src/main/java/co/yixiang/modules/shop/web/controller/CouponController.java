@@ -52,7 +52,7 @@ public class CouponController extends BaseController {
         /*return ApiResult.ok(couponIssueService.getCouponList(queryParam.getPage().intValue(),
                 queryParam.getLimit().intValue(),uid));*/
         return ApiResult.ok(couponIssueService.getCouponListByStoreId(null==queryParam.getPage()?1:queryParam.getPage().intValue(),
-                queryParam.getLimit().intValue(),uid,queryParam.getStroeId()));
+                queryParam.getLimit().intValue(),uid,queryParam.getStoreId()));
     }
 
     /**
