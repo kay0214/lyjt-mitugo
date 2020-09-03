@@ -41,20 +41,20 @@
       <el-table ref="table" v-loading="crud.loading" :data="crud.data" size="small" style="width: 100%;" @selection-change="crud.selectionChangeHandler">
         <el-table-column type="selection" width="55" />
         <el-table-column v-if="columns.visible('username')" prop="username" label="姓名" />
-        <el-table-column v-if="columns.visible('merchantsName')" prop="merchantsName" label="提现金额" />
-        <el-table-column v-if="columns.visible('username')" prop="username" label="微信号" />
-        <el-table-column v-if="columns.visible('contactMobile')" prop="contactMobile" label="提现方式" />
-        <el-table-column prop="addTime" label="添加时间">
+        <el-table-column v-if="columns.visible('extractPrice')" prop="extractPrice" label="提现金额" />
+        <el-table-column v-if="columns.visible('wechat ')" prop="wechat " label="微信号" />
+        <el-table-column v-if="columns.visible('ExtractType ')" prop="ExtractType " label="提现方式" />
+        <el-table-column prop="createTime" label="添加时间">
           <template slot-scope="scope">
-            <span>{{ formatTime(scope.row.addTime) }}</span>
+            <span>{{ formatTime(scope.row.createTime) }}</span>
           </template>
         </el-table-column>
         <el-table-column label="审批状态" align="center">
           <template slot-scope="scope">
-            <div><!--/** -1 未通过 0 审核中 1 已提现 */-->
-              <el-tag v-if="scope.row.status == 1">已提现</el-tag>
-              <el-tag v-else-if="scope.row.status == -1">未通过</el-tag>
-              <el-tag v-else>审核中</el-tag>
+            <div><!--/**  0->待审核,1->通过,2->驳回 */-->
+              <el-tag v-if="scope.row.status == 1">通过</el-tag>
+              <el-tag v-else-if="scope.row.status == 2">驳回</el-tag>
+              <el-tag v-else>待审核</el-tag>
             </div>
           </template>
         </el-table-column>
