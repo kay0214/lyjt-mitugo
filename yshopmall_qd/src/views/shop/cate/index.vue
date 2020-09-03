@@ -24,8 +24,8 @@
             <el-radio :label="0">隐藏</el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item label="排序">
-          <el-input v-model="form.sort" style="width: 370px;" />
+        <el-form-item label="排序" prop="sort">
+          <el-input v-model="form.sort" style="width: 370px;" maxlength="3" />
         </el-form-item>
         <el-form-item style="margin-bottom: 0;" label="上级分类" prop="pid">
           <treeselect v-model="form.pid" :options="depts" style="width: 370px;" placeholder="选择上级分类" />
@@ -93,7 +93,14 @@ export default {
       rules: {
         cateName: [
           { required: true, message: '请输入名称', trigger: 'blur' }
-        ]
+        ],
+        sort: [
+          {
+            pattern: /^[0-9]+$/,  //正则
+            message: '请输入数字',
+            trigger: 'blur'
+          }
+        ],
       },
       permission: {
         add: ['admin', 'YXSTORECATEGORY_CREATE'],

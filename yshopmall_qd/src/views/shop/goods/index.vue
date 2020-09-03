@@ -11,6 +11,7 @@
       <!-- 新增 -->
       <div style="display: inline-block;margin: 0px 2px;">
         <el-button
+         v-permission="permission.edit"
           class="filter-item"
           size="mini"
           type="primary"
@@ -75,8 +76,8 @@
       </el-table-column>
       <el-table-column label="操作" width="205px" align="center">
         <template slot-scope="scope">         
-          <el-button slot="reference" type="danger" size="mini" @click="attr(scope.row)">规格属性</el-button>
-          <el-dropdown size="mini" split-button type="primary" trigger="click">
+          <el-button v-permission="permission.edit" slot="reference" type="danger" size="mini" @click="attr(scope.row)">规格属性</el-button>
+          <el-dropdown v-permission="permission.edit" size="mini" split-button type="primary" trigger="click">
             操作
             <el-dropdown-menu slot="dropdown">
               <el-dropdown-item>
@@ -160,6 +161,10 @@ export default {
   mixins: [initData],
   data() {
     return {
+      permission: {
+        edit: ['admin', 'YXSTOREPRODUCT_EDIT'],
+        change: ['admin', 'YXSTOREPRODUCT_CHANGE'],
+      },
       delLoading: false,
       visible: false,
       hotType:{
@@ -225,6 +230,10 @@ export default {
       })
     },
     onSale(id, status) {
+      let ret=checkPermission(this.permission.edit)
+      if(!ret){
+        return ret
+      }
       this.$confirm(`确定进行[${status ? '下架' : '上架'}]操作?`, '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
@@ -443,7 +452,11 @@ export default {
       this.$refs.form2.getAttrs(data.id)
     },
     changeHotStatus(id,status,type){//设置精品或热销
-    this.$confirm(`确定 [${status ? '取消' : '设为'}  `+type.label+` ]操作?`, '提示', {
+      let ret=checkPermission(this.permission.change)
+      if(!ret){
+        return ret
+      }
+      this.$confirm(`确定 [${status ? '取消' : '设为'}  `+type.label+` ]操作?`, '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
@@ -468,7 +481,6 @@ export default {
                 })
               }
           }).catch(err => {
-            this.$refs[id+type.value].doClose()
             this.$notify({
               title: err.response.data.msg,
               type: 'error',

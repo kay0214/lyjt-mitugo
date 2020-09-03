@@ -79,7 +79,7 @@
           </el-row>
           </div>
           <!-- 营业时间显示区域 -->
-          <div style="margin-top:-10px">
+          <div style="margin-top:10px">
             <el-table :data="formOpenTime" empty-text=" "
                       :row-style="{marginBottom:'20px'}"
                       :cell-style="{borderBottomWidth:'0'}" :show-header="false"
@@ -215,7 +215,8 @@
   import {onsale} from '@/api/yxStoreInfo'
   import {parseTime} from '@/utils/index'
   import { isvalidPhone } from '@/utils/validate'
-import { Notification } from 'element-ui'
+  import { Notification } from 'element-ui'
+  import checkPermission from '@/utils/permission'
 
   // crud交由presenter持有
   const defaultCrud = CRUD({ title: '店铺表', url: 'api/yxStoreInfo', sort: 'id,desc',optShow: {
@@ -292,7 +293,7 @@ import { Notification } from 'element-ui'
             }), trigger: 'blur'}
           ],
           industryCategory: [
-            { required: true/*, message: '管理人用户名不能为空', trigger: 'blur'*/ }
+            { required: true, message: '请选择行业类别', /*trigger: 'blur'*/ }
           ],
           storeService: [
             { required: true ,message: '至少选择一个店铺服务', /*trigger: 'blur'*/ }
@@ -440,6 +441,10 @@ import { Notification } from 'element-ui'
         })
       },
       onSale(id, status) {
+        let ret=checkPermission(this.permission.edit)
+        if(!ret){
+          return ret
+        }
         this.$confirm(`确定进行[${status ? '上架' : '下架'}]操作?`, '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
