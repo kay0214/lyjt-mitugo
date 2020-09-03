@@ -38,16 +38,16 @@ public interface YxCouponsMapper extends BaseMapper<YxCoupons> {
      * @return
      */
     @Select("select yc.* from yx_coupons yc " +
-            "inner join yx_store_info ysi on ysi.id = yc.store_id and ysi.status = 1 and ysi.del_flag = 0" +
+            "inner join yx_store_info ysi on ysi.id = yc.store_id and ysi.status = 0 and ysi.del_flag = 0" +
             "where yc.is_show = 1")
     IPage<YxCouponsQueryVo> getYxCouponsPageList(@Param("page") Page page, @Param("param") YxCouponsQueryParam yxCouponsQueryParam);
 
     @Select("select * from (" +
-            "select yc.*, (yc.sales+yc.ficti) as totalSales from yx_coupons yc inner join yx_store_info ysi on ysi.id = yc.store_id and ysi.status = 1 and ysi.del_flag = 0" +
+            "select yc.*, (yc.sales+yc.ficti) as totalSales from yx_coupons yc inner join yx_store_info ysi on ysi.id = yc.store_id and ysi.status = 0 and ysi.del_flag = 0" +
             ") tmp where is_hot = 1 order by totalSales desc limit 20")
     List<YxCouponsQueryVo> getCouponsHotList(@Param("param") YxCouponsQueryParam yxCouponsQueryParam);
 
-    @Select("select count(1) from yx_coupons yc inner join yx_store_info ysi on ysi.id = yc.store_id and ysi.status = 1 and ysi.del_flag = 0 where is_show = 1")
+    @Select("select count(1) from yx_coupons yc inner join yx_store_info ysi on ysi.id = yc.store_id and ysi.status = 0 and ysi.del_flag = 0 where is_show = 1")
     int getCount(@Param("param") YxCouponsQueryParam yxCouponsQueryParam);
 
 }
