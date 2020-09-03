@@ -810,6 +810,7 @@ public class StoreOrderController extends BaseController {
     @PostMapping("/order/confirmNew")
     @ApiOperation(value = "订单确认（带店铺信息）", notes = "订单确认（带店铺信息）")
     public ApiResult<ConfirmNewOrderDTO> confirmNew(@RequestBody String jsonStr) {
+        log.info("订单确认（带店铺信息）参数为："+ JSONObject.toJSONString(jsonStr));
         JSONObject jsonObject = JSON.parseObject(jsonStr);
         String cartId = jsonObject.getString("cartId");
         if (StrUtil.isEmpty(cartId)) {
@@ -863,7 +864,7 @@ public class StoreOrderController extends BaseController {
     @ApiOperation(value = "订单创建（多个订单）", notes = "（多个订单）")
     public ApiResult<Map<String, Object>> createOrderList(@Valid @RequestBody OrderNewParam param,
                                                           @PathVariable String key, HttpServletRequest request) {
-
+        log.info("创建订单（多个）参数为："+ JSONObject.toJSONString(param)+"，key = "+key);
         Map<String, Object> map = new LinkedHashMap<>();
         int uid = SecurityUtils.getUserId().intValue();
         if (StrUtil.isEmpty(key)) return ApiResult.fail("参数错误");
@@ -951,11 +952,13 @@ public class StoreOrderController extends BaseController {
     @ApiOperation(value = "计算订单金额（新）", notes = "计算订单金额（新）")
     public ApiResult<Map<String, Object>> computedNew(@RequestBody String jsonStr,
                                                         @PathVariable String key) {
+        log.info("计算订单金额（新）参数为："+ JSONObject.toJSONString(jsonStr));
 
         Map<String, Object> map = new LinkedHashMap<>();
         int uid = SecurityUtils.getUserId().intValue();
 //        int uid = 28;
         if (StrUtil.isEmpty(key)) return ApiResult.fail("参数错误");
+
         YxStoreOrderQueryVo storeOrder = storeOrderService.getOrderInfo(key, uid);
         if (ObjectUtil.isNotNull(storeOrder)) {
             map.put("status", "EXTEND_ORDER");
