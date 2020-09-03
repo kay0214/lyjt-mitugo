@@ -1584,11 +1584,11 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
                         .eq("extend_order_id", unique).or().eq("`payment_no`", unique));
         if (uid > 0) wrapper.eq("uid", uid);
         List<YxStoreOrder> yxStoreOrderList= yxStoreOrderMapper.selectList(wrapper);
-        YxStoreOrder order = new YxStoreOrder();
         if(CollectionUtils.isNotEmpty(yxStoreOrderList)){
-            order = yxStoreOrderList.get(0);
+            YxStoreOrder order = yxStoreOrderList.get(0);
+            return orderMap.toDto(order);
         }
-        return orderMap.toDto(order);
+        return null;
     }
 
     @Override
