@@ -312,7 +312,9 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
         IPage<YxStoreProduct> pageList = yxStoreProductMapper.selectPage(pageModel,wrapper);
 
         List<YxStoreProductQueryVo> list = storeProductMap.toDto(pageList.getRecords());
-
+        if(null == list){
+            return new ArrayList<>();
+        }
 
         return list;
     }

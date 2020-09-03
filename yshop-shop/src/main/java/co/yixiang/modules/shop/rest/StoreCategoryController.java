@@ -109,20 +109,27 @@ public class StoreCategoryController {
         if(resources.getPid() > 0 && StrUtil.isBlank(resources.getPic())) {
             throw new BadRequestException("子分类图片必传");
         }
-        resources.getPid();
+
         QueryWrapper<YxStoreCategory> queryWrapper = new QueryWrapper<>();
         queryWrapper.lambda()
-                .and(cateName -> cateName.eq(YxStoreCategory::getCateName, resources.getCateName()))
                 .and(delFlag -> delFlag.eq(YxStoreCategory::getIsDel, 0));
+
         if(null!=resources.getPid()&&0!=resources.getPid()){
             queryWrapper.eq("pid",resources.getPid());
         }else{
             queryWrapper.eq("pid",0);
         }
-        int couponsCategoryCount = yxStoreCategoryService.count(queryWrapper);
-        if (couponsCategoryCount > 0){
-            throw new BadRequestException("[" +resources.getCateName() + "]分类已存在!");
+
+        YxStoreCategory storeCategory = yxStoreCategoryService.getById(resources.getId());
+        if(!storeCategory.getCateName().equals(resources.getCateName())){
+            queryWrapper.lambda()
+                    .and(cateName -> cateName.eq(YxStoreCategory::getCateName, resources.getCateName()));
+            int couponsCategoryCount = yxStoreCategoryService.count(queryWrapper);
+            if (couponsCategoryCount > 0){
+                throw new BadRequestException("[" +resources.getCateName() + "]分类已存在!");
+            }
         }
+
         if(resources.getId().equals(resources.getPid())){
             throw new BadRequestException("自己不能选择自己哦");
         }
