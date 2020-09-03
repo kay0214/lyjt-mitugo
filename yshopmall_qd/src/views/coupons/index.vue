@@ -510,7 +510,8 @@ export default {
           { required: true, message: '使用条件不能为空', trigger: 'blur' }
         ],
         couponInfo: [
-          { required: true, message: '卡券简介不能为空', trigger: 'blur' }
+          { required: true, message: '卡券简介不能为空', trigger: 'blur' },
+          { max: 255, message: '不超过255个字符', trigger: 'blur' }
         ],
         availableTime: [{
           validator: (rule, value, callback) => {
