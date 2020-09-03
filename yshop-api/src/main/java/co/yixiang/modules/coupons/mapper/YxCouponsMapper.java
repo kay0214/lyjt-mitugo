@@ -50,4 +50,11 @@ public interface YxCouponsMapper extends BaseMapper<YxCoupons> {
     @Select("select count(1) from yx_coupons yc inner join yx_store_info ysi on ysi.id = yc.store_id and ysi.status = 0 and ysi.del_flag = 0 where is_show = 1")
     int getCount(@Param("param") YxCouponsQueryParam yxCouponsQueryParam);
 
+    @Select("select yc.* from yx_coupons yc " +
+            "inner join yx_store_info ysi on ysi.id = yc.store_id and ysi.status = 0 and ysi.del_flag = 0" +
+            "where yc.is_show = 1 and yc.store_id =#{storeId}  order by yc.sort asc")
+    IPage<YxCouponsQueryVo> getYxCouponsPageListByStoreId(@Param("page") Page page, @Param("storeId") Integer storeId);
+
+    @Select("select count(1) from yx_coupons yc inner join yx_store_info ysi on ysi.id = yc.store_id and ysi.status = 0 and ysi.del_flag = 0 where is_show = 1 and yc.store_id =#{storeId} ")
+    int getCountByStoreId(@Param("storeId") Integer storeId);
 }

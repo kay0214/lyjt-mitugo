@@ -62,4 +62,6 @@ public interface YxCouponsService extends BaseService<YxCoupons> {
      * @return
      */
     YxCoupons getCouponsById(Integer id);
+
+    Paging<YxCouponsQueryVo> getYxCouponsPageListByStoreId(YxCouponsQueryParam yxCouponsQueryParam);
 }
