@@ -747,6 +747,14 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         merBill.setUserType(2);
         merBill.setUsername(systemUser.getUsername());
         this.yxUserBillService.save(yxUserBill);
+
+        // 判断用户是否是分销客、不是更新成分销客
+        if (0 == yxUser.getUserRole()) {
+            YxUser updateUser = new YxUser();
+            updateUser.setUid(yxUser.getUid());
+            updateUser.setUserRole(1);
+            this.userService.updateById(updateUser);
+        }
     }
 
     /**
