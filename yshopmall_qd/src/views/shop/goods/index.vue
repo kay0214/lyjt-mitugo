@@ -11,6 +11,7 @@
       <!-- 新增 -->
       <div style="display: inline-block;margin: 0px 2px;">
         <el-button
+         v-permission="permission.edit"
           class="filter-item"
           size="mini"
           type="primary"
@@ -75,8 +76,8 @@
       </el-table-column>
       <el-table-column label="操作" width="205px" align="center">
         <template slot-scope="scope">         
-          <el-button slot="reference" type="danger" size="mini" @click="attr(scope.row)">规格属性</el-button>
-          <el-dropdown size="mini" split-button type="primary" trigger="click">
+          <el-button v-permission="permission.edit" slot="reference" type="danger" size="mini" @click="attr(scope.row)">规格属性</el-button>
+          <el-dropdown v-permission="permission.edit" size="mini" split-button type="primary" trigger="click">
             操作
             <el-dropdown-menu slot="dropdown">
               <el-dropdown-item>
@@ -160,6 +161,9 @@ export default {
   mixins: [initData],
   data() {
     return {
+      permission: {
+        edit: ['admin', 'YXSTOREPRODUCT_EDIT'],
+      },
       delLoading: false,
       visible: false,
       hotType:{

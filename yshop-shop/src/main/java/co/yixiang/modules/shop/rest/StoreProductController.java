@@ -167,7 +167,7 @@ public class StoreProductController {
     }
 
     @ApiOperation(value = "商品促销修改")
-    @PreAuthorize("hasAnyRole('admin','YXSTOREPRODUCT_ALL','YXSTOREPRODUCT_EDIT')")
+    @PreAuthorize("hasAnyRole('admin','YXSTOREPRODUCT_ALL','YXSTOREPRODUCT_CHANGE')")
     @PostMapping(value = "/yxStoreProduct/changeStatus")
     public ResponseEntity onBenefit(@RequestBody YxStoreProductChange request) {
         yxStoreProductService.changeStatus(request);
