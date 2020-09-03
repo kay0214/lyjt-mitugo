@@ -223,13 +223,17 @@ public class YxCouponsController {
                 String logo = String.valueOf(yxCoupons.getId()) + "_" + String.valueOf(loginUserId) + "_";
                 String couponWapImage = logo + "coupon_routine_product_detail_wap.jpg";
                 String couponSpreadImage = logo + "coupon_routine_product_user_spread.jpg";
-                YxSystemAttachment systemAttachmentWapImage = yxSystemAttachmentService.getOne(new QueryWrapper<YxSystemAttachment>().lambda().eq(YxSystemAttachment::getName, couponWapImage));
-                if (systemAttachmentWapImage != null){
-                    yxSystemAttachmentService.removeById(systemAttachmentWapImage.getAttId());
+                List<YxSystemAttachment> systemAttachmentWapImageList = yxSystemAttachmentService.list(new QueryWrapper<YxSystemAttachment>().lambda().eq(YxSystemAttachment::getName, couponWapImage));
+                if (systemAttachmentWapImageList != null && systemAttachmentWapImageList.size() > 0){
+                    systemAttachmentWapImageList.forEach(item -> {
+                        yxSystemAttachmentService.removeById(item.getAttId());
+                    });
                 }
-                YxSystemAttachment systemAttachmentSpreadImage = yxSystemAttachmentService.getOne(new QueryWrapper<YxSystemAttachment>().lambda().eq(YxSystemAttachment::getName, couponSpreadImage));
-                if (systemAttachmentSpreadImage != null){
-                    yxSystemAttachmentService.removeById(systemAttachmentWapImage.getAttId());
+                List<YxSystemAttachment> systemAttachmentSpreadImageList = yxSystemAttachmentService.list(new QueryWrapper<YxSystemAttachment>().lambda().eq(YxSystemAttachment::getName, couponSpreadImage));
+                if (systemAttachmentSpreadImageList != null && systemAttachmentSpreadImageList.size() > 0){
+                    systemAttachmentSpreadImageList.forEach(items -> {
+                        yxSystemAttachmentService.removeById(items.getAttId());
+                    });
                 }
             }
             return new ResponseEntity<>(updateStatus, HttpStatus.OK);
