@@ -14,7 +14,7 @@ import java.io.Serializable;
 public class ReplyCountDTO implements Serializable {
     @ApiModelProperty(value = "评价总数")
     private Integer sumCount;
-    @ApiModelProperty(value = "好评数量（")
+    @ApiModelProperty(value = "好评数量")
     private Integer goodCount;
     @ApiModelProperty(value = "中评数量")
     private Integer inCount;
