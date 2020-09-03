@@ -309,15 +309,15 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         if (resources.getRefundPrice().compareTo(BigDecimal.ZERO) <= 0) {
             throw new BadRequestException("请输入退款金额");
         }
-        if (resources.getRefundPrice().compareTo(resources.getTotalPrice()) > 0) {
-            throw new BadRequestException("退款金额不可大于支付金额");
-        }
         if (null == resources.getId()) {
             throw new BadRequestException("缺少主键id");
         }
         YxCouponOrder yxCouponOrder = this.getById(resources.getId());
         if (null == yxCouponOrder) {
             throw new BadRequestException("退款查询信息失败");
+        }
+        if (resources.getRefundPrice().compareTo(yxCouponOrder.getTotalPrice()) > 0) {
+            throw new BadRequestException("退款金额不可大于支付金额");
         }
         if (2 == yxCouponOrder.getRefundStatus()) {
             throw new BadRequestException("该笔订单已退款");
