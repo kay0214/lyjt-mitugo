@@ -306,12 +306,27 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
      */
     @Override
     public void refund(YxCouponOrderDto resources) {
-        if (resources.getRefundPrice().compareTo(BigDecimal.ZERO) <= 0) {
-            throw new BadRequestException("请输入退款金额");
-        }
         if (null == resources.getId()) {
             throw new BadRequestException("缺少主键id");
         }
+        if (null == resources.getRefundStatus() || 1 == resources.getRefundStatus()) {
+            throw new BadRequestException("请选择审核结果");
+        }
+        // 退款驳回
+        if (0 == resources.getRefundStatus()) {
+            YxCouponOrder refuse = new YxCouponOrder();
+            refuse.setId(resources.getId());
+            refuse.setRefundStatus(0);
+            refuse.setRefundReason(StringUtils.isNotBlank(resources.getRefundReason()) ? resources.getRefundReason() : "退款申请被驳回");
+            this.updateById(refuse);
+            return;
+        }
+
+        // 退款通过
+        if (resources.getRefundPrice().compareTo(BigDecimal.ZERO) <= 0) {
+            throw new BadRequestException("请输入退款金额");
+        }
+        // 查询订单详情
         YxCouponOrder yxCouponOrder = this.getById(resources.getId());
         if (null == yxCouponOrder) {
             throw new BadRequestException("退款查询信息失败");
