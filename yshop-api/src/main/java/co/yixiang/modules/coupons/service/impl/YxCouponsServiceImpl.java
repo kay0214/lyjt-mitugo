@@ -53,14 +53,14 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
     private YxImageInfoMapper yxImageInfoMapper;
 
     @Override
-    public YxCouponsQueryVo getYxCouponsById(Serializable id) throws Exception{
+    public YxCouponsQueryVo getYxCouponsById(Serializable id) throws Exception {
         return yxCouponsMapper.getYxCouponsById(id);
     }
 
     @Override
-    public Paging<YxCouponsQueryVo> getYxCouponsPageList(YxCouponsQueryParam yxCouponsQueryParam) throws Exception{
-        Page page = setPageParam(yxCouponsQueryParam,OrderItem.desc("sort desc,create_time"));
-        IPage<YxCouponsQueryVo> iPage = yxCouponsMapper.getYxCouponsPageList(page,yxCouponsQueryParam);
+    public Paging<YxCouponsQueryVo> getYxCouponsPageList(YxCouponsQueryParam yxCouponsQueryParam) throws Exception {
+        Page page = setPageParam(yxCouponsQueryParam, OrderItem.desc("sort desc,create_time"));
+        IPage<YxCouponsQueryVo> iPage = yxCouponsMapper.getYxCouponsPageList(page, yxCouponsQueryParam);
         iPage.setTotal(yxCouponsMapper.getCount(yxCouponsQueryParam));
         return new Paging(iPage);
     }
@@ -73,28 +73,35 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
 
     /**
      * 根据商户id获取卡券信息
+     *
      * @param storeId
      * @return
      */
     @Override
-    public List<YxCouponsQueryVo> getCouponsInfoByStoreId(int storeId){
+    public List<YxCouponsQueryVo> getCouponsInfoByStoreId(int storeId) {
         QueryWrapper<YxCoupons> wrapper = new QueryWrapper<YxCoupons>();
-        wrapper.eq("del_flag", CommonEnum.DEL_STATUS_0.getValue()).eq("is_show",1).eq("store_id",storeId);
-        List<YxCoupons> storeProductList =  this.list(wrapper);
+        wrapper.lambda().eq(YxCoupons::getDelFlag, CommonEnum.DEL_STATUS_0.getValue()).eq(YxCoupons::getIsShow, 1).eq(YxCoupons::getStoreId, storeId);
+//        wrapper.eq("del_flag", CommonEnum.DEL_STATUS_0.getValue()).eq("is_show",1).eq("store_id",storeId);
+        wrapper.lambda().orderByAsc(YxCoupons::getSort).orderByDesc(YxCoupons::getCreateTime);
+        List<YxCoupons> storeProductList = this.list(wrapper);
         List<YxCouponsQueryVo> queryVoList = yxCouponsMap.toDto(storeProductList);
         return queryVoList;
     }
 
     /**
      * 通过店铺ID获取店铺卡券
+     *
      * @param id
      * @return
      */
     @Override
     public List<LocalLiveCouponsVo> getCouponsLitByBelog(int id) {
-        List<YxCoupons> yxCoupons = baseMapper.selectList(new QueryWrapper<YxCoupons>().last("limit 3").eq("store_id", id).eq("del_flag", 0));
+        QueryWrapper queryWrapper = new QueryWrapper<YxCoupons>().last("limit 3").eq("store_id", id).eq("del_flag", 0);
+        queryWrapper.orderByAsc("sort");
+        queryWrapper.orderByDesc("create_time");
+        List<YxCoupons> yxCoupons = baseMapper.selectList(queryWrapper);
         List<LocalLiveCouponsVo> localLiveCouponsVoList = new ArrayList<>();
-        for (YxCoupons coupons : yxCoupons){
+        for (YxCoupons coupons : yxCoupons) {
             LocalLiveCouponsVo localLiveCouponsVo = new LocalLiveCouponsVo();
             QueryWrapper<YxImageInfo> imageInfoQueryWrapper = new QueryWrapper<>();
             imageInfoQueryWrapper.lambda()
@@ -115,7 +122,7 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
     @Override
     public YxCoupons getCouponsById(Integer id) {
         YxCoupons yxCoupons = yxCouponsMapper.selectById(id);
-        if(ObjectUtil.isNull(yxCoupons)){
+        if (ObjectUtil.isNull(yxCoupons)) {
             throw new ErrorRequestException("卡券不存在或已下架");
         }
         return yxCoupons;
