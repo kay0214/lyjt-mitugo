@@ -70,6 +70,7 @@ public class CouponsCategoryController {
     @ApiOperation("查询卡券分类表")
     @PreAuthorize("@el.check('admin','yxCouponsCategory:list')")
     public ResponseEntity<Object> getYxCouponsCategorys(CouponsCategoryRequest request) {
+        // 目前页面查询用的这个接口
         return new ResponseEntity<>(yxCouponsCategoryService.getAllList(request), HttpStatus.OK);
     }
 

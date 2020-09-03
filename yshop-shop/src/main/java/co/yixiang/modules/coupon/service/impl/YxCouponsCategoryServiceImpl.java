@@ -67,8 +67,8 @@ public class YxCouponsCategoryServiceImpl extends BaseServiceImpl<YxCouponsCateg
         QueryWrapper<YxCouponsCategory> queryWrapper = new QueryWrapper<>();
         queryWrapper.lambda().select()
                 .and(StringUtils.isNoneBlank(request.getCateName()), cateName -> cateName.like(YxCouponsCategory::getCateName, request.getCateName()))
-                .orderByDesc(YxCouponsCategory::getSort)
-                .orderByDesc(YxCouponsCategory::getCreateTime);
+                .orderByAsc(YxCouponsCategory::getSort)
+                .orderByAsc(YxCouponsCategory::getCreateTime);
         List<YxCouponsCategory> categoryList = baseMapper.selectList(queryWrapper);
         List<YxCouponsCategoryDto> list = new ArrayList<>();
         for (YxCouponsCategory item : categoryList) {
