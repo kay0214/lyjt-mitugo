@@ -1,5 +1,6 @@
 package co.yixiang.modules.shop.web.dto;
 
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -11,11 +12,17 @@ import java.io.Serializable;
  **/
 @Data
 public class ReplyCountDTO implements Serializable {
+    @ApiModelProperty(value = "评价总数")
     private Integer sumCount;
+    @ApiModelProperty(value = "好评数量")
     private Integer goodCount;
+    @ApiModelProperty(value = "中评数量")
     private Integer inCount;
+    @ApiModelProperty(value = "差评数量")
     private Integer poorCount;
+    @ApiModelProperty(value = "好评率")
     private String replyChance;
+    @ApiModelProperty(value = "好评率（星号）")
     private String replySstar;
 
 }

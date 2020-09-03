@@ -55,7 +55,7 @@ public class SystemGroupDataController {
     @PreAuthorize("hasAnyRole('admin','YXSYSTEMGROUPDATA_ALL','YXSYSTEMGROUPDATA_SELECT')")
     public ResponseEntity getYxSystemGroupDatas(YxSystemGroupDataQueryCriteria criteria,
                                                 Pageable pageable){
-        Sort sort = new Sort(Sort.Direction.DESC, "sort");
+        Sort sort = new Sort(Sort.Direction.ASC, "sort").and(new Sort(Sort.Direction.DESC,"add_time"));
         Pageable pageableT = PageRequest.of(pageable.getPageNumber(),
                 pageable.getPageSize(),
                 sort);
