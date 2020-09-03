@@ -22,4 +22,7 @@ public class LocalLiveQueryParam extends QueryParam {
 
     @ApiModelProperty(value = "价格排序(asc或desc)")
     private String priceOrder;
+
+    @ApiModelProperty(value = "关键字")
+    private String keyword;
 }
