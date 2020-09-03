@@ -51,7 +51,7 @@ public class CouponController extends BaseController {
         int uid = SecurityUtils.getUserId().intValue();
         /*return ApiResult.ok(couponIssueService.getCouponList(queryParam.getPage().intValue(),
                 queryParam.getLimit().intValue(),uid));*/
-        return ApiResult.ok(couponIssueService.getCouponListByStoreId(queryParam.getPage().intValue(),
+        return ApiResult.ok(couponIssueService.getCouponListByStoreId(null==queryParam.getPage()?1:queryParam.getPage().intValue(),
                 queryParam.getLimit().intValue(),uid,queryParam.getStroeId()));
     }
 

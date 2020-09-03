@@ -44,7 +44,9 @@ export default {
   data() {
     // 自定义验证
     const validPhone = (rule, value, callback) => {
-      if (!isvalidPhone(value)) {
+      if(!value){
+        callback()
+      }else if (!isvalidPhone(value)) {
         callback(new Error('请输入正确的11位手机号码'))
       } else {
         callback()
