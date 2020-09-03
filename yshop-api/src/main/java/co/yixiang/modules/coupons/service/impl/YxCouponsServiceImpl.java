@@ -127,4 +127,12 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
         }
         return yxCoupons;
     }
+
+    @Override
+    public Paging<YxCouponsQueryVo> getYxCouponsPageListByStoreId(YxCouponsQueryParam yxCouponsQueryParam){
+        Page page = setPageParam(yxCouponsQueryParam, OrderItem.desc("sort desc,create_time"));
+        IPage<YxCouponsQueryVo> iPage = yxCouponsMapper.getYxCouponsPageListByStoreId(page, yxCouponsQueryParam.getStoreId());
+        iPage.setTotal(yxCouponsMapper.getCountByStoreId(yxCouponsQueryParam.getStoreId()));
+        return new Paging(iPage);
+    }
 }
