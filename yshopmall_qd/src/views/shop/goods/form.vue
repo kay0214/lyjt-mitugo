@@ -279,11 +279,17 @@ export default {
       if (val) {
         this.form.image = val.join(',')
       }
+      this.$nextTick(()=>{
+        this.$refs['form'].validateField('imageArr')
+      })
     },
     'form.sliderImageArr': function(val) {
       if (val) {
         this.form.sliderImage = val.join(',')
       }
+      this.$nextTick(()=>{        
+        this.$refs['form'].validateField('sliderImageArr')
+      })
     }
   },
   methods: {
