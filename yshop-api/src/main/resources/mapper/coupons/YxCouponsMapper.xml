@@ -11,8 +11,8 @@
         select <include refid="Base_Column_List"/> from yx_coupons where id = #{id}
     </select>
 
-    <select id="getYxCouponsPageList" resultType="co.yixiang.modules.coupons.web.vo.YxCouponsQueryVo">
-        select <include refid="Base_Column_List"/> from yx_coupons
-    </select>
+    <!--<select id="getYxCouponsPageList" resultType="co.yixiang.modules.coupons.web.vo.YxCouponsQueryVo">-->
+        <!--select <include refid="Base_Column_List"/> from yx_coupons-->
+    <!--</select>-->
 
 </mapper>

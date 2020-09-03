@@ -111,7 +111,7 @@ public class YxCouponsCategoryServiceImpl extends BaseServiceImpl<YxCouponsCateg
     //@Cacheable
     public List<YxCouponsCategory> queryAll(YxCouponsCategoryQueryCriteria criteria){
         QueryWrapper queryWrapper = QueryHelpPlus.getPredicate(YxStoreCategoryDto.class, criteria);
-        queryWrapper.orderByDesc("sort","add_time");
+        queryWrapper.orderByDesc("sort","create_time");
         return baseMapper.selectList(queryWrapper);
     }
 

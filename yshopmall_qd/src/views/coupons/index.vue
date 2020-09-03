@@ -188,6 +188,7 @@
               start-placeholder="可用时段开始时间"
               end-placeholder="可用时段结束时间"
               placeholder="选择时间范围"
+              value-format='HH:mm:ss'
               style="width:100%;"
             />
           </el-form-item>
@@ -326,7 +327,7 @@
             <el-tag v-if="scope.row.outtimeRefund === 1">过期退</el-tag> 
             <el-tag v-if="scope.row.needOrder === 1">免预约</el-tag> 
             <el-tag v-if="scope.row.awaysRefund === 1">随时退</el-tag> 
-            <span v-if="scope.row.awaysRefund !== 1 && scope.row.needOrder !== 1 && scope.row.awaysRefund !== 1"> - </span>
+            <span v-if="scope.row.outtimeRefund !== 1 && scope.row.needOrder !== 1 && scope.row.awaysRefund !== 1"> - </span>
           </template>
         </el-table-column>
         <!--  0:不支持 1支持 -->
@@ -409,7 +410,7 @@ import { Message } from 'element-ui'
 const defaultCrud = CRUD({ title: '卡券表', url: 'api/yxCoupons', sort: 'id,desc', crudMethod: { ...crudYxCoupons },optShow: {
       add: true,
       edit: false,
-      del: false,
+      del: true,
       download: false
     }})
 const defaultForm = { id: null, couponNum: null, couponName: null, couponType: null, couponCategory: null, denomination: null, discount: null, threshold: null, discountAmount: null, sellingPrice: null, originalPrice: null, settlementPrice: null, commission: null, quantityLimit: null, inventory: null, sales: null, ficti: null, writeOff: null, expireDateStart: null, expireDateEnd: null, isHot: 0, isShow: 0, outtimeRefund: null, needOrder: null, awaysRefund: null, useCondition: null, availableTimeStart: null, availableTimeEnd: null, delFlag: null, createUserId: null, updateUserId: null, createTime: null, updateTime: null, content: null, expireDate: null, image: null, sliderImage: null }
@@ -587,6 +588,10 @@ export default {
       if (this.$refs.form) {
         this.$refs.form.validateField('sliderImage')
       }
+    },
+    availableTime(value){
+      this.form.availableTimeEnd = value[1]
+      this.form.availableTimeStart = value[0]
     }
   },
   mounted() {
@@ -636,10 +641,10 @@ export default {
       this.form.expireDateStart = this.expireDate[0]
       this.form.expireDateEnd = this.expireDate[1]
     },
-    availabalChange(newValue) {
-      this.form.availableTimeStart = this.availableTime[0]
-      this.form.availableTimeEnd = this.availableTime[1]
-    },
+    // availabalChange(newValue) {
+    //   this.form.availableTimeStart = this.availableTime[0]
+    //   this.form.availableTimeEnd = this.availableTime[1]
+    // },
     setCommission() {
       const commission = this.form.sellingPrice - this.form.settlementPrice
       this.form.commission = isNaN(commission) ? null : commission
