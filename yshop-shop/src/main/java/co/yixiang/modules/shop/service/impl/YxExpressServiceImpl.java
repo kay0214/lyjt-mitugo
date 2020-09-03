@@ -62,7 +62,7 @@ public class YxExpressServiceImpl extends BaseServiceImpl<ExpressMapper, YxExpre
     public List<YxExpress> queryAll(YxExpressQueryCriteria criteria){
 //        QueryWrapper queryWrapper =  QueryHelpPlus.getPredicate(YxExpress.class, criteria);
         QueryWrapper<YxExpress> queryWrapper = new QueryWrapper<YxExpress>();
-        queryWrapper.orderByDesc("sort");
+        queryWrapper.orderByAsc("sort");
         return baseMapper.selectList(queryWrapper);
     }
 

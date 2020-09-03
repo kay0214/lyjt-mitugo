@@ -364,8 +364,8 @@
             <span v-if="scope.row.awaysRefund === 1">已删除</span>
           </template>
         </el-table-column> -->
-        <el-table-column v-if="columns.visible('createUserId')" prop="createUserId" label="创建人" />
-        <el-table-column v-if="columns.visible('updateUserId')" prop="updateUserId" label="修改人" />
+        <!-- <el-table-column v-if="columns.visible('createUserId')" prop="createUserId" label="创建人" />
+        <el-table-column v-if="columns.visible('updateUserId')" prop="updateUserId" label="修改人" /> -->
         <el-table-column v-if="columns.visible('createTime')" prop="createTime" label="创建时间">
           <template slot-scope="scope">
             <span>{{ parseTime(scope.row.createTime) }}</span>
