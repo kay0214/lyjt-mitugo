@@ -12,7 +12,7 @@
             ysi.id = yc.store_id
         </if>
         <if test="param.keyword != '' and param.keyword != null">
-            left join yx_coupons ycd on ycd.store_id = ysi.id
+            left join yx_coupons ycd on ycd.store_id = ysi.id and ycd.is_show = 1
         </if>
         where ysi.status = 0 and ysi.del_flag = 0
         <if test="param.keyword != '' and param.keyword != null">
