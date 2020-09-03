@@ -62,7 +62,7 @@ public class YxStoreCategoryServiceImpl extends BaseServiceImpl<StoreCategoryMap
     //@Cacheable
     public List<YxStoreCategoryDto> queryAll(YxStoreCategoryQueryCriteria criteria){
         QueryWrapper queryWrapper = QueryHelpPlus.getPredicate(YxStoreCategoryDto.class, criteria);
-        queryWrapper.orderByDesc("sort","add_time");
+        queryWrapper.orderByAsc("sort","add_time");
 //        queryWrapper.orderByDesc("sort","add_time");
         return generator.convert(baseMapper.selectList(queryWrapper),YxStoreCategoryDto.class);
     }
