@@ -85,7 +85,7 @@ public class OnlineUserService {
     public List<OnlineUser> getAll(String filter,int type){
         List<String> keys = null;
         if(type == 1){
-            keys = redisUtils.scan("m-online-token*");
+            keys = redisUtils.scan("token:m-online-token*");
         }else{
             keys = redisUtils.scan(properties.getOnlineKey() + "*");
         }
@@ -125,7 +125,7 @@ public class OnlineUserService {
      */
     public void kickOutT(String key) throws Exception {
 
-        String keyt = "m-online-token" + EncryptUtils.desDecrypt(key);
+        String keyt = "token:m-online-token" + EncryptUtils.desDecrypt(key);
         redisUtils.del(keyt);
 
     }

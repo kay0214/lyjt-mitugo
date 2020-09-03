@@ -75,8 +75,8 @@ public class StoreProductController {
         //
         int sysUserId = SecurityUtils.getUserId().intValue();
         YxStoreInfo store = yxStoreInfoService.getOne(new QueryWrapper<YxStoreInfo>().eq("mer_id", sysUserId));
-        if (ObjectUtil.isNull(store)) {
-            throw new ErrorRequestException("商户id" + sysUserId + "未找到对应店铺信息！");
+        if(ObjectUtil.isNull(store)){
+            throw new ErrorRequestException("商户id："+sysUserId+"，未找到对应店铺信息！");
         }
         resources.setStoreId(store.getId());
         resources.setMerId(store.getMerId());
