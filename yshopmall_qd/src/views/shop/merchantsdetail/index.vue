@@ -252,7 +252,7 @@ export default {
     }
     return {
       permission: {
-        add: ['admin', 'yxMerchantsDetail:add'],
+        add: ['admin', 'yxMerchantsDetail:insert'],
         edit: ['admin', 'yxMerchantsDetail:edit'],
         examine: ['admin', 'yxMerchantsDetail:examine'],
         del: ['admin', 'yxMerchantsDetail:del']
