@@ -817,7 +817,9 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
             GlobalCoordinates source = new GlobalCoordinates(Double.parseDouble(yxStoreInfo.getCoordinateY()), Double.parseDouble(yxStoreInfo.getCoordinateX()));
             GlobalCoordinates target = new GlobalCoordinates(Double.parseDouble(locationArr[1]), Double.parseDouble(locationArr[0]));
             double distance = DistanceMeterUtil.getDistanceMeter(source, target);
-            item.setDistance(distance + "");
+            item.setDistance(new BigDecimal(distance).divide(new BigDecimal(1000), 2, BigDecimal.ROUND_HALF_UP).toString() + "km");
+        } else {
+            item.setDistance("");
         }
         // 卡卷详情
         item.setDetailList(voList);

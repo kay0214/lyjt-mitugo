@@ -44,6 +44,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -240,7 +241,9 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
                 GlobalCoordinates source = new GlobalCoordinates(Double.parseDouble(localLiveListVo.getCoordinateY()), Double.parseDouble(localLiveListVo.getCoordinateX()));
                 GlobalCoordinates target = new GlobalCoordinates(Double.parseDouble(locationArr[1]), Double.parseDouble(locationArr[0]));
                 double distance = DistanceMeterUtil.getDistanceMeter(source, target);
-                localLiveListVo.setDistance(distance + "");
+                localLiveListVo.setDistance(new BigDecimal(distance).divide(new BigDecimal(1000), 2, BigDecimal.ROUND_HALF_UP).toString() + "km");
+            } else {
+                localLiveListVo.setDistance("");
             }
             QueryWrapper<YxImageInfo> imageInfoQueryWrapper = new QueryWrapper<>();
             imageInfoQueryWrapper.lambda().eq(YxImageInfo::getTypeId, localLiveListVo.getId())
