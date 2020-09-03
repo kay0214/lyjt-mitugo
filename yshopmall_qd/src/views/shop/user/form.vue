@@ -106,9 +106,15 @@ export default {
     },
     doSubmit() {
       this.loading = true
-      if (this.isAdd) {
-        this.doAdd()
-      } else this.doEdit()
+      this.$refs.form.validate((ret,obj)=>{
+        if(ret){  
+          if (this.isAdd) {
+            this.doAdd()
+          } else this.doEdit()
+        }else{
+          this.loading = false
+        }
+      })
     },
     doAdd() {
       add(this.form).then(res => {

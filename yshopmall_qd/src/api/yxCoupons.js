@@ -9,8 +9,12 @@ export function add(data) {
 }
 
 export function del(ids) {
+  let idsStr = ''
+  ids.map(item => {
+    idsStr = idsStr ? `${idsStr},${item}` : item
+  })
   return request({
-    url: 'api/yxCoupons/',
+    url: `api/yxCoupons/delCoupon/${idsStr}`,
     method: 'delete',
     data: ids
   })

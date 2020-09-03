@@ -181,8 +181,8 @@
         <el-table-column label="状态" align="center">
           <template slot-scope="scope">
             <div @click="onSale(scope.row.id,scope.row.status)">
-              <el-tag v-if="scope.row.status === 1" style="cursor: pointer" :type="''">已上架</el-tag>
-              <el-tag v-else style="cursor: pointer" :type=" 'info' ">已下架</el-tag>
+              <el-tag v-if="scope.row.status === 1" style="cursor: pointer" :type=" 'info' ">已下架</el-tag>
+              <el-tag v-else style="cursor: pointer" :type="''" >已上架</el-tag>
             </div>
           </template>
         </el-table-column>
@@ -440,7 +440,7 @@ import { Notification } from 'element-ui'
         })
       },
       onSale(id, status) {
-        this.$confirm(`确定进行[${status ? '下架' : '上架'}]操作?`, '提示', {
+        this.$confirm(`确定进行[${status ? '上架' : '下架'}]操作?`, '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning'

@@ -1581,7 +1581,7 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
         QueryWrapper<YxStoreOrder> wrapper = new QueryWrapper<>();
         wrapper.eq("is_del", 0).and(
                 i -> i.eq("order_id", unique).or().eq("`unique`", unique).or()
-                        .eq("extend_order_id", unique));
+                        .eq("extend_order_id", unique).or().eq("`payment_no`", unique));
         if (uid > 0) wrapper.eq("uid", uid);
 
         return orderMap.toDto(yxStoreOrderMapper.selectOne(wrapper));
@@ -1830,6 +1830,11 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
                         couponId = couponUser.getId();
                         bigOrderPayPrice = bigOrderPayPrice.subtract(couponUser.getCouponPrice());
                         couponUserService.useCoupon(couponId);//更新优惠券状态
+                        for(int ic=0;ic<couIds.size();ic++){
+                            if(couIds.get(ic)==couponId){
+                                couIds.remove(ic);
+                            }
+                        }
                         couponPrice = couponUser.getCouponPrice().doubleValue();
                     }
                 } else {
@@ -1879,55 +1884,6 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
             // 积分抵扣
             double deductionPrice = 0; //抵扣金额
             double usedIntegral = 0; //使用的积分
-            //积分抵扣开始
-     /*       if (useIntegral > 0 && userInfo.getIntegral().doubleValue() > 0) {
-                Double integralMax = Double.valueOf(cacheDTO.getOther().getIntegralMax());
-                Double integralFull = Double.valueOf(cacheDTO.getOther().getIntegralFull());
-                Double integralRatio = Double.valueOf(cacheDTO.getOther().getIntegralRatio());
-                if (totalPrice >= integralFull) {
-                    Double userIntegral = userInfo.getIntegral().doubleValue();
-                    if (integralMax > 0 && userIntegral >= integralMax) userIntegral = integralMax;
-                    deductionPrice = NumberUtil.mul(userIntegral, integralRatio);
-                    double subPice = 0d;
-                    if (deductionPrice < bigOrderPayPrice.doubleValue()) {
-                        subPice = NumberUtil.sub(bigOrderPayPrice.doubleValue(), deductionPrice);
-                        bigOrderPayPrice = BigDecimal.valueOf(subPice);
-                        usedIntegral = userIntegral;
-                    } else {
-                        subPice = bigOrderPayPrice.doubleValue();
-                        double doubleRatio = Double.valueOf(cacheDTO.getOther().getIntegralRatio());
-                        deductionPrice = payPrice.doubleValue();
-                        usedIntegral = NumberUtil.div(subPice, doubleRatio);
-                        bigOrderPayPrice = new BigDecimal(0);
-                    }
-                    userService.decIntegral(uid, usedIntegral);
-                    //积分流水
-                    YxUserBill userBill = new YxUserBill();
-                    userBill.setUid(uid);
-                    userBill.setTitle("积分抵扣");
-                    userBill.setLinkId(orderSn);
-                    userBill.setCategory("integral");
-                    userBill.setType("deduction");
-                    userBill.setNumber(BigDecimal.valueOf(usedIntegral));
-                    userBill.setBalance(userInfo.getIntegral());
-                    userBill.setMark("购买商品使用");
-                    userBill.setStatus(1);
-                    userBill.setPm(0);
-                    userBill.setAddTime(OrderUtil.getSecondTimestampTwo());
-                    //订单商品所属商户id
-                    userBill.setMerId(storeStoreCartQueryVo.getMerId());
-                    //  订单商品所属合伙人id
-                    userBill.setPartnerId(userInfo.getPartnerId());
-                    //用户类型 0:预留 1:前台用户 2：后台商户 3：后台合伙人
-                    userBill.setUserType(1);
-//                    用户名
-                    userBill.setUsername(userInfo.getUsername());
-                    billService.save(userBill);
-                }
-
-
-            }*/
-
             if (payPrice <= 0) payPrice = 0d;
 
             //组合数据

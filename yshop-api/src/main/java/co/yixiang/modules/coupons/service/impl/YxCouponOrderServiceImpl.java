@@ -656,7 +656,9 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
             // 根据优惠券id获取优惠券信息
             YxCoupons yxCoupons = this.couponsService.getOne(new QueryWrapper<YxCoupons>().eq("id", item1.getCouponId()));
             // 拼接有效期
-            String expireDate = DateUtils.parseDateToStr(DateUtils.getDate(), yxCoupons.getExpireDateStart()) + " ~ " + DateUtils.parseDateToStr(DateUtils.getDate(), yxCoupons.getExpireDateEnd());
+            String expireDate = DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD, yxCoupons.getExpireDateStart()) + " ~ " + DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD, yxCoupons.getExpireDateEnd());
+            item.setExpireDate(expireDate);
+            item.setAvailableTime(yxCoupons.getAvailableTimeStart() + " ~ " + yxCoupons.getAvailableTimeEnd());
             // 根据优惠券所属获取商户信息
             YxStoreInfo yxStoreInfo = this.storeInfoService.getById(yxCoupons.getStoreId());
             // 有效期
@@ -773,7 +775,9 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         // 根据优惠券id获取优惠券信息
         YxCoupons yxCoupons = this.couponsService.getOne(new QueryWrapper<YxCoupons>().lambda().eq(YxCoupons::getId, couponId));
         // 拼接有效期
-        String expireDate = DateUtils.parseDateToStr(DateUtils.getDate(), yxCoupons.getExpireDateStart()) + " ~ " + DateUtils.parseDateToStr(DateUtils.getDate(), yxCoupons.getExpireDateEnd());
+        String expireDate = DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD, yxCoupons.getExpireDateStart()) + " ~ " + DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD, yxCoupons.getExpireDateEnd());
+        item.setExpireDate(expireDate);
+        item.setAvailableTime(yxCoupons.getAvailableTimeStart() + " ~ " + yxCoupons.getAvailableTimeEnd());
         // 根据优惠券所属获取商户信息
         YxStoreInfo yxStoreInfo = this.storeInfoService.getById(yxCoupons.getStoreId());
         List<YxCouponOrderDetailQueryVo> voList = new ArrayList<>();
@@ -808,7 +812,7 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         item.setCoordinateX(yxStoreInfo.getCoordinateX());
         item.setCoordinateY(yxStoreInfo.getCoordinateY());
         // 计算当前位置距离店铺距离
-        if (StringUtils.isNotBlank(location)) {
+        if (location.split(",").length == 2 && StringUtils.isNotBlank(location) && StringUtils.isNotBlank(yxStoreInfo.getCoordinateY()) && StringUtils.isNotBlank(yxStoreInfo.getCoordinateX())) {
             String[] locationArr = location.split(",");
             GlobalCoordinates source = new GlobalCoordinates(Double.parseDouble(yxStoreInfo.getCoordinateY()), Double.parseDouble(yxStoreInfo.getCoordinateX()));
             GlobalCoordinates target = new GlobalCoordinates(Double.parseDouble(locationArr[1]), Double.parseDouble(locationArr[0]));

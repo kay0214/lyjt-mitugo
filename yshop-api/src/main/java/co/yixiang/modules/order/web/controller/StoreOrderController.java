@@ -4,7 +4,6 @@
 package co.yixiang.modules.order.web.controller;
 
 import cn.hutool.core.io.FileUtil;
-import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.qrcode.QrCodeUtil;
@@ -900,7 +899,7 @@ public class StoreOrderController extends BaseController {
             orderIdList.add(order.getOrderId());
             bigDecimalPrice = bigDecimalPrice.add(order.getPayPrice());
         }
-        String payNo = IdUtil.getSnowflake(0, 0).nextIdStr();
+        String payNo = orderCreateList.get(0).getPaymentNo();
         OrderExtendDTO orderDTO = new OrderExtendDTO();
         orderDTO.setKey(key);
         orderDTO.setOrderId(payNo);

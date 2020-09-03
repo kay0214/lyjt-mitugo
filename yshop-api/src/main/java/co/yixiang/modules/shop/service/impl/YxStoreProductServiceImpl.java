@@ -1,4 +1,5 @@
 package co.yixiang.modules.shop.service.impl;
+
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import co.yixiang.common.service.impl.BaseServiceImpl;
@@ -36,6 +37,7 @@ import com.alicp.jetcache.anno.Cached;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.metadata.OrderItem;
+import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.core.toolkit.ObjectUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
@@ -45,6 +47,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -202,7 +205,20 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
      */
     @Override
     public List<YxStoreProductQueryVo> getGoodsList(YxStoreProductQueryParam productQueryParam) {
-
+        List<YxStoreProductQueryVo> list = new ArrayList<YxStoreProductQueryVo>();
+                //查找店铺状态为上架的
+        QueryWrapper<YxStoreInfo> infoQueryWrapper = new QueryWrapper<>();
+        infoQueryWrapper.eq("del_flag", CommonEnum.DEL_STATUS_0.getValue()).eq("status", 0);
+        if (ObjectUtils.isNotEmpty(productQueryParam.getStoreId())) {
+            infoQueryWrapper.eq("id", productQueryParam.getStoreId());
+        }
+        List<YxStoreInfo> storeInfos = storeInfoMapper.selectList(infoQueryWrapper);
+        List<Integer> storeIds = new ArrayList<>();
+        if (CollectionUtils.isNotEmpty(storeInfos)) {
+            for (YxStoreInfo storeInfo : storeInfos) {
+                storeIds.add(storeInfo.getId());
+            }
+        }
         QueryWrapper<YxStoreProduct> wrapper = new QueryWrapper<>();
         wrapper.eq("is_del", CommonEnum.DEL_STATUS_0.getValue()).eq("is_show",CommonEnum.SHOW_STATUS_1.getValue());
 
@@ -242,23 +258,21 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
         }
 
         //根据店铺id查询
-        if(ObjectUtils.isNotEmpty(productQueryParam.getStoreId())){
+        /*if(ObjectUtils.isNotEmpty(productQueryParam.getStoreId())){
             wrapper.eq("store_id",productQueryParam.getStoreId());
         }
-
+*/
+        wrapper.in("store_id",storeIds);
+        if(CollectionUtils.isEmpty(storeIds)){
+            return list;
+        }
         wrapper.orderByDesc("sort");
-
-
         Page<YxStoreProduct> pageModel = new Page<>(productQueryParam.getPage(),
                 productQueryParam.getLimit());
 
         IPage<YxStoreProduct> pageList = yxStoreProductMapper.selectPage(pageModel,wrapper);
 
-        List<YxStoreProductQueryVo> list = storeProductMap.toDto(pageList.getRecords());
-
-//        for (GoodsDTO goodsDTO : list) {
-//            goodsDTO.setIsCollect(isCollect(goodsDTO.getGoodsId(),userId));
-//        }
+        list = storeProductMap.toDto(pageList.getRecords());
 
         return list;
     }
