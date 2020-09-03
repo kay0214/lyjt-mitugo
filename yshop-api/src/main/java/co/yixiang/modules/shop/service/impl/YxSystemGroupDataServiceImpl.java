@@ -34,16 +34,18 @@ public class YxSystemGroupDataServiceImpl extends BaseServiceImpl<YxSystemGroupD
 
     /**
      * 获取配置数据
+     *
      * @param name
      * @return
      */
     @Override
-    public List<Map<String,Object>> getDatas(String name) {
+    public List<Map<String, Object>> getDatas(String name) {
         QueryWrapper<YxSystemGroupData> wrapper = new QueryWrapper<>();
 
-        List<Map<String,Object>> list = new ArrayList<>();
+        List<Map<String, Object>> list = new ArrayList<>();
 
-        wrapper.eq("group_name",name).eq("status",1).orderByDesc("sort");
+//        wrapper.eq("group_name",name).eq("status",1).orderByDesc("sort").orderByDesc("add_time");
+        wrapper.lambda().eq(YxSystemGroupData::getGroupName, name).eq(YxSystemGroupData::getStatus, 1).orderByAsc(YxSystemGroupData::getSort).orderByDesc(YxSystemGroupData::getAddTime);
         List<YxSystemGroupData> systemGroupDatas = baseMapper.selectList(wrapper);
 
         for (YxSystemGroupData yxSystemGroupData : systemGroupDatas) {
@@ -55,6 +57,7 @@ public class YxSystemGroupDataServiceImpl extends BaseServiceImpl<YxSystemGroupD
 
     /**
      * 获取单条数据
+     *
      * @param id
      * @return
      */
