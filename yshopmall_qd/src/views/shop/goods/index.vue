@@ -163,6 +163,7 @@ export default {
     return {
       permission: {
         edit: ['admin', 'YXSTOREPRODUCT_EDIT'],
+        change: ['admin', 'YXSTOREPRODUCT_CHANGE'],
       },
       delLoading: false,
       visible: false,
@@ -229,6 +230,10 @@ export default {
       })
     },
     onSale(id, status) {
+      let ret=checkPermission(this.permission.edit)
+      if(!ret){
+        return ret
+      }
       this.$confirm(`确定进行[${status ? '下架' : '上架'}]操作?`, '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
@@ -447,7 +452,11 @@ export default {
       this.$refs.form2.getAttrs(data.id)
     },
     changeHotStatus(id,status,type){//设置精品或热销
-    this.$confirm(`确定 [${status ? '取消' : '设为'}  `+type.label+` ]操作?`, '提示', {
+      let ret=checkPermission(this.permission.change)
+      if(!ret){
+        return ret
+      }
+      this.$confirm(`确定 [${status ? '取消' : '设为'}  `+type.label+` ]操作?`, '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
@@ -472,7 +481,6 @@ export default {
                 })
               }
           }).catch(err => {
-            this.$refs[id+type.value].doClose()
             this.$notify({
               title: err.response.data.msg,
               type: 'error',

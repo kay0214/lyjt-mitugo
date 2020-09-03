@@ -215,7 +215,8 @@
   import {onsale} from '@/api/yxStoreInfo'
   import {parseTime} from '@/utils/index'
   import { isvalidPhone } from '@/utils/validate'
-import { Notification } from 'element-ui'
+  import { Notification } from 'element-ui'
+  import checkPermission from '@/utils/permission'
 
   // crud交由presenter持有
   const defaultCrud = CRUD({ title: '店铺表', url: 'api/yxStoreInfo', sort: 'id,desc',optShow: {
@@ -440,6 +441,10 @@ import { Notification } from 'element-ui'
         })
       },
       onSale(id, status) {
+        let ret=checkPermission(this.permission.edit)
+        if(!ret){
+          return ret
+        }
         this.$confirm(`确定进行[${status ? '上架' : '下架'}]操作?`, '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
