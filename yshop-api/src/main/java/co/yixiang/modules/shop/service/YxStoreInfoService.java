@@ -1,7 +1,10 @@
 package co.yixiang.modules.shop.service;
 
+import co.yixiang.common.api.ApiResult;
 import co.yixiang.modules.coupons.web.param.LocalLiveQueryParam;
+import co.yixiang.modules.coupons.web.param.YxCouponsQueryParam;
 import co.yixiang.modules.coupons.web.vo.LocalLiveListVo;
+import co.yixiang.modules.coupons.web.vo.YxCouponsQueryVo;
 import co.yixiang.modules.shop.entity.YxStoreInfo;
 import co.yixiang.common.service.BaseService;
 import co.yixiang.modules.shop.web.param.YxStoreInfoQueryParam;
@@ -57,4 +60,6 @@ public interface YxStoreInfoService extends BaseService<YxStoreInfo> {
      * @throws Exception
      */
     Paging<LocalLiveListVo> getLocalLiveList(LocalLiveQueryParam localLiveQueryParam,String location) throws Exception;
+
+    ApiResult<Paging<YxCouponsQueryVo>> getYxCouponsPageListByStoreId(YxCouponsQueryParam yxCouponsQueryParam);
 }

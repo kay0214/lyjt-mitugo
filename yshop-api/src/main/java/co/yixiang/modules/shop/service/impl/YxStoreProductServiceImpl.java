@@ -206,7 +206,7 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
     @Override
     public List<YxStoreProductQueryVo> getGoodsList(YxStoreProductQueryParam productQueryParam) {
         List<YxStoreProductQueryVo> list = new ArrayList<YxStoreProductQueryVo>();
-                //查找店铺状态为上架的
+        //查找店铺状态为上架的
         QueryWrapper<YxStoreInfo> infoQueryWrapper = new QueryWrapper<>();
         infoQueryWrapper.eq("del_flag", CommonEnum.DEL_STATUS_0.getValue()).eq("status", 0);
         if (ObjectUtils.isNotEmpty(productQueryParam.getStoreId())) {

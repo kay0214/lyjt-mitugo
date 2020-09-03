@@ -11,6 +11,8 @@ import co.yixiang.common.web.param.IdParam;
 import co.yixiang.common.web.vo.Paging;
 import co.yixiang.constant.SystemConfigConstants;
 import co.yixiang.enums.AppFromEnum;
+import co.yixiang.modules.coupons.web.param.YxCouponsQueryParam;
+import co.yixiang.modules.coupons.web.vo.YxCouponsQueryVo;
 import co.yixiang.modules.shop.entity.YxStoreInfo;
 import co.yixiang.modules.shop.service.CreatShareStoreService;
 import co.yixiang.modules.shop.service.YxStoreInfoService;
@@ -191,5 +193,11 @@ public class YxStoreInfoController extends BaseController {
         return ApiResult.ok(rr);
     }
 
+    @AnonymousAccess
+    @PostMapping("/getCouponsList")
+    @ApiOperation(value = "根据店铺id获取卡券列表", notes = "获取卡券列表", response = YxCouponsQueryVo.class)
+    public ApiResult<Paging<YxCouponsQueryVo>> getYxCouponsPageList(@Valid @RequestBody(required = false) YxCouponsQueryParam yxCouponsQueryParam) {
+        return yxStoreInfoService.getYxCouponsPageListByStoreId(yxCouponsQueryParam);
+    }
 }
 
