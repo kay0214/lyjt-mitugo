@@ -11,7 +11,10 @@
         <el-radio v-model="form.status" :label="-1">无效</el-radio>
         <el-radio v-model="form.status" :label="1">通过</el-radio>
       </el-form-item>
-      <el-form-item label="无效原因">
+      <el-form-item v-if='form.status>0' label="无效原因">     
+        <el-input v-model="form.mark" style="width: 300px;" rows="5" type="textarea" />
+      </el-form-item>
+      <el-form-item v-if='!(form.status>0)' label="无效原因" prop='failMsg'>     
         <el-input v-model="form.failMsg" style="width: 300px;" rows="5" type="textarea" />
       </el-form-item>
     </el-form>
@@ -52,6 +55,9 @@ export default {
         wechat: ''
       },
       rules: {
+        failMsg:[
+          {required:true,message:"必填项",trigger:'blur'}
+        ]
       }
     }
   },
@@ -60,10 +66,15 @@ export default {
       this.resetForm()
     },
     doSubmit() {
-      this.loading = true
-      if (this.isAdd) {
-        this.doAdd()
-      } else this.doEdit()
+      this.$refs['form'].validate(ret=>{
+        if(!ret){
+          return
+        }
+        this.loading = true
+        if (this.isAdd) {
+          this.doAdd()
+        } else this.doEdit()
+      })
     },
     doAdd() {
       add(this.form).then(res => {
