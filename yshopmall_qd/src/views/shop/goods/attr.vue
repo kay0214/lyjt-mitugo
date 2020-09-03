@@ -1,6 +1,6 @@
 <template>
   <el-dialog :append-to-body="true" :close-on-click-modal="false" :before-close="cancel" :visible.sync="dialog" :title="title" width="900px">
-    <el-form v-show="hidden == false" ref="form" :model="form" :inline="true" :rules="rules" label-width="80px">
+    <el-form v-show="hidden == false" ref="form" :model="form" :inline="true" label-width="80px">
       <el-form-item label="规则名称">
         <el-row :gutter="10">
           <el-col :span="10"><el-button type="primary" @click="hiddenBool">添加新规则</el-button></el-col>
@@ -16,7 +16,7 @@
             :span="5"
             style="position: relative;margin-right: 6px"
           >
-            <el-input v-model="item.value" style="width: 150px;" placeholder="设置名称" />
+            <el-input v-model="item.value" style="width: 150px;" placeholder="设置名称" maxlength="10" />
             <el-button v-show="item.attrHidden == true" type="text" style="position: absolute;top:-6px;right:17px;margin-top:1px;border: none;font-size: 14px;font-weight:bold;line-height: 1.8" icon="el-icon-close" @click="handleRemove(index)" />
             <el-button v-show="item.attrHidden == false" type="text" style="position: absolute;top:-6px;right:17px;margin-top:1px;border: none;font-size: 14px;font-weight:bold;line-height: 1.8" icon="el-icon-check" @click="attrHiddenBool(item)" />
           </el-col>
@@ -39,7 +39,7 @@
             <el-tag closable @close="attrRemove(item,k)">{{ attr }}</el-tag>
           </el-col>
           <el-col :span="5">
-            <el-input v-model="item.detailValue" style="width: 150px;" placeholder="设置属性" />
+            <el-input v-model="item.detailValue" style="width: 150px;" placeholder="设置属性" maxlength="10" />
           </el-col>
           <el-col :span="5">
             <el-button type="primary" @click="attrAdd(item)">添加</el-button>
@@ -63,19 +63,23 @@
               </template>
               <el-col :span="4">
                 <span :class="attr.check ? 'check':''">金额:</span>&nbsp;
-                <el-input v-model="attr.price" placeholder="金额" style="width: 60%" :number="true" />
+                <!-- <el-input v-model="attr.price" placeholder="金额" style="width: 60%" :number="true" maxlength="12" /> -->
+                <el-input-number v-model="attr.price" style="width: 60%" placeholder="金额" :precision="2" :step="0" maxlength="12" :controls='false'></el-input-number>
               </el-col>
               <el-col :span="4">
                 <span :class="attr.check ? 'check':''">库存:</span>&nbsp;
-                <el-input v-model="attr.sales" placeholder="库存" style="width: 60%" :number="true" />
+                <!-- <el-input v-model="attr.sales" placeholder="库存" style="width: 60%" :number="true" maxlength="12" /> -->
+                <el-input-number v-model="attr.sales" style="width: 60%" placeholder="库存" :step="0" maxlength="12" :controls='false'></el-input-number>
               </el-col>
               <el-col :span="5">
                 <span :class="attr.check ? 'check':''">成本价:</span>&nbsp;
-                <el-input v-model="attr.cost" placeholder="成本价" style="width: 60%" :number="true" />
+                <!-- <el-input v-model="attr.cost" placeholder="成本价" style="width: 60%" :number="true" maxlength="12" /> -->
+                <el-input-number v-model="attr.cost" style="width: 60%" placeholder="成本价" :precision="2" :step="0" maxlength="12" :controls='false'></el-input-number>
               </el-col>
               <el-col :span="4">
                 <span :class="attr.check ? 'check':''">佣金:</span>&nbsp;
-                <el-input v-model="attr.commission" placeholder="佣金" style="width: 60%" :number="true" />
+                <!-- <el-input v-model="attr.commission" placeholder="佣金" style="width: 60%" :number="true" maxlength="12" /> -->
+                <el-input-number v-model="attr.commission" style="width: 60%" placeholder="佣金" :precision="2" :step="0" maxlength="12" :controls='false'></el-input-number>
               </el-col>
               <el-col :span="3" style="margin-right: 2px">
                 <div class="demo-upload">
@@ -165,6 +169,34 @@ export default {
         soureLink: ''
       },
       rules: {
+        price: [
+          {
+            pattern: /^[0-9]+([.]{1}[0-9]+){0,1}$/,  //正则
+            message: '请输入数字',
+            trigger: 'blur'
+          }
+        ],
+        sales: [
+          {
+            pattern: /^[0-9]+([.]{1}[0-9]+){0,1}$/,  //正则
+            message: '请输入数字',
+            trigger: 'blur'
+          }
+        ],
+        cost: [
+          {
+            pattern: /^[0-9]+([.]{1}[0-9]+){0,1}$/,  //正则
+            message: '请输入数字',
+            trigger: 'blur'
+          }
+        ],
+        commission: [
+          {
+            pattern: /^[0-9]+([.]{1}[0-9]+){0,1}$/,  //正则
+            message: '请输入数字',
+            trigger: 'blur'
+          }
+        ],
       },
       items: [{
         value: '',
