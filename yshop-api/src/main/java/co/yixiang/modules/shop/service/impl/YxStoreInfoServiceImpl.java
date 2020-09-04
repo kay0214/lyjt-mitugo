@@ -198,18 +198,20 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
     @Override
     public Paging<LocalLiveListVo> getLocalLiveList(LocalLiveQueryParam localLiveQueryParam,String location) throws Exception {
         Page page = setPageParam(localLiveQueryParam, OrderItem.desc("create_time"));
+        String[] locationArr = location.split(",");
+        localLiveQueryParam.setLat(locationArr[1]);
+        localLiveQueryParam.setLnt(locationArr[0]);
         IPage<LocalLiveListVo> iPage = yxStoreInfoMapper.getLocalLiveList(page, localLiveQueryParam);
         List<LocalLiveListVo> localLiveListVoList = iPage.getRecords();
         iPage.setTotal(localLiveListVoList.size());
         for (LocalLiveListVo localLiveListVo : localLiveListVoList){
             if(StringUtils.isNotBlank(location)) {
-                // 设置距离
+                /*// 设置距离
                 // 维度  京都
-                String[] locationArr = location.split(",");
                 GlobalCoordinates source = new GlobalCoordinates(Double.parseDouble(localLiveListVo.getCoordinateY()), Double.parseDouble(localLiveListVo.getCoordinateX()));
                 GlobalCoordinates target = new GlobalCoordinates(Double.parseDouble(locationArr[1]), Double.parseDouble(locationArr[0]));
                 double distance = DistanceMeterUtil.getDistanceMeter(source, target);
-                localLiveListVo.setDistance(distance + "");
+                localLiveListVo.setDistance(distance + "");*/
             }
             QueryWrapper<YxImageInfo> imageInfoQueryWrapper = new QueryWrapper<>();
             imageInfoQueryWrapper.lambda().eq(YxImageInfo::getTypeId, localLiveListVo.getId())

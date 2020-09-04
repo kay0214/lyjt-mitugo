@@ -5,12 +5,17 @@
     <!-- 通用查询结果列 -->
     <select id="getLocalLiveList" resultType="co.yixiang.modules.coupons.web.vo.LocalLiveListVo">
         select
-        ysi.*
+        ysi.*,ST_Distance_Sphere (POINT(#{lnt},#{lat}),coordinate) distance
+
         from yx_store_info ysi
         <if test ="param.salesOrder != '' and param.salesOrder != null">
             left join (select sum((sales+ficti)) as totalSales , belong from yx_coupons group by belong) yc on ysi.id = yc.belong
         </if>
+
         where ysi.status = 0 and ysi.del_flag = 0
+        <if test ="param.keyword != '' and param.keyword != null">
+            and store_name like CONCAT(#{keyword},'%')
+        </if>
         <choose>
             <when test ="param.salesOrder != '' and param.salesOrder != null">
                 <if test ="param.salesOrder == 'desc'">
@@ -20,6 +25,27 @@
                     order by totalSales asc;
                 </if>
             </when>
+
+            <when test ="param.distanceOrder != '' and param.distanceOrder != null">
+                <if test ="param.distanceOrder == 'desc'">
+                    order by distance desc;
+                </if>
+                <if test ="param.distanceOrder == 'asc'">
+                    order by distance asc;
+                </if>
+            </when>
+
+
+
+            <when test ="param.priceOrder != '' and param.priceOrder != null">
+                <if test ="param.priceOrder == 'desc'">
+                    order by per_capita desc;
+                </if>
+                <if test ="param.priceOrder == 'asc'">
+                    order by per_capita asc;
+                </if>
+            </when>
+
             <otherwise>
                 order by ysi.create_time desc;
             </otherwise>
