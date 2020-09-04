@@ -335,7 +335,7 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
             miniPayService.refundCouponOrderNew(yxCouponOrder.getOrderId(), bigDecimal.multiply(resources.getRefundPrice()).intValue(), yxCouponOrder.getOrderId(), bigDecimal.multiply(yxCouponOrder.getTotalPrice()).intValue());
         } catch (WxPayException e) {
             log.info("refund-error:{}", e.getMessage());
-            throw new BadRequestException("退款失败:" + e.getMessage());
+            throw new BadRequestException("退款失败");
         }
     }
 
