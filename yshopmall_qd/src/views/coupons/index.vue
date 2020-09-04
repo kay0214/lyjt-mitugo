@@ -709,8 +709,9 @@ export default {
       }
     },
     //提交 - 之后
-    [CRUD.HOOK.afterSubmit](crud,form) {
+    [CRUD.HOOK.beforeAddCancel](crud,form) {
       this.expireDate=null
+      this.availableTime=[new Date(2020, 9, 10, 9, 0),new Date(2020, 9, 10, 22, 0)]
       form.content=""
     },
     expireDateChange(newValue) {
