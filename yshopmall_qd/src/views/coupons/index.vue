@@ -414,7 +414,15 @@ const defaultCrud = CRUD({ title: '卡券表', url: 'api/yxCoupons', sort: 'id,d
       del: true,
       download: false
     }})
-const defaultForm = { id: null, couponNum: null, couponName: null, couponType: null, couponCategory: null, denomination: null, discount: null, threshold: null, discountAmount: null, sellingPrice: null, originalPrice: null, settlementPrice: null, commission: null, quantityLimit: null, inventory: null, sales: null, ficti: null, writeOff: null, expireDateStart: null, expireDateEnd: null, isHot: 0, isShow: 0, outtimeRefund: null, needOrder: null, awaysRefund: null, useCondition: null, availableTimeStart: null, availableTimeEnd: null, delFlag: null, createUserId: null, updateUserId: null, createTime: null, updateTime: null, content: null, expireDate: null, image: null, sliderImage: null }
+const defaultForm = { 
+  id: null, couponNum: null, couponName: null, couponType: null, couponCategory: null, 
+  denomination: null, discount: null, threshold: null, discountAmount: null, sellingPrice: null, 
+  originalPrice: null, settlementPrice: null, commission: null, quantityLimit: null, 
+  inventory: null, sales: null, ficti: null, writeOff: null, expireDateStart: null, 
+  expireDateEnd: null, isHot: 0, isShow: 0, outtimeRefund: null, needOrder: null, 
+  awaysRefund: null, useCondition: null, availableTimeStart: null, availableTimeEnd: null, 
+  delFlag: null, createUserId: null, updateUserId: null, createTime: null, updateTime: null, 
+  content: null, expireDate: null, image: null, sliderImage: null,sort:null, couponInfo:null,}
 const imageArr = []
 if (defaultForm.image) { imageArr[0] = defaultForm.image }
 export default {
@@ -699,6 +707,11 @@ export default {
       if (!this.form.couponType) {
         this.form.couponType = 1
       }
+    },
+    //提交 - 之后
+    [CRUD.HOOK.afterSubmit](crud,form) {
+      this.expireDate=null
+      form.content=""
     },
     expireDateChange(newValue) {
       this.form.expireDateStart = this.expireDate[0]
