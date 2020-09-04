@@ -212,6 +212,13 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         if (null == yxCouponOrder) {
             throw new BadRequestException("查询卡券订单失败");
         }
+        // 判断订单状态
+        if (4 != yxCouponOrder.getStatus() && 5 != yxCouponOrder.getStatus()) {
+            throw new BadRequestException("当前订单状态不是待使用");
+        }
+        if (1 == yxCouponOrder.getRefundStatus()) {
+            throw new BadRequestException("退款申请中的订单无法核销");
+        }
         if (!yxCouponOrder.getUid().equals(useUid)) {
             throw new BadRequestException("核销码与用户信息不匹配");
         }
@@ -354,7 +361,10 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         }
         // 判断卡券状态
         if (4 != yxCouponOrder.getStatus() && 5 != yxCouponOrder.getStatus()) {
-            throw new BadRequestException("无效订单");
+            throw new BadRequestException("当前订单状态不是待使用");
+        }
+        if (1 == yxCouponOrder.getRefundStatus()) {
+            throw new BadRequestException("退款申请中的订单无法核销");
         }
         // 判断总核销次数
         if (yxCouponOrder.getUseCount() <= yxCouponOrder.getUsedCount()) {
