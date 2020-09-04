@@ -220,20 +220,26 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
     @Override
     public Paging<LocalLiveListVo> getLocalLiveList(LocalLiveQueryParam localLiveQueryParam, String location) throws Exception {
         Page page = setPageParam(localLiveQueryParam, OrderItem.desc("create_time"));
-        String[] locationArr = location.split(",");
-        localLiveQueryParam.setLat(locationArr[0]);
-        localLiveQueryParam.setLnt(locationArr[1]);
+        if (location.split(",").length == 2 && StringUtils.isNotBlank(location)) {
+            String[] locationArr = location.split(",");
+            localLiveQueryParam.setLat(locationArr[1]);
+            localLiveQueryParam.setLnt(locationArr[0]);
+        }
+
         IPage<LocalLiveListVo> iPage = yxStoreInfoMapper.getLocalLiveList(page, localLiveQueryParam);
         List<LocalLiveListVo> localLiveListVoList = iPage.getRecords();
         iPage.setTotal(localLiveListVoList.size());
         for (LocalLiveListVo localLiveListVo : localLiveListVoList){
-            if(StringUtils.isNotBlank(location)) {
-                /*// 设置距离
+            if (location.split(",").length == 2 && StringUtils.isNotBlank(location) && StringUtils.isNotBlank(localLiveListVo.getCoordinateY()) && StringUtils.isNotBlank(localLiveListVo.getCoordinateX())) {
+                // 设置距离
                 // 维度  京都
+                String[] locationArr = location.split(",");
                 GlobalCoordinates source = new GlobalCoordinates(Double.parseDouble(localLiveListVo.getCoordinateY()), Double.parseDouble(localLiveListVo.getCoordinateX()));
                 GlobalCoordinates target = new GlobalCoordinates(Double.parseDouble(locationArr[1]), Double.parseDouble(locationArr[0]));
                 double distance = DistanceMeterUtil.getDistanceMeter(source, target);
-                localLiveListVo.setDistance(distance + "");*/
+                localLiveListVo.setDistance(new BigDecimal(distance).divide(new BigDecimal(1000), 2, BigDecimal.ROUND_HALF_UP).toString() + "km");
+            } else {
+                localLiveListVo.setDistance("");
             }
             QueryWrapper<YxImageInfo> imageInfoQueryWrapper = new QueryWrapper<>();
             imageInfoQueryWrapper.lambda().eq(YxImageInfo::getTypeId, localLiveListVo.getId())
