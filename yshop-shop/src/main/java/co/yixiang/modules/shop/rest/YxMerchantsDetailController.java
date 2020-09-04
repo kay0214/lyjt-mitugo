@@ -86,7 +86,7 @@ public class YxMerchantsDetailController {
     @PostMapping(value = "/update")
     @Log("商户认证提交审核")
     @ApiOperation("商户认证提交审核")
-    @PreAuthorize("@el.check('admin','yxMerchantsDetail:update')")
+    @PreAuthorize("@el.check('admin','yxMerchantsDetail:edit')")
     public ResponseEntity<Object> update(@Validated @RequestBody YxMerchantsDetailDto resources) {
         // 获取登陆用户的id
         int uid = SecurityUtils.getUserId().intValue();
