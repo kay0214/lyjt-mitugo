@@ -5,10 +5,11 @@
     <!-- 通用查询结果列 -->
     <select id="getLocalLiveList" resultType="co.yixiang.modules.coupons.web.vo.LocalLiveListVo">
         select
-         distinct ysi.*
+        ysi.*,ST_Distance_Sphere (POINT(#{lnt},#{lat}),coordinate) distance
+
         from yx_store_info ysi
-        <if test="param.salesOrder != '' and param.salesOrder != null">
-            left join (select sum(sales) as totalSales , store_id from yx_coupons group by store_id) yc on
+        <if test ="param.salesOrder != '' and param.salesOrder != null">
+            left join (select sum((sales+ficti)) as totalSales , store_id from yx_coupons group by store_id) yc on
             ysi.id = yc.store_id
         </if>
         <if test="param.keyword != '' and param.keyword != null">
@@ -20,14 +21,35 @@
             CONCAT('%',#{param.keyword},'%'))
         </if>
         <choose>
-            <when test="param.salesOrder != '' and param.salesOrder != null">
-                <if test="param.salesOrder == 'desc'">
+            <when test ="param.salesOrder != '' and param.salesOrder != null">
+                <if test ="param.salesOrder == 'desc'">
                     order by totalSales desc;
                 </if>
-                <if test="param.salesOrder == 'asc'">
+                <if test ="param.salesOrder == 'asc'">
                     order by totalSales asc;
                 </if>
             </when>
+
+            <when test ="param.distanceOrder != '' and param.distanceOrder != null">
+                <if test ="param.distanceOrder == 'desc'">
+                    order by distance desc;
+                </if>
+                <if test ="param.distanceOrder == 'asc'">
+                    order by distance asc;
+                </if>
+            </when>
+
+
+
+            <when test ="param.priceOrder != '' and param.priceOrder != null">
+                <if test ="param.priceOrder == 'desc'">
+                    order by per_capita desc;
+                </if>
+                <if test ="param.priceOrder == 'asc'">
+                    order by per_capita asc;
+                </if>
+            </when>
+
             <otherwise>
                 order by ysi.create_time desc;
             </otherwise>
@@ -42,15 +64,11 @@
         id, store_nid, store_name, manage_user_name, mer_id, partner_id, manage_mobile, store_mobile, status, per_capita, industry_category, store_province, store_address, coordinate, coordinate_x, coordinate_y, del_flag, create_user_id, update_user_id, create_time, update_time, introduction
     </sql>
     <select id="getYxStoreInfoById" resultType="co.yixiang.modules.shop.web.vo.YxStoreInfoQueryVo">
-        select
-        <include refid="Base_Column_List"/>
-        from yx_store_info where id = #{id}
+        select <include refid="Base_Column_List"/> from yx_store_info where id = #{id}
     </select>
 
     <select id="getYxStoreInfoPageList" resultType="co.yixiang.modules.shop.web.vo.YxStoreInfoQueryVo">
-        select
-        <include refid="Base_Column_List"/>
-        from yx_store_info
+        select <include refid="Base_Column_List"/> from yx_store_info
     </select>
 
     <select id="getYxStoreInfoByPoint" resultType="co.yixiang.modules.shop.web.vo.YxStoreInfoQueryVo">
@@ -72,80 +90,80 @@
 
     <select id="selectInfoListBySales" resultType="co.yixiang.modules.shop.web.vo.YxStoreInfoQueryVo">
         SELECT
-        si.id,
-        si.store_nid,
-        si.store_name,
-        si.manage_user_name,
-        si.mer_id,
-        si.partner_id,
-        si.manage_mobile,
-        si.store_mobile,
-        si. STATUS,
-        si.per_capita,
-        si.industry_category,
-        si.store_province,
-        si.store_address,
-        si.coordinate,
-        si.coordinate_x,
-        si.coordinate_y,
-        si.del_flag,
-        si.create_user_id,
-        si.update_user_id,
-        si.create_time,
-        si.update_time,
-        si.introduction,
-        IFNULL(SUM(sp.sales), 0) AS sales
+            si.id,
+            si.store_nid,
+            si.store_name,
+            si.manage_user_name,
+            si.mer_id,
+            si.partner_id,
+            si.manage_mobile,
+            si.store_mobile,
+            si. STATUS,
+            si.per_capita,
+            si.industry_category,
+            si.store_province,
+            si.store_address,
+            si.coordinate,
+            si.coordinate_x,
+            si.coordinate_y,
+            si.del_flag,
+            si.create_user_id,
+            si.update_user_id,
+            si.create_time,
+            si.update_time,
+            si.introduction,
+            IFNULL(SUM(sp.sales), 0) AS sales
         FROM
-        yx_store_info si
+            yx_store_info si
         LEFT JOIN yx_store_product sp ON sp.store_id = si.id
         where si.del_flag = 0 and si.`status` = 0
-        <if test="storeName !='' and storeName != null">and si.store_name LIKE CONCAT('%',#{storeName},'%')</if>
+        <if test ="storeName !='' and storeName != null"> and si.store_name LIKE CONCAT('%',#{storeName},'%') </if>
         GROUP BY
-        si.id
+            si.id
         ORDER BY
-        sales ${sort},
-        si.create_time DESC;
+            sales ${sort},
+            si.create_time DESC;
     </select>
 
     <select id="selectInfoListBySocre" resultType="co.yixiang.modules.shop.web.vo.YxStoreInfoQueryVo">
         SELECT
-        si.id,
-        si.store_nid,
-        si.store_name,
-        si.manage_user_name,
-        si.mer_id,
-        si.partner_id,
-        si.manage_mobile,
-        si.store_mobile,
-        si.`status`,
-        si.per_capita,
-        si.industry_category,
-        si.store_province,
-        si.store_address,
-        si.coordinate,
-        si.coordinate_x,
-        si.coordinate_y,
-        si.del_flag,
-        si.create_user_id,
-        si.update_user_id,
-        si.create_time,
-        si.update_time,
-        si.introduction,
-        IFNULL(
-        SUM(
-        spr.product_score + service_score
-        ),
-        0
-        ) AS socre
+            si.id,
+            si.store_nid,
+            si.store_name,
+            si.manage_user_name,
+            si.mer_id,
+            si.partner_id,
+            si.manage_mobile,
+            si.store_mobile,
+            si.`status`,
+            si.per_capita,
+            si.industry_category,
+            si.store_province,
+            si.store_address,
+            si.coordinate,
+            si.coordinate_x,
+            si.coordinate_y,
+            si.del_flag,
+            si.create_user_id,
+            si.update_user_id,
+            si.create_time,
+            si.update_time,
+            si.introduction,
+            IFNULL(
+                SUM(
+                    spr.product_score + service_score
+                ),
+                0
+            ) AS socre
         FROM
-        yx_store_info si
+            yx_store_info si
         LEFT JOIN yx_store_product_reply spr ON si.mer_id = spr.mer_id
         where si.del_flag = 0 and si.`status` = 0
-        <if test="storeName !='' and storeName != null">and si.store_name LIKE CONCAT('%',#{storeName},'%')</if>
+        <if test ="storeName !='' and storeName != null"> and si.store_name LIKE CONCAT('%',#{storeName},'%') </if>
         GROUP BY
-        si.id
+            si.id
         ORDER BY
-        socre ${sort},
-        si.create_time DESC;
+            socre ${sort},
+            si.create_time DESC;
     </select>
 </mapper>
