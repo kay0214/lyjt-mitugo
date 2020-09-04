@@ -221,8 +221,8 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
     public Paging<LocalLiveListVo> getLocalLiveList(LocalLiveQueryParam localLiveQueryParam, String location) throws Exception {
         Page page = setPageParam(localLiveQueryParam, OrderItem.desc("create_time"));
         String[] locationArr = location.split(",");
-        localLiveQueryParam.setLat(locationArr[0]);
-        localLiveQueryParam.setLnt(locationArr[1]);
+        localLiveQueryParam.setLat(locationArr[1]);
+        localLiveQueryParam.setLnt(locationArr[0]);
         IPage<LocalLiveListVo> iPage = yxStoreInfoMapper.getLocalLiveList(page, localLiveQueryParam);
         List<LocalLiveListVo> localLiveListVoList = iPage.getRecords();
         iPage.setTotal(localLiveListVoList.size());
