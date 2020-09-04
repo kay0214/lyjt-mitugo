@@ -48,7 +48,7 @@
             <span>{{ form.couponNum }}</span>
           </el-form-item> -->
           <el-form-item label="卡券名称" prop="couponName">
-            <el-input v-model="form.couponName" style="width: 100%;" />
+            <el-input v-model="form.couponName" style="width: 100%;" maxlength="42" />
           </el-form-item>
           <el-form-item label="卡券类型" prop="couponType">
             <el-select v-model="form.couponType" placeholder="请选择" style="width: 100%;">
@@ -159,7 +159,7 @@
             <el-input v-model="form.awaysRefund" style="width: 100%;" />
           </el-form-item> -->
           <el-form-item label="使用条件" prop="useCondition">
-            <el-input v-model="form.useCondition" style="width: 100%;" />
+            <el-input v-model="form.useCondition" style="width: 100%;" maxlength="88" />
           </el-form-item>
           <el-form-item label="排序" prop='sort'>
             <el-input v-model="form.sort" οnkeyup="if(isNaN(value))execCommand('undo')" onafterpaste="if(isNaN(value))execCommand('undo')" maxlength="6"/>
@@ -215,7 +215,7 @@
             <el-input v-model="form.updateTime" style="width: 100%;" />
           </el-form-item>
           <el-form-item label="卡券简介" prop="couponInfo">
-            <el-input type="textarea" v-model="form.couponInfo" style="width: 100%;" />
+            <el-input type="textarea" v-model="form.couponInfo" style="width: 100%;" maxlength="88" />
           </el-form-item>
           <el-form-item label="图文详情" prop="content" required>
             <editor v-model="form.content" @change="()=>{$refs.form.validateField('content')}" />
