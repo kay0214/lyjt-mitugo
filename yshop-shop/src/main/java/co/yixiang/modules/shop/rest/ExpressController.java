@@ -55,7 +55,7 @@ public class ExpressController {
     @PreAuthorize("hasAnyRole('admin','YXEXPRESS_ALL','YXEXPRESS_CREATE')")
     public ResponseEntity create(@Validated @RequestBody YxExpress resources){
         //if(StrUtil.isNotEmpty("22")) throw new BadRequestException("演示环境禁止操作");
-        return new ResponseEntity(yxExpressService.save(resources),HttpStatus.CREATED);
+        return new ResponseEntity(yxExpressService.saveExpress(resources),HttpStatus.CREATED);
     }
 
     @Log("修改快递")

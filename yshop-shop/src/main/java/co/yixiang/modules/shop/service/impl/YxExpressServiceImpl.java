@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2018-2020
  * All rights reserved, Designed By www.yixiang.co
-
  */
 package co.yixiang.modules.shop.service.impl;
 
 import co.yixiang.common.service.impl.BaseServiceImpl;
 import co.yixiang.dozer.service.IGenerator;
+import co.yixiang.exception.BadRequestException;
 import co.yixiang.modules.shop.domain.YxExpress;
 import co.yixiang.modules.shop.service.YxExpressService;
 import co.yixiang.modules.shop.service.dto.YxExpressDto;
@@ -34,9 +34,9 @@ import java.util.Map;
 //import org.springframework.cache.annotation.Cacheable;
 
 /**
-* @author hupeng
-* @date 2020-05-12
-*/
+ * @author hupeng
+ * @date 2020-05-12
+ */
 @Service
 @AllArgsConstructor
 //@CacheConfig(cacheNames = "yxExpress")
@@ -59,7 +59,7 @@ public class YxExpressServiceImpl extends BaseServiceImpl<ExpressMapper, YxExpre
 
     @Override
     //@Cacheable
-    public List<YxExpress> queryAll(YxExpressQueryCriteria criteria){
+    public List<YxExpress> queryAll(YxExpressQueryCriteria criteria) {
 //        QueryWrapper queryWrapper =  QueryHelpPlus.getPredicate(YxExpress.class, criteria);
         QueryWrapper<YxExpress> queryWrapper = new QueryWrapper<YxExpress>();
         queryWrapper.orderByAsc("sort");
@@ -71,7 +71,7 @@ public class YxExpressServiceImpl extends BaseServiceImpl<ExpressMapper, YxExpre
     public void download(List<YxExpressDto> all, HttpServletResponse response) throws IOException {
         List<Map<String, Object>> list = new ArrayList<>();
         for (YxExpressDto yxExpress : all) {
-            Map<String,Object> map = new LinkedHashMap<>();
+            Map<String, Object> map = new LinkedHashMap<>();
             map.put("快递公司简称", yxExpress.getCode());
             map.put("快递公司全称", yxExpress.getName());
             map.put("排序", yxExpress.getSort());
@@ -79,5 +79,21 @@ public class YxExpressServiceImpl extends BaseServiceImpl<ExpressMapper, YxExpre
             list.add(map);
         }
         FileUtil.downloadExcel(list, response);
+    }
+
+    /**
+     * 新增
+     *
+     * @param resources
+     * @return
+     */
+    @Override
+    public boolean saveExpress(YxExpress resources) {
+        List<YxExpress> exit = this.list(new QueryWrapper<YxExpress>().lambda().eq(YxExpress::getCode, resources.getCode()));
+        if (null != exit && exit.size() > 0) {
+            throw new BadRequestException("快递公司编号重复");
+        }
+        boolean result = this.save(resources);
+        return result;
     }
 }
