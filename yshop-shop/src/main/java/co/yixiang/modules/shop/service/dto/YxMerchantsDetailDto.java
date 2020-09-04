@@ -198,4 +198,6 @@ public class YxMerchantsDetailDto implements Serializable {
 
     private String merchantsName;
 
+    /** 用户名 */
+    private String username;
 }
