@@ -5,8 +5,10 @@
     <!-- 通用查询结果列 -->
     <select id="getLocalLiveList" resultType="co.yixiang.modules.coupons.web.vo.LocalLiveListVo">
         select
-        ysi.*,ST_Distance_Sphere (POINT(#{lnt},#{lat}),coordinate) distance
-
+        ysi.*
+        <if test ="param.lnt  != '' and param.lnt != null">
+        ,ST_Distance_Sphere (POINT(#{param.lnt},#{param.lat}),coordinate) distance
+        </if>
         from yx_store_info ysi
         <if test ="param.salesOrder != '' and param.salesOrder != null">
             left join (select sum((sales+ficti)) as totalSales , store_id from yx_coupons group by store_id) yc on
