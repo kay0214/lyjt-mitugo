@@ -122,13 +122,12 @@ public class CreatShareStoreServiceImpl implements CreatShareStoreService {
             int y = tempYb + 50 - (line + 1) * 30 + 100;
             //文字叠加,自动换行叠加
             int tempX = 32;
-            int tempY = y;
+            int tempY = y+50;
             //单字符长度
             int tempCharLen = 0;
             //单行字符总长度临时计算
             int tempLineLen = 0;
             StringBuffer sb = new StringBuffer();
-            g.drawString("", tempX, tempY + 50);
             for (int i = 0; i < storeInfo.length(); i++) {
                 char tempChar = storeInfo.charAt(i);
                 tempCharLen = getCharLen(tempChar, g);

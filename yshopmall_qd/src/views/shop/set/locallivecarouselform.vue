@@ -1,14 +1,14 @@
 <template>
   <el-dialog :append-to-body="true" :close-on-click-modal="false" :before-close="cancel" :visible.sync="dialog" :title="isAdd ? '新增' : '编辑'" width="500px">
     <el-form ref="form" :model="form" :rules="rules" size="small" label-width="140px">
-      <el-form-item label="标题" prop="name">
+      <el-form-item label="标题" prop='name'>
         <el-input v-model="form.name" style="width: 300px;" maxlength="20" />
       </el-form-item>
       <el-form-item label="小程序跳转page">
         <el-input v-model="form.url" style="width: 300px;" maxlength="40" />
       </el-form-item>
-      <el-form-item label="图片">
-        <MaterialList v-model="form.imageArr" style="width: 300px" type="image" :num="1" :width="150" :height="150" />
+      <el-form-item label="图片" prop='imageArr'>
+        <MaterialList v-model="form.imageArr" style="width: 300px" type="image" :num="1" :width="150" :height="150" @setValue='(val)=>{form.imageArr=val;$refs.form.validateField("imageArr")}'/>
       </el-form-item>      
       <el-form-item v-if="isAdd" label="排序" prop='sort'>
         <el-input v-model="form.sort" style="width: 300px;" />
@@ -56,14 +56,14 @@ export default {
         status: 1
       },
       rules: {
-        name: [
-          {
-            required: true,
-            message: '请输入标题',
-            trigger: 'blur'
-          }
+        name:[
+          { required: true,message: '必填项', trigger: 'blur'},
+          {max:20,message:'最多20位',trigger:'blur'}
         ],
-        sort: [
+        imageArr:[
+          { required: true,message: '必填项', trigger: 'change'},
+        ],
+        sort:[
           {max:3,message:'最多三位',trigger:'blur'}
         ]
       }
@@ -81,10 +81,15 @@ export default {
       this.resetForm()
     },
     doSubmit() {
-      this.loading = true
-      if (this.isAdd) {
-        this.doAdd()
-      } else this.doEdit()
+      this.$refs.form.validate(ret=>{
+        if(!ret){
+          return
+        }
+        this.loading = true
+        if (this.isAdd) {
+          this.doAdd()
+        } else this.doEdit()
+      })
     },
     doAdd() {
       add(this.form).then(res => {
