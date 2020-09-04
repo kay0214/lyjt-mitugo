@@ -11,7 +11,7 @@
         <MaterialList v-model="form.imageArr" style="width: 300px" type="image" :num="1" :width="150" :height="150" />
       </el-form-item>
       <el-form-item label="排序">
-        <el-input v-model="form.sort" style="width: 300px;" />
+        <el-input v-model="form.sort" style="width: 300px;" maxlength="3" />
       </el-form-item>
       <el-form-item label="是否显示">
         <el-radio v-model="form.status" :label="1">是</el-radio>
