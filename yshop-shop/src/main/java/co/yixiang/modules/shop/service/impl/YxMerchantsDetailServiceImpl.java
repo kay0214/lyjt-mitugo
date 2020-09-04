@@ -345,6 +345,42 @@ public class YxMerchantsDetailServiceImpl extends BaseServiceImpl<YxMerchantsDet
     }
 
     /**
+     * 提交审核
+     *
+     * @param resources
+     * @return
+     */
+    @Override
+    public boolean updateMerDetail(YxMerchantsDetailDto resources) {
+        if (null == resources.getId()) {
+            throw new BadRequestException("缺少主键id");
+        }
+        YxMerchantsDetail yxMerchantsDetail = this.getById(resources.getId());
+        if (null == yxMerchantsDetail) {
+            throw new BadRequestException("数据查询失败");
+        }
+        if (1 == yxMerchantsDetail.getExamineStatus()) {
+            throw new BadRequestException("已审核通过，不允许再次修改");
+        }
+        if (3 == yxMerchantsDetail.getExamineStatus()) {
+            throw new BadRequestException("正在审核中");
+        }
+
+        YxMerchantsDetail update = generator.convert(resources, YxMerchantsDetail.class);
+        update.setExamineStatus(3);
+        boolean result = this.updateById(update);
+
+        if (result) {
+            // 图片处理id
+            Integer typeId = yxMerchantsDetail.getId();
+            // 处理图片入库
+            result = insertOrUpdatePic(typeId, resources);
+        }
+
+        return result;
+    }
+
+    /**
      * 图片入库参数组装
      *
      * @param typeId
