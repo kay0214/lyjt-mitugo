@@ -245,7 +245,8 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
             if (yxImageInfo != null) {
                 localLiveListVo.setImg(yxImageInfo.getImgUrl());
             }
-            List<LocalLiveCouponsVo> localLiveCouponsVoList = yxCouponsService.getCouponsLitByBelog(localLiveListVo.getId());
+//            List<LocalLiveCouponsVo> localLiveCouponsVoList = yxCouponsService.getCouponsLitByBelog(localLiveListVo.getId());
+            List<LocalLiveCouponsVo> localLiveCouponsVoList = yxCouponsService.getCouponsListByPram(localLiveListVo.getId(), localLiveQueryParam.getKeyword());
 
             localLiveListVo.setLocalLiveCouponsVoList(localLiveCouponsVoList);
 
@@ -269,6 +270,8 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
                     if (thumbnail != null) {
                         item.setImage(thumbnail.getImgUrl());
                     }
+                    // 已售销量增加虚拟销量
+                    item.setTotalSales(item.getSales() + item.getFicti());
                     // 拼接有效期
                     String expireDate = DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD, item.getExpireDateStart()) + " ~ " + DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD, item.getExpireDateEnd());
                     item.setExpireDate(expireDate);

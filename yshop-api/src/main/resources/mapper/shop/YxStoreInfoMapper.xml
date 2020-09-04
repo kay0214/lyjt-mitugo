@@ -8,7 +8,7 @@
          distinct ysi.*
         from yx_store_info ysi
         <if test="param.salesOrder != '' and param.salesOrder != null">
-            left join (select sum((sales+ficti)) as totalSales , store_id from yx_coupons group by store_id) yc on
+            left join (select sum(sales) as totalSales , store_id from yx_coupons group by store_id) yc on
             ysi.id = yc.store_id
         </if>
         <if test="param.keyword != '' and param.keyword != null">

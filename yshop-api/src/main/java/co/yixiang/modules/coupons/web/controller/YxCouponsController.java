@@ -135,6 +135,8 @@ public class YxCouponsController extends BaseController {
             if (thumbnail != null) {
                 item.setImage(thumbnail.getImgUrl());
             }
+            // 已售件数增加虚拟销量
+            item.setTotalSales(item.getSales() + item.getFicti());
             // 拼接有效期
             String expireDate = DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD, item.getExpireDateStart()) + " ~ " + DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD, item.getExpireDateEnd());
             item.setExpireDate(expireDate);

@@ -206,13 +206,11 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         String useUid = decode[1];
         YxCouponOrderDetail yxCouponOrderDetail = this.yxCouponOrderDetailService.getOne(new QueryWrapper<YxCouponOrderDetail>().eq("verify_code", verifyCode));
         if (null == yxCouponOrderDetail) {
-            log.info("核销为查询到卡券订单详情信息verifyCode：" + verifyCode);
-            return false;
+            throw new BadRequestException("查询卡券订单详情失败");
         }
         YxCouponOrder yxCouponOrder = this.getOne(new QueryWrapper<YxCouponOrder>().eq("order_id", yxCouponOrderDetail.getOrderId()));
         if (null == yxCouponOrder) {
-            log.info("核销为查询到卡券订单信息verifyCode：" + verifyCode);
-            return false;
+            throw new BadRequestException("查询卡券订单失败");
         }
         if (!yxCouponOrder.getUid().equals(useUid)) {
             throw new BadRequestException("核销码与用户信息不匹配");
@@ -220,35 +218,29 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         // 查询优惠券信息
         YxCoupons yxCoupons = this.yxCouponsService.getById(yxCouponOrderDetail.getCouponId());
         if (null == yxCoupons) {
-            log.info("核销为查询到卡券信息verifyCode：" + verifyCode);
-            return false;
+            throw new BadRequestException("核销未查询到卡券信息");
         }
         YxStoreInfo yxStoreInfo = this.yxStoreInfoService.getOne(new QueryWrapper<YxStoreInfo>().eq("mer_id", uid));
         if (null == yxStoreInfo) {
-            log.info("未获取到用户的店铺信息uid：" + uid);
-            return false;
+            throw new BadRequestException("未获取到用户的店铺信息");
         }
         // 判断是否本商铺发放的卡券
         if (!yxCoupons.getCreateUserId().equals(uid)) {
-            log.info("不可核销其他商户的卡券verifyCode：" + verifyCode + "uid:" + uid);
-            return false;
+            throw new BadRequestException("不可核销其他商户的卡券");
         }
         // 可核销次数已核销次数
         if (yxCouponOrderDetail.getUsedCount() >= yxCouponOrderDetail.getUseCount()) {
-            log.info("当前卡券已达核销上限verifyCode：" + verifyCode);
-            return false;
+            throw new BadRequestException("当前卡券已达核销上限");
         }
         // 判断有效期
         LocalDateTime expireDateStart = yxCoupons.getExpireDateStart().toLocalDateTime();
         LocalDateTime expireDateEnd = yxCoupons.getExpireDateEnd().toLocalDateTime();
         if (expireDateStart.isBefore(LocalDateTime.now()) || expireDateEnd.isAfter(LocalDateTime.now())) {
-            log.info("当前卡券不在有效期内verifyCode：" + verifyCode);
-            return false;
+            throw new BadRequestException("当前卡券不在有效期内");
         }
         // 判断卡券状态
         if (4 != yxCouponOrderDetail.getStatus() && 5 != yxCouponOrderDetail.getStatus()) {
-            log.info("当前卡券状态不是待使用verifyCode：" + verifyCode);
-            return false;
+            throw new BadRequestException("当前卡券状态不是待使用");
         }
         // 第一次核销发送分佣mq
         boolean isFirst = false;
@@ -306,12 +298,27 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
      */
     @Override
     public void refund(YxCouponOrderDto resources) {
-        if (resources.getRefundPrice().compareTo(BigDecimal.ZERO) <= 0) {
-            throw new BadRequestException("请输入退款金额");
-        }
         if (null == resources.getId()) {
             throw new BadRequestException("缺少主键id");
         }
+        if (null == resources.getRefundStatus() || 1 == resources.getRefundStatus()) {
+            throw new BadRequestException("请选择审核结果");
+        }
+        // 退款驳回
+        if (0 == resources.getRefundStatus()) {
+            YxCouponOrder refuse = new YxCouponOrder();
+            refuse.setId(resources.getId());
+            refuse.setRefundStatus(0);
+            refuse.setRefundReason(StringUtils.isNotBlank(resources.getRefundReason()) ? resources.getRefundReason() : "退款申请被驳回");
+            this.updateById(refuse);
+            return;
+        }
+
+        // 退款通过
+        if (resources.getRefundPrice().compareTo(BigDecimal.ZERO) <= 0) {
+            throw new BadRequestException("请输入退款金额");
+        }
+        // 查询订单详情
         YxCouponOrder yxCouponOrder = this.getById(resources.getId());
         if (null == yxCouponOrder) {
             throw new BadRequestException("退款查询信息失败");
@@ -330,5 +337,115 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
             log.info("refund-error:{}", e.getMessage());
             throw new BadRequestException("退款失败:" + e.getMessage());
         }
+    }
+
+    /**
+     * 手动核销卡券
+     *
+     * @param orderId
+     * @return
+     */
+    @Override
+    public boolean updateCouponOrderInput(String orderId, Integer uid) {
+        // 获取订单信息
+        YxCouponOrder yxCouponOrder = this.getOne(new QueryWrapper<YxCouponOrder>().lambda().eq(YxCouponOrder::getOrderId, orderId));
+        if (null == yxCouponOrder) {
+            throw new BadRequestException("卡券订单不存在");
+        }
+        // 判断卡券状态
+        if (4 != yxCouponOrder.getStatus() && 5 != yxCouponOrder.getStatus()) {
+            throw new BadRequestException("无效订单");
+        }
+        // 判断总核销次数
+        if (yxCouponOrder.getUseCount() <= yxCouponOrder.getUsedCount()) {
+            throw new BadRequestException("该订单卡券已全部核销");
+        }
+
+        // 查询优惠券信息
+        YxCoupons yxCoupons = this.yxCouponsService.getById(yxCouponOrder.getCouponId());
+        if (null == yxCoupons) {
+            throw new BadRequestException("优惠券已不存在，无法核销");
+        }
+        // 判断是否本商铺发放的卡券
+        if (!yxCoupons.getStoreId().equals(uid)) {
+            throw new BadRequestException("该卡券不属于本店铺，无法核销");
+        }
+        YxStoreInfo yxStoreInfo = this.yxStoreInfoService.getOne(new QueryWrapper<YxStoreInfo>().eq("mer_id", yxCoupons.getStoreId()));
+        if (null == yxStoreInfo) {
+            throw new BadRequestException("店铺信息不存在");
+        }
+
+        // 判断有效期
+        LocalDateTime expireDateStart = yxCoupons.getExpireDateStart().toLocalDateTime();
+        LocalDateTime expireDateEnd = yxCoupons.getExpireDateEnd().toLocalDateTime();
+        if (expireDateStart.isBefore(LocalDateTime.now()) || expireDateEnd.isAfter(LocalDateTime.now())) {
+            throw new BadRequestException("当前卡券不在有效期内");
+        }
+
+        // 获取一张可用卡券
+        List<YxCouponOrderDetail> detailList = this.yxCouponOrderDetailService.list(new QueryWrapper<YxCouponOrderDetail>().lambda().eq(YxCouponOrderDetail::getOrderId, orderId));
+        if (null == detailList || detailList.size() <= 0) {
+            throw new BadRequestException("卡券订单详情不存在");
+        }
+        boolean haveCoupon = false;
+        YxCouponOrderDetail yxCouponOrderDetail = new YxCouponOrderDetail();
+        for (YxCouponOrderDetail item : detailList) {
+            if (item.getStatus() == 4 || item.getStatus() == 5) {
+                // 未核销完
+                if (item.getUsedCount() < item.getUseCount()) {
+                    yxCouponOrderDetail = item;
+                    haveCoupon = true;
+                    break;
+                }
+            }
+        }
+        if (!haveCoupon) {
+            throw new BadRequestException("该订单所有卡券均已被核销");
+        }
+
+        // 第一次核销发送分佣mq
+        boolean isFirst = false;
+        if (0 == yxCouponOrder.getUsedCount() && 0 == yxCouponOrder.getRebateStatus()) {
+            isFirst = true;
+        }
+        // 处理订单表数据
+        yxCouponOrder.setUsedCount(yxCouponOrder.getUsedCount() + 1);
+        if (yxCouponOrder.getUsedCount().equals(yxCouponOrder.getUseCount())) {
+            // 次数全部使用完成的状态更新为已核销
+            yxCouponOrder.setStatus(6);
+        } else {
+            yxCouponOrder.setStatus(5);
+        }
+        // 处理订单详情表数据
+        yxCouponOrderDetail.setUsedCount(yxCouponOrderDetail.getUsedCount() + 1);
+        if (yxCouponOrderDetail.getUsedCount().equals(yxCouponOrderDetail.getUseCount())) {
+            // 次数全部使用完成的状态更新为已核销
+            yxCouponOrderDetail.setStatus(6);
+        } else {
+            yxCouponOrderDetail.setStatus(5);
+        }
+        // 处理店铺核销数据
+        YxCouponOrderUse yxCouponOrderUse = new YxCouponOrderUse();
+        yxCouponOrderUse.setCouponId(yxCouponOrderDetail.getCouponId());
+        yxCouponOrderUse.setOrderId(yxCouponOrder.getOrderId());
+        yxCouponOrderUse.setStoreId(yxStoreInfo.getId());
+        yxCouponOrderUse.setStoreName(yxStoreInfo.getStoreName());
+        yxCouponOrderUse.setUsedCount(yxCouponOrderDetail.getUsedCount());
+        yxCouponOrderUse.setDelFlag(0);
+        yxCouponOrderUse.setCreateUserId(uid);
+
+        // 数据入库
+        this.updateById(yxCouponOrder);
+        this.yxCouponOrderDetailService.updateById(yxCouponOrderDetail);
+        this.yxCouponOrderUseService.save(yxCouponOrderUse);
+
+        if (isFirst) {
+            // 分佣mq发送
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("orderId", yxCouponOrder.getOrderId());
+            jsonObject.put("orderType", "1");
+            mqProducer.messageSend2(new MessageContent(MQConstant.MITU_TOPIC, MQConstant.MITU_COMMISSION_TAG, UUID.randomUUID().toString(), jsonObject));
+        }
+        return true;
     }
 }

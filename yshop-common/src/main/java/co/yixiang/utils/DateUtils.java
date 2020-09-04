@@ -11,6 +11,9 @@ import java.lang.management.ManagementFactory;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Date;
 
 /**
@@ -159,5 +162,14 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
     public static Integer getNowTime() {
         Long time = System.currentTimeMillis() / 1000;
         return time.intValue();
+    }
+    /**
+     * Date转LocalDateTime
+     * @param date
+     * @return
+     */
+    public static LocalDateTime dateToLocalDate(Date date) {
+        return LocalDateTime.ofInstant(Instant.ofEpochMilli(date.getTime()), ZoneId.systemDefault());
+
     }
 }
