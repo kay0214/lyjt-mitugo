@@ -17,6 +17,7 @@ import co.yixiang.modules.coupons.web.vo.YxCouponsQueryVo;
 import co.yixiang.modules.image.entity.YxImageInfo;
 import co.yixiang.modules.image.mapper.YxImageInfoMapper;
 import co.yixiang.modules.shop.mapping.YxCouponsMap;
+import co.yixiang.utils.StringUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.metadata.OrderItem;
@@ -129,10 +130,39 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
     }
 
     @Override
-    public Paging<YxCouponsQueryVo> getYxCouponsPageListByStoreId(YxCouponsQueryParam yxCouponsQueryParam){
+    public Paging<YxCouponsQueryVo> getYxCouponsPageListByStoreId(YxCouponsQueryParam yxCouponsQueryParam) {
         Page page = setPageParam(yxCouponsQueryParam, OrderItem.desc("sort desc,create_time"));
         IPage<YxCouponsQueryVo> iPage = yxCouponsMapper.getYxCouponsPageListByStoreId(page, yxCouponsQueryParam.getStoreId());
         iPage.setTotal(yxCouponsMapper.getCountByStoreId(yxCouponsQueryParam.getStoreId()));
         return new Paging(iPage);
+    }
+
+    @Override
+    public List<LocalLiveCouponsVo> getCouponsListByPram(Integer id, String keyword) {
+        QueryWrapper queryWrapper = new QueryWrapper<YxCoupons>().last("limit 3").eq("store_id", id).eq("del_flag", 0).eq("is_show", 1);
+        // 输入查询文字的模糊查询卡券名称
+        if (StringUtils.isNotBlank(keyword)) {
+            queryWrapper.like("coupon_name", keyword);
+        }
+        queryWrapper.orderByAsc("sort");
+        queryWrapper.orderByDesc("create_time");
+        List<YxCoupons> yxCoupons = baseMapper.selectList(queryWrapper);
+        List<LocalLiveCouponsVo> localLiveCouponsVoList = new ArrayList<>();
+        for (YxCoupons coupons : yxCoupons) {
+            LocalLiveCouponsVo localLiveCouponsVo = new LocalLiveCouponsVo();
+            QueryWrapper<YxImageInfo> imageInfoQueryWrapper = new QueryWrapper<>();
+            imageInfoQueryWrapper.lambda()
+                    .eq(YxImageInfo::getDelFlag, 0)
+                    .eq(YxImageInfo::getTypeId, coupons.getId())
+                    .eq(YxImageInfo::getImgType, LocalLiveConstants.IMG_TYPE_COUPONS).eq(YxImageInfo::getImgCategory, ShopConstants.IMG_CATEGORY_PIC);
+            YxImageInfo yxImageInfo = yxImageInfoMapper.selectOne(imageInfoQueryWrapper);
+
+            BeanUtil.copyProperties(coupons, localLiveCouponsVo);
+            if (yxImageInfo != null) {
+                localLiveCouponsVo.setImg(yxImageInfo.getImgUrl());
+            }
+            localLiveCouponsVoList.add(localLiveCouponsVo);
+        }
+        return localLiveCouponsVoList;
     }
 }
