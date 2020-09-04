@@ -16,7 +16,7 @@
       </el-row>
       <el-row style="marginBottom:20px;">
         店铺包邮金额：<el-input style='width:200px;marginRight:20px;margin-right:20px;' v-model='freePostage' :disabled="Boolean(!editFreePostage)"></el-input>
-        <el-button v-if='!editFreePostage' class="" size="mini" type="primary" icon="el-icon-edit" @click="editFreePostage=!editFreePostage">修改</el-button>
+        <el-button v-if='!editFreePostage' v-permission="['admin','yxStoreInfo:edit','yxStoreInfo:del']" class="" size="mini" type="primary" icon="el-icon-edit" @click="editFreePostage=!editFreePostage">修改</el-button>
         <el-button v-if='editFreePostage' :loading="editFreePostageStep===1" class="" size="mini" type="primary" icon="el-icon-edit" @click="updateFreePostage">提交修改</el-button>
       </el-row>
 

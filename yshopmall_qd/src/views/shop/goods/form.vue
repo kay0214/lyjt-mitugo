@@ -43,7 +43,7 @@
       </el-form-item>
 
       <el-form-item label="排序" prop='sort'>
-        <el-input v-model="form.sort" maxlength="6" />
+        <el-input v-model="form.sort" />
       </el-form-item>
      <!-- <el-form-item label="销量">
         <el-input v-model="form.sales" />
@@ -192,7 +192,8 @@ export default {
             pattern: /^[0-9]+$/,  //正则
             message: '请输入数字',
             trigger: 'blur'
-          }
+          },
+          {max:15,message:'15个字符以内', trigger: 'blur'}
         ],
         imageArr:[
           { required: true,message: '必填项', trigger: 'blur'}
@@ -239,16 +240,17 @@ export default {
             pattern: /^[0-9]+$/,  //正则
             message: '请输入数字',
             trigger: 'blur'
-          }
+          },
+          {max:32767,message:'最大：32767', trigger: 'blur'}
         ],
         stock:[
           { required: true,message: '必填项', trigger: 'blur'},
-          { validator: validateInt, trigger: 'blur'},
           {
             pattern: /^[0-9]+$/,  //正则
             message: '请输入数字',
             trigger: 'blur'
-          }
+          },
+          { validator: validateInt, trigger: 'blur'}
         ],
         commission:[
           // { required: true,message: '必填项', trigger: 'blur'}
@@ -260,8 +262,9 @@ export default {
           { required: true,message: '必填项'},
           {
             pattern: /^[0-9]+([.]{1}[0-9]+){0,1}$/,  //正则
-            message: '请输入数字'
-          }
+            message: '请输入邮费金额'
+          },
+          {validator: validateNum, trigger: 'blur'},
         ],
         ficti:[
           { required: true,message: '必填项', trigger: 'blur'},
@@ -269,7 +272,8 @@ export default {
             pattern: /^[0-9]+$/,  //正则
             message: '请输入数字',
             trigger: 'blur'
-          }
+          },
+          { validator: validateInt, trigger: 'blur'}
         ],
       }
     }

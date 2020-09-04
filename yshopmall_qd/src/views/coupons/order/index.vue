@@ -60,6 +60,8 @@
           </div>
         </el-dialog> -->
         <eDetail ref="form1" :is-add="false" />
+        <eRefund ref="form2" :is-add="false" />
+
         <!--表格渲染-->
         <el-table ref="table" v-loading="crud.loading" :data="crud.data" size="small" style="width: 100%;" @selection-change="crud.selectionChangeHandler">
           <el-table-column type="selection" width="55" />
@@ -95,7 +97,7 @@
               <span>{{ formatTime(scope.row.createTime) }}</span>
             </template>
           </el-table-column>         
-          <el-table-column v-permission="['admin','yxCouponOrder:edit','yxCouponOrder:del']" label="操作" width="150px" align="center">
+          <el-table-column v-permission="['admin','yxCouponOrder:edit','yxCouponOrder:refund']" label="操作" width="150px" align="center">
             <template slot-scope="scope">
               <el-button
               v-permission="permission.edit"
@@ -104,10 +106,14 @@
               @click="detail(scope.row)"
             >
               订单详情</el-button>
-              <!-- <udOperation
-                :data="scope.row"
-                :permission="permission"
-              /> -->
+              <el-button 
+              v-permission="permission.refund"
+              v-if='scope.row.refundStatus===1'
+              size="mini"
+              type="danger"
+              @click="refund(scope.row)"
+            >
+              退款</el-button><!--0 未退款 1 申请中 2 已退款-->             
             </template>
           </el-table-column>
         </el-table>
@@ -127,6 +133,7 @@ import udOperation from '@crud/UD.operation'
 import pagination from '@crud/Pagination'
 import { formatTime } from '@/utils/index'
 import eDetail from './detail'
+import eRefund from './refund'
 
 // crud交由presenter持有
 const defaultCrud = CRUD({ title: '卡券订单表', url: 'api/yxCouponOrder', 
@@ -134,14 +141,15 @@ sort: 'id,desc', crudMethod: { ...crudYxCouponOrder }, query:{orderStatus: '',or
 const defaultForm = {  orderId: null,  mark: null }
 export default {
   name: 'YxCouponOrder',
-  components: { pagination, crudOperation, rrOperation, udOperation , eDetail},
+  components: { pagination, crudOperation, rrOperation, udOperation ,eRefund, eDetail},
   mixins: [presenter(defaultCrud), header(), form(defaultForm), crud()],
   data() {
     return {
       permission: {
         add: ['admin', 'yxCouponOrder:add'],
         edit: ['admin', 'yxCouponOrder:edit'],
-        del: ['admin', 'yxCouponOrder:del']
+        del: ['admin', 'yxCouponOrder:del'],
+        refund: ['admin', 'yxCouponOrder:refund']
       },
       rules: {
       },  
@@ -211,6 +219,18 @@ export default {
         couponOrderUseList: data.couponOrderUseList,
       }
       _this.dialog = true
+    },
+    refund(data) {
+        this.isAdd = false
+        const _this = this.$refs.form2
+        _this.form = {
+          id: data.id,
+          orderId: data.orderId,
+          refundPrice: '',
+          refundStatus: '',
+          refundReason: '',  
+        }
+        _this.dialog = true
     },
   }
 }
