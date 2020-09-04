@@ -115,9 +115,9 @@ export default {
         callback()
       }
     };
-    const validateInt=(r,value,callback)=>{
-      if(parseInt(value)>16777215){
-        callback(new Error("最大值为：16777215"));
+    const validateInt=(r,value,callback,max=16777215)=>{
+      if(parseInt(value)>max){
+        callback(new Error("最大值为："+max));
       }else if(parseInt(value)<0){
         callback(new Error("不能为负值"));
       }else{
@@ -241,7 +241,8 @@ export default {
             message: '请输入数字',
             trigger: 'blur'
           },
-          {max:32767,message:'最大：32767', trigger: 'blur'}
+          { validator: (rule, value, callback)=>{validateInt(rule, value, callback,32767)}, trigger: 'blur'}
+          // {max:32767,message:'最大：32767', trigger: 'blur'}
         ],
         stock:[
           { required: true,message: '必填项', trigger: 'blur'},
