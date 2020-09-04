@@ -127,7 +127,7 @@ public class CreatShareProductServiceImpl implements CreatShareProductService {
                 sb.append(tempChar);
             }
             //最后叠加余下的文字
-            g.drawString(sb.toString(), tempX, tempY + 50);
+            g.drawString(sb.toString(), tempX, tempY + 100);
 
             //价格背景
             //读取互联网图片
@@ -156,7 +156,7 @@ public class CreatShareProductServiceImpl implements CreatShareProductService {
             g.setFont(font.deriveFont(Font.PLAIN,36));
             g.setColor(new Color(171,171,171));
             String price = "¥" + productInfo.getOtPrice();
-            g.drawString(price, 29, 1170);
+            g.drawString(price, 29, 1200);
             g.drawLine(250,1148,260+150,1148);
 
             //生成二维码返回链接
