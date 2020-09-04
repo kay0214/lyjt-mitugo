@@ -4,26 +4,19 @@
 package co.yixiang.common.util;
 
 import cn.hutool.core.codec.Base64;
-import co.yixiang.enums.RedisKeyEnum;
-import co.yixiang.utils.RedisUtils;
 import com.alibaba.fastjson.JSONObject;
-import com.hyjf.framework.common.util.SpringUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
 import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import java.security.AlgorithmParameters;
-import java.security.Security;
 import java.util.Arrays;
 
 /**
- *  微信工具类
+ * 微信工具类
+ *
  * @author zhangyk
  * @date 2020/9/1 14:27
  */
@@ -43,12 +36,13 @@ public class WxUtils {
 
     /**
      * 获取用户opneId和sessionKey等
+     *
+     * @param code 前端提供code
      * @author zhangyk
-     * @param code  前端提供code
      * @date 2020/8/18 14:34
      */
-    public static JSONObject getUserInfo(String code,String appId,String appSecret) {
-        String requestUrl = CODE_2_SESSION_URL.replace("{appId}",appId).replace("{appSecret}", appSecret).replace("{code}", code);
+    public static JSONObject getUserInfo(String code, String appId, String appSecret) {
+        String requestUrl = CODE_2_SESSION_URL.replace("{appId}", appId).replace("{appSecret}", appSecret).replace("{code}", code);
         String res = HttpUtils.sendGet(requestUrl, null);
         log.info(">>>>>>微信api获取opneId响应:{}<<<<<<", res);
         JSONObject resObject = JSONObject.parseObject(res);
@@ -57,10 +51,11 @@ public class WxUtils {
 
 
     /**
-     *  解密手机号信息
+     * 解密手机号信息
+     *
+     * @param encryptedData 前端提供加密串
+     * @param iv            前端提供的加密向量
      * @author zhangyk
-     * @param encryptedData  前端提供加密串
-     * @param iv  前端提供的加密向量
      * @date 2020/8/18 14:41
      */
     public static JSONObject decryptPhoneData(String sessionKey, String encryptedData, String iv) {
@@ -80,28 +75,18 @@ public class WxUtils {
                 System.arraycopy(keyByte, 0, temp, 0, keyByte.length);
                 keyByte = temp;
             }
-            byte[] resultByte;
-            try {
-                Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
-                SecretKeySpec spec = new SecretKeySpec(keyByte, "AES");
-                AlgorithmParameters parameters = AlgorithmParameters.getInstance("AES");
-                parameters.init(new IvParameterSpec(ivByte));
-                cipher.init(Cipher.DECRYPT_MODE, spec, parameters);// 初始化
-                resultByte = cipher.doFinal(dataByte);
-            }catch (Exception e) {
-                Cipher cipher = Cipher.getInstance("AES/CBC/PKCS7Padding");
-                SecretKeySpec spec = new SecretKeySpec(keyByte, "AES");
-                AlgorithmParameters parameters = AlgorithmParameters.getInstance("AES");
-                parameters.init(new IvParameterSpec(ivByte));
-                cipher.init(Cipher.DECRYPT_MODE, spec, parameters);// 初始化
-                resultByte = cipher.doFinal(dataByte);
-            }
+            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+            SecretKeySpec spec = new SecretKeySpec(keyByte, "AES");
+            AlgorithmParameters parameters = AlgorithmParameters.getInstance("AES");
+            parameters.init(new IvParameterSpec(ivByte));
+            cipher.init(Cipher.DECRYPT_MODE, spec, parameters);// 初始化
+            byte[] resultByte = cipher.doFinal(dataByte);
             if (null != resultByte && resultByte.length > 0) {
                 String result = new String(resultByte, "UTF-8");
                 return JSONObject.parseObject(result);
             }
         } catch (Exception e) {
-            log.error(e.getMessage());
+            log.error("解密手机号信息失败", e);
         }
         return null;
     }
