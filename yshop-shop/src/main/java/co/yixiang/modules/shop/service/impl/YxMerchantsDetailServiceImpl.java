@@ -16,6 +16,7 @@ import co.yixiang.modules.shop.service.dto.YxMerchantsDetailQueryCriteria;
 import co.yixiang.modules.shop.service.mapper.YxMerchantsDetailMapper;
 import co.yixiang.utils.FileUtil;
 import co.yixiang.utils.SecretUtil;
+import co.yixiang.utils.StringUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -109,6 +110,10 @@ public class YxMerchantsDetailServiceImpl extends BaseServiceImpl<YxMerchantsDet
             if (null != yxExamineLogs && yxExamineLogs.size() > 0) {
                 dto.setExamineRemark(yxExamineLogs.get(0).getRemark());
             }
+            User user = this.userService.getById(vo.getUid());
+            if (null != user && StringUtils.isNotBlank(user.getUsername())) {
+                dto.setUsername(user.getUsername());
+            }
             list.add(dto);
         }
 
@@ -169,7 +174,7 @@ public class YxMerchantsDetailServiceImpl extends BaseServiceImpl<YxMerchantsDet
         for (YxMerchantsDetailDto yxMerchantsDetail : all) {
             Map<String, Object> map = new LinkedHashMap<>();
             map.put("用户id", yxMerchantsDetail.getUid());
-            map.put("审批状态：0->待审核,1->通过,2->驳回", yxMerchantsDetail.getExamineStatus());
+            map.put("审批状态：0->初始,1->通过,2->提交审核", yxMerchantsDetail.getExamineStatus());
             map.put("商户地址", yxMerchantsDetail.getAddress());
             map.put("联系人", yxMerchantsDetail.getContacts());
             map.put("联系电话", yxMerchantsDetail.getContactMobile());
