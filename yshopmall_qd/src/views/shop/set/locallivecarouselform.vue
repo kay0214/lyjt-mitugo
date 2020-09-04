@@ -1,7 +1,7 @@
 <template>
   <el-dialog :append-to-body="true" :close-on-click-modal="false" :before-close="cancel" :visible.sync="dialog" :title="isAdd ? '新增' : '编辑'" width="500px">
     <el-form ref="form" :model="form" :rules="rules" size="small" label-width="140px">
-      <el-form-item label="标题">
+      <el-form-item label="标题" prop="name">
         <el-input v-model="form.name" style="width: 300px;" maxlength="20" />
       </el-form-item>
       <el-form-item label="小程序跳转page">
@@ -56,7 +56,14 @@ export default {
         status: 1
       },
       rules: {
-        sort:[
+        name: [
+          {
+            required: true,
+            message: '请输入标题',
+            trigger: 'blur'
+          }
+        ],
+        sort: [
           {max:3,message:'最多三位',trigger:'blur'}
         ]
       }

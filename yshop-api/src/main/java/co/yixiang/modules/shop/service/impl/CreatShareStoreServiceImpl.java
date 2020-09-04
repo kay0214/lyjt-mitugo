@@ -138,8 +138,9 @@ public class CreatShareStoreServiceImpl implements CreatShareStoreService {
                     if(i==0){
                         g.drawString(sbb.toString(), tempXb, tempYb + 80);
                         tamp = false;
+                    }else {
+                        g.drawString(sb.toString(), tempX, tempY + 50);
                     }
-                    g.drawString(sb.toString(), tempX, tempY + 50);
                     //清空内容,重新追加
                     sb.delete(0, sb.length());
                     //每行文字间距50
@@ -152,8 +153,10 @@ public class CreatShareStoreServiceImpl implements CreatShareStoreService {
             //最后叠加余下的文字
             if (tamp){
                 g.drawString(sbb.toString(), tempXb, tempYb + 80);
+            }else {
+                g.drawString(sb.toString(), tempX, tempY + 50);
             }
-            g.drawString(sb.toString(), tempX, tempY + 50);
+
 
             //生成二维码返回链接
             String url = shareCode;
