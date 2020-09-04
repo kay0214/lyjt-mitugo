@@ -60,7 +60,7 @@ public class LocaLifeIndexController {
     public ApiResult<LocalLiveIndexVo> getLocalLifeNav() throws Exception {
         // 本地生活Banner下导航
         List<YxSystemGroupData> localLiveMenu = yxSystemGroupDataService.list(new QueryWrapper<YxSystemGroupData>()
-                .eq("group_name", "local_live_menu").eq("status", 1).orderByAsc("sort"));
+                .eq("group_name", "local_live_menu").eq("status", 1).orderByAsc("sort").orderByDesc("add_time"));
 
         LocalLiveIndexVo localLiveIndexVo = new LocalLiveIndexVo();
 
@@ -77,7 +77,7 @@ public class LocaLifeIndexController {
         }
         // 本地生活Banner上导航
         List<YxSystemGroupData> localLiveLink = yxSystemGroupDataService.list(new QueryWrapper<YxSystemGroupData>()
-                .eq("group_name", "local_live_link").eq("status", 1).orderByAsc("sort"));
+                .eq("group_name", "local_live_link").eq("status", 1).orderByAsc("sort").orderByDesc("add_time"));
 
         List<LocalLifeSliderVo> linksList = new ArrayList<>();
         if (localLiveLink != null){
