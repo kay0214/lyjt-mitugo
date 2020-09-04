@@ -80,14 +80,22 @@ public class WxUtils {
                 System.arraycopy(keyByte, 0, temp, 0, keyByte.length);
                 keyByte = temp;
             }
-            // 初始化
-            Security.addProvider(new BouncyCastleProvider());
-            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
-            SecretKeySpec spec = new SecretKeySpec(keyByte, "AES");
-            AlgorithmParameters parameters = AlgorithmParameters.getInstance("AES");
-            parameters.init(new IvParameterSpec(ivByte));
-            cipher.init(Cipher.DECRYPT_MODE, spec, parameters);// 初始化
-            byte[] resultByte = cipher.doFinal(dataByte);
+            byte[] resultByte;
+            try {
+                Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+                SecretKeySpec spec = new SecretKeySpec(keyByte, "AES");
+                AlgorithmParameters parameters = AlgorithmParameters.getInstance("AES");
+                parameters.init(new IvParameterSpec(ivByte));
+                cipher.init(Cipher.DECRYPT_MODE, spec, parameters);// 初始化
+                resultByte = cipher.doFinal(dataByte);
+            }catch (Exception e) {
+                Cipher cipher = Cipher.getInstance("AES/CBC/PKCS7Padding");
+                SecretKeySpec spec = new SecretKeySpec(keyByte, "AES");
+                AlgorithmParameters parameters = AlgorithmParameters.getInstance("AES");
+                parameters.init(new IvParameterSpec(ivByte));
+                cipher.init(Cipher.DECRYPT_MODE, spec, parameters);// 初始化
+                resultByte = cipher.doFinal(dataByte);
+            }
             if (null != resultByte && resultByte.length > 0) {
                 String result = new String(resultByte, "UTF-8");
                 return JSONObject.parseObject(result);
