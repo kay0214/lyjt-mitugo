@@ -46,37 +46,38 @@ public class YxCouponsCategoryServiceImpl extends BaseServiceImpl<YxCouponsCateg
     private YxImageInfoService yxImageInfoService;
 
     @Override
-    public YxCouponsCategoryQueryVo getYxCouponsCategoryById(Serializable id) throws Exception{
+    public YxCouponsCategoryQueryVo getYxCouponsCategoryById(Serializable id) throws Exception {
         return yxCouponsCategoryMapper.getYxCouponsCategoryById(id);
     }
 
     @Override
-    public Paging<YxCouponsCategoryQueryVo> getYxCouponsCategoryPageList(YxCouponsCategoryQueryParam yxCouponsCategoryQueryParam) throws Exception{
-        Page page = setPageParam(yxCouponsCategoryQueryParam,OrderItem.desc("create_time"));
-        IPage<YxCouponsCategoryQueryVo> iPage = yxCouponsCategoryMapper.getYxCouponsCategoryPageList(page,yxCouponsCategoryQueryParam);
+    public Paging<YxCouponsCategoryQueryVo> getYxCouponsCategoryPageList(YxCouponsCategoryQueryParam yxCouponsCategoryQueryParam) throws Exception {
+        Page page = setPageParam(yxCouponsCategoryQueryParam, OrderItem.desc("create_time"));
+        IPage<YxCouponsCategoryQueryVo> iPage = yxCouponsCategoryMapper.getYxCouponsCategoryPageList(page, yxCouponsCategoryQueryParam);
         return new Paging(iPage);
     }
 
     /**
      * 卡券分类
+     *
      * @return
      */
     @Override
     public List<CateDTO> getList() {
         QueryWrapper<YxCouponsCategory> wrapper = new QueryWrapper<>();
-        wrapper.eq("is_show",1).eq("del_flag",0).orderByAsc("sort");
+        wrapper.eq("is_show", 1).eq("del_flag", 0).orderByAsc("sort").orderByDesc("create_time");
         List<YxCouponsCategory> categoryList = baseMapper.selectList(wrapper);
 
         List<CateDTO> cateDTOList = new ArrayList<>();
-        if (categoryList != null){
-            for (YxCouponsCategory category : categoryList){
+        if (categoryList != null) {
+            for (YxCouponsCategory category : categoryList) {
                 CateDTO cateDTO = new CateDTO();
                 cateDTO.setId(category.getId().longValue());
                 cateDTO.setPid(category.getPid().longValue());
                 cateDTO.setCateName(category.getCateName());
                 YxImageInfo yxImageInfo = yxImageInfoService.getOne(new QueryWrapper<YxImageInfo>().eq("type_id", category.getId())
-                        .eq("img_type", LocalLiveConstants.IMG_TYPE_COUPONS_CATEGORY).eq("img_category", ShopConstants.IMG_CATEGORY_PIC));
-                if (yxImageInfo != null){
+                        .eq("img_type", LocalLiveConstants.IMG_TYPE_COUPONS_CATEGORY).eq("img_category", ShopConstants.IMG_CATEGORY_PIC).eq("del_flag", 0));
+                if (yxImageInfo != null) {
                     cateDTO.setPic(yxImageInfo.getImgUrl());
                 }
                 cateDTOList.add(cateDTO);
