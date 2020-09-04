@@ -18,10 +18,10 @@
         <el-input v-model="form.barCode" style="width: 320px;" maxlength="30" />
       </el-form-item>
       <el-form-item label="商品图片" prop='imageArr'>
-        <MaterialList v-model="form.imageArr" style="width: 500px" type="image" :num="1" :width="150" :height="150" />
+        <MaterialList v-model="form.imageArr" style="width: 500px" type="image" :num="1" :width="150" :height="150" @setValue='(val)=>{form.imageArr=val;$refs.form.validateField("imageArr")}'/>
       </el-form-item>
       <el-form-item label="轮播图" prop='sliderImageArr'>
-        <MaterialList v-model="form.sliderImageArr" style="width: 500px" type="image" :num="4" :width="150" :height="150" />
+        <MaterialList v-model="form.sliderImageArr" style="width: 500px" type="image" :num="4" :width="150" :height="150" @setValue='(val)=>{form.sliderImageArr=val;$refs.form.validateField("sliderImageArr")}'/>
       </el-form-item>
       <el-form-item label="商品简介" prop='storeInfo'>
         <el-input v-model="form.storeInfo" style="width: 500px;" rows="5" type="textarea" maxlength="200" />
@@ -284,17 +284,17 @@ export default {
       if (val) {
         this.form.image = val.join(',')
       }
-      this.$nextTick(()=>{
-        this.$refs['form'].validateField('imageArr')
-      })
+      // this.$nextTick(()=>{
+      //   this.$refs['form'].validateField('imageArr')
+      // })
     },
     'form.sliderImageArr': function(val) {
       if (val) {
         this.form.sliderImage = val.join(',')
       }
-      this.$nextTick(()=>{        
-        this.$refs['form'].validateField('sliderImageArr')
-      })
+      // this.$nextTick(()=>{        
+      //   this.$refs['form'].validateField('sliderImageArr')
+      // })
     }
   },
   methods: {
