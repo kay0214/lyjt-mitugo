@@ -9,9 +9,12 @@
       </el-form-item>
       <el-form-item label="图片">
         <MaterialList v-model="form.imageArr" style="width: 300px" type="image" :num="1" :width="150" :height="150" />
+      </el-form-item>      
+      <el-form-item v-if="isAdd" label="排序" prop='sort'>
+        <el-input v-model="form.sort" style="width: 300px;" />
       </el-form-item>
-      <el-form-item label="排序">
-        <el-input v-model="form.sort" style="width: 300px;" maxlength="3" />
+      <el-form-item v-if="!isAdd" label="排序">
+        <el-input v-model="form.sort" style="width: 300px;" />
       </el-form-item>
       <el-form-item label="是否显示">
         <el-radio v-model="form.status" :label="1">是</el-radio>
@@ -59,6 +62,9 @@ export default {
             message: '请输入标题',
             trigger: 'blur'
           }
+        ],
+        sort: [
+          {max:3,message:'最多三位',trigger:'blur'}
         ]
       }
     }

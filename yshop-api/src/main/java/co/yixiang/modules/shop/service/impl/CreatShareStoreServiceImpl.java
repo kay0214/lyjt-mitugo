@@ -128,13 +128,17 @@ public class CreatShareStoreServiceImpl implements CreatShareStoreService {
             //单行字符总长度临时计算
             int tempLineLen = 0;
             StringBuffer sb =new StringBuffer();
-
+            boolean tamp = true;
             for(int i=0; i < storeInfo.length(); i++) {
                 char tempChar = storeInfo.charAt(i);
                 tempCharLen = getCharLen(tempChar, g);
                 tempLineLen += tempCharLen;
                 if(tempLineLen >= (back.getWidth()+180)) {
                     //长度已经满一行,进行文字叠加
+                    if(i==0){
+                        g.drawString(sbb.toString(), tempXb, tempYb + 80);
+                        tamp = false;
+                    }
                     g.drawString(sb.toString(), tempX, tempY + 50);
                     //清空内容,重新追加
                     sb.delete(0, sb.length());
@@ -146,7 +150,10 @@ public class CreatShareStoreServiceImpl implements CreatShareStoreService {
                 sb.append(tempChar);
             }
             //最后叠加余下的文字
-            g.drawString(sb.toString(), tempX, tempY + 100);
+            if (tamp){
+                g.drawString(sbb.toString(), tempXb, tempYb + 80);
+            }
+            g.drawString(sb.toString(), tempX, tempY + 50);
 
             //生成二维码返回链接
             String url = shareCode;

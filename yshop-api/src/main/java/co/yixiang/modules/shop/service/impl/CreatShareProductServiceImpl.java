@@ -74,12 +74,17 @@ public class CreatShareProductServiceImpl implements CreatShareProductService {
             //单行字符总长度临时计算
             int tempLineLenb = 0;
             StringBuffer sbb =new StringBuffer();
+            boolean tamp = true;
             for(int i=0; i < productInfo.getStoreName().length(); i++) {
                 char tempChar = productInfo.getStoreName().charAt(i);
                 tempCharLenb = getCharLen(tempChar, g);
                 tempLineLenb += tempCharLenb;
                 if(tempLineLenb >= (back.getWidth()+220)) {
                     //长度已经满一行,进行文字叠加
+                    if(i==0){
+                        g.drawString(sbb.toString(), tempXb, tempYb + 80);
+                        tamp = false;
+                    }
                     g.drawString(sbb.toString(), tempXb, tempYb + 50);
                     //清空内容,重新追加
                     sbb.delete(0, sbb.length());
@@ -89,6 +94,9 @@ public class CreatShareProductServiceImpl implements CreatShareProductService {
                 }
                 //追加字符
                 sbb.append(tempChar);
+            }
+            if (tamp){
+                g.drawString(sbb.toString(), tempXb, tempYb + 80);
             }
             g.drawString(sbb.toString(), tempXb, tempYb + 50);
 
@@ -127,7 +135,7 @@ public class CreatShareProductServiceImpl implements CreatShareProductService {
                 sb.append(tempChar);
             }
             //最后叠加余下的文字
-            g.drawString(sb.toString(), tempX, tempY + 100);
+            g.drawString(sb.toString(), tempX, tempY + 50);
 
             //价格背景
             //读取互联网图片
