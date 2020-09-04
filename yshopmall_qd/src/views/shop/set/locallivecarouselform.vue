@@ -9,8 +9,11 @@
       </el-form-item>
       <el-form-item label="图片">
         <MaterialList v-model="form.imageArr" style="width: 300px" type="image" :num="1" :width="150" :height="150" />
+      </el-form-item>      
+      <el-form-item v-if="isAdd" label="排序" prop='sort'>
+        <el-input v-model="form.sort" style="width: 300px;" />
       </el-form-item>
-      <el-form-item label="排序">
+      <el-form-item v-if="!isAdd" label="排序">
         <el-input v-model="form.sort" style="width: 300px;" />
       </el-form-item>
       <el-form-item label="是否显示">
@@ -53,6 +56,9 @@ export default {
         status: 1
       },
       rules: {
+        sort:[
+          {max:3,message:'最多三位',trigger:'blur'}
+        ]
       }
     }
   },
