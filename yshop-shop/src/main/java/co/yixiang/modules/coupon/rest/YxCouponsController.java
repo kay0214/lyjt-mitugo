@@ -16,9 +16,11 @@ import co.yixiang.modules.coupon.service.dto.YxCouponsQueryCriteria;
 import co.yixiang.modules.shop.domain.User;
 import co.yixiang.modules.shop.domain.YxImageInfo;
 import co.yixiang.modules.shop.domain.YxStoreInfo;
+import co.yixiang.modules.shop.domain.YxSystemAttachment;
 import co.yixiang.modules.shop.service.UserService;
 import co.yixiang.modules.shop.service.YxImageInfoService;
 import co.yixiang.modules.shop.service.YxStoreInfoService;
+import co.yixiang.modules.shop.service.YxSystemAttachmentService;
 import co.yixiang.utils.*;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import io.swagger.annotations.Api;
@@ -60,6 +62,9 @@ public class YxCouponsController {
 
     @Autowired
     private YxImageInfoService yxImageInfoService;
+
+    @Autowired
+    private YxSystemAttachmentService yxSystemAttachmentService;
 
     @GetMapping
     @Log("查询卡券表")
@@ -211,7 +216,25 @@ public class YxCouponsController {
         boolean updateStatus = yxCouponsService.updateById(yxCoupons);
         if (updateStatus) {
             if (updateStatus) {
+                // 存储相关图片
                 couponImg(yxCoupons.getId(), request.getImage(), request.getSliderImage(), loginUserId);
+
+                // 卡券信息发生变更, 删除卡券海报
+                String logo = String.valueOf(yxCoupons.getId()) + "_" + String.valueOf(loginUserId) + "_";
+                String couponWapImage = logo + "coupon_routine_product_detail_wap.jpg";
+                String couponSpreadImage = logo + "coupon_routine_product_user_spread.jpg";
+                List<YxSystemAttachment> systemAttachmentWapImageList = yxSystemAttachmentService.list(new QueryWrapper<YxSystemAttachment>().lambda().eq(YxSystemAttachment::getName, couponWapImage));
+                if (systemAttachmentWapImageList != null && systemAttachmentWapImageList.size() > 0){
+                    systemAttachmentWapImageList.forEach(item -> {
+                        yxSystemAttachmentService.removeById(item.getAttId());
+                    });
+                }
+                List<YxSystemAttachment> systemAttachmentSpreadImageList = yxSystemAttachmentService.list(new QueryWrapper<YxSystemAttachment>().lambda().eq(YxSystemAttachment::getName, couponSpreadImage));
+                if (systemAttachmentSpreadImageList != null && systemAttachmentSpreadImageList.size() > 0){
+                    systemAttachmentSpreadImageList.forEach(items -> {
+                        yxSystemAttachmentService.removeById(items.getAttId());
+                    });
+                }
             }
             return new ResponseEntity<>(updateStatus, HttpStatus.OK);
         } else {

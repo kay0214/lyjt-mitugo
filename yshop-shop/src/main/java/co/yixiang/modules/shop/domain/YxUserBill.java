@@ -74,6 +74,9 @@ public class YxUserBill implements Serializable {
     @TableField(value = "`status`")
     private Integer status;
 
+    /** 用户类型 0:预留 1:前台用户 2：后台商户 3：后台合伙人 */
+    private Integer userType;
+
 
     public void copy(YxUserBill source){
         BeanUtil.copyProperties(source,this, CopyOptions.create().setIgnoreNullValue(true));

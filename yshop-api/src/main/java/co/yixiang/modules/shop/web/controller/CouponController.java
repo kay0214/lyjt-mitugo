@@ -49,8 +49,10 @@ public class CouponController extends BaseController {
     @ApiOperation(value = "可领取优惠券列表",notes = "可领取优惠券列表")
     public ApiResult<Object> getList(YxStoreCouponQueryParam queryParam){
         int uid = SecurityUtils.getUserId().intValue();
-        return ApiResult.ok(couponIssueService.getCouponList(queryParam.getPage().intValue(),
-                queryParam.getLimit().intValue(),uid));
+        /*return ApiResult.ok(couponIssueService.getCouponList(queryParam.getPage().intValue(),
+                queryParam.getLimit().intValue(),uid));*/
+        return ApiResult.ok(couponIssueService.getCouponListByStoreId(null==queryParam.getPage()?1:queryParam.getPage().intValue(),
+                queryParam.getLimit().intValue(),uid,queryParam.getStoreId()));
     }
 
     /**

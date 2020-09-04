@@ -117,7 +117,7 @@ public class CreatShareStoreServiceImpl implements CreatShareStoreService {
             String storeInfo = yxStoreInfo.getStoreProvince()+yxStoreInfo.getStoreAddress();
             int fontlen = getWatermarkLength(storeInfo, g);
             //文字长度相对于图片宽度应该有多少行
-            int line = fontlen / (back.getWidth() - 90);
+            int line = fontlen / (back.getWidth() +200);
             //高度
             int y = tempYb + 50 - (line + 1) * 30 + 100;
             //文字叠加,自动换行叠加
@@ -133,7 +133,7 @@ public class CreatShareStoreServiceImpl implements CreatShareStoreService {
                 char tempChar = storeInfo.charAt(i);
                 tempCharLen = getCharLen(tempChar, g);
                 tempLineLen += tempCharLen;
-                if(tempLineLen >= (back.getWidth()-90)) {
+                if(tempLineLen >= (back.getWidth()+180)) {
                     //长度已经满一行,进行文字叠加
                     g.drawString(sb.toString(), tempX, tempY + 50);
                     //清空内容,重新追加
@@ -146,7 +146,7 @@ public class CreatShareStoreServiceImpl implements CreatShareStoreService {
                 sb.append(tempChar);
             }
             //最后叠加余下的文字
-            g.drawString(sb.toString(), tempX, tempY + 50);
+            g.drawString(sb.toString(), tempX, tempY + 100);
 
             //生成二维码返回链接
             String url = shareCode;

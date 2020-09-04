@@ -3,6 +3,7 @@ package co.yixiang.modules.coupons.web.vo;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 
 /**
@@ -10,7 +11,7 @@ import java.math.BigDecimal;
  * @Author : huanghui
  */
 @Data
-public class LocalLiveCouponsVo {
+public class LocalLiveCouponsVo implements Serializable {
 
     @ApiModelProperty(value = "卡券主键")
     private Integer id;

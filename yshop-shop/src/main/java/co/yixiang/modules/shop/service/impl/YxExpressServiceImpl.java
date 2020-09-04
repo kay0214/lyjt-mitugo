@@ -6,7 +6,6 @@
 package co.yixiang.modules.shop.service.impl;
 
 import co.yixiang.common.service.impl.BaseServiceImpl;
-import co.yixiang.common.utils.QueryHelpPlus;
 import co.yixiang.dozer.service.IGenerator;
 import co.yixiang.modules.shop.domain.YxExpress;
 import co.yixiang.modules.shop.service.YxExpressService;
@@ -14,6 +13,7 @@ import co.yixiang.modules.shop.service.dto.YxExpressDto;
 import co.yixiang.modules.shop.service.dto.YxExpressQueryCriteria;
 import co.yixiang.modules.shop.service.mapper.ExpressMapper;
 import co.yixiang.utils.FileUtil;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.github.pagehelper.PageInfo;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -60,7 +60,10 @@ public class YxExpressServiceImpl extends BaseServiceImpl<ExpressMapper, YxExpre
     @Override
     //@Cacheable
     public List<YxExpress> queryAll(YxExpressQueryCriteria criteria){
-        return baseMapper.selectList(QueryHelpPlus.getPredicate(YxExpress.class, criteria));
+//        QueryWrapper queryWrapper =  QueryHelpPlus.getPredicate(YxExpress.class, criteria);
+        QueryWrapper<YxExpress> queryWrapper = new QueryWrapper<YxExpress>();
+        queryWrapper.orderByAsc("sort");
+        return baseMapper.selectList(queryWrapper);
     }
 
 

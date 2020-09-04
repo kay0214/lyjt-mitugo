@@ -54,18 +54,18 @@
           <span>{{ formatTime(scope.row.addTime) }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="状态" align="center">
+      <!-- <el-table-column label="状态" align="center">
         <template slot-scope="scope">
           <div @click="onStatus(scope.row.uid,scope.row.status)">
             <el-tag v-if="scope.row.status == 1" style="cursor: pointer" :type="''">正常</el-tag>
             <el-tag v-else style="cursor: pointer" :type=" 'info' ">禁用</el-tag>
           </div>
         </template>
-      </el-table-column>
+      </el-table-column> -->
       <el-table-column prop="spreadUid" label="推荐人" />
       <el-table-column prop="payCount" label="购买次数" />
       <el-table-column prop="pushCount" label="直推人数" />
-      <el-table-column prop="bankMobile" label="银行预留手机号" />
+      <!-- <el-table-column prop="bankMobile" label="银行预留手机号" /> -->
       <el-table-column v-if="checkPermission(['admin','YXUSER_ALL','YXUSER_EDIT','YXUSER_DELETE'])" label="操作" width="185" align="center" fixed="right">
         <template slot-scope="scope">
           <el-button

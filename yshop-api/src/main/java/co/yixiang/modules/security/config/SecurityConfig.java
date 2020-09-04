@@ -5,6 +5,7 @@ import co.yixiang.modules.security.security.JwtAccessDeniedHandler;
 import co.yixiang.modules.security.security.JwtAuthenticationEntryPoint;
 import co.yixiang.modules.security.security.TokenConfigurer;
 import co.yixiang.modules.security.security.TokenProvider;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -45,6 +46,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
     private final ApplicationContext applicationContext;
 
+    @Autowired
+    RequestMappingHandlerMapping requestMappingHandlerMapping;
+
     public SecurityConfig(TokenProvider tokenProvider, CorsFilter corsFilter, JwtAuthenticationEntryPoint authenticationErrorHandler, JwtAccessDeniedHandler jwtAccessDeniedHandler, ApplicationContext applicationContext) {
         this.tokenProvider = tokenProvider;
         this.corsFilter = corsFilter;
@@ -68,8 +72,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity httpSecurity) throws Exception {
         // 搜寻匿名标记 url： @AnonymousAccess
-        Map<RequestMappingInfo, HandlerMethod> handlerMethodMap = applicationContext
-                .getBean(RequestMappingHandlerMapping.class).getHandlerMethods();
+        Map<RequestMappingInfo, HandlerMethod> handlerMethodMap = requestMappingHandlerMapping.getHandlerMethods();
 
         Set<String> anonymousUrls = new HashSet<>();
         for (Map.Entry<RequestMappingInfo, HandlerMethod> infoEntry : handlerMethodMap.entrySet()) {
@@ -136,6 +139,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/file/**").permitAll()
                 // 阿里巴巴 druid
                 .antMatchers("/druid/**").permitAll()
+                //监控
+                .antMatchers("/actuator/**").permitAll()
                 // 放行OPTIONS请求
                 .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 

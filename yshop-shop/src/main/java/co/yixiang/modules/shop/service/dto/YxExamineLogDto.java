@@ -8,10 +8,13 @@
  */
 package co.yixiang.modules.shop.service.dto;
 
+import com.baomidou.mybatisplus.annotation.TableField;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 
 /**
@@ -87,4 +90,17 @@ public class YxExamineLogDto implements Serializable {
     private String contactMobile;
     /** 商户名称 */
     private String merchantsName;
+
+    @ApiModelProperty(value = "微信号")
+    private String wechat;
+
+    @ApiModelProperty(value = "0:预留 1:前台用户 2：后台商户 3：后台合伙人")
+    private Integer userType;
+
+    /** 提现金额 */
+    private BigDecimal extractPrice;
+
+
+    /** bank = 银行卡 alipay = 支付宝wx=微信 */
+    private String extractType;
 }

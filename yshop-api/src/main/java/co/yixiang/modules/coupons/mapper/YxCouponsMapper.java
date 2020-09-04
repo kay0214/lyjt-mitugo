@@ -37,13 +37,27 @@ public interface YxCouponsMapper extends BaseMapper<YxCoupons> {
      * @param yxCouponsQueryParam
      * @return
      */
-    @Select("select * from yx_coupons")
+    @Select("<script>select yc.* from yx_coupons yc " +
+            "inner join yx_store_info ysi on ysi.id = yc.store_id and ysi.status = 0 and ysi.del_flag = 0" +
+            "where yc.is_show = 1 " +
+            "<if test=\"param.couponCategory!=null\"> and yc.coupon_category = #{param.couponCategory} </if> " +
+            "order by yc.sort asc,yc.create_time desc</script>")
     IPage<YxCouponsQueryVo> getYxCouponsPageList(@Param("page") Page page, @Param("param") YxCouponsQueryParam yxCouponsQueryParam);
 
-    @Select("select * from (select *, (sales+ficti) as totalSales from yx_coupons) tmp order by totalSales desc limit 20")
+    @Select("SELECT yc.* FROM yx_coupons yc " +
+            "INNER JOIN yx_store_info ysi ON ysi.id = yc.store_id AND ysi. STATUS = 0 AND ysi.del_flag = 0 " +
+            "WHERE yc.is_hot = 1 AND yc.is_show = 1 AND yc.del_flag = 0 ORDER BY yc.sort ASC,yc.create_time LIMIT 20")
     List<YxCouponsQueryVo> getCouponsHotList(@Param("param") YxCouponsQueryParam yxCouponsQueryParam);
 
-    @Select("select count(1) from yx_coupons")
+    @Select("<script>select count(1) from yx_coupons yc inner join yx_store_info ysi on ysi.id = yc.store_id and ysi.status = 0 and ysi.del_flag = 0 " +
+            "where is_show = 1 <if test=\"param.couponCategory!=null\"> and yc.coupon_category = #{param.couponCategory} </if> </script>")
     int getCount(@Param("param") YxCouponsQueryParam yxCouponsQueryParam);
 
+    @Select("select yc.* from yx_coupons yc " +
+            "inner join yx_store_info ysi on ysi.id = yc.store_id and ysi.status = 0 and ysi.del_flag = 0" +
+            "where yc.is_show = 1 and yc.store_id =#{storeId}  order by yc.sort asc")
+    IPage<YxCouponsQueryVo> getYxCouponsPageListByStoreId(@Param("page") Page page, @Param("storeId") Integer storeId);
+
+    @Select("select count(1) from yx_coupons yc inner join yx_store_info ysi on ysi.id = yc.store_id and ysi.status = 0 and ysi.del_flag = 0 where is_show = 1 and yc.store_id =#{storeId} ")
+    int getCountByStoreId(@Param("storeId") Integer storeId);
 }

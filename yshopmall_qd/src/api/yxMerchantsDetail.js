@@ -18,7 +18,7 @@ export function del(ids) {
 
 export function edit(data) {
   return request({
-    url: '/api/yxMerchantsDetail/add',
+    url: '/api/yxMerchantsDetail/update',
     method: 'post',
     data
   })
@@ -27,6 +27,14 @@ export function edit(data) {
 export function examine(data) {
   return request({
     url: '/api/yxMerchantsDetail/examine',
+    method: 'post',
+    data
+  })
+}
+
+export function update(data) {
+  return request({
+    url: '/api/users/updateStatus',
     method: 'post',
     data
   })

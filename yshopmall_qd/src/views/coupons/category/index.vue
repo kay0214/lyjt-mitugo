@@ -24,7 +24,7 @@
             </el-radio-group>
           </el-form-item>
           <el-form-item label="排序" prop="sort">
-            <el-input v-model="form.sort" style="width: 370px;" />
+            <el-input v-model="form.sort" style="width: 370px;" maxlength="3" />
           </el-form-item>
         </el-form>
         <div slot="footer" class="dialog-footer">
@@ -41,7 +41,7 @@
             {{scope.row.isShow === 1 ? "显示": "隐藏"}}
           </template>
         </el-table-column>
-        <el-table-column v-if="columns.visible('sort')" prop="sort" label="排序" />
+        <el-table-column v-if="columns.visible('sort')" prop="sort" label="排序" sortable/>
         <el-table-column v-permission="['admin','yxCouponsCategory:edit','yxCouponsCategory:del']" label="操作" width="150px" align="center">
           <template slot-scope="scope">
             <udOperation
@@ -52,7 +52,7 @@
         </el-table-column>
       </el-table>
       <!--分页组件-->
-      <pagination />
+      <!-- <pagination /> -->
     </div>
   </div>
 </template>
@@ -67,7 +67,7 @@ import pagination from '@crud/Pagination'
 import MaterialList from "@/components/material";
 
 // crud交由presenter持有
-const defaultCrud = CRUD({ title: '卡券分类表', url: 'api/yxCouponsCategory', sort: 'id,desc', crudMethod: { ...crudYxCouponsCategory },optShow: {
+const defaultCrud = CRUD({ title: '分类', url: 'api/yxCouponsCategory', sort: 'id,desc', crudMethod: { ...crudYxCouponsCategory },optShow: {
       add: true,
       edit: true,
       del: true,
@@ -90,7 +90,8 @@ export default {
       },
       rules: {
         cateName: [
-          { required: true, message: '分类名称不能为空', trigger: 'blur' }
+          { required: true, message: '分类名称不能为空', trigger: 'blur' },
+          { max: 20, message: '20个字符以内', trigger: 'blur' }
         ],
         sort: [
           { required: true, message: '排序不能为空', trigger: 'blur' }

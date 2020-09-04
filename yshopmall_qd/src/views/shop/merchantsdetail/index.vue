@@ -5,7 +5,7 @@
       <!--如果想在工具栏加入更多按钮，可以使用插槽方式， slot = 'left' or 'right'-->
       <crudOperation :permission="permission" />
       <!--表单组件-->
-      <el-dialog append-to-body :close-on-click-modal="false" :before-close="dialogBeforeCancel" :visible.sync="crud.status.cu>0 || dialogVisible" 
+      <el-dialog append-to-body :close-on-click-modal="false" :before-close="dialogBeforeCancel" :visible.sync="crud.status.cu>0 || dialogVisible"
         :title="crud.status.title" width="570px">
         <el-form ref="form" :inline="true" :model="form" :rules="rules" size="small" label-width="120px" :disabled='formDisabled'>
             <!-- 以下是新增展示字段 -->
@@ -30,7 +30,7 @@
                 <el-input v-model="form.merchantsName"  style="width: 350px;"/>
               </el-form-item>
               <el-form-item label="商户地址" prop="address">
-                <el-input v-model="form.address" style="width: 370px;" />
+                <el-input v-model="form.address" style="width: 370px;" maxlength="50" />
               </el-form-item>
               <el-form-item label="联系人" prop="contacts">
                 <el-input v-model="form.contacts" style="width: 370px;" />
@@ -51,7 +51,7 @@
               </el-radio-group>
             </el-form-item>
             -->
-            <div v-if="!crud.status.add">              
+            <div v-if="!crud.status.add">
               <el-form-item label="银行账号" prop="bankNo">
                 <el-input v-model="form.bankNo" style="width: 370px;" />
               </el-form-item>
@@ -62,7 +62,7 @@
                 <el-radio v-model="form.bankType" :label="0">对私账号</el-radio>
                 <el-radio v-model="form.bankType" :label="1" style="width: 200px;">对公账号</el-radio>
               </el-form-item>
-              <el-form-item label="开户名称" prop="openAccountName">
+              <el-form-item label="收款户名" prop="openAccountName">
                 <el-input v-model="form.openAccountName" style="width: 370px;" />
               </el-form-item>
               <el-form-item label="开户行" prop="openAccountBank">
@@ -79,13 +79,13 @@
             </div>
 
             <!-- 以下是个人认证 -->
-            <div v-if="!crud.status.add && (form.merchantsType==0 || examineEdit)">
+            <div v-if="!crud.status.add && form.merchantsType == 0">
               <el-form-item label="手持证件照" prop="personIdCard">
                 <MaterialList v-model="perIdCard" type="image" :num="1" :width="150" :height="150" :readOnly='Boolean(examineEdit)'/>
-              </el-form-item> 
+              </el-form-item>
               <el-form-item label="证件照人像面" prop="personIdCardFace">
                 <MaterialList v-model="perIdCardFace" type="image" :num="1" :width="150" :height="150" :readOnly='Boolean(examineEdit)' />
-              </el-form-item> 
+              </el-form-item>
               <el-form-item label="证件照国徽面" prop="personIdCardBack">
                 <MaterialList v-model="perIdCardBack" type="image" :num="1" :width="150" :height="150" :readOnly='Boolean(examineEdit)'/>
               </el-form-item>
@@ -133,7 +133,7 @@
                     :value="item.value">
                   </el-option>
                 </el-select>
-              </el-form-item>  
+              </el-form-item>
               <el-form-item label="营业执照" prop="businessLicenseImg">
                 <MaterialList v-model="businessLicenseImg" type="image" :num="1" :width="150" :height="150" :readOnly='Boolean(examineEdit)'/>
               </el-form-item>
@@ -148,10 +148,10 @@
               </el-form-item>
               <el-form-item label="门店照及经营场所" prop="storeImg">
                 <MaterialList v-model="storeImg" type="image" :num="1" :width="150" :height="150" :readOnly='Boolean(examineEdit)'/>
-              </el-form-item> 
+              </el-form-item>
               <el-form-item label="医疗机构许可证" prop="licenceImg">
                 <MaterialList v-model="licenceImg" type="image" :num="1" :width="150" :height="150" :readOnly='Boolean(examineEdit)'/>
-              </el-form-item>       
+              </el-form-item>
             </div>
         </el-form>
         <div slot="footer" class="dialog-footer">
@@ -169,6 +169,7 @@
                   type="textarea"
                   :rows="5"
                   placeholder="请输入内容"
+                  maxlength="50"
                   v-model="form.examineRemark">
                 </el-input>
               </el-col>
@@ -177,20 +178,21 @@
             <el-button :loading="examineEdit === 2" type="primary" @click="examineEditSubmitCU">通过</el-button>
           </div>
         </div>
-        
+
       </el-dialog>
       <!--表格渲染-->
       <el-table ref="table" v-loading="crud.loading" :data="crud.data" size="small" style="width: 100%;" @selection-change="crud.selectionChangeHandler">
         <el-table-column type="selection" width="55" />
         <el-table-column v-if="columns.visible('id')" prop="id" label="商户id" />
+        <el-table-column v-if="columns.visible('username')" prop="username" label="商户用户名" />
         <el-table-column v-if="columns.visible('merchantsName')" prop="merchantsName" label="商户名称" />
         <el-table-column v-if="columns.visible('contacts')" prop="contacts" label="商户联系人" />
         <el-table-column v-if="columns.visible('contactMobile')" prop="contactMobile" label="联系人电话" />
-        <el-table-column label="商户状态" align="center">
+        <el-table-column label="商户状态" align="center" v-permission="['admin','yxMerchantsDetail:switch']">
           <template slot-scope="scope">
-            <div>
-              <el-tag v-if="scope.row.delFlag == 1">已禁用</el-tag>
-              <el-tag v-else-if="scope.row.delFlag == 0">启用中</el-tag>
+            <div @click="updateStatus(scope.row.uid,scope.row.status)">
+              <el-tag v-if="scope.row.status == 1">已禁用</el-tag>
+              <el-tag v-else-if="scope.row.status == 0">启用中</el-tag>
               <el-tag v-else></el-tag>
             </div>
           </template>
@@ -200,13 +202,10 @@
             {{ dict.label.merchants_status[scope.row.examineStatus] }}
           </template>
         </el-table-column>
-        <el-table-column v-permission="['admin','yxMerchantsDetail:edit','yxMerchantsDetail:examine','yxMerchantsDetail:del']" label="操作" width="150px" align="center">        
+        <el-table-column v-permission="['admin','yxMerchantsDetail:edit','yxMerchantsDetail:examine','yxMerchantsDetail:del']" label="操作" width="150px" align="center">
           <template slot-scope="scope">
             <el-button v-permission="permission.examine" size="mini" type="primary" icon="el-icon-s-check" @click="examineOpt(scope.row)" plain></el-button>
-            <udOperation
-              :data="scope.row"
-              :permission="permission"
-            />
+            <el-button v-permission="permission.edit" size="mini" type="primary" icon="el-icon-edit" @click="crud.toEdit(scope.row)" />
           </template>
         </el-table-column>
       </el-table>
@@ -217,7 +216,7 @@
 </template>
 
 <script>
-import crudYxMerchantsDetail,{examine as examineSubmit} from '@/api/yxMerchantsDetail'
+import crudYxMerchantsDetail,{examine as examineSubmit,update} from '@/api/yxMerchantsDetail'
 import { isvalidPhone } from '@/utils/validate'
 import CRUD, { presenter, header, form, crud } from '@crud/crud'
 import rrOperation from '@crud/RR.operation'
@@ -226,6 +225,7 @@ import udOperation from '@crud/UD.operation'
 import pagination from '@crud/Pagination'
 import MaterialList from "@/components/material";
 import { get as getDictDetail } from '@/api/system/dictDetail'
+import { Notification } from 'element-ui'
 
 // crud交由presenter持有
 const defaultCrud = CRUD({ title: '商户详情表', url: 'api/yxMerchantsDetail/getYxMerchantsDetailsList', sort: 'id,desc', crudMethod: { ...crudYxMerchantsDetail },optShow: {
@@ -234,11 +234,11 @@ const defaultCrud = CRUD({ title: '商户详情表', url: 'api/yxMerchantsDetail
       del: false,
       download: false
     }})
-const defaultForm = { id: null, uid: null, examineStatus: null, address: null, contacts: null, contactMobile: null, mailbox: null, merchantsType: null, bankNo: null, openAccountProvince: null, bankType: null, openAccountName: null, openAccountBank: null, openAccountSubbranch: null, companyProvince: null, companyAddress: null, companyName: null, companyLegalPerson: null, companyPhone: null, businessCategory: null, qualificationsType: null, delFlag: null, createUserId: null, updateUserId: null, createTime: null, updateTime: null, merchantsName: null }
+const defaultForm = { id: null, uid: null, nickName:null, merchantsContact:null, phone:null, username:null, examineStatus: null, address: null, contacts: null, contactMobile: null, mailbox: null, merchantsType: null, bankNo: null, openAccountProvince: null, bankType: null, openAccountName: null, openAccountBank: null, openAccountSubbranch: null, companyProvince: null, companyAddress: null, companyName: null, companyLegalPerson: null, companyPhone: null, businessCategory: null, qualificationsType: null, delFlag: null, createUserId: null, updateUserId: null, createTime: null, updateTime: null, merchantsName: null }
 export default {
   name: 'YxMerchantsDetail',
   components: { pagination, crudOperation, rrOperation, udOperation ,MaterialList},
-  mixins: [presenter(defaultCrud), header(), form(defaultForm), crud()],  
+  mixins: [presenter(defaultCrud), header(), form(defaultForm), crud()],
   dicts: ['merchants_status','business_category'],
   data() {
     // 自定义验证
@@ -253,7 +253,7 @@ export default {
     }
     return {
       permission: {
-        add: ['admin', 'yxMerchantsDetail:add'],
+        add: ['admin', 'yxMerchantsDetail:insert'],
         edit: ['admin', 'yxMerchantsDetail:edit'],
         examine: ['admin', 'yxMerchantsDetail:examine'],
         del: ['admin', 'yxMerchantsDetail:del']
@@ -364,61 +364,61 @@ export default {
           { required: true, message: '必填项', trigger: 'blur' },
         ],
       },
-      qualificationsType:[], //主体资质类型    
+      qualificationsType:[], //主体资质类型
       examineEdit:0,  //审核状态
-      dialogVisible:this.crud.status.cu>0, 
-      formDisabled:false, 
+      dialogVisible:this.crud.status.cu>0,
+      formDisabled:false,
       // 个人认证
-      perIdCard:[],//手持证件照      
-      perIdCardFace:[],//证件照人像面      
-      perIdCardBack:[],//证件照国徽面  
+      perIdCard:[],//手持证件照
+      perIdCardFace:[],//证件照人像面
+      perIdCardBack:[],//证件照国徽面
       // 企业和个体户
-      businessLicenseImg:[],//营业执照      
-      bankOpenProveImg:[],//银行开户证明      
-      legalIdCardFace:[],//法人身份证头像面    
-      legalIdCardBack:[],//法人身份证国徽面      
-      storeImg:[],//门店照及经营场所      
-      licenceImg:[],//医疗机构许可证 
+      businessLicenseImg:[],//营业执照
+      bankOpenProveImg:[],//银行开户证明
+      legalIdCardFace:[],//法人身份证头像面
+      legalIdCardBack:[],//法人身份证国徽面
+      storeImg:[],//门店照及经营场所
+      licenceImg:[],//医疗机构许可证
    }
   },
   watch: {
     // 个人认证
     perIdCard: function(val) {
       this.form.personIdCard = val.join(',')
-      this.$refs.form.validateField('personIdCard')
+      if (this.form.personIdCard != '') this.$refs.form.validateField('personIdCard')
     },
     perIdCardFace: function(val) {
       this.form.personIdCardFace = val.join(',')
-      this.$refs.form.validateField('personIdCardFace')
+      if (this.form.personIdCardFace != '') this.$refs.form.validateField('personIdCardFace')
     },
     perIdCardBack: function(val) {
       this.form.personIdCardBack = val.join(',')
-      this.$refs.form.validateField('personIdCardBack')
+      if (this.form.personIdCardBack != '') this.$refs.form.validateField('personIdCardBack')
     },
     // 企业和个体户
     businessLicenseImg: function(val) {
       this.form.businessLicenseImg = val.join(',')
-      this.$refs.form.validateField('businessLicenseImg')
+      if (this.form.businessLicenseImg != '') this.$refs.form.validateField('businessLicenseImg')
     },
     bankOpenProveImg: function(val) {
       this.form.bankOpenProveImg = val.join(',')
-      this.$refs.form.validateField('bankOpenProveImg')
+      if (this.form.bankOpenProveImg != '') this.$refs.form.validateField('bankOpenProveImg')
     },
     legalIdCardFace: function(val) {
       this.form.legalIdCardFace = val.join(',')
-      this.$refs.form.validateField('legalIdCardFace')
+      if (this.form.legalIdCardFace != '') this.$refs.form.validateField('legalIdCardFace')
     },
     legalIdCardBack: function(val) {
       this.form.legalIdCardBack = val.join(',')
-      this.$refs.form.validateField('legalIdCardBack')
+      if (this.form.legalIdCardBack != '') this.$refs.form.validateField('legalIdCardBack')
     },
     storeImg: function(val) {
       this.form.storeImg = val.join(',')
-      this.$refs.form.validateField('storeImg')
+      if (this.form.storeImg != '') this.$refs.form.validateField('storeImg')
     },
     licenceImg: function(val) {
       this.form.licenceImg = val.join(',')
-      this.$refs.form.validateField('licenceImg')
+      if (this.form.licenceImg != '') this.$refs.form.validateField('licenceImg')
     },
   },
   methods: {
@@ -430,31 +430,49 @@ export default {
       // 个人认证
       if (form.personIdCard) {
         this.perIdCard = form.personIdCard.split(',')
+      }else{
+        this.perIdCard = []
       }
       if (form.personIdCardFace) {
         this.perIdCardFace = form.personIdCardFace.split(',')
+      }else{
+        this.perIdCardFace = []
       }
       if (form.personIdCardBack) {
         this.perIdCardBack = form.personIdCardBack.split(',')
+      }else{
+        this.perIdCardBack = []
       }
       // 企业和个体户
       if (form.businessLicenseImg) {
         this.businessLicenseImg = form.businessLicenseImg.split(',')
+      }else{
+        this.businessLicenseImg = []
       }
       if (form.bankOpenProveImg) {
         this.bankOpenProveImg = form.bankOpenProveImg.split(',')
+      }else{
+        this.bankOpenProveImg = []
       }
       if (form.legalIdCardFace) {
         this.legalIdCardFace = form.legalIdCardFace.split(',')
+      }else{
+        this.legalIdCardFace = []
       }
       if (form.legalIdCardBack) {
         this.legalIdCardBack = form.legalIdCardBack.split(',')
+      }else{
+        this.legalIdCardBack = []
       }
       if (form.storeImg) {
         this.storeImg = form.storeImg.split(',')
+      }else{
+        this.storeImg = []
       }
       if (form.licenceImg) {
         this.licenceImg = form.licenceImg.split(',')
+      }else{
+        this.licenceImg = []
       }
     },
     //获取主体资质类型列表
@@ -464,42 +482,60 @@ export default {
           this.qualificationsType=res.content;
       })
     },
-     
+
     //显示审核弹出框
     examineOpt(data){
       this.examineEdit=1;
       this.dialogVisible=Boolean(this.examineEdit)
-      
+
       this.crud.resetForm(JSON.parse(JSON.stringify(data)))
       /*图片默认值赋值*/
       // 个人认证
       if (this.form.personIdCard) {
         this.perIdCard = this.form.personIdCard.split(',')
+      }else{
+        this.perIdCard = []
       }
       if (this.form.personIdCardFace) {
         this.perIdCardFace = this.form.personIdCardFace.split(',')
+      }else{
+        this.perIdCardFace = []
       }
       if (this.form.personIdCardBack) {
         this.perIdCardBack = this.form.personIdCardBack.split(',')
+      }else{
+        this.perIdCardBack = []
       }
       // 企业和个体户
       if (this.form.businessLicenseImg) {
         this.businessLicenseImg = this.form.businessLicenseImg.split(',')
+      }else{
+        this.businessLicenseImg = []
       }
       if (this.form.bankOpenProveImg) {
         this.bankOpenProveImg = this.form.bankOpenProveImg.split(',')
+      }else{
+        this.bankOpenProveImg = []
       }
       if (this.form.legalIdCardFace) {
         this.legalIdCardFace = this.form.legalIdCardFace.split(',')
+      }else{
+        this.legalIdCardFace = []
       }
       if (this.form.legalIdCardBack) {
         this.legalIdCardBack = this.form.legalIdCardBack.split(',')
+      }else{
+        this.legalIdCardBack = []
       }
       if (this.form.storeImg) {
         this.storeImg = this.form.storeImg.split(',')
+      }else{
+        this.storeImg = []
       }
       if (this.form.licenceImg) {
         this.licenceImg = this.form.licenceImg.split(',')
+      }else{
+        this.licenceImg = []
       }
       this.formDisabled=true
     },
@@ -510,18 +546,46 @@ export default {
         examineStatus:1,
         examineRemark:this.form.examineRemark,
         id:this.form.id
+      }).then(res=>{
+        if(res){
+          Notification.success({
+            title: '审核成功'
+          })
+          this.examineEdit=0;
+          this.crud.toQuery()
+        }else{
+          this.examineEdit=1;
+          Notification.error({
+            title: "审核失败，请重新尝试"
+          })
+        }
+        this.formDisabled=false
+        this.dialogVisible=Boolean(this.crud.status.cu);
       })
     },
     //审核驳回 /** 审批状态examineStatus：0->待审核,1->通过,2->驳回 */
     examineEditCancelCU(){
-      this.examineEdit=0;
+      this.examineEdit=2;
       examineSubmit({
         examineStatus:2,
         examineRemark:this.form.examineRemark,
         id:this.form.id
+      }).then(res=>{
+        if(res){
+          Notification.success({
+            title: '驳回已完成'
+          })
+          this.examineEdit=0;
+          this.crud.toQuery()
+        }else{
+          this.examineEdit=1;
+          Notification.error({
+            title: "驳回失败，请重新尝试"
+          })
+        }
+        this.formDisabled=false
+        this.dialogVisible=Boolean(this.crud.status.cu);
       })
-      this.dialogVisible=Boolean(this.crud.status.cu);
-      this.formDisabled=false
     },
     //新增、编辑、审核弹出框关闭
     dialogBeforeCancel(done){
@@ -534,7 +598,28 @@ export default {
           this.dialogVisible=Boolean(this.crud.status.cu);
           this.formDisabled=false
         }
-    }
+    },
+    //启禁用商户状态
+    updateStatus(uid,status) {
+      this.$confirm(`确定进行[${status ? '启用' : '禁用'}]操作?`, '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      })
+        .then(() => {
+          update({uid}).then(({ data }) => {
+            this.$message({
+              message: '操作成功',
+              type: 'success',
+              duration: 1000,
+              onClose: () => {
+                this.crud.toQuery()
+              }
+            })
+          })
+        })
+        .catch(() => { })
+    },
   }
 }
 

@@ -4,7 +4,7 @@
     <div class="head-container">
       <div v-if="crud.props.searchToggle">
         <!-- 搜索 -->
-        <el-input v-model="query.couponName" clearable placeholder="卡券名称" style="width: 130px;" class="filter-item" />
+        <el-input v-model="query.couponName" clearable placeholder="卡券名称" style="width: 130px;" class="filter-item" maxlength="42" />
         <el-select v-model="query.couponType" clearable placeholder="卡券类型" class="filter-item" style="width: 130px">
           <el-option v-for="item in selections.couponType" :key="item.value" :label="item.label" :value="item.value" />
         </el-select>
@@ -48,7 +48,7 @@
             <span>{{ form.couponNum }}</span>
           </el-form-item> -->
           <el-form-item label="卡券名称" prop="couponName">
-            <el-input v-model="form.couponName" style="width: 100%;" />
+            <el-input v-model="form.couponName" style="width: 100%;" maxlength="42" />
           </el-form-item>
           <el-form-item label="卡券类型" prop="couponType">
             <el-select v-model="form.couponType" placeholder="请选择" style="width: 100%;">
@@ -62,17 +62,17 @@
           </el-form-item>
 
           <!-- coupon_type为1时使用 -->
-          <el-form-item v-show="form.couponType === 1" prop="denomination" :required="form.couponType === 1" label="代金券面额">
-            <el-input v-model="form.denomination" style="width: 100%;" />
+          <el-form-item v-if="form.couponType === 1" prop="denomination" label="代金券面额">
+            <el-input v-model="form.denomination" style="width: 100%;" maxlength="12" />
           </el-form-item>
           <el-form-item v-show="form.couponType === 2" prop="discount" :required="form.couponType === 2" label="折扣券折扣率">
-            <el-input v-model="form.discount" style="width: 100%;" />
+            <el-input v-model="form.discount" style="width: 100%;" maxlength="4" />
           </el-form-item>
           <el-form-item v-show="form.couponType === 3" prop="threshold" :required="form.couponType === 3" label="使用门槛">
-            <el-input v-model="form.threshold" style="width: 100%;" />
+            <el-input v-model="form.threshold" style="width: 100%;" maxlength="12" />
           </el-form-item>
           <el-form-item v-show="form.couponType === 3" prop="discountAmount" :required="form.couponType === 3" label="优惠金额">
-            <el-input v-model="form.discountAmount" style="width: 100%;" />
+            <el-input v-model="form.discountAmount" style="width: 100%;" maxlength="12" />
           </el-form-item>
           <el-form-item label="卡券分类" prop="couponCategory">
             <el-select v-model="form.couponCategory" placeholder="请选择" style="width: 100%;">
@@ -85,31 +85,31 @@
             </el-select>
           </el-form-item>
           <el-form-item label="销售价格" prop="sellingPrice">
-            <el-input v-model="form.sellingPrice" style="width: 100%;" @change="setCommission" />
+            <el-input v-model="form.sellingPrice" style="width: 100%;" @change="setCommission" maxlength="12" />
           </el-form-item>
           <el-form-item label="原价" prop="originalPrice">
-            <el-input v-model="form.originalPrice" style="width: 100%;" />
+            <el-input v-model="form.originalPrice" style="width: 100%;" maxlength="12" />
           </el-form-item>
           <el-form-item label="平台结算价" prop="settlementPrice">
-            <el-input v-model="form.settlementPrice" style="width: 100%;" @change="setCommission" />
+            <el-input v-model="form.settlementPrice" style="width: 100%;" @change="setCommission" maxlength="12" />
           </el-form-item>
           <el-form-item label="佣金" prop="commission">
             <el-input v-model="form.commission" style="width: 100%;" readonly />
           </el-form-item>
           <el-form-item label="每人限购数量" prop="quantityLimit">
-            <el-input v-model="form.quantityLimit" style="width: 100%;" />
+            <el-input v-model="form.quantityLimit" style="width: 100%;" maxlength="12" />
           </el-form-item>
           <el-form-item label="库存" prop="inventory">
-            <el-input v-model="form.inventory" style="width: 100%;" />
+            <el-input v-model="form.inventory" style="width: 100%;" maxlength="12" />
           </el-form-item>
           <el-form-item v-show="false" label="销量">
             <el-input v-model="form.sales" style="width: 100%;" />
           </el-form-item>
-          <el-form-item label="虚拟销量">
-            <el-input v-model="form.ficti" style="width: 100%;" />
+          <el-form-item label="虚拟销量" prop="ficti">
+            <el-input v-model="form.ficti" style="width: 100%;" maxlength="12" />
           </el-form-item>
           <el-form-item label="核销次数" prop="writeOff">
-            <el-input v-model="form.writeOff" style="width: 100%;" />
+            <el-input v-model="form.writeOff" style="width: 100%;" maxlength="2" />
           </el-form-item>
           <el-form-item prop="expireDate" label="有效期">
             <el-date-picker
@@ -159,7 +159,10 @@
             <el-input v-model="form.awaysRefund" style="width: 100%;" />
           </el-form-item> -->
           <el-form-item label="使用条件" prop="useCondition">
-            <el-input v-model="form.useCondition" style="width: 100%;" />
+            <el-input v-model="form.useCondition" style="width: 100%;" maxlength="88" />
+          </el-form-item>
+          <el-form-item label="排序" prop='sort'>
+            <el-input v-model="form.sort" οnkeyup="if(isNaN(value))execCommand('undo')" onafterpaste="if(isNaN(value))execCommand('undo')" maxlength="6"/>
           </el-form-item>
           <el-form-item label="图片(260*260/416*214)" prop="image">
             <!-- <pic-upload-two v-model="form.pic" /> -->
@@ -185,6 +188,8 @@
               start-placeholder="可用时段开始时间"
               end-placeholder="可用时段结束时间"
               placeholder="选择时间范围"
+              value-format='HH:mm'
+              format='HH:mm'
               style="width:100%;"
             />
           </el-form-item>
@@ -209,7 +214,10 @@
           <el-form-item v-if="false" label="更新时间" prop="updateTime">
             <el-input v-model="form.updateTime" style="width: 100%;" />
           </el-form-item>
-          <el-form-item label="卡券详情" prop="content" required>
+          <el-form-item label="卡券简介" prop="couponInfo">
+            <el-input type="textarea" v-model="form.couponInfo" style="width: 100%;" maxlength="88" />
+          </el-form-item>
+          <el-form-item label="图文详情" prop="content" required>
             <editor v-model="form.content" @change="()=>{$refs.form.validateField('content')}" />
           </el-form-item>
         </el-form>
@@ -320,7 +328,7 @@
             <el-tag v-if="scope.row.outtimeRefund === 1">过期退</el-tag> 
             <el-tag v-if="scope.row.needOrder === 1">免预约</el-tag> 
             <el-tag v-if="scope.row.awaysRefund === 1">随时退</el-tag> 
-            <span v-if="scope.row.awaysRefund !== 1 && scope.row.needOrder !== 1 && scope.row.awaysRefund !== 1"> - </span>
+            <span v-if="scope.row.outtimeRefund !== 1 && scope.row.needOrder !== 1 && scope.row.awaysRefund !== 1"> - </span>
           </template>
         </el-table-column>
         <!--  0:不支持 1支持 -->
@@ -357,8 +365,8 @@
             <span v-if="scope.row.awaysRefund === 1">已删除</span>
           </template>
         </el-table-column> -->
-        <el-table-column v-if="columns.visible('createUserId')" prop="createUserId" label="创建人" />
-        <el-table-column v-if="columns.visible('updateUserId')" prop="updateUserId" label="修改人" />
+        <!-- <el-table-column v-if="columns.visible('createUserId')" prop="createUserId" label="创建人" />
+        <el-table-column v-if="columns.visible('updateUserId')" prop="updateUserId" label="修改人" /> -->
         <el-table-column v-if="columns.visible('createTime')" prop="createTime" label="创建时间">
           <template slot-scope="scope">
             <span>{{ parseTime(scope.row.createTime) }}</span>
@@ -403,7 +411,7 @@ import { Message } from 'element-ui'
 const defaultCrud = CRUD({ title: '卡券表', url: 'api/yxCoupons', sort: 'id,desc', crudMethod: { ...crudYxCoupons },optShow: {
       add: true,
       edit: false,
-      del: false,
+      del: true,
       download: false
     }})
 const defaultForm = { id: null, couponNum: null, couponName: null, couponType: null, couponCategory: null, denomination: null, discount: null, threshold: null, discountAmount: null, sellingPrice: null, originalPrice: null, settlementPrice: null, commission: null, quantityLimit: null, inventory: null, sales: null, ficti: null, writeOff: null, expireDateStart: null, expireDateEnd: null, isHot: 0, isShow: 0, outtimeRefund: null, needOrder: null, awaysRefund: null, useCondition: null, availableTimeStart: null, availableTimeEnd: null, delFlag: null, createUserId: null, updateUserId: null, createTime: null, updateTime: null, content: null, expireDate: null, image: null, sliderImage: null }
@@ -443,46 +451,103 @@ export default {
         couponCategory: [
           { required: true, message: '卡券分类不能为空', trigger: 'blur' }
         ],
-        denomination: [{ validator: (rule, value, callback) => {
-          if (this.form.couponType === 1 && (!value || value === '')) {
-            return callback(new Error('代金券面额不能为空不能为空'))
-          } else { callback() }
-        }, trigger: 'blur' }],
+        denomination: [
+          {
+            // validator: (rule, value, callback) => {
+            //   // if (!value) return callback(new Error('代金券面额不能为空'))
+            //   if (this.form.couponType === 1 && (!value || value === '')) {
+            //     return callback(new Error('代金券面额不能为空'))
+            //   } else { callback() }
+            // }, 
+            required: true,
+            message: '销售价格不能为空',
+            trigger: 'blur'
+          },
+          {
+            pattern: /^[0-9]+([.]{1}[0-9]+){0,1}$/,  //正则
+            message: '请输入数字'
+          }
+        ],
         discount: [{ validator: (rule, value, callback) => {
           if (this.form.couponType === 2 && (!value || value === '')) {
             return callback(new Error('折扣不能为空'))
           } else { callback() }
-        }, trigger: 'blur' }],
+        }, trigger: 'blur' },
+        {
+          pattern: /^[0-9]+([.]{1}[0-9]+){0,1}$/,  //正则
+          message: '请输入数字'
+        }],
         threshold: [{ validator: (rule, value, callback) => {
           if (this.form.couponType === 3 && (!value || value === '')) {
             return callback(new Error('使用门槛不能为空不能为空'))
           } else { callback() }
-        }, trigger: 'blur' }],
+        }, trigger: 'blur' },
+        {
+          pattern: /^[0-9]+([.]{1}[0-9]+){0,1}$/,  //正则
+          message: '请输入数字'
+        }],
         discountAmount: [{ validator: (rule, value, callback) => {
           if (this.form.couponType === 3 && (!value || value === '')) {
             return callback(new Error('优惠金额不能为空'))
           } else { callback() }
-        }, trigger: 'blur' }],
+        }, trigger: 'blur' },
+        {
+          pattern: /^[0-9]+([.]{1}[0-9]+){0,1}$/,  //正则
+          message: '请输入数字'
+        }],
         sellingPrice: [
-          { required: true, message: '销售价格不能为空', trigger: 'blur' }
+          { required: true, message: '销售价格不能为空', trigger: 'blur' },
+          {
+            pattern: /^[0-9]+([.]{1}[0-9]+){0,1}$/,  //正则
+            message: '请输入数字'
+          }
         ],
         originalPrice: [
-          { required: true, message: '原价不能为空', trigger: 'blur' }
+          { required: true, message: '原价不能为空', trigger: 'blur' },
+          {
+            pattern: /^[0-9]+([.]{1}[0-9]+){0,1}$/,  //正则
+            message: '请输入数字'
+          }
         ],
         settlementPrice: [
-          { required: true, message: '平台结算价不能为空', trigger: 'blur' }
+          { required: true, message: '平台结算价不能为空', trigger: 'blur' },
+          {
+            pattern: /^[0-9]+([.]{1}[0-9]+){0,1}$/,  //正则
+            message: '请输入数字'
+          }
         ],
         commission: [
           { required: true, message: '佣金不能为空', trigger: 'blur' }
         ],
         quantityLimit: [
-          { required: true, message: '每人限购数量不能为空', trigger: 'blur' }
+          { required: true, message: '每人限购数量不能为空', trigger: 'blur' },
+          {
+            pattern: /^[0-9]+$/,  //正则
+            message: '请输入数字'
+          }
         ],
         inventory: [
-          { required: true, message: '库存不能为空', trigger: 'blur' }
+          { required: true, message: '库存不能为空', trigger: 'blur' },
+          {
+            pattern: /^[0-9]+$/,  //正则
+            message: '请输入数字'
+          }
+        ],
+        ficti: [
+          // { trigger: 'blur' },
+          {
+            pattern: /^[0-9]+$/,  //正则
+            message: '请输入数字',
+            trigger: 'blur'
+          }
         ],
         writeOff: [
-          { required: true, message: '核销次数不能为空', trigger: 'blur' }
+          { required: true, message: '核销次数不能为空', trigger: 'blur' },
+          {
+            pattern: /^[0-9]+$/,  //正则
+            message: '请输入数字',
+            trigger: 'blur'
+          }
         ],
 
         expireDate: [{
@@ -501,6 +566,10 @@ export default {
         // ],
         useCondition: [
           { required: true, message: '使用条件不能为空', trigger: 'blur' }
+        ],
+        couponInfo: [
+          { required: true, message: '卡券简介不能为空', trigger: 'blur' },
+          { max: 88, message: '不超过88个字符', trigger: 'blur' }
         ],
         availableTime: [{
           validator: (rule, value, callback) => {
@@ -578,6 +647,10 @@ export default {
       if (this.$refs.form) {
         this.$refs.form.validateField('sliderImage')
       }
+    },
+    availableTime(value){
+      this.form.availableTimeEnd = value[1]
+      this.form.availableTimeStart = value[0]
     }
   },
   mounted() {
@@ -603,6 +676,10 @@ export default {
       return true
     }, // 新增与编辑前做的操作
     [CRUD.HOOK.afterToCU](crud, form) {
+      if(crud.status.edit>CRUD.STATUS.NORMAL){
+      // 编辑时有效 设置默认 有效期
+      this.expireDate=[form.expireDateStart,form.expireDateEnd]
+      }
       //  设置默认 可用时段
       this.form.availableTimeEnd = this.availableTime[0]
       this.form.availableTimeStart = this.availableTime[1]
@@ -627,10 +704,10 @@ export default {
       this.form.expireDateStart = this.expireDate[0]
       this.form.expireDateEnd = this.expireDate[1]
     },
-    availabalChange(newValue) {
-      this.form.availableTimeStart = this.availableTime[0]
-      this.form.availableTimeEnd = this.availableTime[1]
-    },
+    // availabalChange(newValue) {
+    //   this.form.availableTimeStart = this.availableTime[0]
+    //   this.form.availableTimeEnd = this.availableTime[1]
+    // },
     setCommission() {
       const commission = this.form.sellingPrice - this.form.settlementPrice
       this.form.commission = isNaN(commission) ? null : commission

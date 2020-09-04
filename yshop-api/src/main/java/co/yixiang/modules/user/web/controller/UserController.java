@@ -68,7 +68,7 @@ public class UserController extends BaseController {
     @ApiOperation(value = "获取用户信息", notes = "获取用户信息", response = YxUserQueryVo.class)
     public ApiResult<Object> userInfo() {
         int uid = SecurityUtils.getUserId().intValue();
-
+        log.info("当前登录用户用户ID:[{}]", uid);
         //update count
         yxUserService.setUserSpreadCount(uid);
         return ApiResult.ok(yxUserService.getNewYxUserById(uid));

@@ -135,68 +135,79 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
      * @return
      */
     @Override
-    public YxStoreInfoDetailQueryVo getStoreDetailInfoById(Integer id){
+    public YxStoreInfoDetailQueryVo getStoreDetailInfoById(Integer id) {
         YxStoreInfoDetailQueryVo yxStoreInfoDetailQueryVo = new YxStoreInfoDetailQueryVo();
         QueryWrapper<YxStoreInfo> wrapper = new QueryWrapper<YxStoreInfo>();
-        wrapper.eq("del_flag", CommonEnum.DEL_STATUS_0.getValue()).eq("status",0).eq("id",id);
+        wrapper.eq("del_flag", CommonEnum.DEL_STATUS_0.getValue()).eq("status", 0).eq("id", id);
         YxStoreInfo yxStoreInfo = this.getOne(wrapper);
         YxStoreInfoQueryVo yxStoreInfoQueryVo = yxStoreInfoMap.toDto(yxStoreInfo);
         //行业类别
-        DictDetail dictDetail = dictDetailService.getDictDetailValueByType(CommonConstant.DICT_TYPE_INDUSTRY_CATEGORY,yxStoreInfoQueryVo.getIndustryCategory());
-        if(null!=dictDetail){
+        if (ObjectUtil.isNull(yxStoreInfo)) {
+            throw new ErrorRequestException("店铺信息为空！");
+        }
+        DictDetail dictDetail = dictDetailService.getDictDetailValueByType(CommonConstant.DICT_TYPE_INDUSTRY_CATEGORY, yxStoreInfoQueryVo.getIndustryCategory());
+        if (null != dictDetail) {
             yxStoreInfoQueryVo.setIndustryCategoryInfo(dictDetail.getLabel());
         }
         //店铺缩略图
-        yxStoreInfoQueryVo.setStoreImage(yxImageInfoService.selectImgByParam(yxStoreInfoQueryVo.getId(),CommonConstant.IMG_TYPE_STORE,CommonConstant.IMG_CATEGORY_PIC));
+        yxStoreInfoQueryVo.setStoreImage(yxImageInfoService.selectImgByParam(yxStoreInfoQueryVo.getId(), CommonConstant.IMG_TYPE_STORE, CommonConstant.IMG_CATEGORY_PIC));
         //轮播图
-        yxStoreInfoQueryVo.setStoreRotationImages(yxImageInfoService.selectImgByParamList(yxStoreInfoQueryVo.getId(),CommonConstant.IMG_TYPE_STORE,CommonConstant.IMG_CATEGORY_ROTATION1));
+        yxStoreInfoQueryVo.setStoreRotationImages(yxImageInfoService.selectImgByParamList(yxStoreInfoQueryVo.getId(), CommonConstant.IMG_TYPE_STORE, CommonConstant.IMG_CATEGORY_ROTATION1));
         //店铺服务
-        List<String> listService= getStroeAttribute(yxStoreInfo.getId(),1);
+        List<String> listService = getStroeAttribute(yxStoreInfo.getId(), 1);
         yxStoreInfoQueryVo.setStoreServiceList(listService);
         //店铺营业时间
-        List<String> listOpenTiems= getStroeAttribute(yxStoreInfo.getId(),0);
+        List<String> listOpenTiems = getStroeAttribute(yxStoreInfo.getId(), 0);
         yxStoreInfoQueryVo.setOpenTimes(listOpenTiems);
         yxStoreInfoDetailQueryVo.setSotreInfo(yxStoreInfoQueryVo);
         //卡券信息
-        yxStoreInfoDetailQueryVo.setCouponsListInfo(yxCouponsService.getCouponsInfoByStoreId(yxStoreInfo.getId()));
-        //商品信息
-        yxStoreInfoDetailQueryVo.setProductListInfo(yxStoreProductService.getProductListByStoreId(yxStoreInfo.getId()));
+        /*List<YxCouponsQueryVo> lsitCoupons = yxCouponsService.getCouponsInfoByStoreId(yxStoreInfo.getId());
+        yxStoreInfoDetailQueryVo.setCouponsListInfo(getCouponsImg(lsitCoupons));*/
+      /*  //商品信息
+        yxStoreInfoDetailQueryVo.setProductListInfo(yxStoreProductService.getProductListByStoreId(yxStoreInfo.getId()));*/
+        //是否有可用优惠券
+        yxStoreInfoDetailQueryVo.setCouponUse(1);
+        Page<YxStoreCouponIssue> pageModel = new Page<>(1, 10);
+        List<YxStoreCouponIssueQueryVo> couponIssueQueryList = couponIssueMapper
+                .selectCouponListByStoreId(pageModel, id);
+        if (CollectionUtils.isEmpty(couponIssueQueryList)) {
+            yxStoreInfoDetailQueryVo.setCouponUse(0);
+        }
         return yxStoreInfoDetailQueryVo;
     }
 
-    public List<String> getStroeAttribute(int sotreId,int attributeType){
-        List<String> listStr=new ArrayList<String>();
+    public List<String> getStroeAttribute(int sotreId, int attributeType) {
+        List<String> listStr = new ArrayList<String>();
         QueryWrapper<YxStoreAttribute> wrapper = new QueryWrapper<YxStoreAttribute>();
-        wrapper.eq("del_flag", CommonEnum.DEL_STATUS_0.getValue()).eq("store_id",sotreId).eq("attribute_type",attributeType);
-        List<YxStoreAttribute> yxStoreAttributeList =yxStoreAttributeService.list(wrapper);
-        if(CollectionUtils.isEmpty(yxStoreAttributeList)){
+        wrapper.eq("del_flag", CommonEnum.DEL_STATUS_0.getValue()).eq("store_id", sotreId).eq("attribute_type", attributeType);
+        List<YxStoreAttribute> yxStoreAttributeList = yxStoreAttributeService.list(wrapper);
+        if (CollectionUtils.isEmpty(yxStoreAttributeList)) {
             return null;
         }
-        if(1==attributeType){
+        if (1 == attributeType) {
             //店铺服务
-            for(YxStoreAttribute yxStoreAttribute:yxStoreAttributeList){
+            for (YxStoreAttribute yxStoreAttribute : yxStoreAttributeList) {
                 //行业类别
-                DictDetail dictDetail = dictDetailService.getDictDetailValueByType(CommonConstant.DICT_TYPE_STORE_SERVICE,Integer.parseInt(yxStoreAttribute.getAttributeValue1()));
-                if(null!=dictDetail){
+                DictDetail dictDetail = dictDetailService.getDictDetailValueByType(CommonConstant.DICT_TYPE_STORE_SERVICE, Integer.parseInt(yxStoreAttribute.getAttributeValue1()));
+                if (null != dictDetail) {
                     listStr.add(dictDetail.getLabel());
                 }
             }
-        }else{
-            for(YxStoreAttribute yxStoreAttribute:yxStoreAttributeList){
-                listStr.add(yxStoreAttribute.getAttributeValue1()+" "+yxStoreAttribute.getAttributeValue2());
+        } else {
+            for (YxStoreAttribute yxStoreAttribute : yxStoreAttributeList) {
+                listStr.add(yxStoreAttribute.getAttributeValue1() + " " + yxStoreAttribute.getAttributeValue2());
             }
         }
         return listStr;
     }
 
     /**
-     *
      * @param localLiveQueryParam
      * @return
      * @throws Exception
      */
     @Override
-    public Paging<LocalLiveListVo> getLocalLiveList(LocalLiveQueryParam localLiveQueryParam,String location) throws Exception {
+    public Paging<LocalLiveListVo> getLocalLiveList(LocalLiveQueryParam localLiveQueryParam, String location) throws Exception {
         Page page = setPageParam(localLiveQueryParam, OrderItem.desc("create_time"));
         String[] locationArr = location.split(",");
         localLiveQueryParam.setLat(locationArr[1]);
@@ -220,11 +231,43 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
             if (yxImageInfo != null) {
                 localLiveListVo.setImg(yxImageInfo.getImgUrl());
             }
-            List<LocalLiveCouponsVo> localLiveCouponsVoList = yxCouponsService.getCouponsLitByBelog(localLiveListVo.getId());
+//            List<LocalLiveCouponsVo> localLiveCouponsVoList = yxCouponsService.getCouponsLitByBelog(localLiveListVo.getId());
+            List<LocalLiveCouponsVo> localLiveCouponsVoList = yxCouponsService.getCouponsListByPram(localLiveListVo.getId(), localLiveQueryParam.getKeyword());
 
             localLiveListVo.setLocalLiveCouponsVoList(localLiveCouponsVoList);
 
         }
         return new Paging(iPage);
+    }
+
+
+    /**
+     * 本地生活, 卡券表分页列表
+     */
+    @Override
+    public ApiResult<Paging<YxCouponsQueryVo>> getYxCouponsPageListByStoreId(YxCouponsQueryParam yxCouponsQueryParam) {
+        try {
+            Paging<YxCouponsQueryVo> paging = yxCouponsService.getYxCouponsPageListByStoreId(yxCouponsQueryParam);
+            if (paging.getRecords() != null && paging.getRecords().size() > 0) {
+                for (YxCouponsQueryVo item : paging.getRecords()) {
+                    // 卡券缩略图
+                    YxImageInfo thumbnail = yxImageInfoService.getOne(new QueryWrapper<YxImageInfo>().eq("type_id", item.getId()).eq("img_type", LocalLiveConstants.IMG_TYPE_COUPONS)
+                            .eq("img_category", ShopConstants.IMG_CATEGORY_PIC).eq("del_flag", 0));
+                    if (thumbnail != null) {
+                        item.setImage(thumbnail.getImgUrl());
+                    }
+                    // 已售销量增加虚拟销量
+                    item.setTotalSales(item.getSales() + item.getFicti());
+                    // 拼接有效期
+                    String expireDate = DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD, item.getExpireDateStart()) + " ~ " + DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD, item.getExpireDateEnd());
+                    item.setExpireDate(expireDate);
+                    item.setAvailableTime(item.getAvailableTimeStart() + " ~ " + item.getAvailableTimeEnd());
+                }
+            }
+            return ApiResult.ok(paging);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }

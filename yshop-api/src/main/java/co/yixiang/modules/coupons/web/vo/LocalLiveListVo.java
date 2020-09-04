@@ -3,6 +3,7 @@ package co.yixiang.modules.coupons.web.vo;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -10,7 +11,7 @@ import java.util.List;
  * @Author : huanghui
  */
 @Data
-public class LocalLiveListVo {
+public class LocalLiveListVo implements Serializable {
 
     @ApiModelProperty(value = "店铺主键")
     private Integer id;

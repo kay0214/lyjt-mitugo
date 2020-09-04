@@ -1,8 +1,10 @@
 package co.yixiang.modules.shop.service.impl;
+
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import co.yixiang.common.service.impl.BaseServiceImpl;
 import co.yixiang.common.web.vo.Paging;
+import co.yixiang.constant.CacheConstant;
 import co.yixiang.enums.CommonEnum;
 import co.yixiang.enums.ProductEnum;
 import co.yixiang.exception.ErrorRequestException;
@@ -29,9 +31,14 @@ import co.yixiang.mp.config.ShopKeyUtils;
 import co.yixiang.utils.CommonsUtils;
 import co.yixiang.utils.RedisUtil;
 import co.yixiang.utils.StringUtils;
+import com.alicp.jetcache.anno.CacheRefresh;
+import com.alicp.jetcache.anno.CacheType;
+import com.alicp.jetcache.anno.Cached;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.metadata.OrderItem;
+import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
+import com.baomidou.mybatisplus.core.toolkit.ObjectUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +47,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -172,7 +180,9 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
         productDTO.setReply(replyService.getReply(id));
         int replyCount = replyService.productReplyCount(id);
         productDTO.setReplyCount(replyCount);
+        // 好评率
         productDTO.setReplyChance(replyService.doReply(id,replyCount));//百分比
+        productDTO.setReplyStar(replyService.doReplyStar(id,replyCount));// 小星星
 
         //门店
 //        productDTO.setSystemStore(systemStoreService.getStoreInfo(latitude,longitude));
@@ -197,7 +207,20 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
      */
     @Override
     public List<YxStoreProductQueryVo> getGoodsList(YxStoreProductQueryParam productQueryParam) {
-
+        List<YxStoreProductQueryVo> list = new ArrayList<YxStoreProductQueryVo>();
+        //查找店铺状态为上架的
+        QueryWrapper<YxStoreInfo> infoQueryWrapper = new QueryWrapper<>();
+        infoQueryWrapper.eq("del_flag", CommonEnum.DEL_STATUS_0.getValue()).eq("status", 0);
+        if (ObjectUtils.isNotEmpty(productQueryParam.getStoreId())) {
+            infoQueryWrapper.eq("id", productQueryParam.getStoreId());
+        }
+        List<YxStoreInfo> storeInfos = storeInfoMapper.selectList(infoQueryWrapper);
+        List<Integer> storeIds = new ArrayList<>();
+        if (CollectionUtils.isNotEmpty(storeInfos)) {
+            for (YxStoreInfo storeInfo : storeInfos) {
+                storeIds.add(storeInfo.getId());
+            }
+        }
         QueryWrapper<YxStoreProduct> wrapper = new QueryWrapper<>();
         wrapper.eq("is_del", CommonEnum.DEL_STATUS_0.getValue()).eq("is_show",CommonEnum.SHOW_STATUS_1.getValue());
 
@@ -236,19 +259,22 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
             wrapper.like("store_name",productQueryParam.getName());
         }
 
+        //根据店铺id查询
+        /*if(ObjectUtils.isNotEmpty(productQueryParam.getStoreId())){
+            wrapper.eq("store_id",productQueryParam.getStoreId());
+        }
+*/
+        wrapper.in("store_id",storeIds);
+        if(CollectionUtils.isEmpty(storeIds)){
+            return list;
+        }
         wrapper.orderByDesc("sort");
-
-
         Page<YxStoreProduct> pageModel = new Page<>(productQueryParam.getPage(),
                 productQueryParam.getLimit());
 
         IPage<YxStoreProduct> pageList = yxStoreProductMapper.selectPage(pageModel,wrapper);
 
-        List<YxStoreProductQueryVo> list = storeProductMap.toDto(pageList.getRecords());
-
-//        for (GoodsDTO goodsDTO : list) {
-//            goodsDTO.setIsCollect(isCollect(goodsDTO.getGoodsId(),userId));
-//        }
+        list = storeProductMap.toDto(pageList.getRecords());
 
         return list;
     }
@@ -261,6 +287,8 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
      * @return
      */
     @Override
+    @Cached(name="cachedGoodList-", expire = CacheConstant.DEFAULT_EXPIRE_TIME, cacheType = CacheType.BOTH)
+    @CacheRefresh(refresh = CacheConstant.DEFAULT_REFRESH_TIME, stopRefreshAfterLastAccess = CacheConstant.DEFAULT_STOP_REFRESH_TIME)
     public List<YxStoreProductQueryVo> getList(int page, int limit, int order) {
 
         QueryWrapper<YxStoreProduct> wrapper = new QueryWrapper<>();
@@ -286,7 +314,9 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
         IPage<YxStoreProduct> pageList = yxStoreProductMapper.selectPage(pageModel,wrapper);
 
         List<YxStoreProductQueryVo> list = storeProductMap.toDto(pageList.getRecords());
-
+        if(null == list){
+            return new ArrayList<>();
+        }
 
         return list;
     }

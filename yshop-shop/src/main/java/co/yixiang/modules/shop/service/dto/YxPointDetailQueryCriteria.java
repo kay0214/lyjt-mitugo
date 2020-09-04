@@ -3,7 +3,7 @@ package co.yixiang.modules.shop.service.dto;
 import co.yixiang.annotation.Query;
 import lombok.Data;
 
-import java.sql.Timestamp;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -11,7 +11,7 @@ import java.util.List;
 * @date 2020-08-19
 */
 @Data
-public class YxPointDetailQueryCriteria{
+public class YxPointDetailQueryCriteria extends BaseCriteria{
 
     /** 用户名模糊查询 */
     @Query(type = Query.Type.EQUAL)
@@ -21,6 +21,8 @@ public class YxPointDetailQueryCriteria{
     @Query(type = Query.Type.EQUAL)
     private Integer type;
 
+    private List<String> searchTime;
+
     @Query(type = Query.Type.BETWEEN)
-    private List<Timestamp> createTime;
+    private List<Date> createTime;
 }

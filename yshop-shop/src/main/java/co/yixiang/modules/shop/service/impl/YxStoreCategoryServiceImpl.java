@@ -1,11 +1,9 @@
 /**
  * Copyright (C) 2018-2020
  * All rights reserved, Designed By www.yixiang.co
-
  */
 package co.yixiang.modules.shop.service.impl;
 
-import cn.hutool.core.date.DateUtil;
 import co.yixiang.common.service.impl.BaseServiceImpl;
 import co.yixiang.common.utils.QueryHelpPlus;
 import co.yixiang.dozer.service.IGenerator;
@@ -15,6 +13,7 @@ import co.yixiang.modules.shop.service.dto.YxStoreCategoryDto;
 import co.yixiang.modules.shop.service.dto.YxStoreCategoryQueryCriteria;
 import co.yixiang.modules.shop.service.mapper.StoreCategoryMapper;
 import co.yixiang.utils.FileUtil;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.github.pagehelper.PageInfo;
 import lombok.AllArgsConstructor;
@@ -26,13 +25,7 @@ import org.springframework.util.CollectionUtils;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 // 默认不使用缓存
@@ -41,9 +34,9 @@ import java.util.stream.Collectors;
 //import org.springframework.cache.annotation.Cacheable;
 
 /**
-* @author hupeng
-* @date 2020-05-12
-*/
+ * @author hupeng
+ * @date 2020-05-12
+ */
 @Service
 @AllArgsConstructor
 //@CacheConfig(cacheNames = "yxStoreCategory")
@@ -66,8 +59,11 @@ public class YxStoreCategoryServiceImpl extends BaseServiceImpl<StoreCategoryMap
 
     @Override
     //@Cacheable
-    public List<YxStoreCategoryDto> queryAll(YxStoreCategoryQueryCriteria criteria){
-        return generator.convert(baseMapper.selectList(QueryHelpPlus.getPredicate(YxStoreCategory.class, criteria)),YxStoreCategoryDto.class);
+    public List<YxStoreCategoryDto> queryAll(YxStoreCategoryQueryCriteria criteria) {
+        QueryWrapper queryWrapper = QueryHelpPlus.getPredicate(YxStoreCategoryDto.class, criteria);
+        queryWrapper.orderByAsc("sort");
+        queryWrapper.orderByDesc("add_time");
+        return generator.convert(baseMapper.selectList(queryWrapper),YxStoreCategoryDto.class);
     }
 
 
@@ -75,7 +71,7 @@ public class YxStoreCategoryServiceImpl extends BaseServiceImpl<StoreCategoryMap
     public void download(List<YxStoreCategoryDto> all, HttpServletResponse response) throws IOException {
         List<Map<String, Object>> list = new ArrayList<>();
         for (YxStoreCategoryDto yxStoreCategory : all) {
-            Map<String,Object> map = new LinkedHashMap<>();
+            Map<String, Object> map = new LinkedHashMap<>();
             map.put("父id", yxStoreCategory.getPid());
             map.put("分类名称", yxStoreCategory.getCateName());
             map.put("排序", yxStoreCategory.getSort());
@@ -91,7 +87,7 @@ public class YxStoreCategoryServiceImpl extends BaseServiceImpl<StoreCategoryMap
     @Override
     public Object buildTree(List<YxStoreCategoryDto> categoryDTOS) {
         Set<YxStoreCategoryDto> trees = new LinkedHashSet<>();
-        Set<YxStoreCategoryDto> cates= new LinkedHashSet<>();
+        Set<YxStoreCategoryDto> cates = new LinkedHashSet<>();
         List<String> deptNames = categoryDTOS.stream().map(YxStoreCategoryDto::getCateName)
                 .collect(Collectors.toList());
 
@@ -112,15 +108,14 @@ public class YxStoreCategoryServiceImpl extends BaseServiceImpl<StoreCategoryMap
                     deptDTO.getChildren().add(it);
                 }
             }
-            if(isChild)
+            if (isChild)
                 cates.add(deptDTO);
             for (YxStoreCategory category : categories) {
-                if(category.getId()==deptDTO.getPid()&&!deptNames.contains(category.getCateName())){
+                if (category.getId() == deptDTO.getPid() && !deptNames.contains(category.getCateName())) {
                     cates.add(deptDTO);
                 }
             }
         }
-
 
 
         if (CollectionUtils.isEmpty(trees)) {
@@ -128,12 +123,11 @@ public class YxStoreCategoryServiceImpl extends BaseServiceImpl<StoreCategoryMap
         }
 
 
-
-        Integer totalElements = categoryDTOS!=null?categoryDTOS.size():0;
+        Integer totalElements = categoryDTOS != null ? categoryDTOS.size() : 0;
 
         Map map = new HashMap();
-        map.put("totalElements",totalElements);
-        map.put("content",CollectionUtils.isEmpty(trees)?categoryDTOS:trees);
+        map.put("totalElements", totalElements);
+        map.put("content", CollectionUtils.isEmpty(trees) ? categoryDTOS : trees);
         return map;
     }
 
@@ -144,11 +138,11 @@ public class YxStoreCategoryServiceImpl extends BaseServiceImpl<StoreCategoryMap
      * @return boolean
      */
     @Override
-    public boolean checkCategory(int pid){
-        if(pid == 0) return true;
-        YxStoreCategory yxStoreCategory =  this.getOne(Wrappers.<YxStoreCategory>lambdaQuery()
-                        .eq(YxStoreCategory::getId,pid));
-        if(yxStoreCategory.getPid() > 0) return false;
+    public boolean checkCategory(int pid) {
+        if (pid == 0) return true;
+        YxStoreCategory yxStoreCategory = this.getOne(Wrappers.<YxStoreCategory>lambdaQuery()
+                .eq(YxStoreCategory::getId, pid));
+        if (yxStoreCategory.getPid() > 0) return false;
 
         return true;
     }
@@ -158,11 +152,11 @@ public class YxStoreCategoryServiceImpl extends BaseServiceImpl<StoreCategoryMap
      * @param id 分类id
      * @return boolean
      */
-    public boolean checkProductCategory(int id){
-        YxStoreCategory yxStoreCategory =  this.getOne(Wrappers.<YxStoreCategory>lambdaQuery()
-                .eq(YxStoreCategory::getId,id));
+    public boolean checkProductCategory(int id) {
+        YxStoreCategory yxStoreCategory = this.getOne(Wrappers.<YxStoreCategory>lambdaQuery()
+                .eq(YxStoreCategory::getId, id));
 
-        if(yxStoreCategory.getPid() == 0) return false;
+        if (yxStoreCategory.getPid() == 0) return false;
 
         return true;
     }

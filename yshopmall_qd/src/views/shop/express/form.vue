@@ -2,13 +2,13 @@
   <el-dialog :append-to-body="true" :close-on-click-modal="false" :before-close="cancel" :visible.sync="dialog" :title="isAdd ? '新增' : '编辑'" width="500px">
     <el-form ref="form" :model="form" :rules="rules" size="small" label-width="120px">
       <el-form-item label="快递公司编号" prop="code">
-        <el-input v-model="form.code" style="width: 300px;" />
+        <el-input v-model="form.code" style="width: 300px;" maxlength="10" />
       </el-form-item>
-      <el-form-item label="快递公司名称">
-        <el-input v-model="form.name" style="width: 300px;" />
+      <el-form-item label="快递公司名称" prop="name">
+        <el-input v-model="form.name" style="width: 300px;" maxlength="20" />
       </el-form-item>
       <el-form-item label="排序">
-        <el-input v-model="form.sort" style="width: 300px;" />
+        <el-input v-model="form.sort" style="width: 300px;" maxlength="6" />
       </el-form-item>
     </el-form>
     <div slot="footer" class="dialog-footer">
@@ -38,8 +38,23 @@ export default {
       },
       rules: {
         code: [
-          { required: true, message: 'please enter', trigger: 'blur' }
-        ]
+          { required: true, message: '请输入快递公司编号', trigger: 'blur' },
+          {
+            pattern: /^[a-zA-Z]+$/,  //正则
+            message: '请输入英文',
+            trigger: 'blur'
+          }
+        ],
+        name: [
+          { required: true, message: '请输入快递公司名称', trigger: 'blur' }
+        ],
+        sort: [
+          {
+            pattern: /^[0-9]+$/,  //正则
+            message: '请输入数字',
+            trigger: 'blur'
+          }
+        ],
       }
     }
   },

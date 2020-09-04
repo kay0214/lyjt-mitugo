@@ -221,4 +221,8 @@ public class YxCouponsDto implements Serializable {
 
     /** 状态描述 */
     private String statusDesc;
+
+    /** 排序 */
+    private Integer sort;
+
 }

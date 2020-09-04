@@ -14,6 +14,11 @@
           <crudOperation :permission="permission" />
         </el-col> -->
       </el-row>
+      <el-row style="marginBottom:20px;">
+        店铺包邮金额：<el-input style='width:200px;marginRight:20px;margin-right:20px;' v-model='freePostage' :disabled="Boolean(!editFreePostage)"></el-input>
+        <el-button v-if='!editFreePostage' v-permission="['admin','yxStoreInfo:edit','yxStoreInfo:del']" class="" size="mini" type="primary" icon="el-icon-edit" @click="editFreePostage=!editFreePostage">修改</el-button>
+        <el-button v-if='editFreePostage' :loading="editFreePostageStep===1" class="" size="mini" type="primary" icon="el-icon-edit" @click="updateFreePostage">提交修改</el-button>
+      </el-row>
 
       <!--表单组件-->
       <el-dialog :close-on-click-modal="false" :before-close="crud.cancelCU" :visible.sync="crud.status.cu > 0" :title="crud.status.title" width="900px">
@@ -74,7 +79,7 @@
           </el-row>
           </div>
           <!-- 营业时间显示区域 -->
-          <div style="margin-top:-10px">
+          <div style="margin-top:10px">
             <el-table :data="formOpenTime" empty-text=" "
                       :row-style="{marginBottom:'20px'}"
                       :cell-style="{borderBottomWidth:'0'}" :show-header="false"
@@ -176,8 +181,8 @@
         <el-table-column label="状态" align="center">
           <template slot-scope="scope">
             <div @click="onSale(scope.row.id,scope.row.status)">
-              <el-tag v-if="scope.row.status === 1" style="cursor: pointer" :type="''">已上架</el-tag>
-              <el-tag v-else style="cursor: pointer" :type=" 'info' ">已下架</el-tag>
+              <el-tag v-if="scope.row.status === 1" style="cursor: pointer" :type=" 'info' ">已下架</el-tag>
+              <el-tag v-else style="cursor: pointer" :type="''" >已上架</el-tag>
             </div>
           </template>
         </el-table-column>
@@ -197,7 +202,7 @@
 </template>
 
 <script>
-  import crudYxStoreInfo,{get as getStoreInfo} from '@/api/yxStoreInfo'
+  import crudYxStoreInfo,{get as getStoreInfo, getFree, setFree} from '@/api/yxStoreInfo'
   import editor from '../../components/Editor'
   import picUpload from '@/components/pic-upload'
   import mulpicUpload from '@/components/mul-pic-upload'
@@ -210,6 +215,8 @@
   import {onsale} from '@/api/yxStoreInfo'
   import {parseTime} from '@/utils/index'
   import { isvalidPhone } from '@/utils/validate'
+  import { Notification } from 'element-ui'
+  import checkPermission from '@/utils/permission'
 
   // crud交由presenter持有
   const defaultCrud = CRUD({ title: '店铺表', url: 'api/yxStoreInfo', sort: 'id,desc',optShow: {
@@ -238,9 +245,13 @@
       return {
         map:null,
         geocoder: null,
+        marker: null,
         addOpenTime:false,//添加营业时间状态
         formOpenTime:[],
         BusinessTime:[new Date(),new Date()],
+        freePostage:0,//包邮金额
+        editFreePostage:false,
+        editFreePostageStep:0,
         selections: {
           storeService: [{label:"有WIFI",value:1},{label:"有宝宝椅",value:4}],
           week:[ /*注意：value不能换，取值是根据Index*/
@@ -283,7 +294,7 @@
             }), trigger: 'blur'}
           ],
           industryCategory: [
-            { required: true/*, message: '管理人用户名不能为空', trigger: 'blur'*/ }
+            { required: true, message: '请选择行业类别', /*trigger: 'blur'*/ }
           ],
           storeService: [
             { required: true ,message: '至少选择一个店铺服务', /*trigger: 'blur'*/ }
@@ -344,15 +355,25 @@
     },
     mounted(){
       const that = this;
-
+      this.$nextTick(()=>{
+        getFree().then(res=>{
+          if(res.status===0){
+            this.freePostage=res.value
+          }else{
+            //获取包邮金额失败
+            console.log('获取包邮金额失败')
+            console.log(res)
+          }
+        })
+      })
     },
     methods: {
       // 初始化地图
       initMap() {
         const that = this;
         // 设置一个基础中心点
-        const lat = that.form.coordinateX ||116.397128;
-        const lng = that.form.coordinateY|| 39.916527;
+        const lat = that.form.coordinateY ||116.397128;
+        const lng = that.form.coordinateX|| 39.916527;
         const center = new qq.maps.LatLng(lng,lat);
         const map = new qq.maps.Map(document.getElementById('mapContainer'),{
           center: center,
@@ -374,19 +395,21 @@
             console.log(result)
             const { location } = result.detail;
             that.map.setCenter(result.detail.location);
-            var marker = new qq.maps.Marker({
+            that.marker = new qq.maps.Marker({
               map:that.map,
               position: result.detail.location
             });
             // 设置经纬度
-            that.form.coordinateX = location.lat;
-            that.form.coordinateY = location.lng;
+            that.form.coordinateY = location.lat;
+            that.form.coordinateX = location.lng;
           }
         });
+        that.codeAddress();
       },
       codeAddress() {
         const that = this;
         //通过getLocation();方法获取位置信息值
+        that.marker && that.marker.setMap(null);
         that.geocoder.getLocation(this.form.storeProvince + this.form.storeAddress);
 
       },
@@ -400,6 +423,8 @@
       [CRUD.HOOK.afterToCU](crud, form) {
         this.picArr = [];
         this.sliderImageArr = [];
+        this.map = null;
+        this.geocoder = null;
         if (form.imageArr && form.id) {
           this.picArr = form.imageArr.split(',')
         }
@@ -407,6 +432,7 @@
           this.sliderImageArr = form.sliderImageArr.split(',')
         }
         this.$nextTick(()=>{
+          document.getElementById('mapContainer').innerHTML = "";
           this.initMap()
           getStoreInfo(form.id).then(res=>{
             crud.resetForm(JSON.parse(JSON.stringify(res)))
@@ -421,7 +447,11 @@
         })
       },
       onSale(id, status) {
-        this.$confirm(`确定进行[${status ? '下架' : '上架'}]操作?`, '提示', {
+        let ret=checkPermission(this.permission.edit)
+        if(!ret){
+          return ret
+        }
+        this.$confirm(`确定进行[${status ? '上架' : '下架'}]操作?`, '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning'
@@ -433,7 +463,7 @@
                 type: 'success',
                 duration: 1000,
                 onClose: () => {
-                  this.init()
+                  this.crud.toQuery()
                 }
               })
             })
@@ -461,6 +491,21 @@
         this.formOpenTime.splice(index,1)
         this.form.openTime=this.formOpenTime
         this.form.openDays=this.formOpenTime
+      },
+      //修改包邮金额
+      updateFreePostage(){
+        if(!this.editFreePostageStep){
+          this.editFreePostageStep=1
+          setFree({
+            freePostage:this.freePostage
+          }).then(res=>{
+            this.editFreePostage=false
+            this.editFreePostageStep=0
+            Notification.success({
+              title: '包邮金额修改成功'
+            })
+          })
+        }
       }
 
     },

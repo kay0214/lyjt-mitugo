@@ -49,6 +49,9 @@ public class YxMerchantsDetailDto implements Serializable {
     private String mailbox;
 
 
+    /** 商户状态：0启用,1禁用 */
+    private Integer status;
+
     /** 认证类型：0->个人,1->企业,2->个体商户 */
 
     private Integer merchantsType;
@@ -195,4 +198,6 @@ public class YxMerchantsDetailDto implements Serializable {
 
     private String merchantsName;
 
+    /** 用户名 */
+    private String username;
 }

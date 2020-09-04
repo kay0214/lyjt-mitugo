@@ -16,13 +16,13 @@ import co.yixiang.modules.shop.service.*;
 import co.yixiang.modules.shop.service.dto.*;
 import co.yixiang.modules.shop.service.mapper.StoreProductAttrMapper;
 import co.yixiang.modules.shop.service.mapper.StoreProductMapper;
+import co.yixiang.modules.shop.service.mapper.YxSystemAttachmentMapper;
 import co.yixiang.utils.BeanUtils;
 import co.yixiang.utils.FileUtil;
 import co.yixiang.utils.OrderUtil;
 import co.yixiang.utils.StringUtils;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -73,6 +73,10 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<StoreProductMappe
 
     @Autowired
     private StoreProductAttrMapper storeProductAttrMapper;
+    @Autowired
+    private YxSystemAttachmentService yxSystemAttachmentService;
+    @Autowired
+    private YxSystemAttachmentMapper yxSystemAttachmentMapper;
 
     @Override
     //@Cacheable
@@ -80,6 +84,7 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<StoreProductMappe
 //        getPage(pageable);
 //        PageInfo<YxStoreProduct> page = new PageInfo<>(queryAll(criteria));
         QueryWrapper<YxStoreProduct> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().orderByAsc(YxStoreProduct::getSort);
         queryWrapper.lambda().orderByDesc(YxStoreProduct::getAddTime);
         if (0 != criteria.getUserRole()) {
             if (null == criteria.getChildUser() || criteria.getChildUser().size() <= 0) {
@@ -234,19 +239,22 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<StoreProductMappe
             List<String> stringList = productFormatDTO.getDetail().values()
                     .stream().collect(Collectors.toList());
             Collections.sort(stringList);
-            String sku = "";
+            /*String sku = "";
             sku = StrUtil.join(",", stringList);
             if (!"".equals(sku)) {
-                YxStoreProductAttrValue getProductAttrValue = yxStoreProductAttrValueService.getOne(new LambdaQueryWrapper<YxStoreProductAttrValue>().eq(YxStoreProductAttrValue::getSuk, sku));
-                if (getProductAttrValue != null) {
+                QueryWrapper<YxStoreProductAttrValue> queryWrapper = new QueryWrapper<>();
+                queryWrapper.eq("suk",sku);
+                List<YxStoreProductAttrValue> productAttrValueList = yxStoreProductAttrValueService.list(queryWrapper);
+                if(CollectionUtils.isEmpty(productAttrValueList)){
+                    sku = "";
+                }else{
+                    YxStoreProductAttrValue getProductAttrValue = productAttrValueList.get(0);
                     productFormatDTO.setCost(getProductAttrValue.getCost().doubleValue());
                     productFormatDTO.setPrice(getProductAttrValue.getPrice().doubleValue());
                     productFormatDTO.setSales(getProductAttrValue.getStock());
                     productFormatDTO.setPic(getProductAttrValue.getImage());
                     productFormatDTO.setCommission(getProductAttrValue.getCommission().doubleValue());
                     productFormatDTO.setCheck(false);
-                } else {
-                    sku = "";
                 }
             }
             if ("".equals(sku)) {
@@ -257,7 +265,13 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<StoreProductMappe
                 productFormatDTO.setCommission(yxStoreProductDTO.getCommission().doubleValue());
 
                 productFormatDTO.setCheck(false);
-            }
+            }*/
+            productFormatDTO.setCost(yxStoreProductDTO.getCost().doubleValue());
+            productFormatDTO.setPrice(yxStoreProductDTO.getPrice().doubleValue());
+            productFormatDTO.setPic(yxStoreProductDTO.getImage());
+            productFormatDTO.setCommission(yxStoreProductDTO.getCommission().doubleValue());
+
+            productFormatDTO.setCheck(false);
             newList.add(productFormatDTO);
         }
         return newList;
@@ -296,6 +310,9 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<StoreProductMappe
             Collections.sort(stringList);
             yxStoreProductAttrValue.setSuk(StrUtil.
                     join(",", stringList));
+            if(null==productFormatDTO.getPrice()||null==productFormatDTO.getCost()||null==productFormatDTO.getCommission()){
+                throw new BadRequestException("价格不能为空！!");
+            }
             yxStoreProductAttrValue.setPrice(BigDecimal.valueOf(productFormatDTO.getPrice()));
             yxStoreProductAttrValue.setCost(BigDecimal.valueOf(productFormatDTO.getCost()));
             yxStoreProductAttrValue.setStock(productFormatDTO.getSales());
@@ -389,6 +406,12 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<StoreProductMappe
                 .checkProductCategory(resources.getStoreCategory().getId());
         if (!check) throw new BadRequestException("商品分类必选选择二级");
         resources.setCateId(resources.getStoreCategory().getId().toString());
+        //
+        resources.setCommission(resources.getPrice().subtract(resources.getSettlement()));
+        //删除详情图片
+        QueryWrapper<YxSystemAttachment> queryWrapperAtt = new QueryWrapper();
+        queryWrapperAtt.like("name",resources.getId()+"_%").like("name","%good%");
+        yxSystemAttachmentMapper.delete(queryWrapperAtt);
         this.saveOrUpdate(resources);
     }
 

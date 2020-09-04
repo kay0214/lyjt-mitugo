@@ -12,42 +12,45 @@ import java.util.List;
 import java.util.Map;
 
 /**
-* @author huiy
-* @date 2020-08-14
-*/
-public interface YxCouponOrderService  extends BaseService<YxCouponOrder>{
-
-/**
-    * 查询数据分页
-    * @param criteria 条件
-    * @param pageable 分页参数
-    * @return Map<String,Object>
-    */
-    Map<String,Object> queryAll(YxCouponOrderQueryCriteria criteria, Pageable pageable);
+ * @author huiy
+ * @date 2020-08-14
+ */
+public interface YxCouponOrderService extends BaseService<YxCouponOrder> {
 
     /**
-    * 查询所有数据不分页
-    * @param criteria 条件参数
-    * @return List<YxCouponOrderDto>
-    */
+     * 查询数据分页
+     *
+     * @param criteria 条件
+     * @param pageable 分页参数
+     * @return Map<String   ,   Object>
+     */
+    Map<String, Object> queryAll(YxCouponOrderQueryCriteria criteria, Pageable pageable);
+
+    /**
+     * 查询所有数据不分页
+     *
+     * @param criteria 条件参数
+     * @return List<YxCouponOrderDto>
+     */
     List<YxCouponOrder> queryAll(YxCouponOrderQueryCriteria criteria);
 
     /**
-    * 导出数据
-    * @param all 待导出的数据
-    * @param response /
-    * @throws IOException /
-    */
+     * 导出数据
+     *
+     * @param all      待导出的数据
+     * @param response /
+     * @throws IOException /
+     */
     void download(List<YxCouponOrderDto> all, HttpServletResponse response) throws IOException;
 
     /**
      * 卡券核销
      *
-     * @param verifyCode
+     * @param decodeVerifyCode
      * @param uid
      * @return
      */
-    boolean updateCouponOrder(String verifyCode, int uid);
+    boolean updateCouponOrder(String decodeVerifyCode, int uid);
 
     /**
      * 卡券订单退款
@@ -55,4 +58,13 @@ public interface YxCouponOrderService  extends BaseService<YxCouponOrder>{
      * @param resources
      */
     void refund(YxCouponOrderDto resources);
+
+    /**
+     * 手动核销卡券
+     *
+     * @param orderId
+     * @param uid
+     * @return
+     */
+    boolean updateCouponOrderInput(String orderId, Integer uid);
 }

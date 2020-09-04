@@ -44,4 +44,12 @@ public interface YxUserExtractService  extends BaseService<YxUserExtract>{
     * @throws IOException /
     */
     void download(List<YxUserExtractDto> all, HttpServletResponse response) throws IOException;
+
+    /**
+     * 更新提现审批结果
+     *
+     * @param resources
+     * @return
+     */
+    boolean updateExtractStatus(YxUserExtract resources);
 }

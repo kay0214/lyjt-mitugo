@@ -15,6 +15,12 @@
       <el-table-column prop="requestIp" label="IP" />
       <el-table-column prop="address" label="地址来源" />
       <el-table-column prop="description" label="描述" />
+      <el-table-column prop="productType" label="商品类型" >
+        <template slot-scope="scope">
+          <span>{{ productType[scope.row.productType] }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column prop="productId" label="商品Id" />
       <el-table-column prop="createTime" label="创建日期" width="180px">
         <template slot-scope="scope">
           <span>{{ parseTime(scope.row.createTime) }}</span>
@@ -39,6 +45,11 @@ import { parseTime } from '@/utils/index'
 export default {
   name: 'Log',
   mixins: [initData],
+  data(){
+    return {
+      productType:['','商品','卡券']
+    }
+  },
   created() {
     this.$nextTick(() => {
       this.init()

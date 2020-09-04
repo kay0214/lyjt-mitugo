@@ -38,4 +38,17 @@ export function onsale(id, data) {
     data
   })
 }
+export function getFree() {
+  return request({
+    url: '/api/yxStoreInfo/getFreeShipping',
+    method: 'get'
+  })
+}
+export function setFree(data) {
+  return request({
+    url: 'api/yxStoreInfo/setFreeShipping/',
+    method: 'post',
+    data
+  })
+}
 export default { add, edit, del }

@@ -4,7 +4,6 @@
 package co.yixiang.modules.order.web.controller;
 
 import cn.hutool.core.io.FileUtil;
-import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.qrcode.QrCodeUtil;
@@ -44,6 +43,7 @@ import co.yixiang.tools.express.dao.ExpressInfo;
 import co.yixiang.utils.OrderUtil;
 import co.yixiang.utils.RedisUtil;
 import co.yixiang.utils.SecurityUtils;
+import co.yixiang.utils.StringUtils;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
@@ -64,6 +64,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.io.File;
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.util.*;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -805,18 +806,18 @@ public class StoreOrderController extends BaseController {
     /**
      * 订单确认
      */
-    @AnonymousAccess
+//    @AnonymousAccess
     @PostMapping("/order/confirmNew")
     @ApiOperation(value = "订单确认（带店铺信息）", notes = "订单确认（带店铺信息）")
     public ApiResult<ConfirmNewOrderDTO> confirmNew(@RequestBody String jsonStr) {
+        log.info("订单确认（带店铺信息）参数为："+ JSONObject.toJSONString(jsonStr));
         JSONObject jsonObject = JSON.parseObject(jsonStr);
         String cartId = jsonObject.getString("cartId");
         if (StrUtil.isEmpty(cartId)) {
             return ApiResult.fail("请提交购买的商品");
         }
-//        int uid = SecurityUtils.getUserId().intValue();
-        int uid = 28;
-
+        int uid = SecurityUtils.getUserId().intValue();
+//        int uid = 28;
         YxStoreStoreCartVo cartGroup = cartService.getUserStoreCartList(uid, cartId, 1);
         if (ObjectUtil.isNotEmpty(cartGroup.getInvalid())) {
             return ApiResult.fail("有失效的商品请重新提交");
@@ -829,12 +830,12 @@ public class StoreOrderController extends BaseController {
         for (YxStoreStoreCartQueryVo storeStoreCartQueryVo : cartStoreInfo) {
             //设置价格
             Double sumPrice = storeOrderService.getOrderSumPrice(storeStoreCartQueryVo.getCartList(), "truePrice");
-            storeStoreCartQueryVo.setOrderSumPrice(new BigDecimal(sumPrice));
+            DecimalFormat df = new DecimalFormat("#.00");
+            storeStoreCartQueryVo.setOrderSumPrice(new BigDecimal(df.format(sumPrice)));
             Double costPrice = storeOrderService.getOrderSumPrice(storeStoreCartQueryVo.getCartList(), "costPrice");
             storeStoreCartQueryVo.setOrderCostPrice(new BigDecimal(costPrice));
             Double vipTruePrice = storeOrderService.getOrderSumPrice(storeStoreCartQueryVo.getCartList(), "vipTruePrice");
-            storeStoreCartQueryVo.setOrderVipTruePrice(new BigDecimal(vipTruePrice));
-
+            storeStoreCartQueryVo.setOrderVipTruePrice(new BigDecimal(df.format(vipTruePrice)));
             PriceGroupDTO priceGroup = storeOrderService.getOrderPriceGroup(storeStoreCartQueryVo.getCartList());
 
             storeStoreCartQueryVo.setStorePostage(new BigDecimal(priceGroup.getStorePostage()));
@@ -859,14 +860,13 @@ public class StoreOrderController extends BaseController {
     /**
      * 订单创建
      */
-    @AnonymousAccess
     @PostMapping("/order/createOrder/{key}")
     @ApiOperation(value = "订单创建（多个订单）", notes = "（多个订单）")
     public ApiResult<Map<String, Object>> createOrderList(@Valid @RequestBody OrderNewParam param,
                                                           @PathVariable String key, HttpServletRequest request) {
-
+        log.info("创建订单（多个）参数为："+ JSONObject.toJSONString(param)+"，key = "+key);
         Map<String, Object> map = new LinkedHashMap<>();
-        int uid = 28;
+        int uid = SecurityUtils.getUserId().intValue();
         if (StrUtil.isEmpty(key)) return ApiResult.fail("参数错误");
 
         List<YxStoreOrderQueryVo> orderList = storeOrderService.getOrderInfoList(key, uid);
@@ -900,7 +900,7 @@ public class StoreOrderController extends BaseController {
             orderIdList.add(order.getOrderId());
             bigDecimalPrice = bigDecimalPrice.add(order.getPayPrice());
         }
-        String payNo = IdUtil.getSnowflake(0, 0).nextIdStr();
+        String payNo = orderCreateList.get(0).getPaymentNo();
         OrderExtendDTO orderDTO = new OrderExtendDTO();
         orderDTO.setKey(key);
         orderDTO.setOrderId(payNo);
@@ -942,6 +942,52 @@ public class StoreOrderController extends BaseController {
                 return ApiResult.ok(map, "余额支付成功");
         }
         return ApiResult.fail("订单生成失败");
+    }
+
+    /**
+     * 计算订单金额
+     */
+//    @AnonymousAccess
+    @PostMapping("/order/computedNew/{key}")
+    @ApiOperation(value = "计算订单金额（新）", notes = "计算订单金额（新）")
+    public ApiResult<Map<String, Object>> computedNew(@RequestBody String jsonStr,
+                                                        @PathVariable String key) {
+        log.info("计算订单金额（新）参数为："+ JSONObject.toJSONString(jsonStr));
+
+        Map<String, Object> map = new LinkedHashMap<>();
+        int uid = SecurityUtils.getUserId().intValue();
+//        int uid = 28;
+        if (StrUtil.isEmpty(key)) return ApiResult.fail("参数错误");
+
+        YxStoreOrderQueryVo storeOrder = storeOrderService.getOrderInfo(key, uid);
+        if (ObjectUtil.isNotNull(storeOrder)) {
+            map.put("status", "EXTEND_ORDER");
+            OrderExtendDTO orderExtendDTO = new OrderExtendDTO();
+            orderExtendDTO.setKey(key);
+            orderExtendDTO.setOrderId(storeOrder.getOrderId());
+            map.put("result", orderExtendDTO);
+            return ApiResult.ok(map, "订单已生成");
+        }
+
+        JSONObject jsonObject = JSON.parseObject(jsonStr);
+        String addressId = jsonObject.getString("addressId");
+        String couponId = jsonObject.getString("couponId");
+        String[] couponIds = StringUtils.isNotBlank(couponId)?couponId.split(","):null;
+        List<Integer> listCoupon = new ArrayList<>();
+
+        if(null!=couponIds&&couponIds.length>0){
+            for(int i=0;i<couponIds.length;i++){
+                listCoupon.add(Integer.valueOf(couponIds[i]));
+            }
+        }
+        String shippingType = jsonObject.getString("shipping_type");
+        String useIntegral = jsonObject.getString("useIntegral");
+        ComputeDTO computeDTO = storeOrderService.computedOrderNew(uid, key,
+                listCoupon);
+
+        map.put("result", computeDTO);
+        map.put("status", "NONE");
+        return ApiResult.ok(map);
     }
 
 }

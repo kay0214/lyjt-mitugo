@@ -14,7 +14,7 @@ import co.yixiang.modules.shop.service.YxStoreCategoryService;
 import co.yixiang.modules.shop.service.dto.YxStoreCategoryDto;
 import co.yixiang.modules.shop.service.dto.YxStoreCategoryQueryCriteria;
 import co.yixiang.utils.OrderUtil;
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.cache.annotation.CacheEvict;
@@ -23,18 +23,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.sql.Wrapper;
 import java.util.List;
 
 /**
@@ -80,6 +72,19 @@ public class StoreCategoryController {
     @PreAuthorize("hasAnyRole('admin','YXSTORECATEGORY_ALL','YXSTORECATEGORY_CREATE')")
     public ResponseEntity create(@Validated @RequestBody YxStoreCategory resources){
         //if(StrUtil.isNotEmpty("22")) throw new BadRequestException("演示环境禁止操作");
+        QueryWrapper<YxStoreCategory> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda()
+                .and(cateName -> cateName.eq(YxStoreCategory::getCateName, resources.getCateName()))
+                .and(delFlag -> delFlag.eq(YxStoreCategory::getIsDel, 0));
+        if(null!=resources.getPid()&&0!=resources.getPid()){
+            queryWrapper.eq("pid",resources.getPid());
+        }else{
+            queryWrapper.eq("pid",0);
+        }
+        int couponsCategoryCount = yxStoreCategoryService.count(queryWrapper);
+        if (couponsCategoryCount > 0){
+            throw new BadRequestException("[" +resources.getCateName() + "]分类已存在!");
+        }
         if(resources.getPid() > 0 && StrUtil.isBlank(resources.getPic())) {
             throw new BadRequestException("子分类图片必传");
         }
@@ -103,6 +108,26 @@ public class StoreCategoryController {
         //if(StrUtil.isNotEmpty("22")) throw new BadRequestException("演示环境禁止操作");
         if(resources.getPid() > 0 && StrUtil.isBlank(resources.getPic())) {
             throw new BadRequestException("子分类图片必传");
+        }
+
+        QueryWrapper<YxStoreCategory> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda()
+                .and(delFlag -> delFlag.eq(YxStoreCategory::getIsDel, 0));
+
+        if(null!=resources.getPid()&&0!=resources.getPid()){
+            queryWrapper.eq("pid",resources.getPid());
+        }else{
+            queryWrapper.eq("pid",0);
+        }
+
+        YxStoreCategory storeCategory = yxStoreCategoryService.getById(resources.getId());
+        if(!storeCategory.getCateName().equals(resources.getCateName())){
+            queryWrapper.lambda()
+                    .and(cateName -> cateName.eq(YxStoreCategory::getCateName, resources.getCateName()));
+            int couponsCategoryCount = yxStoreCategoryService.count(queryWrapper);
+            if (couponsCategoryCount > 0){
+                throw new BadRequestException("[" +resources.getCateName() + "]分类已存在!");
+            }
         }
 
         if(resources.getId().equals(resources.getPid())){

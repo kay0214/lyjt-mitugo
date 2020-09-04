@@ -12,8 +12,8 @@
     <!--表单组件-->
     <el-dialog append-to-body :close-on-click-modal="false" :before-close="crud.cancelCU" :visible.sync="crud.status.cu > 0" :title="crud.status.title" width="500px">
       <el-form ref="form" :model="form" :rules="rules" size="small" label-width="80px">
-        <el-form-item label="分类名称">
-          <el-input v-model="form.cateName" style="width: 370px;" />
+        <el-form-item label="分类名称" required>
+          <el-input v-model="form.cateName" style="width: 370px;" maxlength="20" />
         </el-form-item>
         <el-form-item label="分类图片">
           <MaterialList v-model="picArr" type="image" :num="1" :width="150" :height="150" />
@@ -24,8 +24,8 @@
             <el-radio :label="0">隐藏</el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item label="排序">
-          <el-input v-model="form.sort" style="width: 370px;" />
+        <el-form-item label="排序" prop="sort">
+          <el-input v-model="form.sort" style="width: 370px;" maxlength="3" />
         </el-form-item>
         <el-form-item style="margin-bottom: 0;" label="上级分类" prop="pid">
           <treeselect v-model="form.pid" :options="depts" style="width: 370px;" placeholder="选择上级分类" />
@@ -75,7 +75,12 @@ import picUpload from '@/components/pic-upload'
 import MaterialList from '@/components/material'
 
 // crud交由presenter持有
-const defaultCrud = CRUD({ title: '分类', url: 'api/yxStoreCategory', sort: 'sort,desc', crudMethod: { ...crudDept }})
+const defaultCrud = CRUD({ title: '分类', url: 'api/yxStoreCategory', sort: 'sort,desc', crudMethod: { ...crudDept },optShow: {
+  add: true,
+    edit: true,
+    del: true,
+    download: false
+}})
 const defaultForm = { id: null, cateName: null, pid: 0, isShow: 1 , sort:  1}
 export default {
   name: 'Dept',
@@ -88,7 +93,14 @@ export default {
       rules: {
         cateName: [
           { required: true, message: '请输入名称', trigger: 'blur' }
-        ]
+        ],
+        sort: [
+          {
+            pattern: /^[0-9]+$/,  //正则
+            message: '请输入数字',
+            trigger: 'blur'
+          }
+        ],
       },
       permission: {
         add: ['admin', 'YXSTORECATEGORY_CREATE'],
@@ -116,7 +128,7 @@ export default {
       }
 
       // 获取所有部门
-      crudDept.getCates({ isShow: true }).then(res => {
+      crudDept.getCates({ isShow: "" }).then(res => {
         this.depts = []
         const dept = { id: 0, label: '顶级类目', children: [] }
         dept.children = res.content

@@ -52,4 +52,5 @@ public interface YxStoreProductReplyService extends BaseService<YxStoreProductRe
      */
     Paging<YxStoreProductReplyQueryVo> getYxStoreProductReplyPageList(YxStoreProductReplyQueryParam yxStoreProductReplyQueryParam) throws Exception;
 
+    String doReplyStar(int productId, int count);
 }

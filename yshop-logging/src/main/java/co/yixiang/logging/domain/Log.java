@@ -61,6 +61,17 @@ public class Log  implements Serializable {
     /** 异常详细  */
     private byte[] exceptionDetail;
 
+    /**
+     * 商品类型 1:商品 2：卡券
+     */
+    private Integer productType;
+
+    /**
+     * 商品Id
+     */
+    private Integer productId;
+
+
     /** 创建日期 */
     @TableField(fill = FieldFill.INSERT)
     private Timestamp createTime;

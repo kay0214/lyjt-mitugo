@@ -25,7 +25,7 @@ public interface LogMapper extends CoreMapper<Log> {
 
     @Delete("delete from log where log_type = #{logType}")
     void deleteByLogType(@Param("logType") String logType);
-    @Select("<script>select l.id,l.create_time as createTime,l.description, l.request_ip as requestIp,l.address,u.nickname from log l  " +
+    @Select("<script>select l.id,l.create_time as createTime,l.description, l.request_ip as requestIp,l.address,u.nickname,product_type,product_id from log l  " +
             " left join yx_user u on u.uid=l.uid where l.type=1 " +
             " <if test = \"nickname !=null\"> and u.nickname LIKE CONCAT('%',#{nickname},'%')</if> order by l.id desc</script>")
     List<Log> findAllByPageable(@Param("nickname") String nickname);

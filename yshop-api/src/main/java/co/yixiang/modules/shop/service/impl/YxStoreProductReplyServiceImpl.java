@@ -86,7 +86,7 @@ public class YxStoreProductReplyServiceImpl extends BaseServiceImpl<YxStoreProdu
 
         //好评率
 
-        replyCountDTO.setReplySstar("" + NumberUtil.round(NumberUtil.mul(NumberUtil.div(goodCount, sumCount), 5), 2));
+        replyCountDTO.setReplyStar("" + NumberUtil.round(NumberUtil.mul(NumberUtil.div(goodCount, sumCount), 5), 2));
         replyCountDTO.setReplyChance("" + NumberUtil.round(NumberUtil.mul(NumberUtil.div(goodCount, sumCount), 100), 2));
 
         return replyCountDTO;
@@ -205,6 +205,19 @@ public class YxStoreProductReplyServiceImpl extends BaseServiceImpl<YxStoreProdu
         int productScoreCount = yxStoreProductReplyMapper.selectCount(wrapper);
         if (count > 0) {
             return "" + NumberUtil.round(NumberUtil.mul(NumberUtil.div(productScoreCount, count), 100), 2);
+        }
+
+        return "0";
+    }
+
+    @Override
+    public String doReplyStar(int productId, int count) {
+        QueryWrapper<YxStoreProductReply> wrapper = new QueryWrapper<>();
+        wrapper.eq("product_id", productId).eq("is_del", 0)
+                .eq("reply_type", "product").eq("product_score", 5);
+        int productScoreCount = yxStoreProductReplyMapper.selectCount(wrapper);
+        if (count > 0) {
+            return  "" + NumberUtil.round(NumberUtil.mul(NumberUtil.div(productScoreCount, count), 5), 2);
         }
 
         return "0";

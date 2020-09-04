@@ -109,6 +109,7 @@
                       <div>
                         <el-checkbox class="material-name" :label="item.url">
                           选择
+                          <p>{{ item.witdh }}</p>
                         </el-checkbox>
                         <el-row>
                           <el-col :span="24" class="col-do">
@@ -228,6 +229,17 @@ export default {
     ])
   },
   methods: {
+    load(event, item) {
+      console.log(event)
+      if (event && event.path && event.path[0]) {
+      //   item.width=event.path[0].naturalWidth
+        const width = event.path[0].naturalWidth
+        const height = event.path[0].naturalHeight
+        if (event.path.length > 3) {
+          event.path[2].innerHTML = '<div style="text-align:center;font-size:12px;margin:0">' + width + '*' + height + '</div>' + event.path[2].innerHTML
+        }
+      }
+    },
     moveMaterial(index, type) {
       if (type === 'up') {
         const tempOption = this.value[index - 1]

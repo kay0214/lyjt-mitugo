@@ -144,4 +144,9 @@ public class CouponAddRequest implements Serializable {
     @NotBlank(message = "请上传卡券轮播图")
     private String sliderImage;
 
+    /** 卡券简介 */
+    private String couponInfo;
+
+    /** 排序 */
+    private Integer sort;
 }
