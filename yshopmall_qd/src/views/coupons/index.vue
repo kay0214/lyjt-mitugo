@@ -472,8 +472,8 @@ export default {
             trigger: 'blur'
           },
           {
-            pattern: /^[0-9]+([.]{1}[0-9]+){0,1}$/,  //正则
-            message: '请输入数字'
+            pattern: /^[0-9]{0,6}([.]{1}[0-9]{0,2}){0,1}$/,  //正则
+            message: '请输入数字--限定6位整数2位小数'
           }
         ],
         discount: [{ validator: (rule, value, callback) => {
@@ -491,8 +491,8 @@ export default {
           } else { callback() }
         }, trigger: 'blur' },
         {
-          pattern: /^[0-9]+([.]{1}[0-9]+){0,1}$/,  //正则
-          message: '请输入数字'
+          pattern: /^[0-9]{0,6}([.]{1}[0-9]{0,2}){0,1}$/,  //正则
+          message: '请输入数字--限定6位整数2位小数'
         }],
         discountAmount: [{ validator: (rule, value, callback) => {
           if (this.form.couponType === 3 && (!value || value === '')) {
@@ -500,28 +500,28 @@ export default {
           } else { callback() }
         }, trigger: 'blur' },
         {
-          pattern: /^[0-9]+([.]{1}[0-9]+){0,1}$/,  //正则
-          message: '请输入数字'
+          pattern: /^[0-9]{0,6}([.]{1}[0-9]{0,2}){0,1}$/,  //正则
+          message: '请输入数字--限定6位整数2位小数'
         }],
         sellingPrice: [
           { required: true, message: '销售价格不能为空', trigger: 'blur' },
           {
-            pattern: /^[0-9]+([.]{1}[0-9]+){0,1}$/,  //正则
-            message: '请输入数字'
+            pattern: /^[0-9]{0,6}([.]{1}[0-9]{0,2}){0,1}$/,  //正则
+            message: '请输入数字--限定6位整数2位小数'
           }
         ],
         originalPrice: [
           { required: true, message: '原价不能为空', trigger: 'blur' },
           {
-            pattern: /^[0-9]+([.]{1}[0-9]+){0,1}$/,  //正则
-            message: '请输入数字'
+            pattern: /^[0-9]{0,6}([.]{1}[0-9]{0,2}){0,1}$/,  //正则
+            message: '请输入数字--限定6位整数2位小数'
           }
         ],
         settlementPrice: [
           { required: true, message: '平台结算价不能为空', trigger: 'blur' },
           {
-            pattern: /^[0-9]+([.]{1}[0-9]+){0,1}$/,  //正则
-            message: '请输入数字'
+            pattern: /^[0-9]{0,6}([.]{1}[0-9]{0,2}){0,1}$/,  //正则
+            message: '请输入数字--限定6位整数2位小数'
           }
         ],
         commission: [
@@ -530,22 +530,22 @@ export default {
         quantityLimit: [
           { required: true, message: '每人限购数量不能为空', trigger: 'blur' },
           {
-            pattern: /^[0-9]+$/,  //正则
-            message: '请输入数字'
+            pattern: /^[0-9]{0,8}$/,  //正则
+            message: '请输入数字-限制8位整数'
           }
         ],
         inventory: [
           { required: true, message: '库存不能为空', trigger: 'blur' },
           {
-            pattern: /^[0-9]+$/,  //正则
-            message: '请输入数字'
+            pattern: /^[0-9]{0,8}$/,  //正则
+            message: '请输入数字--限制8位整数'
           }
         ],
         ficti: [
           // { trigger: 'blur' },
           {
-            pattern: /^[0-9]+$/,  //正则
-            message: '请输入数字',
+            pattern: /^[0-9]{0,8}$/,  //正则
+            message: '请输入数字--限制8位整数',
             trigger: 'blur'
           }
         ],
