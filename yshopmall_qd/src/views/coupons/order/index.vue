@@ -226,9 +226,9 @@ export default {
         _this.form = {
           id: data.id,
           orderId: data.orderId,
-          RefundPrice: '',
-          RefundStatus: '',
-          RefundReason: '',
+          refundPrice: '',
+          refundStatus: '',
+          refundReason: '',  
         }
         _this.dialog = true
     },

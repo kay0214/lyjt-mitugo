@@ -5,15 +5,15 @@
       <el-form-item label="订单号">
         <el-input v-model="form.orderId" :disabled="true" style="width: 320px;" />
       </el-form-item>
-      <el-form-item label="退款金额" prop="RefundPrice" οnkeyup="if(isNaN(value))execCommand('undo')" onafterpaste="if(isNaN(value))execCommand('undo')" maxlength="12">
-        <el-input v-model="form.RefundPrice" style="width: 320px;" />
+      <el-form-item label="退款金额" prop="refundPrice" οnkeyup="if(isNaN(value))execCommand('undo')" onafterpaste="if(isNaN(value))execCommand('undo')" maxlength="12">
+        <el-input v-model="form.refundPrice" style="width: 320px;" />
       </el-form-item>      
-      <el-form-item label="认证类型" prop="RefundStatus">
-        <el-radio v-model="form.RefundStatus" :label="0">不通过</el-radio>
-        <el-radio v-model="form.RefundStatus" :label="2">通过</el-radio>
+      <el-form-item label="认证类型" prop="refundStatus">
+        <el-radio v-model="form.refundStatus" :label="0">不通过</el-radio>
+        <el-radio v-model="form.refundStatus" :label="2">通过</el-radio>
       </el-form-item>
-      <el-form-item v-if='!form.RefundStatus' label="退款拒绝理由" prop="RefundReason">
-        <el-input v-model="form.RefundReason" style="width: 320px;" />
+      <el-form-item v-if='!form.refundStatus' label="退款拒绝理由" prop="refundReason">
+        <el-input v-model="form.refundReason" style="width: 320px;" />
       </el-form-item>
     </el-form>
     <div slot="footer" class="dialog-footer">
@@ -38,22 +38,22 @@ export default {
       form: {
         id: '',
         orderId: '',
-        RefundPrice: '',
-        RefundStatus: '',
-        RefundReason: '',  
+        refundPrice: '',
+        refundStatus: '',
+        refundReason: '',  
       },
       rules: {
-        RefundPrice: [
+        refundPrice: [
           { required: true, message: '必填项', trigger: 'blur' },
           {
             pattern: /^[0-9]+([.]{1}[0-9]+){0,1}$/,  //正则
             message: '请输入数字'
           }
         ],
-        RefundStatus: [
+        refundStatus: [
           { required: true, message: '必填项', trigger: 'blur' }
         ],
-        RefundReason: [
+        refundReason: [
           { required: true, message: '必填项', trigger: 'blur' }
         ],
       }
@@ -93,9 +93,9 @@ export default {
       this.form = {
         id: '',
         orderId: '',
-        RefundPrice: '',
-        RefundStatus: '',
-        RefundReason: '',  
+        refundPrice: '',
+        refundStatus: '',
+        refundReason: '',  
       }
     }
   }
