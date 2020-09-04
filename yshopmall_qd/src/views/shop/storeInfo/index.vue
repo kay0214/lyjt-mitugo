@@ -16,7 +16,7 @@
       </el-row>
       <el-row style="marginBottom:20px;">
         店铺包邮金额：<el-input style='width:200px;marginRight:20px;margin-right:20px;' v-model='freePostage' :disabled="Boolean(!editFreePostage)"></el-input>
-        <el-button v-if='!editFreePostage' class="" size="mini" type="primary" icon="el-icon-edit" @click="editFreePostage=!editFreePostage">修改</el-button>
+        <el-button v-if='!editFreePostage' v-permission="['admin','yxStoreInfo:edit','yxStoreInfo:del']" class="" size="mini" type="primary" icon="el-icon-edit" @click="editFreePostage=!editFreePostage">修改</el-button>
         <el-button v-if='editFreePostage' :loading="editFreePostageStep===1" class="" size="mini" type="primary" icon="el-icon-edit" @click="updateFreePostage">提交修改</el-button>
       </el-row>
 
@@ -245,6 +245,7 @@
       return {
         map:null,
         geocoder: null,
+        marker: null,
         addOpenTime:false,//添加营业时间状态
         formOpenTime:[],
         BusinessTime:[new Date(),new Date()],
@@ -371,8 +372,8 @@
       initMap() {
         const that = this;
         // 设置一个基础中心点
-        const lat = that.form.coordinateX ||116.397128;
-        const lng = that.form.coordinateY|| 39.916527;
+        const lat = that.form.coordinateY ||116.397128;
+        const lng = that.form.coordinateX|| 39.916527;
         const center = new qq.maps.LatLng(lng,lat);
         const map = new qq.maps.Map(document.getElementById('mapContainer'),{
           center: center,
@@ -394,19 +395,21 @@
             console.log(result)
             const { location } = result.detail;
             that.map.setCenter(result.detail.location);
-            var marker = new qq.maps.Marker({
+            that.marker = new qq.maps.Marker({
               map:that.map,
               position: result.detail.location
             });
             // 设置经纬度
-            that.form.coordinateX = location.lat;
-            that.form.coordinateY = location.lng;
+            that.form.coordinateY = location.lat;
+            that.form.coordinateX = location.lng;
           }
         });
+        that.codeAddress();
       },
       codeAddress() {
         const that = this;
         //通过getLocation();方法获取位置信息值
+        that.marker && that.marker.setMap(null);
         that.geocoder.getLocation(this.form.storeProvince + this.form.storeAddress);
 
       },
@@ -420,6 +423,8 @@
       [CRUD.HOOK.afterToCU](crud, form) {
         this.picArr = [];
         this.sliderImageArr = [];
+        this.map = null;
+        this.geocoder = null;
         if (form.imageArr && form.id) {
           this.picArr = form.imageArr.split(',')
         }
@@ -427,6 +432,7 @@
           this.sliderImageArr = form.sliderImageArr.split(',')
         }
         this.$nextTick(()=>{
+          document.getElementById('mapContainer').innerHTML = "";
           this.initMap()
           getStoreInfo(form.id).then(res=>{
             crud.resetForm(JSON.parse(JSON.stringify(res)))

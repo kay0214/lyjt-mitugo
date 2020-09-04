@@ -64,4 +64,12 @@ public interface YxMerchantsDetailService  extends BaseService<YxMerchantsDetail
      * @return
      */
     boolean updateExamineStatus(YxMerchantsDetailDto resources);
+
+    /**
+     * 提交审核
+     *
+     * @param resources
+     * @return
+     */
+    boolean updateMerDetail(YxMerchantsDetailDto resources);
 }

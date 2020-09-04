@@ -2,7 +2,7 @@ import request from '@/utils/request'
 
 export function add(data) {
   return request({
-    url: 'api/yxCouponOrder',
+    url: 'api/yxExamineLog/extract ',
     method: 'post',
     data
   })
@@ -10,7 +10,7 @@ export function add(data) {
 
 export function del(ids) {
   return request({
-    url: 'api/yxCouponOrder/',
+    url: 'api/yxExamineLog/extract ',
     method: 'delete',
     data: ids
   })
@@ -18,16 +18,8 @@ export function del(ids) {
 
 export function edit(data) {
   return request({
-    url: 'api/yxCouponOrder',
+    url: 'api/yxExamineLog/extract ',
     method: 'put',
-    data
-  })
-}
-
-export function refund(data) {
-  return request({
-    url: 'api/yxCouponOrder/yxStoreOrder/refund',
-    method: 'post',
     data
   })
 }

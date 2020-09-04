@@ -184,6 +184,7 @@
       <el-table ref="table" v-loading="crud.loading" :data="crud.data" size="small" style="width: 100%;" @selection-change="crud.selectionChangeHandler">
         <el-table-column type="selection" width="55" />
         <el-table-column v-if="columns.visible('id')" prop="id" label="商户id" />
+        <el-table-column v-if="columns.visible('username')" prop="username" label="商户用户名" />
         <el-table-column v-if="columns.visible('merchantsName')" prop="merchantsName" label="商户名称" />
         <el-table-column v-if="columns.visible('contacts')" prop="contacts" label="商户联系人" />
         <el-table-column v-if="columns.visible('contactMobile')" prop="contactMobile" label="联系人电话" />

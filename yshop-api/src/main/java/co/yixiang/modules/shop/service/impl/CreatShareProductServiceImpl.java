@@ -98,7 +98,7 @@ public class CreatShareProductServiceImpl implements CreatShareProductService {
             g.setColor(new Color(47,47,47));
             int fontlen = getWatermarkLength(productInfo.getStoreInfo(), g);
             //文字长度相对于图片宽度应该有多少行
-            int line = fontlen / (back.getWidth() - 90);
+            int line = fontlen / (back.getWidth() +200);
             //高度
             int y = tempYb + 50 - (line + 1) * 30 + 100;
             //文字叠加,自动换行叠加
@@ -114,7 +114,7 @@ public class CreatShareProductServiceImpl implements CreatShareProductService {
                 char tempChar = productInfo.getStoreInfo().charAt(i);
                 tempCharLen = getCharLen(tempChar, g);
                 tempLineLen += tempCharLen;
-                if(tempLineLen >= (back.getWidth()-90)) {
+                if(tempLineLen >= (back.getWidth()+180)) {
                     //长度已经满一行,进行文字叠加
                     g.drawString(sb.toString(), tempX, tempY + 50);
                     //清空内容,重新追加
@@ -156,7 +156,7 @@ public class CreatShareProductServiceImpl implements CreatShareProductService {
             g.setFont(font.deriveFont(Font.PLAIN,36));
             g.setColor(new Color(171,171,171));
             String price = "¥" + productInfo.getOtPrice();
-            g.drawString(price, 260, 1160);
+            g.drawString(price, 29, 1170);
             g.drawLine(250,1148,260+150,1148);
 
             //生成二维码返回链接

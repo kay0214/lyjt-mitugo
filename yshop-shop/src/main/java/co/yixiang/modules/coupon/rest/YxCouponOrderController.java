@@ -132,18 +132,35 @@ public class YxCouponOrderController {
     @ApiOperation(value = "退款")
     @PostMapping(value = "/yxStoreOrder/refund")
     @PreAuthorize("@el.check('admin','yxCouponOrder:refund')")
-    public ResponseEntity refund(@Validated @RequestBody YxCouponOrderDto resources) {
+    public ResponseEntity<Object> refund(@Validated @RequestBody YxCouponOrderDto resources) {
         yxCouponOrderService.refund(resources);
 
-        return new ResponseEntity(HttpStatus.OK);
+        return new ResponseEntity(true, HttpStatus.OK);
     }
 
-    @Log("核销卡券")
-    @ApiOperation("B端：核销卡券")
+    @Log("扫码核销卡券")
+    @ApiOperation("B端：扫码核销卡券")
     @GetMapping(value = "/useCoupon/{verifyCode}")
     public ResponseEntity<Object> updateCouponOrder(@PathVariable String verifyCode) {
         int uid = SecurityUtils.getUserId().intValue();
         boolean result = this.yxCouponOrderService.updateCouponOrder(Base64Utils.decode(verifyCode), uid);
+        Map<String, String> map = new HashMap<>();
+        if (result) {
+            map.put("status", "0");
+            map.put("statusDesc", "核销成功");
+        } else {
+            map.put("status", "1");
+            map.put("statusDesc", "核销失败");
+        }
+        return new ResponseEntity<>(map, HttpStatus.OK);
+    }
+
+    @Log("手动核销卡券")
+    @ApiOperation("B端：手动核销卡券")
+    @GetMapping(value = "/useCouponInput/{orderId}")
+    public ResponseEntity<Object> updateCouponOrderInput(@PathVariable String orderId) {
+        int uid = SecurityUtils.getUserId().intValue();
+        boolean result = this.yxCouponOrderService.updateCouponOrderInput(orderId, uid);
         Map<String, String> map = new HashMap<>();
         if (result) {
             map.put("status", "0");

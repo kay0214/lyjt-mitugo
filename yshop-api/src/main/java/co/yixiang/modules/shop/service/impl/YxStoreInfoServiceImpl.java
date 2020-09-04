@@ -1,15 +1,18 @@
 package co.yixiang.modules.shop.service.impl;
 
 import cn.hutool.core.util.ObjectUtil;
+import co.yixiang.common.api.ApiResult;
 import co.yixiang.common.constant.CommonConstant;
 import co.yixiang.common.service.impl.BaseServiceImpl;
 import co.yixiang.common.util.DistanceMeterUtil;
 import co.yixiang.common.web.vo.Paging;
+import co.yixiang.constant.LocalLiveConstants;
 import co.yixiang.constant.ShopConstants;
 import co.yixiang.enums.CommonEnum;
 import co.yixiang.exception.ErrorRequestException;
 import co.yixiang.modules.coupons.service.YxCouponsService;
 import co.yixiang.modules.coupons.web.param.LocalLiveQueryParam;
+import co.yixiang.modules.coupons.web.param.YxCouponsQueryParam;
 import co.yixiang.modules.coupons.web.vo.LocalLiveCouponsVo;
 import co.yixiang.modules.coupons.web.vo.LocalLiveListVo;
 import co.yixiang.modules.coupons.web.vo.YxCouponsQueryVo;
@@ -31,6 +34,7 @@ import co.yixiang.modules.shop.web.param.YxStoreInfoQueryParam;
 import co.yixiang.modules.shop.web.vo.YxStoreCouponIssueQueryVo;
 import co.yixiang.modules.shop.web.vo.YxStoreInfoDetailQueryVo;
 import co.yixiang.modules.shop.web.vo.YxStoreInfoQueryVo;
+import co.yixiang.utils.DateUtils;
 import co.yixiang.utils.StringUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -171,8 +175,8 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
         yxStoreInfoQueryVo.setOpenTimes(listOpenTiems);
         yxStoreInfoDetailQueryVo.setSotreInfo(yxStoreInfoQueryVo);
         //卡券信息
-        List<YxCouponsQueryVo> lsitCoupons = yxCouponsService.getCouponsInfoByStoreId(yxStoreInfo.getId());
-        yxStoreInfoDetailQueryVo.setCouponsListInfo(getCouponsImg(lsitCoupons));
+        /*List<YxCouponsQueryVo> lsitCoupons = yxCouponsService.getCouponsInfoByStoreId(yxStoreInfo.getId());
+        yxStoreInfoDetailQueryVo.setCouponsListInfo(getCouponsImg(lsitCoupons));*/
       /*  //商品信息
         yxStoreInfoDetailQueryVo.setProductListInfo(yxStoreProductService.getProductListByStoreId(yxStoreInfo.getId()));*/
         //是否有可用优惠券
@@ -184,17 +188,6 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
             yxStoreInfoDetailQueryVo.setCouponUse(0);
         }
         return yxStoreInfoDetailQueryVo;
-    }
-
-    private List<YxCouponsQueryVo> getCouponsImg(List<YxCouponsQueryVo> couponsQueryVoList) {
-        if (CollectionUtils.isEmpty(couponsQueryVoList)) {
-            return null;
-        }
-        //卡券缩略图
-        for (YxCouponsQueryVo couponsQueryVo : couponsQueryVoList) {
-            couponsQueryVo.setImage(yxImageInfoService.selectImgByParam(couponsQueryVo.getId(), CommonConstant.IMG_TYPE_CARD, CommonConstant.IMG_CATEGORY_PIC));
-        }
-        return couponsQueryVoList;
     }
 
     public List<String> getStroeAttribute(int sotreId, int attributeType) {
@@ -252,11 +245,43 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
             if (yxImageInfo != null) {
                 localLiveListVo.setImg(yxImageInfo.getImgUrl());
             }
-            List<LocalLiveCouponsVo> localLiveCouponsVoList = yxCouponsService.getCouponsLitByBelog(localLiveListVo.getId());
+//            List<LocalLiveCouponsVo> localLiveCouponsVoList = yxCouponsService.getCouponsLitByBelog(localLiveListVo.getId());
+            List<LocalLiveCouponsVo> localLiveCouponsVoList = yxCouponsService.getCouponsListByPram(localLiveListVo.getId(), localLiveQueryParam.getKeyword());
 
             localLiveListVo.setLocalLiveCouponsVoList(localLiveCouponsVoList);
 
         }
         return new Paging(iPage);
+    }
+
+
+    /**
+     * 本地生活, 卡券表分页列表
+     */
+    @Override
+    public ApiResult<Paging<YxCouponsQueryVo>> getYxCouponsPageListByStoreId(YxCouponsQueryParam yxCouponsQueryParam) {
+        try {
+            Paging<YxCouponsQueryVo> paging = yxCouponsService.getYxCouponsPageListByStoreId(yxCouponsQueryParam);
+            if (paging.getRecords() != null && paging.getRecords().size() > 0) {
+                for (YxCouponsQueryVo item : paging.getRecords()) {
+                    // 卡券缩略图
+                    YxImageInfo thumbnail = yxImageInfoService.getOne(new QueryWrapper<YxImageInfo>().eq("type_id", item.getId()).eq("img_type", LocalLiveConstants.IMG_TYPE_COUPONS)
+                            .eq("img_category", ShopConstants.IMG_CATEGORY_PIC).eq("del_flag", 0));
+                    if (thumbnail != null) {
+                        item.setImage(thumbnail.getImgUrl());
+                    }
+                    // 已售销量增加虚拟销量
+                    item.setTotalSales(item.getSales() + item.getFicti());
+                    // 拼接有效期
+                    String expireDate = DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD, item.getExpireDateStart()) + " ~ " + DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD, item.getExpireDateEnd());
+                    item.setExpireDate(expireDate);
+                    item.setAvailableTime(item.getAvailableTimeStart() + " ~ " + item.getAvailableTimeEnd());
+                }
+            }
+            return ApiResult.ok(paging);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }

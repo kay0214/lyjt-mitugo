@@ -62,4 +62,15 @@ public interface YxCouponsService extends BaseService<YxCoupons> {
      * @return
      */
     YxCoupons getCouponsById(Integer id);
+
+    Paging<YxCouponsQueryVo> getYxCouponsPageListByStoreId(YxCouponsQueryParam yxCouponsQueryParam);
+
+    /**
+     * 查询详情
+     *
+     * @param id
+     * @param keyword
+     * @return
+     */
+    List<LocalLiveCouponsVo> getCouponsListByPram(Integer id, String keyword);
 }

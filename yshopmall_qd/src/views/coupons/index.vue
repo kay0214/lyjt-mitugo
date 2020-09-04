@@ -188,7 +188,8 @@
               start-placeholder="可用时段开始时间"
               end-placeholder="可用时段结束时间"
               placeholder="选择时间范围"
-              value-format='HH:mm:ss'
+              value-format='HH:mm'
+              format='HH:mm'
               style="width:100%;"
             />
           </el-form-item>
@@ -568,7 +569,7 @@ export default {
         ],
         couponInfo: [
           { required: true, message: '卡券简介不能为空', trigger: 'blur' },
-          { max: 255, message: '不超过255个字符', trigger: 'blur' }
+          { max: 88, message: '不超过88个字符', trigger: 'blur' }
         ],
         availableTime: [{
           validator: (rule, value, callback) => {

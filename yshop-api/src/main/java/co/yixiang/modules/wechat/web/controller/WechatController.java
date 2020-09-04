@@ -215,6 +215,7 @@ public class WechatController extends BaseController {
             couponOrder.setId(yxCouponOrder.getId());
             couponOrder.setRefundStatus(2);
             couponOrder.setRefundPrice(refundFee);
+            couponOrder.setStatus(8);
             yxCouponOrderService.updateById(couponOrder);
 
             // 插入bill表

@@ -68,6 +68,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -592,6 +593,22 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         if (order.getRefundStatus() == 1) throw new ErrorRequestException("正在申请退款中");
         if (order.getStatus() == 1) throw new ErrorRequestException("订单当前无法退款");
 
+        // 根据卡券类型校验下是否可以退款
+        YxCoupons yxCoupons = this.couponsService.getById(order.getCouponId());
+        // 过期不过期   是否过期退  是否随时退
+        if (0 == yxCoupons.getAwaysRefund()) {
+            // 都不支持不可退款
+            if (0 == yxCoupons.getOuttimeRefund()) {
+                throw new ErrorRequestException("该订单卡券不支持退款");
+            } else {
+                // 支持过期退、判断没有过期不可退款
+                LocalDateTime expireDate = DateUtils.dateToLocalDate(yxCoupons.getExpireDateEnd());
+                if (expireDate.isAfter(LocalDateTime.now())) {
+                    throw new ErrorRequestException("当前卡券未过期，请及时使用");
+                }
+            }
+        }
+
         YxCouponOrder storeOrder = new YxCouponOrder();
         storeOrder.setRefundStatus(OrderInfoEnum.REFUND_STATUS_1.getValue());
         storeOrder.setRefundReasonTime(OrderUtil.getSecondTimestampTwo());
@@ -747,6 +764,14 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         merBill.setUserType(2);
         merBill.setUsername(systemUser.getUsername());
         this.yxUserBillService.save(yxUserBill);
+
+        // 判断用户是否是分销客、不是更新成分销客
+        if (0 == yxUser.getUserRole()) {
+            YxUser updateUser = new YxUser();
+            updateUser.setUid(yxUser.getUid());
+            updateUser.setUserRole(1);
+            this.userService.updateById(updateUser);
+        }
     }
 
     /**

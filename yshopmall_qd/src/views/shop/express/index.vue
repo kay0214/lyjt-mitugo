@@ -74,7 +74,7 @@ export default {
     checkPermission,
     beforeInit() {
       this.url = 'api/yxExpress'
-      const sort = 'sort,desc'
+      const sort = 'sort,asc'
       this.params = { page: this.page, size: this.size, sort: sort }
       return true
     },

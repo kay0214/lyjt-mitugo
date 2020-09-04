@@ -42,6 +42,8 @@ public class ProductDTO extends QueryParam {
 
     private String replyChance;
 
+    private String replyStar;
+
     private Integer replyCount = 0;
 
     //todo
