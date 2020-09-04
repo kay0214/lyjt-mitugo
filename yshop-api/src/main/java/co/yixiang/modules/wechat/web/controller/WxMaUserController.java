@@ -4,9 +4,6 @@
 package co.yixiang.modules.wechat.web.controller;
 
 import cn.binarywang.wx.miniapp.api.WxMaService;
-import cn.binarywang.wx.miniapp.bean.WxMaJscode2SessionResult;
-import cn.binarywang.wx.miniapp.bean.WxMaPhoneNumberInfo;
-import cn.binarywang.wx.miniapp.config.impl.WxMaDefaultConfigImpl;
 import cn.hutool.core.util.StrUtil;
 import co.yixiang.common.api.ApiResult;
 import co.yixiang.common.util.WxUtils;
@@ -26,7 +23,6 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import me.chanjar.weixin.common.error.WxErrorException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -52,13 +48,12 @@ public class WxMaUserController {
     private final RedisUtils redisUtils;
 
 
-
     @PostMapping("/binding")
     @ApiOperation(value = "公众号绑定手机号", notes = "公众号绑定手机号")
     public ApiResult<String> verify(@Validated @RequestBody BindPhoneParam param) {
 
         Object codeObj = redisUtils.get("code_" + param.getPhone());
-        if(codeObj == null){
+        if (codeObj == null) {
             return ApiResult.fail("请先获取验证码");
         }
         String code = codeObj.toString();
@@ -70,7 +65,7 @@ public class WxMaUserController {
 
         int uid = SecurityUtils.getUserId().intValue();
         YxUserQueryVo userQueryVo = userService.getYxUserById(uid);
-        if(StrUtil.isNotBlank(userQueryVo.getPhone())){
+        if (StrUtil.isNotBlank(userQueryVo.getPhone())) {
             return ApiResult.fail("您的账号已经绑定过手机号码");
         }
 
@@ -84,14 +79,13 @@ public class WxMaUserController {
     }
 
 
-
     @PostMapping("/wxapp/binding")
     @ApiOperation(value = "小程序绑定手机号", notes = "小程序绑定手机号")
-    public ApiResult<Map<String,Object>> phone(@Validated @RequestBody WxPhoneParam param) {
-
+    public ApiResult<Map<String, Object>> phone(@Validated @RequestBody WxPhoneParam param) {
+        log.info("授权手机号" + JSONObject.toJSONString(param));
         int uid = SecurityUtils.getUserId().intValue();
         YxUserQueryVo userQueryVo = userService.getYxUserById(uid);
-        if(StrUtil.isNotBlank(userQueryVo.getPhone())){
+        if (StrUtil.isNotBlank(userQueryVo.getPhone())) {
             return ApiResult.fail("您的账号已经绑定过手机号码");
         }
 
@@ -103,9 +97,9 @@ public class WxMaUserController {
         }
         String phone = "";
         try {
-            JSONObject userJSONObject =  WxUtils.getUserInfo(param.getCode(),appId,secret);
+            JSONObject userJSONObject = WxUtils.getUserInfo(param.getCode(), appId, secret);
             if (userJSONObject != null) {
-                JSONObject phoneJSONObject = WxUtils.decryptPhoneData(userJSONObject.getString("session_key"),param.getEncryptedData(),param.getIv());
+                JSONObject phoneJSONObject = WxUtils.decryptPhoneData(userJSONObject.getString("session_key"), param.getEncryptedData(), param.getIv());
                 if (phoneJSONObject != null) {
                     phone = phoneJSONObject.getString("phoneNumber");
                     YxUser yxUser = new YxUser();
@@ -117,12 +111,11 @@ public class WxMaUserController {
         } catch (Exception e) {
             return ApiResult.fail(e.getMessage());
         }
-        Map<String,Object> map = new LinkedHashMap<>();
-        map.put("phone",phone);
+        Map<String, Object> map = new LinkedHashMap<>();
+        map.put("phone", phone);
 
-        return ApiResult.ok(map,"绑定成功");
+        return ApiResult.ok(map, "绑定成功");
     }
-
 
 
 }
