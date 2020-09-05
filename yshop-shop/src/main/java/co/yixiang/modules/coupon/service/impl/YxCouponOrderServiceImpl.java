@@ -92,7 +92,11 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
             queryWrapper.lambda().in(YxCouponOrder::getMerId, criteria.getChildUser()).eq(YxCouponOrder::getDelFlag, 0);
         }
         if (null != criteria.getOrderStatus()) {
-            queryWrapper.lambda().eq(YxCouponOrder::getStatus, criteria.getOrderStatus());
+            if (7 == criteria.getOrderStatus()) {
+                queryWrapper.lambda().eq(YxCouponOrder::getRefundStatus, 1);
+            } else {
+                queryWrapper.lambda().eq(YxCouponOrder::getStatus, criteria.getOrderStatus()).eq(YxCouponOrder::getRefundStatus, 0);
+            }
         }
         if (StringUtils.isNotBlank(criteria.getOrderType()) && StringUtils.isNotBlank(criteria.getValue())) {
             if ("orderId".equals(criteria.getOrderType())) {
