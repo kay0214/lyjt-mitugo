@@ -771,7 +771,7 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         merBill.setPm(1);
         merBill.setTitle("小程序本地生活购买");
         merBill.setCategory(BillDetailEnum.CATEGORY_1.getValue());
-        merBill.setType(BillDetailEnum.TYPE_9.getValue());
+        merBill.setType(BillDetailEnum.TYPE_8.getValue());
         merBill.setNumber(truePrice);
         // 目前只支持微信付款、没有余额
         merBill.setBalance(updateSystemUser.getWithdrawalAmount());

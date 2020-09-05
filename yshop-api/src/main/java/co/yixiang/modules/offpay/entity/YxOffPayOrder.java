@@ -2,6 +2,8 @@ package co.yixiang.modules.offpay.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import co.yixiang.common.entity.BaseEntity;
+
+import java.math.BigDecimal;
 import java.util.Date;
 import com.baomidou.mybatisplus.annotation.TableId;
 import io.swagger.annotations.ApiModel;
@@ -50,6 +52,9 @@ private Integer status;
 
 @ApiModelProperty(value = "支付时间")
 private Integer payTime;
+
+@ApiModelProperty(value = "支付金额")
+private BigDecimal totalPrice;
 
 @ApiModelProperty(value = "是否删除（0：未删除，1：已删除）")
 private Integer delFlag;

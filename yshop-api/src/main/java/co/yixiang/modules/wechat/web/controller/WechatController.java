@@ -13,10 +13,14 @@ import co.yixiang.modules.coupons.entity.YxCouponOrder;
 import co.yixiang.modules.coupons.service.YxCouponOrderService;
 import co.yixiang.modules.manage.entity.SystemUser;
 import co.yixiang.modules.manage.service.SystemUserService;
+import co.yixiang.modules.offpay.entity.YxOffPayOrder;
+import co.yixiang.modules.offpay.service.YxOffPayOrderService;
 import co.yixiang.modules.order.entity.YxStoreOrder;
 import co.yixiang.modules.order.service.YxStoreOrderService;
 import co.yixiang.modules.order.web.vo.YxStoreOrderQueryVo;
+import co.yixiang.modules.shop.service.YxStoreInfoService;
 import co.yixiang.modules.shop.service.YxSystemConfigService;
+import co.yixiang.modules.shop.web.vo.YxStoreInfoQueryVo;
 import co.yixiang.modules.user.entity.YxUserBill;
 import co.yixiang.modules.user.entity.YxUserRecharge;
 import co.yixiang.modules.user.service.YxUserBillService;
@@ -76,6 +80,12 @@ public class WechatController extends BaseController {
     private YxUserBillService yxUserBillService;
     @Autowired
     private SystemUserService systemUserService;
+
+    @Autowired
+    private YxOffPayOrderService offPayOrderService;
+
+    @Autowired
+    private YxStoreInfoService yxStoreInfoService;
 
 
     /**
@@ -388,6 +398,41 @@ public class WechatController extends BaseController {
                 yxCouponOrder.setPayType("weixin");
                 yxCouponOrder.setIsChannel(1);
                 yxCouponOrderService.updatePaySuccess(yxCouponOrder);
+            }
+            return WxPayNotifyResponse.success("处理成功!");
+        } catch (WxPayException e) {
+            log.error(e.getMessage());
+            return WxPayNotifyResponse.fail(e.getMessage());
+        }
+    }
+
+
+
+    @AnonymousAccess
+    @PostMapping("/wechat/notifyoffPay")
+    @ApiOperation(value = "微信支付线下支付回调",notes = "微信支付线下支付回调")
+    public String notifyoffPay(@RequestBody String xmlData) {
+        try {
+            WxPayService wxPayService = WxPayConfiguration.getPayService();
+            WxPayOrderNotifyResult notifyResult = wxPayService.parseOrderNotifyResult(xmlData);
+            String orderId = notifyResult.getOutTradeNo();
+            String attach = notifyResult.getAttach();
+            log.info("收到微信支付线下支付回调" + JSON.toJSONString(notifyResult));
+            if(BillDetailEnum.TYPE_10.getValue().equals(attach)){
+                // 微信支付线下支付回调
+                YxOffPayOrder offPayOrder = this.offPayOrderService.getOne(new QueryWrapper<YxOffPayOrder>().eq("order_id",orderId));
+                if(offPayOrder == null) {
+                    return WxPayNotifyResponse.success("处理成功!");
+                }
+                if("4".equals(offPayOrder.getStatus())){
+                    return WxPayNotifyResponse.success("处理成功!");
+                }
+                offPayOrder.setPayTime(OrderUtil.getSecondTimestampTwo());
+                offPayOrder.setStatus(4);
+                YxStoreInfoQueryVo storeInfoQueryVo = yxStoreInfoService.getYxStoreInfoById(offPayOrder.getStoreId());
+
+
+                offPayOrderService.updatePaySuccess(offPayOrder,storeInfoQueryVo);
             }
             return WxPayNotifyResponse.success("处理成功!");
         } catch (WxPayException e) {

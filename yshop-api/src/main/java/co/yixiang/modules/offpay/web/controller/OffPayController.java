@@ -110,6 +110,7 @@ public class OffPayController {
         offPayOrder.setStoreNid(storeNid);
         offPayOrder.setStoreName(storeInfo.getStoreName());
         offPayOrder.setStoreId(storeInfo.getId());
+        offPayOrder.setTotalPrice(param.getPrice());
         // 订单状态（0:待支付 3:支付失败  4支付成功
         offPayOrder.setStatus(0);
         offPayOrderService.save(offPayOrder);

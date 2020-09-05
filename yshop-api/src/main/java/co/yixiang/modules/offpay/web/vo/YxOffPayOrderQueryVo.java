@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import java.io.Serializable;
 
+import java.math.BigDecimal;
 import java.util.Date;
 
 /**
@@ -40,6 +41,9 @@ private String storeName;
 
 @ApiModelProperty(value = "订单状态（0:待支付 1:已过期 2:待发放3:支付失败4:待使用5:已使用6:已核销7:退款中8:已退款9:退款驳回")
 private Integer status;
+
+@ApiModelProperty(value = "支付金额")
+private BigDecimal totalPrice;
 
 @ApiModelProperty(value = "支付时间")
 private Integer payTime;

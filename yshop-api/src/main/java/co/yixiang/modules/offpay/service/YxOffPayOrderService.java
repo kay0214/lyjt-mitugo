@@ -5,6 +5,7 @@ import co.yixiang.common.service.BaseService;
 import co.yixiang.modules.offpay.web.param.YxOffPayOrderQueryParam;
 import co.yixiang.modules.offpay.web.vo.YxOffPayOrderQueryVo;
 import co.yixiang.common.web.vo.Paging;
+import co.yixiang.modules.shop.web.vo.YxStoreInfoQueryVo;
 import com.github.binarywang.wxpay.bean.order.WxPayMpOrderResult;
 import com.github.binarywang.wxpay.exception.WxPayException;
 
@@ -42,4 +43,10 @@ public interface YxOffPayOrderService extends BaseService<YxOffPayOrder> {
      * @return
      */
     WxPayMpOrderResult wxAppPay(String uuid, String openid, BigDecimal price, String ipAddress) throws WxPayException;
+
+    /**
+     * 商户线下支付
+     * @param offPayOrder
+     */
+    void updatePaySuccess(YxOffPayOrder offPayOrder, YxStoreInfoQueryVo storeInfoQueryVo);
 }
