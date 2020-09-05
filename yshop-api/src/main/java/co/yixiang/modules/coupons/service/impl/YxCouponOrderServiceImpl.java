@@ -639,10 +639,10 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
                 wrapper.eq("status", 0).eq("refund_status", 0).eq("pay_staus", 0);
                 break;
             case STATUS_2://待使用
-                wrapper.in("status", 4, 5).eq("refund_status", 0).eq("pay_staus", 1);
+                wrapper.in("status", 4, 5).eq("refund_status", 0).eq("pay_staus", 1).eq("refund_status",0);
                 break;
             case STATUS_3://已使用
-                wrapper.eq("status", 6).eq("refund_status", 0).eq("pay_staus", 1);
+                wrapper.eq("status", 6).eq("refund_status", 0).eq("pay_staus", 1).eq("refund_status",0);
                 break;
             case STATUS_4://已过期
                 wrapper.eq("status", 1);
