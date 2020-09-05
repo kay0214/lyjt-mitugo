@@ -83,7 +83,7 @@ public class OffPayController {
     // 输入金额 创建支付订单  获取支付信息
     @AnonymousAccess
     @PostMapping("/userPay")
-    @ApiOperation(value = "获取商户信息",notes = "获取商户信息",response = YxCouponOrderQueryVo.class)
+    @ApiOperation(value = "支付",notes = "支付",response = Map.class)
     public ApiResult<Map<String, Object>> userPay(@Valid @RequestBody(required = false) OffPayQueryParam param , HttpServletRequest request) throws Exception{
         int uid = SecurityUtils.getUserId().intValue();
         String uuid = param.getPayRand();
@@ -113,7 +113,6 @@ public class OffPayController {
         // 订单状态（0:待支付 3:支付失败  4支付成功
         offPayOrder.setStatus(0);
         offPayOrderService.save(offPayOrder);
-        String openid = "";
         try {
             Map<String, Object> map = new LinkedHashMap<>();
             map.put("status", "SUCCESS");
@@ -129,6 +128,7 @@ public class OffPayController {
             jsConfig.put("paySign", wxPayMpOrderResult.getPaySign());
             return ApiResult.ok(map, "订单创建成功");
         } catch (Exception e) {
+            e.printStackTrace();
             return ApiResult.fail(e.getMessage());
         }
     }
