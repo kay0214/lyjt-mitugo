@@ -3,14 +3,17 @@
  */
 package co.yixiang.modules.shop.rest;
 
+import co.yixiang.constant.ShopConstants;
 import co.yixiang.dozer.service.IGenerator;
 import co.yixiang.logging.aop.log.Log;
 import co.yixiang.modules.shop.domain.YxMerchantsDetail;
 import co.yixiang.modules.shop.domain.YxStoreInfo;
+import co.yixiang.modules.shop.service.YxImageInfoService;
 import co.yixiang.modules.shop.service.YxMerchantsDetailService;
 import co.yixiang.modules.shop.service.YxStoreInfoService;
 import co.yixiang.modules.shop.service.dto.YxMerchantsDetailDto;
 import co.yixiang.modules.shop.service.dto.YxMerchantsDetailQueryCriteria;
+import co.yixiang.modules.shop.service.dto.YxStoreInfoDto;
 import co.yixiang.utils.CurrUser;
 import co.yixiang.utils.SecurityUtils;
 import com.alibaba.fastjson.JSON;
@@ -44,6 +47,8 @@ public class YxMerchantsDetailController {
     @Autowired
     private YxStoreInfoService yxStoreInfoService;
     private final IGenerator generator;
+    @Autowired
+    private YxImageInfoService yxImageInfoService;
 
 
     @GetMapping("/getYxMerchantsDetailsList")
@@ -133,10 +138,14 @@ public class YxMerchantsDetailController {
             map.put("statusDesc", "商户认证信息未审批或审批未通过，请先到蜜兔管理平台核实");
             return new ResponseEntity<>(map, HttpStatus.OK);
         }
+        YxStoreInfoDto yxStoreInfoDto = generator.convert(yxStoreInfo, YxStoreInfoDto.class);        //店铺缩略图
+        yxStoreInfoDto.setStoreImage(yxImageInfoService.selectImgByParam(yxStoreInfoDto.getId(), ShopConstants.IMG_TYPE_STORE, ShopConstants.IMG_CATEGORY_PIC));
+        //轮播图
+        yxStoreInfoDto.setStoreRotationImages(yxImageInfoService.selectImgByParamList(yxStoreInfoDto.getId(), ShopConstants.IMG_TYPE_STORE, ShopConstants.IMG_CATEGORY_ROTATION1));
 
         map.put("status", "0");
         map.put("statusDesc", "成功");
-        map.put("data", JSON.toJSONString(yxMerchantsDetail));
+        map.put("data", JSON.toJSONString(yxStoreInfo));
         return new ResponseEntity<>(map, HttpStatus.OK);
     }
 }

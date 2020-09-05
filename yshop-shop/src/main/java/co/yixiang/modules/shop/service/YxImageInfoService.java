@@ -52,4 +52,14 @@ public interface YxImageInfoService extends BaseService<YxImageInfo> {
      * @return
      */
     String selectImgByParam(int typeId, Integer imgType, Integer cateTypeId);
+
+    /**
+     * 查询图片返回list
+     *
+     * @param typeId
+     * @param imgType
+     * @param cateTypeId
+     * @return
+     */
+    List<String> selectImgByParamList(int typeId, Integer imgType, Integer cateTypeId);
 }
