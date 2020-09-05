@@ -6,14 +6,19 @@ package co.yixiang.modules.coupon.service.impl;
 import co.yixiang.common.service.impl.BaseServiceImpl;
 import co.yixiang.common.utils.QueryHelpPlus;
 import co.yixiang.dozer.service.IGenerator;
+import co.yixiang.modules.coupon.domain.YxCouponOrder;
 import co.yixiang.modules.coupon.domain.YxCouponOrderUse;
 import co.yixiang.modules.coupon.domain.YxCoupons;
 import co.yixiang.modules.coupon.service.YxCouponOrderUseService;
 import co.yixiang.modules.coupon.service.YxCouponsService;
 import co.yixiang.modules.coupon.service.dto.YxCouponOrderUseDto;
 import co.yixiang.modules.coupon.service.dto.YxCouponOrderUseQueryCriteria;
+import co.yixiang.modules.coupon.service.mapper.YxCouponOrderMapper;
 import co.yixiang.modules.coupon.service.mapper.YxCouponOrderUseMapper;
+import co.yixiang.modules.shop.domain.YxUser;
+import co.yixiang.modules.shop.service.YxUserService;
 import co.yixiang.utils.FileUtil;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.github.pagehelper.PageInfo;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +29,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -48,6 +52,10 @@ public class YxCouponOrderUseServiceImpl extends BaseServiceImpl<YxCouponOrderUs
     private final IGenerator generator;
     @Autowired
     private YxCouponsService yxCouponsService;
+    @Autowired
+    private YxUserService yxUserService;
+    @Autowired
+    private YxCouponOrderMapper yxCouponOrderMapper;
 
     @Override
     //@Cacheable
@@ -64,11 +72,20 @@ public class YxCouponOrderUseServiceImpl extends BaseServiceImpl<YxCouponOrderUs
         for (YxCouponOrderUse item : page.getList()) {
             YxCouponOrderUseDto dto = generator.convert(item, YxCouponOrderUseDto.class);
             YxCoupons yxCoupons = this.yxCouponsService.getById(item.getCouponId());
-            dto.setCouponType(yxCoupons.getCouponType());
-            dto.setDenomination(yxCoupons.getDenomination());
-            dto.setDiscount(yxCoupons.getDiscount());
-            dto.setThreshold(yxCoupons.getThreshold());
-            dto.setDiscountAmount(yxCoupons.getDiscountAmount());
+            if (null != yxCoupons) {
+                dto.setCouponType(yxCoupons.getCouponType());
+                dto.setDenomination(yxCoupons.getDenomination());
+                dto.setDiscount(yxCoupons.getDiscount());
+                dto.setThreshold(yxCoupons.getThreshold());
+                dto.setDiscountAmount(yxCoupons.getDiscountAmount());
+            }
+            YxCouponOrder yxCouponOrder = this.yxCouponOrderMapper.selectOne(new QueryWrapper<YxCouponOrder>().lambda().eq(YxCouponOrder::getOrderId, item.getOrderId()));
+            if (null != yxCouponOrder) {
+                YxUser yxUser = this.yxUserService.getOne(new QueryWrapper<YxUser>().lambda().eq(YxUser::getUid, yxCouponOrder.getUid()));
+                if (null != yxUser) {
+                    dto.setNickName(yxUser.getNickname());
+                }
+            }
             list.add(dto);
         }
         Map<String, Object> map = new LinkedHashMap<>(2);
