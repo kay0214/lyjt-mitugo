@@ -5,7 +5,7 @@
     <!-- 通用查询结果列 -->
     <select id="getLocalLiveList" resultType="co.yixiang.modules.coupons.web.vo.LocalLiveListVo">
         select
-        ysi.*
+        distinct ysi.*
         <if test ="param.lnt  != '' and param.lnt != null">
         ,ST_Distance_Sphere (POINT(#{param.lnt},#{param.lat}),coordinate) distance
         </if>
