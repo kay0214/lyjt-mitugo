@@ -113,4 +113,16 @@ public interface CommonConstant {
      */
     int IMG_LICENCE=9;
 
+
+
+
+    /**
+     * 线下支付redis
+     */
+    String USER_OFF_PAY="USER_OFF_PAY:";
+
+    /**
+     * 线下支付订单信息redis
+     */
+    String USER_OFF_PAY_ORDER="USER_OFF_PAY_ORDER:";
 }

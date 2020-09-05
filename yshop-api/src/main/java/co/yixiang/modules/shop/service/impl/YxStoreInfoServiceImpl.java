@@ -287,4 +287,27 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
         }
         return null;
     }
+
+    /**
+     * 根据Nid查询店铺信息
+     * @param storeNid
+     * @return
+     */
+    @Override
+    public YxStoreInfoQueryVo getYxStoreInfoByNid(String storeNid) {
+        YxStoreInfoDetailQueryVo yxStoreInfoDetailQueryVo = new YxStoreInfoDetailQueryVo();
+        QueryWrapper<YxStoreInfo> wrapper = new QueryWrapper<YxStoreInfo>();
+        wrapper.eq("del_flag", CommonEnum.DEL_STATUS_0.getValue()).eq("status", 0).eq("store_nid", storeNid);
+        YxStoreInfo yxStoreInfo = this.getOne(wrapper);
+        YxStoreInfoQueryVo yxStoreInfoQueryVo = yxStoreInfoMap.toDto(yxStoreInfo);
+
+        if (ObjectUtil.isNull(yxStoreInfo)) {
+            throw new ErrorRequestException("店铺信息为空！");
+        }
+
+        //店铺缩略图
+        yxStoreInfoQueryVo.setStoreImage(yxImageInfoService.selectImgByParam(yxStoreInfoQueryVo.getId(), CommonConstant.IMG_TYPE_STORE, CommonConstant.IMG_CATEGORY_PIC));
+
+        return yxStoreInfoQueryVo;
+    }
 }
