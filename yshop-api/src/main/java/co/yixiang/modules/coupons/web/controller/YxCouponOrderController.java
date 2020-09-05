@@ -8,6 +8,7 @@ import co.yixiang.common.util.IpUtils;
 import co.yixiang.common.web.controller.BaseController;
 import co.yixiang.common.web.param.IdParam;
 import co.yixiang.enums.OrderInfoEnum;
+import co.yixiang.exception.BadRequestException;
 import co.yixiang.exception.ErrorRequestException;
 import co.yixiang.logging.aop.log.Log;
 import co.yixiang.modules.coupons.entity.YxCouponOrder;
@@ -267,6 +268,12 @@ public class YxCouponOrderController extends BaseController {
 
 
         String orderId = order.getOrderId();
+        YxCoupons yxCoupons = this.yxCouponsService.getById(order.getCouponId());
+        Integer buyCount = this.yxCouponOrderService.getBuyCount(uid,order.getCouponId());
+        buyCount = buyCount + order.getTotalNum();
+        if(buyCount > yxCoupons.getQuantityLimit()) {
+            throw new BadRequestException("当前购买卡券数量超限");
+        }
 
         OrderExtendDTO orderDTO = new OrderExtendDTO();
 
@@ -437,6 +444,18 @@ public class YxCouponOrderController extends BaseController {
             lock.unlock();
         }
         return ApiResult.result(flag);
+    }
+
+    @GetMapping("/buyCount/{couponId}")
+    @ApiOperation(value = "查询该用户已购买张数", notes = "查询该用户已购买张数")
+    public ApiResult<Boolean> buyCount(@PathVariable(value = "couponId") Integer couponId) {
+        int uid = SecurityUtils.getUserId().intValue();
+        Integer count = this.yxCouponOrderService.getBuyCount(uid, couponId);
+        YxCoupons yxCoupons = this.yxCouponsService.getById(couponId);
+        if (yxCoupons.getQuantityLimit() <= count) {
+            return ApiResult.result(false);
+        }
+        return ApiResult.result(true);
     }
 }
 
