@@ -45,7 +45,11 @@ code:
 loginCode:
   expiration: 2
 
-
+# B端核销密码解密key
+aes:
+  localKey: 18d0647fa7b47b51
+  mode: CBC
+  iv: 1120012735479907
 
 
 # sm.ms 图床的 token

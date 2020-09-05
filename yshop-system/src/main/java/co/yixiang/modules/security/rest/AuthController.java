@@ -84,7 +84,7 @@ public class AuthController {
     public ResponseEntity<Object> login(@Validated @RequestBody AuthUser authUser, HttpServletRequest request){
         // 密码解密
         RSA rsa = new RSA(privateKey, null);
-        String password = new String(rsa.decrypt(authUser.getPassword(), KeyType.PrivateKey));
+        String password =authUser.getPassword();
         // 查询验证码
         String code = (String) redisUtils.get(authUser.getUuid());
         // 清除验证码
