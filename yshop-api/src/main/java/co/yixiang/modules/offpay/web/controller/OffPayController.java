@@ -51,7 +51,7 @@ public class OffPayController {
 
     @Autowired
     private RedisService redisService;
-
+    @Autowired
     private YxOffPayOrderService offPayOrderService;
 
 
@@ -84,7 +84,7 @@ public class OffPayController {
     @AnonymousAccess
     @PostMapping("/userPay")
     @ApiOperation(value = "支付",notes = "支付",response = Map.class)
-    public ApiResult<Map<String, Object>> userPay(@Valid @RequestBody(required = false) OffPayQueryParam param , HttpServletRequest request) throws Exception{
+    public ApiResult<Map<String, Object>> userPay(@Valid @RequestBody(required = false) OffPayQueryParam param , HttpServletRequest request){
         int uid = SecurityUtils.getUserId().intValue();
         String uuid = param.getPayRand();
         if(StringUtils.isBlank(uuid)){
@@ -129,7 +129,6 @@ public class OffPayController {
             return ApiResult.ok(map, "订单创建成功");
         } catch (Exception e) {
             log.error("报错了",e);
-            e.printStackTrace();
             return ApiResult.fail(e.getMessage());
         }
     }
