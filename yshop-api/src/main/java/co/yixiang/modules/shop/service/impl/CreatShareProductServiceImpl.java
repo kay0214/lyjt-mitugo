@@ -158,7 +158,7 @@ public class CreatShareProductServiceImpl implements CreatShareProductService {
             g.setColor(new Color(171, 171, 171));
             String price = "¥" + productInfo.getOtPrice();
             g.drawString(price, 29, 1200);
-            g.drawLine(29, 1188, 29 + 150, 1188);
+            g.drawLine(29, 1188, 20 + price.length()*22, 1188);
 
             //生成二维码返回链接
             String url = shareCode;
