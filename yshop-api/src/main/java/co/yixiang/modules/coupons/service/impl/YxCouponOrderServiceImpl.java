@@ -648,8 +648,10 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
                 wrapper.eq("status", 1);
                 break;
             case STATUS_MINUS_1://退款售后
-                wrapper.in("status", 7, 8, 9);
+                wrapper.in("status", 7, 8, 9).or().eq("refund_status", 1);
                 break;
+            default:
+                throw new BadRequestException("接口异常");
         }
 
         Page<YxCouponOrder> pageModel = new Page<>(yxCouponOrderQueryParam.getPage(), yxCouponOrderQueryParam.getLimit());
