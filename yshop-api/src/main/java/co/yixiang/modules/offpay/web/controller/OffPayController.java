@@ -126,6 +126,7 @@ public class OffPayController {
             jsConfig.put("package", wxPayMpOrderResult.getPackageValue());
             jsConfig.put("signType", wxPayMpOrderResult.getSignType());
             jsConfig.put("paySign", wxPayMpOrderResult.getPaySign());
+            map.put("result", jsConfig);
             return ApiResult.ok(map, "订单创建成功");
         } catch (Exception e) {
             log.error("报错了",e);
