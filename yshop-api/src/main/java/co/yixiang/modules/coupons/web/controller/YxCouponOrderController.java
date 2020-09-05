@@ -438,5 +438,17 @@ public class YxCouponOrderController extends BaseController {
         }
         return ApiResult.result(flag);
     }
+
+    @GetMapping("/buyCount/{couponId}")
+    @ApiOperation(value = "查询该用户已购买张数", notes = "查询该用户已购买张数")
+    public ApiResult<Boolean> buyCount(@PathVariable(value = "couponId") Integer couponId) {
+        int uid = SecurityUtils.getUserId().intValue();
+        Integer count = this.yxCouponOrderService.getBuyCount(uid, couponId);
+        YxCoupons yxCoupons = this.yxCouponsService.getById(couponId);
+        if (yxCoupons.getQuantityLimit() <= count) {
+            return ApiResult.result(false);
+        }
+        return ApiResult.result(true);
+    }
 }
 

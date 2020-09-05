@@ -181,4 +181,13 @@ public interface YxCouponOrderService extends BaseService<YxCouponOrder> {
      * @return
      */
     boolean updateCouponOrderInput(String orderId, Integer uid);
+
+    /**
+     * 计算用户已购买张数
+     *
+     * @param uid
+     * @param couponId
+     * @return
+     */
+    Integer getBuyCount(int uid, Integer couponId);
 }

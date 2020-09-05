@@ -6,12 +6,10 @@ import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
-import co.yixiang.common.rocketmq.MqProducer;
 import co.yixiang.common.service.impl.BaseServiceImpl;
 import co.yixiang.common.util.DistanceMeterUtil;
 import co.yixiang.common.web.vo.Paging;
 import co.yixiang.constant.LocalLiveConstants;
-import co.yixiang.constant.MQConstant;
 import co.yixiang.constant.ShopConstants;
 import co.yixiang.constant.SystemConfigConstants;
 import co.yixiang.enums.*;
@@ -74,7 +72,10 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 
@@ -1178,5 +1179,26 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
 //            mqProducer.messageSend2(new MessageContent(MQConstant.MITU_TOPIC, MQConstant.MITU_COMMISSION_TAG, UUID.randomUUID().toString(), jsonObject));
         }
         return true;
+    }
+
+    /**
+     * 查询用户易购面张数
+     *
+     * @param uid
+     * @param couponId
+     * @return
+     */
+    @Override
+    public Integer getBuyCount(int uid, Integer couponId) {
+        Integer count = 0;
+        List<YxCouponOrder> list = this.list(new QueryWrapper<YxCouponOrder>().lambda().eq(YxCouponOrder::getUid, uid).eq(YxCouponOrder::getCouponId, couponId));
+        for (YxCouponOrder item : list) {
+            //4:待使用5:已使用6:已核销
+            if (4 != item.getStatus() && 5 != item.getStatus() && 6 != item.getStatus()) {
+                continue;
+            }
+            count = count + item.getTotalNum();
+        }
+        return count;
     }
 }
