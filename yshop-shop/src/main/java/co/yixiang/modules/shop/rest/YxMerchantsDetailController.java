@@ -145,7 +145,7 @@ public class YxMerchantsDetailController {
 
         map.put("status", "0");
         map.put("statusDesc", "成功");
-        map.put("data", JSON.toJSONString(yxStoreInfo));
+        map.put("data", JSON.toJSONString(yxStoreInfoDto));
         return new ResponseEntity<>(map, HttpStatus.OK);
     }
 }

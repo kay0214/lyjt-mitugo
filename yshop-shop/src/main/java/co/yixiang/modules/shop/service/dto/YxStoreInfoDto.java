@@ -87,6 +87,8 @@ public class YxStoreInfoDto implements Serializable {
     /** 店铺轮播图 */
     private List<String> storeRotationImages;
 
+    /** 店铺联系人 */
+    private String contacts;
     //店铺服务
 //    private String stroeService;
     //营业时间
