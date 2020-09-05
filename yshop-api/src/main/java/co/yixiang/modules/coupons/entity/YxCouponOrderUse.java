@@ -57,4 +57,7 @@ private Date createTime;
 @ApiModelProperty(value = "更新时间")
 private Date updateTime;
 
+@ApiModelProperty(value = "卡券id")
+private Integer couponId;
+
 }

@@ -1,5 +1,6 @@
 package co.yixiang.modules.coupons.service;
 
+import co.yixiang.modules.couponUse.dto.YxCouponsDto;
 import co.yixiang.modules.coupons.entity.YxCoupons;
 import co.yixiang.common.service.BaseService;
 import co.yixiang.modules.coupons.web.param.YxCouponsQueryParam;
@@ -73,4 +74,13 @@ public interface YxCouponsService extends BaseService<YxCoupons> {
      * @return
      */
     List<LocalLiveCouponsVo> getCouponsListByPram(Integer id, String keyword);
+
+    /**
+     * 根据核销码查询卡券信息
+     *
+     * @param verifyCode
+     * @param uid
+     * @return
+     */
+    YxCouponsDto getCouponByVerifyCode(String verifyCode, int uid);
 }
