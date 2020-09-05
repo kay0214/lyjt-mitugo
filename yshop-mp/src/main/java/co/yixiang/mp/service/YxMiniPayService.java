@@ -157,7 +157,17 @@ public class YxMiniPayService {
 
     }
 
-
+    /**
+     * 本地生活支付
+     * @param orderId
+     * @param openId
+     * @param body
+     * @param totalFee
+     * @param attach
+     * @param ip
+     * @return
+     * @throws WxPayException
+     */
     public WxPayMpOrderResult couponWxPay(String orderId, String openId, String body,
                                           Integer totalFee, String attach, String ip) throws WxPayException {
         String apiUrl = redisHandler.getVal(ShopKeyUtils.getApiUrl());
@@ -174,6 +184,41 @@ public class YxMiniPayService {
         orderRequest.setSpbillCreateIp(ip);
 //        orderRequest.setNotifyUrl(apiUrl + "/api/wechat/notify");
         orderRequest.setNotifyUrl(apiUrl + "/api/wechat/notifyNew");
+        orderRequest.setAttach(attach);
+
+
+        WxPayMpOrderResult orderResult = wxPayService.createOrder(orderRequest);
+
+        return orderResult;
+    }
+
+    /**
+     * 线下支付
+     * @param orderId
+     * @param openId
+     * @param body
+     * @param totalFee
+     * @param attach
+     * @param ip
+     * @return
+     * @throws WxPayException
+     */
+    public WxPayMpOrderResult offWxPay(String orderId, String openId, String body,
+                                       Integer totalFee, String attach, String ip) throws WxPayException {
+        String apiUrl = redisHandler.getVal(ShopKeyUtils.getApiUrl());
+        if (StrUtil.isBlank(apiUrl)) throw new ErrorRequestException("请配置api地址");
+
+        WxPayService wxPayService = WxPayConfiguration.getWxAppPayService();
+        WxPayUnifiedOrderRequest orderRequest = new WxPayUnifiedOrderRequest();
+
+        orderRequest.setTradeType("JSAPI");
+        orderRequest.setOpenid(openId);
+        orderRequest.setBody(body);
+        orderRequest.setOutTradeNo(orderId);
+        orderRequest.setTotalFee(totalFee);
+        orderRequest.setSpbillCreateIp(ip);
+//        orderRequest.setNotifyUrl(apiUrl + "/api/wechat/notify");
+        orderRequest.setNotifyUrl(apiUrl + "/api/wechat/notifyoffPay");
         orderRequest.setAttach(attach);
 
 

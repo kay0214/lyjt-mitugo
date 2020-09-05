@@ -26,6 +26,8 @@ public enum BillDetailEnum {
 	TYPE_8("pay_coupon","本地生活购买"),
 	TYPE_9("mer_recurrence","商户返现"),
 
+	TYPE_10("mer_off_pay","线下支付"),
+
 
 	CATEGORY_1("now_money","金额"),
 	CATEGORY_2("integral","积分");

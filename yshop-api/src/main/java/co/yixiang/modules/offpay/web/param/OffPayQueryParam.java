@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import javax.validation.constraints.NotBlank;
+import java.math.BigDecimal;
 
 /**
  * 线下支付
@@ -22,5 +23,8 @@ public class OffPayQueryParam extends QueryParam {
     private String storeNid;
     @ApiModelProperty(value = "调用userPay的随机串")
     private String payRand;
+
+    @ApiModelProperty(value = "支付金额")
+    private BigDecimal price;
 
 }
