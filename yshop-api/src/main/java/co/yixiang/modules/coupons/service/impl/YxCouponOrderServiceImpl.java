@@ -254,6 +254,12 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         if (totalNum > yxCoupons.getInventory()) {
             throw new ErrorRequestException("库存不足");
         }
+        Integer buyCount = this.getBuyCount(uid, couponId);
+        // 校验购买数量是否超限
+        buyCount = buyCount + totalNum;
+        if (buyCount > yxCoupons.getQuantityLimit()) {
+            throw new BadRequestException("当前购买卡券数量超限");
+        }
 
         YxCoupons coupons = yxCouponsMapper.selectById(couponId);
         YxStoreInfo yxStoreInfo = this.storeInfoService.getById(coupons.getStoreId());
