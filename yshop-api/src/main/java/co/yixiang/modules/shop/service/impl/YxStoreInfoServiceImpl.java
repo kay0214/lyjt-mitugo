@@ -220,7 +220,7 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
     @Override
     public Paging<LocalLiveListVo> getLocalLiveList(LocalLiveQueryParam localLiveQueryParam, String location) throws Exception {
         Page page = setPageParam(localLiveQueryParam, OrderItem.desc("create_time"));
-        if (location.split(",").length == 2 && StringUtils.isNotBlank(location)) {
+        if (StringUtils.isNotBlank(location) && location.split(",").length == 2) {
             String[] locationArr = location.split(",");
             localLiveQueryParam.setLat(locationArr[1]);
             localLiveQueryParam.setLnt(locationArr[0]);
@@ -230,7 +230,7 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
         List<LocalLiveListVo> localLiveListVoList = iPage.getRecords();
         iPage.setTotal(localLiveListVoList.size());
         for (LocalLiveListVo localLiveListVo : localLiveListVoList){
-            if (location.split(",").length == 2 && StringUtils.isNotBlank(location) && StringUtils.isNotBlank(localLiveListVo.getCoordinateY()) && StringUtils.isNotBlank(localLiveListVo.getCoordinateX())) {
+            if (StringUtils.isNotBlank(location) && location.split(",").length == 2 && StringUtils.isNotBlank(localLiveListVo.getCoordinateY()) && StringUtils.isNotBlank(localLiveListVo.getCoordinateX())) {
                 // 设置距离
                 // 维度  京都
                 String[] locationArr = location.split(",");
