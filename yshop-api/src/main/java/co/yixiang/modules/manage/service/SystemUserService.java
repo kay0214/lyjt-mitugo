@@ -32,4 +32,9 @@ public interface SystemUserService extends BaseService<SystemUser> {
      */
     Paging<SystemUserQueryVo> getUserPageList(SystemUserQueryParam userQueryParam) throws Exception;
 
+    /**
+     * 商户金额操作
+     * @param updateSystemUser
+     */
+    void updateUserTotal(SystemUser updateSystemUser);
 }

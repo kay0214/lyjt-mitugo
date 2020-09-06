@@ -15,4 +15,13 @@
         select <include refid="Base_Column_List"/> from user
     </select>
 
+    <update id="updateUserTotal" >
+        update user
+        <set>
+            <if test="withdrawalAmount != null">withdrawal_amount=withdrawal_amount+#{withdrawalAmount},</if>
+            <if test="totalAmount != null">total_amount=total_amount+#{totalAmount},</if>
+        </set>
+        where id=#{id}
+    </update>
+
 </mapper>
