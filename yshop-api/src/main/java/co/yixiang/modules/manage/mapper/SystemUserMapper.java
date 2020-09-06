@@ -37,4 +37,9 @@ public interface SystemUserMapper extends BaseMapper<SystemUser> {
      */
     IPage<SystemUserQueryVo> getUserPageList(@Param("page") Page page, @Param("param") SystemUserQueryParam userQueryParam);
 
+    /**
+     * 商户金额操作
+     * @param updateSystemUser
+     */
+    void updateUserTotal(SystemUser updateSystemUser);
 }
