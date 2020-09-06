@@ -251,7 +251,7 @@ export default {
             message: '请输入数字',
             trigger: 'blur'
           },
-          { validator: validateInt, trigger: 'blur'}
+          { validator: (rule, value, callback)=>{validateInt(rule, value, callback)}, trigger: 'blur'}
         ],
         commission:[
           // { required: true,message: '必填项', trigger: 'blur'}
@@ -274,7 +274,7 @@ export default {
             message: '请输入数字',
             trigger: 'blur'
           },
-          { validator: validateInt, trigger: 'blur'}
+          { validator: (rule, value, callback)=>{validateInt(rule, value, callback)}, trigger: 'blur'}
         ],
       }
     }
