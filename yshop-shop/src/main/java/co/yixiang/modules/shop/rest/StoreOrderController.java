@@ -35,6 +35,7 @@ import co.yixiang.tools.express.dao.ExpressInfo;
 import co.yixiang.utils.CurrUser;
 import co.yixiang.utils.OrderUtil;
 import co.yixiang.utils.SecurityUtils;
+import co.yixiang.utils.SnowflakeUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -80,6 +81,8 @@ public class StoreOrderController {
 
     @Value("${yshop.apiUrl}")
     private String apiUrl;
+    @Value("${yshop.snowflake.datacenterId}")
+    private Integer datacenterId;
 
     private final IGenerator generator;
     private final YxStoreOrderService yxStoreOrderService;
@@ -369,7 +372,7 @@ public class StoreOrderController {
 
         int res = NumberUtil.compare(storeOrder.getPayPrice().doubleValue(), resources.getPayPrice().doubleValue());
         if (res != 0) {
-            String orderSn = IdUtil.getSnowflake(0, 0).nextIdStr();
+            String orderSn = SnowflakeUtil.getOrderId(datacenterId);
             resources.setExtendOrderId(orderSn);
         }
 

@@ -61,6 +61,7 @@ import co.yixiang.tools.domain.AlipayConfig;
 import co.yixiang.tools.domain.vo.TradeVo;
 import co.yixiang.tools.service.AlipayConfigService;
 import co.yixiang.utils.OrderUtil;
+import co.yixiang.utils.SnowflakeUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -75,6 +76,7 @@ import com.github.binarywang.wxpay.bean.order.WxPayMwebOrderResult;
 import com.github.binarywang.wxpay.exception.WxPayException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -175,6 +177,9 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
     private YxStoreProductAttrService productAttrService;
     @Autowired
     private YxUserBillService userBillService;
+
+    @Value("${yshop.snowflake.datacenterId}")
+    private Integer datacenterId;
 
     /**
      * 订单退款
@@ -335,7 +340,7 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
 
         int res = NumberUtil.compare(orderQueryVo.getPayPrice().doubleValue(), param.getPrice());
         if (res != 0) {
-            String orderSn = IdUtil.getSnowflake(0, 0).nextIdStr();
+            String orderSn = SnowflakeUtil.getOrderId(datacenterId);
             storeOrder.setExtendOrderId(orderSn);
         }
 
@@ -1385,7 +1390,7 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
         if (payPrice <= 0) payPrice = 0d;
 
         //生成分布式唯一值
-        String orderSn = IdUtil.getSnowflake(0, 0).nextIdStr();
+        String orderSn = SnowflakeUtil.getOrderId(datacenterId);
         //组合数据
         YxStoreOrder storeOrder = new YxStoreOrder();
         storeOrder.setUid(uid);
@@ -1775,7 +1780,7 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
 
 
         //支付单号
-        String payOrderNo = IdUtil.getSnowflake(0, 0).nextIdStr();
+        String payOrderNo = SnowflakeUtil.getOrderId(datacenterId);
 
         Double totalPrice = 0d;
         Double payPrice = 0d;
@@ -1884,7 +1889,7 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
                 useIntegral = 0;
             }
             //生成分布式唯一值
-            String orderSn = IdUtil.getSnowflake(0, 0).nextIdStr();
+            String orderSn = SnowflakeUtil.getOrderId(datacenterId);
 
             // 积分抵扣
             double deductionPrice = 0; //抵扣金额

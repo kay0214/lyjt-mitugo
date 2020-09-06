@@ -50,10 +50,7 @@ import co.yixiang.modules.user.service.YxUserService;
 import co.yixiang.modules.user.service.YxWechatUserService;
 import co.yixiang.modules.user.web.vo.YxUserQueryVo;
 import co.yixiang.mp.service.YxMiniPayService;
-import co.yixiang.utils.Base64Utils;
-import co.yixiang.utils.BeanUtils;
-import co.yixiang.utils.DateUtils;
-import co.yixiang.utils.OrderUtil;
+import co.yixiang.utils.*;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -65,6 +62,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.gavaghan.geodesy.GlobalCoordinates;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -144,6 +142,9 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
 
     @Autowired
     private YxCouponOrderUseService yxCouponOrderUseService;
+
+    @Value("${yshop.snowflake.datacenterId}")
+    private Integer datacenterId;
 
 //    @Autowired
 //    private MqProducer mqProducer;
@@ -268,7 +269,7 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         if (totalPrice <= 0) totalPrice = 0d;
 
         //生成分布式唯一值
-        String orderSn = IdUtil.getSnowflake(0, 0).nextIdStr();
+        String orderSn = SnowflakeUtil.getOrderId(datacenterId);
         //组合数据
         YxCouponOrder couponOrder = new YxCouponOrder();
         couponOrder.setUid(uid);
@@ -332,7 +333,7 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
             couponOrderDetail.setUsedCount(0);
             couponOrderDetail.setStatus(0);
             // 先用时间戳、扩展字段长度后再用uuid生成核销码
-            String verifyCode = IdUtil.getSnowflake(0, 0).nextIdStr();
+            String verifyCode = SnowflakeUtil.getOrderId(datacenterId);
             couponOrderDetail.setVerifyCode(verifyCode.substring(1, 13));
             couponOrderDetail.setRemark("");
             couponOrderDetail.setCreateUserId(uid);

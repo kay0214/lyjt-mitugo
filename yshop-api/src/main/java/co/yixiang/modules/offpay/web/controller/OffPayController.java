@@ -19,12 +19,14 @@ import co.yixiang.modules.shop.web.vo.YxStoreInfoQueryVo;
 import co.yixiang.modules.user.entity.YxWechatUser;
 import co.yixiang.modules.user.service.YxWechatUserService;
 import co.yixiang.utils.SecurityUtils;
+import co.yixiang.utils.SnowflakeUtil;
 import co.yixiang.utils.StringUtils;
 import com.github.binarywang.wxpay.bean.order.WxPayMpOrderResult;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -58,6 +60,9 @@ public class OffPayController {
     @Autowired
     private YxWechatUserService wechatUserService;
 
+    @Value("${yshop.snowflake.datacenterId}")
+    private Integer datacenterId;
+
     // 扫码获取商户信息  传入加密的store_nid
     @AnonymousAccess
     @PostMapping("/getStoreInfo")
@@ -72,11 +77,16 @@ public class OffPayController {
         result.setStoreAddress(storeInfo.getStoreAddress());
         result.setStoreImage(storeInfo.getStoreImage());
         result.setStoreName(storeInfo.getStoreName());
-        String uuid = IdUtil.getSnowflake(0, 0).nextIdStr();
+        // 生成订单号
+        String uuid = SnowflakeUtil.getOrderId(datacenterId);
         result.setPayRand(uuid);
         // 十分钟内支付有用
         redisService.saveCode(CommonConstant.USER_OFF_PAY+uuid,param.getStoreNid(),600L);
         return ApiResult.ok(result);
+    }
+
+    public static void main(String[] args) {
+        System.out.println(IdUtil.getSnowflake(31, 31).nextIdStr());
     }
 
 
