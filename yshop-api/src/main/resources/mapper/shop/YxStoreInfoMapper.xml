@@ -22,7 +22,7 @@
             and (ysi.store_name LIKE CONCAT('%',#{param.keyword},'%') or ycd.coupon_name LIKE
             CONCAT('%',#{param.keyword},'%'))
         </if>
-        <if test="param.keyword != '' and param.keyword != null and param.sid != '' and param.sid != null">
+        <if test="param.keyword != '' and param.keyword != null and param.sid != '' and param.sid != null and param.sid != '0' and param.sid != 0">
             and  ycd.coupon_category = #{param.sid}
         </if>
         <choose>
