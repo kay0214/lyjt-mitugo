@@ -81,7 +81,7 @@
             <!-- 以下是个人认证 -->
             <div v-if="!crud.status.add && form.merchantsType == 0">
               <el-form-item label="手持证件照" prop="personIdCard">
-                <MaterialList v-model="perIdCard" type="image" :num="1" :width="150" :height="150" :readOnly='Boolean(examineEdit)'/>
+                <MaterialList v-model="perIdCard" type="image" :num="1" :width="150" :height="150" :readOnly='Boolean(examineEdit)' />
               </el-form-item>
               <el-form-item label="证件照人像面" prop="personIdCardFace">
                 <MaterialList v-model="perIdCardFace" type="image" :num="1" :width="150" :height="150" :readOnly='Boolean(examineEdit)' />
@@ -160,7 +160,7 @@
             <el-button :loading="crud.cu === 2" type="primary" @click="crud.submitCU">确认</el-button>
           </div>
           <div v-if="readStatus">
-            <el-button type="text" @click="closeRead()">关闭</el-button>
+            <el-button type="primary" @click="closeRead()">关闭</el-button>
           </div>
           <div v-if="examineEdit">
             <el-row style='marginBottom:20px'>
@@ -207,8 +207,8 @@
         </el-table-column>
         <el-table-column v-permission="['admin','yxMerchantsDetail:edit','yxMerchantsDetail:examine','yxMerchantsDetail:del']" label="操作" width="250px" align="center">
           <template slot-scope="scope">
-            <el-button v-permission="permission.examine" size="mini" type="primary" icon="el-icon-s-check" @click="examineOpt(scope.row)" plain></el-button>
-            <el-button v-permission="permission.edit" size="mini" type="primary" icon="el-icon-edit" @click="crud.toEdit(scope.row)" ></el-button>
+            <el-button v-if="scope.row.examineStatus===3" v-permission="permission.examine" size="mini" type="primary" icon="el-icon-s-check" @click="examineOpt(scope.row)" plain></el-button>
+            <el-button v-if="scope.row.examineStatus===2 || scope.row.examineStatus===0" v-permission="permission.edit" size="mini" type="primary" icon="el-icon-edit" @click="crud.toEdit(scope.row)" ></el-button>
             <el-button size="mini" type="success" icon="el-icon-reading" @click="toRead(scope.row)" plain ></el-button>
           </template>
         </el-table-column>
