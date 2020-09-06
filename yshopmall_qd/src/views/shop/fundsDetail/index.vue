@@ -52,14 +52,14 @@
             <span>{{ parseTime(scope.row.addTime) }}</span>
           </template>
         </el-table-column>
-        <el-table-column v-permission="['admin','fundsDetail:edit','fundsDetail:del']" label="操作" width="150px" align="center">
+        <!-- <el-table-column v-permission="['admin','fundsDetail:edit','fundsDetail:del']" label="操作" width="150px" align="center">
           <template slot-scope="scope">
             <udOperation
               :data="scope.row"
               :permission="permission"
             />
           </template>
-        </el-table-column>
+        </el-table-column> -->
       </el-table>
       <!--分页组件-->
       <pagination />
