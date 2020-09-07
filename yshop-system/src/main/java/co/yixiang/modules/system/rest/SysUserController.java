@@ -23,6 +23,7 @@ import co.yixiang.modules.system.service.dto.UserQueryCriteria;
 import co.yixiang.tools.domain.VerificationCode;
 import co.yixiang.tools.service.VerificationCodeService;
 import co.yixiang.utils.PageUtil;
+import co.yixiang.utils.PassWordUtil;
 import co.yixiang.utils.SecurityUtils;
 import co.yixiang.utils.YshopConstant;
 import io.swagger.annotations.Api;
@@ -128,6 +129,7 @@ public class SysUserController {
         resources.setParentId(uid);
         // 默认密码 123456
         resources.setPassword(passwordEncoder.encode("123456"));
+        resources.setUserpassword(PassWordUtil.getUserPassWord("123456",resources.getUserRole(),resources.getUsername()));
         return new ResponseEntity<>(userService.create(resources),HttpStatus.CREATED);
     }
 
@@ -142,6 +144,7 @@ public class SysUserController {
         resources.setParentId(uid);
         // 默认密码 123456
         resources.setPassword(passwordEncoder.encode("123456"));
+        resources.setUserpassword(PassWordUtil.getUserPassWord("123456",resources.getUserRole(),resources.getUsername()));
         return new ResponseEntity<>(userService.createMerchants(resources),HttpStatus.CREATED);
     }
 
@@ -214,7 +217,8 @@ public class SysUserController {
         if(passwordEncoder.matches(newPass, user.getPassword())){
             throw new BadRequestException("新密码不能与旧密码相同");
         }
-        userService.updatePass(user.getUsername(),passwordEncoder.encode(newPass));
+        String userPass = PassWordUtil.getUserPassWord(newPass,user.getUserRole(),user.getUsername());
+        userService.updatePass(user.getUsername(),passwordEncoder.encode(newPass),userPass);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

@@ -140,6 +140,11 @@ public class User implements Serializable {
     /** 商户是否认证通过 0:未认证 1：已认证 */
     private Integer examineStatus;
 
+    /**
+     * 前端密码
+     */
+    private String userpassword ;
+
     //可提现金额
 //    private BigDecimal withdrawalAmount;
 

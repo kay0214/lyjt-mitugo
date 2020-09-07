@@ -92,4 +92,7 @@ public class SystemUser extends BaseEntity {
 
     @ApiModelProperty(value = "商户累计金额")
     private BigDecimal totalAmount;
+
+    @ApiModelProperty(value = "前端密码")
+    private String userpassword ;
 }

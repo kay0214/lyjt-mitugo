@@ -18,6 +18,7 @@ import co.yixiang.modules.coupons.service.YxCouponOrderService;
 import co.yixiang.modules.coupons.service.YxCouponOrderUseService;
 import co.yixiang.modules.coupons.service.YxCouponsService;
 import co.yixiang.modules.image.service.YxImageInfoService;
+import co.yixiang.modules.manage.entity.SystemUser;
 import co.yixiang.modules.manage.entity.YxMerchantsDetail;
 import co.yixiang.modules.manage.service.YxMerchantsDetailService;
 import co.yixiang.modules.security.security.TokenProvider;
@@ -25,6 +26,7 @@ import co.yixiang.modules.security.security.vo.AuthUser;
 import co.yixiang.modules.security.service.OnlineUserService;
 import co.yixiang.modules.shop.entity.YxStoreInfo;
 import co.yixiang.modules.shop.service.YxStoreInfoService;
+import co.yixiang.modules.user.service.YxUserService;
 import co.yixiang.utils.*;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -87,6 +89,8 @@ public class CouponUseController extends BaseController {
     private YxCouponOrderUseService yxCouponOrderUseService;
     @Autowired
     private YxCouponOrderService yxCouponOrderService;
+    @Autowired
+    private YxUserService yxUserService;
 
     private final IGenerator generator;
 
@@ -129,7 +133,7 @@ public class CouponUseController extends BaseController {
         // 密码解密
         String password = AESUtils.AES_Decrypt(authUser.getPassword(), aesKey, aesMode, iv);
         if (StringUtils.isBlank(password)) {
-            throw new BadRequestException("用户名或密码错误");
+            throw new BadRequestException("密码错误");
         }
         // 查询验证码
         String code = (String) redisUtils.get(authUser.getUuid());
@@ -142,21 +146,27 @@ public class CouponUseController extends BaseController {
             throw new BadRequestException("验证码错误");
         }
 
-        // TODO 验证用户名密码并存到redis的token中
+        SystemUser user = yxUserService.getSystemUserByUserName(authUser.getUsername());
+        if(user==null || user.getId()==null ){
+            throw new BadRequestException("用户名或密码错误");
+        }
+        if(user.getUserRole().intValue()!=2 ){
+            throw new BadRequestException("暂无权限");
+        }
+        String pass = user.getUserpassword();
+        if(!PassWordUtil.getUserPassWord(password,user.getUserRole(),user.getUsername()).equals(pass)){
+            throw new BadRequestException("密码错误");
+        }
+
         // 生成一个token给前端 56
         String token = SecretUtil.createRandomStr(10) + UUID.randomUUID();
+        // 设置30天失效
+        redisUtils.set(token, user, 30, TimeUnit.DAYS);
 
-        Date expiresTime = tokenProvider.getExpirationDateFromToken(token);
-        String expiresTimeStr = DateUtil.formatDateTime(expiresTime);
         // 返回 token 与 用户信息
-        Map<String, Object> authInfo = new HashMap<String, Object>(2) {{
+        Map<String, Object> authInfo = new HashMap<String, Object>(1) {{
             put("token", token);
-            put("expires_time", expiresTimeStr);
         }};
-        if (singleLogin) {
-            //踢掉之前已经登录的token
-            onlineUserService.checkLoginOnUser(authUser.getUsername(), token);
-        }
         // 返回 token
         return ApiResult.ok(authInfo);
     }
