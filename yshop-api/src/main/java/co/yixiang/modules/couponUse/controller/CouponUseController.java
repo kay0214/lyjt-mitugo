@@ -135,16 +135,6 @@ public class CouponUseController extends BaseController {
         if (StringUtils.isBlank(password)) {
             throw new BadRequestException("密码错误");
         }
-        // 查询验证码
-        String code = (String) redisUtils.get(authUser.getUuid());
-        // 清除验证码
-        redisUtils.del(authUser.getUuid());
-        if (StringUtils.isBlank(code)) {
-            throw new BadRequestException("验证码不存在或已过期");
-        }
-        if (StringUtils.isBlank(authUser.getCode()) || !authUser.getCode().equalsIgnoreCase(code)) {
-            throw new BadRequestException("验证码错误");
-        }
 
         SystemUser user = yxUserService.getSystemUserByUserName(authUser.getUsername());
         if(user==null || user.getId()==null ){
