@@ -66,13 +66,13 @@ public class IndexController {
 
 
         //精品推荐
-        map.put("bastList",storeProductService.getList(1,10,1));
+        map.put("bastList",storeProductService.getList(1,10,1).getRecords());
         //首发新品
 //        map.put("firstList",storeProductService.getList(1,6,3));
         //促销单品
 //        map.put("benefit",storeProductService.getList(1,3,4));
         //热门榜单
-        map.put("likeInfo",storeProductService.getList(1,10,2));
+        map.put("likeInfo",storeProductService.getList(1,10,2).getRecords());
 
         //滚动
 //        map.put("roll",systemGroupDataService.getDatas(ShopConstants.YSHOP_HOME_ROLL_NEWS));
