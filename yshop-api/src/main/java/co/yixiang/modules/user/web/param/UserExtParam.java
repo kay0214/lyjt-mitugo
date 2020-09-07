@@ -26,4 +26,10 @@ public class UserExtParam implements Serializable {
 
     //支付宝账号
     private String name;
+
+    // 真实姓名
+    private String realName;
+
+    // 银行预留手机号
+    private String phone;
 }

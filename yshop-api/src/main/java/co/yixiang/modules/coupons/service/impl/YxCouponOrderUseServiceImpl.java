@@ -1,6 +1,5 @@
 package co.yixiang.modules.coupons.service.impl;
 
-import co.yixiang.common.rocketmq.MqProducer;
 import co.yixiang.common.service.impl.BaseServiceImpl;
 import co.yixiang.common.web.vo.Paging;
 import co.yixiang.dozer.service.IGenerator;
@@ -17,13 +16,13 @@ import co.yixiang.modules.coupons.web.param.YxCouponOrderUseQueryParam;
 import co.yixiang.modules.coupons.web.vo.YxCouponOrderUseQueryVo;
 import co.yixiang.modules.user.entity.YxUser;
 import co.yixiang.modules.user.service.YxUserService;
+import co.yixiang.utils.DateUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.metadata.OrderItem;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -76,16 +75,16 @@ public class YxCouponOrderUseServiceImpl extends BaseServiceImpl<YxCouponOrderUs
 
     @Override
     //@Cacheable
-    public Map<String, Object> queryAll(YxCouponOrderUseQueryCriteria criteria, Pageable pageable) {
+    public Map<String, Object> queryAll(YxCouponOrderUseQueryCriteria criteria) {
 //        getPage(pageable);
 //        PageInfo<YxCouponOrderUse> page = new PageInfo<>(baseMapper.selectList(QueryHelpPlus.getPredicate(YxCouponOrderUse.class, criteria)));
-        IPage<YxCouponOrderUse> ipage = this.page(new Page<>(pageable.getPageNumber(), pageable.getPageSize()), new QueryWrapper<YxCouponOrderUse>().lambda().eq(YxCouponOrderUse::getCreateUserId, criteria.getCreateUserId()));
+        IPage<YxCouponOrderUse> ipage = this.page(new Page<>(criteria.getPage(), criteria.getLimit()), new QueryWrapper<YxCouponOrderUse>().lambda().eq(YxCouponOrderUse::getCreateUserId, criteria.getCreateUserId()));
         if (ipage.getTotal() == 0) {
             Map<String, Object> map = new LinkedHashMap<>(2);
             map.put("content", new ArrayList<>());
             map.put("totalElements", 0);
-            map.put("status","1");
-            map.put("statusDesc","成功");
+            map.put("status", "1");
+            map.put("statusDesc", "成功");
             return map;
         }
         List<YxCouponOrderUseDto> list = new ArrayList<>();
@@ -106,14 +105,16 @@ public class YxCouponOrderUseServiceImpl extends BaseServiceImpl<YxCouponOrderUs
                 dto.setDiscount(yxCoupons.getDiscount());
                 dto.setThreshold(yxCoupons.getThreshold());
                 dto.setDiscountAmount(yxCoupons.getDiscountAmount());
+                dto.setCouponName(yxCoupons.getCouponName());
             }
+            dto.setUseTime(DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD_HH_MM, item.getCreateTime()));
             list.add(dto);
         }
         Map<String, Object> map = new LinkedHashMap<>(2);
         map.put("content", list);
         map.put("totalElements", ipage.getTotal());
-        map.put("status","1");
-        map.put("statusDesc","成功");
+        map.put("status", "1");
+        map.put("statusDesc", "成功");
         return map;
     }
 }
