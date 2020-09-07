@@ -1,7 +1,7 @@
 package co.yixiang.modules.coupons.service.impl;
 
+import co.yixiang.common.rocketmq.MqProducer;
 import co.yixiang.common.service.impl.BaseServiceImpl;
-import co.yixiang.common.utils.QueryHelpPlus;
 import co.yixiang.common.web.vo.Paging;
 import co.yixiang.dozer.service.IGenerator;
 import co.yixiang.modules.couponUse.criteria.YxCouponOrderUseQueryCriteria;
@@ -21,7 +21,6 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.metadata.OrderItem;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.github.pagehelper.PageInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
@@ -78,16 +77,19 @@ public class YxCouponOrderUseServiceImpl extends BaseServiceImpl<YxCouponOrderUs
     @Override
     //@Cacheable
     public Map<String, Object> queryAll(YxCouponOrderUseQueryCriteria criteria, Pageable pageable) {
-        getPage(pageable);
-        PageInfo<YxCouponOrderUse> page = new PageInfo<>(baseMapper.selectList(QueryHelpPlus.getPredicate(YxCouponOrderUse.class, criteria)));
-        if (page.getTotal() == 0) {
+//        getPage(pageable);
+//        PageInfo<YxCouponOrderUse> page = new PageInfo<>(baseMapper.selectList(QueryHelpPlus.getPredicate(YxCouponOrderUse.class, criteria)));
+        IPage<YxCouponOrderUse> ipage = this.page(new Page<>(pageable.getPageNumber(), pageable.getPageSize()), new QueryWrapper<YxCouponOrderUse>().lambda().eq(YxCouponOrderUse::getCreateUserId, criteria.getCreateUserId()));
+        if (ipage.getTotal() == 0) {
             Map<String, Object> map = new LinkedHashMap<>(2);
             map.put("content", new ArrayList<>());
             map.put("totalElements", 0);
+            map.put("status","1");
+            map.put("statusDesc","成功");
             return map;
         }
         List<YxCouponOrderUseDto> list = new ArrayList<>();
-        for (YxCouponOrderUse item : page.getList()) {
+        for (YxCouponOrderUse item : ipage.getRecords()) {
             YxCouponOrderUseDto dto = generator.convert(item, YxCouponOrderUseDto.class);
             YxCouponOrder yxCouponOrder = this.yxCouponOrderMapper.selectOne(new QueryWrapper<YxCouponOrder>().lambda().eq(YxCouponOrder::getOrderId, item.getOrderId()));
             if (null != yxCouponOrder) {
@@ -108,8 +110,10 @@ public class YxCouponOrderUseServiceImpl extends BaseServiceImpl<YxCouponOrderUs
             list.add(dto);
         }
         Map<String, Object> map = new LinkedHashMap<>(2);
-        map.put("content", generator.convert(page.getList(), YxCouponOrderUseDto.class));
-        map.put("totalElements", page.getTotal());
+        map.put("content", list);
+        map.put("totalElements", ipage.getTotal());
+        map.put("status","1");
+        map.put("statusDesc","成功");
         return map;
     }
 }

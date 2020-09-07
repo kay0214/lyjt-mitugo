@@ -6,10 +6,12 @@ import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import co.yixiang.common.rocketmq.MqProducer;
 import co.yixiang.common.service.impl.BaseServiceImpl;
 import co.yixiang.common.util.DistanceMeterUtil;
 import co.yixiang.common.web.vo.Paging;
 import co.yixiang.constant.LocalLiveConstants;
+import co.yixiang.constant.MQConstant;
 import co.yixiang.constant.ShopConstants;
 import co.yixiang.constant.SystemConfigConstants;
 import co.yixiang.enums.*;
@@ -58,6 +60,7 @@ import com.baomidou.mybatisplus.core.metadata.OrderItem;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.binarywang.wxpay.bean.order.WxPayMpOrderResult;
 import com.github.binarywang.wxpay.exception.WxPayException;
+import com.hyjf.framework.starter.recketmq.MessageContent;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.gavaghan.geodesy.GlobalCoordinates;
@@ -70,10 +73,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 
@@ -146,8 +146,8 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
     @Value("${yshop.snowflake.datacenterId}")
     private Integer datacenterId;
 
-//    @Autowired
-//    private MqProducer mqProducer;
+    @Autowired
+    private MqProducer mqProducer;
 
     @Override
     public YxCouponOrderQueryVo getYxCouponOrderById(Serializable id) throws Exception {
@@ -488,7 +488,7 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         //增加状态
 //        orderStatusService.create(orderInfo.getId(), "pay_success", "用户付款成功");
 
-        // TODO :: 等待对接微信公众号,以推送消息
+        // 等待对接微信公众号,以推送消息
         //模板消息推送
 //        YxWechatUserQueryVo wechatUser = wechatUserService.getYxWechatUserById(orderInfo.getUid());
 //        if (ObjectUtil.isNotNull(wechatUser)) {
@@ -1065,17 +1065,14 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
             JSONObject jsonObject = new JSONObject();
             jsonObject.put("orderId", yxCouponOrder.getOrderId());
             jsonObject.put("orderType", "1");
-//            Map<String, String> map = new HashMap<>();
-//            map.put("orderId", yxCouponOrder.getOrderId());
-//            map.put("orderType", "1");
-            // TODO 分佣mq发送
-//            mqProducer.sendMsg(new MessageContext(MQConstant.MITU_TOPIC, MQConstant.MITU_COMMISSION_TAG, UUID.randomUUID().toString(), jsonObject));
+            // 分佣mq发送
+            mqProducer.messageSend2(new MessageContent(MQConstant.MITU_TOPIC, MQConstant.MITU_COMMISSION_TAG, UUID.randomUUID().toString(), jsonObject));
         }
         return true;
     }
 
     /**
-     * 手动核销卡券
+     * 手动核销卡券(废)
      *
      * @param orderId
      * @return
@@ -1182,8 +1179,8 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
             JSONObject jsonObject = new JSONObject();
             jsonObject.put("orderId", yxCouponOrder.getOrderId());
             jsonObject.put("orderType", "1");
-            // TODO 卡券核销mq
-//            mqProducer.messageSend2(new MessageContent(MQConstant.MITU_TOPIC, MQConstant.MITU_COMMISSION_TAG, UUID.randomUUID().toString(), jsonObject));
+            // 卡券核销mq
+            mqProducer.messageSend2(new MessageContent(MQConstant.MITU_TOPIC, MQConstant.MITU_COMMISSION_TAG, UUID.randomUUID().toString(), jsonObject));
         }
         return true;
     }
