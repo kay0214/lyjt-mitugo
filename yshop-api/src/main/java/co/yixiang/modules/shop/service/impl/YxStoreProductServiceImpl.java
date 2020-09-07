@@ -268,7 +268,7 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
         if(CollectionUtils.isEmpty(storeIds)){
             return list;
         }
-        wrapper.orderByDesc("sort");
+        wrapper.orderByAsc("sort");
         Page<YxStoreProduct> pageModel = new Page<>(productQueryParam.getPage(),
                 productQueryParam.getLimit());
 
@@ -292,7 +292,7 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
     public List<YxStoreProductQueryVo> getList(int page, int limit, int order) {
 
         QueryWrapper<YxStoreProduct> wrapper = new QueryWrapper<>();
-        wrapper.eq("is_del",0).eq("is_show",1).orderByDesc("sort");
+        wrapper.eq("is_del",0).eq("is_show",1).orderByAsc("sort");
 
         // order
         switch (ProductEnum.toType(order)){
