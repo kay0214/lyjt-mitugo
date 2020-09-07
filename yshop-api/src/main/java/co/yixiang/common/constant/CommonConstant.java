@@ -125,4 +125,10 @@ public interface CommonConstant {
      * 线下支付订单信息redis
      */
     String USER_OFF_PAY_ORDER="USER_OFF_PAY_ORDER:";
+
+    /**
+     * 核销登陆token的redis前缀
+     *
+     */
+    String COUPON_USE_LOGIN_TOKEN = "COUPON_USE_LOGIN_TOKEN:";
 }

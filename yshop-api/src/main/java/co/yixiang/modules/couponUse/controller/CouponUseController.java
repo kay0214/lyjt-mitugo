@@ -6,6 +6,7 @@ package co.yixiang.modules.couponUse.controller;
 import cn.hutool.core.util.IdUtil;
 import co.yixiang.annotation.AnonymousAccess;
 import co.yixiang.common.api.ApiResult;
+import co.yixiang.common.constant.CommonConstant;
 import co.yixiang.common.web.controller.BaseController;
 import co.yixiang.constant.ShopConstants;
 import co.yixiang.dozer.service.IGenerator;
@@ -155,7 +156,7 @@ public class CouponUseController extends BaseController {
         }
 
         // 生成一个token给前端 56
-        String token = SecretUtil.createRandomStr(10) + UUID.randomUUID();
+        String token = CommonConstant.COUPON_USE_LOGIN_TOKEN + SecretUtil.createRandomStr(10) + UUID.randomUUID();
         // 设置30天失效
         redisUtils.set(token, user, 30, TimeUnit.DAYS);
 
