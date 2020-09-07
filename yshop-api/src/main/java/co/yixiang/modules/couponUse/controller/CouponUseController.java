@@ -32,7 +32,6 @@ import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -153,8 +152,8 @@ public class CouponUseController extends BaseController {
         // 返回 token 与 用户信息
         Map<String, Object> map = new HashMap<String, Object>();
         map.put("token", token);
-        map.put("status", "999");
-        map.put("statusDesc", "请先登录");
+        map.put("status", "1");
+        map.put("statusDesc", "成功");
         return ResponseEntity.ok(map);
     }
 
@@ -223,7 +222,7 @@ public class CouponUseController extends BaseController {
     @Log("查询核销记录")
     @ApiOperation("B端：查询核销记录")
     @PostMapping("/getOrderUseList")
-    public ResponseEntity<Object> getOrderUseList(@RequestHeader(value = "token") String token, YxCouponOrderUseQueryCriteria criteria, Pageable pageable) {
+    public ResponseEntity<Object> getOrderUseList(@RequestHeader(value = "token") String token,@RequestBody YxCouponOrderUseQueryCriteria criteria) {
         // 获取登陆用户的id
         Map<String, String> map = new HashMap<>();
         SystemUser user = getRedisUser(token);
@@ -234,7 +233,7 @@ public class CouponUseController extends BaseController {
         }
         int uid = user.getId().intValue();
         criteria.setCreateUserId(uid);
-        return ResponseEntity.ok(yxCouponOrderUseService.queryAll(criteria, pageable));
+        return ResponseEntity.ok(yxCouponOrderUseService.queryAll(criteria));
     }
 
     @AnonymousAccess
@@ -251,15 +250,8 @@ public class CouponUseController extends BaseController {
             return ResponseEntity.ok(map);
         }
         int uid = user.getId().intValue();
-        boolean result = this.yxCouponOrderService.updateCouponOrder(Base64Utils.decode(verifyCode), uid);
-        if (result) {
-            map.put("status", "1");
-            map.put("statusDesc", "核销成功");
-        } else {
-            map.put("status", "99");
-            map.put("statusDesc", "核销失败");
-        }
-        return ResponseEntity.ok(map);
+        Map<String, String> result = this.yxCouponOrderService.updateCouponOrder(Base64Utils.decode(verifyCode), uid);
+        return ResponseEntity.ok(result);
     }
 
     @AnonymousAccess
