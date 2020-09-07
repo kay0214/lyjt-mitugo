@@ -60,6 +60,7 @@ import co.yixiang.mp.service.YxTemplateService;
 import co.yixiang.tools.domain.AlipayConfig;
 import co.yixiang.tools.domain.vo.TradeVo;
 import co.yixiang.tools.service.AlipayConfigService;
+import co.yixiang.utils.DateUtils;
 import co.yixiang.utils.OrderUtil;
 import co.yixiang.utils.SnowflakeUtil;
 import com.alibaba.fastjson.JSON;
@@ -177,6 +178,9 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
     private YxStoreProductAttrService productAttrService;
     @Autowired
     private YxUserBillService userBillService;
+
+    @Autowired
+    private YxStoreCartMapper yxStoreCartMapper;
 
     @Value("${yshop.snowflake.datacenterId}")
     private Integer datacenterId;
@@ -909,6 +913,11 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
                 .in("refund_status", Arrays.asList(strArr));
         countDTO.setRefundCount(yxStoreOrderMapper.selectCount(wrapperSeven));
 
+        // 购物车数量
+        QueryWrapper<YxStoreCart> wrapperCart = new QueryWrapper<>();
+        if (uid > 0) wrapperCart.eq("uid", uid);
+        wrapperCart.eq("is_pay", 0);
+        countDTO.setCartCount(yxStoreCartMapper.selectCount(wrapperCart));
 
         return countDTO;
     }
@@ -2007,7 +2016,7 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
     public List<YxStoreOrderQueryVo> getOrderInfoList(String unique, int uid) {
         QueryWrapper<YxStoreOrder> wrapper = new QueryWrapper<>();
         wrapper.eq("is_del", 0).and(
-                i -> i.eq("`unique`", unique).or().eq("payment_no", unique).or().eq("unique_key", unique));
+                i -> i.eq("`unique`", unique).or().eq("payment_no", unique).or().eq("unique_key", unique)).or().eq("order_id", unique);
         if (uid > 0) wrapper.eq("uid", uid);
 
         return orderMap.toDto(yxStoreOrderMapper.selectList(wrapper));
@@ -2170,6 +2179,24 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
             updateUser.setUserRole(1);
             this.userService.updateById(updateUser);
         }
+        // 插入资金明细
+        YxUserBill yxUserBill = new YxUserBill();
+        yxUserBill.setUid(orderInfoList.get(0).getUid());
+        yxUserBill.setLinkId(orderInfoList.get(0).getOrderId());
+        yxUserBill.setPm((BillEnum.PM_0.getValue()));
+        yxUserBill.setTitle("小程序购买商品");
+        yxUserBill.setCategory(BillDetailEnum.CATEGORY_1.getValue());
+        yxUserBill.setType(BillDetailEnum.TYPE_3.getValue());
+        yxUserBill.setNumber(orderInfoList.get(0).getPayPrice());
+        // 目前只支持微信付款、没有余额
+//        yxUserBill.setBalance(yxUser.getNowMoney());
+        yxUserBill.setAddTime(DateUtils.getNowTime());
+        yxUserBill.setStatus(BillEnum.STATUS_1.getValue());
+        yxUserBill.setMerId(orderInfoList.get(0).getMerId());
+        //前端用户
+        yxUserBill.setUserType(1);
+        yxUserBill.setUsername(yxUser.getUsername());
+        this.billService.save(yxUserBill);
     }
 
     @Override

@@ -453,9 +453,9 @@ public class YxCouponOrderController extends BaseController {
         Integer count = this.yxCouponOrderService.getBuyCount(uid, couponId);
         YxCoupons yxCoupons = this.yxCouponsService.getById(couponId);
         if (yxCoupons.getQuantityLimit() <= count) {
-            return ApiResult.result(false);
+            return ApiResult.ok(false);
         }
-        return ApiResult.result(true);
+        return ApiResult.ok(true);
     }
 }
 

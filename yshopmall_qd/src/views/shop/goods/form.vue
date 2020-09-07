@@ -274,7 +274,7 @@ export default {
             message: '请输入数字',
             trigger: 'blur'
           },
-          { validator: (rule, value, callback)=>{validateInt(rule, value, callback)}, trigger: 'blur'}
+          { validator: (rule, value, callback)=>{validateInt(rule, value, callback,8388607)}, trigger: 'blur'}
         ],
       }
     }
