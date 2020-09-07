@@ -84,6 +84,8 @@ public class YxCouponOrderUseServiceImpl extends BaseServiceImpl<YxCouponOrderUs
             Map<String, Object> map = new LinkedHashMap<>(2);
             map.put("content", new ArrayList<>());
             map.put("totalElements", 0);
+            map.put("status","1");
+            map.put("statusDesc","成功");
             return map;
         }
         List<YxCouponOrderUseDto> list = new ArrayList<>();
@@ -110,6 +112,8 @@ public class YxCouponOrderUseServiceImpl extends BaseServiceImpl<YxCouponOrderUs
         Map<String, Object> map = new LinkedHashMap<>(2);
         map.put("content", list);
         map.put("totalElements", ipage.getTotal());
+        map.put("status","1");
+        map.put("statusDesc","成功");
         return map;
     }
 }
