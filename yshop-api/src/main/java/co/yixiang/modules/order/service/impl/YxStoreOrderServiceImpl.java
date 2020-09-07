@@ -179,9 +179,6 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
     @Autowired
     private YxUserBillService userBillService;
 
-    @Autowired
-    private YxStoreCartMapper yxStoreCartMapper;
-
     @Value("${yshop.snowflake.datacenterId}")
     private Integer datacenterId;
 
@@ -917,7 +914,7 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
         QueryWrapper<YxStoreCart> wrapperCart = new QueryWrapper<>();
         if (uid > 0) wrapperCart.eq("uid", uid);
         wrapperCart.eq("type", "product").eq("is_pay", 0).eq("is_del", 0).eq("is_new", 0);
-        countDTO.setCartCount(yxStoreCartMapper.selectCount(wrapperCart));
+        countDTO.setCartCount(storeCartMapper.selectCount(wrapperCart));
 
         return countDTO;
     }
