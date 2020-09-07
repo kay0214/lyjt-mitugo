@@ -802,7 +802,8 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
     @Override
     public YxCouponOrderQueryVo getYxCouponOrderDetail(String id, String location) {
         YxCouponOrderQueryVo item = new YxCouponOrderQueryVo();
-        BeanUtils.copyBeanProp(item, this.yxCouponOrderMapper.selectById(id));
+        YxCouponOrder yxCouponOrder = this.yxCouponOrderMapper.selectById(id);
+        BeanUtils.copyBeanProp(item, yxCouponOrder);
         // 获取卡券list
         List<YxCouponOrderDetail> detailList = this.yxCouponOrderDetailService.list(new QueryWrapper<YxCouponOrderDetail>().lambda().eq(YxCouponOrderDetail::getOrderId, item.getOrderId()));
         // 获取该订单购买的优惠券id
@@ -868,6 +869,10 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         item.setDetailList(voList);
         // 券面信息
         item.setYxCoupons(yxCoupons);
+        if (null != yxCouponOrder.getPayTime()) {
+            // 购买时间
+            item.setBuyTime(DateUtils.timestampToStr10(yxCouponOrder.getPayTime(), DateUtils.YYYY_MM_DD_HH_MM_SS));
+        }
 
         return item;
     }
@@ -975,7 +980,7 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         String[] decode = decodeVerifyCode.split(",");
         if (decode.length != 2) {
             map.put("status", "99");
-            map.put("statusDesc","无效核销码");
+            map.put("statusDesc", "无效核销码");
             return map;
         }
         // 获取核销码
@@ -985,54 +990,54 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         YxCouponOrderDetail yxCouponOrderDetail = this.yxCouponOrderDetailService.getOne(new QueryWrapper<YxCouponOrderDetail>().eq("verify_code", verifyCode));
         if (null == yxCouponOrderDetail) {
             map.put("status", "99");
-            map.put("statusDesc","查询卡券订单详情失败");
+            map.put("statusDesc", "查询卡券订单详情失败");
             return map;
         }
         YxCouponOrder yxCouponOrder = this.getOne(new QueryWrapper<YxCouponOrder>().eq("order_id", yxCouponOrderDetail.getOrderId()));
         if (null == yxCouponOrder) {
             map.put("status", "99");
-            map.put("statusDesc","查询卡券订单失败");
+            map.put("statusDesc", "查询卡券订单失败");
             return map;
         }
         // 判断订单状态
         if (4 != yxCouponOrder.getStatus() && 5 != yxCouponOrder.getStatus()) {
             map.put("status", "99");
-            map.put("statusDesc","当前订单状态不是待使用");
+            map.put("statusDesc", "当前订单状态不是待使用");
             return map;
         }
         if (1 == yxCouponOrder.getRefundStatus()) {
             map.put("status", "99");
-            map.put("statusDesc","退款申请中的订单无法核销");
+            map.put("statusDesc", "退款申请中的订单无法核销");
             return map;
         }
         if (!useUid.equals(yxCouponOrder.getUid() + "")) {
             map.put("status", "99");
-            map.put("statusDesc","核销码与用户信息不匹配");
+            map.put("statusDesc", "核销码与用户信息不匹配");
             return map;
         }
         // 查询优惠券信息
         YxCoupons yxCoupons = this.couponsService.getById(yxCouponOrderDetail.getCouponId());
         if (null == yxCoupons) {
             map.put("status", "99");
-            map.put("statusDesc","核销未查询到卡券信息");
+            map.put("statusDesc", "核销未查询到卡券信息");
             return map;
         }
         YxStoreInfo yxStoreInfo = this.storeInfoService.getOne(new QueryWrapper<YxStoreInfo>().eq("mer_id", uid));
         if (null == yxStoreInfo) {
             map.put("status", "99");
-            map.put("statusDesc","未获取到用户的店铺信息");
+            map.put("statusDesc", "未获取到用户的店铺信息");
             return map;
         }
         // 判断是否本商铺发放的卡券
         if (!yxCoupons.getCreateUserId().equals(uid)) {
             map.put("status", "99");
-            map.put("statusDesc","不可核销其他商户的卡券");
+            map.put("statusDesc", "不可核销其他商户的卡券");
             return map;
         }
         // 可核销次数已核销次数
         if (yxCouponOrderDetail.getUsedCount() >= yxCouponOrderDetail.getUseCount()) {
             map.put("status", "99");
-            map.put("statusDesc","当前卡券已达核销上限");
+            map.put("statusDesc", "当前卡券已达核销上限");
             return map;
         }
         // 判断有效期
@@ -1040,18 +1045,18 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         LocalDateTime expireDateEnd = DateUtils.dateToLocalDate(yxCoupons.getExpireDateEnd());
         if (expireDateStart.isAfter(LocalDateTime.now())) {
             map.put("status", "99");
-            map.put("statusDesc","当前卡券未到使用时间");
+            map.put("statusDesc", "当前卡券未到使用时间");
             return map;
         }
         if (expireDateEnd.isBefore(LocalDateTime.now())) {
             map.put("status", "99");
-            map.put("statusDesc","当前卡券不在有效期内");
+            map.put("statusDesc", "当前卡券不在有效期内");
             return map;
         }
         // 判断卡券状态
         if (4 != yxCouponOrderDetail.getStatus() && 5 != yxCouponOrderDetail.getStatus()) {
             map.put("status", "99");
-            map.put("statusDesc","当前卡券状态不是待使用");
+            map.put("statusDesc", "当前卡券状态不是待使用");
             return map;
         }
         // 第一次核销发送分佣mq
@@ -1099,7 +1104,7 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
             mqProducer.messageSend2(new MessageContent(MQConstant.MITU_TOPIC, MQConstant.MITU_COMMISSION_TAG, UUID.randomUUID().toString(), jsonObject));
         }
         map.put("status", "1");
-        map.put("statusDesc","核销成功");
+        map.put("statusDesc", "核销成功");
         return map;
     }
 

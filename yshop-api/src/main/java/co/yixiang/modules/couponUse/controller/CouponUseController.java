@@ -203,8 +203,8 @@ public class CouponUseController extends BaseController {
     @AnonymousAccess
     @Log("根据核销码查询卡券信息")
     @ApiOperation("B端：根据核销码查询卡券信息")
-    @GetMapping(value = "/getCouponDetail/{verifyCode}")
-    public ResponseEntity<Object> getCouponDetail(@RequestHeader(value = "token") String token, @PathVariable String verifyCode) {
+    @GetMapping(value = "/getCouponDetail")
+    public ResponseEntity<Object> getCouponDetail(@RequestHeader(value = "token") String token, @RequestParam(value = "verifyCode") String verifyCode) {
         // 获取登陆用户的id
         Map<String, String> map = new HashMap<>();
         SystemUser user = getRedisUser(token);
@@ -222,7 +222,7 @@ public class CouponUseController extends BaseController {
     @Log("查询核销记录")
     @ApiOperation("B端：查询核销记录")
     @PostMapping("/getOrderUseList")
-    public ResponseEntity<Object> getOrderUseList(@RequestHeader(value = "token") String token,@RequestBody YxCouponOrderUseQueryCriteria criteria) {
+    public ResponseEntity<Object> getOrderUseList(@RequestHeader(value = "token") String token, @RequestBody YxCouponOrderUseQueryCriteria criteria) {
         // 获取登陆用户的id
         Map<String, String> map = new HashMap<>();
         SystemUser user = getRedisUser(token);
@@ -239,8 +239,8 @@ public class CouponUseController extends BaseController {
     @AnonymousAccess
     @Log("扫码核销卡券")
     @ApiOperation("B端：扫码核销卡券")
-    @GetMapping(value = "/useCoupon/{verifyCode}")
-    public ResponseEntity<Object> updateCouponOrder(@RequestHeader(value = "token") String token, @PathVariable String verifyCode) {
+    @GetMapping(value = "/useCoupon")
+    public ResponseEntity<Object> updateCouponOrder(@RequestHeader(value = "token") String token, @RequestParam(value = "verifyCode") String verifyCode) {
         // 获取登陆用户的id
         Map<String, String> map = new HashMap<>();
         SystemUser user = getRedisUser(token);
@@ -257,8 +257,8 @@ public class CouponUseController extends BaseController {
     @AnonymousAccess
     @Log("手动核销卡券")
     @ApiOperation("B端：手动核销卡券（废）")
-    @GetMapping(value = "/useCouponInput/{orderId}")
-    public ResponseEntity<Object> updateCouponOrderInput(@RequestHeader(value = "token") String token, @PathVariable String orderId) {
+    @GetMapping(value = "/useCouponInput")
+    public ResponseEntity<Object> updateCouponOrderInput(@RequestHeader(value = "token") String token, @RequestParam(value = "orderId") String orderId) {
         // 获取登陆用户的id
         Map<String, String> map = new HashMap<>();
         SystemUser user = getRedisUser(token);
@@ -282,8 +282,8 @@ public class CouponUseController extends BaseController {
     @AnonymousAccess
     @Log("手动核销查询卡券")
     @ApiOperation("B端：手动核销查询卡券")
-    @GetMapping(value = "/getUseCouponInput/{orderId}")
-    public ResponseEntity<Object> getUseCouponInput(@RequestHeader(value = "token") String token, @PathVariable String orderId) {
+    @GetMapping(value = "/getUseCouponInput")
+    public ResponseEntity<Object> getUseCouponInput(@RequestHeader(value = "token") String token, @RequestParam(value = "orderId") String orderId) {
         // 获取登陆用户的id
         Map<String, String> map = new HashMap<>();
         SystemUser user = getRedisUser(token);
