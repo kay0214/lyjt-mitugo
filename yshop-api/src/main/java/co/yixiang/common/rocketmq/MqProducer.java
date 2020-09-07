@@ -30,7 +30,7 @@ public class MqProducer {
     public void sendMsg(String topic, String msg) {
         DefaultMQProducer defaultMQProducer = rocketMQTemplate.getProducer();
 
-        // CMD
+        // GTMD - TEST
         Message message = new Message(topic,msg.getBytes());
         message.setDelayTimeLevel(14);
 
