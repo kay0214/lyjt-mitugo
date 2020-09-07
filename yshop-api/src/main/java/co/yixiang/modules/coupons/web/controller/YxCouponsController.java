@@ -126,15 +126,17 @@ public class YxCouponsController extends BaseController {
     @Cached(name = "cachedCouponsHotList-", expire = CacheConstant.DEFAULT_EXPIRE_TIME, cacheType = CacheType.BOTH)
     @CacheRefresh(refresh = CacheConstant.DEFAULT_REFRESH_TIME, stopRefreshAfterLastAccess = CacheConstant.DEFAULT_STOP_REFRESH_TIME)
     @ApiOperation(value = "本地生活卡券,热销榜单", notes = "本地生活卡券,热销榜单")
-    public ApiResult<List<YxCouponsQueryVo>> getCouponsHotList(@Valid @RequestBody(required = false) YxCouponsQueryParam yxCouponsQueryParam) throws Exception {
-        List<YxCouponsQueryVo> paging = yxCouponsService.getCouponsHotList(yxCouponsQueryParam);
-        for (YxCouponsQueryVo item : paging) {
+    public ApiResult<Paging<YxCouponsQueryVo>> getCouponsHotList(@Valid @RequestBody(required = false) YxCouponsQueryParam yxCouponsQueryParam) throws Exception {
+        Paging<YxCouponsQueryVo> paging = yxCouponsService.getCouponsHotList(yxCouponsQueryParam);
+        for (YxCouponsQueryVo item : paging.getRecords()) {
             // 卡券缩略图
             YxImageInfo thumbnail = yxImageInfoService.getOne(new QueryWrapper<YxImageInfo>().eq("type_id", item.getId()).eq("img_type", LocalLiveConstants.IMG_TYPE_COUPONS)
                     .eq("img_category", ShopConstants.IMG_CATEGORY_PIC).eq("del_flag", 0));
             if (thumbnail != null) {
                 item.setImage(thumbnail.getImgUrl());
             }
+            // 已售件数增加虚拟销量
+            item.setTotalSales(item.getSales() + item.getFicti());
             // 拼接有效期
             String expireDate = DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD, item.getExpireDateStart()) + " ~ " + DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD, item.getExpireDateEnd());
             item.setExpireDate(expireDate);

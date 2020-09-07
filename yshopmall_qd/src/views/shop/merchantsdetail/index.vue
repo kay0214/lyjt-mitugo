@@ -81,7 +81,7 @@
             <!-- 以下是个人认证 -->
             <div v-if="!crud.status.add && form.merchantsType == 0">
               <el-form-item label="手持证件照" prop="personIdCard">
-                <MaterialList v-model="perIdCard" type="image" :num="1" :width="150" :height="150" :readOnly='Boolean(examineEdit)'/>
+                <MaterialList v-model="perIdCard" type="image" :num="1" :width="150" :height="150" :readOnly='Boolean(examineEdit)' />
               </el-form-item>
               <el-form-item label="证件照人像面" prop="personIdCardFace">
                 <MaterialList v-model="perIdCardFace" type="image" :num="1" :width="150" :height="150" :readOnly='Boolean(examineEdit)' />
@@ -159,6 +159,9 @@
             <el-button type="text" @click="crud.cancelCU">取消</el-button>
             <el-button :loading="crud.cu === 2" type="primary" @click="crud.submitCU">确认</el-button>
           </div>
+          <div v-if="readStatus">
+            <el-button type="primary" @click="closeRead()">关闭</el-button>
+          </div>
           <div v-if="examineEdit">
             <el-row style='marginBottom:20px'>
               <el-col :span='5' style='marginRight:12px'>
@@ -184,6 +187,7 @@
       <el-table ref="table" v-loading="crud.loading" :data="crud.data" size="small" style="width: 100%;" @selection-change="crud.selectionChangeHandler">
         <el-table-column type="selection" width="55" />
         <el-table-column v-if="columns.visible('id')" prop="id" label="商户id" />
+        <el-table-column v-if="columns.visible('username')" prop="username" label="商户用户名" />
         <el-table-column v-if="columns.visible('merchantsName')" prop="merchantsName" label="商户名称" />
         <el-table-column v-if="columns.visible('contacts')" prop="contacts" label="商户联系人" />
         <el-table-column v-if="columns.visible('contactMobile')" prop="contactMobile" label="联系人电话" />
@@ -201,10 +205,11 @@
             {{ dict.label.merchants_status[scope.row.examineStatus] }}
           </template>
         </el-table-column>
-        <el-table-column v-permission="['admin','yxMerchantsDetail:edit','yxMerchantsDetail:examine','yxMerchantsDetail:del']" label="操作" width="150px" align="center">
+        <el-table-column v-permission="['admin','yxMerchantsDetail:edit','yxMerchantsDetail:examine','yxMerchantsDetail:del']" label="操作" width="250px" align="center">
           <template slot-scope="scope">
-            <el-button v-permission="permission.examine" size="mini" type="primary" icon="el-icon-s-check" @click="examineOpt(scope.row)" plain></el-button>
-            <el-button v-permission="permission.edit" size="mini" type="primary" icon="el-icon-edit" @click="crud.toEdit(scope.row)" />
+            <el-button v-if="scope.row.examineStatus===3" v-permission="permission.examine" size="mini" type="primary" icon="el-icon-s-check" @click="examineOpt(scope.row)" plain></el-button>
+            <el-button v-if="scope.row.examineStatus===2 || scope.row.examineStatus===0" v-permission="permission.edit" size="mini" type="primary" icon="el-icon-edit" @click="crud.toEdit(scope.row)" ></el-button>
+            <el-button size="mini" type="success" icon="el-icon-reading" @click="toRead(scope.row)" plain ></el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -365,6 +370,7 @@ export default {
       },
       qualificationsType:[], //主体资质类型
       examineEdit:0,  //审核状态
+      readStatus:0, //查看状态
       dialogVisible:this.crud.status.cu>0,
       formDisabled:false,
       // 个人认证
@@ -588,7 +594,6 @@ export default {
     },
     //新增、编辑、审核弹出框关闭
     dialogBeforeCancel(done){
-      console.log('guanbi')
         if(this.crud.status.cu>0){
           this.crud.cancelCU()
         }
@@ -596,6 +601,11 @@ export default {
           this.examineEdit=0;
           this.dialogVisible=Boolean(this.crud.status.cu);
           this.formDisabled=false
+        }
+        if(this.readStatus){
+          this.readStatus=0
+          this.formDisabled=false
+          this.dialogVisible=Boolean(this.crud.status.cu);
         }
     },
     //启禁用商户状态
@@ -619,6 +629,16 @@ export default {
         })
         .catch(() => { })
     },
+    toRead(data){
+      this.examineOpt(data);
+      this.examineEdit=0;
+      this.readStatus=1;
+    },
+    closeRead(){
+      this.readStatus=0
+      this.formDisabled=false
+      this.dialogVisible=Boolean(this.crud.status.cu);
+    }
   }
 }
 

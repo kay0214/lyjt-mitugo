@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
 import org.springframework.stereotype.Repository;
 
 import java.io.Serializable;
@@ -36,5 +37,16 @@ public interface YxStoreCouponUserMapper extends BaseMapper<YxStoreCouponUser> {
      * @return
      */
     IPage<YxStoreCouponUserQueryVo> getYxStoreCouponUserPageList(@Param("page") Page page, @Param("param") YxStoreCouponUserQueryParam yxStoreCouponUserQueryParam);
+
+
+    @Select("<script> SELECT id,cid,uid,coupon_title,coupon_price,use_min_price,add_time,end_time,use_time,type,`status`,is_fail,store_id from yx_store_coupon_user " +
+            "where 1 =1 and uid =  #{param.uid}" +
+            "<if test=\"param.type!=null\">  and `status` = #{param.type} </if> </script>")
+    IPage<YxStoreCouponUserQueryVo> selectCouponUserListPage(@Param("page") Page page , @Param("param") YxStoreCouponUserQueryParam couponUserQueryParam);
+
+    @Select("<script> SELECT count(1) from yx_store_coupon_user " +
+            "where 1 =1 and uid =  #{param.uid}" +
+            "<if test=\"param.type!=null\">  and `status` = #{param.type} </if> </script>")
+    int getCouponUserCount(@Param("param") YxStoreCouponUserQueryParam couponUserQueryParam);
 
 }

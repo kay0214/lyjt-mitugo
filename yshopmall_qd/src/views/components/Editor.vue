@@ -93,7 +93,7 @@ export default {
         insertImg(url)
       }
     }
-    this.editor.customConfig.onchange = (html) => {
+    this.editor.customConfig.onblur = (html) => {
       if (!this.checkVal(html)) {
         this.info = html
       } else this.info = ''

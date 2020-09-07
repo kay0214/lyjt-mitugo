@@ -52,14 +52,14 @@
             <span>{{ parseTime(scope.row.addTime) }}</span>
           </template>
         </el-table-column>
-        <el-table-column v-permission="['admin','fundsDetail:edit','fundsDetail:del']" label="操作" width="150px" align="center">
+        <!-- <el-table-column v-permission="['admin','fundsDetail:edit','fundsDetail:del']" label="操作" width="150px" align="center">
           <template slot-scope="scope">
             <udOperation
               :data="scope.row"
               :permission="permission"
             />
           </template>
-        </el-table-column>
+        </el-table-column> -->
       </el-table>
       <!--分页组件-->
       <pagination />
@@ -77,7 +77,12 @@ import pagination from '@crud/Pagination'
 import MaterialList from "@/components/material";
 
 // crud交由presenter持有
-const defaultCrud = CRUD({ title: '平台资金明细', url: 'api/fundsDetail', sort: 'id,desc', crudMethod: { ...crudFundsDetail }})
+const defaultCrud = CRUD({ title: '平台资金明细', url: 'api/fundsDetail', sort: 'id,desc',optShow: {
+      add: true,
+      edit: true,
+      del: true,
+      download: false
+    }, crudMethod: { ...crudFundsDetail }})
 const defaultForm = { id: null, type: null, uid: null, username: null, orderId: null, pm: null, orderAmount: null, addTime: null }
 export default {
   name: 'FundsDetail',

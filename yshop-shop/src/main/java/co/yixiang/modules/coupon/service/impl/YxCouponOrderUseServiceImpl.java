@@ -1,46 +1,48 @@
 /**
-* Copyright (C) 2018-2020
-* All rights reserved, Designed By www.yixiang.co
-* 注意：
-* 本软件为www.yixiang.co开发研制，未经购买不得使用
-* 购买后可获得全部源代码（禁止转卖、分享、上传到码云、github等开源平台）
-* 一经发现盗用、分享等行为，将追究法律责任，后果自负
-*/
+ * Copyright (C) 2018-2020
+ */
 package co.yixiang.modules.coupon.service.impl;
 
-import co.yixiang.modules.coupon.domain.YxCouponOrderUse;
 import co.yixiang.common.service.impl.BaseServiceImpl;
-import lombok.AllArgsConstructor;
-import co.yixiang.dozer.service.IGenerator;
-import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
 import co.yixiang.common.utils.QueryHelpPlus;
-import co.yixiang.utils.ValidationUtil;
-import co.yixiang.utils.FileUtil;
+import co.yixiang.dozer.service.IGenerator;
+import co.yixiang.modules.coupon.domain.YxCouponOrder;
+import co.yixiang.modules.coupon.domain.YxCouponOrderUse;
+import co.yixiang.modules.coupon.domain.YxCoupons;
 import co.yixiang.modules.coupon.service.YxCouponOrderUseService;
+import co.yixiang.modules.coupon.service.YxCouponsService;
 import co.yixiang.modules.coupon.service.dto.YxCouponOrderUseDto;
 import co.yixiang.modules.coupon.service.dto.YxCouponOrderUseQueryCriteria;
+import co.yixiang.modules.coupon.service.mapper.YxCouponOrderMapper;
 import co.yixiang.modules.coupon.service.mapper.YxCouponOrderUseMapper;
+import co.yixiang.modules.shop.domain.YxUser;
+import co.yixiang.modules.shop.service.YxUserService;
+import co.yixiang.utils.FileUtil;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.github.pagehelper.PageInfo;
+import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
 // 默认不使用缓存
 //import org.springframework.cache.annotation.CacheConfig;
 //import org.springframework.cache.annotation.CacheEvict;
 //import org.springframework.cache.annotation.Cacheable;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import java.util.List;
-import java.util.Map;
-import java.io.IOException;
-import javax.servlet.http.HttpServletResponse;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 
 /**
-* @author huiy
-* @date 2020-08-27
-*/
+ * @author huiy
+ * @date 2020-08-27
+ */
 @Service
 @AllArgsConstructor
 //@CacheConfig(cacheNames = "yxCouponOrderUse")
@@ -48,12 +50,44 @@ import java.util.LinkedHashMap;
 public class YxCouponOrderUseServiceImpl extends BaseServiceImpl<YxCouponOrderUseMapper, YxCouponOrderUse> implements YxCouponOrderUseService {
 
     private final IGenerator generator;
+    @Autowired
+    private YxCouponsService yxCouponsService;
+    @Autowired
+    private YxUserService yxUserService;
+    @Autowired
+    private YxCouponOrderMapper yxCouponOrderMapper;
 
     @Override
     //@Cacheable
     public Map<String, Object> queryAll(YxCouponOrderUseQueryCriteria criteria, Pageable pageable) {
         getPage(pageable);
         PageInfo<YxCouponOrderUse> page = new PageInfo<>(queryAll(criteria));
+        if (page.getTotal() == 0) {
+            Map<String, Object> map = new LinkedHashMap<>(2);
+            map.put("content", new ArrayList<>());
+            map.put("totalElements", 0);
+            return map;
+        }
+        List<YxCouponOrderUseDto> list = new ArrayList<>();
+        for (YxCouponOrderUse item : page.getList()) {
+            YxCouponOrderUseDto dto = generator.convert(item, YxCouponOrderUseDto.class);
+            YxCoupons yxCoupons = this.yxCouponsService.getById(item.getCouponId());
+            if (null != yxCoupons) {
+                dto.setCouponType(yxCoupons.getCouponType());
+                dto.setDenomination(yxCoupons.getDenomination());
+                dto.setDiscount(yxCoupons.getDiscount());
+                dto.setThreshold(yxCoupons.getThreshold());
+                dto.setDiscountAmount(yxCoupons.getDiscountAmount());
+            }
+            YxCouponOrder yxCouponOrder = this.yxCouponOrderMapper.selectOne(new QueryWrapper<YxCouponOrder>().lambda().eq(YxCouponOrder::getOrderId, item.getOrderId()));
+            if (null != yxCouponOrder) {
+                YxUser yxUser = this.yxUserService.getOne(new QueryWrapper<YxUser>().lambda().eq(YxUser::getUid, yxCouponOrder.getUid()));
+                if (null != yxUser) {
+                    dto.setNickName(yxUser.getNickname());
+                }
+            }
+            list.add(dto);
+        }
         Map<String, Object> map = new LinkedHashMap<>(2);
         map.put("content", generator.convert(page.getList(), YxCouponOrderUseDto.class));
         map.put("totalElements", page.getTotal());
@@ -63,7 +97,7 @@ public class YxCouponOrderUseServiceImpl extends BaseServiceImpl<YxCouponOrderUs
 
     @Override
     //@Cacheable
-    public List<YxCouponOrderUse> queryAll(YxCouponOrderUseQueryCriteria criteria){
+    public List<YxCouponOrderUse> queryAll(YxCouponOrderUseQueryCriteria criteria) {
         return baseMapper.selectList(QueryHelpPlus.getPredicate(YxCouponOrderUse.class, criteria));
     }
 
@@ -72,7 +106,7 @@ public class YxCouponOrderUseServiceImpl extends BaseServiceImpl<YxCouponOrderUs
     public void download(List<YxCouponOrderUseDto> all, HttpServletResponse response) throws IOException {
         List<Map<String, Object>> list = new ArrayList<>();
         for (YxCouponOrderUseDto yxCouponOrderUse : all) {
-            Map<String,Object> map = new LinkedHashMap<>();
+            Map<String, Object> map = new LinkedHashMap<>();
             map.put("订单号", yxCouponOrderUse.getOrderId());
             map.put("核销商铺id", yxCouponOrderUse.getStoreId());
             map.put("店铺名称", yxCouponOrderUse.getStoreName());

@@ -87,18 +87,22 @@ public class StoreProductController extends BaseController {
      * 获取首页更多产品
      */
     @AnonymousAccess
-    @GetMapping("/groom/list/{type}")
-    @ApiOperation(value = "获取首页更多产品",notes = "获取首页更多产品")
-    public ApiResult<Map<String,Object>> moreGoodsList(@PathVariable Integer type){
-        Map<String,Object> map = new LinkedHashMap<>();
-        if(type.equals(ProductEnum.TYPE_1.getValue())){// 精品推荐
-            map.put("list",storeProductService.getList(1,20,1));
-        }else if(type.equals(ProductEnum.TYPE_2.getValue())){// 热门榜单
-            map.put("list",storeProductService.getList(1,20,2));
-        }else if(type.equals(ProductEnum.TYPE_3.getValue())){// 首发新品
-            map.put("list",storeProductService.getList(1,20,3));
-        }else if(type.equals(ProductEnum.TYPE_4.getValue())){// 促销单品
-            map.put("list",storeProductService.getList(1,20,4));
+    @PostMapping("/groom/list")
+    @ApiOperation(value = "获取首页更多产品", notes = "获取首页更多产品")
+    public ApiResult<Map<String, Object>> moreGoodsList(@RequestBody YxStoreProductQueryParam param) {
+        Map<String, Object> map = new LinkedHashMap<>();
+        if (param.getType().equals(ProductEnum.TYPE_1.getValue().toString())) {
+            // 精品推荐
+            map.put("list", storeProductService.getList(param.getPage(), param.getLimit(), 1));
+        } else if (param.getType().equals(ProductEnum.TYPE_2.getValue().toString())) {
+            // 热门榜单
+            map.put("list", storeProductService.getList(param.getPage(), param.getLimit(), 2));
+        } else if (param.getType().equals(ProductEnum.TYPE_3.getValue().toString())) {
+            // 首发新品
+            map.put("list", storeProductService.getList(param.getPage(), param.getLimit(), 3));
+        } else if (param.getType().equals(ProductEnum.TYPE_4.getValue().toString())) {
+            // 促销单品
+            map.put("list", storeProductService.getList(param.getPage(), param.getLimit(), 4));
         }
 
         return ApiResult.ok(map);
@@ -109,8 +113,8 @@ public class StoreProductController extends BaseController {
      */
     @AnonymousAccess
     @GetMapping("/products")
-    @ApiOperation(value = "商品列表",notes = "商品列表")
-    public ApiResult<List<YxStoreProductQueryVo>> goodsList(YxStoreProductQueryParam productQueryParam){
+    @ApiOperation(value = "商品列表", notes = "商品列表")
+    public ApiResult<List<YxStoreProductQueryVo>> goodsList(YxStoreProductQueryParam productQueryParam) {
         return ApiResult.ok(storeProductService.getGoodsList(productQueryParam));
     }
 
@@ -119,77 +123,76 @@ public class StoreProductController extends BaseController {
      */
     @AnonymousAccess
     @GetMapping("/product/hot")
-    @ApiOperation(value = "为你推荐",notes = "为你推荐")
-    public ApiResult<List<YxStoreProductQueryVo>> productRecommend(YxStoreProductQueryParam queryParam){
+    @ApiOperation(value = "为你推荐", notes = "为你推荐")
+    public ApiResult<List<YxStoreProductQueryVo>> productRecommend(YxStoreProductQueryParam queryParam) {
         return ApiResult.ok(storeProductService.getList(queryParam.getPage().intValue(),
-                queryParam.getLimit().intValue(),1));
+                queryParam.getLimit().intValue(), 1).getRecords());
     }
 
     /**
      * 商品详情海报
      */
     @GetMapping("/product/poster/{pageType}/{id}")
-    @ApiOperation(value = "商品详情海报",notes = "商品详情海报")
-    public ApiResult<String> prodoctPoster(@PathVariable String pageType,@PathVariable Integer id) throws IOException, FontFormatException {
+    @ApiOperation(value = "商品详情海报", notes = "商品详情海报")
+    public ApiResult<String> prodoctPoster(@PathVariable String pageType, @PathVariable Integer id) throws IOException, FontFormatException {
         int uid = SecurityUtils.getUserId().intValue();
 
 
         // 海报
         String siteUrl = systemConfigService.getData(SystemConfigConstants.SITE_URL);
-        if(StrUtil.isEmpty(siteUrl)){
+        if (StrUtil.isEmpty(siteUrl)) {
             return ApiResult.fail("未配置h5地址");
         }
         String apiUrl = systemConfigService.getData(SystemConfigConstants.API_URL);
-        if(StrUtil.isEmpty(apiUrl)){
+        if (StrUtil.isEmpty(apiUrl)) {
             return ApiResult.fail("未配置api地址");
         }
         YxUserQueryVo userInfo = yxUserService.getYxUserById(uid);
         String userType = userInfo.getUserType();
-        if(!userType.equals(AppFromEnum.ROUNTINE.getValue())) {
+        if (!userType.equals(AppFromEnum.ROUNTINE.getValue())) {
             userType = AppFromEnum.H5.getValue();
         }
         String name = id + "_" + uid + "_" + pageType + "_" + userType + "_product_detail_wap.jpg";
         YxSystemAttachment attachment = systemAttachmentService.getInfo(name);
-        String fileDir = path+"qrcode"+ File.separator;
+        String fileDir = path + "qrcode" + File.separator;
         String qrcodeUrl = "";
-        if(ObjectUtil.isNull(attachment)){
+        if (ObjectUtil.isNull(attachment)) {
             File file = FileUtil.mkdir(new File(fileDir));
             //如果类型是小程序
-            if(userType.equals(AppFromEnum.ROUNTINE.getValue())){
+            if (userType.equals(AppFromEnum.ROUNTINE.getValue())) {
                 //小程序地址
-                siteUrl = siteUrl+"/"+pageType+"/";
+                siteUrl = siteUrl + "/" + pageType + "/";
                 //生成二维码
-                QrCodeUtil.generate(siteUrl+"?productId="+id+"&spread="+uid+"&codeType="+AppFromEnum.ROUNTINE.getValue(), 180, 180,
-                        FileUtil.file(fileDir+name));
-            }
-            else if(userType.equals(AppFromEnum.APP.getValue())){
+                QrCodeUtil.generate(siteUrl + "?productId=" + id + "&spread=" + uid + "&codeType=" + AppFromEnum.ROUNTINE.getValue(), 180, 180,
+                        FileUtil.file(fileDir + name));
+            } else if (userType.equals(AppFromEnum.APP.getValue())) {
                 //h5地址
-                siteUrl = siteUrl+"/"+pageType+"/";
+                siteUrl = siteUrl + "/" + pageType + "/";
                 //生成二维码
-                QrCodeUtil.generate(siteUrl+"?productId="+id+"&spread="+uid+"&codeType="+AppFromEnum.APP.getValue(), 180, 180,
-                        FileUtil.file(fileDir+name));
-            }else{//如果类型是h5
+                QrCodeUtil.generate(siteUrl + "?productId=" + id + "&spread=" + uid + "&codeType=" + AppFromEnum.APP.getValue(), 180, 180,
+                        FileUtil.file(fileDir + name));
+            } else {//如果类型是h5
                 //生成二维码
-                QrCodeUtil.generate(siteUrl+"/detail/"+id+"?spread="+uid, 180, 180,
-                        FileUtil.file(fileDir+name));
+                QrCodeUtil.generate(siteUrl + "/detail/" + id + "?spread=" + uid, 180, 180,
+                        FileUtil.file(fileDir + name));
             }
-            systemAttachmentService.attachmentAdd(name,String.valueOf(FileUtil.size(file)),
-                    fileDir+name,"qrcode/"+name);
+            systemAttachmentService.attachmentAdd(name, String.valueOf(FileUtil.size(file)),
+                    fileDir + name, "qrcode/" + name);
 
-            qrcodeUrl = apiUrl + "/file/qrcode/"+name;
-        }else{
+            qrcodeUrl = apiUrl + "/file/qrcode/" + name;
+        } else {
             qrcodeUrl = apiUrl + "/file/" + attachment.getSattDir();
         }
-        String spreadPicName = id+"_"+uid + "_" + pageType + "_"+userType+"_product_user_spread.jpg";
-        String spreadPicPath = fileDir+spreadPicName;
+        String spreadPicName = id + "_" + uid + "_" + pageType + "_" + userType + "_product_user_spread.jpg";
+        String spreadPicPath = fileDir + spreadPicName;
         ProductInfo productInfo = new ProductInfo();
-        if(pageType.equals("good")){
+        if (pageType.equals("good")) {
             YxStoreProduct storeProduct = storeProductService.getProductInfo(id);
             BeanUtils.copyProperties(storeProduct, productInfo);
-        }else {
+        } else {
             YxCoupons yxCoupons = yxCouponsService.getCouponsById(id);
             YxImageInfo yxImageInfo = yxImageInfoService.selectOneImg(id, CommonConstant.IMG_TYPE_CARD, CommonConstant.IMG_CATEGORY_PIC);
-            if (null == yxImageInfo){
+            if (null == yxImageInfo) {
                 return ApiResult.fail("卡券图片为空");
             }
             productInfo.setImage(yxImageInfo.getImgUrl());
@@ -200,48 +203,47 @@ public class StoreProductController extends BaseController {
         }
 
         String rr = creatShareProductService.creatProductPic(productInfo, qrcodeUrl,
-                    spreadPicName, spreadPicPath, apiUrl);
+                spreadPicName, spreadPicPath, apiUrl);
         return ApiResult.ok(rr);
     }
-
 
 
     /**
      * 普通商品详情
      */
-    @Log(value = "查看商品详情",type = 1)
+    @Log(value = "查看商品详情", type = 1)
     @GetMapping("/product/detail/{id}")
-    @ApiOperation(value = "普通商品详情",notes = "普通商品详情")
+    @ApiOperation(value = "普通商品详情", notes = "普通商品详情")
     public ApiResult<ProductDTO> detail(@PathVariable Integer id,
-                                        @RequestParam(value = "",required=false) String latitude,
-                                        @RequestParam(value = "",required=false) String longitude,
-                                        @RequestParam(value = "",required=false) String from)  {
+                                        @RequestParam(value = "", required = false) String latitude,
+                                        @RequestParam(value = "", required = false) String longitude,
+                                        @RequestParam(value = "", required = false) String from) {
         int uid = SecurityUtils.getUserId().intValue();
-        ProductDTO productDTO = storeProductService.goodsDetail(id,0,uid,latitude,longitude);
+        ProductDTO productDTO = storeProductService.goodsDetail(id, 0, uid, latitude, longitude);
         return ApiResult.ok(productDTO);
     }
 
     /**
      * 添加收藏
      */
-    @Log(value = "添加收藏",type = 1)
+    @Log(value = "添加收藏", type = 1)
     @PostMapping("/collect/add")
-    @ApiOperation(value = "添加收藏",notes = "添加收藏")
-    public ApiResult<Object> collectAdd(@Validated @RequestBody YxStoreProductRelationQueryParam param){
+    @ApiOperation(value = "添加收藏", notes = "添加收藏")
+    public ApiResult<Object> collectAdd(@Validated @RequestBody YxStoreProductRelationQueryParam param) {
         int uid = SecurityUtils.getUserId().intValue();
-        productRelationService.addRroductRelation(param,uid,"collect");
+        productRelationService.addRroductRelation(param, uid, "collect");
         return ApiResult.ok("success");
     }
 
     /**
      * 取消收藏
      */
-    @Log(value = "取消收藏",type = 1)
+    @Log(value = "取消收藏", type = 1)
     @PostMapping("/collect/del")
-    @ApiOperation(value = "取消收藏",notes = "取消收藏")
-    public ApiResult<Object> collectDel(@Validated @RequestBody YxStoreProductRelationQueryParam param){
+    @ApiOperation(value = "取消收藏", notes = "取消收藏")
+    public ApiResult<Object> collectDel(@Validated @RequestBody YxStoreProductRelationQueryParam param) {
         int uid = SecurityUtils.getUserId().intValue();
-        productRelationService.delRroductRelation(param,uid,"collect");
+        productRelationService.delRroductRelation(param, uid, "collect");
         return ApiResult.ok("success");
     }
 
@@ -249,19 +251,19 @@ public class StoreProductController extends BaseController {
      * 获取产品评论
      */
     @GetMapping("/reply/list/{id}")
-    @ApiOperation(value = "获取产品评论",notes = "获取产品评论")
+    @ApiOperation(value = "获取产品评论", notes = "获取产品评论")
     public ApiResult<List<YxStoreProductReplyQueryVo>> replyList(@PathVariable Integer id,
-                                                                 YxStoreProductQueryParam queryParam){
-        return ApiResult.ok(replyService.getReplyList(id,Integer.valueOf(queryParam.getType()),
-                queryParam.getPage().intValue(),queryParam.getLimit().intValue()));
+                                                                 YxStoreProductQueryParam queryParam) {
+        return ApiResult.ok(replyService.getReplyList(id, Integer.valueOf(queryParam.getType()),
+                queryParam.getPage().intValue(), queryParam.getLimit().intValue()));
     }
 
     /**
      * 获取产品评论数据
      */
     @GetMapping("/reply/config/{id}")
-    @ApiOperation(value = "获取产品评论数据",notes = "获取产品评论数据")
-    public ApiResult<ReplyCountDTO> replyCount(@PathVariable Integer id){
+    @ApiOperation(value = "获取产品评论数据", notes = "获取产品评论数据")
+    public ApiResult<ReplyCountDTO> replyCount(@PathVariable Integer id) {
         return ApiResult.ok(replyService.getReplyCount(id));
     }
 
@@ -270,23 +272,23 @@ public class StoreProductController extends BaseController {
      */
     @AnonymousAccess
     @GetMapping("/productsAndStore")
-    @ApiOperation(value = "商品列表&店铺信息",notes = "商品列表&店铺信息")
-    public ApiResult<YxStoreProductAndStoreQueryVo> productsAndStore(YxStoreProductQueryParam productQueryParam){
-        YxStoreProductAndStoreQueryVo productAndStoreQueryVo= new YxStoreProductAndStoreQueryVo();
+    @ApiOperation(value = "商品列表&店铺信息", notes = "商品列表&店铺信息")
+    public ApiResult<YxStoreProductAndStoreQueryVo> productsAndStore(YxStoreProductQueryParam productQueryParam) {
+        YxStoreProductAndStoreQueryVo productAndStoreQueryVo = new YxStoreProductAndStoreQueryVo();
         List<YxStoreProductQueryVo> productList = storeProductService.getGoodsList(productQueryParam);
         productAndStoreQueryVo.setProductList(productList);
         //店铺信息
-        if(StringUtils.isNotBlank(productQueryParam.getName())){
+        if (StringUtils.isNotBlank(productQueryParam.getName())) {
             YxStoreInfoQueryParam yxStoreInfoQueryParam = new YxStoreInfoQueryParam();
             yxStoreInfoQueryParam.setStoreName(productQueryParam.getName());
             List<YxStoreInfoQueryVo> yxStoreInfoQueryVoList = yxStoreInfoService.getStoreInfoList(yxStoreInfoQueryParam);
-            if(!CollectionUtils.isEmpty(yxStoreInfoQueryVoList)){
+            if (!CollectionUtils.isEmpty(yxStoreInfoQueryVoList)) {
                 productAndStoreQueryVo.setSumStoe(yxStoreInfoQueryVoList.size());
                 productAndStoreQueryVo.setStoreName(yxStoreInfoQueryVoList.get(0).getStoreName());
                 productAndStoreQueryVo.setIndustryCategoryInfo(yxStoreInfoQueryVoList.get(0).getIndustryCategoryInfo());
                 productAndStoreQueryVo.setStoreId(yxStoreInfoQueryVoList.get(0).getId());
-                productAndStoreQueryVo.setStoreAddress(yxStoreInfoQueryVoList.get(0).getStoreProvince()+yxStoreInfoQueryVoList.get(0).getStoreAddress());
-                productAndStoreQueryVo.setStoreImage(yxImageInfoService.selectImgByParam(yxStoreInfoQueryVoList.get(0).getId(),CommonConstant.IMG_TYPE_STORE,CommonConstant.IMG_CATEGORY_PIC));
+                productAndStoreQueryVo.setStoreAddress(yxStoreInfoQueryVoList.get(0).getStoreProvince() + yxStoreInfoQueryVoList.get(0).getStoreAddress());
+                productAndStoreQueryVo.setStoreImage(yxImageInfoService.selectImgByParam(yxStoreInfoQueryVoList.get(0).getId(), CommonConstant.IMG_TYPE_STORE, CommonConstant.IMG_CATEGORY_PIC));
 
             }
         }

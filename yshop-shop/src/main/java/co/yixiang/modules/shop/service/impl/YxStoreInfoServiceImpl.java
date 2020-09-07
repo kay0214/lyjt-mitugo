@@ -112,7 +112,7 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
         YxStoreInfo yxStoreInfo = new YxStoreInfo();
         BeanUtils.copyProperties(request, yxStoreInfo);
         //
-        GeoPoint geoPoint = new GeoPoint(new BigDecimal(request.getCoordinateX()), new BigDecimal(request.getCoordinateX()));
+        GeoPoint geoPoint = new GeoPoint(new BigDecimal(request.getCoordinateX()), new BigDecimal(request.getCoordinateY()));
         yxStoreInfo.setCoordinate(geoPoint);
 
         yxStoreInfo.setUpdateUserId(SecurityUtils.getUserId().intValue());

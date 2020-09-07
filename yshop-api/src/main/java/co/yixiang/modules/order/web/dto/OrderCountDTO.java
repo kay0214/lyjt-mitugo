@@ -1,5 +1,6 @@
 package co.yixiang.modules.order.web.dto;
 
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -22,4 +23,13 @@ public class OrderCountDTO implements Serializable {
     private Integer evaluatedCount;  //订单待评价 数量
     private Integer completeCount;  //订单已完成 数量
     private Integer refundCount;   //订单退款
+
+    @ApiModelProperty(value = "购物车数量")
+    private Integer cartCount;
+
+    @ApiModelProperty(value = "地址数量")
+    private Integer addressCount;
+    @ApiModelProperty(value = "推广人数")
+    private Integer spreadCount;
+
 }

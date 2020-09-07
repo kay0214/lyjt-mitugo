@@ -46,4 +46,13 @@ public class SystemUserServiceImpl extends BaseServiceImpl<SystemUserMapper, Sys
         return new Paging(iPage);
     }
 
+    /**
+     * 商户金额操作
+     * @param updateSystemUser
+     */
+    @Override
+    public void updateUserTotal(SystemUser updateSystemUser) {
+        userMapper.updateUserTotal(updateSystemUser);
+    }
+
 }

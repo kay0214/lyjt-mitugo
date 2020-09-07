@@ -107,4 +107,27 @@ public class YxImageInfoServiceImpl extends BaseServiceImpl<YxImageInfoMapper, Y
         }
         return strImg;
     }
+
+    /**
+     * 获取图片信息返回list
+     * @param typeId
+     * @param imgType
+     * @param cateTypeId
+     * @return
+     */
+    @Override
+    public List<String> selectImgByParamList(int typeId, Integer imgType, Integer cateTypeId) {
+        YxImageInfo imageInfoParam = new YxImageInfo();
+        imageInfoParam.setTypeId(typeId);
+        imageInfoParam.setImgType(imgType);
+        imageInfoParam.setImgCategory(cateTypeId);
+        List<String> images = new ArrayList<>();
+        List<YxImageInfo> imageInfoList = list(Wrappers.query(imageInfoParam));
+        if (org.apache.commons.collections.CollectionUtils.isNotEmpty(imageInfoList)) {
+            for (YxImageInfo imageInfo : imageInfoList) {
+                images.add(imageInfo.getImgUrl());
+            }
+        }
+        return images;
+    }
 }

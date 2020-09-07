@@ -44,4 +44,12 @@ public interface YxExpressService  extends BaseService<YxExpress>{
     * @throws IOException /
     */
     void download(List<YxExpressDto> all, HttpServletResponse response) throws IOException;
+
+    /**
+     * 新增
+     *
+     * @param resources
+     * @return
+     */
+    boolean saveExpress(YxExpress resources);
 }

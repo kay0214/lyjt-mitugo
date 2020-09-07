@@ -4,6 +4,7 @@
 package co.yixiang.modules.shop.service.impl;
 
 import cn.hutool.core.util.ObjectUtil;
+import co.yixiang.common.api.ApiResult;
 import co.yixiang.common.service.impl.BaseServiceImpl;
 import co.yixiang.common.web.vo.Paging;
 import co.yixiang.exception.ErrorRequestException;
@@ -303,5 +304,60 @@ public class YxStoreCouponUserServiceImpl extends BaseServiceImpl<YxStoreCouponU
             wrapper.eq("store_id",storeId);
         }
         return yxStoreCouponUserMapper.selectList(wrapper);
+    }
+
+    @Override
+    public ApiResult<Paging<YxStoreCouponUserQueryVo>> getUserCouponNew(YxStoreCouponUserQueryParam param) {
+        checkInvalidCoupon(param.getUid());
+        if(ObjectUtil.isNotEmpty(param.getType())){
+            if (param.getType() == 1) {//获取用户优惠券（未使用）
+                param.setType(0);
+            } else if (param.getType() == 2) {//获取用户优惠券（已使用）
+                param.setType(1);
+
+            } else if (param.getType() > 2) {//获取用户优惠券（已过期）
+                param.setType(2);
+            }
+        }
+        Paging<YxStoreCouponUserQueryVo> paging = getYxCouponsPageListByStoreId(param);
+        if (paging.getRecords() != null && paging.getRecords().size() > 0) {
+            int nowTime = OrderUtil.getSecondTimestampTwo();
+            for (YxStoreCouponUserQueryVo couponUser : paging.getRecords()) {
+                //添加店铺信息
+                YxStoreInfo storeInfo = getStoreInfoById(couponUser.getStoreId());
+                if (ObjectUtil.isNotNull(storeInfo)) {
+                    couponUser.setStoreName(storeInfo.getStoreName());
+                }
+                if (couponUser.getIsFail() == 1) {
+                    couponUser.set_type(0);
+                    couponUser.set_msg("已失效");
+                } else if (couponUser.getStatus() == 1) {
+                    couponUser.set_type(0);
+                    couponUser.set_msg("已使用");
+                } else if (couponUser.getStatus() == 2) {
+                    couponUser.set_type(0);
+                    couponUser.set_msg("已过期");
+                } else if (couponUser.getAddTime() > nowTime || couponUser.getEndTime() < nowTime) {
+                    couponUser.set_type(0);
+                    couponUser.set_msg("已过期");
+                } else {
+                    if (couponUser.getAddTime() + 3600 * 24 > nowTime) {
+                        couponUser.set_type(2);
+                        couponUser.set_msg("可使用");
+                    } else {
+                        couponUser.set_type(1);
+                        couponUser.set_msg("可使用");
+                    }
+                }
+            }
+        }
+        return ApiResult.ok(paging);
+    }
+
+    public Paging<YxStoreCouponUserQueryVo> getYxCouponsPageListByStoreId(YxStoreCouponUserQueryParam param) {
+        Page page = setPageParam(param, OrderItem.asc(" status "));
+        IPage<YxStoreCouponUserQueryVo> iPage = yxStoreCouponUserMapper.selectCouponUserListPage(page, param);
+        iPage.setTotal(yxStoreCouponUserMapper.getCouponUserCount(param));
+        return new Paging(iPage);
     }
 }

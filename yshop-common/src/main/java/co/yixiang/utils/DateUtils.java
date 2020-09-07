@@ -5,12 +5,17 @@
  */
 package co.yixiang.utils;
 
+import cn.hutool.core.date.DateTime;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
 
 import java.lang.management.ManagementFactory;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Date;
 
 /**
@@ -26,6 +31,9 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
     public static String YYYYMMDDHHMMSS = "yyyyMMddHHmmss";
 
     public static String YYYY_MM_DD_HH_MM_SS = "yyyy-MM-dd HH:mm:ss";
+
+
+    public static String YYYY_MM_DD_HH_MM = "yyyy-MM-dd HH:mm";
 
     private static String[] parsePatterns = {
             "yyyy-MM-dd", "yyyy-MM-dd HH:mm:ss", "yyyy-MM-dd HH:mm", "yyyy-MM",
@@ -159,5 +167,47 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
     public static Integer getNowTime() {
         Long time = System.currentTimeMillis() / 1000;
         return time.intValue();
+    }
+    /**
+     * Date转LocalDateTime
+     * @param date
+     * @return
+     */
+    public static LocalDateTime dateToLocalDate(Date date) {
+        return LocalDateTime.ofInstant(Instant.ofEpochMilli(date.getTime()), ZoneId.systemDefault());
+
+    }
+    /**
+     * 10位时间戳转字符串   默认为yyyy-MM-dd HH:mm:ss
+     *
+     * @param timestamp
+     * @param format
+     * @return
+     */
+    public static String timestampToStr10(Integer timestamp, String format) {
+        if (StringUtils.isEmpty(format)) {
+            return timestampToStr10(timestamp);
+        }
+        if (timestamp == null || timestamp == 0) {
+            return "";
+        }
+        Long time = Long.valueOf(timestamp) * 1000;
+        DateTime now = new DateTime(time);
+        return now.toString(format);
+    }
+
+    /**
+     * 10位时间戳转字符串yyyy-MM-dd HH:mm:ss
+     *
+     * @param timestamp
+     * @return
+     */
+    public static String timestampToStr10(Integer timestamp) {
+        if (timestamp == null || timestamp == 0) {
+            return "";
+        }
+        Long time = Long.valueOf(timestamp);
+        DateTime now = new DateTime(time);
+        return now.toString(YYYY_MM_DD_HH_MM_SS);
     }
 }

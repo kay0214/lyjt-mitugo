@@ -48,7 +48,7 @@
             <span>{{ form.couponNum }}</span>
           </el-form-item> -->
           <el-form-item label="卡券名称" prop="couponName">
-            <el-input v-model="form.couponName" style="width: 100%;" />
+            <el-input v-model="form.couponName" style="width: 100%;" maxlength="42" />
           </el-form-item>
           <el-form-item label="卡券类型" prop="couponType">
             <el-select v-model="form.couponType" placeholder="请选择" style="width: 100%;">
@@ -159,14 +159,14 @@
             <el-input v-model="form.awaysRefund" style="width: 100%;" />
           </el-form-item> -->
           <el-form-item label="使用条件" prop="useCondition">
-            <el-input v-model="form.useCondition" style="width: 100%;" />
+            <el-input v-model="form.useCondition" style="width: 100%;" maxlength="88" />
           </el-form-item>
           <el-form-item label="排序" prop='sort'>
             <el-input v-model="form.sort" οnkeyup="if(isNaN(value))execCommand('undo')" onafterpaste="if(isNaN(value))execCommand('undo')" maxlength="6"/>
           </el-form-item>
           <el-form-item label="图片(260*260/416*214)" prop="image">
             <!-- <pic-upload-two v-model="form.pic" /> -->
-            <MaterialList v-model="imageArr" style="width: 100%" type="image" :num="1" :width="150" :height="150" />
+            <MaterialList v-model="imageArr" style="width: 100%" type="image" :num="1" :width="150" :height="150" @setValue="(urls)=>{form.image = urls;imageArr=urls;$refs.form.validateField('image')}"/>
           </el-form-item>
           <el-form-item label="轮播图" prop="sliderImage">
             <MaterialList
@@ -176,7 +176,7 @@
               :num="8"
               :width="150"
               :height="150"
-              @setValue="urls=>sliderImageArr = urls"
+              @setValue="(urls)=>{form.sliderImage = urls;sliderImageArr=urls;$refs.form.validateField('sliderImage')}"
             />
           </el-form-item>
           <el-form-item prop="availableTime" label="可用时段">
@@ -188,7 +188,8 @@
               start-placeholder="可用时段开始时间"
               end-placeholder="可用时段结束时间"
               placeholder="选择时间范围"
-              value-format='HH:mm:ss'
+              value-format='HH:mm'
+              format='HH:mm'
               style="width:100%;"
             />
           </el-form-item>
@@ -214,7 +215,7 @@
             <el-input v-model="form.updateTime" style="width: 100%;" />
           </el-form-item>
           <el-form-item label="卡券简介" prop="couponInfo">
-            <el-input type="textarea" v-model="form.couponInfo" style="width: 100%;" />
+            <el-input type="textarea" v-model="form.couponInfo" style="width: 100%;" maxlength="88" />
           </el-form-item>
           <el-form-item label="图文详情" prop="content" required>
             <editor v-model="form.content" @change="()=>{$refs.form.validateField('content')}" />
@@ -413,7 +414,15 @@ const defaultCrud = CRUD({ title: '卡券表', url: 'api/yxCoupons', sort: 'id,d
       del: true,
       download: false
     }})
-const defaultForm = { id: null, couponNum: null, couponName: null, couponType: null, couponCategory: null, denomination: null, discount: null, threshold: null, discountAmount: null, sellingPrice: null, originalPrice: null, settlementPrice: null, commission: null, quantityLimit: null, inventory: null, sales: null, ficti: null, writeOff: null, expireDateStart: null, expireDateEnd: null, isHot: 0, isShow: 0, outtimeRefund: null, needOrder: null, awaysRefund: null, useCondition: null, availableTimeStart: null, availableTimeEnd: null, delFlag: null, createUserId: null, updateUserId: null, createTime: null, updateTime: null, content: null, expireDate: null, image: null, sliderImage: null }
+const defaultForm = { 
+  id: null, couponNum: null, couponName: null, couponType: null, couponCategory: null, 
+  denomination: null, discount: null, threshold: null, discountAmount: null, sellingPrice: null, 
+  originalPrice: null, settlementPrice: null, commission: null, quantityLimit: null, 
+  inventory: null, sales: null, ficti: null, writeOff: null, expireDateStart: null, 
+  expireDateEnd: null, isHot: 0, isShow: 0, outtimeRefund: null, needOrder: null, 
+  awaysRefund: null, useCondition: null, availableTimeStart: null, availableTimeEnd: null, 
+  delFlag: null, createUserId: null, updateUserId: null, createTime: null, updateTime: null, 
+  content: null, expireDate: null, image: null, sliderImage: null,sort:null, couponInfo:null,}
 const imageArr = []
 if (defaultForm.image) { imageArr[0] = defaultForm.image }
 export default {
@@ -463,8 +472,8 @@ export default {
             trigger: 'blur'
           },
           {
-            pattern: /^[0-9]+([.]{1}[0-9]+){0,1}$/,  //正则
-            message: '请输入数字'
+            pattern: /^[0-9]{0,6}([.]{1}[0-9]{0,2}){0,1}$/,  //正则
+            message: '请输入数字--限定6位整数2位小数'
           }
         ],
         discount: [{ validator: (rule, value, callback) => {
@@ -482,8 +491,8 @@ export default {
           } else { callback() }
         }, trigger: 'blur' },
         {
-          pattern: /^[0-9]+([.]{1}[0-9]+){0,1}$/,  //正则
-          message: '请输入数字'
+          pattern: /^[0-9]{0,6}([.]{1}[0-9]{0,2}){0,1}$/,  //正则
+          message: '请输入数字--限定6位整数2位小数'
         }],
         discountAmount: [{ validator: (rule, value, callback) => {
           if (this.form.couponType === 3 && (!value || value === '')) {
@@ -491,28 +500,28 @@ export default {
           } else { callback() }
         }, trigger: 'blur' },
         {
-          pattern: /^[0-9]+([.]{1}[0-9]+){0,1}$/,  //正则
-          message: '请输入数字'
+          pattern: /^[0-9]{0,6}([.]{1}[0-9]{0,2}){0,1}$/,  //正则
+          message: '请输入数字--限定6位整数2位小数'
         }],
         sellingPrice: [
           { required: true, message: '销售价格不能为空', trigger: 'blur' },
           {
-            pattern: /^[0-9]+([.]{1}[0-9]+){0,1}$/,  //正则
-            message: '请输入数字'
+            pattern: /^[0-9]{0,6}([.]{1}[0-9]{0,2}){0,1}$/,  //正则
+            message: '请输入数字--限定6位整数2位小数'
           }
         ],
         originalPrice: [
           { required: true, message: '原价不能为空', trigger: 'blur' },
           {
-            pattern: /^[0-9]+([.]{1}[0-9]+){0,1}$/,  //正则
-            message: '请输入数字'
+            pattern: /^[0-9]{0,6}([.]{1}[0-9]{0,2}){0,1}$/,  //正则
+            message: '请输入数字--限定6位整数2位小数'
           }
         ],
         settlementPrice: [
           { required: true, message: '平台结算价不能为空', trigger: 'blur' },
           {
-            pattern: /^[0-9]+([.]{1}[0-9]+){0,1}$/,  //正则
-            message: '请输入数字'
+            pattern: /^[0-9]{0,6}([.]{1}[0-9]{0,2}){0,1}$/,  //正则
+            message: '请输入数字--限定6位整数2位小数'
           }
         ],
         commission: [
@@ -521,22 +530,22 @@ export default {
         quantityLimit: [
           { required: true, message: '每人限购数量不能为空', trigger: 'blur' },
           {
-            pattern: /^[0-9]+$/,  //正则
-            message: '请输入数字'
+            pattern: /^[0-9]{0,8}$/,  //正则
+            message: '请输入数字-限制8位整数'
           }
         ],
         inventory: [
           { required: true, message: '库存不能为空', trigger: 'blur' },
           {
-            pattern: /^[0-9]+$/,  //正则
-            message: '请输入数字'
+            pattern: /^[0-9]{0,8}$/,  //正则
+            message: '请输入数字--限制8位整数'
           }
         ],
         ficti: [
           // { trigger: 'blur' },
           {
-            pattern: /^[0-9]+$/,  //正则
-            message: '请输入数字',
+            pattern: /^[0-9]{0,8}$/,  //正则
+            message: '请输入数字--限制8位整数',
             trigger: 'blur'
           }
         ],
@@ -635,18 +644,18 @@ export default {
     }
   },
   watch: {
-    imageArr(value) {
-      this.form.image = value.join(',')
-      if (this.$refs.form) {
-        this.$refs.form.validateField('image')
-      }
-    },
-    sliderImageArr(value) {
-      this.form.sliderImage = value.join(',')
-      if (this.$refs.form) {
-        this.$refs.form.validateField('sliderImage')
-      }
-    },
+    // imageArr(value) {
+    //   this.form.image = value.join(',')
+    //   if (this.$refs.form) {
+    //     this.$refs.form.validateField('image')
+    //   }
+    // },
+    // sliderImageArr(value) {
+    //   this.form.sliderImage = value.join(',')
+    //   if (this.$refs.form) {
+    //     this.$refs.form.validateField('sliderImage')
+    //   }
+    // },
     availableTime(value){
       this.form.availableTimeEnd = value[1]
       this.form.availableTimeStart = value[0]
@@ -698,6 +707,17 @@ export default {
       if (!this.form.couponType) {
         this.form.couponType = 1
       }
+    },
+    //添加取消 - 之前
+    [CRUD.HOOK.beforeAddCancel](crud,form) {
+      this.expireDate=null
+      this.availableTime=[new Date(2020, 9, 10, 9, 0),new Date(2020, 9, 10, 22, 0)]
+      form.content=""
+    },
+    /** 提交 - 之后 */
+    [CRUD.HOOK.afterSubmit]() {
+      this.expireDate=null
+      this.availableTime=[new Date(2020, 9, 10, 9, 0),new Date(2020, 9, 10, 22, 0)]
     },
     expireDateChange(newValue) {
       this.form.expireDateStart = this.expireDate[0]

@@ -71,4 +71,6 @@ public class YxUserExtract extends BaseEntity {
     @ApiModelProperty(value = "0:预留 1:前台用户 2：后台商户 3：后台合伙人")
     private Integer userType;
 
+    @ApiModelProperty(value = "银行预留手机号")
+    private String phone;
 }

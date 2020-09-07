@@ -13,10 +13,14 @@ import co.yixiang.modules.coupons.entity.YxCouponOrder;
 import co.yixiang.modules.coupons.service.YxCouponOrderService;
 import co.yixiang.modules.manage.entity.SystemUser;
 import co.yixiang.modules.manage.service.SystemUserService;
+import co.yixiang.modules.offpay.entity.YxOffPayOrder;
+import co.yixiang.modules.offpay.service.YxOffPayOrderService;
 import co.yixiang.modules.order.entity.YxStoreOrder;
 import co.yixiang.modules.order.service.YxStoreOrderService;
 import co.yixiang.modules.order.web.vo.YxStoreOrderQueryVo;
+import co.yixiang.modules.shop.service.YxStoreInfoService;
 import co.yixiang.modules.shop.service.YxSystemConfigService;
+import co.yixiang.modules.shop.web.vo.YxStoreInfoQueryVo;
 import co.yixiang.modules.user.entity.YxUserBill;
 import co.yixiang.modules.user.entity.YxUserRecharge;
 import co.yixiang.modules.user.service.YxUserBillService;
@@ -76,6 +80,12 @@ public class WechatController extends BaseController {
     private YxUserBillService yxUserBillService;
     @Autowired
     private SystemUserService systemUserService;
+
+    @Autowired
+    private YxOffPayOrderService offPayOrderService;
+
+    @Autowired
+    private YxStoreInfoService yxStoreInfoService;
 
 
     /**
@@ -215,6 +225,7 @@ public class WechatController extends BaseController {
             couponOrder.setId(yxCouponOrder.getId());
             couponOrder.setRefundStatus(2);
             couponOrder.setRefundPrice(refundFee);
+            couponOrder.setStatus(8);
             yxCouponOrderService.updateById(couponOrder);
 
             // 插入bill表
@@ -366,7 +377,7 @@ public class WechatController extends BaseController {
                 if(OrderInfoEnum.PAY_STATUS_1.getValue().equals(lsitOrder.get(0).getPaid())){
                     return WxPayNotifyResponse.success("处理成功!");
                 }
-                orderService.paySuccessNew(orderId,"weixin");
+                orderService.paySuccessNew(lsitOrder.get(0).getPaymentNo(),"weixin");
             }else if(BillDetailEnum.TYPE_1.getValue().equals(attach)){
                 //处理充值
                 YxUserRecharge userRecharge = userRechargeService.getInfoByOrderId(orderId);
@@ -394,4 +405,115 @@ public class WechatController extends BaseController {
             return WxPayNotifyResponse.fail(e.getMessage());
         }
     }
+
+
+
+    @AnonymousAccess
+    @PostMapping("/wechat/notifyoffPay")
+    @ApiOperation(value = "微信支付线下支付回调",notes = "微信支付线下支付回调")
+    public String notifyoffPay(@RequestBody String xmlData) {
+        try {
+            WxPayService wxPayService = WxPayConfiguration.getPayService();
+            WxPayOrderNotifyResult notifyResult = wxPayService.parseOrderNotifyResult(xmlData);
+            String orderId = notifyResult.getOutTradeNo();
+            String attach = notifyResult.getAttach();
+            log.info("收到微信支付线下支付回调" + JSON.toJSONString(notifyResult));
+            if(BillDetailEnum.TYPE_10.getValue().equals(attach)){
+                // 微信支付线下支付回调
+                YxOffPayOrder offPayOrder = this.offPayOrderService.getOne(new QueryWrapper<YxOffPayOrder>().eq("order_id",orderId));
+                if(offPayOrder == null) {
+                    return WxPayNotifyResponse.success("处理成功!");
+                }
+                if("4".equals(offPayOrder.getStatus())){
+                    return WxPayNotifyResponse.success("处理成功!");
+                }
+                offPayOrder.setPayTime(OrderUtil.getSecondTimestampTwo());
+                offPayOrder.setStatus(4);
+                YxStoreInfoQueryVo storeInfoQueryVo = yxStoreInfoService.getYxStoreInfoById(offPayOrder.getStoreId());
+
+
+                offPayOrderService.updatePaySuccess(offPayOrder,storeInfoQueryVo);
+            }
+            return WxPayNotifyResponse.success("处理成功!");
+        } catch (WxPayException e) {
+            log.error(e.getMessage());
+            return WxPayNotifyResponse.fail(e.getMessage());
+        }
+    }
+    @AnonymousAccess
+    @ApiOperation(value = "退款回调通知处理",notes = "退款回调通知处理")
+    @PostMapping("/notify/refundNew")
+    public String parseRefundNotifyResultNew(@RequestBody String xmlData) {
+        try {
+            WxPayService wxPayService = WxPayConfiguration.getPayService();
+            WxPayRefundNotifyResult result = wxPayService.parseRefundNotifyResult(xmlData);
+            String orderId = result.getReqInfo().getOutTradeNo();
+            BigDecimal refundFee = BigNum.div(result.getReqInfo().getRefundFee(), 100);
+            YxStoreOrderQueryVo orderInfo = orderService.getOrderInfo(orderId,0);
+            log.info("退款回调通知处理 ： "+ JSONObject.toJSONString(orderInfo));
+            if(orderInfo.getRefundStatus() == 2){
+                return WxPayNotifyResponse.success("处理成功!");
+            }
+            YxStoreOrder storeOrder = new YxStoreOrder();
+            //修改状态
+            storeOrder.setId(orderInfo.getId());
+            storeOrder.setRefundStatus(2);
+            storeOrder.setRefundPrice(refundFee);
+            orderService.updateById(storeOrder);
+            //
+            // 插入bill表
+            YxUserBill userBill = new YxUserBill();
+            userBill.setUid(storeOrder.getUid());
+            userBill.setLinkId(storeOrder.getOrderId());
+            userBill.setPm(1);
+            userBill.setTitle("小程序购买商品订单退款");
+            userBill.setCategory(BillDetailEnum.CATEGORY_1.getValue());
+            userBill.setType(BillDetailEnum.TYPE_5.getValue());
+            userBill.setNumber(refundFee);
+            userBill.setBalance(BigDecimal.ZERO);
+            userBill.setMark("小程序购买商品订单退款");
+            userBill.setAddTime(OrderUtil.getSecondTimestampTwo());
+            userBill.setStatus(1);
+            yxUserBillService.save(userBill);
+
+            // 更新商户余额
+            SystemUser systemUser = this.systemUserService.getById(storeOrder.getMerId());
+            if (null == systemUser) {
+                log.error("订单编号：" + storeOrder.getOrderId() + "未查询到商户所属的id，无法记录退款资金去向");
+                return WxPayNotifyResponse.success("处理成功!");
+            }
+            // 该笔资金实际到账
+            SystemUser updateSystemUser = new SystemUser();
+            BigDecimal truePrice = storeOrder.getPayPrice().subtract(storeOrder.getCommission());
+            updateSystemUser.setId(systemUser.getId());
+            updateSystemUser.setTotalAmount(systemUser.getTotalAmount().subtract(truePrice));
+            updateSystemUser.setWithdrawalAmount(systemUser.getWithdrawalAmount().subtract(truePrice));
+            this.systemUserService.updateById(updateSystemUser);
+
+            // 插入商户资金明细
+            YxUserBill merBill = new YxUserBill();
+            merBill.setUid(storeOrder.getMerId());
+            merBill.setLinkId(storeOrder.getOrderId());
+            merBill.setPm(0);
+            merBill.setTitle("小程序购买商品订单退款");
+            merBill.setCategory(BillDetailEnum.CATEGORY_1.getValue());
+            merBill.setType(BillDetailEnum.TYPE_5.getValue());
+            merBill.setNumber(truePrice);
+            // 目前只支持微信付款、没有余额
+            merBill.setBalance(updateSystemUser.getWithdrawalAmount());
+            merBill.setAddTime(DateUtils.getNowTime());
+            merBill.setStatus(1);
+            merBill.setMerId(storeOrder.getMerId());
+            merBill.setUserType(2);
+            merBill.setUsername(systemUser.getUsername());
+            this.yxUserBillService.save(merBill);
+
+            log.info("退款回调通知处理 ，更新 ： "+ JSONObject.toJSONString(storeOrder));
+            return WxPayNotifyResponse.success("处理成功!");
+        } catch (WxPayException | IllegalAccessException e) {
+            log.error(e.getMessage());
+            return WxPayNotifyResponse.fail(e.getMessage());
+        }
+    }
+
 }

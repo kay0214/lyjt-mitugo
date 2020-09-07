@@ -62,4 +62,11 @@ public interface YxStoreInfoService extends BaseService<YxStoreInfo> {
     Paging<LocalLiveListVo> getLocalLiveList(LocalLiveQueryParam localLiveQueryParam,String location) throws Exception;
 
     ApiResult<Paging<YxCouponsQueryVo>> getYxCouponsPageListByStoreId(YxCouponsQueryParam yxCouponsQueryParam);
+
+    /**
+     * 根据nid查询店铺信息
+     * @param storeNid
+     * @return
+     */
+    YxStoreInfoQueryVo getYxStoreInfoByNid(String storeNid);
 }

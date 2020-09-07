@@ -24,4 +24,11 @@ export function edit(data) {
   })
 }
 
+export function get() {
+  return request({
+    url: 'api/yxCommissionRate',
+    method: 'get'
+  })
+}
+
 export default { add, edit, del }

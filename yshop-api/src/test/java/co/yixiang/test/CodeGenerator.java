@@ -46,11 +46,11 @@ public class CodeGenerator {
 
     // ############################ 配置部分 start ############################
     // 模块名称
-    private static final String MODULE_NAME = "funds";
+    private static final String MODULE_NAME = "offpay";
     // 作者
-    private static final String AUTHOR = "zqq";
+    private static final String AUTHOR = "sss";
     // 生成的表名称
-    private static final String TABLE_NAME = "yx_funds_detail";    // 主键数据库列名称
+    private static final String TABLE_NAME = "yx_off_pay_order";    // 主键数据库列名称
     private static final String PK_ID_COLUMN_NAME = "id";
     // 代码生成策略 true：All/false:SIMPLE
     private static final boolean GENERATOR_STRATEGY = true;

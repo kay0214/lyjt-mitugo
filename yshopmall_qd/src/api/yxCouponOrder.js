@@ -24,4 +24,12 @@ export function edit(data) {
   })
 }
 
+export function refund(data) {
+  return request({
+    url: 'api/yxCouponOrder/yxStoreOrder/refund',
+    method: 'post',
+    data
+  })
+}
+
 export default { add, edit, del }

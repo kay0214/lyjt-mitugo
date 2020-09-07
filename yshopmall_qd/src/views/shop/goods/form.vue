@@ -18,10 +18,10 @@
         <el-input v-model="form.barCode" style="width: 320px;" maxlength="30" />
       </el-form-item>
       <el-form-item label="商品图片" prop='imageArr'>
-        <MaterialList v-model="form.imageArr" style="width: 500px" type="image" :num="1" :width="150" :height="150" />
+        <MaterialList v-model="form.imageArr" style="width: 500px" type="image" :num="1" :width="150" :height="150" @setValue='(val)=>{form.imageArr=val;$refs.form.validateField("imageArr")}'/>
       </el-form-item>
       <el-form-item label="轮播图" prop='sliderImageArr'>
-        <MaterialList v-model="form.sliderImageArr" style="width: 500px" type="image" :num="4" :width="150" :height="150" />
+        <MaterialList v-model="form.sliderImageArr" style="width: 500px" type="image" :num="4" :width="150" :height="150" @setValue='(val)=>{form.sliderImageArr=val;$refs.form.validateField("sliderImageArr")}'/>
       </el-form-item>
       <el-form-item label="商品简介" prop='storeInfo'>
         <el-input v-model="form.storeInfo" style="width: 500px;" rows="5" type="textarea" maxlength="200" />
@@ -43,7 +43,7 @@
       </el-form-item>
 
       <el-form-item label="排序" prop='sort'>
-        <el-input v-model="form.sort" maxlength="6" />
+        <el-input v-model="form.sort" />
       </el-form-item>
      <!-- <el-form-item label="销量">
         <el-input v-model="form.sales" />
@@ -115,9 +115,9 @@ export default {
         callback()
       }
     };
-    const validateInt=(r,value,callback)=>{
-      if(parseInt(value)>16777215){
-        callback(new Error("最大值为：16777215"));
+    const validateInt=(r,value,callback,max=16777215)=>{
+      if(parseInt(value)>max){
+        callback(new Error("最大值为："+max));
       }else if(parseInt(value)<0){
         callback(new Error("不能为负值"));
       }else{
@@ -192,7 +192,8 @@ export default {
             pattern: /^[0-9]+$/,  //正则
             message: '请输入数字',
             trigger: 'blur'
-          }
+          },
+          {max:15,message:'15个字符以内', trigger: 'blur'}
         ],
         imageArr:[
           { required: true,message: '必填项', trigger: 'blur'}
@@ -239,16 +240,18 @@ export default {
             pattern: /^[0-9]+$/,  //正则
             message: '请输入数字',
             trigger: 'blur'
-          }
+          },
+          { validator: (rule, value, callback)=>{validateInt(rule, value, callback,32767)}, trigger: 'blur'}
+          // {max:32767,message:'最大：32767', trigger: 'blur'}
         ],
         stock:[
           { required: true,message: '必填项', trigger: 'blur'},
-          { validator: validateInt, trigger: 'blur'},
           {
             pattern: /^[0-9]+$/,  //正则
             message: '请输入数字',
             trigger: 'blur'
-          }
+          },
+          { validator: (rule, value, callback)=>{validateInt(rule, value, callback)}, trigger: 'blur'}
         ],
         commission:[
           // { required: true,message: '必填项', trigger: 'blur'}
@@ -260,8 +263,9 @@ export default {
           { required: true,message: '必填项'},
           {
             pattern: /^[0-9]+([.]{1}[0-9]+){0,1}$/,  //正则
-            message: '请输入数字'
-          }
+            message: '请输入邮费金额'
+          },
+          {validator: validateNum, trigger: 'blur'},
         ],
         ficti:[
           { required: true,message: '必填项', trigger: 'blur'},
@@ -269,7 +273,8 @@ export default {
             pattern: /^[0-9]+$/,  //正则
             message: '请输入数字',
             trigger: 'blur'
-          }
+          },
+          { validator: (rule, value, callback)=>{validateInt(rule, value, callback,8388607)}, trigger: 'blur'}
         ],
       }
     }
@@ -279,17 +284,17 @@ export default {
       if (val) {
         this.form.image = val.join(',')
       }
-      this.$nextTick(()=>{
-        this.$refs['form'].validateField('imageArr')
-      })
+      // this.$nextTick(()=>{
+      //   this.$refs['form'].validateField('imageArr')
+      // })
     },
     'form.sliderImageArr': function(val) {
       if (val) {
         this.form.sliderImage = val.join(',')
       }
-      this.$nextTick(()=>{        
-        this.$refs['form'].validateField('sliderImageArr')
-      })
+      // this.$nextTick(()=>{        
+      //   this.$refs['form'].validateField('sliderImageArr')
+      // })
     }
   },
   methods: {

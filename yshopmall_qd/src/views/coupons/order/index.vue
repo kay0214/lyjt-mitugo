@@ -60,6 +60,8 @@
           </div>
         </el-dialog> -->
         <eDetail ref="form1" :is-add="false" />
+        <eRefund ref="form2" :is-add="false" />
+
         <!--表格渲染-->
         <el-table ref="table" v-loading="crud.loading" :data="crud.data" size="small" style="width: 100%;" @selection-change="crud.selectionChangeHandler">
           <el-table-column type="selection" width="55" />
@@ -81,7 +83,10 @@
           <el-table-column v-if="columns.visible('status')" prop="status" label="订单状态">
             <!--（0:待支付 1:已过期 2:待发放3:支付失败4:待使用5:已使用6:已核销7:退款中8:已退款9:退款驳回10:已取消-->
             <template slot-scope="scope">
-              <span>{{ scope.row.status < 11 ?JSON.parse(JSON.stringify(orderStatusList[scope.row.status*1+1])).label:""}}</span>
+              <!-- <span>{{ scope.row.status < 11 ?JSON.parse(JSON.stringify(orderStatusList[scope.row.status*1+1])).label:""}}</span> -->
+              <span>{{ scope.row.status < 11 ? orderStatusList[orderStatusList.findIndex(item=>{
+                 return parseInt(item.value)===scope.row.status
+                })].label : ""}}</span>
               <br/>
               <div v-if="parseInt(scope.row.status)==7||parseInt(scope.row.status)==8">
                   退款原因：{{scope.row.refundReasonWapExplain}}<br/>
@@ -95,7 +100,7 @@
               <span>{{ formatTime(scope.row.createTime) }}</span>
             </template>
           </el-table-column>         
-          <el-table-column v-permission="['admin','yxCouponOrder:edit','yxCouponOrder:del']" label="操作" width="150px" align="center">
+          <el-table-column v-permission="['admin','yxCouponOrder:edit','yxCouponOrder:refund']" label="操作" width="150px" align="center">
             <template slot-scope="scope">
               <el-button
               v-permission="permission.edit"
@@ -104,10 +109,14 @@
               @click="detail(scope.row)"
             >
               订单详情</el-button>
-              <!-- <udOperation
-                :data="scope.row"
-                :permission="permission"
-              /> -->
+              <el-button 
+              v-permission="permission.refund"
+              v-if='scope.row.refundStatus===1'
+              size="mini"
+              type="danger"
+              @click="refund(scope.row)"
+            >
+              退款</el-button><!--0 未退款 1 申请中 2 已退款-->             
             </template>
           </el-table-column>
         </el-table>
@@ -127,6 +136,7 @@ import udOperation from '@crud/UD.operation'
 import pagination from '@crud/Pagination'
 import { formatTime } from '@/utils/index'
 import eDetail from './detail'
+import eRefund from './refund'
 
 // crud交由presenter持有
 const defaultCrud = CRUD({ title: '卡券订单表', url: 'api/yxCouponOrder', 
@@ -134,31 +144,32 @@ sort: 'id,desc', crudMethod: { ...crudYxCouponOrder }, query:{orderStatus: '',or
 const defaultForm = {  orderId: null,  mark: null }
 export default {
   name: 'YxCouponOrder',
-  components: { pagination, crudOperation, rrOperation, udOperation , eDetail},
+  components: { pagination, crudOperation, rrOperation, udOperation ,eRefund, eDetail},
   mixins: [presenter(defaultCrud), header(), form(defaultForm), crud()],
   data() {
     return {
       permission: {
         add: ['admin', 'yxCouponOrder:add'],
         edit: ['admin', 'yxCouponOrder:edit'],
-        del: ['admin', 'yxCouponOrder:del']
+        del: ['admin', 'yxCouponOrder:del'],
+        refund: ['admin', 'yxCouponOrder:refund']
       },
       rules: {
       },  
       orderStatus:'',
       orderType: '',
-      orderStatusList:[ //顺序不能变，value和index需要对应关系
+      orderStatusList:[ 
         { value: ' ', label: '全部订单' },
         { value: '0', label: '待支付' },
         { value: '1', label: '已过期' },
-        { value: '2', label: '待发放' },
+        // { value: '2', label: '待发放' },
         { value: '3', label: '支付失败' },
         { value: '4', label: '待使用' },
         { value: '5', label: '已使用' },
         { value: '6', label: '已核销' },
         { value: '7', label: '退款中' },
         { value: '8', label: '已退款' },
-        { value: '9', label: '退款驳回'},
+        // { value: '9', label: '退款驳回'},
         { value: '10', label: '已取消'},
       ],  
       queryTypeOptions: [
@@ -211,6 +222,18 @@ export default {
         couponOrderUseList: data.couponOrderUseList,
       }
       _this.dialog = true
+    },
+    refund(data) {
+        this.isAdd = false
+        const _this = this.$refs.form2
+        _this.form = {
+          id: data.id,
+          orderId: data.orderId,
+          refundPrice: '',
+          refundStatus: '',
+          refundReason: '',  
+        }
+        _this.dialog = true
     },
   }
 }
