@@ -355,7 +355,7 @@ public class YxStoreCouponUserServiceImpl extends BaseServiceImpl<YxStoreCouponU
     }
 
     public Paging<YxStoreCouponUserQueryVo> getYxCouponsPageListByStoreId(YxStoreCouponUserQueryParam param) {
-        Page page = setPageParam(param, OrderItem.desc(" status "));
+        Page page = setPageParam(param, OrderItem.asc(" status "));
         IPage<YxStoreCouponUserQueryVo> iPage = yxStoreCouponUserMapper.selectCouponUserListPage(page, param);
         iPage.setTotal(yxStoreCouponUserMapper.getCouponUserCount(param));
         return new Paging(iPage);
