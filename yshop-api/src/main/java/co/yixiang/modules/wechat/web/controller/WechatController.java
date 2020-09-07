@@ -377,7 +377,7 @@ public class WechatController extends BaseController {
                 if(OrderInfoEnum.PAY_STATUS_1.getValue().equals(lsitOrder.get(0).getPaid())){
                     return WxPayNotifyResponse.success("处理成功!");
                 }
-                orderService.paySuccessNew(orderId,"weixin");
+                orderService.paySuccessNew(lsitOrder.get(0).getPaymentNo(),"weixin");
             }else if(BillDetailEnum.TYPE_1.getValue().equals(attach)){
                 //处理充值
                 YxUserRecharge userRecharge = userRechargeService.getInfoByOrderId(orderId);
