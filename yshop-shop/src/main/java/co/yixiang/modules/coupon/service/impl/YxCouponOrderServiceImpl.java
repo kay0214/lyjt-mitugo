@@ -102,7 +102,7 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         }
         if (StringUtils.isNotBlank(criteria.getOrderType()) && StringUtils.isNotBlank(criteria.getValue())) {
             if ("orderId".equals(criteria.getOrderType())) {
-                queryWrapper.lambda().like(YxCouponOrder::getOrderId, criteria.getValue());
+                queryWrapper.lambda().eq(YxCouponOrder::getOrderId, criteria.getValue());
             }
             if ("realName".equals(criteria.getOrderType())) {
                 queryWrapper.lambda().like(YxCouponOrder::getRealName, criteria.getValue());

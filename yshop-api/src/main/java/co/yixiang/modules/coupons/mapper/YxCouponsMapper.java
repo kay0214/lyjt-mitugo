@@ -41,28 +41,29 @@ public interface YxCouponsMapper extends BaseMapper<YxCoupons> {
      */
     @Select("<script>select yc.* from yx_coupons yc " +
             "inner join yx_store_info ysi on ysi.id = yc.store_id and ysi.status = 0 and ysi.del_flag = 0" +
-            "where yc.is_show = 1 and yc.expire_date_start <![CDATA[ <= ]]> now() and yc.expire_date_end <![CDATA[ >= ]]> now() " +
+            "where yc.is_show = 1  and yc.expire_date_start <![CDATA[ <= ]]> now() and yc.expire_date_end <![CDATA[ >= ]]> now() " +
             "<if test=\"param.couponCategory!=null\"> and yc.coupon_category = #{param.couponCategory} </if> " +
             "order by yc.sort asc,yc.create_time desc</script>")
     IPage<YxCouponsQueryVo> getYxCouponsPageList(@Param("page") Page page, @Param("param") YxCouponsQueryParam yxCouponsQueryParam);
 
     @Select("SELECT yc.* FROM yx_coupons yc " +
             "INNER JOIN yx_store_info ysi ON ysi.id = yc.store_id AND ysi. STATUS = 0 AND ysi.del_flag = 0 " +
-            "WHERE yc.is_hot = 1 AND yc.is_show = 1 AND yc.del_flag = 0 and yc.expire_date_start <![CDATA[ <= ]]> now() and yc.expire_date_end <![CDATA[ >= ]]> now() " +
+            "WHERE yc.is_hot = 1 AND yc.is_show = 1 AND yc.del_flag = 0  and yc.expire_date_start <= now() and yc.expire_date_end >= now() " +
             "ORDER BY yc.sort ASC,yc.create_time")
     IPage<YxCouponsQueryVo> getCouponsHotList(@Param("page") Page page, @Param("param") YxCouponsQueryParam yxCouponsQueryParam);
 
     @Select("<script>select count(1) from yx_coupons yc inner join yx_store_info ysi on ysi.id = yc.store_id and ysi.status = 0 and ysi.del_flag = 0 " +
-            "where is_show = 1 and yc.expire_date_start <![CDATA[ <= ]]> now() and yc.expire_date_end <![CDATA[ >= ]]> now() " +
+            "where is_show = 1  and yc.expire_date_start <![CDATA[ <= ]]> now() and yc.expire_date_end <![CDATA[ >= ]]> now() " +
             "<if test=\"param.couponCategory!=null\"> and yc.coupon_category = #{param.couponCategory} </if> </script>")
     int getCount(@Param("param") YxCouponsQueryParam yxCouponsQueryParam);
 
     @Select("select yc.* from yx_coupons yc " +
             "inner join yx_store_info ysi on ysi.id = yc.store_id and ysi.status = 0 and ysi.del_flag = 0" +
-            "where yc.is_show = 1 and yc.store_id =#{storeId}  and yc.expire_date_start <![CDATA[ <= ]]> now() and yc.expire_date_end <![CDATA[ >= ]]> now() " +
-            "order by yc.sort asc")
+            "where yc.is_show = 1 and yc.store_id =#{storeId}  and yc.expire_date_start <= now() and yc.expire_date_end >= now() " +
+            " order by yc.sort asc")
     IPage<YxCouponsQueryVo> getYxCouponsPageListByStoreId(@Param("page") Page page, @Param("storeId") Integer storeId);
 
-    @Select("select count(1) from yx_coupons yc inner join yx_store_info ysi on ysi.id = yc.store_id and ysi.status = 0 and ysi.del_flag = 0 where is_show = 1 and yc.store_id =#{storeId} ")
+    @Select("select count(1) from yx_coupons yc inner join yx_store_info ysi on ysi.id = yc.store_id and ysi.status = 0 and ysi.del_flag = 0 " +
+            "where is_show = 1 and yc.store_id =#{storeId}  and yc.expire_date_start <= now() and yc.expire_date_end >= now() ")
     int getCountByStoreId(@Param("storeId") Integer storeId);
 }
