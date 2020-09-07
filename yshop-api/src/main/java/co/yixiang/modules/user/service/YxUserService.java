@@ -2,6 +2,7 @@ package co.yixiang.modules.user.service;
 
 import co.yixiang.common.service.BaseService;
 import co.yixiang.common.web.vo.Paging;
+import co.yixiang.modules.manage.entity.SystemUser;
 import co.yixiang.modules.order.web.vo.YxStoreOrderQueryVo;
 import co.yixiang.modules.security.rest.param.LoginParam;
 import co.yixiang.modules.user.entity.YxUser;
@@ -68,4 +69,11 @@ public interface YxUserService extends BaseService<YxUser> {
     Object authLogin(String code, String spread, HttpServletRequest request);
 
     Object wxappAuth(LoginParam loginParam, HttpServletRequest request);
+
+    /**
+     * 根据登录用户名查询系统用户
+     * @param username
+     * @return
+     */
+    SystemUser getSystemUserByUserName(String username);
 }

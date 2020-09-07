@@ -16,6 +16,8 @@ import co.yixiang.constant.SystemConfigConstants;
 import co.yixiang.enums.AppFromEnum;
 import co.yixiang.exception.BadRequestException;
 import co.yixiang.exception.ErrorRequestException;
+import co.yixiang.modules.manage.entity.SystemUser;
+import co.yixiang.modules.manage.mapper.SystemUserMapper;
 import co.yixiang.modules.order.service.YxStoreOrderService;
 import co.yixiang.modules.order.web.vo.YxStoreOrderQueryVo;
 import co.yixiang.modules.security.rest.param.LoginParam;
@@ -94,6 +96,8 @@ public class YxUserServiceImpl extends BaseServiceImpl<YxUserMapper, YxUser> imp
     private YxStoreCouponUserService storeCouponUserService;
     @Autowired
     private YxSystemStoreStaffService systemStoreStaffService;
+    @Autowired
+    private SystemUserMapper systemUserMapper;
     @Autowired
     private PasswordEncoder passwordEncoder;
     @Autowired
@@ -773,5 +777,20 @@ public class YxUserServiceImpl extends BaseServiceImpl<YxUserMapper, YxUser> imp
             log.error(e.getMessage(), e);
             throw new BadRequestException(e.toString());
         }
+    }
+
+    /**
+     * 根据登录用户名查询系统用户
+     * @param username
+     * @return
+     */
+    @Override
+    public SystemUser getSystemUserByUserName(String username) {
+        QueryWrapper<SystemUser> wrapper = new QueryWrapper<>();
+        wrapper.eq("username", username).eq("merchants_status", 0)
+                .eq("user_role",2)
+                .eq("examine_status",1)
+                .eq("enabled",1);
+        return systemUserMapper.selectOne(wrapper);
     }
 }

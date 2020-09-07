@@ -114,4 +114,6 @@ public class UserDto implements Serializable {
 
     private Integer examineStatus;
 
+    private String userpassword;
+
 }

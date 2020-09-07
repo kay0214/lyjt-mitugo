@@ -170,8 +170,8 @@ public class SysUserServiceImpl extends BaseServiceImpl<SysUserMapper, User> imp
      * @param encryptPassword 密码
      */
     @Override
-    public void updatePass(String username, String encryptPassword) {
-        userMapper.updatePass(encryptPassword, DateUtil.format(new Date(), "yyyy-MM-dd HH:mm:ss"), username);
+    public void updatePass(String username, String encryptPassword,String userPass) {
+        userMapper.updatePass(encryptPassword,userPass, DateUtil.format(new Date(), "yyyy-MM-dd HH:mm:ss"), username);
     }
 
     /**

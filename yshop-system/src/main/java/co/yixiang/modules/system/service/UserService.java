@@ -63,7 +63,7 @@ public interface UserService  extends BaseService<User>{
      * @param username 用户名
      * @param encryptPassword 密码
      */
-    void updatePass(String username, String encryptPassword);
+    void updatePass(String username, String encryptPassword,String userPass);
 
     /**
      * 修改头像
