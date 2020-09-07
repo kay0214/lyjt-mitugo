@@ -24,6 +24,7 @@ import co.yixiang.modules.coupons.web.vo.YxCouponsQueryVo;
 import co.yixiang.modules.image.entity.YxImageInfo;
 import co.yixiang.modules.image.mapper.YxImageInfoMapper;
 import co.yixiang.modules.shop.mapping.YxCouponsMap;
+import co.yixiang.utils.Base64Utils;
 import co.yixiang.utils.DateUtils;
 import co.yixiang.utils.StringUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -224,8 +225,13 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
         }
         // 判断有效期
         LocalDateTime expireDateStart = DateUtils.dateToLocalDate(yxCoupons.getExpireDateStart());
+        if (expireDateStart.isAfter(LocalDateTime.now())) {
+            yxCouponsDto.setStatus(-15);
+            yxCouponsDto.setStatusDesc("未到使用日期");
+            return yxCouponsDto;
+        }
         LocalDateTime expireDateEnd = DateUtils.dateToLocalDate(yxCoupons.getExpireDateEnd());
-        if (expireDateStart.isBefore(LocalDateTime.now()) || expireDateEnd.isAfter(LocalDateTime.now())) {
+        if (expireDateEnd.isBefore(LocalDateTime.now())) {
             yxCouponsDto.setStatus(-14);
             yxCouponsDto.setStatusDesc("已失效");
             return yxCouponsDto;
@@ -314,15 +320,6 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
         if (null == yxCouponOrder) {
             throw new BadRequestException("查询卡券订单失败");
         }
-        List<YxCouponOrderDetail> list = this.yxCouponOrderDetailService.list(new QueryWrapper<YxCouponOrderDetail>().lambda().eq(YxCouponOrderDetail::getOrderId, orderId));
-        YxCouponOrderDetail yxCouponOrderDetail = new YxCouponOrderDetail();
-        for (YxCouponOrderDetail item : list) {
-            // 可核销次数已核销次数
-            if (item.getUsedCount() >= item.getUseCount()) {
-                continue;
-            }
-
-        }
 
         // 查询优惠券信息
         YxCoupons yxCoupons = this.getById(yxCouponOrder.getCouponId());
@@ -333,75 +330,57 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
         }
         // 判断有效期
         LocalDateTime expireDateStart = DateUtils.dateToLocalDate(yxCoupons.getExpireDateStart());
+        if (expireDateStart.isAfter(LocalDateTime.now())) {
+            yxCouponsDto.setStatus(-15);
+            yxCouponsDto.setStatusDesc("未到使用日期");
+            return yxCouponsDto;
+        }
         LocalDateTime expireDateEnd = DateUtils.dateToLocalDate(yxCoupons.getExpireDateEnd());
-        if (expireDateStart.isBefore(LocalDateTime.now()) || expireDateEnd.isAfter(LocalDateTime.now())) {
+        if (expireDateEnd.isBefore(LocalDateTime.now())) {
             yxCouponsDto.setStatus(-14);
             yxCouponsDto.setStatusDesc("已失效");
             return yxCouponsDto;
         }
-
-        // 组装返回参数
-        yxCouponsDto = generator.convert(yxCoupons, YxCouponsDto.class);
-        yxCouponsDto.setOrderId(yxCouponOrder.getOrderId());
-        yxCouponsDto.setUsedCount(yxCouponOrderDetail.getUsedCount());
-        yxCouponsDto.setUseCount(yxCouponOrderDetail.getUseCount());
-        yxCouponsDto.setBuyTime(DateUtils.timestampToStr10(yxCouponOrder.getPayTime(), DateUtils.YYYY_MM_DD_HH_MM_SS));
-        yxCouponsDto.setAvailableTimeStr(yxCoupons.getAvailableTimeStart() + " ~ " + yxCoupons.getAvailableTimeEnd());
-        yxCouponsDto.setExpireDateStr(DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD, yxCoupons.getExpireDateStart()) + " ~ " + DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD, yxCoupons.getExpireDateEnd()));
-
         // 判断是否本商铺发放的卡券
         if (!yxCoupons.getCreateUserId().equals(uid)) {
             yxCouponsDto.setStatus(-3);
             yxCouponsDto.setStatusDesc("非本商户卡券");
             return yxCouponsDto;
         }
-        // 判断卡券状态
-        switch (yxCouponOrderDetail.getStatus()) {
-            case 0:
-                yxCouponsDto.setStatus(-5);
-                yxCouponsDto.setStatusDesc("待支付");
-                break;
-            case 1:
-                yxCouponsDto.setStatus(-6);
-                yxCouponsDto.setStatusDesc("已过期");
-                break;
-            case 2:
-                yxCouponsDto.setStatus(-7);
-                yxCouponsDto.setStatusDesc("待发放");
-                break;
-            case 3:
-                yxCouponsDto.setStatus(-8);
-                yxCouponsDto.setStatusDesc("支付失败");
-                break;
-            case 4:
-                yxCouponsDto.setStatus(4);
-                yxCouponsDto.setStatusDesc("待使用");
-                break;
-            case 5:
-                yxCouponsDto.setStatus(5);
-                yxCouponsDto.setStatusDesc("已使用");
-                break;
-            case 6:
-                yxCouponsDto.setStatus(-9);
-                yxCouponsDto.setStatusDesc("已核销");
-                break;
-            case 7:
-                yxCouponsDto.setStatus(-10);
-                yxCouponsDto.setStatusDesc("退款中");
-                break;
-            case 8:
-                yxCouponsDto.setStatus(-11);
-                yxCouponsDto.setStatusDesc("已退款");
-                break;
-            case 9:
-                yxCouponsDto.setStatus(-12);
-                yxCouponsDto.setStatusDesc("退款驳回");
-                break;
-            default:
-                yxCouponsDto.setStatus(-13);
-                yxCouponsDto.setStatusDesc("未知状态");
-                break;
+
+        List<YxCouponOrderDetail> list = this.yxCouponOrderDetailService.list(new QueryWrapper<YxCouponOrderDetail>().lambda().eq(YxCouponOrderDetail::getOrderId, orderId));
+        YxCouponOrderDetail yxCouponOrderDetail = null;
+        for (YxCouponOrderDetail item : list) {
+            // 可核销次数已核销次数
+            if (item.getUsedCount() >= item.getUseCount()) {
+                continue;
+            }
+            // 卡券状态判断
+            if (4 != item.getStatus() && 5 != item.getStatus()) {
+                continue;
+            }
+            // 核销上限
+            if (item.getUsedCount() >= item.getUseCount()) {
+                continue;
+            }
+            yxCouponOrderDetail = item;
+            break;
         }
+        if (null == yxCouponOrderDetail) {
+            throw new BadRequestException("当前订单无可用卡券");
+        }
+
+        // 组装返回参数
+        yxCouponsDto = generator.convert(yxCoupons, YxCouponsDto.class);
+        yxCouponsDto.setVerifyCode(Base64Utils.encode(yxCouponOrderDetail.getVerifyCode() + "," + yxCouponOrderDetail.getUid()));
+        yxCouponsDto.setOrderId(yxCouponOrder.getOrderId());
+        yxCouponsDto.setUsedCount(yxCouponOrderDetail.getUsedCount());
+        yxCouponsDto.setUseCount(yxCouponOrderDetail.getUseCount());
+        yxCouponsDto.setBuyTime(DateUtils.timestampToStr10(yxCouponOrder.getPayTime(), DateUtils.YYYY_MM_DD_HH_MM_SS));
+        yxCouponsDto.setAvailableTimeStr(yxCoupons.getAvailableTimeStart() + " ~ " + yxCoupons.getAvailableTimeEnd());
+        yxCouponsDto.setExpireDateStr(DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD, yxCoupons.getExpireDateStart()) + " ~ " + DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD, yxCoupons.getExpireDateEnd()));
+        yxCouponsDto.setStatus(yxCouponOrderDetail.getStatus());
+        yxCouponsDto.setStatusDesc("可核销");
         return yxCouponsDto;
     }
 }

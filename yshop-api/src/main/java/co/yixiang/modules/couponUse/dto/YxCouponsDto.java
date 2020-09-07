@@ -236,4 +236,7 @@ public class YxCouponsDto implements Serializable {
 
     /** 订单号 */
     private String orderId;
+
+    /** 核销码 */
+    private String verifyCode;
 }
