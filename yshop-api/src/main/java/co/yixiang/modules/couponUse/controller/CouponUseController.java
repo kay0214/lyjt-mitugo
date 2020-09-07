@@ -268,4 +268,16 @@ public class CouponUseController extends BaseController {
         return new ResponseEntity<>(map, HttpStatus.OK);
     }
 
+    @AnonymousAccess
+    @Log("手动核销查询卡券")
+    @ApiOperation("B端：手动核销查询卡券")
+    @GetMapping(value = "/getUseCouponInput/{orderId}")
+    public ResponseEntity<Object> getUseCouponInput(@PathVariable String orderId) {
+        // 获取登陆用户的id
+//        int uid = SecurityUtils.getUserId().intValue();
+        // 测试写死
+        int uid = 56;
+        return new ResponseEntity<>(this.yxCouponsService.getCouponByOrderId(orderId, uid), HttpStatus.OK);
+    }
+
 }

@@ -83,4 +83,13 @@ public interface YxCouponsService extends BaseService<YxCoupons> {
      * @return
      */
     YxCouponsDto getCouponByVerifyCode(String decodeVerifyCode, int uid);
+
+    /**
+     *
+     *
+     * @param orderId
+     * @param uid
+     * @return
+     */
+    YxCouponsDto getCouponByOrderId(String orderId, int uid);
 }
