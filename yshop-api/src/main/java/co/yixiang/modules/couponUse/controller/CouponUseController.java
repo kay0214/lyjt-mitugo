@@ -27,7 +27,6 @@ import co.yixiang.modules.shop.entity.YxStoreInfo;
 import co.yixiang.modules.shop.service.YxStoreInfoService;
 import co.yixiang.modules.user.service.YxUserService;
 import co.yixiang.utils.*;
-import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.wf.captcha.ArithmeticCaptcha;
 import io.swagger.annotations.Api;
@@ -174,7 +173,7 @@ public class CouponUseController extends BaseController {
     @ApiOperation("B端：获取商户及门店信息")
     public ApiResult<Object> getMerchantsDetailByUid(@RequestHeader(value = "token") String token) {
 
-        Map<String, String> map = new HashMap<>();
+        Map<String, Object> map = new HashMap<>();
         // 获取登陆用户的id
         SystemUser user = getRedisUser(token);
         if (null == user) {
@@ -207,7 +206,7 @@ public class CouponUseController extends BaseController {
 
         map.put("status", "1");
         map.put("statusDesc", "成功");
-        map.put("data", JSON.toJSONString(yxStoreInfoDto));
+        map.put("data", yxStoreInfoDto);
         return ApiResult.ok(map);
     }
 
