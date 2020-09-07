@@ -32,4 +32,7 @@ public class UserExtParam implements Serializable {
 
     // 银行预留手机号
     private String phone;
+
+    // 银行卡号
+    private String bankNo;
 }

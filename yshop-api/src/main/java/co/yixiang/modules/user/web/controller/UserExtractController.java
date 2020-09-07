@@ -63,6 +63,9 @@ public class UserExtractController extends BaseController {
         YxUserQueryVo userInfo = userService.getYxUserById(uid);
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("commissionCount", userInfo.getNowMoney());
+        map.put("phone", userInfo.getBankMobile());
+        map.put("bankNo", userInfo.getBankNo());
+        map.put("realName", userInfo.getRealName());
         map.put("minPrice", systemConfigService.getData(SystemConfigConstants.USER_EXTRACT_MIN_PRICE));
         return ApiResult.ok(map);
     }

@@ -82,7 +82,7 @@ public class YxUserExtractServiceImpl extends BaseServiceImpl<YxUserExtractMappe
         userExtract.setBalance(balance);
         userExtract.setStatus(0);
         userExtract.setUserType(1);
-        userExtract.setBankCode(userInfo.getBankNo());
+        userExtract.setBankCode(param.getBankNo());
         userExtract.setBankAddress(userInfo.getBankName());
         userExtract.setPhone(param.getPhone());
 
