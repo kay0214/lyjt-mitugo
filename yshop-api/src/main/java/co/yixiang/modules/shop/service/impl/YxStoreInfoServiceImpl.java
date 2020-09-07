@@ -228,7 +228,6 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
 
         IPage<LocalLiveListVo> iPage = yxStoreInfoMapper.getLocalLiveList(page, localLiveQueryParam);
         List<LocalLiveListVo> localLiveListVoList = iPage.getRecords();
-        iPage.setTotal(localLiveListVoList.size());
         for (LocalLiveListVo localLiveListVo : localLiveListVoList){
             if (StringUtils.isNotBlank(location) && location.split(",").length == 2 && StringUtils.isNotBlank(localLiveListVo.getCoordinateY()) && StringUtils.isNotBlank(localLiveListVo.getCoordinateX())) {
                 // 设置距离
