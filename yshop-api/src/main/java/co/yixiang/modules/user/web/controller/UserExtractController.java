@@ -15,6 +15,7 @@ import co.yixiang.modules.user.web.param.YxUserExtractQueryParam;
 import co.yixiang.modules.user.web.vo.YxUserExtractQueryVo;
 import co.yixiang.modules.user.web.vo.YxUserQueryVo;
 import co.yixiang.utils.SecurityUtils;
+import co.yixiang.utils.StringUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
@@ -63,9 +64,9 @@ public class UserExtractController extends BaseController {
         YxUserQueryVo userInfo = userService.getYxUserById(uid);
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("commissionCount", userInfo.getNowMoney());
-        map.put("phone", userInfo.getBankMobile());
-        map.put("bankNo", userInfo.getBankNo());
-        map.put("realName", userInfo.getRealName());
+        map.put("phone", StringUtils.isNotBlank(userInfo.getBankMobile()) ? userInfo.getBankMobile() : "");
+        map.put("bankNo", StringUtils.isNotBlank(userInfo.getBankNo()) ? userInfo.getBankNo() : "");
+        map.put("realName", StringUtils.isNotBlank(userInfo.getRealName()) ? userInfo.getRealName() : "");
         map.put("minPrice", systemConfigService.getData(SystemConfigConstants.USER_EXTRACT_MIN_PRICE));
         return ApiResult.ok(map);
     }
