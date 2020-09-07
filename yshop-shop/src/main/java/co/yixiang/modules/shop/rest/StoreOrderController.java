@@ -5,7 +5,6 @@
  */
 package co.yixiang.modules.shop.rest;
 
-import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
@@ -23,11 +22,7 @@ import co.yixiang.modules.shop.service.YxExpressService;
 import co.yixiang.modules.shop.service.YxStoreOrderService;
 import co.yixiang.modules.shop.service.YxStoreOrderStatusService;
 import co.yixiang.modules.shop.service.YxWechatUserService;
-import co.yixiang.modules.shop.service.dto.OrderCountDto;
-import co.yixiang.modules.shop.service.dto.YxExpressDto;
-import co.yixiang.modules.shop.service.dto.YxStoreOrderDto;
-import co.yixiang.modules.shop.service.dto.YxStoreOrderQueryCriteria;
-import co.yixiang.modules.shop.service.dto.YxWechatUserDto;
+import co.yixiang.modules.shop.service.dto.*;
 import co.yixiang.modules.shop.service.param.ExpressParam;
 import co.yixiang.mp.service.YxTemplateService;
 import co.yixiang.tools.express.ExpressService;
@@ -51,15 +46,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
 import javax.servlet.http.HttpServletResponse;
@@ -415,7 +402,7 @@ public class StoreOrderController {
     @Log("导出数据")
     @ApiOperation("导出数据")
     @GetMapping(value = "/yxStoreOrder/download")
-    @PreAuthorize("hasAnyRole('admin','cate:list')")
+    @PreAuthorize("hasAnyRole('admin','YXSTOREORDER_ALL','YXSTOREORDER_SELECT')")
     public void download(HttpServletResponse response,
                          YxStoreOrderQueryCriteria criteria,
                          Pageable pageable,
