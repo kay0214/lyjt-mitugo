@@ -8,8 +8,6 @@ import org.apache.rocketmq.client.producer.DefaultMQProducer;
 import org.apache.rocketmq.common.message.Message;
 import org.apache.rocketmq.remoting.exception.RemotingException;
 import org.apache.rocketmq.spring.core.RocketMQTemplate;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 /**
  * @ClassName 生成者
@@ -32,6 +30,7 @@ public class MqProducer {
     public void sendMsg(String topic, String msg) {
         DefaultMQProducer defaultMQProducer = rocketMQTemplate.getProducer();
 
+        // CMD
         Message message = new Message(topic,msg.getBytes());
         message.setDelayTimeLevel(14);
 
