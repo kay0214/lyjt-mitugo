@@ -116,11 +116,6 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
         }else{
             yxStoreProductMapper.decStockIncSales(num,productId);
         }
-        //todo 更新店铺销量
-        YxStoreProduct product = this.getById(productId);
-        YxStoreInfo yxStoreInfo = storeInfoMapper.selectById(product.getStoreId());
-        //设置销量
-
     }
 
     /**
