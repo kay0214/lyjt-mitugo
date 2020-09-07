@@ -6,11 +6,14 @@ package co.yixiang.modules.shop.web.controller;
 import cn.hutool.core.util.ObjectUtil;
 import co.yixiang.common.api.ApiResult;
 import co.yixiang.common.web.controller.BaseController;
+import co.yixiang.common.web.vo.Paging;
 import co.yixiang.enums.CouponEnum;
 import co.yixiang.logging.aop.log.Log;
 import co.yixiang.modules.shop.service.YxStoreCouponIssueService;
 import co.yixiang.modules.shop.service.YxStoreCouponUserService;
 import co.yixiang.modules.shop.web.param.YxStoreCouponQueryParam;
+import co.yixiang.modules.shop.web.param.YxStoreCouponUserQueryParam;
+import co.yixiang.modules.shop.web.vo.YxStoreCouponIssueQueryVo;
 import co.yixiang.modules.shop.web.vo.YxStoreCouponUserQueryVo;
 import co.yixiang.utils.SecurityUtils;
 import com.alibaba.fastjson.JSON;
@@ -54,7 +57,16 @@ public class CouponController extends BaseController {
         return ApiResult.ok(couponIssueService.getCouponListByStoreId(null==queryParam.getPage()?1:queryParam.getPage().intValue(),
                 queryParam.getLimit().intValue(),uid,queryParam.getStoreId()));
     }
-
+    @Log(value = "查看优惠券",type = 1)
+    @GetMapping("/couponsNew")
+    @ApiOperation(value = "可领取优惠券列表(分页)",notes = "可领取优惠券列表(分页)")
+    public ApiResult<Paging<YxStoreCouponIssueQueryVo>> getListNew(YxStoreCouponQueryParam queryParam){
+        int uid = SecurityUtils.getUserId().intValue();
+        /*return ApiResult.ok(couponIssueService.getCouponList(queryParam.getPage().intValue(),
+                queryParam.getLimit().intValue(),uid));*/
+        queryParam.setPage(null==queryParam.getPage()?1:queryParam.getPage().intValue());
+        return couponIssueService.getYxCouponsPageListByStoreId(queryParam,uid);
+    }
     /**
      * 领取优惠券
      */
@@ -97,6 +109,21 @@ public class CouponController extends BaseController {
                 list = storeCouponUserService.getUserCoupon(uid,3);
         }
         return ApiResult.ok(list);
+    }
+
+
+    @PostMapping("/coupons/userNew")
+    @ApiOperation(value = "用户已领取优惠券(分页)",notes = "用户已领取优惠券(分页)")
+    public ApiResult<Paging<YxStoreCouponUserQueryVo>> getUserListNew(@RequestBody YxStoreCouponUserQueryParam param) {
+        if (ObjectUtil.isEmpty(param.getType())) param.setType(0);
+        if (param.getType().equals(0)) {
+            param.setType(null);
+        }
+        param.setUid(SecurityUtils.getUserId().intValue());
+        if (ObjectUtil.isNotEmpty(param.getType()) && param.getType().equals(0) && !param.getType().equals(1) && !param.getType().equals(2)) {
+            param.setType(3);
+        }
+        return storeCouponUserService.getUserCouponNew(param);
     }
 
     /**

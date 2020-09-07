@@ -4,6 +4,7 @@
 package co.yixiang.modules.shop.service.impl;
 
 import cn.hutool.core.util.ObjectUtil;
+import co.yixiang.common.api.ApiResult;
 import co.yixiang.common.service.impl.BaseServiceImpl;
 import co.yixiang.common.web.vo.Paging;
 import co.yixiang.exception.ErrorRequestException;
@@ -14,6 +15,7 @@ import co.yixiang.modules.shop.mapper.YxStoreCouponIssueMapper;
 import co.yixiang.modules.shop.mapper.YxStoreCouponIssueUserMapper;
 import co.yixiang.modules.shop.service.*;
 import co.yixiang.modules.shop.web.param.YxStoreCouponIssueQueryParam;
+import co.yixiang.modules.shop.web.param.YxStoreCouponQueryParam;
 import co.yixiang.modules.shop.web.vo.YxStoreCouponIssueQueryVo;
 import co.yixiang.modules.shop.web.vo.YxStoreCouponQueryVo;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -187,5 +189,33 @@ public class YxStoreCouponIssueServiceImpl extends BaseServiceImpl<YxStoreCoupon
 
         }
         return list;
+    }
+
+    @Override
+    public ApiResult<Paging<YxStoreCouponIssueQueryVo>> getYxCouponsPageListByStoreId(YxStoreCouponQueryParam yxCouponsQueryParam, Integer uid) {
+        Paging<YxStoreCouponIssueQueryVo> paging =getYxCouponsPageListByStoreId(yxCouponsQueryParam);
+        if (paging.getRecords() != null && paging.getRecords().size() > 0) {
+            for (YxStoreCouponIssueQueryVo couponIssue : paging.getRecords()) {
+                //店铺名称
+                YxStoreInfo storeInfo = yxStoreInfoService.getById(couponIssue.getStoreId());
+                couponIssue.setStoreName(storeInfo.getStoreName());
+                int count = couponCount(couponIssue.getId(), uid);
+
+                if (count > 0) {
+                    couponIssue.setIsUse(true);
+                } else {
+                    couponIssue.setIsUse(false);
+                }
+            }
+        }
+
+        return ApiResult.ok(paging);
+    }
+
+    public Paging<YxStoreCouponIssueQueryVo> getYxCouponsPageListByStoreId(YxStoreCouponQueryParam yxCouponsQueryParam) {
+        Page page = setPageParam(yxCouponsQueryParam, OrderItem.desc(" B.sort "));
+        IPage<YxStoreCouponIssueQueryVo> iPage = yxStoreCouponIssueMapper.selectCouponListByStoreIdPage(page, yxCouponsQueryParam);
+        iPage.setTotal(yxStoreCouponIssueMapper.getCountByStoreId(yxCouponsQueryParam));
+        return new Paging(iPage);
     }
 }

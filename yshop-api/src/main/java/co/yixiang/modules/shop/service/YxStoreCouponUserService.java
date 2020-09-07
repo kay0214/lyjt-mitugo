@@ -3,6 +3,7 @@
  */
 package co.yixiang.modules.shop.service;
 
+import co.yixiang.common.api.ApiResult;
 import co.yixiang.common.service.BaseService;
 import co.yixiang.common.web.vo.Paging;
 import co.yixiang.modules.shop.entity.YxStoreCouponUser;
@@ -71,4 +72,6 @@ public interface YxStoreCouponUserService extends BaseService<YxStoreCouponUser>
      */
     List<YxStoreCouponUser> beUsableCouponListStore(int uid, double price,int storeId);
     List<YxStoreCouponUser> getCouponList(List<Integer> ids, int uid, Integer storeId);
+
+    ApiResult<Paging<YxStoreCouponUserQueryVo>> getUserCouponNew(YxStoreCouponUserQueryParam param);
 }

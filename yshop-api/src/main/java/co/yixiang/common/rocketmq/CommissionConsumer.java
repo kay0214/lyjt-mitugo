@@ -14,7 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
- * 短信消费端
+ * 分佣消费端
  */
 @Service
 @Slf4j
@@ -48,6 +48,6 @@ public class CommissionConsumer implements RocketMQListener<String>, RocketMQPus
         defaultMQPushConsumer.setMessageModel(MessageModel.CLUSTERING);
         //设置最大重试次数
         defaultMQPushConsumer.setMaxReconsumeTimes(MAX_RECONSUME_TIME);
-        log.info("====sms consumer=====");
+        log.info("====commission consumer=====");
     }
 }

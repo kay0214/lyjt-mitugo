@@ -15,6 +15,7 @@ import com.github.binarywang.wxpay.exception.WxPayException;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
@@ -171,7 +172,7 @@ public interface YxCouponOrderService extends BaseService<YxCouponOrder> {
      * @param uid
      * @return
      */
-    boolean updateCouponOrder(String decodeVerifyCode, int uid);
+    Map<String, String> updateCouponOrder(String decodeVerifyCode, int uid);
 
     /**
      * 手动核销卡券

@@ -3,10 +3,12 @@
  */
 package co.yixiang.modules.shop.service;
 
+import co.yixiang.common.api.ApiResult;
 import co.yixiang.common.service.BaseService;
 import co.yixiang.common.web.vo.Paging;
 import co.yixiang.modules.shop.entity.YxStoreCouponIssue;
 import co.yixiang.modules.shop.web.param.YxStoreCouponIssueQueryParam;
+import co.yixiang.modules.shop.web.param.YxStoreCouponQueryParam;
 import co.yixiang.modules.shop.web.vo.YxStoreCouponIssueQueryVo;
 
 import java.io.Serializable;
@@ -50,4 +52,6 @@ public interface YxStoreCouponIssueService extends BaseService<YxStoreCouponIssu
     void issueUserCouponNew(int id, int uid);
 
     List<YxStoreCouponIssueQueryVo> getCouponListByStoreId(int page, int limit, int uid,Integer storeId);
+
+    ApiResult<Paging<YxStoreCouponIssueQueryVo>> getYxCouponsPageListByStoreId(YxStoreCouponQueryParam yxCouponsQueryParam, Integer uid);
 }

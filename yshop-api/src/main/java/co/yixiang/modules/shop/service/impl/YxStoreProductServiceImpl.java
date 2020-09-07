@@ -116,11 +116,6 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
         }else{
             yxStoreProductMapper.decStockIncSales(num,productId);
         }
-        //todo 更新店铺销量
-        YxStoreProduct product = this.getById(productId);
-        YxStoreInfo yxStoreInfo = storeInfoMapper.selectById(product.getStoreId());
-        //设置销量
-
     }
 
     /**
@@ -289,7 +284,7 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
     @Override
     @Cached(name="cachedGoodList-", expire = CacheConstant.DEFAULT_EXPIRE_TIME, cacheType = CacheType.BOTH)
     @CacheRefresh(refresh = CacheConstant.DEFAULT_REFRESH_TIME, stopRefreshAfterLastAccess = CacheConstant.DEFAULT_STOP_REFRESH_TIME)
-    public List<YxStoreProductQueryVo> getList(int page, int limit, int order) {
+    public Paging<YxStoreProductQueryVo> getList(int page, int limit, int order) {
 
         QueryWrapper<YxStoreProduct> wrapper = new QueryWrapper<>();
         wrapper.eq("is_del",0).eq("is_show",1).orderByAsc("sort");
@@ -313,12 +308,12 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
 
         IPage<YxStoreProduct> pageList = yxStoreProductMapper.selectPage(pageModel,wrapper);
 
-        List<YxStoreProductQueryVo> list = storeProductMap.toDto(pageList.getRecords());
-        if(null == list){
-            return new ArrayList<>();
-        }
+//        List<YxStoreProductQueryVo> list = storeProductMap.toDto(pageList.getRecords());
+//        if(null == list){
+//            return new ArrayList<>();
+//        }
 
-        return list;
+        return new Paging(pageList);
     }
 
     @Override

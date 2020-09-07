@@ -26,4 +26,10 @@ public class OrderCountDTO implements Serializable {
 
     @ApiModelProperty(value = "购物车数量")
     private Integer cartCount;
+
+    @ApiModelProperty(value = "地址数量")
+    private Integer addressCount;
+    @ApiModelProperty(value = "推广人数")
+    private Integer spreadCount;
+
 }
