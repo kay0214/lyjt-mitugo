@@ -508,7 +508,7 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
         YxStoreOrderQueryVo order = null;
         try {
             order = getYxStoreOrderById(orderId);
-
+            log.info("取消订单：{}"+order);
             if (ObjectUtil.isNull(order)) throw new ErrorRequestException("订单不存在");
 
             if (order.getIsDel() == OrderInfoEnum.CANCEL_STATUS_1.getValue()) throw new ErrorRequestException("订单已取消");
@@ -519,9 +519,10 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
 
             regressionCoupon(order);
 
-            YxStoreOrder storeOrder = new YxStoreOrder();
+            YxStoreOrder storeOrder = yxStoreOrderMapper.selectById(order.getId());
             storeOrder.setIsDel(OrderInfoEnum.CANCEL_STATUS_1.getValue());
-            storeOrder.setId(order.getId());
+//            storeOrder.setId(order.getId());
+            log.info("保存取消结果：{}"+storeOrder);
             yxStoreOrderMapper.updateById(storeOrder);
         } catch (Exception e) {
             e.printStackTrace();
