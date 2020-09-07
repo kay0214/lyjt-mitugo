@@ -916,7 +916,7 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
         // 购物车数量
         QueryWrapper<YxStoreCart> wrapperCart = new QueryWrapper<>();
         if (uid > 0) wrapperCart.eq("uid", uid);
-        wrapperCart.eq("is_pay", 0);
+        wrapperCart.eq("type", "product").eq("is_pay", 0).eq("is_del", 0).eq("is_new", 0);
         countDTO.setCartCount(yxStoreCartMapper.selectCount(wrapperCart));
 
         return countDTO;
