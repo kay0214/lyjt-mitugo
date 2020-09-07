@@ -871,7 +871,7 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         item.setYxCoupons(yxCoupons);
         if (null != yxCouponOrder.getPayTime()) {
             // 购买时间
-            item.setBuyTime(DateUtils.timestampToStr10(yxCouponOrder.getPayTime() * 1000));
+            item.setBuyTime(DateUtils.timestampToStr10(yxCouponOrder.getPayTime(), DateUtils.YYYY_MM_DD_HH_MM_SS));
         }
 
         return item;
