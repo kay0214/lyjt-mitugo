@@ -42,7 +42,7 @@
 </template>
 
 <script>
-import { edit } from '@/api/yxCommissionRate'
+import { edit,get } from '@/api/yxCommissionRate'
 export default {
   name: 'YxCommissionRate',
   data() {
@@ -115,6 +115,22 @@ export default {
   },
   watch: {
   },
+  mounted(){
+    this.$nextTick(() => {
+      get().then(ret=>{
+        if(ret.id){
+          this.form=ret
+        }
+      }).catch(err => {
+        this.sublLoading = false
+        this.$notify({
+          title: '设置失败：'+err.response.data.message,
+          type: 'success',
+          duration: 2500
+        })
+      })
+    })
+  },
   methods: {
     async submit() {
        this.$refs.form.validate(ret=>{
@@ -125,7 +141,7 @@ export default {
   shareParentRate*1+this.form.parentRate*1+this.form.merRate*1+this.form.
   partnerRate*1+this.form.referenceRate*1===100){            
             this.sublLoading = true
-            edit(this.form.referenceRate).then(res => {
+            edit(this.form).then(res => {
               this.sublLoading = false
               this.$notify({
                 title: '设置成功',
@@ -133,8 +149,6 @@ export default {
                 duration: 2500
               })
             }).catch(err => {
-              console.log(err)
-              return
               this.sublLoading = false
               this.$notify({
                 title: '设置失败：'+err.response.data.message,
