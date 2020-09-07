@@ -41,7 +41,7 @@ public interface YxCouponsService extends BaseService<YxCoupons> {
      * @return
      * @throws Exception
      */
-    List<YxCouponsQueryVo> getCouponsHotList(YxCouponsQueryParam yxCouponsQueryParam) throws Exception;
+    Paging<YxCouponsQueryVo> getCouponsHotList(YxCouponsQueryParam yxCouponsQueryParam) throws Exception;
 
     /**
      * 根据商户id获取卡券信息
