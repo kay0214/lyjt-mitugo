@@ -10,6 +10,7 @@ import org.apache.rocketmq.client.producer.SendStatus;
 import org.apache.rocketmq.common.message.MessageConst;
 import org.apache.rocketmq.spring.core.RocketMQTemplate;
 import org.springframework.messaging.support.MessageBuilder;
+import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 
@@ -18,9 +19,8 @@ import javax.annotation.Resource;
  * @Author hupeng <610796224@qq.com>
  * @Date 2020/1/1
  **/
-//@Component
+@Component
 @Slf4j
-@AllArgsConstructor
 public class MqProducer {
 
     @Resource
