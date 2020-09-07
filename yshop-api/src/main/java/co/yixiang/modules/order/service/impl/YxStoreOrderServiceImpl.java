@@ -919,6 +919,12 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
         wrapperCart.eq("type", "product").eq("is_pay", 0).eq("is_del", 0).eq("is_new", 0);
         countDTO.setCartCount(storeCartMapper.selectCount(wrapperCart));
 
+        //地址数量
+        countDTO.setAddressCount(userAddressService.getUserAddressCount(uid));
+        //推广数量
+        YxUser user = userService.getById(uid);
+        countDTO.setSpreadCount(user.getSpreadCount());
+
         return countDTO;
     }
 
