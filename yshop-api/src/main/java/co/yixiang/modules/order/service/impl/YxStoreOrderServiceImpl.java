@@ -179,6 +179,9 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
     @Autowired
     private YxUserBillService userBillService;
 
+    @Autowired
+    private YxStoreCartMapper yxStoreCartMapper;
+
     @Value("${yshop.snowflake.datacenterId}")
     private Integer datacenterId;
 
@@ -910,6 +913,11 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
                 .in("refund_status", Arrays.asList(strArr));
         countDTO.setRefundCount(yxStoreOrderMapper.selectCount(wrapperSeven));
 
+        // 购物车数量
+        QueryWrapper<YxStoreCart> wrapperCart = new QueryWrapper<>();
+        if (uid > 0) wrapperCart.eq("uid", uid);
+        wrapperCart.eq("is_pay", 0);
+        countDTO.setCartCount(yxStoreCartMapper.selectCount(wrapperCart));
 
         return countDTO;
     }
