@@ -200,22 +200,25 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<YxUserBillMapper, YxU
         //更新user表的可提现金额
         //订单支付金额
         BigDecimal bigAmount = order.getPayPrice();
+        BigDecimal bigTotle = order.getPayPrice();
         SystemUserQueryVo systemUserQueryVo = systemUserService.getUserById(order.getMerId());
         bigAmount = bigAmount.add(systemUserQueryVo.getWithdrawalAmount());
+        bigTotle = bigTotle.add(systemUserQueryVo.getTotalAmount());
         SystemUser systemUser = systemUserService.getById(order.getMerId());
         systemUser.setWithdrawalAmount(bigAmount);
-        systemUser.setTotalAmount(bigAmount);
+        systemUser.setTotalAmount(bigTotle);
         systemUserService.updateById(systemUser);
         //插入资金明细
         YxUserBill userBill = new YxUserBill();
         userBill.setUid(order.getMerId());
         userBill.setLinkId(order.getOrderId());
+        userBill.setPm(BillEnum.PM_1.getValue());
         userBill.setTitle("商户返现");
-        userBill.setCategory(BillDetailEnum.CATEGORY_2.getValue());
+        userBill.setCategory(BillDetailEnum.CATEGORY_1.getValue());
         userBill.setType(BillDetailEnum.TYPE_9.getValue());
         userBill.setNumber(order.getPayPrice());
         userBill.setUsername(systemUserQueryVo.getUsername());
-        userBill.setBalance(bigAmount);
+        userBill.setBalance(order.getPayPrice());
         userBill.setMerId(order.getMerId());
         userBill.setMark("订单确认收货，商户返现");
         userBill.setAddTime(OrderUtil.getSecondTimestampTwo());

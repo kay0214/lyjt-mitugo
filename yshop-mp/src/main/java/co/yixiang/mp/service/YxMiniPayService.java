@@ -107,7 +107,7 @@ public class YxMiniPayService {
         wxPayRefundRequest.setOutTradeNo(payNo);
         wxPayRefundRequest.setOutRefundNo(orderId);
         wxPayRefundRequest.setRefundFee(totalFee);//退款金额
-        wxPayRefundRequest.setNotifyUrl(apiUrl + "/api/notify/refund");
+        wxPayRefundRequest.setNotifyUrl(apiUrl + "/api/notify/refundNew");
 
         wxPayService.refund(wxPayRefundRequest);
     }
