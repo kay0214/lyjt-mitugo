@@ -37,11 +37,11 @@ public class YxCouponCancelOrderTask {
 
     public void run() {
         log.info("---------------------优惠券过期取消订单开始---------------------");
-        List<YxCoupons> yxCoupons = this.yxCouponsService.list(new QueryWrapper<YxCoupons>().lambda().le(YxCoupons::getExpireDateEnd, LocalDateTime.now()));
-        if (null == yxCoupons || yxCoupons.size() <= 0) {
+        List<YxCoupons> list = this.yxCouponsService.list(new QueryWrapper<YxCoupons>().lambda().le(YxCoupons::getExpireDateEnd, LocalDateTime.now()).eq(YxCoupons::getIsShow, 1));
+        if (null == list || list.size() <= 0) {
             return;
         }
-        for (YxCoupons item : yxCoupons) {
+        for (YxCoupons item : list) {
             log.info("卡券id：" + item.getId() + "卡券名称：" + item.getCouponName() + "开始处理过期订单...");
             LambdaQueryWrapper<YxCouponOrder> orderWapper = new QueryWrapper<YxCouponOrder>().lambda().eq(YxCouponOrder::getCouponId, item.getId());
             // 0:待支付 1:已过期 2:待发放3:支付失败4:待使用5:已使用6:已核销7:退款中8:已退款9:退款驳回
@@ -54,6 +54,10 @@ public class YxCouponCancelOrderTask {
             YxCouponOrderDetail yxCouponOrderDetail = new YxCouponOrderDetail();
             yxCouponOrderDetail.setStatus(2);
             yxCouponOrderDetailService.update(yxCouponOrderDetail, orderDetailWapper);
+            YxCoupons yxCoupons = new YxCoupons();
+            yxCoupons.setIsShow(0);
+            yxCoupons.setId(item.getId());
+            this.yxCouponsService.updateById(yxCoupons);
             log.info("卡券id：" + item.getId() + "卡券名称：" + item.getCouponName() + "过期订单处理结束...");
         }
         log.info("---------------------优惠券过期取消订单结束---------------------");
