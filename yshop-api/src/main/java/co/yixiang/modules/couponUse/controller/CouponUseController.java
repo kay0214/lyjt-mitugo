@@ -290,4 +290,18 @@ public class CouponUseController extends BaseController {
         return new ResponseEntity<>(this.yxCouponsService.getCouponByOrderId(orderId, uid), HttpStatus.OK);
     }
 
+    /**
+     * 从redis里面获取用户
+     * @param token
+     * @return
+     */
+    private SystemUser getRedisUser(String token){
+        if(StringUtils.isBlank(token)){
+            return null;
+        }
+        if(redisUtils.hasKey(token)){
+            return (SystemUser)redisUtils.get(token);
+        }
+        return null;
+    }
 }
