@@ -48,7 +48,7 @@
             <el-button type="primary" size="mini" @click="withdraw($event,formWithdraw.extractPrice)">提现</el-button>
           </div>
           </el-form>
-          <el-button slot="reference" type="primary">提现</el-button>
+          <el-button v-permission='permission.withdraw' slot="reference" type="primary">提现</el-button>
         </el-popover>   
       </el-row>
 
@@ -102,12 +102,16 @@ import { formatTime } from '@/utils/index'
 import { Notification } from 'element-ui'
 export default {
   components: { eForm, pForm },
-  mixins: [initData],
+  mixins: [initData],	
+
   data() {
     return {
       delLoading: false, username: '', category: '', type: '',visible:false,formWithdraw:{},
       remainPrice:0,// 账户余额
       totalPrice :0,//累计总金额金额
+      permission: {
+        withdraw: ['admin', 'YXUSERBILL_WITHDRAW'],
+      },
       queryTypeOptions: [
         { key: 'username', display_name: '用户昵称' },
         { key: 'phone', display_name: '手机号码' }
