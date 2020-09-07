@@ -36,7 +36,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -98,7 +97,7 @@ public class CouponUseController extends BaseController {
     @AnonymousAccess
     @ApiOperation("获取验证码")
     @GetMapping(value = "/code")
-    public ResponseEntity<Object> getCode() {
+    public ApiResult<Object> getCode() {
         // 算术类型 https://gitee.com/whvse/EasyCaptcha
         ArithmeticCaptcha captcha = new ArithmeticCaptcha(111, 36);
         // 几位数运算，默认是两位
@@ -118,7 +117,7 @@ public class CouponUseController extends BaseController {
             put("img", captcha.toBase64());
             put("uuid", uuid);
         }};
-        return ResponseEntity.ok(imgResult);
+        return ApiResult.ok(imgResult);
     }
 
     @Log("B端核销登陆")
