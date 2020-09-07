@@ -994,7 +994,7 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         if (1 == yxCouponOrder.getRefundStatus()) {
             throw new BadRequestException("退款申请中的订单无法核销");
         }
-        if (!yxCouponOrder.getUid().equals(useUid)) {
+        if (!useUid.equals(yxCouponOrder.getUid() + "")) {
             throw new BadRequestException("核销码与用户信息不匹配");
         }
         // 查询优惠券信息

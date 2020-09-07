@@ -50,15 +50,6 @@ private String mailbox;
 @ApiModelProperty(value = "认证类型：0->个人,1->企业,2->个体商户")
 private Integer merchantsType;
 
-@ApiModelProperty(value = "手持证件照")
-private String personIdcardImg;
-
-@ApiModelProperty(value = "证件照人像面")
-private String personIdcardImgFace;
-
-@ApiModelProperty(value = "证件照国徽面")
-private String personIdcardImgBack;
-
 @ApiModelProperty(value = "银行账号")
 private String bankNo;
 
@@ -97,24 +88,6 @@ private String businessCategory;
 
 @ApiModelProperty(value = "主体资质类型")
 private String qualificationsType;
-
-@ApiModelProperty(value = "营业执照")
-private String businessLicenseImg;
-
-@ApiModelProperty(value = "银行开户证明")
-private String bankOpenProveImg;
-
-@ApiModelProperty(value = " 法人身份证头像面")
-private String legalIdcardImgFace;
-
-@ApiModelProperty(value = "法人身份证国徽面")
-private String legalIdcardImgBack;
-
-@ApiModelProperty(value = "门店照及经营场所")
-private String storeImg;
-
-@ApiModelProperty(value = "医疗机构许可证")
-private String licenceImg;
 
 @ApiModelProperty(value = "是否删除（0：未删除，1：已删除）")
 private Integer delFlag;

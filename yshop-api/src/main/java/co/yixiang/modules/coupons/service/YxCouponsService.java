@@ -78,9 +78,9 @@ public interface YxCouponsService extends BaseService<YxCoupons> {
     /**
      * 根据核销码查询卡券信息
      *
-     * @param verifyCode
+     * @param decodeVerifyCode
      * @param uid
      * @return
      */
-    YxCouponsDto getCouponByVerifyCode(String verifyCode, int uid);
+    YxCouponsDto getCouponByVerifyCode(String decodeVerifyCode, int uid);
 }

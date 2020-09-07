@@ -5,6 +5,8 @@
  */
 package co.yixiang.utils;
 
+import cn.hutool.core.date.DateTime;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
 
 import java.lang.management.ManagementFactory;
@@ -171,5 +173,38 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
     public static LocalDateTime dateToLocalDate(Date date) {
         return LocalDateTime.ofInstant(Instant.ofEpochMilli(date.getTime()), ZoneId.systemDefault());
 
+    }
+    /**
+     * 10位时间戳转字符串   默认为yyyy-MM-dd HH:mm:ss
+     *
+     * @param timestamp
+     * @param format
+     * @return
+     */
+    public static String timestampToStr10(Integer timestamp, String format) {
+        if (StringUtils.isEmpty(format)) {
+            return timestampToStr10(timestamp);
+        }
+        if (timestamp == null || timestamp == 0) {
+            return "";
+        }
+        Long time = Long.valueOf(timestamp) * 1000;
+        DateTime now = new DateTime(time);
+        return now.toString(format);
+    }
+
+    /**
+     * 10位时间戳转字符串yyyy-MM-dd HH:mm:ss
+     *
+     * @param timestamp
+     * @return
+     */
+    public static String timestampToStr10(Integer timestamp) {
+        if (timestamp == null || timestamp == 0) {
+            return "";
+        }
+        Long time = Long.valueOf(timestamp);
+        DateTime now = new DateTime(time);
+        return now.toString(YYYY_MM_DD_HH_MM_SS);
     }
 }

@@ -8,12 +8,15 @@ import co.yixiang.constant.LocalLiveConstants;
 import co.yixiang.constant.ShopConstants;
 import co.yixiang.dozer.service.IGenerator;
 import co.yixiang.enums.CommonEnum;
+import co.yixiang.exception.BadRequestException;
 import co.yixiang.exception.ErrorRequestException;
 import co.yixiang.modules.couponUse.dto.YxCouponsDto;
+import co.yixiang.modules.coupons.entity.YxCouponOrder;
 import co.yixiang.modules.coupons.entity.YxCouponOrderDetail;
 import co.yixiang.modules.coupons.entity.YxCoupons;
 import co.yixiang.modules.coupons.mapper.YxCouponsMapper;
 import co.yixiang.modules.coupons.service.YxCouponOrderDetailService;
+import co.yixiang.modules.coupons.service.YxCouponOrderService;
 import co.yixiang.modules.coupons.service.YxCouponsService;
 import co.yixiang.modules.coupons.web.param.YxCouponsQueryParam;
 import co.yixiang.modules.coupons.web.vo.LocalLiveCouponsVo;
@@ -60,6 +63,8 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
     private YxImageInfoMapper yxImageInfoMapper;
     @Autowired
     private YxCouponOrderDetailService yxCouponOrderDetailService;
+    @Autowired
+    private YxCouponOrderService yxCouponOrderService;
     private final IGenerator generator;
 
     public YxCouponsServiceImpl(IGenerator generator) {
@@ -182,18 +187,33 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
     /**
      * 根据核销码查询卡券信息
      *
-     * @param verifyCode
+     * @param decodeVerifyCode
      * @param uid
      * @return
      */
     @Override
-    public YxCouponsDto getCouponByVerifyCode(String verifyCode, int uid) {
+    public YxCouponsDto getCouponByVerifyCode(String decodeVerifyCode, int uid) {
+        String[] decode = decodeVerifyCode.split(",");
+        if (decode.length != 2) {
+            throw new BadRequestException("无效核销码");
+        }
+        // 获取核销码
+        String verifyCode = decode[0];
+        // 获取核销用户的id
+        String useUid = decode[1];
         YxCouponsDto yxCouponsDto = new YxCouponsDto();
         YxCouponOrderDetail yxCouponOrderDetail = this.yxCouponOrderDetailService.getOne(new QueryWrapper<YxCouponOrderDetail>().eq("verify_code", verifyCode));
         if (null == yxCouponOrderDetail) {
             yxCouponsDto.setStatus(-1);
             yxCouponsDto.setStatusDesc("无效卡券");
             return yxCouponsDto;
+        }
+        YxCouponOrder yxCouponOrder = this.yxCouponOrderService.getOne(new QueryWrapper<YxCouponOrder>().eq("order_id", yxCouponOrderDetail.getOrderId()));
+        if (null == yxCouponOrder) {
+            throw new BadRequestException("查询卡券订单失败");
+        }
+        if (!useUid.equals(yxCouponOrder.getUid() + "")) {
+            throw new BadRequestException("核销码与用户信息不匹配");
         }
         // 查询优惠券信息
         YxCoupons yxCoupons = this.getById(yxCouponOrderDetail.getCouponId());
@@ -202,13 +222,21 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
             yxCouponsDto.setStatusDesc("卡券已失效");
             return yxCouponsDto;
         }
+        // 组装返回参数
+        yxCouponsDto = generator.convert(yxCoupons, YxCouponsDto.class);
+        yxCouponsDto.setOrderId(yxCouponOrder.getOrderId());
+        yxCouponsDto.setUsedCount(yxCouponOrderDetail.getUsedCount());
+        yxCouponsDto.setUseCount(yxCouponOrderDetail.getUseCount());
+        yxCouponsDto.setBuyTime(DateUtils.timestampToStr10(yxCouponOrder.getPayTime(), DateUtils.YYYY_MM_DD_HH_MM_SS));
+        yxCouponsDto.setAvailableTimeStr(yxCoupons.getAvailableTimeStart() + " ~ " + yxCoupons.getAvailableTimeEnd());
+        yxCouponsDto.setExpireDateStr(DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD, yxCoupons.getExpireDateStart()) + " ~ " + DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD, yxCoupons.getExpireDateEnd()));
+
         // 判断是否本商铺发放的卡券
         if (!yxCoupons.getCreateUserId().equals(uid)) {
             yxCouponsDto.setStatus(-3);
             yxCouponsDto.setStatusDesc("非本商户卡券");
             return yxCouponsDto;
         }
-        yxCouponsDto = generator.convert(yxCoupons, YxCouponsDto.class);
         // 可核销次数已核销次数
         if (yxCouponOrderDetail.getUsedCount() >= yxCouponOrderDetail.getUseCount()) {
             yxCouponsDto.setStatus(-4);

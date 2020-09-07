@@ -161,6 +161,7 @@ public class CouponUseController extends BaseController {
         return ApiResult.ok(authInfo);
     }
 
+    @AnonymousAccess
     @GetMapping(value = "/getMerchantsDetailByUid")
     @Log("获取商户及门店信息")
     @ApiOperation("B端：获取商户及门店信息")
@@ -199,6 +200,7 @@ public class CouponUseController extends BaseController {
         return new ResponseEntity<>(map, HttpStatus.OK);
     }
 
+    @AnonymousAccess
     @Log("根据核销码查询卡券信息")
     @ApiOperation("B端：根据核销码查询卡券信息")
     @GetMapping(value = "/getCouponDetail/{verifyCode}")
@@ -211,6 +213,7 @@ public class CouponUseController extends BaseController {
     }
 
 
+    @AnonymousAccess
     @Log("查询核销记录")
     @ApiOperation("B端：查询核销记录")
     @PostMapping("/getOrderUseList")
@@ -223,6 +226,7 @@ public class CouponUseController extends BaseController {
         return new ResponseEntity<>(yxCouponOrderUseService.queryAll(criteria, pageable), HttpStatus.OK);
     }
 
+    @AnonymousAccess
     @Log("扫码核销卡券")
     @ApiOperation("B端：扫码核销卡券")
     @GetMapping(value = "/useCoupon/{verifyCode}")
@@ -243,6 +247,7 @@ public class CouponUseController extends BaseController {
         return new ResponseEntity<>(map, HttpStatus.OK);
     }
 
+    @AnonymousAccess
     @Log("手动核销卡券")
     @ApiOperation("B端：手动核销卡券")
     @GetMapping(value = "/useCouponInput/{orderId}")
