@@ -505,7 +505,7 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<StoreOrderMapper, Y
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void refund(YxStoreOrder resources) {
-        if (resources.getPayPrice().doubleValue() < 0) {
+        if (resources.getPayPrice().doubleValue() <= 0) {
             throw new BadRequestException("请输入退款金额");
         }
 
