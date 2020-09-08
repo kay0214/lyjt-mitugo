@@ -353,7 +353,7 @@
         <el-table-column v-if="columns.visible('useCondition')" prop="useCondition" label="使用条件" width="180px" />
         <el-table-column label="可用时段" width="150px">
           <template slot-scope="scope">
-            {{ parseTime(scope.row.availableTimeStart,'{h}:{i}:{s}') }} ~ {{ parseTime(scope.row.availableTimeEnd,'{h}:{i}:{s}') }}
+            {{ scope.row.availableTimeStart }} ~ {{ scope.row.availableTimeEnd }}
           </template>
         </el-table-column>
         <!-- <el-table-column v-if="columns.visible('availableTimeStart')" prop="availableTimeStart" label="可用时间始" />
