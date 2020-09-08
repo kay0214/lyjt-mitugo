@@ -7,7 +7,7 @@
       <el-form-item label="小程序跳转page">
         <el-input v-model="form.url" style="width: 300px;" maxlength="20" />
       </el-form-item>
-      <el-form-item label="分类图标">
+      <el-form-item label="分类图标" required="true">
         <MaterialList v-model="form.imageArr" style="width: 300px" type="image" :num="1" :width="150" :height="150" />
       </el-form-item>
       <el-form-item label="排序">
