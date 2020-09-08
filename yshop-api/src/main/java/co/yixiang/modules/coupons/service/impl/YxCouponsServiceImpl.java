@@ -157,7 +157,7 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
 
     @Override
     public List<LocalLiveCouponsVo> getCouponsListByPram(Integer id, String keyword) {
-        QueryWrapper queryWrapper = new QueryWrapper<YxCoupons>().last("limit 3").eq("store_id", id).eq("del_flag", 0).eq("is_show", 1);
+        QueryWrapper queryWrapper = new QueryWrapper<YxCoupons>().last("limit 3").eq("store_id", id).eq("del_flag", 0).eq("is_show", 1).ge("expire_date_end", LocalDateTime.now());
         // 输入查询文字的模糊查询卡券名称
         if (StringUtils.isNotBlank(keyword)) {
             queryWrapper.like("coupon_name", keyword);

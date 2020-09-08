@@ -22,6 +22,7 @@ import co.yixiang.utils.FileUtil;
 import co.yixiang.utils.StringUtils;
 import co.yixiang.utils.ValidationUtil;
 import com.github.pagehelper.PageInfo;
+import org.apache.commons.logging.LogFactory;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.reflect.CodeSignature;
 import org.aspectj.lang.reflect.MethodSignature;
@@ -45,7 +46,7 @@ import java.util.Map;
 @Service
 @Transactional(propagation = Propagation.SUPPORTS, readOnly = true, rollbackFor = Exception.class)
 public class LogServiceImpl extends BaseServiceImpl<LogMapper, co.yixiang.logging.domain.Log>  implements LogService {
-
+    private final org.apache.commons.logging.Log logger = LogFactory.getLog(LogServiceImpl.class);
 
     private final LogMapper logMapper;
 
@@ -117,6 +118,9 @@ public class LogServiceImpl extends BaseServiceImpl<LogMapper, co.yixiang.loggin
 
         if(methodName.contains(goodMethod)||methodName.contains(couponMethod)){
             Integer id = getId(joinPoint);
+            if(id == 0){
+                logger.info("访问方法为:"+methodName);
+            }
             log.setProductType(1);
             log.setProductId(id);
             if(couponMethod.equals(methodName)) {
@@ -200,7 +204,7 @@ public class LogServiceImpl extends BaseServiceImpl<LogMapper, co.yixiang.loggin
     }
 
     public Integer getId(ProceedingJoinPoint joinPoint){
-        String value = null;
+        String value = "0";
         Object[] args = joinPoint.getArgs();
         String[] paramNames = ((CodeSignature) joinPoint.getSignature()).getParameterNames();
         // 遍历请求中的参数名

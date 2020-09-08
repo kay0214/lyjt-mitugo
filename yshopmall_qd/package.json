@@ -25,13 +25,6 @@
       "git add"
     ]
   },
-  "repository": {
-    "type": "git",
-    "url": "https://gitee.com/guchengwuyue/yshopmall"
-  },
-  "bugs": {
-    "url": "https://gitee.com/guchengwuyue/yshopmall/issues"
-  },
   "dependencies": {
     "@riophae/vue-treeselect": "0.1.0",
     "@vue/babel-plugin-transform-vue-jsx": "^1.1.2",

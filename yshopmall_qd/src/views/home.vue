@@ -35,7 +35,6 @@ import PanelGroupT from './dashboard/PanelGroupT'
 import PieChart from './dashboard/BarChartT'
 import BarChart from './dashboard/BarChart'
 import { count } from '@/api/visits'
-import YshopInfo from './dashboard/YshopInfo'
 import OrderCount from './dashboard/OrderCount'
 
 /**
@@ -51,7 +50,6 @@ export default {
     PanelGroupT,
     PieChart,
     BarChart,
-    YshopInfo,
     OrderCount
   },
   computed: {
