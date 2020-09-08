@@ -14,6 +14,8 @@ import co.yixiang.constant.SystemConfigConstants;
 import co.yixiang.enums.*;
 import co.yixiang.exception.ErrorRequestException;
 import co.yixiang.modules.activity.service.*;
+import co.yixiang.modules.manage.entity.SystemUser;
+import co.yixiang.modules.manage.service.SystemUserService;
 import co.yixiang.modules.manage.service.YxExpressService;
 import co.yixiang.modules.manage.web.dto.ChartDataDTO;
 import co.yixiang.modules.manage.web.dto.OrderDataDTO;
@@ -153,6 +155,9 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
     private AlipayConfigService alipayService;
     @Autowired
     private YxSystemStoreService systemStoreService;
+
+    @Autowired
+    private SystemUserService systemUserService;
 
     @Autowired
     private OrderMap orderMap;
@@ -2154,6 +2159,7 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
         yxStoreOrderMapper.update(storeOrder, wrapper);
 
         List<YxStoreOrderQueryVo> orderInfoList = getOrderInfoList(orderId, 0);
+        YxUser yxUser = this.userService.getById(orderInfoList.get(0).getUid());
         if (CollectionUtils.isNotEmpty(orderInfoList)) {
             for (YxStoreOrderQueryVo orderInfo : orderInfoList) {
                 //增加用户购买次数
@@ -2176,6 +2182,58 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
                 //保存信息
                 yxStoreCartService.saveOrUpdateBatch(storeCartList);
 
+                // 插入资金明细
+                YxUserBill yxUserBill = new YxUserBill();
+                yxUserBill.setUid(orderInfo.getUid());
+                yxUserBill.setLinkId(orderInfo.getOrderId());
+                yxUserBill.setPm((BillEnum.PM_0.getValue()));
+                yxUserBill.setTitle("小程序购买商品");
+                yxUserBill.setCategory(BillDetailEnum.CATEGORY_1.getValue());
+                yxUserBill.setType(BillDetailEnum.TYPE_3.getValue());
+                yxUserBill.setNumber(orderInfo.getPayPrice());
+                // 目前只支持微信付款、没有余额
+//        yxUserBill.setBalance(yxUser.getNowMoney());
+                yxUserBill.setAddTime(DateUtils.getNowTime());
+                yxUserBill.setStatus(BillEnum.STATUS_1.getValue());
+                yxUserBill.setMerId(orderInfo.getMerId());
+                //前端用户
+                yxUserBill.setUserType(1);
+                yxUserBill.setUsername(yxUser.getUsername());
+                this.billService.save(yxUserBill);
+
+//                // 更新商户余额  商户余额在确认收货时更新
+//                SystemUser systemUser = this.systemUserService.getById(orderInfo.getMerId());
+//                if (null == systemUser) {
+//                    log.error("订单编号：" + orderInfo.getOrderId() + "未查询到商户所属的id，无法记录资金去向");
+//                    continue;
+//                }
+//                // 该笔资金实际到账
+//                SystemUser updateSystemUser = new SystemUser();
+//                BigDecimal truePrice = orderInfo.getPayPrice().subtract(orderInfo.getCommission());
+//                updateSystemUser.setId(systemUser.getId());
+//                updateSystemUser.setTotalAmount(truePrice);
+//                updateSystemUser.setWithdrawalAmount(truePrice);
+//                this.systemUserService.updateUserTotal(updateSystemUser);
+//
+//                // 更新商户明细
+//                // 插入商户资金明细
+//                YxUserBill merBill = new YxUserBill();
+//                merBill.setUid(orderInfo.getMerId());
+//                merBill.setLinkId(orderInfo.getOrderId());
+//                merBill.setPm(1);
+//                merBill.setTitle("小程序购买商品");
+//                merBill.setCategory(BillDetailEnum.CATEGORY_1.getValue());
+//                merBill.setType(BillDetailEnum.TYPE_3.getValue());
+//                merBill.setNumber(orderInfo.getPayPrice().subtract(orderInfo.getCommission()));
+//                // 目前只支持微信付款、没有余额
+//                merBill.setBalance(updateSystemUser.getWithdrawalAmount());
+//                merBill.setAddTime(DateUtils.getNowTime());
+//                merBill.setStatus(1);
+//                merBill.setMerId(orderInfo.getMerId());
+//                merBill.setUserType(2);
+//                merBill.setUsername(systemUser.getUsername());
+//                this.billService.save(merBill);
+
                 //模板消息推送
                 YxWechatUserQueryVo wechatUser = wechatUserService.getYxWechatUserById(orderInfo.getUid());
                 if (ObjectUtil.isNotNull(wechatUser)) {
@@ -2187,7 +2245,6 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
                 }
             }
         }
-        YxUser yxUser = this.userService.getById(orderInfoList.get(0).getUid());
         // 判断用户是否是分销客、不是更新成分销客
         if (null != yxUser && 0 == yxUser.getUserRole()) {
             YxUser updateUser = new YxUser();
@@ -2195,24 +2252,6 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
             updateUser.setUserRole(1);
             this.userService.updateById(updateUser);
         }
-        // 插入资金明细
-        YxUserBill yxUserBill = new YxUserBill();
-        yxUserBill.setUid(orderInfoList.get(0).getUid());
-        yxUserBill.setLinkId(orderInfoList.get(0).getOrderId());
-        yxUserBill.setPm((BillEnum.PM_0.getValue()));
-        yxUserBill.setTitle("小程序购买商品");
-        yxUserBill.setCategory(BillDetailEnum.CATEGORY_1.getValue());
-        yxUserBill.setType(BillDetailEnum.TYPE_3.getValue());
-        yxUserBill.setNumber(orderInfoList.get(0).getPayPrice());
-        // 目前只支持微信付款、没有余额
-//        yxUserBill.setBalance(yxUser.getNowMoney());
-        yxUserBill.setAddTime(DateUtils.getNowTime());
-        yxUserBill.setStatus(BillEnum.STATUS_1.getValue());
-        yxUserBill.setMerId(orderInfoList.get(0).getMerId());
-        //前端用户
-        yxUserBill.setUserType(1);
-        yxUserBill.setUsername(yxUser.getUsername());
-        this.billService.save(yxUserBill);
     }
 
     @Override

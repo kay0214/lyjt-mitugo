@@ -141,7 +141,7 @@
               @click="detail(scope.row)"
             >
               订单详情</el-button>
-            <el-dropdown size="mini" split-button type="primary" trigger="click">
+            <el-dropdown v-if="checkPermission(['admin','YXSTOREORDER_ALL','YXSTOREORDER_EDIT','YXSTOREORDER_DELETE'])" size="mini" split-button type="primary" trigger="click">
               操作
               <el-dropdown-menu slot="dropdown">
                 <el-dropdown-item>

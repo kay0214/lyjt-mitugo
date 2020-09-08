@@ -18,6 +18,7 @@
 import { getToken } from '@/utils/auth'
 import { mapGetters } from 'vuex'
 export default {
+  name: 'PicUploadTwo',
   props: {
     value: {
       default: '',
