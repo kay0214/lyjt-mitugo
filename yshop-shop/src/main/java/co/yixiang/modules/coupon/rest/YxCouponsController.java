@@ -70,7 +70,7 @@ public class YxCouponsController {
     @Log("查询卡券表")
     @ApiOperation("查询卡券表")
     @PreAuthorize("@el.check('admin','yxCoupons:list')")
-    public ResponseEntity<Object> getYxCouponss(YxCouponsQueryCriteria criteria, Pageable pageable) {
+    public ResponseEntity<Object> getYxCoupons(YxCouponsQueryCriteria criteria, Pageable pageable) {
         CurrUser currUser = SecurityUtils.getCurrUser();
         criteria.setUserRole(currUser.getUserRole());
         if (null != currUser.getChildUser()) {

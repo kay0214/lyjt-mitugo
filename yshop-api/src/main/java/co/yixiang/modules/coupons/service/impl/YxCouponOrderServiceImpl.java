@@ -666,6 +666,9 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
             case STATUS_MINUS_1://退款售后
                 wrapper.in("status", 7, 8, 9).or().eq("refund_status", 1);
                 break;
+            case STATUS_MINUS_2://已取消
+                wrapper.eq("status", 10);
+                break;
             default:
                 throw new BadRequestException("接口异常");
         }
@@ -933,6 +936,14 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         wrapper7.eq("del_flag", CommonEnum.DEL_STATUS_0.getValue());
         wrapper7.eq("status", 1);
         countVO.setOutTimeCount(this.count(wrapper7));
+
+        // 已取消
+        QueryWrapper<YxCouponOrder> wrapper8 = new QueryWrapper<>();
+        wrapper8.eq("uid", uid);
+        wrapper8.eq("del_flag", CommonEnum.DEL_STATUS_0.getValue());
+        wrapper8.eq("status", 10);
+        countVO.setOutTimeCount(this.count(wrapper8));
+
         return countVO;
     }
 
