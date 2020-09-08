@@ -84,4 +84,6 @@ public interface YxUserMapper extends BaseMapper<YxUser> {
      */
     IPage<YxUserQueryVo> getYxUserPageList(@Param("page") Page page, @Param("param") YxUserQueryParam yxUserQueryParam);
 
+    @Update("update `yx_user` set `push_count` = `push_count` + 1 where `uid` = #{spread}")
+    int updateUserPusCount(@Param("spread") int spread);
 }
