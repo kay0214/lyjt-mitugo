@@ -507,6 +507,7 @@ public class WechatController extends BaseController {
             merBill.setMerId(orderInfo.getMerId());
             merBill.setUserType(2);
             merBill.setUsername(systemUser.getUsername());
+            merBill.setMark("小程序购买商品订单退款");
             this.yxUserBillService.save(merBill);
 
             log.info("退款回调通知处理 ，更新 ： "+ JSONObject.toJSONString(orderInfo));
