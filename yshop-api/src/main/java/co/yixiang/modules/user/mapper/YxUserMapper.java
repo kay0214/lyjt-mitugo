@@ -86,4 +86,12 @@ public interface YxUserMapper extends BaseMapper<YxUser> {
 
     @Update("update `yx_user` set `push_count` = `push_count` + 1,`spread_count` = `spread_count` + 1 where `uid` = #{spread}")
     int updateUserPusCount(@Param("spread") int spread);
+
+    /**
+     * 更新用户金额
+     * @param yxUser
+     */
+    @Update("update yx_user set now_money=now_money+#{nowMoney} , brokerage_price=brokerage_price+#{brokeragePrice}" +
+            " where uid=#{uid}")
+    int updateUserMoney(YxUser yxUser);
 }
