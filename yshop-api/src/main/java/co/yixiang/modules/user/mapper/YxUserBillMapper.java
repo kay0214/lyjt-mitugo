@@ -42,14 +42,29 @@ public interface YxUserBillMapper extends BaseMapper<YxUserBill> {
             "ORDER BY a.add_time DESC")
     List<SignDTO> getSignList(@Param("uid") int uid, Page page);
 
-    @Select("SELECT if(b.brokerage_type = 0,o.order_id,co.order_id) AS orderId,FROM_UNIXTIME(b.add_time, '%Y-%m-%d %H:%i') as time, " +
+    //    @Select("SELECT if(b.brokerage_type = 0,o.order_id,co.order_id) AS orderId,FROM_UNIXTIME(b.add_time, '%Y-%m-%d %H:%i') as time, " +
+//            "b.number,u.avatar,u.nickname FROM yx_user_bill b " +
+//            "INNER JOIN yx_store_order o ON o.id=b.link_id and b.brokerage_type = 0 " +
+//            "RIGHT JOIN yx_user u ON u.uid=o.uid and b.brokerage_type = 0 " +
+//            "INNER JOIN yx_coupon_order co ON co.id=b.link_id and b.brokerage_type = 1 " +
+//            "RIGHT JOIN yx_user cu ON cu.uid=co.uid and b.brokerage_type = 1 " +
+//            " WHERE b.uid = #{uid} AND ( FROM_UNIXTIME(b.add_time, '%Y-%m')= #{time} ) AND " +
+//            "b.category = 'now_money' AND b.type = 'brokerage' ORDER BY time DESC")
+//    List<BillOrderRecordDTO> getBillOrderRList(@Param("time") String time, @Param("uid") int uid);
+    @Select("(SELECT o.order_id as orderId,FROM_UNIXTIME(b.add_time, '%Y-%m-%d %H:%i') as time," +
             "b.number,u.avatar,u.nickname FROM yx_user_bill b " +
-            "INNER JOIN yx_store_order o ON o.id=b.link_id and b.brokerage_type = 0 " +
-            "RIGHT JOIN yx_user u ON u.uid=o.uid and b.brokerage_type = 0 " +
-            "INNER JOIN yx_coupon_order co ON co.id=b.link_id and b.brokerage_type = 1 " +
-            "RIGHT JOIN yx_user cu ON cu.uid=co.uid and b.brokerage_type = 1 " +
+            "INNER JOIN yx_store_order o ON o.order_id=b.link_id " +
+            "RIGHT JOIN yx_user u ON u.uid=o.uid" +
             " WHERE b.uid = #{uid} AND ( FROM_UNIXTIME(b.add_time, '%Y-%m')= #{time} ) AND " +
-            "b.category = 'now_money' AND b.type = 'brokerage' ORDER BY time DESC")
+            "b.category = 'now_money' AND b.type = 'brokerage')" +
+            "UNION ALL " +
+            "(SELECT o.order_id as orderId,FROM_UNIXTIME(b.add_time, '%Y-%m-%d %H:%i') as time," +
+            "b.number,u.avatar,u.nickname FROM yx_user_bill b " +
+            "INNER JOIN yx_coupon_order o ON o.order_id=b.link_id " +
+            "RIGHT JOIN yx_user u ON u.uid=o.uid" +
+            " WHERE b.uid = #{uid} AND ( FROM_UNIXTIME(b.add_time, '%Y-%m')= #{time} ) AND " +
+            "b.category = 'now_money' AND b.type = 'brokerage')" +
+            "ORDER BY time DESC")
     List<BillOrderRecordDTO> getBillOrderRList(@Param("time") String time, @Param("uid") int uid);
 
     @Select("SELECT FROM_UNIXTIME(add_time,'%Y-%m') as time " +
