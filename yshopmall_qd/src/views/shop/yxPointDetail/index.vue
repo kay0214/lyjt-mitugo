@@ -7,12 +7,6 @@
       <!--表单组件-->
       <el-dialog :close-on-click-modal="false" :before-close="crud.cancelCU" :visible.sync="crud.status.cu > 0" :title="crud.status.title" width="500px">
         <el-form ref="form" :model="form" :rules="rules" size="small" label-width="80px">
-          <el-form-item label="主键id">
-            <el-input v-model="form.id" style="width: 370px;" />
-          </el-form-item>
-          <el-form-item label="用户ID" prop="uid">
-            <el-input v-model="form.uid" style="width: 370px;" />
-          </el-form-item>
           <el-form-item label="用户名">
             <el-input v-model="form.username" style="width: 370px;" />
           </el-form-item>
@@ -31,32 +25,20 @@
           <el-form-item label="订单佣金">
             <el-input v-model="form.commission" style="width: 370px;" />
           </el-form-item>
-          <el-form-item label="商户id" prop="merchantsId">
-            <el-input v-model="form.merchantsId" style="width: 370px;" />
+          <el-form-item label="商户用户名" prop="merUsername">
+            <el-input v-model="form.merUsername" style="width: 370px;" />
           </el-form-item>
           <el-form-item label="商户获取积分数">
             <el-input v-model="form.merchantsPoint" style="width: 370px;" />
           </el-form-item>
-          <el-form-item label="合伙人id" prop="partnerId">
-            <el-input v-model="form.partnerId" style="width: 370px;" />
+          <el-form-item label="合伙人用户名" prop="parUsername">
+            <el-input v-model="form.parUsername" style="width: 370px;" />
           </el-form-item>
           <el-form-item label="合伙人获取积分数">
             <el-input v-model="form.partnerPoint" style="width: 370px;" />
           </el-form-item>
-          <el-form-item label="是否删除（0：未删除，1：已删除）" prop="delFlag">
-            <el-input v-model="form.delFlag" style="width: 370px;" />
-          </el-form-item>
-          <el-form-item label="创建人">
-            <el-input v-model="form.createUserId" style="width: 370px;" />
-          </el-form-item>
-          <el-form-item label="修改人">
-            <el-input v-model="form.updateUserId" style="width: 370px;" />
-          </el-form-item>
           <el-form-item label="创建时间" prop="createTime">
             <el-input v-model="form.createTime" style="width: 370px;" />
-          </el-form-item>
-          <el-form-item label="更新时间" prop="updateTime">
-            <el-input v-model="form.updateTime" style="width: 370px;" />
           </el-form-item>
         </el-form>
         <div slot="footer" class="dialog-footer">
@@ -67,37 +49,35 @@
       <!--表格渲染-->
       <el-table ref="table" v-loading="crud.loading" :data="crud.data" size="small" style="width: 100%;" @selection-change="crud.selectionChangeHandler">
         <el-table-column type="selection" width="55" />
-        <el-table-column v-if="columns.visible('id')" prop="id" label="主键id" />
-        <el-table-column v-if="columns.visible('uid')" prop="uid" label="用户ID" />
         <el-table-column v-if="columns.visible('username')" prop="username" label="用户名" />
-        <el-table-column v-if="columns.visible('type')" prop="type" label="积分类别 0:拉新 1:分红" />
+        <el-table-column label="积分类别" align="center">
+          <template slot-scope="scope">
+            <div>
+              <el-tag v-if="scope.row.type == 1">分红</el-tag>
+              <el-tag v-else-if="scope.row.type == 0">拉新</el-tag>
+              <el-tag v-else></el-tag>
+            </div>
+          </template>
+        </el-table-column>
         <el-table-column v-if="columns.visible('orderId')" prop="orderId" label="订单编号" />
-        <el-table-column v-if="columns.visible('orderType')" prop="orderType" label="订单类型 0:商品购买 1:本地生活" />
+        <el-table-column label="订单类型" align="center">
+          <template slot-scope="scope">
+            <div>
+              <el-tag v-if="scope.row.orderType == 1">本地生活</el-tag>
+              <el-tag v-else-if="scope.row.orderType == 0">商品购买</el-tag>
+              <el-tag v-else></el-tag>
+            </div>
+          </template>
+        </el-table-column>
         <el-table-column v-if="columns.visible('orderPrice')" prop="orderPrice" label="订单金额" />
         <el-table-column v-if="columns.visible('commission')" prop="commission" label="订单佣金" />
-        <el-table-column v-if="columns.visible('merchantsId')" prop="merchantsId" label="商户id" />
+        <el-table-column v-if="columns.visible('merUsername')" prop="merUsername" label="商户用户名" />
         <el-table-column v-if="columns.visible('merchantsPoint')" prop="merchantsPoint" label="商户获取积分数" />
-        <el-table-column v-if="columns.visible('partnerId')" prop="partnerId" label="合伙人id" />
+        <el-table-column v-if="columns.visible('parUsername')" prop="parUsername" label="合伙人用户名" />
         <el-table-column v-if="columns.visible('partnerPoint')" prop="partnerPoint" label="合伙人获取积分数" />
-        <el-table-column v-if="columns.visible('delFlag')" prop="delFlag" label="是否删除（0：未删除，1：已删除）" />
-        <el-table-column v-if="columns.visible('createUserId')" prop="createUserId" label="创建人" />
-        <el-table-column v-if="columns.visible('updateUserId')" prop="updateUserId" label="修改人" />
         <el-table-column v-if="columns.visible('createTime')" prop="createTime" label="创建时间">
           <template slot-scope="scope">
             <span>{{ parseTime(scope.row.createTime) }}</span>
-          </template>
-        </el-table-column>
-        <el-table-column v-if="columns.visible('updateTime')" prop="updateTime" label="更新时间">
-          <template slot-scope="scope">
-            <span>{{ parseTime(scope.row.updateTime) }}</span>
-          </template>
-        </el-table-column>
-        <el-table-column v-permission="['admin','yxPointDetail:edit','yxPointDetail:del']" label="操作" width="150px" align="center">
-          <template slot-scope="scope">
-            <udOperation
-              :data="scope.row"
-              :permission="permission"
-            />
           </template>
         </el-table-column>
       </el-table>
@@ -118,9 +98,9 @@ import MaterialList from "@/components/material";
 
 // crud交由presenter持有
 const defaultCrud = CRUD({ title: '积分获取明细', url: 'api/yxPointDetail', sort: 'id,desc',optShow: {
-      add: true,
-      edit: true,
-      del: true,
+      add: false,
+      edit: false,
+      del: false,
       download: false
     }, crudMethod: { ...crudYxPointDetail }})
 const defaultForm = { id: null, uid: null, username: null, type: null, orderId: null, orderType: null, orderPrice: null, commission: null, merchantsId: null, merchantsPoint: null, partnerId: null, partnerPoint: null, delFlag: null, createUserId: null, updateUserId: null, createTime: null, updateTime: null }
@@ -130,7 +110,7 @@ export default {
   mixins: [presenter(defaultCrud), header(), form(defaultForm), crud()],
   data() {
     return {
-      
+
       permission: {
         add: ['admin', 'yxPointDetail:add'],
         edit: ['admin', 'yxPointDetail:edit'],
