@@ -321,6 +321,8 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<StoreProductMappe
             //佣金
             yxStoreProductAttrValue.setCommission(BigDecimal.valueOf(productFormatDTO.getCommission()));
 
+            productFormatDTO.setUnique(yxStoreProductAttrValue.getUnique());
+
             valueGroup.add(yxStoreProductAttrValue);
         }
 
@@ -367,7 +369,8 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<StoreProductMappe
 
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("attr", jsonObject.get("items"));
-        map.put("value", jsonObject.get("attrs"));
+//        map.put("value", jsonObject.get("attrs"));
+        map.put("value", JSONObject.toJSON(valueList));
 
         //保存结果
         setResult(map, id);
@@ -531,4 +534,63 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<StoreProductMappe
         this.updateById(yxStoreProduct);
     }
 
+  /*  @Override
+    public String getStoreProductAttrResultNew(Integer id) {
+        YxStoreProductAttrResult yxStoreProductAttrResult = yxStoreProductAttrResultService
+                .getOne(new QueryWrapper<YxStoreProductAttrResult>().eq("product_id", id));
+        if (ObjectUtil.isNull(yxStoreProductAttrResult)) return "";
+
+        JSONObject jsonObject = JSON.parseObject(yxStoreProductAttrResult.getResult());
+
+        List<FromatDetailDto> attrList = JSON.parseArray(
+                jsonObject.get("attr").toString(),
+                FromatDetailDto.class);
+        List<ProductFormatDto> valueList = JSON.parseArray(
+                jsonObject.get("value").toString(),
+                ProductFormatDto.class);
+
+        QueryWrapper<YxStoreProductAttrValue> queryWrapper = new QueryWrapper<YxStoreProductAttrValue>();
+        queryWrapper.eq("product_id",id);
+        List<YxStoreProductAttrValue> productAttrValueList = yxStoreProductAttrValueService.list(queryWrapper);
+        if(CollectionUtils.isEmpty(productAttrValueList)||CollectionUtils.isEmpty(valueList)){
+            return "";
+        }
+        for(YxStoreProductAttrValue attrValue:productAttrValueList){
+//            ProductFormatDto productFormatDto = new ProductFormatDto();
+            for(ProductFormatDto productFormatDto:valueList){
+                if(attrValue.getUnique().equals(productFormatDto.getUnique())){
+
+                }
+            }
+            attrValue.getUnique().equals()
+        }
+        //
+//        List<YxStoreProductAttrValue> valueGroup = new ArrayList<>();
+        for (ProductFormatDto productFormatDTO : valueList) {
+            YxStoreProductAttrValue yxStoreProductAttrValue = new YxStoreProductAttrValue();
+            yxStoreProductAttrValue.setProductId(id);
+            //productFormatDTO.getDetail().values().stream().collect(Collectors.toList());
+            List<String> stringList = productFormatDTO.getDetail().values()
+                    .stream().collect(Collectors.toList());
+            Collections.sort(stringList);
+            yxStoreProductAttrValue.setSuk(StrUtil.
+                    join(",", stringList));
+            if(null==productFormatDTO.getPrice()||null==productFormatDTO.getCost()||null==productFormatDTO.getCommission()){
+                throw new BadRequestException("价格不能为空！!");
+            }
+            yxStoreProductAttrValue.setPrice(BigDecimal.valueOf(productFormatDTO.getPrice()));
+            yxStoreProductAttrValue.setCost(BigDecimal.valueOf(productFormatDTO.getCost()));
+            yxStoreProductAttrValue.setStock(productFormatDTO.getSales());
+            yxStoreProductAttrValue.setUnique(IdUtil.simpleUUID());
+            yxStoreProductAttrValue.setImage(productFormatDTO.getPic());
+            //佣金
+            yxStoreProductAttrValue.setCommission(BigDecimal.valueOf(productFormatDTO.getCommission()));
+
+//            valueGroup.add(yxStoreProductAttrValue);
+        }
+
+
+        if (ObjectUtil.isNull(yxStoreProductAttrResult)) return "";
+        return yxStoreProductAttrResult.getResult();
+    }*/
 }

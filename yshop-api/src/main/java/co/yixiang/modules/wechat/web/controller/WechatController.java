@@ -3,6 +3,7 @@
  */
 package co.yixiang.modules.wechat.web.controller;
 
+import cn.hutool.core.util.ObjectUtil;
 import co.yixiang.annotation.AnonymousAccess;
 import co.yixiang.common.api.ApiResult;
 import co.yixiang.common.web.controller.BaseController;
@@ -463,8 +464,8 @@ public class WechatController extends BaseController {
             //
             // 插入bill表
             YxUserBill userBill = new YxUserBill();
-            userBill.setUid(storeOrder.getUid());
-            userBill.setLinkId(storeOrder.getOrderId());
+            userBill.setUid(orderInfo.getUid());
+            userBill.setLinkId(orderInfo.getOrderId());
             userBill.setPm(1);
             userBill.setTitle("小程序购买商品订单退款");
             userBill.setCategory(BillDetailEnum.CATEGORY_1.getValue());
@@ -477,14 +478,14 @@ public class WechatController extends BaseController {
             yxUserBillService.save(userBill);
 
             // 更新商户余额
-            SystemUser systemUser = this.systemUserService.getById(storeOrder.getMerId());
-            if (null == systemUser) {
-                log.error("订单编号：" + storeOrder.getOrderId() + "未查询到商户所属的id，无法记录退款资金去向");
+            SystemUser systemUser = this.systemUserService.getById(orderInfo.getMerId());
+            if (ObjectUtil.isEmpty(systemUser)) {
+                log.error("订单编号：" + orderInfo.getOrderId() + "未查询到商户所属的id，无法记录退款资金去向");
                 return WxPayNotifyResponse.success("处理成功!");
             }
             // 该笔资金实际到账
             SystemUser updateSystemUser = new SystemUser();
-            BigDecimal truePrice = storeOrder.getPayPrice().subtract(storeOrder.getCommission());
+            BigDecimal truePrice = orderInfo.getPayPrice().subtract(orderInfo.getCommission());
             updateSystemUser.setId(systemUser.getId());
             updateSystemUser.setTotalAmount(systemUser.getTotalAmount().subtract(truePrice));
             updateSystemUser.setWithdrawalAmount(systemUser.getWithdrawalAmount().subtract(truePrice));
@@ -492,8 +493,8 @@ public class WechatController extends BaseController {
 
             // 插入商户资金明细
             YxUserBill merBill = new YxUserBill();
-            merBill.setUid(storeOrder.getMerId());
-            merBill.setLinkId(storeOrder.getOrderId());
+            merBill.setUid(orderInfo.getMerId());
+            merBill.setLinkId(orderInfo.getOrderId());
             merBill.setPm(0);
             merBill.setTitle("小程序购买商品订单退款");
             merBill.setCategory(BillDetailEnum.CATEGORY_1.getValue());
@@ -503,12 +504,12 @@ public class WechatController extends BaseController {
             merBill.setBalance(updateSystemUser.getWithdrawalAmount());
             merBill.setAddTime(DateUtils.getNowTime());
             merBill.setStatus(1);
-            merBill.setMerId(storeOrder.getMerId());
+            merBill.setMerId(orderInfo.getMerId());
             merBill.setUserType(2);
             merBill.setUsername(systemUser.getUsername());
             this.yxUserBillService.save(merBill);
 
-            log.info("退款回调通知处理 ，更新 ： "+ JSONObject.toJSONString(storeOrder));
+            log.info("退款回调通知处理 ，更新 ： "+ JSONObject.toJSONString(orderInfo));
             return WxPayNotifyResponse.success("处理成功!");
         } catch (WxPayException | IllegalAccessException e) {
             log.error(e.getMessage());
