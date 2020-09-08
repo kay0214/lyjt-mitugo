@@ -7,7 +7,7 @@ package co.yixiang.modules.shop.rest;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import co.yixiang.constant.ShopConstants;
-import co.yixiang.exception.ErrorRequestException;
+import co.yixiang.exception.BadRequestException;
 import co.yixiang.logging.aop.log.Log;
 import co.yixiang.modules.shop.domain.YxStoreInfo;
 import co.yixiang.modules.shop.domain.YxStoreProduct;
@@ -76,7 +76,7 @@ public class StoreProductController {
         int sysUserId = SecurityUtils.getUserId().intValue();
         YxStoreInfo store = yxStoreInfoService.getOne(new QueryWrapper<YxStoreInfo>().eq("mer_id", sysUserId));
         if(ObjectUtil.isNull(store)){
-            throw new ErrorRequestException("商户id："+sysUserId+"，未找到对应店铺信息！");
+            throw new BadRequestException("商户id："+sysUserId+"，未找到对应店铺信息！");
         }
         resources.setStoreId(store.getId());
         resources.setMerId(store.getMerId());
