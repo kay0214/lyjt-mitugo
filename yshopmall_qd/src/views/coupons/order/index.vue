@@ -140,7 +140,7 @@ import eRefund from './refund'
 
 // crud交由presenter持有
 const defaultCrud = CRUD({ title: '卡券订单表', url: 'api/yxCouponOrder', 
-sort: 'id,desc', crudMethod: { ...crudYxCouponOrder }, query:{orderStatus: '',orderType: '', }})
+sort: 'id,desc', crudMethod: { ...crudYxCouponOrder }, query:{orderStatus: '',orderType: '',value:'' }})
 const defaultForm = {  orderId: null,  mark: null }
 export default {
   name: 'YxCouponOrder',
