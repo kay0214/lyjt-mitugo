@@ -23,6 +23,14 @@ public class YxUserBillQueryCriteria extends BaseCriteria{
     private String title;
 
 
+    //开始时间
     private String addTimeStart;
+    //结束时间
     private String addTimeEnd;
+
+    //明细种类
+    private String category;
+    // 明细类型
+    private String type;
+
 }

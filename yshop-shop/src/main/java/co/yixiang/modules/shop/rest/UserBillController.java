@@ -1,5 +1,6 @@
 package co.yixiang.modules.shop.rest;
 
+import co.yixiang.enums.BillDetailEnum;
 import co.yixiang.logging.aop.log.Log;
 import co.yixiang.modules.activity.domain.YxUserExtract;
 import co.yixiang.modules.shop.service.UserService;
@@ -18,6 +19,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author hupeng
@@ -54,6 +60,48 @@ public class UserBillController {
         return new ResponseEntity(yxUserBillService.queryAll(criteria, pageable), HttpStatus.OK);
     }
 
+    @GetMapping(value = "/yxUserBillType")
+    public ResponseEntity yxUserBillType() {
+        List<Map<String,String>> listType = new ArrayList<Map<String,String>>();
+        for(int i=1;i<=10;i++){
+            Map<String,String> mapType = new HashMap<String,String>();
+            switch (i){
+                case 1:
+                    mapType.put(BillDetailEnum.TYPE_1.getValue(),BillDetailEnum.TYPE_1.getDesc());
+                    break;
+                case 2:
+                    mapType.put(BillDetailEnum.TYPE_2.getValue(),BillDetailEnum.TYPE_2.getDesc());
+                    break;
+                case 3:
+                    mapType.put(BillDetailEnum.TYPE_3.getValue(),BillDetailEnum.TYPE_3.getDesc());
+                    break;
+                case 4:
+                    mapType.put(BillDetailEnum.TYPE_4.getValue(),BillDetailEnum.TYPE_4.getDesc());
+                    break;
+                case 5:
+                    mapType.put(BillDetailEnum.TYPE_5.getValue(),BillDetailEnum.TYPE_5.getDesc());
+                    break;
+                case 6:
+                    mapType.put(BillDetailEnum.TYPE_6.getValue(),BillDetailEnum.TYPE_6.getDesc());
+                    break;
+                case 7:
+                    mapType.put(BillDetailEnum.TYPE_7.getValue(),BillDetailEnum.TYPE_7.getDesc());
+                    break;
+                case 8:
+                    mapType.put(BillDetailEnum.TYPE_8.getValue(),BillDetailEnum.TYPE_8.getDesc());
+                    break;
+                case 9:
+                    mapType.put(BillDetailEnum.TYPE_9.getValue(),BillDetailEnum.TYPE_9.getDesc());
+                    break;
+                case 10:
+                    mapType.put(BillDetailEnum.TYPE_10.getValue(),BillDetailEnum.TYPE_10.getDesc());
+                    break;
+            }
+            listType.add(mapType);
+        }
+        return new ResponseEntity(listType,HttpStatus.OK);
+
+    }
     /**
      *
      */

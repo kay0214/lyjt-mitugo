@@ -30,10 +30,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 /**
  * @author hupeng
@@ -65,6 +64,7 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<UserBillMapper, YxUse
         if (StringUtils.isNotBlank(criteria.getUsername())) {
             queryWrapper.lambda().like(YxUserBill::getUsername, criteria.getUsername());
         }
+        //收支类型
         if (null != criteria.getPm()) {
             queryWrapper.lambda().eq(YxUserBill::getPm, criteria.getPm());
         }
@@ -73,6 +73,34 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<UserBillMapper, YxUse
         }
         if (StringUtils.isNotBlank(criteria.getAddTimeStart()) && StringUtils.isNotBlank(criteria.getAddTimeEnd())) {
             queryWrapper.lambda().ge(YxUserBill::getAddTime, criteria.getAddTimeStart()).le(YxUserBill::getAddTime, criteria.getAddTimeEnd());
+        }
+        //明细种类
+        if (StringUtils.isNotBlank(criteria.getCategory())) {
+            queryWrapper.lambda().eq(YxUserBill::getCategory, criteria.getCategory());
+        }
+
+        //明细类型
+        if (StringUtils.isNotBlank(criteria.getType())) {
+            queryWrapper.lambda().eq(YxUserBill::getType, criteria.getType());
+        }
+        //日期查找
+        if (StringUtils.isNotBlank(criteria.getAddTimeStart())&&StringUtils.isNotBlank(criteria.getAddTimeEnd())) {
+            Integer addTimeStart = 0;
+            Integer addTimeEnd = 0;
+            try {
+                Date date = new Date();
+                Date dateEnd = new Date();
+                SimpleDateFormat sf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                date = sf.parse(criteria.getAddTimeStart());// 日期转换为时间戳
+                dateEnd = sf.parse(criteria.getAddTimeEnd());// 日期转换为时间戳
+                long longDate = date.getTime()/1000;
+                long longDateEnd = dateEnd.getTime()/1000;
+                addTimeStart =(int)longDate;
+                addTimeEnd =(int)longDateEnd;
+            } catch (ParseException e) {e.printStackTrace();}
+            if(addTimeEnd!=0&&addTimeStart!=0){
+                queryWrapper.lambda().ge(YxUserBill::getAddTime, addTimeStart).le(YxUserBill::getAddTime, addTimeEnd);
+            }
         }
         User user = this.userService.getById(criteria.getUid());
 

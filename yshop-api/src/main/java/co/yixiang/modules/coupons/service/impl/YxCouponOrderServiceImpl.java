@@ -666,6 +666,9 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
             case STATUS_MINUS_1://退款售后
                 wrapper.in("status", 7, 8, 9).or().eq("refund_status", 1);
                 break;
+            case STATUS_MINUS_2://已取消
+                wrapper.eq("status", 10);
+                break;
             default:
                 throw new BadRequestException("接口异常");
         }
@@ -761,9 +764,9 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         SystemUser updateSystemUser = new SystemUser();
         BigDecimal truePrice = yxCouponOrder.getTotalPrice().subtract(yxCouponOrder.getCommission());
         updateSystemUser.setId(systemUser.getId());
-        updateSystemUser.setTotalAmount(systemUser.getTotalAmount().add(truePrice));
-        updateSystemUser.setWithdrawalAmount(systemUser.getWithdrawalAmount().add(truePrice));
-        this.systemUserService.updateById(updateSystemUser);
+        updateSystemUser.setTotalAmount(truePrice);
+        updateSystemUser.setWithdrawalAmount(truePrice);
+        this.systemUserService.updateUserTotal(updateSystemUser);
 
         // 插入商户资金明细
         YxUserBill merBill = new YxUserBill();
@@ -781,7 +784,7 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         merBill.setMerId(yxCouponOrder.getMerId());
         merBill.setUserType(2);
         merBill.setUsername(systemUser.getUsername());
-        this.yxUserBillService.save(yxUserBill);
+        this.yxUserBillService.save(merBill);
 
         // 判断用户是否是分销客、不是更新成分销客
         if (0 == yxUser.getUserRole()) {
@@ -933,6 +936,14 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         wrapper7.eq("del_flag", CommonEnum.DEL_STATUS_0.getValue());
         wrapper7.eq("status", 1);
         countVO.setOutTimeCount(this.count(wrapper7));
+
+        // 已取消
+        QueryWrapper<YxCouponOrder> wrapper8 = new QueryWrapper<>();
+        wrapper8.eq("uid", uid);
+        wrapper8.eq("del_flag", CommonEnum.DEL_STATUS_0.getValue());
+        wrapper8.eq("status", 10);
+        countVO.setOutTimeCount(this.count(wrapper8));
+
         return countVO;
     }
 
