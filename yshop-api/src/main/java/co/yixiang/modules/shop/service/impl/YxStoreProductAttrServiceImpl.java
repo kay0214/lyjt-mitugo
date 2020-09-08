@@ -127,7 +127,12 @@ public class YxStoreProductAttrServiceImpl extends BaseServiceImpl<YxStoreProduc
     public int uniqueByStock(String unique) {
         QueryWrapper<YxStoreProductAttrValue> wrapper = new QueryWrapper<>();
         wrapper.eq("`unique`",unique);
-        return yxStoreProductAttrValueMapper.selectOne(wrapper).getStock();
+        List<YxStoreProductAttrValue> valueList =  yxStoreProductAttrValueMapper.selectList(wrapper);
+        if(CollectionUtils.isEmpty(valueList)){
+            return 0;
+        }
+        return valueList.get(0).getStock();
+//        return yxStoreProductAttrValueMapper.selectOne(wrapper).getStock();
     }
 
     @Override
