@@ -223,6 +223,7 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<YxUserBillMapper, YxU
         userBill.setMark("订单确认收货，商户返现");
         userBill.setAddTime(OrderUtil.getSecondTimestampTwo());
         userBill.setStatus(BillEnum.STATUS_1.getValue());
+        userBill.setUserType(2);
         yxUserBillMapper.insert(userBill);
     }
 }

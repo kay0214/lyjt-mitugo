@@ -109,7 +109,7 @@ public class YxStoreProduct implements Serializable {
 
     /** 库存 */
     @NotNull(message = "请输入库存")
-    @Min(message = "库存不能小于0",value = 1)
+    @Min(message = "库存不能小于0",value = 0)
     @Max(message ="库存不能超过16777215",value = 16777215)
     private Integer stock;
 

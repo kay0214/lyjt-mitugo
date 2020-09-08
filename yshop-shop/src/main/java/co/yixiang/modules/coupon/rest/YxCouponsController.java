@@ -40,9 +40,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
-* @author liusy
-* @date 2020-08-31
-*/
+ * @author liusy
+ * @date 2020-08-31
+ */
 @Slf4j
 @AllArgsConstructor
 @Api(tags = "卡券表管理")
@@ -160,6 +160,8 @@ public class YxCouponsController {
         yxCoupons.setCreateTime(DateTime.now().toTimestamp());
         yxCoupons.setUpdateUserId(loginUserId);
         yxCoupons.setUpdateTime(DateTime.now().toTimestamp());
+        yxCoupons.setExpireDateStart(DateUtils.getDayStart(yxCoupons.getExpireDateStart()));
+        yxCoupons.setExpireDateEnd(DateUtils.getDayEnd(yxCoupons.getExpireDateEnd()));
         boolean saveStatus = yxCouponsService.save(yxCoupons);
         if (saveStatus) {
             couponImg(yxCoupons.getId(), request.getImage(), request.getSliderImage(), loginUserId);
@@ -213,6 +215,8 @@ public class YxCouponsController {
         BeanUtil.copyProperties(request, yxCoupons);
         yxCoupons.setUpdateUserId(loginUserId);
         yxCoupons.setUpdateTime(DateTime.now().toTimestamp());
+        yxCoupons.setExpireDateStart(DateUtils.getDayStart(yxCoupons.getExpireDateStart()));
+        yxCoupons.setExpireDateEnd(DateUtils.getDayEnd(yxCoupons.getExpireDateEnd()));
         boolean updateStatus = yxCouponsService.updateById(yxCoupons);
         if (updateStatus) {
             if (updateStatus) {
@@ -224,13 +228,13 @@ public class YxCouponsController {
                 String couponWapImage = logo + "coupon_routine_product_detail_wap.jpg";
                 String couponSpreadImage = logo + "coupon_routine_product_user_spread.jpg";
                 List<YxSystemAttachment> systemAttachmentWapImageList = yxSystemAttachmentService.list(new QueryWrapper<YxSystemAttachment>().lambda().eq(YxSystemAttachment::getName, couponWapImage));
-                if (systemAttachmentWapImageList != null && systemAttachmentWapImageList.size() > 0){
+                if (systemAttachmentWapImageList != null && systemAttachmentWapImageList.size() > 0) {
                     systemAttachmentWapImageList.forEach(item -> {
                         yxSystemAttachmentService.removeById(item.getAttId());
                     });
                 }
                 List<YxSystemAttachment> systemAttachmentSpreadImageList = yxSystemAttachmentService.list(new QueryWrapper<YxSystemAttachment>().lambda().eq(YxSystemAttachment::getName, couponSpreadImage));
-                if (systemAttachmentSpreadImageList != null && systemAttachmentSpreadImageList.size() > 0){
+                if (systemAttachmentSpreadImageList != null && systemAttachmentSpreadImageList.size() > 0) {
                     systemAttachmentSpreadImageList.forEach(items -> {
                         yxSystemAttachmentService.removeById(items.getAttId());
                     });
