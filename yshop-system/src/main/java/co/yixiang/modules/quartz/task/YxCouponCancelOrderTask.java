@@ -52,7 +52,7 @@ public class YxCouponCancelOrderTask {
             LambdaQueryWrapper<YxCouponOrderDetail> orderDetailWapper = new QueryWrapper<YxCouponOrderDetail>().lambda().eq(YxCouponOrderDetail::getCouponId, item.getId());
             orderDetailWapper.in(YxCouponOrderDetail::getStatus, 0, 2, 3, 4, 5, 7);
             YxCouponOrderDetail yxCouponOrderDetail = new YxCouponOrderDetail();
-            yxCouponOrderDetail.setStatus(2);
+            yxCouponOrderDetail.setStatus(1);
             yxCouponOrderDetailService.update(yxCouponOrderDetail, orderDetailWapper);
             YxCoupons yxCoupons = new YxCoupons();
             yxCoupons.setIsShow(0);

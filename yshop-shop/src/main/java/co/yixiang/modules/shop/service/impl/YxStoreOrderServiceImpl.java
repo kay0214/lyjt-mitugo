@@ -45,6 +45,8 @@ import org.springframework.util.CollectionUtils;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 // 默认不使用缓存
@@ -188,6 +190,36 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<StoreOrderMapper, Y
             queryWrapper.lambda().eq(YxStoreOrder::getShippingType, criteria.getShippingType());
         }
         // getNewCombinationId getNewSeckillId getNewBargainId  getShippingType
+        if (null != criteria.getOrderId()) {
+            queryWrapper.lambda().like(YxStoreOrder::getOrderId, criteria.getOrderId());
+        }
+        if (null != criteria.getUserPhone()) {
+            queryWrapper.lambda().like(YxStoreOrder::getUserPhone, criteria.getUserPhone());
+        }
+        //
+        if (null != criteria.getRealName()) {
+            queryWrapper.lambda().like(YxStoreOrder::getRealName, criteria.getRealName());
+        }
+        if (!CollectionUtils.isEmpty(criteria.getAddTime())) {
+            List<String> listAddTime = criteria.getAddTime();
+            Integer addTimeStart = 0;
+            Integer addTimeEnd = 0;
+            try {
+                Date date = new Date();
+                Date dateEnd = new Date();
+                SimpleDateFormat sf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                date = sf.parse(listAddTime.get(0));// 日期转换为时间戳
+                dateEnd = sf.parse(listAddTime.get(1));// 日期转换为时间戳
+                long longDate = date.getTime()/1000;
+                long longDateEnd = dateEnd.getTime()/1000;
+                addTimeStart =(int)longDate;
+                addTimeEnd =(int)longDateEnd;
+            } catch (ParseException e) {e.printStackTrace();}
+            if(addTimeEnd!=0&&addTimeStart!=0){
+                queryWrapper.lambda().ge(YxStoreOrder::getAddTime, addTimeStart).le(YxStoreOrder::getAddTime, addTimeEnd);
+            }
+        }
+
 
         IPage<YxStoreOrder> ipage = this.page(new Page<>(pageable.getPageNumber() + 1, pageable.getPageSize()), queryWrapper);
         if (ipage.getTotal() <= 0) {
