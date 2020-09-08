@@ -27,9 +27,9 @@
         <el-tab-pane name="-2">
           <span slot="label"><i class="el-icon-finished"></i> 已退款</span>
         </el-tab-pane>
-        <el-tab-pane name="-4">
+        <!-- <el-tab-pane name="-4">
           <span slot="label"><i class="el-icon-circle-close"></i> 已删除</span>
-        </el-tab-pane>
+        </el-tab-pane> -->
       </el-tabs>
       <!--工具栏-->
       <div class="head-container">
@@ -135,18 +135,18 @@
         <el-table-column v-if="checkPermission(['admin','YXSTOREORDER_ALL','YXSTOREORDER_EDIT','YXSTOREORDER_DELETE'])" label="操作" width="200" align="center" fixed="right">
           <template slot-scope="scope">
             <el-button
-              v-permission="['admin','YXSTOREORDER_ALL','YXSTOREORDER_EDIT']"
+              v-permission="['admin','YXSTOREORDER_ALL','YXSTOREORDER_SELECT']"
               size="mini"
               type="primary"
               @click="detail(scope.row)"
             >
               订单详情</el-button>
-            <el-dropdown v-if="checkPermission(['admin','YXSTOREORDER_ALL','YXSTOREORDER_EDIT','YXSTOREORDER_DELETE'])" size="mini" split-button type="primary" trigger="click">
+            <el-dropdown size="mini" split-button type="primary" trigger="click">
               操作
               <el-dropdown-menu slot="dropdown">
                 <el-dropdown-item>
                   <el-button
-                    v-permission="['admin','YXSTOREORDER_ALL','YXSTOREORDER_EDIT']"
+                    v-permission="['admin','YXSTOREORDER_ALL','YXSTOREORDER_MARK']"
                     size="mini"
                     type="success"
                     @click="remark(scope.row)"
@@ -156,7 +156,7 @@
                 <el-dropdown-item>
                   <el-button
                     v-if="scope.row._status == 2"
-                    v-permission="['admin','YXSTOREORDER_ALL','YXSTOREORDER_EDIT']"
+                    v-permission="['admin','YXSTOREORDER_ALL','YXSTOREORDER_SEND']"
                     size="mini"
                     type="primary"
                     @click="edit(scope.row)"
@@ -166,7 +166,7 @@
                 <el-dropdown-item>
                   <el-button
                     v-if="scope.row._status == 3"
-                    v-permission="['admin','YXSTOREORDER_ALL','YXSTOREORDER_EDIT']"
+                    v-permission="['admin','YXSTOREORDER_ALL','YXSTOREORDER_REFUND']"
                     size="mini"
                     type="primary"
                     @click="refund(scope.row)"
@@ -182,7 +182,7 @@
                   >
                     修改订单</el-button>
                 </el-dropdown-item>
-                <el-dropdown-item v-if="scope.row._status == 1">
+                <!-- <el-dropdown-item v-if="scope.row._status == 1">
                   <el-popover
                     :ref="scope.row.id"
                     v-permission="['admin','YXSTOREORDER_ALL','YXSTOREORDER_DELETE']"
@@ -196,7 +196,7 @@
                     </div>
                     <el-button slot="reference" type="danger" icon="el-icon-delete" size="mini">删除</el-button>
                   </el-popover>
-                </el-dropdown-item>
+                </el-dropdown-item> -->
               </el-dropdown-menu>
             </el-dropdown>
 
