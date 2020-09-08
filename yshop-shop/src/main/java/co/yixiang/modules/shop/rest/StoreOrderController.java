@@ -218,7 +218,7 @@ public class StoreOrderController {
 
     @ApiOperation(value = "发货")
     @PutMapping(value = "/yxStoreOrder")
-    @PreAuthorize("hasAnyRole('admin','YXSTOREORDER_ALL','YXSTOREORDER_EDIT')")
+    @PreAuthorize("hasAnyRole('admin','YXSTOREORDER_ALL','YXSTOREORDER_SEND')")
     public ResponseEntity update(@Validated @RequestBody YxStoreOrder resources) {
         if (StrUtil.isBlank(resources.getDeliveryName())) throw new BadRequestException("请选择快递公司");
         if (StrUtil.isBlank(resources.getDeliveryId())) throw new BadRequestException("快递单号不能为空");
@@ -311,7 +311,7 @@ public class StoreOrderController {
 
     @ApiOperation(value = "退款")
     @PostMapping(value = "/yxStoreOrder/refund")
-    @PreAuthorize("hasAnyRole('admin','YXSTOREORDER_ALL','YXSTOREORDER_EDIT')")
+    @PreAuthorize("hasAnyRole('admin','YXSTOREORDER_ALL','YXSTOREORDER_REFUND')")
     public ResponseEntity refund(@Validated @RequestBody YxStoreOrder resources) {
         yxStoreOrderService.refund(resources);
 
@@ -379,7 +379,7 @@ public class StoreOrderController {
     @Log("修改订单备注")
     @ApiOperation(value = "修改订单备注")
     @PostMapping(value = "/yxStoreOrder/remark")
-    @PreAuthorize("hasAnyRole('admin','YXSTOREORDER_ALL','YXSTOREORDER_EDIT')")
+    @PreAuthorize("hasAnyRole('admin','YXSTOREORDER_ALL','YXSTOREORDER_MARK')")
     public ResponseEntity editOrderRemark(@RequestBody YxStoreOrder resources) {
         if (StrUtil.isBlank(resources.getRemark())) throw new BadRequestException("请输入备注");
         yxStoreOrderService.saveOrUpdate(resources);
