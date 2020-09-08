@@ -63,6 +63,8 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
     private YxCouponsCategoryService yxCouponsCategoryService;
     @Autowired
     private YxCouponOrderDetailService yxCouponOrderDetailService;
+    @Autowired
+    private YxCouponsMapper yxCouponsMapper;
 
     @Override
     //@Cacheable
@@ -290,5 +292,19 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
             return yxCouponsDto;
         }
         return yxCouponsDto;
+    }
+
+    /**
+     * 更新卡券销量
+     *
+     * @param couponId
+     * @param totalNum
+     * @return
+     */
+    @Override
+    public boolean updateCancelNoPayOrder(Integer couponId, Integer totalNum) {
+        // 恢复销量
+        int count = this.yxCouponsMapper.updateMinusSales(couponId, totalNum);
+        return count > 0;
     }
 }

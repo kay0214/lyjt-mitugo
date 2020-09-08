@@ -3,7 +3,7 @@
  * All rights reserved, Designed By www.yixiang.co
 
  */
-package co.yixiang.modules.shop.service.dto;
+package co.yixiang.modules.shop.web.dto;
 
 import lombok.Data;
 

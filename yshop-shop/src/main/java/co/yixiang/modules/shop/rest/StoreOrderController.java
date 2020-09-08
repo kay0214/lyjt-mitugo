@@ -402,7 +402,7 @@ public class StoreOrderController {
     @Log("导出数据")
     @ApiOperation("导出数据")
     @GetMapping(value = "/yxStoreOrder/download")
-    @PreAuthorize("hasAnyRole('admin','YXSTOREORDER_ALL','YXSTOREORDER_SELECT')")
+//    @PreAuthorize("hasAnyRole('admin','YXSTOREORDER_ALL','YXSTOREORDER_SELECT')")
     public void download(HttpServletResponse response,
                          YxStoreOrderQueryCriteria criteria,
                          Pageable pageable,
@@ -410,6 +410,15 @@ public class StoreOrderController {
                          @RequestParam(name = "orderType") String orderType,
                          @RequestParam(name = "listContent") String listContent) throws IOException, ParseException {
         List<YxStoreOrderDto> list;
+        CurrUser currUser = SecurityUtils.getCurrUser();
+        criteria.setUserRole(currUser.getUserRole());
+        if (null != currUser.getChildUser()) {
+            criteria.setChildUser(currUser.getChildUser());
+        }
+
+        //默认查询所有快递订单
+        criteria.setShippingType(1);
+
         if(StringUtils.isEmpty(listContent)){
             list =  (List)getYxStoreList(criteria, pageable, orderStatus, orderType).get("content");
         }else {

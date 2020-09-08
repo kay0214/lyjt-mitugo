@@ -1,8 +1,8 @@
 <template>
   <el-dialog :append-to-body="true" :close-on-click-modal="false" :before-close="cancel" :visible.sync="dialog" :title="isAdd ? '新增' : '编辑'" width="500px">
     <el-form ref="form" :model="form" :rules="rules" size="small" label-width="100px">
-      <el-form-item label="标签">
-        <el-input v-model="form.title" style="width: 370px;" />
+      <el-form-item label="标签" prop="title">
+        <el-input v-model="form.title" style="width: 370px;" maxlength="12" />
       </el-form-item>
       <el-form-item label="排序">
         <el-input v-model="form.sort" style="width: 300px;" />
@@ -42,6 +42,13 @@ export default {
         status: 1
       },
       rules: {
+        title: [
+          {
+            required: true,
+            message: '请输入标签',
+            trigger: 'blur'
+          }
+        ]
       }
     }
   },

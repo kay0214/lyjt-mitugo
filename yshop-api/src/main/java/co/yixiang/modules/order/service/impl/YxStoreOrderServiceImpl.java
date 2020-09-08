@@ -5,8 +5,10 @@ import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import co.yixiang.common.rocketmq.MqProducer;
 import co.yixiang.common.service.impl.BaseServiceImpl;
 import co.yixiang.common.web.vo.Paging;
+import co.yixiang.constant.MQConstant;
 import co.yixiang.constant.ShopConstants;
 import co.yixiang.constant.SystemConfigConstants;
 import co.yixiang.enums.*;
@@ -75,6 +77,7 @@ import com.github.binarywang.wxpay.bean.order.WxPayAppOrderResult;
 import com.github.binarywang.wxpay.bean.order.WxPayMpOrderResult;
 import com.github.binarywang.wxpay.bean.order.WxPayMwebOrderResult;
 import com.github.binarywang.wxpay.exception.WxPayException;
+import com.hyjf.framework.starter.recketmq.MessageContent;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -155,8 +158,8 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
     private OrderMap orderMap;
     @Autowired
     private YxStoreCartService yxStoreCartService;
-    //@Autowired
-    //private MqProducer mqProducer;
+    @Autowired
+    private MqProducer mqProducer;
 
     @Autowired
     private RedisTemplate<String, String> redisTemplate;
@@ -509,8 +512,7 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
 
         YxStoreOrderQueryVo order = null;
         try {
-            order= getYxStoreOrderById(orderId);
-            log.info("---------- 超时取消订单：{}"+JSONObject.toJSON(order));
+            order = getYxStoreOrderById(orderId);
             if (ObjectUtil.isNull(order)) throw new ErrorRequestException("订单不存在");
 
             if (order.getIsDel() == OrderInfoEnum.CANCEL_STATUS_1.getValue()) throw new ErrorRequestException("订单已取消");
@@ -524,7 +526,6 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
             YxStoreOrder storeOrder = yxStoreOrderMapper.selectById(order.getId());
             storeOrder.setIsDel(OrderInfoEnum.CANCEL_STATUS_1.getValue());
 //            storeOrder.setId(order.getId());
-            log.info("---------- 保存取消结果 = "+ JSONObject.toJSON(storeOrder));
             yxStoreOrderMapper.updateById(storeOrder);
         } catch (Exception e) {
             e.printStackTrace();
@@ -620,14 +621,19 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
         // 商户资金明细生成
         userBillService.saveMerchantsBill(order);
 
-        //奖励积分
-        gainUserIntegral(order);
+        // 发送mq分佣
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("orderId", orderId);
+        // 0 商品分佣 1 卡券分佣
+        jsonObject.put("orderType", "0");
+        mqProducer.messageSend2(new MessageContent(MQConstant.MITU_TOPIC, MQConstant.MITU_COMMISSION_TAG, UUID.randomUUID().toString(), jsonObject));
 
+//        //奖励积分 没有积分
+//        gainUserIntegral(order);
         //分销计算
-        userService.backOrderBrokerage(order);
-
-        //检查是否符合会员升级条件
-        userLevelService.setLevelComplete(uid);
+//        userService.backOrderBrokerage(order);
+        //检查是否符合会员升级条件 本期没有用户等级
+//        userLevelService.setLevelComplete(uid);
     }
 
     /**
@@ -1169,8 +1175,8 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
         YxWechatUser wechatUser = wechatUserService.getById(orderInfo.getUid());
         if (ObjectUtil.isNull(wechatUser)) throw new ErrorRequestException("用户错误");
 
-        if (StrUtil.isNotEmpty(orderInfo.getExtendOrderId())) {
-            orderId = orderInfo.getExtendOrderId();
+        if (StrUtil.isNotEmpty(orderInfo.getPaymentNo())) {
+            orderId = orderInfo.getPaymentNo();
         }
 
         BigDecimal bigDecimal = new BigDecimal(100);
@@ -2026,7 +2032,7 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
     public List<YxStoreOrderQueryVo> getOrderInfoList(String unique, int uid) {
         QueryWrapper<YxStoreOrder> wrapper = new QueryWrapper<>();
         wrapper.eq("is_del", 0).and(
-                i -> i.eq("`unique`", unique).or().eq("payment_no", unique).or().eq("unique_key", unique)).or().eq("order_id", unique);
+                i -> i.eq("`unique`", unique).or().eq("payment_no", unique).or().eq("unique_key", unique)).or().eq("order_id", unique).or().eq("extend_order_id",unique);
         if (uid > 0) wrapper.eq("uid", uid);
 
         return orderMap.toDto(yxStoreOrderMapper.selectList(wrapper));

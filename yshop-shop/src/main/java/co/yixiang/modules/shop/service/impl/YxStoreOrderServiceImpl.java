@@ -45,6 +45,8 @@ import org.springframework.util.CollectionUtils;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 // 默认不使用缓存
@@ -188,6 +190,36 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<StoreOrderMapper, Y
             queryWrapper.lambda().eq(YxStoreOrder::getShippingType, criteria.getShippingType());
         }
         // getNewCombinationId getNewSeckillId getNewBargainId  getShippingType
+        if (null != criteria.getOrderId()) {
+            queryWrapper.lambda().like(YxStoreOrder::getOrderId, criteria.getOrderId());
+        }
+        if (null != criteria.getUserPhone()) {
+            queryWrapper.lambda().like(YxStoreOrder::getUserPhone, criteria.getUserPhone());
+        }
+        //
+        if (null != criteria.getRealName()) {
+            queryWrapper.lambda().like(YxStoreOrder::getRealName, criteria.getRealName());
+        }
+        if (!CollectionUtils.isEmpty(criteria.getAddTime())) {
+            List<String> listAddTime = criteria.getAddTime();
+            Integer addTimeStart = 0;
+            Integer addTimeEnd = 0;
+            try {
+                Date date = new Date();
+                Date dateEnd = new Date();
+                SimpleDateFormat sf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                date = sf.parse(listAddTime.get(0));// 日期转换为时间戳
+                dateEnd = sf.parse(listAddTime.get(1));// 日期转换为时间戳
+                long longDate = date.getTime()/1000;
+                long longDateEnd = dateEnd.getTime()/1000;
+                addTimeStart =(int)longDate;
+                addTimeEnd =(int)longDateEnd;
+            } catch (ParseException e) {e.printStackTrace();}
+            if(addTimeEnd!=0&&addTimeStart!=0){
+                queryWrapper.lambda().ge(YxStoreOrder::getAddTime, addTimeStart).le(YxStoreOrder::getAddTime, addTimeEnd);
+            }
+        }
+
 
         IPage<YxStoreOrder> ipage = this.page(new Page<>(pageable.getPageNumber() + 1, pageable.getPageSize()), queryWrapper);
         if (ipage.getTotal() <= 0) {
@@ -320,8 +352,22 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<StoreOrderMapper, Y
             map.put("支付时间", yxStoreOrder.getPayTime());
             map.put("支付方式", yxStoreOrder.getPayType());
             map.put("创建时间", yxStoreOrder.getAddTime());
-            map.put("订单状态（-1 : 申请退款 -2 : 退货成功 0：待发货；1：待收货；2：已收货；3：待评价；-1：已退款）", yxStoreOrder.getStatus());
-            map.put("0 未退款 1 申请中 2 已退款", yxStoreOrder.getRefundStatus());
+            String strStatus ="";
+            switch (yxStoreOrder.getStatus()){
+                case 0:strStatus="待发货";break;
+                case 1:strStatus="待收货";break;
+                case 2:strStatus="已收";break;
+                case 3:strStatus="待评价";break;
+            }
+            map.put("订单状态",strStatus);
+            String strFund="";
+            switch (yxStoreOrder.getRefundStatus()){
+                case 0:strFund="未退款";break;
+                case 1:strFund="申请中";break;
+                case 2:strFund="已退款";break;
+
+            }//0 未退款 1 申请中 2 已退款)
+            map.put("退款状态", strFund);
             map.put("退款图片", yxStoreOrder.getRefundReasonWapImg());
             map.put("退款用户说明", yxStoreOrder.getRefundReasonWapExplain());
             map.put("退款时间", yxStoreOrder.getRefundReasonTime());
@@ -337,21 +383,21 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<StoreOrderMapper, Y
             map.put("给用户退了多少积分", yxStoreOrder.getBackIntegral());
             map.put("备注", yxStoreOrder.getMark());
             map.put("是否删除", yxStoreOrder.getIsDel());
-            map.put("唯一id(md5加密)类似id", yxStoreOrder.getUnique());
+//            map.put("唯一id(md5加密)类似id", yxStoreOrder.getUnique());
             map.put("管理员备注", yxStoreOrder.getRemark());
             map.put("商户ID", yxStoreOrder.getMerId());
-            map.put(" isMerCheck", yxStoreOrder.getIsMerCheck());
-            map.put("拼团产品id0一般产品", yxStoreOrder.getCombinationId());
-            map.put("拼团id 0没有拼团", yxStoreOrder.getPinkId());
+//            map.put(" isMerCheck", yxStoreOrder.getIsMerCheck());
+//            map.put("拼团产品id0一般产品", yxStoreOrder.getCombinationId());
+//            map.put("拼团id 0没有拼团", yxStoreOrder.getPinkId());
             map.put("成本价", yxStoreOrder.getCost());
-            map.put("秒杀产品ID", yxStoreOrder.getSeckillId());
-            map.put("砍价id", yxStoreOrder.getBargainId());
+//            map.put("秒杀产品ID", yxStoreOrder.getSeckillId());
+//            map.put("砍价id", yxStoreOrder.getBargainId());
             map.put("核销码", yxStoreOrder.getVerifyCode());
-            map.put("门店id", yxStoreOrder.getStoreId());
-            map.put("配送方式 1=快递 ，2=门店自提", yxStoreOrder.getShippingType());
-            map.put("支付渠道(0微信公众号1微信小程序)", yxStoreOrder.getIsChannel());
-            map.put(" isRemind", yxStoreOrder.getIsRemind());
-            map.put(" isSystemDel", yxStoreOrder.getIsSystemDel());
+            map.put("店铺id", yxStoreOrder.getStoreId());
+            map.put("配送方式", yxStoreOrder.getShippingType().equals(1)?"快递":"门店自提");
+            map.put("支付渠道", yxStoreOrder.getIsChannel().equals(1)?"小程序":"公众号");
+            /*map.put(" isRemind", yxStoreOrder.getIsRemind());
+            map.put(" isSystemDel", yxStoreOrder.getIsSystemDel());*/
             list.add(map);
         }
         FileUtil.downloadExcel(list, response);
@@ -367,10 +413,10 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<StoreOrderMapper, Y
             Integer _status = OrderUtil.orderStatus(yxStoreOrder.getPaid(), yxStoreOrder.getStatus(),
                     yxStoreOrder.getRefundStatus());
 
-            if (yxStoreOrder.getStoreId() > 0) {
+            /*if (yxStoreOrder.getStoreId() > 0) {
                 String storeName = systemStoreService.getById(yxStoreOrder.getStoreId()).getName();
                 yxStoreOrderDto.setStoreName(storeName);
-            }
+            }*/
 
             //订单状态
             String orderStatusStr = OrderUtil.orderStatusStr(yxStoreOrder.getPaid()

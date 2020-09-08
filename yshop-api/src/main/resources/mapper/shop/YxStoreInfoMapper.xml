@@ -14,8 +14,8 @@
             left join (select sum((sales+ficti)) as totalSales , store_id from yx_coupons group by store_id) yc on
             ysi.id = yc.store_id
         </if>
-            left join yx_coupons ycd on ycd.store_id = ysi.id and ycd.is_show = 1
-        where ysi.status = 0 and ysi.del_flag = 0
+        left join yx_coupons ycd on ycd.store_id = ysi.id and ycd.is_show = 1
+        where ysi.status = 0 and ysi.del_flag = 0 and ycd.expire_date_end <![CDATA[ >= ]]> now()
         <if test="param.keyword != '' and param.keyword != null">
             and (ysi.store_name LIKE CONCAT('%',#{param.keyword},'%') or ycd.coupon_name LIKE
             CONCAT('%',#{param.keyword},'%'))
