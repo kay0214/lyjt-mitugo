@@ -1,12 +1,11 @@
 package co.yixiang.modules.coupons.service;
 
+import co.yixiang.common.service.BaseService;
+import co.yixiang.common.web.vo.Paging;
 import co.yixiang.modules.couponUse.criteria.YxCouponOrderUseQueryCriteria;
 import co.yixiang.modules.coupons.entity.YxCouponOrderUse;
-import co.yixiang.common.service.BaseService;
 import co.yixiang.modules.coupons.web.param.YxCouponOrderUseQueryParam;
 import co.yixiang.modules.coupons.web.vo.YxCouponOrderUseQueryVo;
-import co.yixiang.common.web.vo.Paging;
-import org.springframework.data.domain.Pageable;
 
 import java.io.Serializable;
 import java.util.Map;
@@ -23,6 +22,7 @@ public interface YxCouponOrderUseService extends BaseService<YxCouponOrderUse> {
 
     /**
      * 根据ID获取查询对象
+     *
      * @param id
      * @return
      */
@@ -30,6 +30,7 @@ public interface YxCouponOrderUseService extends BaseService<YxCouponOrderUse> {
 
     /**
      * 获取分页对象
+     *
      * @param yxCouponOrderUseQueryParam
      * @return
      */
@@ -38,9 +39,9 @@ public interface YxCouponOrderUseService extends BaseService<YxCouponOrderUse> {
 
     /**
      * 查询数据分页
+     *
      * @param criteria 条件
-     * @param pageable 分页参数
-     * @return Map<String,Object>
+     * @return Map<String   ,   Object>
      */
-    Map<String,Object> queryAll(YxCouponOrderUseQueryCriteria criteria, Pageable pageable);
+    Map<String, Object> queryAll(YxCouponOrderUseQueryCriteria criteria);
 }

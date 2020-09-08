@@ -2,6 +2,7 @@ package co.yixiang.modules.shop.mapper;
 
 import co.yixiang.modules.shop.entity.YxStoreCouponIssue;
 import co.yixiang.modules.shop.web.param.YxStoreCouponIssueQueryParam;
+import co.yixiang.modules.shop.web.param.YxStoreCouponQueryParam;
 import co.yixiang.modules.shop.web.vo.YxStoreCouponIssueQueryVo;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -84,4 +85,30 @@ public interface YxStoreCouponIssueMapper extends BaseMapper<YxStoreCouponIssue>
             " AND A.is_del = 0  AND B.store_id = #{storeId} AND " +
             "( A.remain_count > 0 OR A.is_permanent = 1 ) ORDER BY B.sort DESC")
     List<YxStoreCouponIssueQueryVo> selectCouponListByStoreId(@Param("page") Page page ,@Param("storeId") Integer storeId);
+
+    @Select("<script> select A.cid,A.end_time as endTime,A.start_time as startTime," +
+            "A.is_permanent as isPermanent,A.remain_count as remainCount," +
+            "A.total_count as totalCount,A.id,B.coupon_price as couponPrice," +
+            "B.use_min_price as useMinPrice, " +
+            "B.store_id as storeId" +
+            " from yx_store_coupon_issue A left join yx_store_coupon B " +
+            "on A.cid = B.id " +
+            "where A.status =1 " +
+            "AND (  (  A.start_time <![CDATA[ < ]]>  unix_timestamp(now())  AND A.end_time <![CDATA[ > ]]> unix_timestamp(now()) ) " +
+            "OR (  A.start_time = 0  AND A.end_time = 0 ) )" +
+            " AND A.is_del = 0   AND " +
+            "<if test=\"param.storeId!=null\">  B.store_id = #{param.storeId} AND </if>" +
+            "( A.remain_count <![CDATA[ > ]]> 0 OR A.is_permanent = 1 ) </script>")
+    IPage<YxStoreCouponIssueQueryVo> selectCouponListByStoreIdPage(@Param("page") Page page ,@Param("param") YxStoreCouponQueryParam yxCouponsQueryParam);
+
+    @Select("<script> select count(1)  "+
+            " from yx_store_coupon_issue A left join yx_store_coupon B " +
+            "on A.cid = B.id " +
+            "where A.status =1 " +
+            "AND (  (  A.start_time <![CDATA[ < ]]>  unix_timestamp(now())  AND A.end_time <![CDATA[ > ]]> unix_timestamp(now()) ) " +
+            "OR (  A.start_time = 0  AND A.end_time = 0 ) )" +
+            " AND A.is_del = 0  AND " +
+            "<if test=\"param.storeId!=null\">  B.store_id = #{param.storeId} AND </if>" +
+            "(A.remain_count <![CDATA[ > ]]>  0 OR A.is_permanent = 1)</script>")
+    int getCountByStoreId(@Param("param") YxStoreCouponQueryParam yxCouponsQueryParam);
 }

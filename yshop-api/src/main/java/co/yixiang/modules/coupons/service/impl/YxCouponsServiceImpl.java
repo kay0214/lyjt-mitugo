@@ -8,7 +8,6 @@ import co.yixiang.constant.LocalLiveConstants;
 import co.yixiang.constant.ShopConstants;
 import co.yixiang.dozer.service.IGenerator;
 import co.yixiang.enums.CommonEnum;
-import co.yixiang.exception.BadRequestException;
 import co.yixiang.exception.ErrorRequestException;
 import co.yixiang.modules.couponUse.dto.YxCouponsDto;
 import co.yixiang.modules.coupons.entity.YxCouponOrder;
@@ -86,9 +85,9 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
     }
 
     @Override
-    public List<YxCouponsQueryVo> getCouponsHotList(YxCouponsQueryParam yxCouponsQueryParam) throws Exception {
-        List<YxCouponsQueryVo> couponsHotList = yxCouponsMapper.getCouponsHotList(yxCouponsQueryParam);
-        return couponsHotList;
+    public Paging<YxCouponsQueryVo> getCouponsHotList(YxCouponsQueryParam yxCouponsQueryParam) throws Exception {
+        IPage<YxCouponsQueryVo> iPage = yxCouponsMapper.getCouponsHotList(new Page<>(yxCouponsQueryParam.getPage(), yxCouponsQueryParam.getLimit()), yxCouponsQueryParam);
+        return new Paging(iPage);
     }
 
     /**

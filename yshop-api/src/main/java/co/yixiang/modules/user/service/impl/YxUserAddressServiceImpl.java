@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.Serializable;
+import java.util.List;
 
 
 /**
@@ -55,6 +56,19 @@ public class YxUserAddressServiceImpl extends BaseServiceImpl<YxUserAddressMappe
         Page page = setPageParam(yxUserAddressQueryParam,OrderItem.desc("add_time"));
         IPage<YxUserAddressQueryVo> iPage = yxUserAddressMapper.getYxUserAddressPageList(page,yxUserAddressQueryParam);
         return new Paging(iPage);
+    }
+
+    /**
+     * 获取用户地址数量
+     * @param uid
+     * @return
+     */
+    @Override
+    public int  getUserAddressCount (int uid) {
+        QueryWrapper<YxUserAddress> wrapper = new QueryWrapper<>();
+        wrapper.eq("uid",uid).eq("is_del",0);
+        List<YxUserAddress> yxUserAddressList = list(wrapper);
+        return yxUserAddressList.size();
     }
 
 }
