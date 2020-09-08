@@ -3,16 +3,20 @@ package co.yixiang.modules.shop.service.impl;
 import co.yixiang.common.service.impl.BaseServiceImpl;
 import co.yixiang.common.utils.QueryHelpPlus;
 import co.yixiang.dozer.service.IGenerator;
+import co.yixiang.modules.shop.domain.User;
 import co.yixiang.modules.shop.domain.YxPointDetail;
+import co.yixiang.modules.shop.service.UserService;
 import co.yixiang.modules.shop.service.YxPointDetailService;
 import co.yixiang.modules.shop.service.dto.YxPointDetailDto;
 import co.yixiang.modules.shop.service.dto.YxPointDetailQueryCriteria;
+import co.yixiang.modules.shop.service.mapper.UserMapper;
 import co.yixiang.modules.shop.service.mapper.YxPointDetailMapper;
 import co.yixiang.utils.StringUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -36,6 +40,8 @@ import java.util.Map;
 public class YxPointDetailServiceImpl extends BaseServiceImpl<YxPointDetailMapper, YxPointDetail> implements YxPointDetailService {
 
     private final IGenerator generator;
+    @Autowired
+    private UserService userService;
 
     @Override
     //@Cacheable
@@ -69,14 +75,22 @@ public class YxPointDetailServiceImpl extends BaseServiceImpl<YxPointDetailMappe
 
         // 统计总金额
         BigDecimal totalAmount = new BigDecimal(BigInteger.ZERO);
+        // 商户合伙人处理username
+        List<YxPointDetailDto> list = new ArrayList<>();
         if (ipage.getTotal() > 0) {
             List<YxPointDetail> pointDetailList = ipage.getRecords();
             for (YxPointDetail pointDetail : pointDetailList) {
                 totalAmount = totalAmount.add(pointDetail.getOrderPrice());
+                YxPointDetailDto yxPointDetailDto = generator.convert(pointDetail,YxPointDetailDto.class);
+                User mer = this.userService.getById(yxPointDetailDto.getMerchantsId());
+                yxPointDetailDto.setMerUsername(mer.getUsername());
+                User par = this.userService.getById(yxPointDetailDto.getPartnerId());
+                yxPointDetailDto.setParUsername(par.getUsername());
+                list.add(yxPointDetailDto);
             }
         }
 
-        map.put("content", generator.convert(ipage.getRecords(), YxPointDetailDto.class));
+        map.put("content", list);
         map.put("totalAmount", totalAmount);
         map.put("totalElements", ipage.getTotal());
         return map;

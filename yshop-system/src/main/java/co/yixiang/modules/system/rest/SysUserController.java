@@ -129,7 +129,6 @@ public class SysUserController {
         resources.setParentId(uid);
         // 默认密码 123456
         resources.setPassword(passwordEncoder.encode("123456"));
-        resources.setUserpassword(PassWordUtil.getUserPassWord("123456",resources.getUserRole(),resources.getUsername()));
         return new ResponseEntity<>(userService.create(resources),HttpStatus.CREATED);
     }
 
@@ -144,7 +143,6 @@ public class SysUserController {
         resources.setParentId(uid);
         // 默认密码 123456
         resources.setPassword(passwordEncoder.encode("123456"));
-        resources.setUserpassword(PassWordUtil.getUserPassWord("123456",resources.getUserRole(),resources.getUsername()));
         return new ResponseEntity<>(userService.createMerchants(resources),HttpStatus.CREATED);
     }
 
