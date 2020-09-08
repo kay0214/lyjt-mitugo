@@ -464,4 +464,31 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         }
         return true;
     }
+
+    /**
+     * 支付超时取消订单
+     *
+     * @param yxCouponOrder
+     * @return
+     */
+    @Override
+    public boolean updateCancelNoPayOrder(YxCouponOrder yxCouponOrder) {
+        YxCoupons yxCoupons = this.yxCouponsService.getById(yxCouponOrder.getCouponId());
+        if (null == yxCoupons) {
+            log.info("订单：" + yxCouponOrder.getOrderId() + "取消失败,未查询到相关卡券信息");
+            return false;
+        }
+        boolean result = this.yxCouponsService.updateCancelNoPayOrder(yxCouponOrder.getCouponId(), yxCouponOrder.getTotalNum());
+        if (result) {
+            YxCouponOrder updateOrder = new YxCouponOrder();
+            updateOrder.setId(yxCouponOrder.getId());
+            // 已取消
+            updateOrder.setStatus(10);
+            this.updateById(updateOrder);
+            YxCouponOrderDetail yxCouponOrderDetail = new YxCouponOrderDetail();
+            yxCouponOrderDetail.setStatus(10);
+            this.yxCouponOrderDetailService.update(yxCouponOrderDetail, new QueryWrapper<YxCouponOrderDetail>().lambda().eq(YxCouponOrderDetail::getOrderId, yxCouponOrder.getOrderId()));
+        }
+        return result;
+    }
 }

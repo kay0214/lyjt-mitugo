@@ -5,9 +5,9 @@
         <el-input v-model="form.name" style="width: 300px;" maxlength="20" />
       </el-form-item>
       <el-form-item label="小程序跳转page">
-        <el-input v-model="form.url" style="width: 300px;" maxlength="40" />
+        <el-input v-model="form.url" style="width: 300px;" maxlength="200" />
       </el-form-item>
-      <el-form-item label="图片">
+      <el-form-item label="图片" required="true">
         <MaterialList v-model="form.imageArr" style="width: 300px" type="image" :num="1" :width="150" :height="150" />
       </el-form-item>
       <el-form-item label="排序">

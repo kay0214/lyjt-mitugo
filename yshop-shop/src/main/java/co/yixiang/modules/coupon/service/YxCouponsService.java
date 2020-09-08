@@ -54,4 +54,13 @@ public interface YxCouponsService  extends BaseService<YxCoupons>{
      * @return
      */
     YxCouponsDto getCouponByVerifyCode(String verifyCode, int uid);
+
+    /**
+     * 更新卡券销量
+     *
+     * @param couponId
+     * @param totalNum
+     * @return
+     */
+    boolean updateCancelNoPayOrder(Integer couponId, Integer totalNum);
 }

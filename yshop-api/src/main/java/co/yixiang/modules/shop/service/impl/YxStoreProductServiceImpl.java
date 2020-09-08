@@ -12,16 +12,16 @@ import co.yixiang.modules.commission.entity.YxCommissionRate;
 import co.yixiang.modules.commission.service.YxCommissionRateService;
 import co.yixiang.modules.shop.entity.YxStoreInfo;
 import co.yixiang.modules.shop.entity.YxStoreProduct;
+import co.yixiang.modules.shop.entity.YxStoreProductAttrResult;
 import co.yixiang.modules.shop.entity.YxStoreProductAttrValue;
 import co.yixiang.modules.shop.mapper.YxStoreInfoMapper;
 import co.yixiang.modules.shop.mapper.YxStoreProductAttrValueMapper;
 import co.yixiang.modules.shop.mapper.YxStoreProductMapper;
 import co.yixiang.modules.shop.mapping.YxStoreProductMap;
-import co.yixiang.modules.shop.service.YxStoreProductAttrService;
-import co.yixiang.modules.shop.service.YxStoreProductRelationService;
-import co.yixiang.modules.shop.service.YxStoreProductReplyService;
-import co.yixiang.modules.shop.service.YxStoreProductService;
+import co.yixiang.modules.shop.service.*;
+import co.yixiang.modules.shop.web.dto.FromatDetailDto;
 import co.yixiang.modules.shop.web.dto.ProductDTO;
+import co.yixiang.modules.shop.web.dto.ProductFormatDto;
 import co.yixiang.modules.shop.web.param.YxStoreProductQueryParam;
 import co.yixiang.modules.shop.web.vo.YxStoreProductAttrQueryVo;
 import co.yixiang.modules.shop.web.vo.YxStoreProductNoAttrQueryVo;
@@ -29,8 +29,11 @@ import co.yixiang.modules.shop.web.vo.YxStoreProductQueryVo;
 import co.yixiang.modules.user.service.YxUserService;
 import co.yixiang.mp.config.ShopKeyUtils;
 import co.yixiang.utils.CommonsUtils;
+import co.yixiang.utils.OrderUtil;
 import co.yixiang.utils.RedisUtil;
 import co.yixiang.utils.StringUtils;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.alicp.jetcache.anno.CacheRefresh;
 import com.alicp.jetcache.anno.CacheType;
 import com.alicp.jetcache.anno.Cached;
@@ -48,6 +51,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -85,6 +89,8 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
     private YxStoreInfoMapper storeInfoMapper;
     @Autowired
     private YxCommissionRateService commissionRateService;
+    @Autowired
+    private YxStoreProductAttrResultService yxStoreProductAttrResultService;
 
     /**
      * 增加库存 减少销量
@@ -98,6 +104,8 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
         if (StrUtil.isNotEmpty(unique)) {
             storeProductAttrService.incProductAttrStock(num, productId, unique);
             yxStoreProductMapper.decSales(num, productId);
+            //更新attResult
+            setAttrbuteResultByProductId(num,productId,unique,1);
         } else {
             yxStoreProductMapper.incStockDecSales(num, productId);
         }
@@ -115,9 +123,50 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
         if (StrUtil.isNotEmpty(unique)) {
             storeProductAttrService.decProductAttrStock(num, productId, unique);
             yxStoreProductMapper.incSales(num, productId);
+            //更新attResult
+            setAttrbuteResultByProductId(num,productId,unique,-1);
         } else {
             yxStoreProductMapper.decStockIncSales(num, productId);
         }
+    }
+
+
+    private void setAttrbuteResultByProductId(int num, int productId, String unique, Integer type){
+        YxStoreProductAttrResult yxStoreProductAttrResult = yxStoreProductAttrResultService
+                .getOne(new QueryWrapper<YxStoreProductAttrResult>().eq("product_id", productId));
+        if (ObjectUtil.isNull(yxStoreProductAttrResult)) return;
+
+        JSONObject jsonObject = JSON.parseObject(yxStoreProductAttrResult.getResult());
+
+        List<FromatDetailDto> attrList = JSON.parseArray(
+                jsonObject.get("attr").toString(),
+                FromatDetailDto.class);
+        List<ProductFormatDto> valueList = JSON.parseArray(
+                jsonObject.get("value").toString(),
+                ProductFormatDto.class);
+
+        if(CollectionUtils.isEmpty(valueList)){
+            return;
+        }
+        for(ProductFormatDto productFormatDto:valueList){
+            if(productFormatDto.getUnique().equals(unique)){
+                //
+                int sunSales = productFormatDto.getSales()-num;
+                if(1==type){
+                    sunSales = productFormatDto.getSales()+num;
+                }
+                productFormatDto.setSales(sunSales);
+            }
+        }
+
+        Map<String, Object> map = new LinkedHashMap<>();
+        map.put("attr",  JSONObject.toJSON(attrList));
+        map.put("value", JSONObject.toJSON(valueList));
+
+        yxStoreProductAttrResult.setResult(JSON.toJSONString(map));
+        yxStoreProductAttrResult.setChangeTime(OrderUtil.getSecondTimestampTwo());
+//        yxStoreProductAttrResultService.remove(new QueryWrapper<YxStoreProductAttrResult>().eq("product_id", productId));
+        yxStoreProductAttrResultService.saveOrUpdate(yxStoreProductAttrResult);
     }
 
     /**

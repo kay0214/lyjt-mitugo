@@ -1,9 +1,7 @@
 package co.yixiang.modules.user.service.impl;
 
 import cn.binarywang.wx.miniapp.api.WxMaService;
-import cn.binarywang.wx.miniapp.bean.WxMaJscode2SessionResult;
 import cn.binarywang.wx.miniapp.bean.WxMaUserInfo;
-import cn.binarywang.wx.miniapp.config.impl.WxMaDefaultConfigImpl;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.ObjectUtil;
@@ -434,6 +432,9 @@ public class YxUserServiceImpl extends BaseServiceImpl<YxUserMapper, YxUser> imp
         }
         YxUser yxUser = new YxUser();
 
+        yxUser.setParentId(spread);
+        // 推荐人类型:1商户;2合伙人;3用户 目前只有前端用户可以分享二维码
+        yxUser.setParentType(3);
         yxUser.setSpreadUid(spread);
         yxUser.setSpreadTime(OrderUtil.getSecondTimestampTwo());
         yxUser.setUid(uid);
@@ -654,9 +655,9 @@ public class YxUserServiceImpl extends BaseServiceImpl<YxUserMapper, YxUser> imp
                     .getUserInfo(session.getSessionKey(), encryptedData, iv);*/
             String openId = "";
             WxMaUserInfo wxMpUser = new WxMaUserInfo();
-            JSONObject userJSONObject =  WxUtils.getUserInfo(code,appId,secret);
+            JSONObject userJSONObject = WxUtils.getUserInfo(code, appId, secret);
             if (userJSONObject != null) {
-                JSONObject unionIdJSONObject = WxUtils.decryptPhoneData(userJSONObject.getString("session_key"),encryptedData,iv);
+                JSONObject unionIdJSONObject = WxUtils.decryptPhoneData(userJSONObject.getString("session_key"), encryptedData, iv);
                 if (unionIdJSONObject != null) {
                     openId = unionIdJSONObject.getString("openId");
                     wxMpUser.setOpenId(openId);
@@ -728,6 +729,14 @@ public class YxUserServiceImpl extends BaseServiceImpl<YxUserMapper, YxUser> imp
 
                 wechatUserService.save(yxWechatUser);
 
+                //设置推广关系
+                if (StringUtils.isNotBlank(spread)) {
+                    this.setSpread(Integer.valueOf(spread),
+                            user.getUid());
+                    // 设置推广人的推广人数+1
+                    yxUserMapper.updateUserPusCount(Integer.valueOf(spread));
+                }
+
             } else {
                 username = yxUser.getUsername();
                 if (StrUtil.isNotBlank(wxMpUser.getOpenId()) || StrUtil.isNotBlank(wxMpUser.getUnionId())) {
@@ -766,11 +775,6 @@ public class YxUserServiceImpl extends BaseServiceImpl<YxUserMapper, YxUser> imp
                 onlineUserService.checkLoginOnUser(jwtUserT.getUsername(), token);
             }
 
-            //设置推广关系
-            if (StrUtil.isNotEmpty(spread)) {
-                this.setSpread(Integer.valueOf(spread),
-                        jwtUserT.getId().intValue());
-            }
             // 返回 token
             return map;
         } catch (Exception e) {
@@ -781,6 +785,7 @@ public class YxUserServiceImpl extends BaseServiceImpl<YxUserMapper, YxUser> imp
 
     /**
      * 根据登录用户名查询系统用户
+     *
      * @param username
      * @return
      */
@@ -788,9 +793,9 @@ public class YxUserServiceImpl extends BaseServiceImpl<YxUserMapper, YxUser> imp
     public SystemUser getSystemUserByUserName(String username) {
         QueryWrapper<SystemUser> wrapper = new QueryWrapper<>();
         wrapper.eq("username", username).eq("merchants_status", 0)
-                .eq("user_role",2)
-                .eq("examine_status",1)
-                .eq("enabled",1);
+                .eq("user_role", 2)
+                .eq("examine_status", 1)
+                .eq("enabled", 1);
         return systemUserMapper.selectOne(wrapper);
     }
 }
