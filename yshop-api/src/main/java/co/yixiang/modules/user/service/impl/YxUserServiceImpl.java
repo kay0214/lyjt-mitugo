@@ -730,13 +730,13 @@ public class YxUserServiceImpl extends BaseServiceImpl<YxUserMapper, YxUser> imp
                 wechatUserService.save(yxWechatUser);
 
                 //设置推广关系
-                if (StrUtil.isNotEmpty(spread)) {
+                if (StringUtils.isNotBlank(spread)) {
                     this.setSpread(Integer.valueOf(spread),
                             user.getUid());
+                    // 设置推广人的推广人数+1
+                    yxUserMapper.updateUserPusCount(Integer.valueOf(spread));
                 }
 
-                // 设置推广人的推广人数+1
-                yxUserMapper.updateUserPusCount(Integer.valueOf(spread));
             } else {
                 username = yxUser.getUsername();
                 if (StrUtil.isNotBlank(wxMpUser.getOpenId()) || StrUtil.isNotBlank(wxMpUser.getUnionId())) {
