@@ -52,7 +52,7 @@ public class YxCouponOrderController {
     public ResponseEntity<Object> getYxCouponOrders(YxCouponOrderQueryCriteria criteria, Pageable pageable,
                                                     @RequestParam(name = "orderStatus") Integer orderStatus,
                                                     @RequestParam(name = "orderType") String orderType,
-                                                    @RequestParam(name = "orderType") String value) {
+                                                    @RequestParam(name = "value") String value) {
         CurrUser currUser = SecurityUtils.getCurrUser();
         criteria.setUserRole(currUser.getUserRole());
         if (null != currUser.getChildUser()) {

@@ -432,7 +432,7 @@ export default {
   data() {
     return {
       expireDate: defaultForm.expireDateStart && defaultForm.expireDateEnd ? [defaultForm.expireDateStart, defaultForm.expireDateEnd] : null, // 有效期
-      availableTime: [defaultForm.availableTimeStart ? defaultForm.availableTimeStart : new Date(2020, 9, 10, 9, 0), defaultForm.availableTimeEnd ? defaultForm.availableTimeEnd : new Date(2020, 9, 10, 22, 0)], // 可用时段
+      availableTime: [defaultForm.availableTimeStart ? defaultForm.availableTimeStart : parseTime((new Date(2020, 9, 10, 9, 0)),'{h}:{i}'), defaultForm.availableTimeEnd ? defaultForm.availableTimeEnd : parseTime((new Date(2020, 9, 10, 22, 0)),'{h}:{i}')], // 可用时段
       imageArr: imageArr,
       sliderImageArr: defaultForm.sliderImage || [],
       selections: {
@@ -711,13 +711,13 @@ export default {
     //添加取消 - 之前
     [CRUD.HOOK.beforeAddCancel](crud,form) {
       this.expireDate=null
-      this.availableTime=[new Date(2020, 9, 10, 9, 0),new Date(2020, 9, 10, 22, 0)]
+      this.availableTime=[parseTime((new Date(2020, 9, 10, 9, 0)),'{h}:{i}'),parseTime((new Date(2020, 9, 10, 22, 0)),'{h}:{i}')]
       form.content=""
     },
     /** 提交 - 之后 */
     [CRUD.HOOK.afterSubmit]() {
       this.expireDate=null
-      this.availableTime=[new Date(2020, 9, 10, 9, 0),new Date(2020, 9, 10, 22, 0)]
+      this.availableTime=[parseTime((new Date(2020, 9, 10, 9, 0)),'{h}:{i}'),parseTime((new Date(2020, 9, 10, 22, 0)),'{h}:{i}')]
     },
     expireDateChange(newValue) {
       this.form.expireDateStart = this.expireDate[0]
