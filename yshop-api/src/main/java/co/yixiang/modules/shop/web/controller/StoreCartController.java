@@ -48,32 +48,35 @@ public class StoreCartController extends BaseController {
      * 购物车 获取数量
      */
     @GetMapping("/cart/count")
-    @ApiOperation(value = "获取数量",notes = "获取数量")
-    public ApiResult<Map<String,Object>> count(YxStoreCartQueryParam queryParam){
-        Map<String,Object> map = new LinkedHashMap<>();
+    @ApiOperation(value = "获取数量", notes = "获取数量")
+    public ApiResult<Map<String, Object>> count(YxStoreCartQueryParam queryParam) {
+        Map<String, Object> map = new LinkedHashMap<>();
         int uid = SecurityUtils.getUserId().intValue();
-        map.put("count",storeCartService.getUserCartNum(uid,"product",queryParam.getNumType().intValue()));
+        map.put("count", storeCartService.getUserCartNum(uid, "product", queryParam.getNumType().intValue()));
         return ApiResult.ok(map);
     }
 
     /**
      * 购物车 添加
      */
-    @Log(value = "添加购物车",type = 1)
+    @Log(value = "添加购物车", type = 1)
     @PostMapping("/cart/add")
-    @ApiOperation(value = "添加购物车",notes = "添加购物车")
-    public ApiResult<Map<String,Object>> add(@RequestBody String jsonStr){
+    @ApiOperation(value = "添加购物车", notes = "添加购物车")
+    public ApiResult<Map<String, Object>> add(@RequestBody String jsonStr) {
         JSONObject jsonObject = JSON.parseObject(jsonStr);
-        Map<String,Object> map = new LinkedHashMap<>();
+        Map<String, Object> map = new LinkedHashMap<>();
         int uid = SecurityUtils.getUserId().intValue();
 //        int uid = 27;
-        if(ObjectUtil.isNull(jsonObject.get("cartNum")) || ObjectUtil.isNull(jsonObject.get("productId"))){
+        if (ObjectUtil.isNull(jsonObject.get("cartNum")) || ObjectUtil.isNull(jsonObject.get("productId"))) {
             return ApiResult.fail("参数有误");
         }
         int shareUserId = 0;
-        if(ObjectUtil.isNotNull(jsonObject.get("spread"))){
+        log.info("传参：" + jsonObject);
+        if (ObjectUtil.isNotNull(jsonObject.get("spread"))) {
             //分享人id
-            shareUserId=jsonObject.getInteger("spread");
+            shareUserId = jsonObject.getInteger("spread");
+            log.info("spead:" + jsonObject.get("spread"));
+            log.info("speadInt:" + jsonObject.getInteger("spread"));
         }
         /*BigDecimal bigDecimalComm = BigDecimal.ZERO;
         if(ObjectUtil.isNotNull(jsonObject.get("commission"))){
@@ -81,44 +84,44 @@ public class StoreCartController extends BaseController {
             bigDecimalComm=jsonObject.getBigDecimal("commission");
         }*/
         Integer cartNum = jsonObject.getInteger("cartNum");
-        if(ObjectUtil.isNull(cartNum)){
+        if (ObjectUtil.isNull(cartNum)) {
             return ApiResult.fail("购物车数量参数有误");
         }
-        if(cartNum <= 0){
+        if (cartNum <= 0) {
             return ApiResult.fail("购物车数量必须大于0");
         }
         int isNew = 1;
-        if(ObjectUtil.isNotNull(jsonObject.get("new"))){
+        if (ObjectUtil.isNotNull(jsonObject.get("new"))) {
             isNew = jsonObject.getInteger("new");
         }
         Integer productId = jsonObject.getInteger("productId");
-        if(ObjectUtil.isNull(productId)){
+        if (ObjectUtil.isNull(productId)) {
             return ApiResult.fail("产品参数有误");
         }
         String uniqueId = jsonObject.get("uniqueId").toString();
 
         //拼团
         int combinationId = 0;
-        if(ObjectUtil.isNotNull(jsonObject.get("combinationId"))){
+        if (ObjectUtil.isNotNull(jsonObject.get("combinationId"))) {
             combinationId = jsonObject.getInteger("combinationId");
         }
 
         //秒杀
         int seckillId = 0;
-        if(ObjectUtil.isNotNull(jsonObject.get("secKillId"))){
+        if (ObjectUtil.isNotNull(jsonObject.get("secKillId"))) {
             seckillId = jsonObject.getInteger("secKillId");
         }
 
         //秒杀
         int bargainId = 0;
-        if(ObjectUtil.isNotNull(jsonObject.get("bargainId"))){
+        if (ObjectUtil.isNotNull(jsonObject.get("bargainId"))) {
             bargainId = jsonObject.getInteger("bargainId");
         }
 
         /*map.put("cartId",storeCartService.addCart(uid,productId,cartNum,uniqueId
                 ,"product",isNew,combinationId,seckillId,bargainId));*/
-        map.put("cartId",storeCartService.addCartShareId(uid,productId,cartNum,uniqueId
-                ,"product",isNew,combinationId,seckillId,bargainId,shareUserId));
+        map.put("cartId", storeCartService.addCartShareId(uid, productId, cartNum, uniqueId
+                , "product", isNew, combinationId, seckillId, bargainId, shareUserId));
         return ApiResult.ok(map);
     }
 
@@ -126,27 +129,27 @@ public class StoreCartController extends BaseController {
     /**
      * 购物车列表
      */
-    @Log(value = "查看购物车",type = 1)
+    @Log(value = "查看购物车", type = 1)
     @GetMapping("/cart/list")
-    @ApiOperation(value = "购物车列表",notes = "购物车列表")
-    public ApiResult<Map<String,Object>> getList(){
+    @ApiOperation(value = "购物车列表", notes = "购物车列表")
+    public ApiResult<Map<String, Object>> getList() {
         int uid = SecurityUtils.getUserId().intValue();
-        return ApiResult.ok(storeCartService.getUserProductCartList(uid,"",0));
+        return ApiResult.ok(storeCartService.getUserProductCartList(uid, "", 0));
     }
 
     /**
      * 修改产品数量
      */
     @PostMapping("/cart/num")
-    @ApiOperation(value = "修改产品数量",notes = "修改产品数量")
-    public ApiResult<Object> cartNum(@RequestBody String jsonStr){
+    @ApiOperation(value = "修改产品数量", notes = "修改产品数量")
+    public ApiResult<Object> cartNum(@RequestBody String jsonStr) {
         int uid = SecurityUtils.getUserId().intValue();
         JSONObject jsonObject = JSON.parseObject(jsonStr);
-        if(ObjectUtil.isNull(jsonObject.get("id")) || ObjectUtil.isNull(jsonObject.get("number"))){
+        if (ObjectUtil.isNull(jsonObject.get("id")) || ObjectUtil.isNull(jsonObject.get("number"))) {
             ApiResult.fail("参数错误");
         }
         storeCartService.changeUserCartNum(jsonObject.getInteger("id"),
-                jsonObject.getInteger("number"),uid);
+                jsonObject.getInteger("number"), uid);
         return ApiResult.ok("ok");
     }
 
@@ -154,8 +157,8 @@ public class StoreCartController extends BaseController {
      * 购物车删除产品
      */
     @PostMapping("/cart/del")
-    @ApiOperation(value = "购物车删除产品",notes = "购物车删除产品")
-    public ApiResult<Object> cartDel(@Validated @RequestBody CartIdsParm parm){
+    @ApiOperation(value = "购物车删除产品", notes = "购物车删除产品")
+    public ApiResult<Object> cartDel(@Validated @RequestBody CartIdsParm parm) {
         int uid = SecurityUtils.getUserId().intValue();
         storeCartService.removeUserCart(uid, parm.getIds());
 
@@ -163,17 +166,16 @@ public class StoreCartController extends BaseController {
     }
 
 
-
     /**
      * 购物车列表
      */
-    @Log(value = "查看购物车",type = 1)
+    @Log(value = "查看购物车", type = 1)
     @GetMapping("/cart/listNew")
-    @ApiOperation(value = "购物车列表（带店铺）",notes = "购物车列表（带店铺）")
-    public ApiResult<YxStoreStoreCartVo> getCartList(){
+    @ApiOperation(value = "购物车列表（带店铺）", notes = "购物车列表（带店铺）")
+    public ApiResult<YxStoreStoreCartVo> getCartList() {
         int uid = SecurityUtils.getUserId().intValue();
 //        int uid = 27;
-        return ApiResult.ok(storeCartService.getUserStoreCartList(uid,"",0));
+        return ApiResult.ok(storeCartService.getUserStoreCartList(uid, "", 0));
     }
 
 
