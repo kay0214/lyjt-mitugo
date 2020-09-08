@@ -596,11 +596,11 @@ public class YxStoreCartServiceImpl extends BaseServiceImpl<YxStoreCartMapper, Y
         } else {
             bigCommission = product.getCommission();
         }
-        YxCommissionRate commissionRate = commissionRateService.getOne(new QueryWrapper<YxCommissionRate>().eq("del_flag", 0));
-        if (ObjectUtil.isNotNull(commissionRate)) {
-            //佣金= 佣金*分享
-            bigCommission = bigCommission.multiply(commissionRate.getShareRate());
-        }
+//        YxCommissionRate commissionRate = commissionRateService.getOne(new QueryWrapper<YxCommissionRate>().eq("del_flag", 0));
+//        if (ObjectUtil.isNotNull(commissionRate)) {
+//            //佣金= 佣金*分享
+//            bigCommission = bigCommission.multiply(commissionRate.getShareRate());
+//        }
         storeCart.setCommission(bigCommission);
         //商户ID
         storeCart.setMerId(product.getMerId());
