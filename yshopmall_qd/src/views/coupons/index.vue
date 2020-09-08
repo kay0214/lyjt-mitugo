@@ -166,7 +166,7 @@
           </el-form-item>
           <el-form-item label="图片(260*260/416*214)" prop="image">
             <!-- <pic-upload-two v-model="form.pic" /> -->
-            <MaterialList v-model="imageArr" style="width: 100%" type="image" :num="1" :width="150" :height="150" @setValue="(urls)=>{form.image = urls;imageArr=urls;$refs.form.validateField('image')}"/>
+            <MaterialList v-model="imageArr" style="width: 100%" type="image" :num="1" :width="150" :height="150" @setValue="(urls)=>{form.image = urls.join(',');imageArr=urls;$refs.form.validateField('image')}"/>
           </el-form-item>
           <el-form-item label="轮播图" prop="sliderImage">
             <MaterialList
@@ -176,7 +176,7 @@
               :num="8"
               :width="150"
               :height="150"
-              @setValue="(urls)=>{form.sliderImage = urls;sliderImageArr=urls;$refs.form.validateField('sliderImage')}"
+              @setValue="(urls)=>{form.sliderImage = urls.join(',');sliderImageArr=urls;$refs.form.validateField('sliderImage')}"
             />
           </el-form-item>
           <el-form-item prop="availableTime" label="可用时段">
@@ -353,7 +353,7 @@
         <el-table-column v-if="columns.visible('useCondition')" prop="useCondition" label="使用条件" width="180px" />
         <el-table-column label="可用时段" width="150px">
           <template slot-scope="scope">
-            {{ parseTime(scope.row.availableTimeStart,'{h}:{i}:{s}') }} ~ {{ parseTime(scope.row.availableTimeEnd,'{h}:{i}:{s}') }}
+            {{ scope.row.availableTimeStart }} ~ {{ scope.row.availableTimeEnd }}
           </template>
         </el-table-column>
         <!-- <el-table-column v-if="columns.visible('availableTimeStart')" prop="availableTimeStart" label="可用时间始" />
@@ -700,6 +700,7 @@ export default {
       }
       if (form.sliderImage) {
         formSliderImageArr = form.sliderImage
+        form.sliderImage=form.sliderImage.join(',')
       }
       this.imageArr = formImage
       this.sliderImageArr = formSliderImageArr
