@@ -794,7 +794,6 @@ public class YxUserServiceImpl extends BaseServiceImpl<YxUserMapper, YxUser> imp
         QueryWrapper<SystemUser> wrapper = new QueryWrapper<>();
         wrapper.eq("username", username).eq("merchants_status", 0)
                 .eq("user_role", 2)
-                .eq("examine_status", 1)
                 .eq("enabled", 1);
         return systemUserMapper.selectOne(wrapper);
     }
