@@ -71,12 +71,9 @@ public class StoreCartController extends BaseController {
             return ApiResult.fail("参数有误");
         }
         int shareUserId = 0;
-        log.info("传参：" + jsonObject);
         if (ObjectUtil.isNotNull(jsonObject.get("spread"))) {
             //分享人id
             shareUserId = jsonObject.getInteger("spread");
-            log.info("spead:" + jsonObject.get("spread"));
-            log.info("speadInt:" + jsonObject.getInteger("spread"));
         }
         /*BigDecimal bigDecimalComm = BigDecimal.ZERO;
         if(ObjectUtil.isNotNull(jsonObject.get("commission"))){
