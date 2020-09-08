@@ -689,8 +689,8 @@ export default {
       this.expireDate=[form.expireDateStart,form.expireDateEnd]
       }
       //  设置默认 可用时段
-      this.form.availableTimeEnd = this.availableTime[0]
-      this.form.availableTimeStart = this.availableTime[1]
+      this.form.availableTimeEnd = this.availableTime[1]
+      this.form.availableTimeStart = this.availableTime[0]
       // 设置默认图片
       form.imageArr = [form.image]
       const formImage = []
