@@ -10,19 +10,13 @@
             <el-col
               v-for="(item, index) in items"
               :key="index"
-              :span="5"
-              style="position: relative;margin-right: 6px"
+              style="position: relative;margin-right: 6px;width:auto"
             >
               <el-form-item :prop='`itemValue${index}`' :rules="rules.itemValue">
-                <!-- <el-input
-                  placeholder="设置名称" maxlength="10"
-                  v-model="item.value" style="width: 150px;">
-                  <i slot="suffix" v-if='!item.attrHidden' class="el-input__icon el-icon-check" @click='attrHiddenBool(item,index)'></i>
-                  <i slot="suffix" class="el-input__icon el-icon-close" @click='handleRemove(index)'></i>
-                </el-input> -->
                 <el-input
                   placeholder="设置名称" maxlength="10"
-                  v-model="form['itemValue'+index]" style="width: 150px;">
+                  v-model="form['itemValue'+index]" style=""
+                   @input="(val)=>{item.value=val}">
                   <i slot="suffix" v-if='!item.attrHidden' class="el-input__icon el-icon-check" @click='attrHiddenBool(item,index)'></i>
                   <i slot="suffix" class="el-input__icon el-icon-close" @click='handleRemove(index)'></i>
                 </el-input>
@@ -41,14 +35,14 @@
           <el-col
             v-for="(attr,k) in item.detail"
             :key="attr"
-            :span="3"
+            style='width:auto'
             :name="attr"
           >
             <el-tag closable @close="attrRemove(item,k)">{{ attr }}</el-tag>
           </el-col>
-          <el-col :span="5">
+          <el-col style='width:auto'>
             <el-form-item>
-              <el-input v-model="item.detailValue" style="width: 150px;" placeholder="设置属性" maxlength="10" />
+              <el-input v-model="item.detailValue" style="" placeholder="设置属性" maxlength="10" />
             </el-form-item>
           </el-col>
           <el-col :span="5">
@@ -56,7 +50,7 @@
           </el-col>
         </el-row>
       </div>
-      <el-form-item v-show="1">
+      <el-form-item v-show="1" style="margin-top:20px">
         <el-row :gutter="24">
           <el-col :span="24"><el-button :loading="loading" type="primary" @click="addGoods(true)">生成</el-button></el-col>
         </el-row>
