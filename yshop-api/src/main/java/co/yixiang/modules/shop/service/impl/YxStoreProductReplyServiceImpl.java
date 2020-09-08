@@ -115,7 +115,8 @@ public class YxStoreProductReplyServiceImpl extends BaseServiceImpl<YxStoreProdu
 
         star = NumberUtil.div(star, 2);
 
-        replyQueryVo.setStar(String.valueOf(star.intValue()));
+//        replyQueryVo.setStar(String.valueOf(star.intValue()));
+        replyQueryVo.setStar(star.intValue());
 
         if (StrUtil.isEmpty(replyQueryVo.getComment())) {
             replyQueryVo.setComment("此用户没有填写评价");
