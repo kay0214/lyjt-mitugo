@@ -513,6 +513,10 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<StoreOrderMapper, Y
         if(ObjectUtil.isNull(order)){
             return;
         }
+
+        if (resources.getPayPrice().doubleValue() > order.getPayPrice().doubleValue()) {
+            throw new BadRequestException("退款金额不能超过支付金额！");
+        }
         if (resources.getPayType().equals("yue")) {
             //修改状态
             resources.setRefundStatus(2);

@@ -82,7 +82,8 @@ public class YxStoreProductReplyQueryVo implements Serializable {
     @ApiModelProperty(value = "商户id")
     private Integer merId;
 
-    private String star;
+//    private String star;
+    private Integer star;
 
     private String nickname;
 
