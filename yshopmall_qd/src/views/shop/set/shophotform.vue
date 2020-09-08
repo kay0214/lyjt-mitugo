@@ -5,7 +5,7 @@
         <el-input v-model="form.title" style="width: 370px;" maxlength="12" />
       </el-form-item>
       <el-form-item label="排序">
-        <el-input v-model="form.sort" style="width: 300px;" />
+        <el-input v-model="form.sort" style="width: 300px;" maxlength="3" />
       </el-form-item>
       <el-form-item label="是否显示">
         <el-radio v-model="form.status" :label="1">是</el-radio>
