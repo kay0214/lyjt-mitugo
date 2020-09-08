@@ -22,7 +22,7 @@
           <el-select v-model="query.orderType" clearable placeholder="类型" class="filter-item" style="width: 130px">
             <el-option v-for="item in queryTypeOptions" :key="item.key" :label="item.display_name" :value="item.key" />
           </el-select>
-          <el-date-picker
+          <!-- <el-date-picker
             v-model="createTime"
             :default-time="['00:00:00','23:59:59']"
             type="daterange"
@@ -32,7 +32,7 @@
             value-format="yyyy-MM-dd HH:mm:ss"
             start-placeholder="开始日期"
             end-placeholder="结束日期"
-          />
+          /> -->
           <el-button class="filter-item" size="mini" type="success" icon="el-icon-search" @click="crud.toQuery">搜索</el-button>
           <!-- 新增 -->
           <el-button
