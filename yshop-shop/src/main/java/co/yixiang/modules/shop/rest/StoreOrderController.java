@@ -379,7 +379,7 @@ public class StoreOrderController {
     @Log("修改订单备注")
     @ApiOperation(value = "修改订单备注")
     @PostMapping(value = "/yxStoreOrder/remark")
-    @PreAuthorize("hasAnyRole('admin','YXSTOREORDER_ALL','YXSTOREORDER_EDIT')")
+    @PreAuthorize("hasAnyRole('admin','YXSTOREORDER_ALL','YXSTOREORDER_MARK')")
     public ResponseEntity editOrderRemark(@RequestBody YxStoreOrder resources) {
         if (StrUtil.isBlank(resources.getRemark())) throw new BadRequestException("请输入备注");
         yxStoreOrderService.saveOrUpdate(resources);
