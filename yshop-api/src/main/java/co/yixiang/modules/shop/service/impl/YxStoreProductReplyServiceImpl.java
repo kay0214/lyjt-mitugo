@@ -74,7 +74,7 @@ public class YxStoreProductReplyServiceImpl extends BaseServiceImpl<YxStoreProdu
         QueryWrapper<YxStoreProductReply> wrapperTwo = new QueryWrapper<>();
         wrapperTwo.eq("product_id", productId).eq("is_del", 0)
                 .eq("reply_type", "product")
-                .lt("product_score", 5).gt("product_score", 2);
+                .lt("product_score", 5).ge("product_score", 2);
         replyCountDTO.setInCount(yxStoreProductReplyMapper.selectCount(wrapperTwo));
 
         //差评

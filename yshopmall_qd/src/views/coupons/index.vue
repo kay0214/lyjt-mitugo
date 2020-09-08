@@ -166,7 +166,7 @@
           </el-form-item>
           <el-form-item label="图片(260*260/416*214)" prop="image">
             <!-- <pic-upload-two v-model="form.pic" /> -->
-            <MaterialList v-model="imageArr" style="width: 100%" type="image" :num="1" :width="150" :height="150" @setValue="(urls)=>{form.image = urls;imageArr=urls;$refs.form.validateField('image')}"/>
+            <MaterialList v-model="imageArr" style="width: 100%" type="image" :num="1" :width="150" :height="150" @setValue="(urls)=>{form.image = urls.join(',');imageArr=urls;$refs.form.validateField('image')}"/>
           </el-form-item>
           <el-form-item label="轮播图" prop="sliderImage">
             <MaterialList
@@ -176,7 +176,7 @@
               :num="8"
               :width="150"
               :height="150"
-              @setValue="(urls)=>{form.sliderImage = urls;sliderImageArr=urls;$refs.form.validateField('sliderImage')}"
+              @setValue="(urls)=>{form.sliderImage = urls.join(',');sliderImageArr=urls;$refs.form.validateField('sliderImage')}"
             />
           </el-form-item>
           <el-form-item prop="availableTime" label="可用时段">
@@ -432,7 +432,7 @@ export default {
   data() {
     return {
       expireDate: defaultForm.expireDateStart && defaultForm.expireDateEnd ? [defaultForm.expireDateStart, defaultForm.expireDateEnd] : null, // 有效期
-      availableTime: [defaultForm.availableTimeStart ? defaultForm.availableTimeStart : new Date(2020, 9, 10, 9, 0), defaultForm.availableTimeEnd ? defaultForm.availableTimeEnd : new Date(2020, 9, 10, 22, 0)], // 可用时段
+      availableTime: [defaultForm.availableTimeStart ? defaultForm.availableTimeStart : parseTime((new Date(2020, 9, 10, 9, 0)),'{h}:{i}'), defaultForm.availableTimeEnd ? defaultForm.availableTimeEnd : parseTime((new Date(2020, 9, 10, 22, 0)),'{h}:{i}')], // 可用时段
       imageArr: imageArr,
       sliderImageArr: defaultForm.sliderImage || [],
       selections: {
@@ -700,6 +700,7 @@ export default {
       }
       if (form.sliderImage) {
         formSliderImageArr = form.sliderImage
+        form.sliderImage=form.sliderImage.join(',')
       }
       this.imageArr = formImage
       this.sliderImageArr = formSliderImageArr
@@ -711,13 +712,13 @@ export default {
     //添加取消 - 之前
     [CRUD.HOOK.beforeAddCancel](crud,form) {
       this.expireDate=null
-      this.availableTime=[new Date(2020, 9, 10, 9, 0),new Date(2020, 9, 10, 22, 0)]
+      this.availableTime=[parseTime((new Date(2020, 9, 10, 9, 0)),'{h}:{i}'),parseTime((new Date(2020, 9, 10, 22, 0)),'{h}:{i}')]
       form.content=""
     },
     /** 提交 - 之后 */
     [CRUD.HOOK.afterSubmit]() {
       this.expireDate=null
-      this.availableTime=[new Date(2020, 9, 10, 9, 0),new Date(2020, 9, 10, 22, 0)]
+      this.availableTime=[parseTime((new Date(2020, 9, 10, 9, 0)),'{h}:{i}'),parseTime((new Date(2020, 9, 10, 22, 0)),'{h}:{i}')]
     },
     expireDateChange(newValue) {
       this.form.expireDateStart = this.expireDate[0]
