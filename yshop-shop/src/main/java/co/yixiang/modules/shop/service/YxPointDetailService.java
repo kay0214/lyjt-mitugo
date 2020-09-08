@@ -29,4 +29,21 @@ public interface YxPointDetailService  extends BaseService<YxPointDetail>{
     */
     List<YxPointDetail> queryAll(YxPointDetailQueryCriteria criteria);
 
+    /**
+     * 查询拉新数据
+     *
+     * @param criteria
+     * @param pageable
+     * @return
+     */
+    Map<String,Object> queryAllPullNew(YxPointDetailQueryCriteria criteria, Pageable pageable);
+
+    /**
+     * 查询分红数据
+     *
+     * @param criteria
+     * @param pageable
+     * @return
+     */
+    Map<String,Object> queryAllDividends(YxPointDetailQueryCriteria criteria, Pageable pageable);
 }

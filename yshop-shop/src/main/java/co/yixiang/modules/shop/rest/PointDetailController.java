@@ -1,6 +1,5 @@
 package co.yixiang.modules.shop.rest;
 
-import co.yixiang.exception.BadRequestException;
 import co.yixiang.logging.aop.log.Log;
 import co.yixiang.modules.shop.service.YxPointDetailService;
 import co.yixiang.modules.shop.service.dto.YxPointDetailQueryCriteria;
@@ -18,16 +17,14 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 /**
-* @author huiy
-* @date 2020-08-19
-*/
+ * @author huiy
+ * @date 2020-08-19
+ */
 @AllArgsConstructor
 @Api(tags = "积分获取明细管理")
 @RestController
@@ -39,6 +36,7 @@ public class PointDetailController {
 
     /**
      * 积分明细
+     *
      * @param criteria
      * @param pageable
      * @return
@@ -47,54 +45,56 @@ public class PointDetailController {
     @Log("查询积分获取明细")
     @ApiOperation("查询积分获取明细")
     @PreAuthorize("@el.check('admin','yxPointDetail:list')")
-    public ResponseEntity<Object> getYxPointDetails(YxPointDetailQueryCriteria criteria, Pageable pageable){
+    public ResponseEntity<Object> getYxPointDetails(YxPointDetailQueryCriteria criteria, Pageable pageable) {
         CurrUser currUser = SecurityUtils.getCurrUser();
         criteria.setUserRole(currUser.getUserRole());
         if (null != currUser.getChildUser()) {
             criteria.setChildUser(currUser.getChildUser());
         }
-        return new ResponseEntity<>(yxPointDetailService.queryAll(criteria,pageable),HttpStatus.OK);
+        int uid = SecurityUtils.getUserId().intValue();
+        criteria.setUid(uid);
+        return new ResponseEntity<>(yxPointDetailService.queryAll(criteria, pageable), HttpStatus.OK);
     }
 
     @GetMapping(value = "/pullNew")
     @Log("积分明细, 拉新")
     @ApiOperation("查询积分明细, 拉新")
     @PreAuthorize("@el.check('admin','yxPointDetail:list')")
-    public ResponseEntity<Object> getYxPointDetailsPullNew(YxPointDetailQueryCriteria criteria, Pageable pageable){
+    public ResponseEntity<Object> getYxPointDetailsPullNew(YxPointDetailQueryCriteria criteria, Pageable pageable) {
         CurrUser currUser = SecurityUtils.getCurrUser();
         criteria.setUserRole(currUser.getUserRole());
         if (null != currUser.getChildUser()) {
             criteria.setChildUser(currUser.getChildUser());
         }
-        if (criteria.getSearchTime() != null && criteria.getSearchTime().size() > 0){
-                List<Date> timeList = new ArrayList<>();
-                timeList.add(DateUtils.parseDate(criteria.getSearchTime().get(0) + " 00:00:00"));
-                timeList.add(DateUtils.parseDate(criteria.getSearchTime().get(1) + " 23:59:59"));
-                criteria.setCreateTime(timeList);
+        if (criteria.getSearchTime() != null && criteria.getSearchTime().size() > 0) {
+            List<Date> timeList = new ArrayList<>();
+            timeList.add(DateUtils.parseDate(criteria.getSearchTime().get(0) + " 00:00:00"));
+            timeList.add(DateUtils.parseDate(criteria.getSearchTime().get(1) + " 23:59:59"));
+            criteria.setCreateTime(timeList);
         }
         // 只取拉新用户
         criteria.setType(0);
-        return new ResponseEntity<>(yxPointDetailService.queryAll(criteria,pageable),HttpStatus.OK);
+        return new ResponseEntity<>(yxPointDetailService.queryAllPullNew(criteria, pageable), HttpStatus.OK);
     }
 
     @GetMapping(value = "/dividends")
     @Log("积分明细, 分红池")
     @ApiOperation("查询积分明细, 分红池")
     @PreAuthorize("@el.check('admin','yxPointDetail:list')")
-    public ResponseEntity<Object> getYxPointDetailsDividends(YxPointDetailQueryCriteria criteria, Pageable pageable){
+    public ResponseEntity<Object> getYxPointDetailsDividends(YxPointDetailQueryCriteria criteria, Pageable pageable) {
         CurrUser currUser = SecurityUtils.getCurrUser();
         criteria.setUserRole(currUser.getUserRole());
         if (null != currUser.getChildUser()) {
             criteria.setChildUser(currUser.getChildUser());
         }
-        if (criteria.getSearchTime() != null && criteria.getSearchTime().size() > 0){
-                List<Date> timeList = new ArrayList<>();
-                timeList.add(DateUtils.parseDate(criteria.getSearchTime().get(0) + " 00:00:00"));
-                timeList.add(DateUtils.parseDate(criteria.getSearchTime().get(1) + " 23:59:59"));
-                criteria.setCreateTime(timeList);
+        if (criteria.getSearchTime() != null && criteria.getSearchTime().size() > 0) {
+            List<Date> timeList = new ArrayList<>();
+            timeList.add(DateUtils.parseDate(criteria.getSearchTime().get(0) + " 00:00:00"));
+            timeList.add(DateUtils.parseDate(criteria.getSearchTime().get(1) + " 23:59:59"));
+            criteria.setCreateTime(timeList);
         }
         // 只取拉新用户
         criteria.setType(1);
-        return new ResponseEntity<>(yxPointDetailService.queryAll(criteria,pageable),HttpStatus.OK);
+        return new ResponseEntity<>(yxPointDetailService.queryAllDividends(criteria, pageable), HttpStatus.OK);
     }
 }
