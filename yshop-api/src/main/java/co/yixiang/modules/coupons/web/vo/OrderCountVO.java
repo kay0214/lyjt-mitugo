@@ -27,4 +27,6 @@ public class OrderCountVO implements Serializable {
     private BigDecimal sumPrice;
     @ApiModelProperty(value = "已过期数量")
     private Integer outTimeCount;
+    @ApiModelProperty(value = "已取消数量")
+    private Integer cancelCount;
 }
