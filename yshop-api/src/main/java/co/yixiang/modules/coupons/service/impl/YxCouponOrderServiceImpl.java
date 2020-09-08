@@ -764,9 +764,9 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         SystemUser updateSystemUser = new SystemUser();
         BigDecimal truePrice = yxCouponOrder.getTotalPrice().subtract(yxCouponOrder.getCommission());
         updateSystemUser.setId(systemUser.getId());
-        updateSystemUser.setTotalAmount(systemUser.getTotalAmount().add(truePrice));
-        updateSystemUser.setWithdrawalAmount(systemUser.getWithdrawalAmount().add(truePrice));
-        this.systemUserService.updateById(updateSystemUser);
+        updateSystemUser.setTotalAmount(truePrice);
+        updateSystemUser.setWithdrawalAmount(truePrice);
+        this.systemUserService.updateUserTotal(updateSystemUser);
 
         // 插入商户资金明细
         YxUserBill merBill = new YxUserBill();
@@ -784,7 +784,7 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         merBill.setMerId(yxCouponOrder.getMerId());
         merBill.setUserType(2);
         merBill.setUsername(systemUser.getUsername());
-        this.yxUserBillService.save(yxUserBill);
+        this.yxUserBillService.save(merBill);
 
         // 判断用户是否是分销客、不是更新成分销客
         if (0 == yxUser.getUserRole()) {
