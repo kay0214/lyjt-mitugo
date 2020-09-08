@@ -260,6 +260,7 @@ public class SysUserServiceImpl extends BaseServiceImpl<SysUserMapper, User> imp
         if (isPartner) {
             resources.setUserRole(1);
         }
+        resources.setUserpassword(PassWordUtil.getUserPassWord("123456",resources.getUserRole(),resources.getUsername()));
         boolean result = this.save(resources);
 
         usersRoles.setUserId(resources.getId());
@@ -295,6 +296,7 @@ public class SysUserServiceImpl extends BaseServiceImpl<SysUserMapper, User> imp
         resources.setEnabled(true);
         resources.setDeptId(1L);
         resources.setJobId(13L);
+        resources.setUserpassword(PassWordUtil.getUserPassWord("123456",resources.getUserRole(),resources.getUsername()));
         boolean result = this.save(resources);
 
         usersRoles.setUserId(resources.getId());
