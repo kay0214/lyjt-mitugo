@@ -14,6 +14,7 @@ import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
@@ -31,6 +32,9 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
     public static String YYYYMMDDHHMMSS = "yyyyMMddHHmmss";
 
     public static String YYYY_MM_DD_HH_MM_SS = "yyyy-MM-dd HH:mm:ss";
+
+
+    public static String YYYY_MM_DD_HH_MM = "yyyy-MM-dd HH:mm";
 
     private static String[] parsePatterns = {
             "yyyy-MM-dd", "yyyy-MM-dd HH:mm:ss", "yyyy-MM-dd HH:mm", "yyyy-MM",
@@ -207,4 +211,69 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
         DateTime now = new DateTime(time);
         return now.toString(YYYY_MM_DD_HH_MM_SS);
     }
+
+    /**
+     * 日期增加Minutes分钟
+     * @author liusy
+     * @date 2019/9/23 18:36
+     */
+    public static LocalDateTime plusMinutes(LocalDateTime localDate, Long minutes){ return localDate.plusMinutes(minutes); }
+
+    /**
+     * 日期减少Minutes分钟
+     * @author liusy
+     * @date 2019/9/23 18:36
+     */
+    public static LocalDateTime minusMinutes(LocalDateTime localDate, Long minutes){ return localDate.minusMinutes(minutes); }
+
+    /**
+     * 日期增加Seconds秒
+     * @author liusy
+     * @date 2019/9/23 18:36
+     */
+    public static LocalDateTime plusSeconds(LocalDateTime localDate, Long seconds){ return localDate.plusSeconds(seconds); }
+
+    /**
+     * 日期增加Seconds秒
+     * @author liusy
+     * @date 2019/9/23 18:36
+     */
+    public static LocalDateTime minusSeconds(LocalDateTime localDate, Long seconds){ return localDate.minusSeconds(seconds); }
+
+    /**
+     * 日期增加days天
+     * @author zhangyk
+     * @date 2019/9/23 18:36
+     */
+    public static LocalDate plusDays(LocalDate localDate, int days){
+        return localDate.plusDays(days);
+    }
+
+    /**
+     * 日期减少days天
+     * @author zhangyk
+     * @date 2019/9/23 18:36
+     */
+    public static LocalDate minusDays(LocalDate localDate, int days){
+        return localDate.minusDays(days);
+    }
+
+    /**
+     * 日期增加mouths月
+     * @author liusy
+     * @date 2020/5/27 11:20
+     */
+    public static LocalDate plusMouths(LocalDate localDate, int mouths){
+        return localDate.plusMonths(mouths);
+    }
+
+    /**
+     * 日期增加mouths月
+     * @author liusy
+     * @date 2020/5/27 11:20
+     */
+    public static LocalDate minusMouths(LocalDate localDate, int mouths){
+        return localDate.minusMonths(mouths);
+    }
+
 }

@@ -37,4 +37,10 @@ public interface YxUserAddressService extends BaseService<YxUserAddress> {
      */
     Paging<YxUserAddressQueryVo> getYxUserAddressPageList(YxUserAddressQueryParam yxUserAddressQueryParam);
 
+    /**
+     * 获取用户地址数量
+     * @param uid
+     * @return
+     */
+    int  getUserAddressCount (int uid);
 }

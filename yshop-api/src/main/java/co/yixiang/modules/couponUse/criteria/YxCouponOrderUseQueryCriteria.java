@@ -8,6 +8,7 @@
 */
 package co.yixiang.modules.couponUse.criteria;
 
+import co.yixiang.common.web.param.QueryParam;
 import lombok.Data;
 
 /**
@@ -15,7 +16,7 @@ import lombok.Data;
 * @date 2020-08-14
 */
 @Data
-public class YxCouponOrderUseQueryCriteria {
+public class YxCouponOrderUseQueryCriteria extends QueryParam {
 
     /** 创建人 根据创建人关联店铺 */
     private Integer createUserId;

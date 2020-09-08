@@ -505,10 +505,12 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
      */
     @Override
     public void cancelOrderByTask(int orderId) {
+        log.info("---------- 超时取消订单 cancelOrderByTask ---------");
+
         YxStoreOrderQueryVo order = null;
         try {
-            order = getYxStoreOrderById(orderId);
-
+            order= getYxStoreOrderById(orderId);
+            log.info("---------- 超时取消订单：{}"+JSONObject.toJSON(order));
             if (ObjectUtil.isNull(order)) throw new ErrorRequestException("订单不存在");
 
             if (order.getIsDel() == OrderInfoEnum.CANCEL_STATUS_1.getValue()) throw new ErrorRequestException("订单已取消");
@@ -519,9 +521,10 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
 
             regressionCoupon(order);
 
-            YxStoreOrder storeOrder = new YxStoreOrder();
+            YxStoreOrder storeOrder = yxStoreOrderMapper.selectById(order.getId());
             storeOrder.setIsDel(OrderInfoEnum.CANCEL_STATUS_1.getValue());
-            storeOrder.setId(order.getId());
+//            storeOrder.setId(order.getId());
+            log.info("---------- 保存取消结果 = "+ JSONObject.toJSON(storeOrder));
             yxStoreOrderMapper.updateById(storeOrder);
         } catch (Exception e) {
             e.printStackTrace();
@@ -915,6 +918,12 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
         if (uid > 0) wrapperCart.eq("uid", uid);
         wrapperCart.eq("type", "product").eq("is_pay", 0).eq("is_del", 0).eq("is_new", 0);
         countDTO.setCartCount(storeCartMapper.selectCount(wrapperCart));
+
+        //地址数量
+        countDTO.setAddressCount(userAddressService.getUserAddressCount(uid));
+        //推广数量
+        YxUser user = userService.getById(uid);
+        countDTO.setSpreadCount(user.getSpreadCount());
 
         return countDTO;
     }
@@ -1710,6 +1719,10 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
 
     @Override
     public YxStoreOrderQueryVo getYxStoreOrderById(Serializable id) throws Exception {
+        return yxStoreOrderMapper.getYxStoreOrderById(id);
+    }
+
+    public YxStoreOrderQueryVo getYxStoreOrderByIdNew(Serializable id) {
         return yxStoreOrderMapper.getYxStoreOrderById(id);
     }
 

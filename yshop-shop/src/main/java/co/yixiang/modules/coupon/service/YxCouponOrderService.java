@@ -67,4 +67,12 @@ public interface YxCouponOrderService extends BaseService<YxCouponOrder> {
      * @return
      */
     boolean updateCouponOrderInput(String orderId, Integer uid);
+
+    /**
+     * 支付超时取消订单
+     *
+     * @param yxCouponOrder
+     * @return
+     */
+    boolean updateCancelNoPayOrder(YxCouponOrder yxCouponOrder);
 }

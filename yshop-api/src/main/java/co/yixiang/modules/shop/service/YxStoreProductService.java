@@ -42,7 +42,7 @@ public interface YxStoreProductService extends BaseService<YxStoreProduct> {
      * @param order
      * @return
      */
-    List<YxStoreProductQueryVo> getList(int page, int limit, int order);
+    Paging<YxStoreProductQueryVo> getList(int page, int limit, int order);
 
     /**
      * 根据ID获取查询对象
