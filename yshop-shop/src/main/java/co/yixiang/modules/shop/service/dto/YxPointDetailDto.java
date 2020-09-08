@@ -56,6 +56,8 @@ public class YxPointDetailDto implements Serializable {
 
     private Integer merchantsId;
 
+    /** 商户username */
+    private String merUsername;
 
     /** 商户获取积分数 */
 
@@ -66,6 +68,8 @@ public class YxPointDetailDto implements Serializable {
 
     private Integer partnerId;
 
+    /** 合伙人username */
+    private String parUsername;
 
     /** 合伙人获取积分数 */
 

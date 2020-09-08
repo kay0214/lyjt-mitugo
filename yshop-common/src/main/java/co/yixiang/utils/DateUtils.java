@@ -1,7 +1,6 @@
 /**
  * Copyright (C) 2018-2020
  * All rights reserved, Designed By www.yixiang.co
-
  */
 package co.yixiang.utils;
 
@@ -13,10 +12,7 @@ import java.lang.management.ManagementFactory;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
+import java.time.*;
 import java.util.Date;
 
 /**
@@ -151,15 +147,16 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
      * @param dateStr
      * @return
      */
-    public static int stringToTimestamp(String dateStr){
+    public static int stringToTimestamp(String dateStr) {
         int times = 0;
         try {
-            times = (int) ((Timestamp.valueOf(dateStr).getTime())/1000);
+            times = (int) ((Timestamp.valueOf(dateStr).getTime()) / 1000);
         } catch (Exception e) {
             e.printStackTrace();
         }
         return times;
     }
+
     /**
      * 获得当前时间的时间戳  10位
      *
@@ -169,6 +166,7 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
         Long time = System.currentTimeMillis() / 1000;
         return time.intValue();
     }
+
     /**
      * Date转LocalDateTime
      * @param date
@@ -178,6 +176,7 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
         return LocalDateTime.ofInstant(Instant.ofEpochMilli(date.getTime()), ZoneId.systemDefault());
 
     }
+
     /**
      * 10位时间戳转字符串   默认为yyyy-MM-dd HH:mm:ss
      *
@@ -217,35 +216,43 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
      * @author liusy
      * @date 2019/9/23 18:36
      */
-    public static LocalDateTime plusMinutes(LocalDateTime localDate, Long minutes){ return localDate.plusMinutes(minutes); }
+    public static LocalDateTime plusMinutes(LocalDateTime localDate, Long minutes) {
+        return localDate.plusMinutes(minutes);
+    }
 
     /**
      * 日期减少Minutes分钟
      * @author liusy
      * @date 2019/9/23 18:36
      */
-    public static LocalDateTime minusMinutes(LocalDateTime localDate, Long minutes){ return localDate.minusMinutes(minutes); }
+    public static LocalDateTime minusMinutes(LocalDateTime localDate, Long minutes) {
+        return localDate.minusMinutes(minutes);
+    }
 
     /**
      * 日期增加Seconds秒
      * @author liusy
      * @date 2019/9/23 18:36
      */
-    public static LocalDateTime plusSeconds(LocalDateTime localDate, Long seconds){ return localDate.plusSeconds(seconds); }
+    public static LocalDateTime plusSeconds(LocalDateTime localDate, Long seconds) {
+        return localDate.plusSeconds(seconds);
+    }
 
     /**
      * 日期增加Seconds秒
      * @author liusy
      * @date 2019/9/23 18:36
      */
-    public static LocalDateTime minusSeconds(LocalDateTime localDate, Long seconds){ return localDate.minusSeconds(seconds); }
+    public static LocalDateTime minusSeconds(LocalDateTime localDate, Long seconds) {
+        return localDate.minusSeconds(seconds);
+    }
 
     /**
      * 日期增加days天
      * @author zhangyk
      * @date 2019/9/23 18:36
      */
-    public static LocalDate plusDays(LocalDate localDate, int days){
+    public static LocalDate plusDays(LocalDate localDate, int days) {
         return localDate.plusDays(days);
     }
 
@@ -254,7 +261,7 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
      * @author zhangyk
      * @date 2019/9/23 18:36
      */
-    public static LocalDate minusDays(LocalDate localDate, int days){
+    public static LocalDate minusDays(LocalDate localDate, int days) {
         return localDate.minusDays(days);
     }
 
@@ -263,7 +270,7 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
      * @author liusy
      * @date 2020/5/27 11:20
      */
-    public static LocalDate plusMouths(LocalDate localDate, int mouths){
+    public static LocalDate plusMouths(LocalDate localDate, int mouths) {
         return localDate.plusMonths(mouths);
     }
 
@@ -272,8 +279,27 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
      * @author liusy
      * @date 2020/5/27 11:20
      */
-    public static LocalDate minusMouths(LocalDate localDate, int mouths){
+    public static LocalDate minusMouths(LocalDate localDate, int mouths) {
         return localDate.minusMonths(mouths);
     }
 
+    /**
+     * 获取当天开始时间
+     *
+     * @param timestamp
+     * @return
+     */
+    public static Timestamp getDayStart(Timestamp timestamp) {
+        return Timestamp.valueOf(timestamp.toLocalDateTime().toLocalDate().toString() + " 00:00:00");
+    }
+
+    /**
+     * 获取当天结束时间
+     *
+     * @param timestamp
+     * @return
+     */
+    public static Timestamp getDayEnd(Timestamp timestamp) {
+        return Timestamp.valueOf(timestamp.toLocalDateTime().toLocalDate().toString() + " 23:59:59");
+    }
 }
