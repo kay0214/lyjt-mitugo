@@ -42,11 +42,11 @@ public interface YxFundsAccountMapper extends BaseMapper<YxFundsAccount> {
 
     /**
      * 平台账户余额
-     * @param yxFundsAccount
+     * @param fundsBonus
      * @param oldPrice
      * @return
      */
-    @Update("update yx_funds_account set price=price+#{price} where id=#{id} and price = #{oldPrice}")
-    int updateFundsAccount(YxFundsAccount yxFundsAccount, BigDecimal oldPrice);
+    @Update("update yx_funds_account set price=price+#{fundsBonus} where id=#{id} and price = #{oldPrice}")
+    int updateFundsAccount(@Param("fundsBonus") BigDecimal fundsBonus,@Param("oldPrice") BigDecimal oldPrice,@Param("id") int id);
 
 }

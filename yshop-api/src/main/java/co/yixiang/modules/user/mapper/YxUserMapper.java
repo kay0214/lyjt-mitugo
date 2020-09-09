@@ -90,9 +90,12 @@ public interface YxUserMapper extends BaseMapper<YxUser> {
 
     /**
      * 更新用户金额
-     * @param yxUser
+     * @param money
+     * @param oldMoney
+     * @param uid
+     * @return
      */
-    @Update("update yx_user set now_money=now_money+#{nowMoney} , brokerage_price=brokerage_price+#{brokeragePrice}" +
+    @Update("update yx_user set now_money=now_money+#{money} , brokerage_price=brokerage_price+#{money}" +
             " where uid=#{uid} and now_money= #{oldMoney}")
-    int updateUserMoney(YxUser yxUser, BigDecimal oldMoney);
+    int updateUserMoney(@Param("money") BigDecimal money, @Param("oldMoney")BigDecimal oldMoney,@Param("uid") int uid);
 }
