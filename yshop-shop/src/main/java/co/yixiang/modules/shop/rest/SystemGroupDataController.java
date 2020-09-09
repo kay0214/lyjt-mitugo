@@ -49,7 +49,6 @@ public class SystemGroupDataController {
         this.yxSystemGroupDataService = yxSystemGroupDataService;
     }
 
-    @Log("查询数据配置")
     @ApiOperation(value = "查询数据配置")
     @GetMapping(value = "/yxSystemGroupData")
     @PreAuthorize("hasAnyRole('admin','YXSYSTEMGROUPDATA_ALL','YXSYSTEMGROUPDATA_SELECT')")

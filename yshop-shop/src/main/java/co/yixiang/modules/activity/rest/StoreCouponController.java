@@ -52,7 +52,6 @@ public class StoreCouponController {
         this.yxStoreCouponService = yxStoreCouponService;
     }
 
-    @Log("查询")
     @ApiOperation(value = "查询")
     @GetMapping(value = "/yxStoreCoupon")
     @PreAuthorize("hasAnyRole('admin','YXSTORECOUPON_ALL','YXSTORECOUPON_SELECT')")
@@ -66,14 +65,13 @@ public class StoreCouponController {
         return new ResponseEntity(yxStoreCouponService.queryAll(criteria,pageable),HttpStatus.OK);
     }
 
-    @Log("查询指定优惠券详情")
     @ApiOperation(value = "查询指定优惠券详情")
     @GetMapping(value = "/yxStoreCoupon/getCouponInfo/{id}")
     public ResponseEntity<Object> getCouponInfo(@PathVariable Integer id){
         return new ResponseEntity<>(yxStoreCouponService.getOne(new QueryWrapper<YxStoreCoupon>().eq("id", id)), HttpStatus.OK);
     }
 
-    @Log("新增")
+    @Log("新增优惠券")
     @ApiOperation(value = "新增")
     @PostMapping(value = "/yxStoreCoupon")
     @PreAuthorize("hasAnyRole('admin','YXSTORECOUPON_ALL','YXSTORECOUPON_CREATE')")

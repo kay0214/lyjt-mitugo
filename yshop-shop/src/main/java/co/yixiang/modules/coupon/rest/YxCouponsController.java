@@ -67,7 +67,6 @@ public class YxCouponsController {
     private YxSystemAttachmentService yxSystemAttachmentService;
 
     @GetMapping
-    @Log("查询卡券表")
     @ApiOperation("查询卡券表")
     @PreAuthorize("@el.check('admin','yxCoupons:list')")
     public ResponseEntity<Object> getYxCoupons(YxCouponsQueryCriteria criteria, Pageable pageable) {
@@ -400,7 +399,6 @@ public class YxCouponsController {
         }
     }
 
-    @Log("根据核销码查询卡券信息")
     @ApiOperation("B端：根据核销码查询卡券信息")
     @GetMapping(value = "/getCouponDetail/{verifyCode}")
     public ResponseEntity<Object> getCouponDetail(@PathVariable String verifyCode) {

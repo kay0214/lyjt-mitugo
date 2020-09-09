@@ -59,7 +59,6 @@ public class DeptController {
         this.generator = generator;
     }
 
-    @Log("导出部门数据")
     @ApiOperation("导出部门数据")
     @GetMapping(value = "/download")
     @PreAuthorize("@el.check('admin','dept:list')")
@@ -67,7 +66,6 @@ public class DeptController {
         deptService.download(generator.convert(deptService.queryAll(criteria), DeptDto.class), response);
     }
 
-    @Log("查询部门")
     @ApiOperation("查询部门")
     @GetMapping
     @PreAuthorize("@el.check('user:list','admin','dept:list')")

@@ -46,7 +46,6 @@ public class SystemConfigController {
         this.yxSystemConfigService = yxSystemConfigService;
     }
 
-    @Log("查询")
     @ApiOperation(value = "查询")
     @GetMapping(value = "/yxSystemConfig")
     @PreAuthorize("hasAnyRole('admin','YXSYSTEMCONFIG_ALL','YXSYSTEMCONFIG_SELECT')")

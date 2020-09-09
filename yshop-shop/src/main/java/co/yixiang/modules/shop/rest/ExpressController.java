@@ -41,7 +41,6 @@ public class ExpressController {
         this.yxExpressService = yxExpressService;
     }
 
-    @Log("查询快递")
     @ApiOperation(value = "查询快递")
     @GetMapping(value = "/yxExpress")
     @PreAuthorize("hasAnyRole('admin','YXEXPRESS_ALL','YXEXPRESS_SELECT')")
@@ -49,7 +48,6 @@ public class ExpressController {
         return new ResponseEntity(yxExpressService.queryAll(criteria,pageable),HttpStatus.OK);
     }
 
-    @Log("新增快递")
     @ApiOperation(value = "新增快递")
     @PostMapping(value = "/yxExpress")
     @PreAuthorize("hasAnyRole('admin','YXEXPRESS_ALL','YXEXPRESS_CREATE')")

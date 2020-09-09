@@ -41,7 +41,6 @@ public class StoreSeckillController {
         this.yxStoreSeckillService = yxStoreSeckillService;
     }
 
-    @Log("列表")
     @ApiOperation(value = "列表")
     @GetMapping(value = "/yxStoreSeckill")
     @PreAuthorize("hasAnyRole('admin','YXSTORESECKILL_ALL','YXSTORESECKILL_SELECT')")

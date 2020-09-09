@@ -40,7 +40,6 @@ public class StoreCouponIssueController {
     @Autowired
     private YxStoreInfoService yxStoreInfoService;
 
-    @Log("查询已发布")
     @ApiOperation(value = "查询已发布")
     @GetMapping(value = "/yxStoreCouponIssue")
     @PreAuthorize("hasAnyRole('admin','YXSTORECOUPONISSUE_ALL','YXSTORECOUPONISSUE_SELECT')")
@@ -55,7 +54,7 @@ public class StoreCouponIssueController {
         return new ResponseEntity(yxStoreCouponIssueService.queryAll(criteria, pageable), HttpStatus.OK);
     }
 
-    @Log("发布")
+    @Log("发布优惠券")
     @ApiOperation(value = "发布")
     @PostMapping(value = "/yxStoreCouponIssue")
     @PreAuthorize("hasAnyRole('admin','YXSTORECOUPONISSUE_ALL','YXSTORECOUPONISSUE_CREATE')")

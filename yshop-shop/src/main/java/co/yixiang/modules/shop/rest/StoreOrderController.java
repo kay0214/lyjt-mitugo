@@ -399,7 +399,6 @@ public class StoreOrderController {
         return new ResponseEntity(expressInfo, HttpStatus.OK);
     }
 
-    @Log("导出数据")
     @ApiOperation("导出数据")
     @GetMapping(value = "/yxStoreOrder/download")
 //    @PreAuthorize("hasAnyRole('admin','YXSTOREORDER_ALL','YXSTOREORDER_SELECT')")

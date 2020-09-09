@@ -35,7 +35,6 @@ public class StoreCouponUserController {
     @Autowired
     private YxStoreInfoService yxStoreInfoService;
 
-    @Log("查询Y")
     @ApiOperation(value = "查询")
     @GetMapping(value = "/yxStoreCouponUser")
     @PreAuthorize("hasAnyRole('admin','YXSTORECOUPONUSER_ALL','YXSTORECOUPONUSER_SELECT')")

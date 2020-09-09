@@ -39,7 +39,6 @@ public class MaterialController {
 
 
     @GetMapping(value = "/page")
-    @Log("查询素材管理")
     @ApiOperation("查询素材管理")
     public ResponseEntity<Object> getYxMaterials(YxMaterialQueryCriteria criteria, Pageable pageable){
         return new ResponseEntity<>(yxMaterialService.queryAll(criteria,pageable),HttpStatus.OK);

@@ -35,7 +35,6 @@ public class YxCommissionRateController {
 
 
     @GetMapping
-    @Log("查询分佣配置")
     @ApiOperation("查询分佣配置")
     @PreAuthorize("@el.check('admin','yxCommissionRate:view')")
     public ResponseEntity<Object> getOne(){

@@ -41,7 +41,6 @@ public class StoreBargainController {
         this.yxStoreBargainService = yxStoreBargainService;
     }
 
-    @Log("查询砍价")
     @ApiOperation(value = "查询砍价")
     @GetMapping(value = "/yxStoreBargain")
     @PreAuthorize("hasAnyRole('admin','YXSTOREBARGAIN_ALL','YXSTOREBARGAIN_SELECT')")

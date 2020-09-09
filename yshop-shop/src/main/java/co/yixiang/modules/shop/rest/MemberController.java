@@ -48,7 +48,6 @@ public class MemberController {
         this.yxSystemConfigService = yxSystemConfigService;
     }
 
-    @Log("查询用户")
     @ApiOperation(value = "查询用户")
     @GetMapping(value = "/yxUser")
     @PreAuthorize("hasAnyRole('admin','YXUSER_ALL','YXUSER_SELECT')")

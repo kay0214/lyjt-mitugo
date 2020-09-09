@@ -52,7 +52,6 @@ public class StoreProductController {
         this.yxStoreProductService = yxStoreProductService;
     }
 
-    @Log("查询商品")
     @ApiOperation(value = "查询商品")
     @GetMapping(value = "/yxStoreProduct")
     @PreAuthorize("hasAnyRole('admin','YXSTOREPRODUCT_ALL','YXSTOREPRODUCT_SELECT')")

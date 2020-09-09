@@ -41,7 +41,6 @@ public class SystemUserLevelController {
         this.yxSystemUserLevelService = yxSystemUserLevelService;
     }
 
-    @Log("查询")
     @ApiOperation(value = "查询")
     @GetMapping(value = "/yxSystemUserLevel")
     @PreAuthorize("hasAnyRole('admin','YXSYSTEMUSERLEVEL_ALL','YXSYSTEMUSERLEVEL_SELECT')")

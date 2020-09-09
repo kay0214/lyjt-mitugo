@@ -77,7 +77,6 @@ public class AuthController {
         this.authenticationManagerBuilder = authenticationManagerBuilder;
     }
 
-    @Log("用户登录")
     @ApiOperation("登录授权")
     @AnonymousAccess
     @PostMapping(value = "/login")
