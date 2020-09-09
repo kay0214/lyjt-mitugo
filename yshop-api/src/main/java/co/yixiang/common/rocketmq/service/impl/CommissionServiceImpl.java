@@ -187,14 +187,12 @@ public class CommissionServiceImpl implements CommissionService {
             BigDecimal parentBonus = orderInfo.getCommission().multiply(yxCommissionRate.getParentRate());
             //获取用户信息
             YxUser yxUser = yxUserMapper.selectById(orderInfo.getParentId());
+            BigDecimal oldMoney = yxUser.getNowMoney();
             //更新佣金金额
-            //yxUser.setNowMoney(yxUser.getNowMoney().add(parentBonus));
-            //yxUser.setBrokeragePrice(yxUser.getBrokeragePrice().add(parentBonus));
             yxUser.setNowMoney(parentBonus);
             yxUser.setBrokeragePrice(parentBonus);
             // 更新用户金额
-            yxUserMapper.updateUserMoney(yxUser);
-            //yxUserMapper.updateById(yxUser);
+            yxUserMapper.updateUserMoney(yxUser,oldMoney);
             insertBill(orderInfo.getOrderId(), orderInfo.getParentId(), orderInfo.getBrokerageType(), parentBonus, yxUser.getUsername(), yxUser.getNowMoney(), 1);
             //拉新池
             yxFundsAccount = updatePullNewPoint(orderInfo, yxCommissionRate, yxFundsAccount);
@@ -207,11 +205,11 @@ public class CommissionServiceImpl implements CommissionService {
             BigDecimal shareBonus = orderInfo.getCommission().multiply(yxCommissionRate.getShareRate());
             //获取用户信息
             YxUser yxUser = yxUserMapper.selectById(orderInfo.getShareId());
+            BigDecimal oldMoney = yxUser.getNowMoney();
             //更新佣金金额
             yxUser.setNowMoney(shareBonus);
             yxUser.setBrokeragePrice(shareBonus);
-            //yxUserMapper.updateById(yxUser);
-            yxUserMapper.updateUserMoney(yxUser);
+            yxUserMapper.updateUserMoney(yxUser,oldMoney);
 
             insertBill(orderInfo.getOrderId(), orderInfo.getShareId(), orderInfo.getBrokerageType(), shareBonus, yxUser.getUsername(), yxUser.getNowMoney(), 1);
 
@@ -224,11 +222,11 @@ public class CommissionServiceImpl implements CommissionService {
             BigDecimal shareParentBonus = orderInfo.getCommission().multiply(yxCommissionRate.getShareParentRate());
             //获取用户信息
             YxUser yxUser = yxUserMapper.selectById(orderInfo.getShareParentId());
+            BigDecimal oldMoney = yxUser.getNowMoney();
             //更新佣金金额
             yxUser.setNowMoney(shareParentBonus);
             yxUser.setBrokeragePrice(shareParentBonus);
-            //yxUserMapper.updateById(yxUser);
-            yxUserMapper.updateUserMoney(yxUser);
+            yxUserMapper.updateUserMoney(yxUser,oldMoney);
             insertBill(orderInfo.getOrderId(), orderInfo.getShareParentId(), orderInfo.getBrokerageType(), shareParentBonus, yxUser.getUsername(), yxUser.getNowMoney(), orderInfo.getShareParentType());
         } else {
             fundsRate = fundsRate.add(yxCommissionRate.getShareParentRate());
@@ -253,9 +251,9 @@ public class CommissionServiceImpl implements CommissionService {
         yxFundsDetail.setPm(1);
         yxFundsDetail.setOrderAmount(fundsBonus);
         yxFundsDetailMapper.insert(yxFundsDetail);
-        yxFundsAccount.setPrice(yxFundsAccount.getPrice().add(fundsBonus));
-        yxFundsAccountMapper.updateById(yxFundsAccount);
-        // todo 改成sql+=那种
+        BigDecimal oldPrice = yxFundsAccount.getPrice();
+        yxFundsAccount.setPrice(fundsBonus);
+        yxFundsAccountMapper.updateFundsAccount(yxFundsAccount,oldPrice);
     }
 
     public YxFundsAccount updatePullNewPoint(OrderInfo orderInfo, YxCommissionRate yxCommissionRate, YxFundsAccount yxFundsAccount) {
@@ -283,12 +281,14 @@ public class CommissionServiceImpl implements CommissionService {
         //合伙人收益
         BigDecimal partnerPoint = orderInfo.getCommission().multiply(yxCommissionRate.getPartnerRate());
         insertPointDetail(orderInfo, merchantsPoint, merInfo.getParentId(), partnerPoint, 1);
-        merInfo.setTotalScore(merInfo.getTotalScore().add(merchantsPoint));
-        systemUserMapper.updateById(merInfo);
+        BigDecimal oldTotal = merInfo.getTotalScore();
+        merInfo.setTotalScore(merchantsPoint);
+        systemUserMapper.updateTotalScore(merInfo,oldTotal);
 
         SystemUser partnerInfo = systemUserMapper.selectById(merInfo.getParentId());
-        partnerInfo.setTotalScore(partnerInfo.getTotalScore().add(partnerPoint));
-        systemUserMapper.updateById(partnerInfo);
+        oldTotal = partnerInfo.getTotalScore();
+        partnerInfo.setTotalScore(partnerPoint);
+        systemUserMapper.updateTotalScore(partnerInfo,oldTotal);
         //插入明细数据(商户)
         insertBill(orderInfo.getOrderId(), orderInfo.getMerId(), orderInfo.getBrokerageType(), merchantsPoint, merInfo.getUsername(), merInfo.getTotalScore(), 2);
         //插入明细数据(合伙人)

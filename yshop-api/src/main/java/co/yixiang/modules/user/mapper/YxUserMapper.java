@@ -13,6 +13,7 @@ import org.apache.ibatis.annotations.Update;
 import org.springframework.stereotype.Repository;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -92,6 +93,6 @@ public interface YxUserMapper extends BaseMapper<YxUser> {
      * @param yxUser
      */
     @Update("update yx_user set now_money=now_money+#{nowMoney} , brokerage_price=brokerage_price+#{brokeragePrice}" +
-            " where uid=#{uid}")
-    int updateUserMoney(YxUser yxUser);
+            " where uid=#{uid} and now_money= #{oldMoney}")
+    int updateUserMoney(YxUser yxUser, BigDecimal oldMoney);
 }

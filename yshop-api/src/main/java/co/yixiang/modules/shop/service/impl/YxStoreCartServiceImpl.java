@@ -434,7 +434,7 @@ public class YxStoreCartServiceImpl extends BaseServiceImpl<YxStoreCartMapper, Y
                 if(StringUtils.isNotBlank(storeCart.getProductAttrUnique())){
                     //产品规格属性
                     QueryWrapper<YxStoreProductAttrValue> queryWrapper = new QueryWrapper<>();
-                    queryWrapper.eq("product_id",storeCart.getProductId()).eq("unique",storeCart.getProductAttrUnique());
+                    queryWrapper.eq("product_id",storeCart.getProductId()).eq("`unique`",storeCart.getProductAttrUnique());
                     YxStoreProductAttrValue yxStoreProductAttrValue = productAttrValueService.getOne(queryWrapper);
                     if(ObjectUtil.isEmpty(yxStoreProductAttrValue)||yxStoreProductAttrValue.getStock()==0){
                         attrFlg = 0;
