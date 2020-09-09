@@ -6,7 +6,6 @@ package co.yixiang.modules.shop.web.controller;
 import cn.hutool.core.util.ObjectUtil;
 import co.yixiang.common.api.ApiResult;
 import co.yixiang.common.web.controller.BaseController;
-import co.yixiang.logging.aop.log.Log;
 import co.yixiang.modules.shop.service.YxStoreCartService;
 import co.yixiang.modules.shop.web.param.CartIdsParm;
 import co.yixiang.modules.shop.web.param.YxStoreCartQueryParam;
@@ -69,10 +68,13 @@ public class StoreCartController extends BaseController {
         if (ObjectUtil.isNull(jsonObject.get("cartNum")) || ObjectUtil.isNull(jsonObject.get("productId"))) {
             return ApiResult.fail("参数有误");
         }
-        int shareUserId = 0;
+        String shareUserId = "";
+        int spreadId = 0;
+        log.info("加入购物车，推荐人id：{}",jsonObject.get("spread"));
         if (ObjectUtil.isNotNull(jsonObject.get("spread"))) {
             //分享人id
-            shareUserId = jsonObject.getInteger("spread");
+            shareUserId = jsonObject.getString("spread");
+            spreadId = Integer.parseInt(shareUserId);
         }
         /*BigDecimal bigDecimalComm = BigDecimal.ZERO;
         if(ObjectUtil.isNotNull(jsonObject.get("commission"))){
@@ -117,7 +119,7 @@ public class StoreCartController extends BaseController {
         /*map.put("cartId",storeCartService.addCart(uid,productId,cartNum,uniqueId
                 ,"product",isNew,combinationId,seckillId,bargainId));*/
         map.put("cartId", storeCartService.addCartShareId(uid, productId, cartNum, uniqueId
-                , "product", isNew, combinationId, seckillId, bargainId, shareUserId));
+                , "product", isNew, combinationId, seckillId, bargainId, spreadId));
         return ApiResult.ok(map);
     }
 
