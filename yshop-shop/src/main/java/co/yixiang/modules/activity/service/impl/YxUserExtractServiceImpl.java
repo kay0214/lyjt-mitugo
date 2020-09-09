@@ -4,6 +4,7 @@
  */
 package co.yixiang.modules.activity.service.impl;
 
+import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import co.yixiang.common.service.impl.BaseServiceImpl;
 import co.yixiang.common.utils.QueryHelpPlus;
@@ -34,6 +35,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -74,7 +76,19 @@ public class YxUserExtractServiceImpl extends BaseServiceImpl<YxUserExtractMappe
         getPage(pageable);
         PageInfo<YxUserExtract> page = new PageInfo<>(queryAll(criteria));
         Map<String, Object> map = new LinkedHashMap<>(2);
-        map.put("content", generator.convert(page.getList(), YxUserExtractDto.class));
+        List<YxUserExtractDto> extractDtoList = generator.convert(page.getList(), YxUserExtractDto.class);
+        if(!CollectionUtils.isEmpty(extractDtoList)){
+            for(YxUserExtractDto extractDto:extractDtoList){
+                if(!extractDto.getExtractType().equals("weixin")){
+                    continue;
+                }
+                YxUser user = yxUserService.getById(extractDto.getUid());
+                if(ObjectUtil.isNotEmpty(user)){
+                    extractDto.setUserTrueName(StringUtils.isNotEmpty(user.getRealName())?user.getRealName():"");
+                }
+            }
+        }
+        map.put("content", extractDtoList);
         map.put("totalElements", page.getTotal());
         return map;
     }
