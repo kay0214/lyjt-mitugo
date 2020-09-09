@@ -764,9 +764,9 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         SystemUser updateSystemUser = new SystemUser();
         BigDecimal truePrice = yxCouponOrder.getTotalPrice().subtract(yxCouponOrder.getCommission());
         updateSystemUser.setId(systemUser.getId());
-        updateSystemUser.setTotalAmount(systemUser.getTotalAmount().add(truePrice));
-        updateSystemUser.setWithdrawalAmount(systemUser.getWithdrawalAmount().add(truePrice));
-        this.systemUserService.updateById(updateSystemUser);
+        updateSystemUser.setTotalAmount(truePrice);
+        updateSystemUser.setWithdrawalAmount(truePrice);
+        this.systemUserService.updateUserTotal(updateSystemUser);
 
         // 插入商户资金明细
         YxUserBill merBill = new YxUserBill();
@@ -778,13 +778,13 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         merBill.setType(BillDetailEnum.TYPE_8.getValue());
         merBill.setNumber(truePrice);
         // 目前只支持微信付款、没有余额
-        merBill.setBalance(updateSystemUser.getWithdrawalAmount());
+        merBill.setBalance(systemUser.getWithdrawalAmount().add(truePrice));
         merBill.setAddTime(DateUtils.getNowTime());
         merBill.setStatus(1);
         merBill.setMerId(yxCouponOrder.getMerId());
         merBill.setUserType(2);
         merBill.setUsername(systemUser.getUsername());
-        this.yxUserBillService.save(yxUserBill);
+        this.yxUserBillService.save(merBill);
 
         // 判断用户是否是分销客、不是更新成分销客
         if (0 == yxUser.getUserRole()) {
@@ -872,6 +872,7 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         item.setDetailList(voList);
         // 券面信息
         item.setYxCoupons(yxCoupons);
+        item.setBuyTime("");
         if (null != yxCouponOrder.getPayTime()) {
             // 购买时间
             item.setBuyTime(DateUtils.timestampToStr10(yxCouponOrder.getPayTime(), DateUtils.YYYY_MM_DD_HH_MM_SS));

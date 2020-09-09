@@ -188,10 +188,14 @@ public class CommissionServiceImpl implements CommissionService {
             //获取用户信息
             YxUser yxUser = yxUserMapper.selectById(orderInfo.getParentId());
             //更新佣金金额
-            yxUser.setNowMoney(yxUser.getNowMoney().add(parentBonus));
-            yxUser.setBrokeragePrice(yxUser.getBrokeragePrice().add(parentBonus));
-            yxUserMapper.updateById(yxUser);
-            insertBill(orderInfo.getParentId(), orderInfo.getBrokerageType(), parentBonus, yxUser.getUsername(), yxUser.getNowMoney(), orderInfo.getParentType());
+            //yxUser.setNowMoney(yxUser.getNowMoney().add(parentBonus));
+            //yxUser.setBrokeragePrice(yxUser.getBrokeragePrice().add(parentBonus));
+            yxUser.setNowMoney(parentBonus);
+            yxUser.setBrokeragePrice(parentBonus);
+            // 更新用户金额
+            yxUserMapper.updateUserMoney(yxUser);
+            //yxUserMapper.updateById(yxUser);
+            insertBill(orderInfo.getOrderId(), orderInfo.getParentId(), orderInfo.getBrokerageType(), parentBonus, yxUser.getUsername(), yxUser.getNowMoney(), 1);
             //拉新池
             yxFundsAccount = updatePullNewPoint(orderInfo, yxCommissionRate, yxFundsAccount);
         } else {
@@ -204,10 +208,12 @@ public class CommissionServiceImpl implements CommissionService {
             //获取用户信息
             YxUser yxUser = yxUserMapper.selectById(orderInfo.getShareId());
             //更新佣金金额
-            yxUser.setNowMoney(yxUser.getNowMoney().add(shareBonus));
-            yxUser.setBrokeragePrice(yxUser.getBrokeragePrice().add(shareBonus));
-            yxUserMapper.updateById(yxUser);
-            insertBill(orderInfo.getShareId(), orderInfo.getBrokerageType(), shareBonus, yxUser.getUsername(), yxUser.getNowMoney(), 1);
+            yxUser.setNowMoney(shareBonus);
+            yxUser.setBrokeragePrice(shareBonus);
+            //yxUserMapper.updateById(yxUser);
+            yxUserMapper.updateUserMoney(yxUser);
+
+            insertBill(orderInfo.getOrderId(), orderInfo.getShareId(), orderInfo.getBrokerageType(), shareBonus, yxUser.getUsername(), yxUser.getNowMoney(), 1);
 
         } else {
             fundsRate = fundsRate.add(yxCommissionRate.getShareRate());
@@ -219,10 +225,11 @@ public class CommissionServiceImpl implements CommissionService {
             //获取用户信息
             YxUser yxUser = yxUserMapper.selectById(orderInfo.getShareParentId());
             //更新佣金金额
-            yxUser.setNowMoney(yxUser.getNowMoney().add(shareParentBonus));
-            yxUser.setBrokeragePrice(yxUser.getBrokeragePrice().add(shareParentBonus));
-            yxUserMapper.updateById(yxUser);
-            insertBill(orderInfo.getShareParentId(), orderInfo.getBrokerageType(), shareParentBonus, yxUser.getUsername(), yxUser.getNowMoney(), orderInfo.getShareParentType());
+            yxUser.setNowMoney(shareParentBonus);
+            yxUser.setBrokeragePrice(shareParentBonus);
+            //yxUserMapper.updateById(yxUser);
+            yxUserMapper.updateUserMoney(yxUser);
+            insertBill(orderInfo.getOrderId(), orderInfo.getShareParentId(), orderInfo.getBrokerageType(), shareParentBonus, yxUser.getUsername(), yxUser.getNowMoney(), orderInfo.getShareParentType());
         } else {
             fundsRate = fundsRate.add(yxCommissionRate.getShareParentRate());
         }
@@ -248,6 +255,7 @@ public class CommissionServiceImpl implements CommissionService {
         yxFundsDetailMapper.insert(yxFundsDetail);
         yxFundsAccount.setPrice(yxFundsAccount.getPrice().add(fundsBonus));
         yxFundsAccountMapper.updateById(yxFundsAccount);
+        // todo 改成sql+=那种
     }
 
     public YxFundsAccount updatePullNewPoint(OrderInfo orderInfo, YxCommissionRate yxCommissionRate, YxFundsAccount yxFundsAccount) {
@@ -282,9 +290,9 @@ public class CommissionServiceImpl implements CommissionService {
         partnerInfo.setTotalScore(partnerInfo.getTotalScore().add(partnerPoint));
         systemUserMapper.updateById(partnerInfo);
         //插入明细数据(商户)
-        insertBill(orderInfo.getMerId(), orderInfo.getBrokerageType(), merchantsPoint, merInfo.getUsername(), merInfo.getTotalScore(), 2);
+        insertBill(orderInfo.getOrderId(), orderInfo.getMerId(), orderInfo.getBrokerageType(), merchantsPoint, merInfo.getUsername(), merInfo.getTotalScore(), 2);
         //插入明细数据(合伙人)
-        insertBill(merInfo.getParentId(), orderInfo.getBrokerageType(), partnerPoint, partnerInfo.getUsername(), partnerInfo.getTotalScore(), 3);
+        insertBill(orderInfo.getOrderId(), merInfo.getParentId(), orderInfo.getBrokerageType(), partnerPoint, partnerInfo.getUsername(), partnerInfo.getTotalScore(), 3);
         BigDecimal totalPoint = yxFundsAccount.getBonusPoint().add(merchantsPoint).add(partnerPoint);
         //分红总积分
         yxFundsAccount.setBonusPoint(totalPoint);
@@ -325,10 +333,11 @@ public class CommissionServiceImpl implements CommissionService {
      * @param parentBonus
      * @param
      */
-    public void insertBill(Integer uid, Integer brokerageType, BigDecimal parentBonus, String userName, BigDecimal nowMoney, Integer userType) {
+    public void insertBill(String orderId, Integer uid, Integer brokerageType, BigDecimal parentBonus, String userName, BigDecimal nowMoney, Integer userType) {
         //插入明细数据
         YxUserBill yxUserBill = new YxUserBill();
         yxUserBill.setUid(uid);
+        yxUserBill.setLinkId(orderId);
         yxUserBill.setUsername(userName);
         yxUserBill.setPm(1);
         yxUserBill.setTitle("商品返佣");
