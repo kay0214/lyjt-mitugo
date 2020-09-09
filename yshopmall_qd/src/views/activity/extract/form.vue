@@ -11,7 +11,7 @@
         <el-input v-model="form.bankCode" style="width: 370px;" readonly/>
       </el-form-item>
       <el-form-item label="手机号">
-        <el-input v-model="form.extractPrice" style="width: 370px;" readonly/>
+        <el-input v-model="form.bankMobile" style="width: 370px;" readonly/>
       </el-form-item>
       <el-form-item label="审核状态">
         <el-radio v-model="form.status" :label="-1">无效</el-radio>
