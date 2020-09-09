@@ -136,7 +136,7 @@ public class CommissionServiceImpl implements CommissionService {
             orderInfo.setOrderId(orderId);
             orderInfo.setBrokerageType(0);
             orderInfo.setCartId(cartId);
-            orderInfo.setUsername(yxUser.getUsername());
+            orderInfo.setUsername(yxUser.getNickname());
             orderInfo.setCommission(yxStoreCart.getCommission().multiply(new BigDecimal(yxStoreCart.getCartNum().toString())));
             updateAccount(orderInfo);
         }
@@ -165,7 +165,7 @@ public class CommissionServiceImpl implements CommissionService {
         BeanUtils.copyProperties(yxCouponOrder, orderInfo);
         orderInfo.setBrokerageType(1);
         orderInfo.setPayPrice(yxCouponOrder.getCouponPrice());
-        orderInfo.setUsername(yxUser.getUsername());
+        orderInfo.setUsername(yxUser.getNickname());
         orderInfo.setCommission(yxCouponOrder.getCommission().multiply(new BigDecimal(yxCouponOrder.getTotalNum().toString())));
         updateAccount(orderInfo);
     }
@@ -193,7 +193,7 @@ public class CommissionServiceImpl implements CommissionService {
             yxUser.setBrokeragePrice(parentBonus);
             // 更新用户金额
             yxUserMapper.updateUserMoney(yxUser,oldMoney);
-            insertBill(orderInfo.getOrderId(), orderInfo.getParentId(), orderInfo.getBrokerageType(), parentBonus, yxUser.getUsername(), yxUser.getNowMoney(), 1);
+            insertBill(orderInfo.getOrderId(), orderInfo.getParentId(), orderInfo.getBrokerageType(), parentBonus, yxUser.getNickname(), yxUser.getNowMoney(), 1);
             //拉新池
             yxFundsAccount = updatePullNewPoint(orderInfo, yxCommissionRate, yxFundsAccount);
         } else {
@@ -211,7 +211,7 @@ public class CommissionServiceImpl implements CommissionService {
             yxUser.setBrokeragePrice(shareBonus);
             yxUserMapper.updateUserMoney(yxUser,oldMoney);
 
-            insertBill(orderInfo.getOrderId(), orderInfo.getShareId(), orderInfo.getBrokerageType(), shareBonus, yxUser.getUsername(), yxUser.getNowMoney(), 1);
+            insertBill(orderInfo.getOrderId(), orderInfo.getShareId(), orderInfo.getBrokerageType(), shareBonus, yxUser.getNickname(), yxUser.getNowMoney(), 1);
 
         } else {
             fundsRate = fundsRate.add(yxCommissionRate.getShareRate());
@@ -227,7 +227,7 @@ public class CommissionServiceImpl implements CommissionService {
             yxUser.setNowMoney(shareParentBonus);
             yxUser.setBrokeragePrice(shareParentBonus);
             yxUserMapper.updateUserMoney(yxUser,oldMoney);
-            insertBill(orderInfo.getOrderId(), orderInfo.getShareParentId(), orderInfo.getBrokerageType(), shareParentBonus, yxUser.getUsername(), yxUser.getNowMoney(), orderInfo.getShareParentType());
+            insertBill(orderInfo.getOrderId(), orderInfo.getShareParentId(), orderInfo.getBrokerageType(), shareParentBonus, yxUser.getNickname(), yxUser.getNowMoney(), orderInfo.getShareParentType());
         } else {
             fundsRate = fundsRate.add(yxCommissionRate.getShareParentRate());
         }
