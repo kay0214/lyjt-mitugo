@@ -52,7 +52,6 @@ public class YxMerchantsDetailController {
 
 
     @GetMapping("/getYxMerchantsDetailsList")
-    @Log("查询商户详情表")
     @ApiOperation("查询商户详情表")
     @PreAuthorize("@el.check('admin','yxMerchantsDetail:list')")
     public ResponseEntity<Object> getYxMerchantsDetailsList(YxMerchantsDetailQueryCriteria criteria, Pageable pageable) {
@@ -65,7 +64,6 @@ public class YxMerchantsDetailController {
     }
 
     @GetMapping(value = "/getYxMerchantsDetailsInfo/{id}")
-    @Log("查询商户详情信息")
     @ApiOperation("查询商户详情信息")
     @PreAuthorize("@el.check('admin','yxMerchantsDetail:info')")
     public ResponseEntity<Object> getYxMerchantsDetailsInfo(@PathVariable Integer id) {
@@ -114,7 +112,6 @@ public class YxMerchantsDetailController {
     }
 
     @GetMapping(value = "/getMerchantsDetailByUid")
-    @Log("获取商户及门店信息")
     @ApiOperation("B端：获取商户及门店信息")
     public ResponseEntity<Object> getMerchantsDetailByUid() {
 

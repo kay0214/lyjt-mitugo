@@ -46,7 +46,6 @@ public class UserRechargeController {
         this.generator = generator;
     }
 
-    @Log("导出数据")
     @ApiOperation("导出数据")
     @GetMapping(value = "/download")
     @PreAuthorize("@el.check('yxUserRecharge:list')")
@@ -55,7 +54,6 @@ public class UserRechargeController {
     }
 
     @GetMapping
-    @Log("查询充值管理")
     @ApiOperation("查询充值管理")
     @PreAuthorize("@el.check('yxUserRecharge:list')")
     public ResponseEntity<Object> getYxUserRecharges(YxUserRechargeQueryCriteria criteria, Pageable pageable){

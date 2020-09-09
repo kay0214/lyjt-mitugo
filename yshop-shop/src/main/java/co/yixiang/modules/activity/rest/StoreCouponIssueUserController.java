@@ -40,7 +40,6 @@ public class StoreCouponIssueUserController {
         this.yxStoreCouponIssueUserService = yxStoreCouponIssueUserService;
     }
 
-    @Log("查询")
     @ApiOperation(value = "查询")
     @GetMapping(value = "/yxStoreCouponIssueUser")
     @PreAuthorize("hasAnyRole('admin','YXSTORECOUPONISSUEUSER_ALL','YXSTORECOUPONISSUEUSER_SELECT')")

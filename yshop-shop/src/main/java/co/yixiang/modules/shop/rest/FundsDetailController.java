@@ -29,7 +29,6 @@ public class FundsDetailController {
     private final YxFundsDetailService fundsDetailService;
 
     @GetMapping
-    @Log("查询平台资金明细")
     @ApiOperation("查询平台资金明细")
     @PreAuthorize("@el.check('admin','fundsDetail:list')")
     public ResponseEntity<Object> getFundsDetails(YxFundsDetailQueryCriteria criteria, Pageable pageable){

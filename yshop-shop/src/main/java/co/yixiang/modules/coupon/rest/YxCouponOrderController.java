@@ -46,7 +46,6 @@ public class YxCouponOrderController {
 
 
     @GetMapping
-    @Log("查询卡券订单表")
     @ApiOperation("查询卡券订单表")
     @PreAuthorize("@el.check('admin','yxCouponOrder:list')")
     public ResponseEntity<Object> getYxCouponOrders(YxCouponOrderQueryCriteria criteria, Pageable pageable) {
@@ -59,7 +58,6 @@ public class YxCouponOrderController {
     }
 
     @GetMapping(value = "/getCouponOrderInfo/{id}")
-    @Log("查询卡券订单详情")
     @ApiOperation("查询卡券订单详情")
     public ResponseEntity<Object> getYxCouponOrderInfo(@PathVariable String id) {
         if (StringUtils.isBlank(id)) {

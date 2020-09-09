@@ -46,7 +46,6 @@ public class StoreCategoryController {
         this.yxStoreCategoryService = yxStoreCategoryService;
     }
 
-    @Log("导出数据")
     @ApiOperation("导出数据")
     @GetMapping(value = "/yxStoreCategory/download")
     @PreAuthorize("@el.check('admin','cate:list')")
@@ -55,7 +54,6 @@ public class StoreCategoryController {
     }
 
 
-    @Log("查询商品分类")
     @ApiOperation(value = "查询商品分类")
     @GetMapping(value = "/yxStoreCategory")
     @PreAuthorize("hasAnyRole('admin','YXSTORECATEGORY_ALL','YXSTORECATEGORY_SELECT')")

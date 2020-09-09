@@ -44,7 +44,6 @@ public class StoreCombinationController {
         this.yxStoreCombinationService = yxStoreCombinationService;
     }
 
-    @Log("查询拼团")
     @ApiOperation(value = "查询拼团")
     @GetMapping(value = "/yxStoreCombination")
     @PreAuthorize("hasAnyRole('admin','YXSTORECOMBINATION_ALL','YXSTORECOMBINATION_SELECT')")

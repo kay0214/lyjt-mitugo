@@ -33,7 +33,6 @@ public class StorePinkController {
         this.yxStorePinkService = yxStorePinkService;
     }
 
-    @Log("查询记录")
     @ApiOperation(value = "查询记录")
     @GetMapping(value = "/yxStorePink")
     @PreAuthorize("hasAnyRole('admin','YXSTOREPINK_ALL','YXSTOREPINK_SELECT')")

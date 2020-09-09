@@ -54,7 +54,6 @@ public class SystemStoreStaffController {
         this.generator = generator;
     }
 
-    @Log("导出数据")
     @ApiOperation("导出数据")
     @GetMapping(value = "/download")
     @PreAuthorize("@el.check('yxSystemStoreStaff:list')")
@@ -63,7 +62,6 @@ public class SystemStoreStaffController {
     }
 
     @GetMapping
-    @Log("查询门店店员")
     @ApiOperation("查询门店店员")
     @PreAuthorize("@el.check('yxSystemStoreStaff:list')")
     public ResponseEntity<Object> getYxSystemStoreStaffs(YxSystemStoreStaffQueryCriteria criteria, Pageable pageable){

@@ -45,7 +45,6 @@ public class YxWechatUserController {
     private final IGenerator generator;
 
 
-    @Log("导出数据")
     @ApiOperation("导出数据")
     @GetMapping(value = "/download")
     @PreAuthorize("@el.check('admin','yxWechatUser:list')")
@@ -54,7 +53,6 @@ public class YxWechatUserController {
     }
 
     @GetMapping
-    @Log("查询微信用户")
     @ApiOperation("查询微信用户")
     @PreAuthorize("@el.check('admin','yxWechatUser:list')")
     public ResponseEntity<Object> getYxWechatUsers(YxWechatUserQueryCriteria criteria, Pageable pageable){

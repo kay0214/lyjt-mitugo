@@ -64,7 +64,6 @@ public class MenuController {
         this.generator = generator;
     }
 
-    @Log("导出菜单数据")
     @ApiOperation("导出菜单数据")
     @GetMapping(value = "/download")
     @PreAuthorize("@el.check('menu:list')")
@@ -89,7 +88,6 @@ public class MenuController {
         return new ResponseEntity<>(menuService.getMenuTree(menuService.findByPid(0L)),HttpStatus.OK);
     }
 
-    @Log("查询菜单")
     @ApiOperation("查询菜单")
     @GetMapping
     @PreAuthorize("@el.check('menu:list')")

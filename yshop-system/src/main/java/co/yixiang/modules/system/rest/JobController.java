@@ -55,7 +55,6 @@ public class JobController {
         this.generator = generator;
     }
 
-    @Log("导出岗位数据")
     @ApiOperation("导出岗位数据")
     @GetMapping(value = "/download")
     @PreAuthorize("@el.check('admin','job:list')")
@@ -63,7 +62,6 @@ public class JobController {
         jobService.download(generator.convert(jobService.queryAll(criteria), JobDto.class), response);
     }
 
-    @Log("查询岗位")
     @ApiOperation("查询岗位")
     @GetMapping
     @PreAuthorize("@el.check('admin','job:list','user:list')")

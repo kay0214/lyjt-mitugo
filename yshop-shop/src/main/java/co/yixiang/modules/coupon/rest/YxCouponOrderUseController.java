@@ -43,7 +43,6 @@ public class YxCouponOrderUseController {
     private final IGenerator generator;
 
 
-    @Log("导出数据")
     @ApiOperation("导出数据")
     @GetMapping(value = "/download")
     @PreAuthorize("@el.check('admin','yxCouponOrderUse:list')")
@@ -52,7 +51,6 @@ public class YxCouponOrderUseController {
     }
 
     @GetMapping
-    @Log("查询卡券核销表")
     @ApiOperation("查询卡券核销表")
     @PreAuthorize("@el.check('admin','yxCouponOrderUse:list')")
     public ResponseEntity<Object> getYxCouponOrderUses(YxCouponOrderUseQueryCriteria criteria, Pageable pageable) {
@@ -87,7 +85,6 @@ public class YxCouponOrderUseController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @Log("查询核销记录")
     @ApiOperation("B端：查询核销记录")
     @PostMapping("/getOrderUseList")
     public ResponseEntity<Object> getOrderUseList(YxCouponOrderUseQueryCriteria criteria, Pageable pageable) {
