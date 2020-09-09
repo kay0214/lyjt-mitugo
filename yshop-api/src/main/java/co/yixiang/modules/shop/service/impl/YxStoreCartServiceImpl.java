@@ -16,7 +16,6 @@ import co.yixiang.modules.activity.mapper.YxStoreSeckillMapper;
 import co.yixiang.modules.activity.service.YxStoreBargainService;
 import co.yixiang.modules.activity.service.YxStoreCombinationService;
 import co.yixiang.modules.activity.service.YxStoreSeckillService;
-import co.yixiang.modules.commission.entity.YxCommissionRate;
 import co.yixiang.modules.commission.service.YxCommissionRateService;
 import co.yixiang.modules.order.entity.YxStoreOrder;
 import co.yixiang.modules.order.service.YxStoreOrderService;
@@ -431,14 +430,23 @@ public class YxStoreCartServiceImpl extends BaseServiceImpl<YxStoreCartMapper, Y
                 }
 
                 YxStoreCartQueryVo storeCartQueryVo = cartMap.toDto(storeCart);
-
+                int attrFlg = 1;
+                if(StringUtils.isNotBlank(storeCart.getProductAttrUnique())){
+                    //产品规格属性
+                    QueryWrapper<YxStoreProductAttrValue> queryWrapper = new QueryWrapper<>();
+                    queryWrapper.eq("product_id",storeCart.getProductId()).eq("`unique`",storeCart.getProductAttrUnique());
+                    YxStoreProductAttrValue yxStoreProductAttrValue = productAttrValueService.getOne(queryWrapper);
+                    if(ObjectUtil.isEmpty(yxStoreProductAttrValue)||yxStoreProductAttrValue.getStock()==0){
+                        attrFlg = 0;
+                    }
+                }
                 if (ObjectUtil.isNull(storeProduct)) {
                     YxStoreCart yxStoreCart = new YxStoreCart();
                     yxStoreCart.setIsDel(1);
                     yxStoreCartMapper.update(yxStoreCart,
                             new QueryWrapper<YxStoreCart>()
                                     .lambda().eq(YxStoreCart::getId, storeCart.getId()));
-                } else if (storeProduct.getIsShow() == 0 || storeProduct.getIsDel() == 1 || storeProduct.getStock() == 0) {
+                } else if (storeProduct.getIsShow() == 0 || storeProduct.getIsDel() == 1 || storeProduct.getStock() == 0 || attrFlg == 0) {
                     storeCartQueryVo.setProductInfo(storeProduct);
                     cartQueryVoListInvalid.add(storeCartQueryVo);
                 } else {

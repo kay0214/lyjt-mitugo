@@ -2,7 +2,48 @@
   <div class="app-container">
     <!--工具栏-->
     <div class="head-container">
-      <!--如果想在工具栏加入更多按钮，可以使用插槽方式， slot = 'left' or 'right'-->
+      <el-row>
+        <el-input v-model="query.username" clearable placeholder="用户昵称" style="width: 200px;marginRight:20px;" class="filter-item" @keyup.enter.native="crud.toQuery" />        
+        <el-select v-model="query.category" clearable placeholder="明细种类" class="filter-item" style="width: 130px">
+        <el-option
+          v-for="item in categoryOptions"
+          :key="item.value"
+          :label="item.label"
+          :value="item.value"
+        />
+      </el-select>
+      <el-select v-model="query.type" clearable placeholder="明细类型" class="filter-item" style="width: 130px">
+        <template v-for="item in typeOptions">
+        <el-option
+          v-for="(val,key) in item"
+          :key="key"
+          :label="val"
+          :value="key"
+        />
+        </template>
+      </el-select>      
+      <el-select v-model="query.pm" clearable placeholder="收支类型" class="filter-item" style="width: 130px">
+        <el-option
+          v-for="item in pmOptions"
+          :key="item.value"
+          :label="item.label"
+          :value="item.value"
+        />
+      </el-select>
+        <el-date-picker          
+          type="daterange"
+          v-model="searchTime"
+          range-separator="至"
+          start-placeholder="开始日期"
+          end-placeholder="结束日期"
+          placeholder="选择时间范围"
+          value-format='yyyy-MM-dd'
+          style="verticalAlign:top;marginRight:20px;"
+          @change="(val)=>{query.addTimeStart=val[0],query.addTimeEnd=val[1]}"
+          >
+        </el-date-picker>
+        <el-button class="filter-item" size="mini" type="success" icon="el-icon-search" @click="crud.toQuery">搜索</el-button>
+      </el-row>
       <crudOperation :permission="permission" />
       <!--表单组件-->
       <el-dialog :close-on-click-modal="false" :before-close="crud.cancelCU" :visible.sync="crud.status.cu > 0" :title="crud.status.title" width="500px">
@@ -89,12 +130,14 @@
 
 <script>
 import crudYxPointDetail from '@/api/yxPointDetail'
+import {getType} from '@/api/yxUserBill'
 import CRUD, { presenter, header, form, crud } from '@crud/crud'
 import rrOperation from '@crud/RR.operation'
 import crudOperation from '@crud/CRUD.operation'
 import udOperation from '@crud/UD.operation'
 import pagination from '@crud/Pagination'
 import MaterialList from "@/components/material";
+import { Message } from 'element-ui'
 
 // crud交由presenter持有
 const defaultCrud = CRUD({ title: '积分获取明细', url: 'api/yxPointDetail', sort: 'id,desc',optShow: {
@@ -102,7 +145,10 @@ const defaultCrud = CRUD({ title: '积分获取明细', url: 'api/yxPointDetail'
       edit: false,
       del: false,
       download: false
-    }, crudMethod: { ...crudYxPointDetail }})
+    },query: {
+      category: '', type: '',pm:'',addTimeStart:'',addTimeEnd:''  
+    },
+    crudMethod: { ...crudYxPointDetail }})
 const defaultForm = { id: null, uid: null, username: null, type: null, orderId: null, orderType: null, orderPrice: null, commission: null, merchantsId: null, merchantsPoint: null, partnerId: null, partnerPoint: null, delFlag: null, createUserId: null, updateUserId: null, createTime: null, updateTime: null }
 export default {
   name: 'YxPointDetail',
@@ -110,7 +156,7 @@ export default {
   mixins: [presenter(defaultCrud), header(), form(defaultForm), crud()],
   data() {
     return {
-
+       category: '', type: '',pm:'',addTimeStart:'',addTimeEnd:'',searchTime:'',
       permission: {
         add: ['admin', 'yxPointDetail:add'],
         edit: ['admin', 'yxPointDetail:edit'],
@@ -138,9 +184,30 @@ export default {
         updateTime: [
           { required: true, message: '更新时间不能为空', trigger: 'blur' }
         ]
-      }    }
+      },
+      categoryOptions: [
+        { value: 'now_money', label: '余额' },
+        { value: 'integral', label: '积分' }
+      ],
+      typeOptions: [],
+      pmOptions: [
+        { value: '0', label: '支出 ' },
+        { value: '1', label: '获得' }
+      ]
+    }
   },
   watch: {
+  },
+  mounted() {
+    this.$nextTick(() => {
+      getType().then(res=>{
+        if(res){
+          this.typeOptions=res
+        }
+      }).catch(err=>{
+        Message({ message: err, type: 'error' })
+      })
+    })
   },
   methods: {
     // 获取数据前设置好接口地址
