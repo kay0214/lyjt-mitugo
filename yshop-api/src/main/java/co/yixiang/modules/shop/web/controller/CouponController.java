@@ -47,7 +47,6 @@ public class CouponController extends BaseController {
     /**
      * 可领取优惠券列表
      */
-    @Log(value = "查看优惠券",type = 1)
     @GetMapping("/coupons")
     @ApiOperation(value = "可领取优惠券列表",notes = "可领取优惠券列表")
     public ApiResult<Object> getList(YxStoreCouponQueryParam queryParam){
@@ -57,7 +56,6 @@ public class CouponController extends BaseController {
         return ApiResult.ok(couponIssueService.getCouponListByStoreId(null==queryParam.getPage()?1:queryParam.getPage().intValue(),
                 queryParam.getLimit().intValue(),uid,queryParam.getStoreId()));
     }
-    @Log(value = "查看优惠券",type = 1)
     @GetMapping("/couponsNew")
     @ApiOperation(value = "可领取优惠券列表(分页)",notes = "可领取优惠券列表(分页)")
     public ApiResult<Paging<YxStoreCouponIssueQueryVo>> getListNew(YxStoreCouponQueryParam queryParam){

@@ -7,6 +7,7 @@ import co.yixiang.common.api.ApiResult;
 import co.yixiang.common.constant.CommonConstant;
 import co.yixiang.common.util.IpUtils;
 import co.yixiang.exception.ErrorRequestException;
+import co.yixiang.logging.aop.log.Log;
 import co.yixiang.modules.coupons.web.vo.YxCouponOrderQueryVo;
 import co.yixiang.modules.monitor.service.RedisService;
 import co.yixiang.modules.offpay.entity.YxOffPayOrder;
@@ -91,6 +92,7 @@ public class OffPayController {
 
 
     // 输入金额 创建支付订单  获取支付信息
+    @Log(value = "创建线下支付订单", type = 1)
     @AnonymousAccess
     @PostMapping("/userPay")
     @ApiOperation(value = "支付",notes = "支付",response = Map.class)

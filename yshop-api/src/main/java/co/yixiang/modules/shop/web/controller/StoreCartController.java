@@ -59,7 +59,6 @@ public class StoreCartController extends BaseController {
     /**
      * 购物车 添加
      */
-    @Log(value = "添加购物车", type = 1)
     @PostMapping("/cart/add")
     @ApiOperation(value = "添加购物车", notes = "添加购物车")
     public ApiResult<Map<String, Object>> add(@RequestBody String jsonStr) {
@@ -126,7 +125,6 @@ public class StoreCartController extends BaseController {
     /**
      * 购物车列表
      */
-    @Log(value = "查看购物车", type = 1)
     @GetMapping("/cart/list")
     @ApiOperation(value = "购物车列表", notes = "购物车列表")
     public ApiResult<Map<String, Object>> getList() {
@@ -166,7 +164,6 @@ public class StoreCartController extends BaseController {
     /**
      * 购物车列表
      */
-    @Log(value = "查看购物车", type = 1)
     @GetMapping("/cart/listNew")
     @ApiOperation(value = "购物车列表（带店铺）", notes = "购物车列表（带店铺）")
     public ApiResult<YxStoreStoreCartVo> getCartList() {

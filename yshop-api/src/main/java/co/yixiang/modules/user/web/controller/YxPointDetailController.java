@@ -40,7 +40,7 @@ public class YxPointDetailController extends BaseController {
     /**
     * 添加积分获取明细
     */
-    @PostMapping("/add")
+    //@PostMapping("/add")
     @ApiOperation(value = "添加YxPointDetail对象",notes = "添加积分获取明细",response = ApiResult.class)
     public ApiResult<Boolean> addYxPointDetail(@Valid @RequestBody YxPointDetail yxPointDetail) throws Exception{
         boolean flag = yxPointDetailService.save(yxPointDetail);
@@ -50,7 +50,7 @@ public class YxPointDetailController extends BaseController {
     /**
     * 修改积分获取明细
     */
-    @PostMapping("/update")
+    //@PostMapping("/update")
     @ApiOperation(value = "修改YxPointDetail对象",notes = "修改积分获取明细",response = ApiResult.class)
     public ApiResult<Boolean> updateYxPointDetail(@Valid @RequestBody YxPointDetail yxPointDetail) throws Exception{
         boolean flag = yxPointDetailService.updateById(yxPointDetail);
@@ -60,7 +60,7 @@ public class YxPointDetailController extends BaseController {
     /**
     * 删除积分获取明细
     */
-    @PostMapping("/delete")
+    //@PostMapping("/delete")
     @ApiOperation(value = "删除YxPointDetail对象",notes = "删除积分获取明细",response = ApiResult.class)
     public ApiResult<Boolean> deleteYxPointDetail(@Valid @RequestBody IdParam idParam) throws Exception{
         boolean flag = yxPointDetailService.removeById(idParam.getId());

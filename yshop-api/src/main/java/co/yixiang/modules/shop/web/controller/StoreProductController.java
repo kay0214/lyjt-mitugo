@@ -226,7 +226,6 @@ public class StoreProductController extends BaseController {
     /**
      * 添加收藏
      */
-    @Log(value = "添加收藏", type = 1)
     @PostMapping("/collect/add")
     @ApiOperation(value = "添加收藏", notes = "添加收藏")
     public ApiResult<Object> collectAdd(@Validated @RequestBody YxStoreProductRelationQueryParam param) {
@@ -238,7 +237,6 @@ public class StoreProductController extends BaseController {
     /**
      * 取消收藏
      */
-    @Log(value = "取消收藏", type = 1)
     @PostMapping("/collect/del")
     @ApiOperation(value = "取消收藏", notes = "取消收藏")
     public ApiResult<Object> collectDel(@Validated @RequestBody YxStoreProductRelationQueryParam param) {

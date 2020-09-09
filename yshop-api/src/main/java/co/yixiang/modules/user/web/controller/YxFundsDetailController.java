@@ -40,7 +40,7 @@ public class YxFundsDetailController extends BaseController {
     /**
     * 添加平台资金明细
     */
-    @PostMapping("/add")
+    //@PostMapping("/add")
     @ApiOperation(value = "添加YxFundsDetail对象",notes = "添加平台资金明细",response = ApiResult.class)
     public ApiResult<Boolean> addYxFundsDetail(@Valid @RequestBody YxFundsDetail yxFundsDetail) throws Exception{
         boolean flag = yxFundsDetailService.save(yxFundsDetail);
@@ -50,7 +50,7 @@ public class YxFundsDetailController extends BaseController {
     /**
     * 修改平台资金明细
     */
-    @PostMapping("/update")
+    //@PostMapping("/update")
     @ApiOperation(value = "修改YxFundsDetail对象",notes = "修改平台资金明细",response = ApiResult.class)
     public ApiResult<Boolean> updateYxFundsDetail(@Valid @RequestBody YxFundsDetail yxFundsDetail) throws Exception{
         boolean flag = yxFundsDetailService.updateById(yxFundsDetail);
@@ -60,7 +60,7 @@ public class YxFundsDetailController extends BaseController {
     /**
     * 删除平台资金明细
     */
-    @PostMapping("/delete")
+    //@PostMapping("/delete")
     @ApiOperation(value = "删除YxFundsDetail对象",notes = "删除平台资金明细",response = ApiResult.class)
     public ApiResult<Boolean> deleteYxFundsDetail(@Valid @RequestBody IdParam idParam) throws Exception{
         boolean flag = yxFundsDetailService.removeById(idParam.getId());
@@ -70,7 +70,7 @@ public class YxFundsDetailController extends BaseController {
     /**
     * 获取平台资金明细
     */
-    @PostMapping("/info")
+    //@PostMapping("/info")
     @ApiOperation(value = "获取YxFundsDetail对象详情",notes = "查看平台资金明细",response = YxFundsDetailQueryVo.class)
     public ApiResult<YxFundsDetailQueryVo> getYxFundsDetail(@Valid @RequestBody IdParam idParam) throws Exception{
         YxFundsDetailQueryVo yxFundsDetailQueryVo = yxFundsDetailService.getYxFundsDetailById(idParam.getId());
@@ -80,7 +80,7 @@ public class YxFundsDetailController extends BaseController {
     /**
      * 平台资金明细分页列表
      */
-    @PostMapping("/getPageList")
+    //@PostMapping("/getPageList")
     @ApiOperation(value = "获取YxFundsDetail分页列表",notes = "平台资金明细分页列表",response = YxFundsDetailQueryVo.class)
     public ApiResult<Paging<YxFundsDetailQueryVo>> getYxFundsDetailPageList(@Valid @RequestBody(required = false) YxFundsDetailQueryParam yxFundsDetailQueryParam) throws Exception{
         Paging<YxFundsDetailQueryVo> paging = yxFundsDetailService.getYxFundsDetailPageList(yxFundsDetailQueryParam);
