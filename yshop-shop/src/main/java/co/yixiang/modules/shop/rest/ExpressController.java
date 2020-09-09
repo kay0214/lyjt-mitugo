@@ -5,10 +5,12 @@
  */
 package co.yixiang.modules.shop.rest;
 
+import co.yixiang.exception.BadRequestException;
 import co.yixiang.logging.aop.log.Log;
 import co.yixiang.modules.shop.domain.YxExpress;
 import co.yixiang.modules.shop.service.YxExpressService;
 import co.yixiang.modules.shop.service.dto.YxExpressQueryCriteria;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.data.domain.Pageable;
@@ -24,6 +26,8 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 /**
 * @author hupeng
@@ -61,7 +65,11 @@ public class ExpressController {
     @PutMapping(value = "/yxExpress")
     @PreAuthorize("hasAnyRole('admin','YXEXPRESS_ALL','YXEXPRESS_EDIT')")
     public ResponseEntity update(@Validated @RequestBody YxExpress resources){
-        //if(StrUtil.isNotEmpty("22")) throw new BadRequestException("演示环境禁止操作");
+        List<YxExpress> exit = yxExpressService.list(new QueryWrapper<YxExpress>().lambda().eq(YxExpress::getCode, resources.getCode())
+                .ne(YxExpress::getId, resources.getId()));
+        if (null != exit && exit.size() > 0) {
+            throw new BadRequestException("快递公司编号重复");
+        }
         if(null==resources.getSort()) resources.setSort(0);
         yxExpressService.saveOrUpdate(resources);
         return new ResponseEntity(HttpStatus.NO_CONTENT);
