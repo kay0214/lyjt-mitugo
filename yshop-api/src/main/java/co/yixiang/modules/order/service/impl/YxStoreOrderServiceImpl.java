@@ -2005,6 +2005,13 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
             //保存购物车商品信息
             orderCartInfoService.saveCartInfo(storeOrder.getId(), storeStoreCartQueryVo.getCartList());
 
+            //购物车状态修改
+            QueryWrapper<YxStoreCart> wrapper = new QueryWrapper<>();
+            wrapper.in("id", cartIds);
+            YxStoreCart cartObj = new YxStoreCart();
+            cartObj.setIsPay(2);
+            storeCartMapper.update(cartObj, wrapper);
+
             //增加状态
             orderStatusService.create(storeOrder.getId(), "cache_key_create_order", "订单生成");
             //加入redis，30分钟自动取消
