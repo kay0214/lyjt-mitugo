@@ -7,9 +7,11 @@ import co.yixiang.modules.manage.entity.SystemUser;
 import co.yixiang.modules.manage.web.param.SystemUserQueryParam;
 import co.yixiang.modules.manage.web.vo.SystemUserQueryVo;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Update;
 import org.springframework.stereotype.Repository;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 
 /**
  * <p>
@@ -42,4 +44,13 @@ public interface SystemUserMapper extends BaseMapper<SystemUser> {
      * @param updateSystemUser
      */
     void updateUserTotal(SystemUser updateSystemUser);
+
+    /**
+     * 更新总积分
+     * @param merInfo
+     * @param oldTotal
+     * @return
+     */
+    @Update("update `user` set total_score=total_score+#{totalScore} where id=#{id} and total_score= #{oldTotal}")
+    int updateTotalScore(SystemUser merInfo, BigDecimal oldTotal);
 }

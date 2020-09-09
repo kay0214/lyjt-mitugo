@@ -1,15 +1,17 @@
 package co.yixiang.modules.funds.mapper;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import co.yixiang.modules.funds.entity.YxFundsAccount;
 import co.yixiang.modules.funds.web.param.YxFundsAccountQueryParam;
 import co.yixiang.modules.funds.web.vo.YxFundsAccountQueryVo;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Update;
 import org.springframework.stereotype.Repository;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 
 /**
  * <p>
@@ -36,5 +38,15 @@ public interface YxFundsAccountMapper extends BaseMapper<YxFundsAccount> {
      * @return
      */
     IPage<YxFundsAccountQueryVo> getYxFundsAccountPageList(@Param("page") Page page, @Param("param") YxFundsAccountQueryParam yxFundsAccountQueryParam);
+
+
+    /**
+     * 平台账户余额
+     * @param yxFundsAccount
+     * @param oldPrice
+     * @return
+     */
+    @Update("update yx_funds_account set price=price+#{price} where id=#{id} and price = #{oldPrice}")
+    int updateFundsAccount(YxFundsAccount yxFundsAccount, BigDecimal oldPrice);
 
 }
