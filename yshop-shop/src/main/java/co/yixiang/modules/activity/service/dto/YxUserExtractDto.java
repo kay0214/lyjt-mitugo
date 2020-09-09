@@ -61,5 +61,9 @@ public class YxUserExtractDto implements Serializable {
     /** 0:预留 1:前台用户 2：后台商户 3：后台合伙人 */
     private Integer userType;
 
+    //用户真实姓名
     private String userTrueName;
+
+    //银行预留手机号
+    private String bankMobile;
 }
