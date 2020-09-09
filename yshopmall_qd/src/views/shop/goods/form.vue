@@ -125,7 +125,7 @@ export default {
       }
     };
     //佣金校验 销售价price-平台结算价settlement>=0
-    let commissionValue=(r,value,callback)=>{      
+    let commissionValue=(r,value,callback)=>{
       let val=this.form.price*1-this.form.settlement*1
       if(val<0){
         callback(new Error("佣金=销售价-平台结算价 (佣金>=0)"));
@@ -292,7 +292,7 @@ export default {
       if (val) {
         this.form.sliderImage = val.join(',')
       }
-      // this.$nextTick(()=>{        
+      // this.$nextTick(()=>{
       //   this.$refs['form'].validateField('sliderImageArr')
       // })
     }
@@ -325,11 +325,11 @@ export default {
         this.$parent.init()
       }).catch(err => {
         this.loading = false
-        this.$notify({
-          title: '添加失败：'+err.response.data.msg,
+        /*this.$notify({
+          title: '添加失败：'+err.response.data.message,
           type: 'error',
           duration: 2500
-        })
+        })*/
       })
     },
     doEdit() {
@@ -344,11 +344,11 @@ export default {
         this.$parent.init()
       }).catch(err => {
         this.loading = false
-        this.$notify({
-          title: '修改失败：'+err.response.data.msg,
+        /*this.$notify({
+          title: '修改失败：'+err.response.data.message,
           type: 'error',
           duration: 2500
-        })
+        })*/
       })
     },
     resetForm() {
