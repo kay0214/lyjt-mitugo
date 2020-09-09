@@ -160,6 +160,7 @@ export default {
         bankCode: data.bankCode,
         bankAddress: data.bankAddress,
         alipayCode: data.alipayCode,
+        bankMobile: data.bankMobile,
         extractPrice: data.extractPrice,
         mark: data.mark,
         balance: data.balance,
