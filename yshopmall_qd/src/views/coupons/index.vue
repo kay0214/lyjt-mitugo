@@ -39,7 +39,7 @@
       <crudOperation :permission="permission" />
       <!--表单组件-->
       <el-dialog :close-on-click-modal="false" :before-close="crud.cancelCU" :visible.sync="crud.status.cu > 0" :title="crud.status.title" width="900px">
-        <el-form ref="form" :model="form" :rules="rules" size="small" label-width="120px">
+        <el-form ref="form" :model="form" :rules="rules" size="small" label-width="120px" v-if="crud.status.cu > 0">
           <el-form-item v-show="crud.status.edit === 1" label="卡券id">
             <!-- <el-input v-model="form.id" style="width: 100%;" /> -->
             <span>{{ form.id }}</span>
@@ -113,7 +113,7 @@
           </el-form-item>
           <el-form-item prop="expireDate" label="有效期">
             <el-date-picker
-              v-model="expireDate"
+              v-model="form.expireDate"
               type="daterange"
               range-separator="至"
               start-placeholder="有效期开始日期"
@@ -558,7 +558,9 @@ export default {
           }
         ],
 
-        expireDate: [{
+        expireDate: [
+          { required: true, message: '有效期不能为空', trigger: 'blur' },
+          {
           validator: (rule, value, callback) => {
             if (!this.form.expireDateStart || !this.form.expireDateEnd) {
               return callback(new Error('有效期不能为空'))
@@ -687,6 +689,7 @@ export default {
       if(crud.status.edit>CRUD.STATUS.NORMAL){
       // 编辑时有效 设置默认 有效期
       this.expireDate=[form.expireDateStart,form.expireDateEnd]
+      this.form.expireDate=[form.expireDateStart,form.expireDateEnd]
       }
       //  设置默认 可用时段
       this.form.availableTimeEnd = this.availableTime[1]
@@ -713,7 +716,6 @@ export default {
     [CRUD.HOOK.beforeAddCancel](crud,form) {
       this.expireDate=null
       this.availableTime=[parseTime((new Date(2020, 9, 10, 9, 0)),'{h}:{i}'),parseTime((new Date(2020, 9, 10, 22, 0)),'{h}:{i}')]
-      form.content=""
     },
     /** 提交 - 之后 */
     [CRUD.HOOK.afterSubmit]() {

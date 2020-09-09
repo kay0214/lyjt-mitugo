@@ -14,7 +14,6 @@ import co.yixiang.constant.SystemConfigConstants;
 import co.yixiang.enums.*;
 import co.yixiang.exception.ErrorRequestException;
 import co.yixiang.modules.activity.service.*;
-import co.yixiang.modules.manage.entity.SystemUser;
 import co.yixiang.modules.manage.service.SystemUserService;
 import co.yixiang.modules.manage.service.YxExpressService;
 import co.yixiang.modules.manage.web.dto.ChartDataDTO;
@@ -925,10 +924,10 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
         countDTO.setRefundCount(yxStoreOrderMapper.selectCount(wrapperSeven));
 
         // 购物车数量
-        QueryWrapper<YxStoreCart> wrapperCart = new QueryWrapper<>();
+        /*QueryWrapper<YxStoreCart> wrapperCart = new QueryWrapper<>();
         if (uid > 0) wrapperCart.eq("uid", uid);
-        wrapperCart.eq("type", "product").eq("is_pay", 0).eq("is_del", 0).eq("is_new", 0);
-        countDTO.setCartCount(storeCartMapper.selectCount(wrapperCart));
+        wrapperCart.eq("type", "product").eq("is_pay", 0).eq("is_del", 0).eq("is_new", 0);*/
+        countDTO.setCartCount(storeCartMapper.countCartByUserId(uid));
 
         //地址数量
         countDTO.setAddressCount(userAddressService.getUserAddressCount(uid));
