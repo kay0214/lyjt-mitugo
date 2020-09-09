@@ -21,7 +21,7 @@
         <MaterialList v-model="form.imageArr" style="width: 500px" type="image" :num="1" :width="150" :height="150" @setValue='(val)=>{form.imageArr=val;$refs.form.validateField("imageArr")}'/>
       </el-form-item>
       <el-form-item label="轮播图" prop='sliderImageArr'>
-        <MaterialList v-model="form.sliderImageArr" style="width: 500px" type="image" :num="4" :width="150" :height="150" @setValue='(val)=>{form.sliderImageArr=val;$refs.form.validateField("sliderImageArr")}'/>
+        <MaterialList v-model="form.sliderImageArr" style="width: 500px" type="image" :num="8" :width="150" :height="150" @setValue='(val)=>{form.sliderImageArr=val;$refs.form.validateField("sliderImageArr")}'/>
       </el-form-item>
       <el-form-item label="商品简介" prop='storeInfo'>
         <el-input v-model="form.storeInfo" style="width: 500px;" rows="5" type="textarea" maxlength="200" />
