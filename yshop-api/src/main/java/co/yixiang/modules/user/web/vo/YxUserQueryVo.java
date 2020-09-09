@@ -172,4 +172,7 @@ private String pwd;*/
 
     @ApiModelProperty(value = "预留手机号")
     private String bankMobile;
+
+    @ApiModelProperty(value = "冻结金额")
+    private BigDecimal frozenPrice;
 }
