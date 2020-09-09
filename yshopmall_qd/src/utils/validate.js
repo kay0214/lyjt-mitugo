@@ -166,3 +166,13 @@ export function validateIdNo(rule, value, callback) {
   }
 }
 
+/* 金额 限制6位整数2位小数*/
+export function amountValid(value) {
+  const reg = /^[0-9]{0,6}([.]{1}[0-9]{0,2}){0,1}$/
+  return reg.test(value)
+}
+/* 产品数量 限制8位整数*/
+export function proNumberValid(value) {
+  const reg = /^[0-9]{0,8}$/
+  return reg.test(value)
+}
