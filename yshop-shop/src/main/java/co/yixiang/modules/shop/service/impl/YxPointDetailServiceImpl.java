@@ -74,10 +74,13 @@ public class YxPointDetailServiceImpl extends BaseServiceImpl<YxPointDetailMappe
             }
         }
         if (StringUtils.isNotBlank(criteria.getUsername())) {
-            queryWrapper.lambda().eq(YxPointDetail::getUsername, criteria.getUsername());
+            queryWrapper.lambda().like(YxPointDetail::getUsername, criteria.getUsername());
         }
-        if (criteria.getCreateTime() != null && criteria.getCreateTime().size() > 0) {
+      /*  if (criteria.getCreateTime() != null && criteria.getCreateTime().size() > 0) {
             queryWrapper.lambda().between(YxPointDetail::getCreateTime, criteria.getCreateTime().get(0), criteria.getCreateTime().get(1));
+        }*/
+        if (StringUtils.isNotBlank(criteria.getAddTimeStart())&&StringUtils.isNotBlank( criteria.getAddTimeEnd())) {
+            queryWrapper.lambda().between(YxPointDetail::getCreateTime, criteria.getAddTimeStart()+" 00:00:00", criteria.getAddTimeEnd()+" 23:59:59");
         }
         IPage<YxPointDetail> ipage = this.page(new Page<>(pageable.getPageNumber() + 1, pageable.getPageSize()), queryWrapper);
 

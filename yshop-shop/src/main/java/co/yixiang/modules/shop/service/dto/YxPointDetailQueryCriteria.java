@@ -25,4 +25,7 @@ public class YxPointDetailQueryCriteria extends BaseCriteria{
 
     @Query(type = Query.Type.BETWEEN)
     private List<Date> createTime;
+
+    private String addTimeStart;
+    private String addTimeEnd;
 }
