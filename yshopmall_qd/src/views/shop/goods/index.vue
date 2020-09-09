@@ -273,7 +273,7 @@ export default {
         storeInfo: data.storeInfo,
         keyword: data.keyword,
         barCode: data.barCode,
-        storeCategory: data.storeCategory || {id:null},
+        storeCategory: data.cateFlg?( data.storeCategory || {id:null}):{id:null},
         price: data.price,
         vipPrice: data.vipPrice,
         otPrice: data.otPrice,
