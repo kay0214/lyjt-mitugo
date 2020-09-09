@@ -173,7 +173,7 @@
                   >
                     立刻退款</el-button>
                 </el-dropdown-item>
-                <el-dropdown-item v-if="scope.row._status == 1">
+                <!-- <el-dropdown-item v-if="scope.row._status == 1">
                   <el-button
                     v-permission="['admin','YXSTOREORDER_ALL','YXSTOREORDER_EDIT']"
                     size="mini"
@@ -181,7 +181,7 @@
                     @click="editOrder(scope.row)"
                   >
                     修改订单</el-button>
-                </el-dropdown-item>
+                </el-dropdown-item> -->
                 <!-- <el-dropdown-item v-if="scope.row._status == 1">
                   <el-popover
                     :ref="scope.row.id"
@@ -281,11 +281,11 @@
           { value: '4', label: '砍价订单' }
         ],*/
         handleOptions: [
-          {value: '', label: '批量操作'},
+          // {value: '', label: '批量操作'},
           {value: '0', label: '批量打印'},
         ],
         exportOptions: [
-          {value: '', label: '批量导出'},
+          // {value: '', label: '批量导出'},
           {value: '0', label: '导出全部'},
           {value: '1', label: '导出选中'},
         ],
