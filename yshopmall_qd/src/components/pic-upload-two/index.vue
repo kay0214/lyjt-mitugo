@@ -8,7 +8,7 @@
       :on-success="handleUploadSuccess"
       :before-upload="beforeAvatarUpload"
     >
-      <img v-if="value" :src="resourcesUrl + value" class="pic">
+      <img v-if="value" :src="resourcesUrl + value" class="pic2">
       <i v-else class="el-icon-plus pic-uploader-icon" />
     </el-upload>
   </div>
@@ -71,7 +71,7 @@ export default {
       //line-height: 178px;
       text-align: center;
     }
-    .pic {
+    .pic2 {
       width: 100%;
       height: 40px;
       display: block;
