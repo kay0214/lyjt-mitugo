@@ -4,6 +4,26 @@
     <div class="head-container">
       <el-row>
         <el-input v-model="query.username" clearable placeholder="用户昵称" style="width: 200px;marginRight:20px;" class="filter-item" @keyup.enter.native="crud.toQuery" />        
+        <el-select v-model="category" clearable placeholder="明细种类" class="filter-item" style="width: 130px">
+        <el-option
+          v-for="item in query.categoryOptions"
+          :key="item.value"
+          :label="item.label"
+          :value="item.value"
+        />
+      </el-select>
+      <el-date-picker          
+          type="daterange"
+          v-model="searchTime"
+          range-separator="至"
+          start-placeholder="开始日期"
+          end-placeholder="结束日期"
+          placeholder="选择时间范围"
+          value-format='yyyy-MM-dd'
+          style="verticalAlign:top;marginRight:20px;"
+          @change="(val)=>{if(val){query.addTimeStart=val[0],query.addTimeEnd=val[1]}else{query.addTimeStart=null,query.addTimeEnd=null}}"
+          >
+        </el-date-picker>
         <el-button class="filter-item" size="mini" type="success" icon="el-icon-search" @click="crud.toQuery">搜索</el-button>
       </el-row>
       <crudOperation :permission="permission" />
