@@ -198,7 +198,7 @@ public class CommissionServiceImpl implements CommissionService {
         }
 
         //分享人
-        if (null != orderInfo.getShareId() && orderInfo.getShareId() == 3) {
+        if (null != orderInfo.getShareId()) {
             BigDecimal shareBonus = orderInfo.getCommission().multiply(yxCommissionRate.getShareRate());
             //获取用户信息
             YxUser yxUser = yxUserMapper.selectById(orderInfo.getShareId());
