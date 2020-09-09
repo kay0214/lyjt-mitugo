@@ -47,10 +47,10 @@ public interface SystemUserMapper extends BaseMapper<SystemUser> {
 
     /**
      * 更新总积分
-     * @param merInfo
+     * @param totalScore
      * @param oldTotal
      * @return
      */
     @Update("update `user` set total_score=total_score+#{totalScore} where id=#{id} and total_score= #{oldTotal}")
-    int updateTotalScore(SystemUser merInfo, BigDecimal oldTotal);
+    int updateTotalScore(@Param("totalScore") BigDecimal totalScore,@Param("oldTotal") BigDecimal oldTotal,@Param("id") Long id);
 }

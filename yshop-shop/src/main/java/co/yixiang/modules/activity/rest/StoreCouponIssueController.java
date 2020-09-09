@@ -66,6 +66,9 @@ public class StoreCouponIssueController {
         if (ObjectUtil.isNotNull(resources.getEndTimeDate())) {
             resources.setEndTime(OrderUtil.dateToTimestamp(resources.getEndTimeDate()));
         }
+        if (resources.getTotalCount() ==null) {
+            resources.setTotalCount(0);
+        }
         if (resources.getTotalCount() > 0) {
             resources.setRemainCount(resources.getTotalCount());
         }
