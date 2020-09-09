@@ -146,7 +146,7 @@
               <el-dropdown-menu slot="dropdown">
                 <el-dropdown-item>
                   <el-button
-                    v-permission="['admin','YXSTOREORDER_ALL','YXSTOREORDER_MARK']"
+                    v-permission="['admin','YXSTOREORDER_MARK']"
                     size="mini"
                     type="success"
                     @click="remark(scope.row)"
@@ -156,7 +156,7 @@
                 <el-dropdown-item>
                   <el-button
                     v-if="scope.row._status == 2"
-                    v-permission="['admin','YXSTOREORDER_ALL','YXSTOREORDER_SEND']"
+                    v-permission="['admin','YXSTOREORDER_SEND']"
                     size="mini"
                     type="primary"
                     @click="edit(scope.row)"
@@ -166,7 +166,7 @@
                 <el-dropdown-item>
                   <el-button
                     v-if="scope.row._status == 3"
-                    v-permission="['admin','YXSTOREORDER_ALL','YXSTOREORDER_REFUND']"
+                    v-permission="['admin','YXSTOREORDER_REFUND']"
                     size="mini"
                     type="primary"
                     @click="refund(scope.row)"
