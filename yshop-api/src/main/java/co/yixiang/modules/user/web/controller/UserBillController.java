@@ -104,7 +104,6 @@ public class UserBillController extends BaseController {
     /**
      * 积分记录
      */
-    @Log(value = "查看积分流水", type = 1)
     @GetMapping("/integral/list")
     @ApiOperation(value = "积分记录", notes = "积分记录")
     public ApiResult<Object> userInfo(YxUserBillQueryParam queryParam) {
@@ -295,7 +294,6 @@ public class UserBillController extends BaseController {
      * sort  childCount ASC/DESC  团队排序   numberCount ASC/DESC
      * 金额排序  orderCount  ASC/DESC  订单排序
      */
-    @Log(value = "查看分销人", type = 1)
     @PostMapping("/spread/people")
     @ApiOperation(value = "推荐用户", notes = "推荐用户")
     public ApiResult<Object> spreadPeople(@Valid @RequestBody PromParam param) {
@@ -315,7 +313,6 @@ public class UserBillController extends BaseController {
      *
      * @return mixed
      */
-    @Log(value = "查看佣金", type = 1)
     @GetMapping("/spread/commission/{type}")
     @ApiOperation(value = "推广佣金明细", notes = "推广佣金明细")
     public ApiResult<Object> spreadCommission(YxUserBillQueryParam queryParam,

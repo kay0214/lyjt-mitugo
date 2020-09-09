@@ -77,7 +77,6 @@ public class UserController extends BaseController {
     /**
      * 获取个人中心菜单
      */
-    @Log(value = "进入用户中心", type = 1)
     @GetMapping("/menu/user")
     @ApiOperation(value = "获取个人中心菜单", notes = "获取个人中心菜单")
     public ApiResult<Map<String, Object>> userMenu() {
