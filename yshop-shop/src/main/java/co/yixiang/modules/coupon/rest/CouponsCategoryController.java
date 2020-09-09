@@ -54,7 +54,6 @@ public class CouponsCategoryController {
      * @return
      */
     @AnonymousAccess
-    @Log("查询卡券分类")
     @ApiOperation(value = "查询卡券分类")
     @GetMapping(value = "/categoryTree")
     @PreAuthorize("@el.check('admin','yxCouponsCategory:list')")
@@ -66,7 +65,6 @@ public class CouponsCategoryController {
     }
 
     @GetMapping
-    @Log("查询卡券分类表")
     @ApiOperation("查询卡券分类表")
     @PreAuthorize("@el.check('admin','yxCouponsCategory:list')")
     public ResponseEntity<Object> getYxCouponsCategorys(CouponsCategoryRequest request) {

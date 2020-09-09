@@ -216,6 +216,9 @@ public class YxStoreProduct implements Serializable {
 
     @TableField(exist = false)
     private YxStoreInfoDto store;
+    // 分类是否可用
+    @TableField(exist = false)
+    private Integer cateFlg;
 
     public void copy(YxStoreProduct source){
         BeanUtil.copyProperties(source,this, CopyOptions.create().setIgnoreNullValue(true));

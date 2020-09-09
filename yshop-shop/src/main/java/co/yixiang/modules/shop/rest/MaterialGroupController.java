@@ -42,7 +42,6 @@ public class MaterialGroupController {
 
 
     @GetMapping(value = "/page")
-    @Log("查询素材分组")
     @ApiOperation("查询素材分组")
     public ResponseEntity<Object> getYxMaterialGroups(YxMaterialGroupQueryCriteria criteria, Pageable pageable){
         return new ResponseEntity<>(yxMaterialGroupService.queryAll(criteria,pageable),HttpStatus.OK);

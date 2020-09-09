@@ -52,7 +52,6 @@ public class YxStoreInfoController {
     private YxSystemConfigService systemConfigService;
 
 
-    @Log("导出数据")
     @ApiOperation("导出数据")
     @GetMapping(value = "/download")
     @PreAuthorize("@el.check('admin','yxStoreInfo:list')")
@@ -67,7 +66,6 @@ public class YxStoreInfoController {
     }
 
     @GetMapping
-    @Log("查询店铺表")
     @ApiOperation("查询店铺表")
     @PreAuthorize("@el.check('admin','yxStoreInfo:list')")
     public ResponseEntity<Object> getYxStoreInfos(YxStoreInfoQueryCriteria criteria, Pageable pageable) {
@@ -122,7 +120,6 @@ public class YxStoreInfoController {
     }
 
     @PostMapping(value = "/getStoreInfoById/{id}")
-    @Log("获取店铺信息")
     @ApiOperation("获取店铺信息")
     @PreAuthorize("@el.check('admin','yxStoreInfo:edit')")
     public ResponseEntity<Object> getStoreInfoById(@PathVariable Integer id) {
@@ -131,7 +128,6 @@ public class YxStoreInfoController {
     }
 
     @GetMapping(value = "/getFreeShipping")
-    @Log("获取包邮金额")
     @ApiOperation("获取包邮金额")
     public ResponseEntity<Object> getFreeShipping() {
         YxSystemConfig yxSystemConfig = systemConfigService.findByKey(SystemConfigConstants.STORE_FREE_POSTAGE);//满额包邮

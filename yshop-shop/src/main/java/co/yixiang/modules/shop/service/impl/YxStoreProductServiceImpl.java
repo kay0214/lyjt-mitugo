@@ -148,6 +148,7 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<StoreProductMappe
                 BeanUtils.copyProperties(yxStoreInfo, yxStoreInfoDto);
             }
             yxStoreProduct.setStore(yxStoreInfoDto);
+            yxStoreProduct.setCateFlg(yxStoreProduct.getStoreCategory().getIsShow()==1?1:0);
         });
         return storeProductList;
     }

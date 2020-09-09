@@ -45,7 +45,6 @@ public class YxExamineLogController {
     private final IGenerator generator;
 
 
-    @Log("导出数据")
     @ApiOperation("导出数据")
     @GetMapping(value = "/download")
     @PreAuthorize("@el.check('admin','yxExamineLog:list')")
@@ -54,7 +53,6 @@ public class YxExamineLogController {
     }
 
     @GetMapping
-    @Log("查询审核记录")
     @ApiOperation("查询审核记录")
     @PreAuthorize("@el.check('admin','yxExamineLog:list')")
     public ResponseEntity<Object> getYxExamineLogs(YxExamineLogQueryCriteria criteria, Pageable pageable) {
@@ -68,7 +66,6 @@ public class YxExamineLogController {
     }
 
     @GetMapping("/extract")
-    @Log("查询审核记录")
     @ApiOperation("查询审核记录")
     @PreAuthorize("@el.check('admin','yxExamineLog:extract')")
     public ResponseEntity<Object> getExtractYxExamineLogs(YxExamineLogQueryCriteria criteria, Pageable pageable) {

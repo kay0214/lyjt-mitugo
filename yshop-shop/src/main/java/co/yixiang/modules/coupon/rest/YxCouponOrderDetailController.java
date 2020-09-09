@@ -39,7 +39,6 @@ public class YxCouponOrderDetailController {
     private final IGenerator generator;
 
 
-    @Log("导出数据")
     @ApiOperation("导出数据")
     @GetMapping(value = "/download")
     @PreAuthorize("@el.check('admin','yxCouponOrderDetail:list')")
@@ -48,7 +47,6 @@ public class YxCouponOrderDetailController {
     }
 
     @GetMapping
-    @Log("查询卡券订单详情表")
     @ApiOperation("查询卡券订单详情表")
     @PreAuthorize("@el.check('admin','yxCouponOrderDetail:list')")
     public ResponseEntity<Object> getYxCouponOrderDetails(YxCouponOrderDetailQueryCriteria criteria, Pageable pageable){

@@ -39,7 +39,6 @@ public class UserBillController {
     @Autowired
     private UserService userService;
 
-    @Log("查询")
     @ApiOperation(value = "查询")
     @GetMapping(value = "/yxUserBill")
     @PreAuthorize("hasAnyRole('admin','YXUSERBILL_ALL','YXUSERBILL_SELECT')")

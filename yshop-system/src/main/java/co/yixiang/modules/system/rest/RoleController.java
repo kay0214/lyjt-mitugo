@@ -70,7 +70,6 @@ public class RoleController {
         return new ResponseEntity<>(roleService.findById(id), HttpStatus.OK);
     }
 
-    @Log("导出角色数据")
     @ApiOperation("导出角色数据")
     @GetMapping(value = "/download")
     @PreAuthorize("@el.check('role:list')")
@@ -85,7 +84,6 @@ public class RoleController {
         return new ResponseEntity<>(roleService.queryAlls(criteria,pageable),HttpStatus.OK);
     }
 
-    @Log("查询角色")
     @ApiOperation("查询角色")
     @GetMapping
     @PreAuthorize("@el.check('roles:list')")

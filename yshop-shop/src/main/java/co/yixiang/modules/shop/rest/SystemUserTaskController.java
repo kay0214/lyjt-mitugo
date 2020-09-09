@@ -42,7 +42,6 @@ public class SystemUserTaskController {
         this.yxSystemUserTaskService = yxSystemUserTaskService;
     }
 
-    @Log("查询")
     @ApiOperation(value = "查询")
     @GetMapping(value = "/yxSystemUserTask")
     @PreAuthorize("hasAnyRole('admin','YXSYSTEMUSERTASK_ALL','YXSYSTEMUSERTASK_SELECT')")

@@ -37,7 +37,6 @@ public class StoreProductReplyController {
         this.yxStoreProductReplyService = yxStoreProductReplyService;
     }
 
-    @Log("查询")
     @ApiOperation(value = "查询")
     @GetMapping(value = "/yxStoreProductReply")
     @PreAuthorize("hasAnyRole('admin','YXSTOREPRODUCTREPLY_ALL','YXSTOREPRODUCTREPLY_SELECT')")

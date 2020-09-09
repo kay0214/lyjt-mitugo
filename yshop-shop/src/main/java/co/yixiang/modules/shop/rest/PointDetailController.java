@@ -42,7 +42,6 @@ public class PointDetailController {
      * @return
      */
     @GetMapping
-    @Log("查询积分获取明细")
     @ApiOperation("查询积分获取明细")
     @PreAuthorize("@el.check('admin','yxPointDetail:list')")
     public ResponseEntity<Object> getYxPointDetails(YxPointDetailQueryCriteria criteria, Pageable pageable) {
@@ -57,7 +56,6 @@ public class PointDetailController {
     }
 
     @GetMapping(value = "/pullNew")
-    @Log("积分明细, 拉新")
     @ApiOperation("查询积分明细, 拉新")
     @PreAuthorize("@el.check('admin','yxPointDetail:list')")
     public ResponseEntity<Object> getYxPointDetailsPullNew(YxPointDetailQueryCriteria criteria, Pageable pageable) {
@@ -78,7 +76,6 @@ public class PointDetailController {
     }
 
     @GetMapping(value = "/dividends")
-    @Log("积分明细, 分红池")
     @ApiOperation("查询积分明细, 分红池")
     @PreAuthorize("@el.check('admin','yxPointDetail:list')")
     public ResponseEntity<Object> getYxPointDetailsDividends(YxPointDetailQueryCriteria criteria, Pageable pageable) {

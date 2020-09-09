@@ -57,7 +57,6 @@ public class SystemStoreController {
     }
 
 
-    @Log("所有门店")
     @ApiOperation("所有门店")
     @GetMapping(value = "/all")
     @PreAuthorize("hasAnyRole('yxSystemStore:list')")
@@ -65,7 +64,6 @@ public class SystemStoreController {
         return new ResponseEntity<>(yxSystemStoreService.queryAll(criteria),HttpStatus.OK);
     }
 
-    @Log("导出数据")
     @ApiOperation("导出数据")
     @GetMapping(value = "/download")
     @PreAuthorize("hasAnyRole('yxSystemStore:list')")
@@ -74,7 +72,6 @@ public class SystemStoreController {
     }
 
     @GetMapping
-    @Log("查询门店")
     @ApiOperation("查询门店")
     @PreAuthorize("hasAnyRole('yxSystemStore:list')")
     public ResponseEntity<Object> getYxSystemStores(YxSystemStoreQueryCriteria criteria, Pageable pageable){
@@ -82,7 +79,6 @@ public class SystemStoreController {
     }
 
     @PostMapping(value = "/getL")
-    @Log("获取经纬度")
     @ApiOperation("获取经纬度")
     @PreAuthorize("hasAnyRole('yxSystemStore:getl')")
     public ResponseEntity<Object> create(@Validated @RequestBody String jsonStr){

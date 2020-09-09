@@ -76,7 +76,6 @@ public class SysUserController {
         this.generator = generator;
     }
 
-    @Log("导出用户数据")
     @ApiOperation("导出用户数据")
     @GetMapping(value = "/download")
     @PreAuthorize("@el.check('admin','user:list')")
@@ -84,7 +83,6 @@ public class SysUserController {
         userService.download(generator.convert(userService.queryAll(criteria), UserDto.class), response);
     }
 
-    @Log("查询用户")
     @ApiOperation("查询用户")
     @GetMapping
     @PreAuthorize("@el.check('admin','user:list')")
@@ -200,6 +198,7 @@ public class SysUserController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    @Log("修改密码")
     @ApiOperation("修改密码")
     @PostMapping(value = "/updatePass")
     public ResponseEntity<Object> updatePass(@RequestBody UserPassVo passVo){
@@ -228,7 +227,6 @@ public class SysUserController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @Log("修改邮箱")
     @ApiOperation("修改邮箱")
     @PostMapping(value = "/updateEmail/{code}")
     public ResponseEntity<Object> updateEmail(@PathVariable String code,@RequestBody User user){

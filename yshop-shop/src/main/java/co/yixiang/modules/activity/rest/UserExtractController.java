@@ -51,7 +51,6 @@ public class UserExtractController {
         this.generator = generator;
     }
 
-    @Log("查询提现记录")
     @ApiOperation(value = "查询提现记录")
     @GetMapping(value = "/yxUserExtract")
     @PreAuthorize("hasAnyRole('admin','YXUSEREXTRACT_ALL','YXUSEREXTRACT_SELECT')")
