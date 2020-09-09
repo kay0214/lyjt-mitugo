@@ -6,7 +6,6 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
-import javax.validation.constraints.NotBlank;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
@@ -167,4 +166,7 @@ public class YxCouponOrderQueryVo implements Serializable {
 
     @ApiModelProperty(value = "卡券List")
     private List<YxCouponOrderDetailQueryVo> detailList;
+
+    @ApiModelProperty(value = "店铺缩略图")
+    private String storeImage;
 }

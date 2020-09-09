@@ -878,6 +878,14 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
             item.setBuyTime(DateUtils.timestampToStr10(yxCouponOrder.getPayTime(), DateUtils.YYYY_MM_DD_HH_MM_SS));
         }
 
+        // 店铺缩略图
+        YxImageInfo storeImage = yxImageInfoService.getOne(new QueryWrapper<YxImageInfo>().eq("type_id", yxStoreInfo.getId()).eq("img_type", ShopConstants.IMG_TYPE_STORE)
+                .eq("img_category", ShopConstants.IMG_CATEGORY_PIC).eq("del_flag", 0));
+
+        if (storeImage != null) {
+            item.setStoreImage(storeImage.getImgUrl());
+        }
+
         return item;
     }
 
