@@ -36,6 +36,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -302,7 +303,8 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<StoreProductMappe
                     join(",", fromatDetailDTO.getDetail()));
             attrGroup.add(yxStoreProductAttr);
         }
-
+        // 平台结算
+        BigDecimal bigDecimalSellt  = yxStoreProductParam.getSettlement();
 
         List<YxStoreProductAttrValue> valueGroup = new ArrayList<>();
         for (ProductFormatDto productFormatDTO : valueList) {
@@ -322,8 +324,10 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<StoreProductMappe
             yxStoreProductAttrValue.setStock(productFormatDTO.getSales());
             yxStoreProductAttrValue.setUnique(IdUtil.simpleUUID());
             yxStoreProductAttrValue.setImage(productFormatDTO.getPic());
-            //佣金
-            yxStoreProductAttrValue.setCommission(BigDecimal.valueOf(productFormatDTO.getCommission()));
+            //佣金 = 商品金额-平台结算
+           double bigComm = productFormatDTO.getPrice() - bigDecimalSellt.doubleValue() ;
+            DecimalFormat df1 = new DecimalFormat("0.00");
+            yxStoreProductAttrValue.setCommission(new BigDecimal(df1.format(bigComm).toString()));
 
             productFormatDTO.setUnique(yxStoreProductAttrValue.getUnique());
 
