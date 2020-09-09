@@ -951,7 +951,8 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         wrapper8.eq("uid", uid);
         wrapper8.eq("del_flag", CommonEnum.DEL_STATUS_0.getValue());
         wrapper8.eq("status", 10);
-        countVO.setOutTimeCount(this.count(wrapper8));
+//        countVO.setOutTimeCount(this.count(wrapper8));
+        countVO.setCancelCount(this.count(wrapper8));
 
         return countVO;
     }
