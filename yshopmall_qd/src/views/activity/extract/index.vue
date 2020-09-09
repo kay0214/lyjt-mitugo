@@ -26,12 +26,13 @@
       <el-table-column prop="extractType" label="提现方式">
         <template slot-scope="scope">
           <div v-if="scope.row.extractType='weixin'">
-            姓名:{{ scope.row.realName }}<br>
-            微信号:{{ scope.row.wechat }}
+
+            姓名:{{ scope.row.userTrueName }}<br>            
+            微信昵称:{{ scope.row.realName }}
           </div>
           <div v-else>
-            姓名:{{ scope.row.realName }}<br>
-            支付宝号:{{ scope.row.alipayCode }}
+            <!-- 姓名:{{ scope.row.realName }}<br>
+            支付宝号:{{ scope.row.alipayCode }} -->
           </div>
         </template>
       </el-table-column>
