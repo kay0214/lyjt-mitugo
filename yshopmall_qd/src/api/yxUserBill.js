@@ -22,3 +22,10 @@ export function edit(data) {
     data
   })
 }
+
+export function getType() {
+  return request({
+    url: 'api/yxUserBillType',
+    method: 'get'
+  })
+}

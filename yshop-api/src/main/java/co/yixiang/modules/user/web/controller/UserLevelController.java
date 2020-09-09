@@ -40,7 +40,6 @@ public class UserLevelController extends BaseController {
     /**
     * 会员等级列表
     */
-    @Log(value = "进入会员中心",type = 1)
     @GetMapping("/user/level/grade")
     @ApiOperation(value = "会员等级列表",notes = "会员等级列表")
     public ApiResult<Object> getLevelInfo(){

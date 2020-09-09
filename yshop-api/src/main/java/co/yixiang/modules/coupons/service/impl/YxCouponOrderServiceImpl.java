@@ -607,10 +607,14 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         if (ObjectUtil.isNull(order)) throw new ErrorRequestException("订单不存在");
         if (order.getRefundStatus() == 2) throw new ErrorRequestException("订单已退款");
         if (order.getRefundStatus() == 1) throw new ErrorRequestException("正在申请退款中");
-        if (order.getStatus() == 1) throw new ErrorRequestException("订单当前无法退款");
+        //if (order.getStatus() == 1) throw new ErrorRequestException("订单当前无法退款");
 
         // 根据卡券类型校验下是否可以退款
         YxCoupons yxCoupons = this.couponsService.getById(order.getCouponId());
+        // 使用过了 不能退
+        if(order.getUsedCount()>0){
+            throw new ErrorRequestException("已核销过的订单无法退款");
+        }
         // 过期不过期   是否过期退  是否随时退
         if (0 == yxCoupons.getAwaysRefund()) {
             // 都不支持不可退款

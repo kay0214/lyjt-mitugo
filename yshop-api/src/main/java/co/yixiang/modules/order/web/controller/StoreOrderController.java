@@ -181,6 +181,7 @@ public class StoreOrderController extends BaseController {
     /**
      * 订单创建
      */
+    @Log(value = "订单支付", type = 1)
     @PostMapping("/order/create/{key}")
     @ApiOperation(value = "订单创建", notes = "订单创建")
     public ApiResult<Map<String, Object>> create(@Valid @RequestBody OrderParam param,
@@ -436,7 +437,6 @@ public class StoreOrderController extends BaseController {
     /**
      * 订单列表
      */
-    @Log(value = "查看订单列表", type = 1)
     @GetMapping("/order/list")
     @ApiOperation(value = "订单列表", notes = "订单列表")
     public ApiResult<List<YxStoreOrderQueryVo>> orderList(YxStoreOrderQueryParam queryParam) {
@@ -449,7 +449,6 @@ public class StoreOrderController extends BaseController {
     /**
      * 订单详情
      */
-    @Log(value = "查看订单详情", type = 1)
     @GetMapping("/order/detail/{key}")
     @ApiOperation(value = "订单详情", notes = "订单详情")
     public ApiResult<YxStoreOrderQueryVo> detail(@PathVariable String key) {
@@ -622,7 +621,6 @@ public class StoreOrderController extends BaseController {
     /**
      * 订单评价
      */
-    @Log(value = "评价商品", type = 1)
     @PostMapping("/order/comment")
     @ApiOperation(value = "订单评价", notes = "订单评价")
     public ApiResult<Object> comment(@Valid @RequestBody YxStoreProductReply productReply) {
