@@ -208,7 +208,7 @@
     <el-footer class="footer-contains">
       <div class="footer-search">
         <el-checkbox v-model="printChecked" @change="batchSelection" style="margin-right: 20px;"></el-checkbox>
-        <el-select v-model="batchHandle" @change="handlePrintOption" clearable placeholder="批量操作" class="filter-item" style="width: 130px; margin-right: 8px;">
+        <el-select v-model="batchHandle" @change="handlePrintOption" clearable placeholder="批量打印" class="filter-item" style="width: 130px; margin-right: 8px;">
           <el-option
             v-for="item in handleOptions"
             :key="item.value"
@@ -216,7 +216,7 @@
             :value="item.value"
           />
         </el-select>
-        <el-select v-model="batchExport" @change="handleExportOption" clearable placeholder="批量导出" class="filter-item" style="width: 130px">
+        <el-select v-model="batchExport" @change="handleExportOption" clearable placeholder="导出选项" class="filter-item" style="width: 130px">
           <el-option
             v-for="item in exportOptions"
             :key="item.value"
