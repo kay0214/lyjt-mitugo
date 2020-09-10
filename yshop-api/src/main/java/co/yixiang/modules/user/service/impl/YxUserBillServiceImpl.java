@@ -136,7 +136,6 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<YxUserBillMapper, YxU
                 wrapper.in("type", Arrays.asList(str.split(",")));
 
         }
-        wrapper.orderByDesc("add_time");
         Page<YxUserBill> pageModel = new Page<>(page, limit);
         List<BillDTO> billDTOList = yxUserBillMapper.getBillList(wrapper, pageModel);
         for (BillDTO billDTO : billDTOList) {
