@@ -14,7 +14,7 @@
         <el-input v-model="form.couponTime" style="width: 300px;" :maxlength='12' />
       </el-form-item>
       <el-form-item label="排序" prop='sort'>
-        <el-input v-model="form.sort" style="width: 300px;" />
+        <el-input v-model="form.sort" style="width: 300px;" :maxlength='3'/>
       </el-form-item>
       <el-form-item label="状态" prop='status'>
         <el-radio v-model="form.status" :label="1">开启</el-radio>

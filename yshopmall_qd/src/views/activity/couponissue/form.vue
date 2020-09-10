@@ -25,7 +25,7 @@
           />
         </template>
       </el-form-item>
-      <el-form-item label="发布数量" prop='totalCount' :maxlength='12'>
+      <el-form-item label="发布数量" prop='totalCount' :maxlength='9'>
         <el-input v-model="form.totalCount" style="width: 300px;" />
       </el-form-item>
       <el-form-item label="是否不限量" prop='isPermanent'>
