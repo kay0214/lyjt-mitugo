@@ -747,7 +747,7 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         yxUserBill.setPm(0);
         yxUserBill.setTitle("小程序本地生活购买");
         yxUserBill.setCategory(BillDetailEnum.CATEGORY_1.getValue());
-        yxUserBill.setType(BillDetailEnum.TYPE_3.getValue());
+        yxUserBill.setType(BillDetailEnum.TYPE_8.getValue());
         yxUserBill.setNumber(yxCouponOrder.getTotalPrice());
         // 目前只支持微信付款、没有余额
         yxUserBill.setBalance(yxUser.getNowMoney());
