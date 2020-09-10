@@ -213,12 +213,12 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
         YxCouponOrder yxCouponOrder = this.yxCouponOrderService.getOne(new QueryWrapper<YxCouponOrder>().eq("order_id", yxCouponOrderDetail.getOrderId()));
         if (null == yxCouponOrder) {
             yxCouponsDto.setStatus(99);
-            yxCouponsDto.setStatusDesc("查询卡券订单失败");
+            yxCouponsDto.setStatusDesc("无卡券订单信息");
             return yxCouponsDto;
         }
         if (!useUid.equals(yxCouponOrder.getUid() + "")) {
             yxCouponsDto.setStatus(99);
-            yxCouponsDto.setStatusDesc("核销码与用户信息不匹配");
+            yxCouponsDto.setStatusDesc("卡券所属验证失败");
             return yxCouponsDto;
         }
         // 查询优惠券信息
@@ -238,7 +238,7 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
         LocalDateTime expireDateEnd = DateUtils.dateToLocalDate(yxCoupons.getExpireDateEnd());
         if (expireDateEnd.isBefore(LocalDateTime.now())) {
             yxCouponsDto.setStatus(99);
-            yxCouponsDto.setStatusDesc("已失效");
+            yxCouponsDto.setStatusDesc("卡券已过期");
             return yxCouponsDto;
         }
         // 组装返回参数
@@ -265,19 +265,19 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
         switch (yxCouponOrderDetail.getStatus()) {
             case 0:
                 yxCouponsDto.setStatus(99);
-                yxCouponsDto.setStatusDesc("待支付");
+                yxCouponsDto.setStatusDesc("卡券未支付");
                 break;
             case 1:
                 yxCouponsDto.setStatus(99);
-                yxCouponsDto.setStatusDesc("已过期");
+                yxCouponsDto.setStatusDesc("卡券已过期");
                 break;
             case 2:
                 yxCouponsDto.setStatus(99);
-                yxCouponsDto.setStatusDesc("待发放");
+                yxCouponsDto.setStatusDesc("卡券待发放");
                 break;
             case 3:
                 yxCouponsDto.setStatus(99);
-                yxCouponsDto.setStatusDesc("支付失败");
+                yxCouponsDto.setStatusDesc("卡券支付失败");
                 break;
             case 4:
                 yxCouponsDto.setStatus(1);
@@ -289,19 +289,19 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
                 break;
             case 6:
                 yxCouponsDto.setStatus(99);
-                yxCouponsDto.setStatusDesc("已核销");
+                yxCouponsDto.setStatusDesc("卡券已核销");
                 break;
             case 7:
                 yxCouponsDto.setStatus(99);
-                yxCouponsDto.setStatusDesc("退款中");
+                yxCouponsDto.setStatusDesc("卡券退款中");
                 break;
             case 8:
                 yxCouponsDto.setStatus(99);
-                yxCouponsDto.setStatusDesc("已退款");
+                yxCouponsDto.setStatusDesc("卡券已退款");
                 break;
             case 9:
                 yxCouponsDto.setStatus(99);
-                yxCouponsDto.setStatusDesc("退款驳回");
+                yxCouponsDto.setStatusDesc("卡券退款驳回");
                 break;
             default:
                 yxCouponsDto.setStatus(99);
@@ -324,7 +324,7 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
         YxCouponOrder yxCouponOrder = this.yxCouponOrderService.getOne(new QueryWrapper<YxCouponOrder>().lambda().eq(YxCouponOrder::getOrderId, orderId));
         if (null == yxCouponOrder) {
             yxCouponsDto.setStatus(99);
-            yxCouponsDto.setStatusDesc("查询卡券订单失败");
+            yxCouponsDto.setStatusDesc("无卡券订单信息");
             return yxCouponsDto;
         }
 
@@ -345,7 +345,7 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
         LocalDateTime expireDateEnd = DateUtils.dateToLocalDate(yxCoupons.getExpireDateEnd());
         if (expireDateEnd.isBefore(LocalDateTime.now())) {
             yxCouponsDto.setStatus(99);
-            yxCouponsDto.setStatusDesc("已失效");
+            yxCouponsDto.setStatusDesc("卡券已过期");
             return yxCouponsDto;
         }
         // 判断是否本商铺发放的卡券
@@ -375,7 +375,7 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
         }
         if (null == yxCouponOrderDetail) {
             yxCouponsDto.setStatus(99);
-            yxCouponsDto.setStatusDesc("当前订单无可用卡券");
+            yxCouponsDto.setStatusDesc("无效订单号");
             return yxCouponsDto;
         }
 

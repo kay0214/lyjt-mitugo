@@ -1015,48 +1015,48 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         YxCouponOrderDetail yxCouponOrderDetail = this.yxCouponOrderDetailService.getOne(new QueryWrapper<YxCouponOrderDetail>().eq("verify_code", verifyCode));
         if (null == yxCouponOrderDetail) {
             map.put("status", "99");
-            map.put("statusDesc", "查询卡券订单详情失败");
+            map.put("statusDesc", "无卡券订单详情信息");
             return map;
         }
         YxCouponOrder yxCouponOrder = this.getOne(new QueryWrapper<YxCouponOrder>().eq("order_id", yxCouponOrderDetail.getOrderId()));
         if (null == yxCouponOrder) {
             map.put("status", "99");
-            map.put("statusDesc", "查询卡券订单失败");
+            map.put("statusDesc", "无卡券订单信息");
             return map;
         }
         // 判断订单状态
         if (4 != yxCouponOrder.getStatus() && 5 != yxCouponOrder.getStatus()) {
             map.put("status", "99");
-            map.put("statusDesc", "当前订单状态不是待使用");
+            map.put("statusDesc", "当前卡券不可用");
             return map;
         }
         if (1 == yxCouponOrder.getRefundStatus()) {
             map.put("status", "99");
-            map.put("statusDesc", "退款申请中的订单无法核销");
+            map.put("statusDesc", "卡券退款中不可用");
             return map;
         }
         if (!useUid.equals(yxCouponOrder.getUid() + "")) {
             map.put("status", "99");
-            map.put("statusDesc", "核销码与用户信息不匹配");
+            map.put("statusDesc", "卡券所属验证失败");
             return map;
         }
         // 查询优惠券信息
         YxCoupons yxCoupons = this.couponsService.getById(yxCouponOrderDetail.getCouponId());
         if (null == yxCoupons) {
             map.put("status", "99");
-            map.put("statusDesc", "核销未查询到卡券信息");
+            map.put("statusDesc", "卡券不存在");
             return map;
         }
         YxStoreInfo yxStoreInfo = this.storeInfoService.getOne(new QueryWrapper<YxStoreInfo>().eq("mer_id", uid));
         if (null == yxStoreInfo) {
             map.put("status", "99");
-            map.put("statusDesc", "未获取到用户的店铺信息");
+            map.put("statusDesc", "卡券店铺异常");
             return map;
         }
         // 判断是否本商铺发放的卡券
         if (!yxCoupons.getCreateUserId().equals(uid)) {
             map.put("status", "99");
-            map.put("statusDesc", "不可核销其他商户的卡券");
+            map.put("statusDesc", "非本商户卡券不可用");
             return map;
         }
         // 可核销次数已核销次数
@@ -1075,13 +1075,13 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         }
         if (expireDateEnd.isBefore(LocalDateTime.now())) {
             map.put("status", "99");
-            map.put("statusDesc", "当前卡券不在有效期内");
+            map.put("statusDesc", "卡券已过期");
             return map;
         }
         // 判断卡券状态
         if (4 != yxCouponOrderDetail.getStatus() && 5 != yxCouponOrderDetail.getStatus()) {
             map.put("status", "99");
-            map.put("statusDesc", "当前卡券状态不是待使用");
+            map.put("statusDesc", "当前卡券不可用");
             return map;
         }
         // 第一次核销发送分佣mq
@@ -1148,10 +1148,10 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         }
         // 判断卡券状态
         if (4 != yxCouponOrder.getStatus() && 5 != yxCouponOrder.getStatus()) {
-            throw new BadRequestException("当前订单状态不是待使用");
+            throw new BadRequestException("无卡券订单信息");
         }
         if (1 == yxCouponOrder.getRefundStatus()) {
-            throw new BadRequestException("退款申请中的订单无法核销");
+            throw new BadRequestException("卡券退款中不可用");
         }
         // 判断总核销次数
         if (yxCouponOrder.getUseCount() <= yxCouponOrder.getUsedCount()) {
@@ -1161,11 +1161,11 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         // 查询优惠券信息
         YxCoupons yxCoupons = this.couponsService.getById(yxCouponOrder.getCouponId());
         if (null == yxCoupons) {
-            throw new BadRequestException("优惠券已不存在，无法核销");
+            throw new BadRequestException("卡券不存在，无法核销");
         }
         // 判断是否本商铺发放的卡券
         if (!yxCoupons.getStoreId().equals(uid)) {
-            throw new BadRequestException("该卡券不属于本店铺，无法核销");
+            throw new BadRequestException("非本商铺卡券，无法核销");
         }
         YxStoreInfo yxStoreInfo = this.storeInfoService.getOne(new QueryWrapper<YxStoreInfo>().eq("mer_id", yxCoupons.getStoreId()));
         if (null == yxStoreInfo) {
