@@ -17,7 +17,7 @@
                   placeholder="设置名称" maxlength="10"
                   v-model="form['itemValue'+index]" style=""
                    @input="(val)=>{item.value=val}">
-                  <i slot="suffix" v-if='!item.attrHidden' class="el-input__icon el-icon-check" @click='attrHiddenBool(item,index)'></i>
+                  <i slot="suffix" v-if='!item.attrHidden && item.value && item.value !== ""' class="el-input__icon el-icon-check" @click='attrHiddenBool(item,index)'></i>
                   <i slot="suffix" class="el-input__icon el-icon-close" @click='handleRemove(index)'></i>
                 </el-input>
               </el-form-item>
