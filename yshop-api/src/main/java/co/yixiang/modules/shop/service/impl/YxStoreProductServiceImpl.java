@@ -151,7 +151,10 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
         for(ProductFormatDto productFormatDto:valueList){
             if(productFormatDto.getUnique().equals(unique)){
                 //
-                int sunSales = productFormatDto.getSales()-num;
+                int sunSales =0;
+                if(productFormatDto.getSales()!=0){
+                    sunSales = productFormatDto.getSales()-num;
+                }
                 if(1==type){
                     sunSales = productFormatDto.getSales()+num;
                 }

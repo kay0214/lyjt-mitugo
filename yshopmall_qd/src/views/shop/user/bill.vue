@@ -21,7 +21,7 @@
           :value="key"
         />
         </template>
-      </el-select>      
+      </el-select>
       <el-select v-model="pm" clearable placeholder="收支类型" class="filter-item" style="width: 130px">
         <el-option
           v-for="item in pmOptions"
@@ -30,7 +30,7 @@
           :value="item.value"
         />
       </el-select>
-      <el-date-picker          
+      <el-date-picker
           type="daterange"
           v-model="searchTime"
           range-separator="至"
@@ -53,12 +53,13 @@
 
       <el-row :gutter='6' style="margin:20px;">
         <el-col :span='4'>账户总收入: <span>{{remainPrice}}</span></el-col>
-        <el-col :span='4'>账户余额: <span>{{totalPrice}}</span></el-col>     
+        <el-col :span='4'>账户总支出: <span>{{expenditurePrice}}</span></el-col>
+        <el-col :span='4'>账户余额: <span>{{totalPrice}}</span></el-col>
         <el-popover
           placement="top"
           width="160"
           v-model="visible">
-          <el-form ref='formWithdraw' :model="formWithdraw" :rules="rules">            
+          <el-form ref='formWithdraw' :model="formWithdraw" :rules="rules">
           <p>
             提现金额
             <el-form-item prop='extractPrice'>
@@ -70,7 +71,7 @@
           </div>
           </el-form>
           <el-button v-permission='permission.withdraw' slot="reference" type="primary">提现</el-button>
-        </el-popover>   
+        </el-popover>
       </el-row>
 
     </div>
@@ -124,7 +125,7 @@ import { formatTime } from '@/utils/index'
 import { Notification } from 'element-ui'
 export default {
   components: { eForm, pForm },
-  mixins: [initData],	
+  mixins: [initData],
 
   data() {
     return {
@@ -133,6 +134,7 @@ export default {
       visible:false,formWithdraw:{},
       remainPrice:0,// 账户余额
       totalPrice :0,//累计总金额金额
+      expenditurePrice:0,//累计支出
       permission: {
         withdraw: ['admin', 'YXUSERBILL_WITHDRAW'],
       },
@@ -162,6 +164,7 @@ export default {
       this.init().then(res=>{
         res.remainPrice?this.remainPrice=res.remainPrice:{}
         res.totalPrice?this.totalPrice=res.totalPrice:{}
+        res.expenditurePrice?this.expenditurePrice=res.expenditurePrice:{}
       })
     })
   },
@@ -310,7 +313,7 @@ export default {
           })
         }
       })
-     
+
     }
   }
 }
