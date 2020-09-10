@@ -462,6 +462,7 @@ export default {
             this.$parent.init()
           }).catch(err => {
             this.loading = false
+            this.$refs.form2.resetFields()
             console.log(err.response.data.message)
           })
           this.dialog = false
