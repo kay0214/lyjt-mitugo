@@ -3,6 +3,7 @@
  */
 package co.yixiang.modules.shop.service.impl;
 
+import cn.hutool.core.util.NumberUtil;
 import co.yixiang.common.service.impl.BaseServiceImpl;
 import co.yixiang.common.utils.QueryHelpPlus;
 import co.yixiang.constant.ShopConstants;
@@ -11,10 +12,12 @@ import co.yixiang.exception.BadRequestException;
 import co.yixiang.modules.mybatis.GeoPoint;
 import co.yixiang.modules.shop.domain.*;
 import co.yixiang.modules.shop.service.*;
+import co.yixiang.modules.shop.service.dto.UserMoneyDto;
 import co.yixiang.modules.shop.service.dto.YxMerchantsDetailDto;
 import co.yixiang.modules.shop.service.dto.YxMerchantsDetailQueryCriteria;
 import co.yixiang.modules.shop.service.mapper.YxMerchantsDetailMapper;
 import co.yixiang.utils.FileUtil;
+import co.yixiang.utils.OrderUtil;
 import co.yixiang.utils.SecretUtil;
 import co.yixiang.utils.StringUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -61,6 +64,8 @@ public class YxMerchantsDetailServiceImpl extends BaseServiceImpl<YxMerchantsDet
     private YxStoreInfoService yxStoreInfoService;
     @Autowired
     private UserService userService;
+    @Autowired
+    private YxUserBillService yxUserBillService;
 
     @Override
     //@Cacheable
@@ -479,4 +484,53 @@ public class YxMerchantsDetailServiceImpl extends BaseServiceImpl<YxMerchantsDet
         }
         return true;
     }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void updateUserCommission(UserMoneyDto param) {
+        User user = userService.getById(param.getUid());
+        Double withDrawa = 0d;
+        Double totleMoney = 0d;
+        String mark = "";
+        String type = "system_add";
+        Integer pm = 1;
+        String title = "增加可提现金额";
+        if(param.getPtype() == 1){
+            mark = "系统增加了"+param.getMoney()+"可提现金额";
+            withDrawa = NumberUtil.add(user.getWithdrawalAmount(),param.getMoney()).doubleValue();
+            totleMoney = NumberUtil.add(user.getTotalAmount(),param.getMoney()).doubleValue();
+        }else{
+            title = "减少可提现金额";
+            mark = "系统扣除了"+param.getMoney()+"可提现金额";
+            type = "system_sub";
+            pm = 0;
+            withDrawa = NumberUtil.sub(user.getWithdrawalAmount(),param.getMoney()).doubleValue();
+            totleMoney = NumberUtil.sub(user.getTotalAmount(),param.getMoney()).doubleValue();
+
+            if(withDrawa < 0) withDrawa = 0d;
+            if(totleMoney < 0) totleMoney = 0d;
+
+        }
+        user.setWithdrawalAmount(BigDecimal.valueOf(withDrawa));
+        user.setTotalAmount(BigDecimal.valueOf(totleMoney));
+        userService.updateById(user);
+
+        YxUserBill userBill = new YxUserBill();
+        userBill.setUid(user.getId().intValue());
+        userBill.setLinkId("0");
+        userBill.setPm(pm);
+        userBill.setTitle(title);
+        //商户返钱？
+        userBill.setCategory("now_money");
+        userBill.setType(type);
+        userBill.setNumber(BigDecimal.valueOf(param.getMoney()));
+        userBill.setBalance(BigDecimal.valueOf(withDrawa));
+        userBill.setMark(mark);
+        userBill.setAddTime(OrderUtil.getSecondTimestampTwo());
+        userBill.setStatus(1);
+        //后台商户
+        userBill.setUserType(2);
+        yxUserBillService.save(userBill);
+    }
+
 }

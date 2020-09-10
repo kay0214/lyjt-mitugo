@@ -11,6 +11,7 @@ import co.yixiang.modules.shop.domain.YxStoreInfo;
 import co.yixiang.modules.shop.service.YxImageInfoService;
 import co.yixiang.modules.shop.service.YxMerchantsDetailService;
 import co.yixiang.modules.shop.service.YxStoreInfoService;
+import co.yixiang.modules.shop.service.dto.UserMoneyDto;
 import co.yixiang.modules.shop.service.dto.YxMerchantsDetailDto;
 import co.yixiang.modules.shop.service.dto.YxMerchantsDetailQueryCriteria;
 import co.yixiang.modules.shop.service.dto.YxStoreInfoDto;
@@ -144,5 +145,13 @@ public class YxMerchantsDetailController {
         map.put("statusDesc", "成功");
         map.put("data", JSON.toJSONString(yxStoreInfoDto));
         return new ResponseEntity<>(map, HttpStatus.OK);
+    }
+    @PostMapping(value = "/modiyfMerWithdrawal")
+    @ApiOperation("商户可提现金额调增调减")
+    public ResponseEntity<Object> modiyfUserCommission(@Validated @RequestBody UserMoneyDto param) {
+        // 获取登陆用户的id
+        int loginUid = SecurityUtils.getUserId().intValue();
+        yxMerchantsDetailService.updateUserCommission(param);
+        return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 }
