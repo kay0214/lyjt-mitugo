@@ -2,13 +2,13 @@
   <el-dialog :append-to-body="true" :close-on-click-modal="false" :before-close="cancel" :visible.sync="dialog" :title="isAdd ? '新增' : '编辑'" width="500px">
     <el-form ref="form" :model="form" :rules="rules" size="small" label-width="120px">
       <el-form-item label="快递公司编号" prop="code">
-        <el-input v-model="form.code" style="width: 300px;" maxlength="10" />
+        <el-input v-model="form.code" style="width: 300px;" :maxlength="10" />
       </el-form-item>
       <el-form-item label="快递公司名称" prop="name">
-        <el-input v-model="form.name" style="width: 300px;" maxlength="20" />
+        <el-input v-model="form.name" style="width: 300px;" :maxlength="20" />
       </el-form-item>
-      <el-form-item label="排序">
-        <el-input v-model="form.sort" style="width: 300px;" maxlength="6" />
+      <el-form-item label="排序" prop="sort">
+        <el-input v-model="form.sort" style="width: 300px;" :maxlength="3" />
       </el-form-item>
     </el-form>
     <div slot="footer" class="dialog-footer">
