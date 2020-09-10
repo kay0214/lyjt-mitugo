@@ -72,8 +72,8 @@
       <!--表格渲染-->
       <el-table ref="table" v-loading="crud.loading" :data="crud.data" size="small" style="width: 100%;" @selection-change="crud.selectionChangeHandler">
         <el-table-column type="selection" width="55" />
-        <el-table-column v-if="columns.visible('username')" prop="username" label="用户名" />
-        <el-table-column label="积分类别" align="center">
+        <el-table-column v-if="columns.visible('username')" prop="username" label="用户昵称" />
+        <!-- <el-table-column label="积分类别" align="center">
           <template slot-scope="scope">
             <div>
               <el-tag v-if="scope.row.type == 1">分红</el-tag>
@@ -81,9 +81,9 @@
               <el-tag v-else></el-tag>
             </div>
           </template>
-        </el-table-column>
+        </el-table-column> -->
         <el-table-column v-if="columns.visible('orderId')" prop="orderId" label="订单编号" />
-        <el-table-column label="订单类型" align="center">
+        <!-- <el-table-column label="订单类型" align="center">
           <template slot-scope="scope">
             <div>
               <el-tag v-if="scope.row.orderType == 1">本地生活</el-tag>
@@ -91,13 +91,20 @@
               <el-tag v-else></el-tag>
             </div>
           </template>
-        </el-table-column>
+        </el-table-column> -->
+      <el-table-column prop="category" label="明细种类">
+        <template slot-scope="scope">
+          <span v-if="scope.row.category == 'now_money'">余额</span>
+          <span v-else-if="scope.row.category == 'integral'">积分</span>
+          <span v-else>未知</span>
+        </template>
+      </el-table-column>
         <el-table-column v-if="columns.visible('orderPrice')" prop="orderPrice" label="订单金额" />
-        <el-table-column v-if="columns.visible('commission')" prop="commission" label="订单佣金" />
-        <el-table-column v-if="columns.visible('merUsername')" prop="merUsername" label="商户用户名" />
-        <el-table-column v-if="columns.visible('merchantsPoint')" prop="merchantsPoint" label="商户获取积分数" />
-        <el-table-column v-if="columns.visible('parUsername')" prop="parUsername" label="合伙人用户名" />
-        <el-table-column v-if="columns.visible('partnerPoint')" prop="partnerPoint" label="合伙人获取积分数" />
+        <!-- <el-table-column v-if="columns.visible('commission')" prop="commission" label="订单佣金" /> -->
+        <!-- <el-table-column v-if="columns.visible('merUsername')" prop="merUsername" label="商户用户名" /> -->
+        <!-- <el-table-column v-if="columns.visible('merchantsPoint')" prop="merchantsPoint" label="商户获取积分数" /> -->
+        <!-- <el-table-column v-if="columns.visible('parUsername')" prop="parUsername" label="合伙人用户名" /> -->
+        <!-- <el-table-column v-if="columns.visible('partnerPoint')" prop="partnerPoint" label="合伙人获取积分数" /> -->
         <el-table-column v-if="columns.visible('createTime')" prop="createTime" label="创建时间">
           <template slot-scope="scope">
             <span>{{ parseTime(scope.row.createTime) }}</span>
