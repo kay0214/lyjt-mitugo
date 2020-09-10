@@ -47,7 +47,7 @@ public class YxStoreCart extends BaseEntity {
     @ApiModelProperty(value = "添加时间")
     private Integer addTime;
 
-    @ApiModelProperty(value = "0 = 未购买 1 = 已购买")
+    @ApiModelProperty(value = "0 = 未购买 1 = 已购买 2=已下单未支付")
     private Integer isPay;
 
     @ApiModelProperty(value = "是否删除")

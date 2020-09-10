@@ -13,13 +13,34 @@
         />
       </el-select>
       <el-select v-model="type" clearable placeholder="明细类型" class="filter-item" style="width: 130px">
+        <template v-for="item in typeOptions">
         <el-option
-          v-for="item in typeOptions"
+          v-for="(val,key) in item"
+          :key="key"
+          :label="val"
+          :value="key"
+        />
+        </template>
+      </el-select>
+      <el-select v-model="pm" clearable placeholder="收支类型" class="filter-item" style="width: 130px">
+        <el-option
+          v-for="item in pmOptions"
           :key="item.value"
           :label="item.label"
           :value="item.value"
         />
       </el-select>
+      <el-date-picker
+          type="daterange"
+          v-model="searchTime"
+          range-separator="至"
+          start-placeholder="开始日期"
+          end-placeholder="结束日期"
+          placeholder="选择时间范围"
+          value-format='yyyy-MM-dd'
+          style="verticalAlign:top;marginRight:20px;"
+          >
+        </el-date-picker>
       <el-button class="filter-item" size="mini" type="success" icon="el-icon-search" @click="toQuery">搜索</el-button>
       <!-- 新增 -->
       <el-button
@@ -32,12 +53,13 @@
 
       <el-row :gutter='6' style="margin:20px;">
         <el-col :span='4'>账户总收入: <span>{{remainPrice}}</span></el-col>
-        <el-col :span='4'>账户余额: <span>{{totalPrice}}</span></el-col>     
+        <el-col :span='4'>账户总支出: <span>{{expenditurePrice}}</span></el-col>
+        <el-col :span='4'>账户余额: <span>{{totalPrice}}</span></el-col>
         <el-popover
           placement="top"
           width="160"
           v-model="visible">
-          <el-form ref='formWithdraw' :model="formWithdraw" :rules="rules">            
+          <el-form ref='formWithdraw' :model="formWithdraw" :rules="rules">
           <p>
             提现金额
             <el-form-item prop='extractPrice'>
@@ -49,7 +71,7 @@
           </div>
           </el-form>
           <el-button v-permission='permission.withdraw' slot="reference" type="primary">提现</el-button>
-        </el-popover>   
+        </el-popover>
       </el-row>
 
     </div>
@@ -93,6 +115,7 @@
 </template>
 
 <script>
+import {getType} from '@/api/yxUserBill'
 import checkPermission from '@/utils/permission'
 import initData from '@/mixins/crud'
 import { del, onStatus, withdraw } from '@/api/yxUser'
@@ -102,13 +125,16 @@ import { formatTime } from '@/utils/index'
 import { Notification } from 'element-ui'
 export default {
   components: { eForm, pForm },
-  mixins: [initData],	
+  mixins: [initData],
 
   data() {
     return {
-      delLoading: false, username: '', category: '', type: '',visible:false,formWithdraw:{},
+      delLoading: false, username: '', category: '', type: '',pm:'',
+      addTimeStart:'',addTimeEnd:'',searchTime:'',
+      visible:false,formWithdraw:{},
       remainPrice:0,// 账户余额
       totalPrice :0,//累计总金额金额
+      expenditurePrice:0,//累计支出
       permission: {
         withdraw: ['admin', 'YXUSERBILL_WITHDRAW'],
       },
@@ -120,9 +146,10 @@ export default {
         { value: 'now_money', label: '余额' },
         { value: 'integral', label: '积分' }
       ],
-      typeOptions: [
-        { value: 'brokerage', label: '佣金' },
-        { value: 'sign', label: '签到' }
+      typeOptions: [],
+      pmOptions: [
+        { value: '0', label: '支出 ' },
+        { value: '1', label: '获得' }
       ],
       rules:{
         extractPrice:[
@@ -137,6 +164,18 @@ export default {
       this.init().then(res=>{
         res.remainPrice?this.remainPrice=res.remainPrice:{}
         res.totalPrice?this.totalPrice=res.totalPrice:{}
+        res.expenditurePrice?this.expenditurePrice=res.expenditurePrice:{}
+      })
+    })
+  },
+  mounted() {
+    this.$nextTick(() => {
+      getType().then(res=>{
+        if(res){
+          this.typeOptions=res
+        }
+      }).catch(err=>{
+        Message({ message: err, type: 'error' })
       })
     })
   },
@@ -171,7 +210,10 @@ export default {
         size: this.size,
         username: this.username,
         category: this.category,
-        type: this.type
+        type: this.type,
+        pm: this.pm,
+        addTimeStart:this.searchTime?this.searchTime[0]:null,
+        addTimeEnd:this.searchTime?this.searchTime[0]:null
       }
       const query = this.query
       const type = query.type
@@ -271,7 +313,7 @@ export default {
           })
         }
       })
-     
+
     }
   }
 }

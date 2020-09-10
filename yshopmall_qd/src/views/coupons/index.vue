@@ -722,9 +722,15 @@ export default {
       this.expireDate=null
       this.availableTime=[parseTime((new Date(2020, 9, 10, 9, 0)),'{h}:{i}'),parseTime((new Date(2020, 9, 10, 22, 0)),'{h}:{i}')]
     },
-    expireDateChange(newValue) {
-      this.form.expireDateStart = this.expireDate[0]
-      this.form.expireDateEnd = this.expireDate[1]
+    expireDateChange(newValue) {      
+        this.expireDate=newValue
+      if(newValue){
+        this.form.expireDateStart = this.expireDate[0]
+        this.form.expireDateEnd = this.expireDate[1]
+      }else{
+        this.form.expireDateStart = null
+        this.form.expireDateEnd = null
+      }
     },
     // availabalChange(newValue) {
     //   this.form.availableTimeStart = this.availableTime[0]

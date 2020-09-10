@@ -52,6 +52,6 @@ public interface YxStoreCartMapper extends BaseMapper<YxStoreCart> {
             "AND uid =#{uid} </script> ")
     List<Integer> getStoreIds(@Param("uid") int uid, @Param("cartIds") List<String> type);
 
-    @Select("SELECT sum(cart_num) as count FROM yx_store_cart where uid = #{uid} AND is_del =0 and is_new=0 AND is_pay=0")
+    @Select("SELECT IFNULL(sum(cart_num),0) as count FROM yx_store_cart where uid = #{uid} AND is_del =0 and is_new=0 AND is_pay=0")
     int countCartByUserId(@Param("uid") int uid);
 }

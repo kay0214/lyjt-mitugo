@@ -12,25 +12,7 @@
           :value="item.value"
         />
       </el-select>
-      <el-select v-model="query.type" clearable placeholder="明细类型" class="filter-item" style="width: 130px">
-        <template v-for="item in typeOptions">
-        <el-option
-          v-for="(val,key) in item"
-          :key="key"
-          :label="val"
-          :value="key"
-        />
-        </template>
-      </el-select>      
-      <el-select v-model="query.pm" clearable placeholder="收支类型" class="filter-item" style="width: 130px">
-        <el-option
-          v-for="item in pmOptions"
-          :key="item.value"
-          :label="item.label"
-          :value="item.value"
-        />
-      </el-select>
-        <el-date-picker          
+      <el-date-picker          
           type="daterange"
           v-model="searchTime"
           range-separator="至"
@@ -39,7 +21,7 @@
           placeholder="选择时间范围"
           value-format='yyyy-MM-dd'
           style="verticalAlign:top;marginRight:20px;"
-          @change="(val)=>{query.addTimeStart=val[0],query.addTimeEnd=val[1]}"
+          @change="(val)=>{if(val){query.addTimeStart=val[0],query.addTimeEnd=val[1]}else{query.addTimeStart=null,query.addTimeEnd=null}}"
           >
         </el-date-picker>
         <el-button class="filter-item" size="mini" type="success" icon="el-icon-search" @click="crud.toQuery">搜索</el-button>
