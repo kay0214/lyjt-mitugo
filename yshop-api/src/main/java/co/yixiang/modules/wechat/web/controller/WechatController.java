@@ -475,6 +475,7 @@ public class WechatController extends BaseController {
             userBill.setMark("小程序购买商品订单退款");
             userBill.setAddTime(OrderUtil.getSecondTimestampTwo());
             userBill.setStatus(1);
+            userBill.setUserType(1);
             yxUserBillService.save(userBill);
 
             // 更新商户余额
@@ -487,9 +488,10 @@ public class WechatController extends BaseController {
             SystemUser updateSystemUser = new SystemUser();
             BigDecimal truePrice = orderInfo.getPayPrice().subtract(orderInfo.getCommission());
             updateSystemUser.setId(systemUser.getId());
-            updateSystemUser.setTotalAmount(systemUser.getTotalAmount().subtract(truePrice));
-            updateSystemUser.setWithdrawalAmount(systemUser.getWithdrawalAmount().subtract(truePrice));
-            this.systemUserService.updateById(updateSystemUser);
+            updateSystemUser.setTotalAmount(truePrice.multiply(new BigDecimal(-1)));
+            updateSystemUser.setWithdrawalAmount(truePrice.multiply(new BigDecimal(-1)));
+//            this.systemUserService.updateById(updateSystemUser);
+            this.systemUserService.updateUserTotal(updateSystemUser);
 
             // 插入商户资金明细
             YxUserBill merBill = new YxUserBill();
