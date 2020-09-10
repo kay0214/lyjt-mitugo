@@ -1,7 +1,7 @@
 <template>
   <div class="app-container">
     <div class="head-container">
-      <el-input v-model="query.nickname" clearable placeholder="请输入用户名" style="width: 200px;marginRight:20px;" class="filter-item" />        
+      <el-input v-model="query.username" clearable placeholder="请输入用户名" style="width: 200px;marginRight:20px;" class="filter-item" />        
       <el-button class="filter-item" size="mini" type="success" icon="el-icon-search" @click="toQuery">搜索</el-button>
       <el-button
         type="danger"
