@@ -7,10 +7,8 @@ import cn.hutool.core.util.StrUtil;
 import co.yixiang.common.service.impl.BaseServiceImpl;
 import co.yixiang.common.web.vo.Paging;
 import co.yixiang.exception.ErrorRequestException;
-import co.yixiang.modules.user.entity.YxUser;
 import co.yixiang.modules.user.entity.YxUserExtract;
 import co.yixiang.modules.user.mapper.YxUserExtractMapper;
-import co.yixiang.modules.user.mapper.YxUserMapper;
 import co.yixiang.modules.user.service.YxUserExtractService;
 import co.yixiang.modules.user.service.YxUserService;
 import co.yixiang.modules.user.web.param.UserExtParam;
@@ -114,7 +112,7 @@ public class YxUserExtractServiceImpl extends BaseServiceImpl<YxUserExtractMappe
         yxUserExtractMapper.insert(userExtract);
 
         //更新佣金 money
-        userService.updateExtractMoney(uid,money);
+        userService.updateExtractMoney(uid, money);
     }
 
     @Override
@@ -133,7 +131,7 @@ public class YxUserExtractServiceImpl extends BaseServiceImpl<YxUserExtractMappe
 //        IPage<YxUserExtractQueryVo> iPage = yxUserExtractMapper.getYxUserExtractPageList(page, yxUserExtractQueryParam);
 
         QueryWrapper<YxUserExtract> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("uid", yxUserExtractQueryParam.getUid());
+        queryWrapper.eq("uid", yxUserExtractQueryParam.getUid()).eq("status", 1);
         queryWrapper.orderByDesc("add_time");
         IPage<YxUserExtract> list = page(new Page<>(yxUserExtractQueryParam.getPage(), yxUserExtractQueryParam.getLimit()), queryWrapper);
         return new Paging<>(list);

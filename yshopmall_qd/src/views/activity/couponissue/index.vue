@@ -17,6 +17,8 @@
     <el-table v-loading="loading" :data="data" size="small" style="width: 100%;">
       <el-table-column prop="id" label="id" />
       <el-table-column prop="cname" label="优惠券名称" />
+      <el-table-column prop="storeCoupon.couponPrice" label="优惠券面值" />
+      <el-table-column prop="storeCoupon.useMinPrice" label="优惠券最低消费" />
       <el-table-column label="领取日期">
         <template slot-scope="scope">
           <p>{{ formatTimeTwo(scope.row.startTime) }}</p>
@@ -147,7 +149,7 @@ export default {
       if(!ret){
         return ret
       }
-      
+
       this.$confirm(`确定进行[${form.status ? '关闭' : '开启'}]操作?`, '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',

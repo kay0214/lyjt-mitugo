@@ -63,7 +63,7 @@
           <p>
             提现金额
             <el-form-item prop='extractPrice'>
-              <el-input type='number' v-model="formWithdraw.extractPrice" placeholder="输入提现金额" />
+              <el-input type='number' v-model="formWithdraw.extractPrice" placeholder="输入提现金额" :maxlength='12'/>
             </el-form-item>
           </p>
           <div style="text-align: right; margin: 0">
@@ -123,6 +123,7 @@ import eForm from './form'
 import pForm from './formp'
 import { formatTime } from '@/utils/index'
 import { Notification } from 'element-ui'
+import { amountValid } from '@/utils/validate'
 export default {
   components: { eForm, pForm },
   mixins: [initData],
@@ -154,7 +155,7 @@ export default {
       rules:{
         extractPrice:[
           {required:true, message: '必填项', trigger: 'blur'},
-          {max:12, message: '必填项', trigger: 'blur'}
+          { validator: amountValid, trigger: 'blur'},
         ]
       }
     }
