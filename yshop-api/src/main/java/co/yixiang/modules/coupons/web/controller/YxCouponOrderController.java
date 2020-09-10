@@ -269,10 +269,13 @@ public class YxCouponOrderController extends BaseController {
 
         String orderId = order.getOrderId();
         YxCoupons yxCoupons = this.yxCouponsService.getById(order.getCouponId());
-        Integer buyCount = this.yxCouponOrderService.getBuyCount(uid,order.getCouponId());
+        Integer buyCount = this.yxCouponOrderService.getBuyCount(uid, order.getCouponId());
         buyCount = buyCount + order.getTotalNum();
-        if(buyCount > yxCoupons.getQuantityLimit()) {
+        if (buyCount > yxCoupons.getQuantityLimit()) {
             throw new BadRequestException("当前购买卡券数量超限");
+        }
+        if (0 == yxCoupons.getIsShow() || 1 == yxCoupons.getDelFlag()) {
+            throw new BadRequestException("当前卡券已被下架");
         }
 
         OrderExtendDTO orderDTO = new OrderExtendDTO();
