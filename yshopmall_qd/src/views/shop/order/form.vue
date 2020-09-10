@@ -13,7 +13,7 @@
         </el-select>
       </el-form-item>
       <el-form-item label="快递单号" prop='deliveryId'>
-        <el-input v-model="form.deliveryId" style="width: 370px;" />
+        <el-input v-model="form.deliveryId" style="width: 370px;" :maxlength='64'/>
       </el-form-item>
     </el-form>
     <div slot="footer" class="dialog-footer">
@@ -47,7 +47,12 @@ export default {
           { required: true, message: '必填项', trigger: 'blur' }
         ],
         deliveryId: [
-          { required: true, message: '必填项', trigger: 'blur' }
+          { required: true, message: '必填项', trigger: 'blur' },
+          {
+            pattern: /^[0-9]+$/,  
+            message: '请输入数字',
+            trigger: 'blur'
+          },
         ]
       }
     }

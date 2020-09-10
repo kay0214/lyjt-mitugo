@@ -17,6 +17,7 @@
 
 <script>
 import { add, refund } from '@/api/yxStoreOrder'
+import { amountValid } from '@/utils/validate'
 export default {
   props: {
     isAdd: {
@@ -82,7 +83,8 @@ export default {
       },
       rules: {
         payPrice: [
-          { required: true, message: '必填项', trigger: 'blur' }
+          { required: true, message: '必填项', trigger: 'blur' },
+          { validator: amountValid, trigger: 'blur'},
         ]
       }
     }

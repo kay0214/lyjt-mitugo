@@ -20,6 +20,7 @@
 
 <script>
 import { add, editOrder } from '@/api/yxStoreOrder'
+import { amountValid } from '@/utils/validate'
 export default {
   props: {
     isAdd: {
@@ -85,7 +86,8 @@ export default {
       },
       rules: {
         payPrice: [
-          { required: true, message: 'please enter', trigger: 'blur' }
+          { required: true, message: 'please enter', trigger: 'blur' },
+          { validator: amountValid, trigger: 'blur'},
         ]
       }
     }
