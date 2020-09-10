@@ -55,6 +55,10 @@ public class YxUserServiceImpl extends BaseServiceImpl<UserMapper, YxUser> imple
 
     private final YxUserBillService yxUserBillService;
 
+    private final UserMapper userMapper;
+
+
+
     @Override
     //@Cacheable
     public Map<String, Object> queryAll(YxUserQueryCriteria criteria, Pageable pageable) {
@@ -179,4 +183,62 @@ public class YxUserServiceImpl extends BaseServiceImpl<UserMapper, YxUser> imple
     public void incIntegral(int uid, double integral) {
         yxUserMapper.incIntegral(integral, uid);
     }
+
+
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void updateUserCommission(UserMoneyDto param) {
+//        YxUserDto userDTO = generator.convert(getById(param.getUid()),YxUserDto.class);
+        YxUser user = this.getById(param.getUid());
+        Double commission = 0d;
+        Double nowMoney = 0d;
+        String mark = "";
+        String type = "system_add";
+        Integer pm = 1;
+        String title = "增加佣金";
+        if(param.getPtype() == 1){
+            mark = "系统增加了"+param.getMoney()+"佣金";
+            commission = NumberUtil.add(user.getBrokeragePrice(),param.getMoney()).doubleValue();
+            nowMoney = NumberUtil.add(user.getNowMoney(),param.getMoney()).doubleValue();
+
+//            newMoney = NumberUtil.add(userDTO.getNowMoney(),param.getMoney()).doubleValue();
+        }else{
+            title = "减少佣金";
+            mark = "系统扣除了"+param.getMoney()+"佣金";
+            type = "system_sub";
+            pm = 0;
+            commission = NumberUtil.sub(user.getBrokeragePrice(),param.getMoney()).doubleValue();
+            nowMoney = NumberUtil.sub(user.getNowMoney(),param.getMoney()).doubleValue();
+
+            if(commission < 0) commission = 0d;
+            if(nowMoney < 0) nowMoney = 0d;
+
+        }
+//        YxUser user = new YxUser();
+//        user.setUid(userDTO.getUid());
+//        user.setNowMoney(BigDecimal.valueOf(commission));
+        user.setNowMoney(BigDecimal.valueOf(nowMoney));
+        user.setBrokeragePrice(BigDecimal.valueOf(commission));
+//        saveOrUpdate(user);
+        this.updateById(user);
+
+        YxUserBill userBill = new YxUserBill();
+        userBill.setUid(user.getUid());
+        userBill.setLinkId("0");
+        userBill.setPm(pm);
+        userBill.setTitle(title);
+        //前端用户返回的是积分
+        userBill.setCategory("integral");
+        userBill.setType(type);
+        userBill.setNumber(BigDecimal.valueOf(param.getMoney()));
+        userBill.setBalance(BigDecimal.valueOf(commission));
+        userBill.setMark(mark);
+        userBill.setAddTime(OrderUtil.getSecondTimestampTwo());
+        userBill.setStatus(1);
+        //前端用户
+        userBill.setUserType(1);
+        yxUserBillService.save(userBill);
+    }
+
 }

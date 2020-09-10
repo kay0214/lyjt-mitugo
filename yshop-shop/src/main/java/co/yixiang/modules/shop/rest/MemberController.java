@@ -13,6 +13,7 @@ import co.yixiang.modules.shop.service.YxSystemConfigService;
 import co.yixiang.modules.shop.service.YxUserService;
 import co.yixiang.modules.shop.service.dto.UserMoneyDto;
 import co.yixiang.modules.shop.service.dto.YxUserQueryCriteria;
+import co.yixiang.utils.SecurityUtils;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import io.swagger.annotations.Api;
@@ -109,4 +110,22 @@ public class MemberController {
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 
+
+    @PostMapping(value = "/yxUser/modiyfUserCommission")
+    @ApiOperation("用户佣金调增调减")
+    public ResponseEntity<Object> modiyfUserCommission(@Validated @RequestBody UserMoneyDto param) {
+        // 获取登陆用户的id
+        int loginUid = SecurityUtils.getUserId().intValue();
+        yxUserService.updateUserCommission(param);
+        return new ResponseEntity(HttpStatus.NO_CONTENT);
+/*
+        JSONObject jsonObject = JSON.parseObject(jsonStr);
+        int uid = Integer.valueOf(jsonObject.get("uid").toString());
+        int intType = Integer.valueOf(jsonObject.get("type").toString());
+        int intValue = Integer.valueOf(jsonObject.get("value").toString());*/
+
+
+
+
+    }
 }
