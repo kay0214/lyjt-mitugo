@@ -27,7 +27,7 @@
         <el-input v-model="form.storeInfo" style="width: 500px;" rows="5" type="textarea" maxlength="200" />
       </el-form-item>
       <el-form-item label="产品描述" prop='description'>
-        <editor v-model="form.description" @change="(val)=>{form.description=val;$refs.form.validateField('description')}"/>
+        <editor v-model="form.description" @change="descriptionChange"/>
       </el-form-item>
       <el-form-item label="销售价" prop='price'>
         <el-input v-model="form.price" οnkeyup="if(isNaN(value))execCommand('undo')" onafterpaste="if(isNaN(value))execCommand('undo')" maxlength="12"/>
@@ -298,10 +298,14 @@ export default {
     }
   },
   methods: {
+    descriptionChange(val){
+      this.form.description=val
+      this.$refs.form.validateField('description')
+    },
     cancel() {
       this.resetForm()
     },
-    doSubmit() {
+    doSubmit() { 
      this.$refs['form'].validate(valid=>{
        if(!valid){
          return;
