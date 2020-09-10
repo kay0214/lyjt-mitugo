@@ -209,7 +209,29 @@
           <template slot-scope="scope">
             <el-button v-if="scope.row.examineStatus===3" v-permission="permission.examine" size="mini" type="primary" icon="el-icon-s-check" @click="examineOpt(scope.row)" plain></el-button>
             <el-button v-if="scope.row.examineStatus===2 || scope.row.examineStatus===0" v-permission="permission.edit" size="mini" type="primary" icon="el-icon-edit" @click="crud.toEdit(scope.row)" ></el-button>
+
             <el-button size="mini" type="success" icon="el-icon-reading" @click="toRead(scope.row)" plain ></el-button>
+
+            <el-button v-if="scope.row.examineStatus===3" v-permission="permission.examine" size="mini" type="primary" icon="el-icon-s-check" @click="examineOpt(scope.row)" plain></el-button>
+            <br/>
+<el-popover
+  placement="left"
+  width="260"
+trigger="click">
+  <el-form ref='formWithdraw' :model="formWithdraw" :rules="rules">
+  <p>
+    请输入可提现金额
+    <el-form-item prop='extractPrice'>
+      <el-input type='number' v-model="formWithdraw.extractPrice" placeholder="提现金额" :maxlength='12'/>
+    </el-form-item>
+  </p>
+  <div style="text-align: right; margin: 0">
+    <el-button type="primary" size="mini" @click="withdrawEdit($event,formWithdraw.extractPrice)">提交</el-button>
+  </div>
+  </el-form>
+  <el-button v-if="scope.row.examineStatus===2 || scope.row.examineStatus===0" v-permission="permission.edit" size="small" type="primary" icon="el-icon-edit" slot="reference" style='marginTop:10px' plain>修改金额</el-button>
+</el-popover>
+
           </template>
         </el-table-column>
       </el-table>
@@ -220,7 +242,7 @@
 </template>
 
 <script>
-import crudYxMerchantsDetail,{examine as examineSubmit,update} from '@/api/yxMerchantsDetail'
+import crudYxMerchantsDetail,{examine as examineSubmit,update,withdrawEdit as modiyfMerWithdrawal} from '@/api/yxMerchantsDetail'
 import { isvalidPhone } from '@/utils/validate'
 import CRUD, { presenter, header, form, crud } from '@crud/crud'
 import rrOperation from '@crud/RR.operation'
@@ -256,6 +278,7 @@ export default {
       }
     }
     return {
+formWithdraw:{},
       permission: {
         add: ['admin', 'yxMerchantsDetail:insert'],
         edit: ['admin', 'yxMerchantsDetail:edit'],
@@ -638,6 +661,28 @@ export default {
       this.readStatus=0
       this.formDisabled=false
       this.dialogVisible=Boolean(this.crud.status.cu);
+    },
+    withdrawEdit(btn,val){
+      this.$refs.formWithdraw.validate(function(ret,obj){
+        if(ret){
+          withdrawEdit({extractPrice:val}).then(res=>{
+            if(res){
+              Notification.success({
+              title: '提交成功'
+              })
+            }else{
+              Notification.error({
+              title: '提交失败'
+              })
+            }
+          }).catch(err=>{
+            Notification.error({
+              title: err
+              })
+          })
+        }
+      })
+
     }
   }
 }
