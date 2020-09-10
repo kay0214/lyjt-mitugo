@@ -777,7 +777,7 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         merBill.setUid(yxCouponOrder.getMerId());
         merBill.setLinkId(yxCouponOrder.getOrderId());
         merBill.setPm(1);
-        merBill.setTitle("小程序本地生活购买");
+        merBill.setTitle("本地生活返现");
         merBill.setCategory(BillDetailEnum.CATEGORY_1.getValue());
         merBill.setType(BillDetailEnum.TYPE_8.getValue());
         merBill.setNumber(truePrice);
