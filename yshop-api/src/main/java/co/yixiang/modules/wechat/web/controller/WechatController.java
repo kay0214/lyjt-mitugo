@@ -486,9 +486,15 @@ public class WechatController extends BaseController {
             }
             // 该笔资金实际到账
             SystemUser updateSystemUser = new SystemUser();
+            BigDecimal truePrice = orderInfo.getPayPrice().subtract(orderInfo.getCommission());
+            if(refundFee.compareTo(truePrice) > 0) {
+                updateSystemUser.setTotalAmount(truePrice.multiply(new BigDecimal(-1)));
+                updateSystemUser.setWithdrawalAmount(truePrice.multiply(new BigDecimal(-1)));
+            } else {
+                updateSystemUser.setTotalAmount(refundFee.multiply(new BigDecimal(-1)));
+                updateSystemUser.setWithdrawalAmount(refundFee.multiply(new BigDecimal(-1)));
+            }
             updateSystemUser.setId(systemUser.getId());
-            updateSystemUser.setTotalAmount(refundFee.multiply(new BigDecimal(-1)));
-            updateSystemUser.setWithdrawalAmount(refundFee.multiply(new BigDecimal(-1)));
 //            this.systemUserService.updateById(updateSystemUser);
             this.systemUserService.updateUserTotal(updateSystemUser);
 
@@ -500,7 +506,7 @@ public class WechatController extends BaseController {
             merBill.setTitle("小程序购买商品订单退款");
             merBill.setCategory(BillDetailEnum.CATEGORY_1.getValue());
             merBill.setType(BillDetailEnum.TYPE_5.getValue());
-            merBill.setNumber(refundFee);
+            merBill.setNumber(truePrice);
             // 目前只支持微信付款、没有余额
             merBill.setBalance(updateSystemUser.getWithdrawalAmount());
             merBill.setAddTime(DateUtils.getNowTime());
