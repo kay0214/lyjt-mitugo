@@ -612,7 +612,7 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         // 根据卡券类型校验下是否可以退款
         YxCoupons yxCoupons = this.couponsService.getById(order.getCouponId());
         // 使用过了 不能退
-        if(order.getUsedCount()>0){
+        if (order.getUsedCount() > 0) {
             throw new ErrorRequestException("已核销过的订单无法退款");
         }
         // 过期不过期   是否过期退  是否随时退
@@ -1259,8 +1259,8 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         Integer count = 0;
         List<YxCouponOrder> list = this.list(new QueryWrapper<YxCouponOrder>().lambda().eq(YxCouponOrder::getUid, uid).eq(YxCouponOrder::getCouponId, couponId));
         for (YxCouponOrder item : list) {
-            //4:待使用5:已使用6:已核销
-            if (4 != item.getStatus() && 5 != item.getStatus() && 6 != item.getStatus()) {
+            //0:待付款 4:待使用5:已使用6:已核销
+            if (0 != item.getStatus() && 4 != item.getStatus() && 5 != item.getStatus() && 6 != item.getStatus()) {
                 continue;
             }
             count = count + item.getTotalNum();
