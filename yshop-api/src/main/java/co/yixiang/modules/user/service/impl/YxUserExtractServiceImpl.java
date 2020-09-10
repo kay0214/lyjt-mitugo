@@ -6,10 +6,8 @@ package co.yixiang.modules.user.service.impl;
 import cn.hutool.core.util.StrUtil;
 import co.yixiang.common.service.impl.BaseServiceImpl;
 import co.yixiang.common.web.vo.Paging;
-import co.yixiang.enums.BillEnum;
 import co.yixiang.exception.ErrorRequestException;
 import co.yixiang.modules.user.entity.YxUser;
-import co.yixiang.modules.user.entity.YxUserBill;
 import co.yixiang.modules.user.entity.YxUserExtract;
 import co.yixiang.modules.user.mapper.YxUserExtractMapper;
 import co.yixiang.modules.user.service.YxUserBillService;
@@ -85,6 +83,8 @@ public class YxUserExtractServiceImpl extends BaseServiceImpl<YxUserExtractMappe
         userExtract.setBankCode(param.getBankNo());
         userExtract.setBankAddress(userInfo.getBankName());
         userExtract.setPhone(param.getPhone());
+        // 前台用户提现
+        userExtract.setUserType(1);
 
         if (StringUtils.isNotBlank(param.getName())) {
             userExtract.setRealName(param.getName());

@@ -105,6 +105,8 @@ public class YxUserServiceImpl extends BaseServiceImpl<YxUserMapper, YxUser> imp
     @Autowired
     private AuthenticationManagerBuilder authenticationManagerBuilder;
     @Autowired
+    private YxUserExtractService yxUserExtractService;
+    @Autowired
     private WxMaService wxMaService;
     @Autowired
     private YxWechatUserService wechatUserService;
@@ -484,6 +486,13 @@ public class YxUserServiceImpl extends BaseServiceImpl<YxUserMapper, YxUser> imp
         //获取核销权限
         userQueryVo.setCheckStatus(systemStoreStaffService.checkStatus((int) id, 0));
 
+        // 查询用户提现申请中的金额
+//        LambdaQueryWrapper<YxUserExtract> queryWrapper = new QueryWrapper<YxUserExtract>().lambda().eq(YxUserExtract::getUid, id).eq(YxUserExtract::getUserType, 1);
+        QueryWrapper<YxUserExtract> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("uid", id).eq("user_type", 1).eq("`status`", 0);
+        queryWrapper.select("isnull(sum(extract_price),0) as total ");
+        Map<String, Object> map = yxUserExtractService.getMap(queryWrapper);
+        userQueryVo.setFrozenPrice(new BigDecimal(String.valueOf(map.get("total"))));
         return userQueryVo;
     }
 
