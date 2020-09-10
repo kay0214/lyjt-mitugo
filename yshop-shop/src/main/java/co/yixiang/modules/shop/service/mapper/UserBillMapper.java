@@ -8,6 +8,7 @@ import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -35,4 +36,9 @@ public interface UserBillMapper extends CoreMapper<YxUserBill> {
             "from yx_user_bill b where 1=1  "  +
             "<if test = \"linkId != '' and linkId != null\"> and b.link_id=#{linkId}</if> </script>")
     List<YxUserBillDto> withdrawReviewLog(@Param("linkId") Integer linkId);
+
+
+    @Select("<script>SELECT IFNULL(SUM(number),0) as subSum from yx_user_bill where pm=#{pm} AND uid = #{uid} AND user_type = #{usetType} </script>")
+    BigDecimal getSumPrice(@Param("uid") Integer uid, @Param("pm") Integer pm, @Param("usetType") Integer usetType);
+
 }

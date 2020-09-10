@@ -10,7 +10,7 @@ import co.yixiang.exception.ErrorRequestException;
 import co.yixiang.modules.user.entity.YxUser;
 import co.yixiang.modules.user.entity.YxUserExtract;
 import co.yixiang.modules.user.mapper.YxUserExtractMapper;
-import co.yixiang.modules.user.service.YxUserBillService;
+import co.yixiang.modules.user.mapper.YxUserMapper;
 import co.yixiang.modules.user.service.YxUserExtractService;
 import co.yixiang.modules.user.service.YxUserService;
 import co.yixiang.modules.user.web.param.UserExtParam;
@@ -22,8 +22,8 @@ import co.yixiang.utils.StringUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,14 +41,13 @@ import java.math.BigDecimal;
  */
 @Slf4j
 @Service
-@AllArgsConstructor
 @Transactional(rollbackFor = Exception.class)
 public class YxUserExtractServiceImpl extends BaseServiceImpl<YxUserExtractMapper, YxUserExtract> implements YxUserExtractService {
 
-    private final YxUserExtractMapper yxUserExtractMapper;
-
-    private final YxUserService userService;
-    private final YxUserBillService billService;
+    @Autowired
+    YxUserExtractMapper yxUserExtractMapper;
+    @Autowired
+    YxUserService userService;
 
     /**
      * 开始提现
@@ -114,11 +113,8 @@ public class YxUserExtractServiceImpl extends BaseServiceImpl<YxUserExtractMappe
 
         yxUserExtractMapper.insert(userExtract);
 
-        //更新佣金
-        YxUser yxUser = new YxUser();
-        yxUser.setNowMoney(balance);
-        yxUser.setUid(uid);
-        userService.updateById(yxUser);
+        //更新佣金 money
+        userService.updateExtractMoney(uid,money);
     }
 
     @Override

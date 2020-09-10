@@ -109,7 +109,7 @@ public class YxOffPayOrderServiceImpl extends BaseServiceImpl<YxOffPayOrderMappe
         merBill.setStatus(1);
         merBill.setMerId(storeInfoQueryVo.getMerId());
         merBill.setUserType(2);
-        merBill.setUsername(systemUser.getUsername());
+        merBill.setUsername(systemUser.getNickName());
 
         this.yxUserBillService.save(merBill);
     }

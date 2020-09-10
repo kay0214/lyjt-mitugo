@@ -284,9 +284,9 @@ public class CommissionServiceImpl implements CommissionService {
         partnerInfo.setTotalScore(partnerPoint);
         systemUserMapper.updateTotalScore(partnerPoint,oldTotal,partnerInfo.getId());
         //插入明细数据(商户)
-        insertBill(orderInfo.getOrderId(), orderInfo.getMerId(), orderInfo.getBrokerageType(), merchantsPoint, merInfo.getUsername(), merInfo.getTotalScore(), 2);
+        insertBill(orderInfo.getOrderId(), orderInfo.getMerId(), orderInfo.getBrokerageType(), merchantsPoint, merInfo.getNickName(), merInfo.getTotalScore(), 2);
         //插入明细数据(合伙人)
-        insertBill(orderInfo.getOrderId(), merInfo.getParentId(), orderInfo.getBrokerageType(), partnerPoint, partnerInfo.getUsername(), partnerInfo.getTotalScore(), 3);
+        insertBill(orderInfo.getOrderId(), merInfo.getParentId(), orderInfo.getBrokerageType(), partnerPoint, partnerInfo.getNickName(), partnerInfo.getTotalScore(), 3);
         BigDecimal totalPoint = yxFundsAccount.getBonusPoint().add(merchantsPoint).add(partnerPoint);
         //分红总积分
         yxFundsAccount.setBonusPoint(totalPoint);

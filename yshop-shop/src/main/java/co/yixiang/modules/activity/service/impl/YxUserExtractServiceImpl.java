@@ -160,7 +160,7 @@ public class YxUserExtractServiceImpl extends BaseServiceImpl<YxUserExtractMappe
             if (null == user) {
                 throw new BadRequestException("查询用户信息失败");
             }
-            username = user.getUsername();
+            username = user.getNickName();
         }
 
         // 梗库用

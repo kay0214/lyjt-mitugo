@@ -30,6 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -47,6 +48,8 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<UserBillMapper, YxUse
     private final IGenerator generator;
     @Autowired
     private UserService userService;
+    @Autowired
+    private UserBillMapper userBillMapper;
 
     @Override
     //@Cacheable
@@ -55,10 +58,13 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<UserBillMapper, YxUse
 //        PageInfo<YxUserBillDto> page = new PageInfo<>(queryAll(criteria));
         QueryWrapper<YxUserBill> queryWrapper = new QueryWrapper<>();
         queryWrapper.lambda().orderByDesc(YxUserBill::getAddTime);
+        int userRole =0;
         if (1 == criteria.getUserRole()) {
+            userRole = 3;
             queryWrapper.lambda().eq(YxUserBill::getUid, criteria.getUid()).eq(YxUserBill::getUserType, 3);
         }
         if (2 == criteria.getUserRole()) {
+            userRole = 2;
             queryWrapper.lambda().eq(YxUserBill::getUid, criteria.getUid()).eq(YxUserBill::getUserType, 2);
         }
         if (StringUtils.isNotBlank(criteria.getUsername())) {
@@ -109,8 +115,12 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<UserBillMapper, YxUse
         Map<String, Object> map = new LinkedHashMap<>(4);
         map.put("content", ipage.getRecords());
         map.put("totalElements", ipage.getTotal());
-        map.put("remainPrice", user.getWithdrawalAmount());
         map.put("totalPrice", user.getTotalAmount());
+        BigDecimal bigOut = userBillMapper.getSumPrice(criteria.getUid(),0,userRole);
+        BigDecimal bigIn =  userBillMapper.getSumPrice(criteria.getUid(),1,userRole);
+//        map.put("remainPrice", user.getWithdrawalAmount());
+        map.put("remainPrice", bigIn);
+        map.put("expenditurePrice",bigOut);
         return map;
     }
 
