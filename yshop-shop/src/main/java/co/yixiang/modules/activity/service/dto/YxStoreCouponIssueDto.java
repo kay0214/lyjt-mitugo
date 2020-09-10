@@ -5,6 +5,7 @@
  */
 package co.yixiang.modules.activity.service.dto;
 
+import co.yixiang.modules.activity.domain.YxStoreCoupon;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -53,5 +54,7 @@ public class YxStoreCouponIssueDto implements Serializable {
 
     /** 卡券所属商铺 */
     private Integer storeId;
+
+    private YxStoreCoupon storeCoupon;
 
 }
