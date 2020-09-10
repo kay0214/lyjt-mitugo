@@ -8,6 +8,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 import org.springframework.stereotype.Repository;
 
 import java.io.Serializable;
@@ -66,4 +67,10 @@ public interface YxCouponsMapper extends BaseMapper<YxCoupons> {
     @Select("select count(1) from yx_coupons yc inner join yx_store_info ysi on ysi.id = yc.store_id and ysi.status = 0 and ysi.del_flag = 0 " +
             "where is_show = 1 and yc.store_id =#{storeId} and yc.expire_date_end >= now() ")
     int getCountByStoreId(@Param("storeId") Integer storeId);
+
+    @Update("update yx_coupons set sales = sales + #{sales},inventory = inventory - #{sales} where id = #{couponId}")
+    void updateAddSales(Integer couponId, Integer sales);
+
+    @Update("update yx_coupons set sales = sales - #{sales},inventory = inventory + #{sales} where id = #{couponId}")
+    void updateMulSales(Integer couponId, Integer sales);
 }

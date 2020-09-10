@@ -986,9 +986,12 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         if (null == yxCoupons) {
             throw new BadRequestException("未查询到卡券信息");
         }
-        yxCoupons.setSales(yxCoupons.getSales() - yxCouponOrder.getTotalNum());
-        yxCoupons.setInventory(yxCoupons.getInventory() + yxCouponOrder.getTotalNum());
-        this.couponsService.updateById(yxCoupons);
+        Integer mulCount = yxCouponOrder.getTotalNum();
+        if (yxCoupons.getSales() < yxCouponOrder.getTotalNum()) {
+            log.info("卡券id：" + yxCouponOrder.getCouponId() + "销量不足扣减、置0");
+            mulCount = yxCoupons.getSales();
+        }
+        this.couponsService.updateMulSales(yxCouponOrder.getCouponId(), mulCount);
         return true;
     }
 
