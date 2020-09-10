@@ -51,13 +51,12 @@ export default {
   },
   watch: {
     value: function(val) {
-      this.editor.txt.html(val)
+      // console.log(val)
+      // this.editor.txt.html(val)
       // this.editor.txt.html(val)
     }
   },
   mounted() {
-    // console.log(222)
-    console.log(this.value)
     this.editor = new E(this.$refs.editor)
     this.editor.customConfig.menus=[
       'head', // 标题
@@ -93,7 +92,7 @@ export default {
         insertImg(url)
       }
     }
-    this.editor.customConfig.onblur = (html) => {
+    this.editor.customConfig.onchange = (html) => {
       if (!this.checkVal(html)) {
         this.info = html
       } else this.info = ''

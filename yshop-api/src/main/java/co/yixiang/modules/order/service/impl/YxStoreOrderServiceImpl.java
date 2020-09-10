@@ -2105,7 +2105,7 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
             //用户类型 0:预留 1:前台用户 2：后台商户 3：后台合伙人
             userBill.setUserType(1);
             //用户名
-            userBill.setUsername(userInfo.getUsername());
+            userBill.setUsername(userInfo.getNickname());
             billService.save(userBill);
             //支付成功后处理
             paySuccess(yxStoreOrderQueryVo.getOrderId(), "yue");
@@ -2204,7 +2204,7 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
                 yxUserBill.setMerId(orderInfo.getMerId());
                 //前端用户
                 yxUserBill.setUserType(1);
-                yxUserBill.setUsername(yxUser.getUsername());
+                yxUserBill.setUsername(yxUser.getNickname());
                 this.billService.save(yxUserBill);
 
 //                // 更新商户余额  商户余额在确认收货时更新
@@ -2237,7 +2237,7 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
 //                merBill.setStatus(1);
 //                merBill.setMerId(orderInfo.getMerId());
 //                merBill.setUserType(2);
-//                merBill.setUsername(systemUser.getUsername());
+//                merBill.setUsername(systemUser.getNickname());
 //                this.billService.save(merBill);
 
                 //模板消息推送

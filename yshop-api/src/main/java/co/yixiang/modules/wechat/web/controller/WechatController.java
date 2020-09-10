@@ -273,7 +273,7 @@ public class WechatController extends BaseController {
             merBill.setStatus(1);
             merBill.setMerId(yxCouponOrder.getMerId());
             merBill.setUserType(2);
-            merBill.setUsername(systemUser.getUsername());
+            merBill.setUsername(systemUser.getNickName());
             this.yxUserBillService.save(merBill);
 
             return WxPayNotifyResponse.success("处理成功!");
@@ -475,6 +475,7 @@ public class WechatController extends BaseController {
             userBill.setMark("小程序购买商品订单退款");
             userBill.setAddTime(OrderUtil.getSecondTimestampTwo());
             userBill.setStatus(1);
+            userBill.setUserType(1);
             yxUserBillService.save(userBill);
 
             // 更新商户余额
@@ -485,11 +486,11 @@ public class WechatController extends BaseController {
             }
             // 该笔资金实际到账
             SystemUser updateSystemUser = new SystemUser();
-            BigDecimal truePrice = orderInfo.getPayPrice().subtract(orderInfo.getCommission());
             updateSystemUser.setId(systemUser.getId());
-            updateSystemUser.setTotalAmount(systemUser.getTotalAmount().subtract(truePrice));
-            updateSystemUser.setWithdrawalAmount(systemUser.getWithdrawalAmount().subtract(truePrice));
-            this.systemUserService.updateById(updateSystemUser);
+            updateSystemUser.setTotalAmount(refundFee.multiply(new BigDecimal(-1)));
+            updateSystemUser.setWithdrawalAmount(refundFee.multiply(new BigDecimal(-1)));
+//            this.systemUserService.updateById(updateSystemUser);
+            this.systemUserService.updateUserTotal(updateSystemUser);
 
             // 插入商户资金明细
             YxUserBill merBill = new YxUserBill();
@@ -499,14 +500,14 @@ public class WechatController extends BaseController {
             merBill.setTitle("小程序购买商品订单退款");
             merBill.setCategory(BillDetailEnum.CATEGORY_1.getValue());
             merBill.setType(BillDetailEnum.TYPE_5.getValue());
-            merBill.setNumber(truePrice);
+            merBill.setNumber(refundFee);
             // 目前只支持微信付款、没有余额
             merBill.setBalance(updateSystemUser.getWithdrawalAmount());
             merBill.setAddTime(DateUtils.getNowTime());
             merBill.setStatus(1);
             merBill.setMerId(orderInfo.getMerId());
             merBill.setUserType(2);
-            merBill.setUsername(systemUser.getUsername());
+            merBill.setUsername(systemUser.getNickName());
             merBill.setMark("小程序购买商品订单退款");
             this.yxUserBillService.save(merBill);
 

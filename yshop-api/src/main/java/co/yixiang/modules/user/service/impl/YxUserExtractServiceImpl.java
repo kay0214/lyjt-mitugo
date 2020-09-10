@@ -10,6 +10,7 @@ import co.yixiang.exception.ErrorRequestException;
 import co.yixiang.modules.user.entity.YxUser;
 import co.yixiang.modules.user.entity.YxUserExtract;
 import co.yixiang.modules.user.mapper.YxUserExtractMapper;
+import co.yixiang.modules.user.mapper.YxUserMapper;
 import co.yixiang.modules.user.service.YxUserExtractService;
 import co.yixiang.modules.user.service.YxUserService;
 import co.yixiang.modules.user.web.param.UserExtParam;
@@ -112,11 +113,8 @@ public class YxUserExtractServiceImpl extends BaseServiceImpl<YxUserExtractMappe
 
         yxUserExtractMapper.insert(userExtract);
 
-        //更新佣金
-        YxUser yxUser = new YxUser();
-        yxUser.setNowMoney(balance);
-        yxUser.setUid(uid);
-        userService.updateById(yxUser);
+        //更新佣金 money
+        userService.updateExtractMoney(uid,money);
     }
 
     @Override

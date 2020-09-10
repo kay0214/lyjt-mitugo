@@ -217,7 +217,7 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<YxUserBillMapper, YxU
         userBill.setCategory(BillDetailEnum.CATEGORY_1.getValue());
         userBill.setType(BillDetailEnum.TYPE_9.getValue());
         userBill.setNumber(order.getPayPrice());
-        userBill.setUsername(systemUserQueryVo.getUsername());
+        userBill.setUsername(systemUserQueryVo.getNickName());
         userBill.setBalance(order.getPayPrice());
         userBill.setMerId(order.getMerId());
         userBill.setMark("订单确认收货，商户返现");

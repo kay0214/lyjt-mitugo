@@ -47,11 +47,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
@@ -92,7 +88,7 @@ public class AuthController {
     @ApiOperation("H5/APP登录授权")
     @AnonymousAccess
     @PostMapping(value = "/login")
-    public ApiResult< Map<String, Object>> login(@Validated @RequestBody AuthUser authUser,
+    public ApiResult<Map<String, Object>> login(@Validated @RequestBody AuthUser authUser,
                                                 HttpServletRequest request) {
         UsernamePasswordAuthenticationToken authenticationToken =
                 new UsernamePasswordAuthenticationToken(authUser.getUsername(), authUser.getPassword());
@@ -143,7 +139,7 @@ public class AuthController {
          * 2、目前登陆授权打通方式适用于新项目（也就是你yx_user、yx_wechat_user都是空的）
          * 3、如果你以前已经有数据请自行处理
          */
-        return ApiResult.ok(userService.authLogin(code,spread,request));
+        return ApiResult.ok(userService.authLogin(code, spread, request));
     }
 
 
@@ -161,7 +157,8 @@ public class AuthController {
          * 2、目前登陆授权打通方式适用于新项目（也就是你yx_user、yx_wechat_user都是空的）
          * 3、如果你以前已经有数据请自行处理
          */
-       return ApiResult.ok(userService.wxappAuth(loginParam,request)) ;
+        log.info("推荐人id：" + loginParam.getSpread());
+        return ApiResult.ok(userService.wxappAuth(loginParam, request));
 
     }
 
@@ -172,7 +169,7 @@ public class AuthController {
     public ApiResult<String> verify(@Validated @RequestBody VerityParam param) {
         Boolean isTest = true;
         YxUser yxUser = userService.findByName(param.getPhone());
-        if(param.getType() == null) param.setType("bind");
+        if (param.getType() == null) param.setType("bind");
         if (param.getType().equals("register") && ObjectUtil.isNotNull(yxUser)) {
             return ApiResult.fail("手机号已注册");
         }
@@ -181,10 +178,10 @@ public class AuthController {
         }
         String codeKey = "code_" + param.getPhone();
         if (ObjectUtil.isNotNull(redisUtils.get(codeKey))) {
-            if(!enableSms){
+            if (!enableSms) {
                 return ApiResult.fail("10分钟内有效:" + redisUtils.get(codeKey).toString());
             }
-            return ApiResult.fail("验证码10分钟内有效,请查看手机短信" );
+            return ApiResult.fail("验证码10分钟内有效,请查看手机短信");
 
         }
         String code = RandomUtil.randomNumbers(6);
@@ -195,17 +192,17 @@ public class AuthController {
         }
         //发送阿里云短信
         SmsResult smsResult = notifyService.notifySmsTemplateSync(param.getPhone(),
-                NotifyType.CAPTCHA,new String[]{code});
-        CommonResponse commonResponse = (CommonResponse)smsResult.getResult();
-        if(smsResult.isSuccessful()){
-            log.info("详情：{}",commonResponse.getData());
+                NotifyType.CAPTCHA, new String[]{code});
+        CommonResponse commonResponse = (CommonResponse) smsResult.getResult();
+        if (smsResult.isSuccessful()) {
+            log.info("详情：{}", commonResponse.getData());
             return ApiResult.ok("发送成功，请注意查收");
-        }else{
-            JSONObject jsonObject =  JSON.parseObject(commonResponse.getData());
-            log.info("错误详情：{}",commonResponse.getData());
+        } else {
+            JSONObject jsonObject = JSON.parseObject(commonResponse.getData());
+            log.info("错误详情：{}", commonResponse.getData());
             //删除redis存储
             redisUtils.del(codeKey);
-            return ApiResult.ok("发送失败："+jsonObject.getString("Message"));
+            return ApiResult.ok("发送失败：" + jsonObject.getString("Message"));
         }
 
 
@@ -217,7 +214,7 @@ public class AuthController {
     public ApiResult<String> register(@Validated @RequestBody RegParam param) {
 
         Object codeObj = redisUtils.get("code_" + param.getAccount());
-        if(codeObj == null){
+        if (codeObj == null) {
             return ApiResult.fail("请先获取验证码");
         }
         String code = codeObj.toString();
@@ -237,9 +234,9 @@ public class AuthController {
         user.setPassword(passwordEncoder.encode(param.getPassword()));
         user.setPwd(passwordEncoder.encode(param.getPassword()));
         user.setPhone(param.getAccount());
-        if (StrUtil.isNotBlank(param.getInviteCode())){
+        if (StrUtil.isNotBlank(param.getInviteCode())) {
             user.setUserType(AppFromEnum.APP.getValue());
-        }else{
+        } else {
             user.setUserType(AppFromEnum.H5.getValue());
         }
         user.setAddTime(OrderUtil.getSecondTimestampTwo());
@@ -255,7 +252,7 @@ public class AuthController {
         //设置推广关系
         if (StrUtil.isNotBlank(param.getInviteCode())) {
             YxSystemAttachment systemAttachment = systemAttachmentService.getByCode(param.getInviteCode());
-            if(systemAttachment != null){
+            if (systemAttachment != null) {
                 userService.setSpread(systemAttachment.getUid(),
                         user.getUid());
             }

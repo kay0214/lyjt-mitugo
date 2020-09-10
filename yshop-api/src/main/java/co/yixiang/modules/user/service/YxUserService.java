@@ -10,9 +10,12 @@ import co.yixiang.modules.user.web.dto.PromUserDTO;
 import co.yixiang.modules.user.web.param.PromParam;
 import co.yixiang.modules.user.web.param.YxUserQueryParam;
 import co.yixiang.modules.user.web.vo.YxUserQueryVo;
+import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Update;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -76,4 +79,12 @@ public interface YxUserService extends BaseService<YxUser> {
      * @return
      */
     SystemUser getSystemUserByUserName(String username);
+
+    /**
+     * 提现申请扣减用户可提现金额
+     *
+     * @param uid
+     * @param money
+     */
+    void updateExtractMoney(int uid, BigDecimal money);
 }

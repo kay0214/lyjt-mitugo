@@ -98,4 +98,7 @@ public interface YxUserMapper extends BaseMapper<YxUser> {
     @Update("update yx_user set now_money=now_money+#{money} , brokerage_price=brokerage_price+#{money}" +
             " where uid=#{uid} and now_money= #{oldMoney}")
     int updateUserMoney(@Param("money") BigDecimal money, @Param("oldMoney")BigDecimal oldMoney,@Param("uid") int uid);
+
+    @Update( "update yx_user set now_money = now_money - ${money} where uid = #{uid}")
+    void updateExtractMoney(@Param("uid")int uid, BigDecimal money);
 }

@@ -806,4 +806,15 @@ public class YxUserServiceImpl extends BaseServiceImpl<YxUserMapper, YxUser> imp
                 .eq("enabled", 1);
         return systemUserMapper.selectOne(wrapper);
     }
+
+    /**
+     * 提现扣减用户可提现金额
+     *
+     * @param uid
+     * @param money
+     */
+    @Override
+    public void updateExtractMoney(int uid, BigDecimal money) {
+        yxUserMapper.updateExtractMoney(uid,money);
+    }
 }
