@@ -454,7 +454,7 @@ public class YxCouponOrderController extends BaseController {
     public ApiResult<Boolean> buyCount(@PathVariable(value = "couponId") Integer couponId, @PathVariable(value = "cartNum") Integer cartNum) {
         int uid = SecurityUtils.getUserId().intValue();
         Integer count = this.yxCouponOrderService.getBuyCount(uid, couponId);
-        Integer totalCount = count + cartNum;
+        Integer totalCount = cartNum + count;
         YxCoupons yxCoupons = this.yxCouponsService.getById(couponId);
         if (yxCoupons.getQuantityLimit() < totalCount) {
             return ApiResult.ok(false);
