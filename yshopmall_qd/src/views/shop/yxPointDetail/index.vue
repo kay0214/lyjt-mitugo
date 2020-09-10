@@ -4,9 +4,9 @@
     <div class="head-container">
       <el-row>
         <el-input v-model="query.username" clearable placeholder="用户昵称" style="width: 200px;marginRight:20px;" class="filter-item" @keyup.enter.native="crud.toQuery" />        
-        <el-select v-model="category" clearable placeholder="明细种类" class="filter-item" style="width: 130px">
+        <el-select v-model="query.category" clearable placeholder="明细种类" class="filter-item" style="width: 130px">
         <el-option
-          v-for="item in query.categoryOptions"
+          v-for="item in categoryOptions"
           :key="item.value"
           :label="item.label"
           :value="item.value"
