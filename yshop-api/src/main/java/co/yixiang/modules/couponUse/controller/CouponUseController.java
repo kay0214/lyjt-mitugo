@@ -204,7 +204,13 @@ public class CouponUseController extends BaseController {
             return ResponseEntity.ok(map);
         }
         int uid = user.getId().intValue();
-        return ResponseEntity.ok(this.yxCouponsService.getCouponByVerifyCode(Base64Utils.decode(verifyCode), uid));
+        String decodeVerifyCode = "";
+        try {
+            decodeVerifyCode = Base64Utils.decode(verifyCode);
+        } catch (Exception e) {
+            throw new BadRequestException("无效卡券");
+        }
+        return ResponseEntity.ok(this.yxCouponsService.getCouponByVerifyCode(decodeVerifyCode, uid));
     }
 
 
@@ -240,7 +246,13 @@ public class CouponUseController extends BaseController {
             return ResponseEntity.ok(map);
         }
         int uid = user.getId().intValue();
-        Map<String, String> result = this.yxCouponOrderService.updateCouponOrder(Base64Utils.decode(verifyCode), uid);
+        String decodeVerifyCode = "";
+        try {
+            decodeVerifyCode = Base64Utils.decode(verifyCode);
+        } catch (Exception e) {
+            throw new BadRequestException("无效卡券");
+        }
+        Map<String, String> result = this.yxCouponOrderService.updateCouponOrder(decodeVerifyCode, uid);
         return ResponseEntity.ok(result);
     }
 
