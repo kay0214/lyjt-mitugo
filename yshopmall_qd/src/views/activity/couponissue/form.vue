@@ -1,13 +1,13 @@
 <template>
   <el-dialog :append-to-body="true" :close-on-click-modal="false" :before-close="cancel" :visible.sync="dialog" :title="isAdd ? '新增' : '发布优惠券'" width="500px">
-    <el-form ref="form" :model="form" :rules="rules" size="small" label-width="100px">
-      <el-form-item label="优惠券ID">
+    <el-form ref="form" :model="form" :rules="rules" size="small" label-width="110px">
+      <el-form-item label="优惠券ID" prop='cid'>
         <el-input v-model="form.cid" style="width: 300px;" :disabled="true" />
       </el-form-item>
-      <el-form-item label="优惠券名称">
+      <el-form-item label="优惠券名称" prop='cname'>
         <el-input v-model="form.cname" style="width: 300px;" :disabled="true" />
       </el-form-item>
-      <el-form-item label="领取开启时间">
+      <el-form-item label="领取开启时间" prop='startTimeDate'>
         <template>
           <el-date-picker
             v-model="form.startTimeDate"
@@ -16,7 +16,7 @@
           />
         </template>
       </el-form-item>
-      <el-form-item label="券领结束时间">
+      <el-form-item label="券领结束时间" prop='endTimeDate'>
         <template>
           <el-date-picker
             v-model="form.endTimeDate"
@@ -25,14 +25,14 @@
           />
         </template>
       </el-form-item>
-      <el-form-item label="发布数量">
+      <el-form-item label="发布数量" prop='totalCount' :maxlength='9'>
         <el-input v-model="form.totalCount" style="width: 300px;" />
       </el-form-item>
-      <el-form-item label="是否不限量">
+      <el-form-item label="是否不限量" prop='isPermanent'>
         <el-radio v-model="form.isPermanent" :label="1">不限量</el-radio>
         <el-radio v-model="form.isPermanent" :label="0">限量</el-radio>
       </el-form-item>
-      <el-form-item label="状态">
+      <el-form-item label="状态" prop='status'>
         <el-radio v-model="form.status" :label="1">开启</el-radio>
         <el-radio v-model="form.status" :label="0">关闭</el-radio>
       </el-form-item>
@@ -71,6 +71,32 @@ export default {
         addTime: ''
       },
       rules: {
+        cid:[
+          {required:true,message:'必填项',trigger:'blur'},
+        ],
+        cname:[
+          {required:true,message:'必填项',trigger:'blur'},
+        ],
+        startTimeDate:[
+          {required:true,message:'必填项',trigger:'blur'},
+        ],
+        endTimeDate:[
+          {required:true,message:'必填项',trigger:'blur'},
+        ],
+        totalCount:[
+          {required:true,message:'必填项',trigger:'blur'},
+          {
+            pattern: /^[0-9]+$/,  
+            message: '请输入数字',
+            trigger: 'blur'
+          },
+        ],
+        isPermanent:[
+          {required:true,message:'必填项',trigger:'blur'},
+        ],
+        status:[
+          {required:true,message:'必填项',trigger:'blur'},
+        ],
       }
     }
   },
@@ -79,10 +105,16 @@ export default {
       this.resetForm()
     },
     doSubmit() {
-      this.loading = true
-      if (this.isAdd) {
-        this.doAdd()
-      } else this.doEdit()
+      this.$refs.form.validate(ret=>{
+        console.log('form:'+ret)
+        if(!ret){
+          return
+        }
+        this.loading = true
+        if (this.isAdd) {
+          this.doAdd()
+        } else this.doEdit()
+      })
     },
     doAdd() {
       add(this.form).then(res => {

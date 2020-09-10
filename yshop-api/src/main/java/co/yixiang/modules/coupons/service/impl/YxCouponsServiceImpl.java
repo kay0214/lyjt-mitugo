@@ -354,6 +354,11 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
             yxCouponsDto.setStatusDesc("非本商户卡券");
             return yxCouponsDto;
         }
+        // 可核销次数已核销次数
+        if (yxCouponOrder.getUsedCount() >= yxCouponOrder.getUseCount()) {
+            yxCouponsDto.setStatus(99);
+            yxCouponsDto.setStatusDesc("当前订单已达核销上限");
+        }
 
         List<YxCouponOrderDetail> list = this.yxCouponOrderDetailService.list(new QueryWrapper<YxCouponOrderDetail>().lambda().eq(YxCouponOrderDetail::getOrderId, orderId));
         YxCouponOrderDetail yxCouponOrderDetail = null;

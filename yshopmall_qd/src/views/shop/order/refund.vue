@@ -4,7 +4,7 @@
       <el-form-item label="订单号">
         <el-input v-model="form.orderId" :disabled="true" style="width: 370px;" />
       </el-form-item>
-      <el-form-item label="退款金额">
+      <el-form-item label="退款金额" prop='payPrice'>
         <el-input v-model="form.payPrice" style="width: 370px;" />
       </el-form-item>
     </el-form>
@@ -81,8 +81,8 @@ export default {
         isSystemDel: ''
       },
       rules: {
-        unique: [
-          { required: true, message: 'please enter', trigger: 'blur' }
+        payPrice: [
+          { required: true, message: '必填项', trigger: 'blur' }
         ]
       }
     }
@@ -92,10 +92,15 @@ export default {
       this.resetForm()
     },
     doSubmit() {
+      this.$refs['form'].validate(ret=>{
+        if(!ret){
+          return
+        }        
       this.loading = true
       if (this.isAdd) {
         this.doAdd()
       } else this.doEdit()
+      })
     },
     doAdd() {
       add(this.form).then(res => {

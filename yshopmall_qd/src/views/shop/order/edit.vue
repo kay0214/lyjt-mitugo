@@ -7,7 +7,7 @@
       <el-form-item label="原始邮费">
         <el-input v-model="form.totalPostage" :disabled="true" style="width: 370px;" />
       </el-form-item>
-      <el-form-item label="实际支付">
+      <el-form-item label="实际支付" prop='payPrice'>
         <el-input v-model="form.payPrice" style="width: 370px;" />
       </el-form-item>
     </el-form>
@@ -84,7 +84,7 @@ export default {
         isSystemDel: ''
       },
       rules: {
-        unique: [
+        payPrice: [
           { required: true, message: 'please enter', trigger: 'blur' }
         ]
       }
