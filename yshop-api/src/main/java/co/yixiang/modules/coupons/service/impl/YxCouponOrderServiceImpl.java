@@ -343,9 +343,10 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         res = this.yxCouponOrderDetailService.saveBatch(details);
         if (!res) throw new ErrorRequestException("订单详情生成失败");
         //减库存加销量
-        coupons.setInventory(coupons.getInventory() - totalNum);
-        coupons.setSales(coupons.getSales() + totalNum);
-        res = this.couponsService.updateById(coupons);
+//        coupons.setInventory(coupons.getInventory() - totalNum);
+//        coupons.setSales(coupons.getSales() + totalNum);
+//        res = this.couponsService.updateById(coupons);
+        this.couponsService.updateAddSales(couponId,totalNum);
         if (!res) throw new ErrorRequestException("减库存加销量失败");
 
         //删除缓存

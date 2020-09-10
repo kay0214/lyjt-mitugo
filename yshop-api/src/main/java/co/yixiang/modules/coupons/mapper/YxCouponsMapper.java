@@ -12,7 +12,6 @@ import org.apache.ibatis.annotations.Update;
 import org.springframework.stereotype.Repository;
 
 import java.io.Serializable;
-import java.util.List;
 
 /**
  * <p>
@@ -69,8 +68,8 @@ public interface YxCouponsMapper extends BaseMapper<YxCoupons> {
     int getCountByStoreId(@Param("storeId") Integer storeId);
 
     @Update("update yx_coupons set sales = sales + #{sales},inventory = inventory - #{sales} where id = #{couponId}")
-    void updateAddSales(Integer couponId, Integer sales);
+    void updateAddSales(@Param("couponId") Integer couponId, @Param("sales") Integer sales);
 
     @Update("update yx_coupons set sales = sales - #{sales},inventory = inventory + #{sales} where id = #{couponId}")
-    void updateMulSales(Integer couponId, Integer sales);
+    void updateMulSales(@Param("couponId") Integer couponId, @Param("sales") Integer sales);
 }
