@@ -66,6 +66,10 @@ public class YxStoreCouponUserServiceImpl extends BaseServiceImpl<YxStoreCouponU
             }
             queryWrapper.lambda().in(YxStoreCouponUser::getStoreId, criteria.getChildStoreId());
         }
+        if(StringUtils.isNotBlank(criteria.getCouponTitle())){
+            queryWrapper.lambda().like(YxStoreCouponUser::getCouponTitle, criteria.getCouponTitle());
+
+        }
         IPage<YxStoreCouponUser> ipage = this.page(new Page<>(pageable.getPageNumber() + 1, pageable.getPageSize()), queryWrapper);
 
         List<YxStoreCouponUserDto> storeOrderDTOS = generator.convert(ipage.getRecords(), YxStoreCouponUserDto.class);
