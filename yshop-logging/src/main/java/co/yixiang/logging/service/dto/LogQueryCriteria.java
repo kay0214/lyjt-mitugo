@@ -19,7 +19,7 @@ import java.util.List;
 @Data
 public class LogQueryCriteria {
 
-    @Query(blurry = "username,description,address,requestIp,method,params")
+    @Query(blurry = "username,description,address,requestIp,method,params,nickname")
     private String blurry;
 
     @Query
