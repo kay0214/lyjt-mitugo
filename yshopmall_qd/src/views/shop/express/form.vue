@@ -63,10 +63,15 @@ export default {
       this.resetForm()
     },
     doSubmit() {
+      this.$refs['form'].validate(ret=>{
+        if(!ret){
+          return
+        }
       this.loading = true
       if (this.isAdd) {
         this.doAdd()
       } else this.doEdit()
+      })
     },
     doAdd() {
       add(this.form).then(res => {
