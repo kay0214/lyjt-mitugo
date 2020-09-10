@@ -1,7 +1,7 @@
 <template>
   <el-dialog :append-to-body="true" :close-on-click-modal="false" :before-close="cancel" :visible.sync="dialog" :title="isAdd ? '新增' : '去发货'" width="500px">
     <el-form ref="form" :model="form" :rules="rules" size="small" label-width="80px">
-      <el-form-item label="快递公司">
+      <el-form-item label="快递公司" prop='deliveryName'>
         <!--<el-input v-model="form.deliveryName" style="width: 370px;"/>-->
         <el-select v-model="form.deliveryName" filterable placeholder="请选择" style="width: 370px;">
           <el-option
@@ -12,7 +12,7 @@
           />
         </el-select>
       </el-form-item>
-      <el-form-item label="快递单号">
+      <el-form-item label="快递单号" prop='deliveryId'>
         <el-input v-model="form.deliveryId" style="width: 370px;" />
       </el-form-item>
     </el-form>
@@ -43,8 +43,11 @@ export default {
         deliveryId: ''
       },
       rules: {
-        unique: [
-          { required: true, message: 'please enter', trigger: 'blur' }
+        deliveryName: [
+          { required: true, message: '必填项', trigger: 'blur' }
+        ],
+        deliveryId: [
+          { required: true, message: '必填项', trigger: 'blur' }
         ]
       }
     }
@@ -58,10 +61,15 @@ export default {
       this.resetForm()
     },
     doSubmit() {
+      this.$refs['form'].validate(ret=>{
+        if(!ret){
+          return
+        }        
       this.loading = true
       if (this.isAdd) {
         this.doAdd()
       } else this.doEdit()
+      })
     },
     doAdd() {
       add(this.form).then(res => {
