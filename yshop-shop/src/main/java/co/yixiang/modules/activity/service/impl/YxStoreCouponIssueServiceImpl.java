@@ -9,6 +9,7 @@ import co.yixiang.common.utils.QueryHelpPlus;
 import co.yixiang.dozer.service.IGenerator;
 import co.yixiang.modules.activity.domain.YxStoreCouponIssue;
 import co.yixiang.modules.activity.service.YxStoreCouponIssueService;
+import co.yixiang.modules.activity.service.YxStoreCouponService;
 import co.yixiang.modules.activity.service.dto.YxStoreCouponIssueDto;
 import co.yixiang.modules.activity.service.dto.YxStoreCouponIssueQueryCriteria;
 import co.yixiang.modules.activity.service.mapper.YxStoreCouponIssueMapper;
@@ -21,6 +22,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -45,6 +47,7 @@ import java.util.Map;
 public class YxStoreCouponIssueServiceImpl extends BaseServiceImpl<YxStoreCouponIssueMapper, YxStoreCouponIssue> implements YxStoreCouponIssueService {
 
     private final IGenerator generator;
+    private final YxStoreCouponService yxStoreCouponService;
 
     @Override
     //@Cacheable
@@ -64,11 +67,22 @@ public class YxStoreCouponIssueServiceImpl extends BaseServiceImpl<YxStoreCoupon
             queryWrapper.lambda().in(YxStoreCouponIssue::getStoreId, criteria.getChildStoreId()).eq(YxStoreCouponIssue::getIsDel, 0);
         }
         IPage<YxStoreCouponIssue> ipage = this.page(new Page<>(pageable.getPageNumber() + 1, pageable.getPageSize()), queryWrapper);
-
+        List<YxStoreCouponIssue> storeCouponIssueList = ipage.getRecords();
+        storeCouponIssueList = getConponInfo(storeCouponIssueList);
         Map<String, Object> map = new LinkedHashMap<>(2);
-        map.put("content", generator.convert(ipage.getRecords(), YxStoreCouponIssueDto.class));
+        map.put("content", generator.convert(storeCouponIssueList, YxStoreCouponIssueDto.class));
         map.put("totalElements", ipage.getTotal());
         return map;
+    }
+
+
+    public List<YxStoreCouponIssue> getConponInfo(List<YxStoreCouponIssue> storeCouponIssueList) {
+        if(!CollectionUtils.isEmpty(storeCouponIssueList)) {
+            storeCouponIssueList.forEach(yxStoreCouponIssue -> {
+                yxStoreCouponIssue.setStoreCoupon(yxStoreCouponService.getById(yxStoreCouponIssue.getCid()));
+            });
+        }
+        return storeCouponIssueList;
     }
 
 

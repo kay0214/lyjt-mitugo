@@ -76,6 +76,9 @@ public class YxStoreCouponIssue implements Serializable {
     /** 卡券所属商铺 */
     private Integer storeId;
 
+    // 优惠券信息
+    @TableField(exist = false)
+    private YxStoreCoupon storeCoupon;
 
     public void copy(YxStoreCouponIssue source) {
         BeanUtil.copyProperties(source, this, CopyOptions.create().setIgnoreNullValue(true));
