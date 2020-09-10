@@ -62,6 +62,7 @@ public class LogController {
     @PreAuthorize("@el.check('admin','log:list')")
     public ResponseEntity<Object> getLogs(LogQueryCriteria criteria, Pageable pageable){
         criteria.setLogType("INFO");
+        // 后台用户
         criteria.setType(0);
         return new ResponseEntity<>(logService.queryAll(criteria,pageable), HttpStatus.OK);
     }
@@ -69,6 +70,7 @@ public class LogController {
     @PreAuthorize("@el.check('admin','log:list')")
     public ResponseEntity getApiLogs(LogQueryCriteria criteria, Pageable pageable){
         criteria.setLogType("INFO");
+        // 前端用户
         criteria.setType(1);
         return new ResponseEntity(logService.findAllByPageable(criteria.getBlurry(),pageable), HttpStatus.OK);
     }
