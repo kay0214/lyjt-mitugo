@@ -21,19 +21,22 @@
     <eForm ref="form" :is-add="isAdd" />
     <!--表格渲染-->
     <el-table v-loading="loading" :data="data" size="small" style="width: 100%;">
-      <el-table-column prop="id" label="id" />
-      <el-table-column prop="extractPrice" label="提现金额" />
+      
+      <el-table-column prop="realName" label="用户名" />
+      <el-table-column prop="userTrueName" label="真实姓名" />
+      <el-table-column prop="bankCode" label="银行卡号" />
+      <el-table-column prop="extractPrice" label="提现金额" />userTypeOptions
+      <el-table-column prop="userType" label="用户类型" >
+        <template slot-scope="scope">
+          <div>{{userTypeOptions[scope.row.userType]}}</div>
+        </template>
+      </el-table-column>
       <el-table-column prop="extractType" label="提现方式">
         <template slot-scope="scope">
-          <div v-if="scope.row.extractType='weixin'">
-
-            姓名:{{ scope.row.userTrueName }}<br>            
-            微信昵称:{{ scope.row.realName }}
-          </div>
-          <div v-else>
-            <!-- 姓名:{{ scope.row.realName }}<br>
-            支付宝号:{{ scope.row.alipayCode }} -->
-          </div>
+          <div v-if="scope.row.extractType='wx'">微信</div>
+          <div v-else-if="scope.row.extractType='alipay'">支付宝</div>
+          <div v-else-if="scope.row.extractType='bank'">银行卡</div>
+          <div v-else></div>
         </template>
       </el-table-column>
       <el-table-column prop="addTime" label="添加时间">
@@ -106,7 +109,8 @@ export default {
       delLoading: false,
       queryTypeOptions: [
         { key: 'realName', display_name: '名称' }
-      ]
+      ],
+      userTypeOptions: ['预留','前台用户','后台商户','后台合伙人']
     }
   },
   created() {
