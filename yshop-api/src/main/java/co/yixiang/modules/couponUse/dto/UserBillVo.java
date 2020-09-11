@@ -1,12 +1,11 @@
-package co.yixiang.modules.user.web.vo;
+package co.yixiang.modules.couponUse.dto;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-import java.io.Serializable;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
-import java.util.Date;
 
 /**
  * <p>
@@ -18,7 +17,7 @@ import java.util.Date;
  */
 @Data
 @ApiModel(value="YxUserBillQueryVo对象", description="用户账单表查询参数")
-public class YxUserBillQueryVo implements Serializable{
+public class UserBillVo implements Serializable{
     private static final long serialVersionUID = 1L;
 
 @ApiModelProperty(value = "用户账单id")
@@ -65,5 +64,6 @@ private Integer partnerId;
 
 @ApiModelProperty(value = "用户类型 0:预留 1:前台用户 2：后台商户 3：后台合伙人")
 private Integer userType;
-
+    @ApiModelProperty(value = "添加时间")
+    private String addTimeStr;
 }

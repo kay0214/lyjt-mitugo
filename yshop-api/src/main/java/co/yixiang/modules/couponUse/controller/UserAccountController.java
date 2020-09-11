@@ -15,6 +15,7 @@ import co.yixiang.dozer.service.IGenerator;
 import co.yixiang.exception.BadRequestException;
 import co.yixiang.logging.aop.log.Log;
 import co.yixiang.modules.couponUse.criteria.YxCouponOrderUseQueryCriteria;
+import co.yixiang.modules.couponUse.dto.UserBillVo;
 import co.yixiang.modules.couponUse.dto.YxStoreInfoDto;
 import co.yixiang.modules.couponUse.param.UserAccountQueryParam;
 import co.yixiang.modules.coupons.service.YxCouponOrderService;
@@ -47,9 +48,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -92,13 +91,9 @@ public class UserAccountController extends BaseController {
         }
 
         Paging<YxUserBillQueryVo> result = billService.getYxUserAccountPageList(param,user.getId());
-        if(result.getRecords()!=null){
-            for (YxUserBillQueryVo item :result.getRecords()) {
-                item.setAddTimeStr(DateUtils.timestampToStr10(item.getAddTime()));
-            }
-        }
 
-        return ResponseEntity.ok(result);
+
+        return ResponseEntity.ok(getResultList(result));
     }
 
     @AnonymousAccess
@@ -118,16 +113,25 @@ public class UserAccountController extends BaseController {
 
         Paging<YxUserBillQueryVo> result = billService.getUserProductAccountList(param,user.getId());
 
-        if(result.getRecords()!=null){
-            for (YxUserBillQueryVo item :result.getRecords()) {
-                item.setAddTimeStr(DateUtils.timestampToStr10(item.getAddTime()));
-            }
-        }
 
-
-        return ResponseEntity.ok(result);
+        return ResponseEntity.ok(getResultList(result));
     }
 
+    private Paging<UserBillVo> getResultList(Paging<YxUserBillQueryVo> result) {
+        Paging<UserBillVo> resultStr = new Paging<UserBillVo>();
+        resultStr.setSum(result.getSum());
+        resultStr.setTotal(result.getTotal());
+        if(result.getRecords()!=null){
+            List<UserBillVo> list = new ArrayList<>();
+            for (YxUserBillQueryVo item :result.getRecords()) {
+                UserBillVo userBillVo = CommonsUtils.convertBean(item,UserBillVo.class);
+                userBillVo.setAddTimeStr(DateUtils.timestampToStr10(item.getAddTime()));
+                list.add(userBillVo);
+            }
+            resultStr.setRecords(list);
+        }
+        return  resultStr;
+    }
     /**
      * 从redis里面获取用户
      *

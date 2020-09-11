@@ -19,4 +19,11 @@ public interface MQConstant {
     String MITU_COMMISSION_TAG = "MITU_COMMISSION_TAG";
 
 
+    /**
+     * 提现
+     */
+    String MITU_WITHDRAW_GROUP = "MITU_WITHDRAW_GROUP";
+    String MITU_WITHDRAW_TAG = "MITU_WITHDRAW_TAG";
+
+
 }
