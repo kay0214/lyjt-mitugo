@@ -340,7 +340,7 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<StoreOrderMapper, Y
             map.put("用户电话", yxStoreOrder.getUserPhone());
             map.put("详细地址", yxStoreOrder.getUserAddress());
             map.put("购物车id", yxStoreOrder.getCartId());
-            map.put("运费金额", yxStoreOrder.getFreightPrice());
+//            map.put("运费金额", yxStoreOrder.getFreightPrice());
             map.put("订单商品总数", yxStoreOrder.getTotalNum());
             map.put("订单总价", yxStoreOrder.getTotalPrice());
             map.put("邮费", yxStoreOrder.getTotalPostage());
