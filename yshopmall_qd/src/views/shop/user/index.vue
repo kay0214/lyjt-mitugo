@@ -146,6 +146,7 @@ import eForm from './form'
 import pForm from './formp'
 import { formatTime } from '@/utils/index'
 import { Notification } from 'element-ui'
+import { amountValid } from '@/utils/validate'
 export default {
   components: { eForm, pForm },
   mixins: [initData],
@@ -166,6 +167,7 @@ export default {
       rules:{
         money: [
           { required: true, message: '必填项', trigger: 'blur' },
+          { validator: amountValid, trigger: 'blur'},
         ],
         ptype: [
           { required: true, message: '必填项', trigger: 'blur' },
