@@ -218,15 +218,17 @@
   placement="left"
   width="260"
 trigger="click">
-  <el-form ref='formWithdraw' :model="formWithdraw" :rules="rules">
-  <p>
-    请输入可提现金额
-  </p>
-    <el-form-item prop='extractPrice' style='padding:10px 20px;'>
-      <el-input v-model="formWithdraw.extractPrice" placeholder="提现金额" :maxlength='12'/>
+  <el-form ref='formWithdraw' :model="formWithdraw" :rules="rules" style='padding:10px 20px;'>
+  <p>提现金额调整</p>
+    <el-form-item label="类型" prop='ptype'>
+      <el-radio v-model="formWithdraw.ptype" :label="1" style='margin-left:20px;'>增</el-radio>
+      <el-radio v-model="formWithdraw.ptype" :label="0">减</el-radio>
+    </el-form-item>
+    <el-form-item label="金额" prop='money'>
+      <el-input v-model="formWithdraw.money " placeholder="金额" :maxlength='12'/>
     </el-form-item>
   <div style="text-align: right; margin: 0">
-    <el-button type="primary" size="mini" @click="withdrawEdit($event,scope.row.uid,formWithdraw.extractPrice)">提交</el-button>
+    <el-button type="primary" size="mini" @click="withdrawEdit($event,formWithdraw,scope.row.uid)">提交</el-button>
   </div>
   </el-form>
   <el-button v-permission="permission.modify" size="small" type="primary" icon="el-icon-edit" slot="reference" style='marginTop:10px' plain>修改金额</el-button>
@@ -391,7 +393,10 @@ formWithdraw:{},
         licenceImg: [
           { required: true, message: '必填项', trigger: 'blur' },
         ],
-        extractPrice: [
+        money: [
+          { required: true, message: '必填项', trigger: 'blur' },
+        ],
+        ptype: [
           { required: true, message: '必填项', trigger: 'blur' },
         ],
       },
@@ -666,10 +671,10 @@ formWithdraw:{},
       this.formDisabled=false
       this.dialogVisible=Boolean(this.crud.status.cu);
     },
-    withdrawEdit(btn,uid,val){
+    withdrawEdit(btn,formData,uid){
       this.$refs.formWithdraw.validate(function(ret,obj){
-        if(ret){
-          withdrawEdit({uid:uid,money:val}).then(res=>{
+        if(ret){          
+          withdrawEdit(Object.assign(formData,{uid})).then(res=>{
             if(res){
               Notification.success({
               title: '提交成功'
@@ -684,14 +689,9 @@ formWithdraw:{},
             //   title: err
             //   })
           })
-        }else{
-          this.$message({
-              message: '请查看必填项',
-              type: 'success',
-              duration: 1000,
-              onClose: () => {
-                this.crud.toQuery()
-              }
+        }else{          
+          Notification.error({
+            title: '请查看必填项是否输入正确'
             })
         }
       })
