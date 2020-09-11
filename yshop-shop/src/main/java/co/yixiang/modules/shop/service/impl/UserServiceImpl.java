@@ -120,8 +120,8 @@ public class UserServiceImpl extends BaseServiceImpl<UserSysMapper, User> implem
      */
     @Override
     public boolean updateUserWithdraw(Integer uid, Integer userType, BigDecimal extractPrice) {
-        if (extractPrice.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new BadRequestException("提现金额必须大于0");
+        if (extractPrice.compareTo(new BigDecimal(50)) <= 0) {
+            throw new BadRequestException("提现金额必须大于50");
         }
         User user = this.getById(uid);
         if (extractPrice.compareTo(user.getWithdrawalAmount()) < 0) {

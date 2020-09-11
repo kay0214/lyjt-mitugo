@@ -70,6 +70,9 @@ public class YxUserExtractServiceImpl extends BaseServiceImpl<YxUserExtractMappe
     @Autowired
     private YxExamineLogService yxExamineLogService;
 
+    // 提现手续费
+    private final BigDecimal EXTRACT_RATE = new BigDecimal(0.006);
+
     @Override
     //@Cacheable
     public Map<String, Object> queryAll(YxUserExtractQueryCriteria criteria, Pageable pageable) {
@@ -77,14 +80,14 @@ public class YxUserExtractServiceImpl extends BaseServiceImpl<YxUserExtractMappe
         PageInfo<YxUserExtract> page = new PageInfo<>(queryAll(criteria));
         Map<String, Object> map = new LinkedHashMap<>(2);
         List<YxUserExtractDto> extractDtoList = generator.convert(page.getList(), YxUserExtractDto.class);
-        if(!CollectionUtils.isEmpty(extractDtoList)){
-            for(YxUserExtractDto extractDto:extractDtoList){
-                if(!extractDto.getExtractType().equals("weixin")){
+        if (!CollectionUtils.isEmpty(extractDtoList)) {
+            for (YxUserExtractDto extractDto : extractDtoList) {
+                if (!extractDto.getExtractType().equals("weixin")) {
                     continue;
                 }
                 YxUser user = yxUserService.getById(extractDto.getUid());
-                if(ObjectUtil.isNotEmpty(user)){
-                    extractDto.setUserTrueName(StringUtils.isNotEmpty(user.getRealName())?user.getRealName():"");
+                if (ObjectUtil.isNotEmpty(user)) {
+                    extractDto.setUserTrueName(StringUtils.isNotEmpty(user.getRealName()) ? user.getRealName() : "");
                 }
             }
         }
@@ -148,6 +151,8 @@ public class YxUserExtractServiceImpl extends BaseServiceImpl<YxUserExtractMappe
         // 审核记录里的status
         Integer examineStatus = 0;
         String mark = "";
+        // 实际到账金额
+        BigDecimal truePrice = BigDecimal.ZERO;
         // 用户类型0:前台用户1后台用户
         if (0 == yxUserExtract.getUserType()) {
             yxUser = this.yxUserService.getOne(new QueryWrapper<YxUser>().lambda().eq(YxUser::getUid, yxUserExtract.getUid()));
@@ -155,12 +160,15 @@ public class YxUserExtractServiceImpl extends BaseServiceImpl<YxUserExtractMappe
                 throw new BadRequestException("查询用户信息失败");
             }
             username = yxUser.getUsername();
+            truePrice = yxUserExtract.getExtractPrice();
         } else {
             user = this.userService.getById(resources.getUid());
             if (null == user) {
                 throw new BadRequestException("查询用户信息失败");
             }
             username = user.getNickName();
+            // 商户提现扣减手续费
+            truePrice = yxUserExtract.getExtractPrice().subtract(yxUserExtract.getExtractPrice().multiply(EXTRACT_RATE));
         }
 
         // 梗库用
@@ -216,6 +224,8 @@ public class YxUserExtractServiceImpl extends BaseServiceImpl<YxUserExtractMappe
             updateExtract.setId(yxUserExtract.getId());
             updateExtract.setStatus(1);
             updateExtract.setMark(mark);
+            // 记录实际到账个金额
+            updateExtract.setTruePrice(truePrice);
         }
         this.updateById(updateExtract);
         // 记录提现审核记录

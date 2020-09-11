@@ -5,6 +5,7 @@
  */
 package co.yixiang.modules.activity.service.dto;
 
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -66,4 +67,7 @@ public class YxUserExtractDto implements Serializable {
 
     //银行预留手机号
     private String bankMobile;
+
+    // 实际到账金额
+    private BigDecimal truePrice;
 }
