@@ -430,7 +430,7 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
             }
         } else {
             YxStoreProduct product = this.getProductInfo(yxStoreCart.getProductId());
-            if (0 == product.getIsShow()||1==product.getIsDel()) {
+            if (product.getIsShow().equals(0)||product.getIsDel().equals(1)) {
                 return "产品已下架或已删除，请重新选择后下单！";
             }
 
