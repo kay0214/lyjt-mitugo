@@ -153,6 +153,6 @@ public class YxMerchantsDetailController {
         // 获取登陆用户的id
         int loginUid = SecurityUtils.getUserId().intValue();
         yxMerchantsDetailService.updateUserCommission(param);
-        return new ResponseEntity(HttpStatus.NO_CONTENT);
+        return new ResponseEntity(HttpStatus.OK);
     }
 }
