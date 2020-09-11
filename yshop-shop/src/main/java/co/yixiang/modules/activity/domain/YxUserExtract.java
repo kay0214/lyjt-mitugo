@@ -86,7 +86,8 @@ public class YxUserExtract implements Serializable {
     //银行预留手机号
     private String bankMobile;
 
-
+    // 实际到账金额
+    private BigDecimal truePrice;
 
     public void copy(YxUserExtract source){
         BeanUtil.copyProperties(source,this, CopyOptions.create().setIgnoreNullValue(true));
