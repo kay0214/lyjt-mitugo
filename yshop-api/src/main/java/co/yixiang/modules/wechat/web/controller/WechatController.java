@@ -258,6 +258,7 @@ public class WechatController extends BaseController {
             // 该笔资金实际到账
             SystemUser updateSystemUser = new SystemUser();
             BigDecimal truePrice = yxCouponOrder.getTotalPrice().subtract(yxCouponOrder.getCommission());
+            BigDecimal balance = systemUser.getWithdrawalAmount().compareTo(truePrice) > 0 ? systemUser.getWithdrawalAmount().subtract(truePrice) : BigDecimal.ZERO;
             if (refundFee.compareTo(truePrice) > 0) {
                 updateSystemUser.setTotalAmount(truePrice.multiply(new BigDecimal(-1)));
                 updateSystemUser.setWithdrawalAmount(truePrice.multiply(new BigDecimal(-1)));
@@ -278,7 +279,7 @@ public class WechatController extends BaseController {
             merBill.setType(BillDetailEnum.TYPE_5.getValue());
             merBill.setNumber(truePrice);
             // 目前只支持微信付款、没有余额
-            merBill.setBalance(systemUser.getWithdrawalAmount().subtract(truePrice));
+            merBill.setBalance(balance);
             merBill.setAddTime(DateUtils.getNowTime());
             merBill.setStatus(1);
             merBill.setMerId(yxCouponOrder.getMerId());
@@ -478,6 +479,7 @@ public class WechatController extends BaseController {
             // 该笔资金实际到账
             SystemUser updateSystemUser = new SystemUser();
             BigDecimal truePrice = orderInfo.getPayPrice().subtract(orderInfo.getCommission());
+            BigDecimal balance = systemUser.getWithdrawalAmount().compareTo(truePrice) > 0 ? systemUser.getWithdrawalAmount().subtract(truePrice) : BigDecimal.ZERO;
             if (refundFee.compareTo(truePrice) > 0) {
                 updateSystemUser.setTotalAmount(truePrice.multiply(new BigDecimal(-1)));
                 updateSystemUser.setWithdrawalAmount(truePrice.multiply(new BigDecimal(-1)));
@@ -499,7 +501,7 @@ public class WechatController extends BaseController {
             merBill.setType(BillDetailEnum.TYPE_5.getValue());
             merBill.setNumber(truePrice);
             // 目前只支持微信付款、没有余额
-            merBill.setBalance(systemUser.getWithdrawalAmount().subtract(truePrice));
+            merBill.setBalance(balance);
             merBill.setAddTime(DateUtils.getNowTime());
             merBill.setStatus(1);
             merBill.setMerId(orderInfo.getMerId());
