@@ -83,7 +83,7 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<UserBillMapper, YxUse
             queryWrapper.lambda().like(YxUserBill::getTitle, criteria.getTitle());
         }
         if (StringUtils.isNotBlank(criteria.getAddTimeStart()) && StringUtils.isNotBlank(criteria.getAddTimeEnd())) {
-            queryWrapper.lambda().ge(YxUserBill::getAddTime, criteria.getAddTimeStart()).le(YxUserBill::getAddTime, criteria.getAddTimeEnd());
+            queryWrapper.lambda().ge(YxUserBill::getAddTime, DateUtils.stringToTimestamp(criteria.getAddTimeStart() + " 00:00:00")).le(YxUserBill::getAddTime, DateUtils.stringToTimestamp(criteria.getAddTimeEnd() + " 23:59:59"));
         }
         //明细种类
         if (StringUtils.isNotBlank(criteria.getCategory())) {
@@ -94,27 +94,27 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<UserBillMapper, YxUse
         if (StringUtils.isNotBlank(criteria.getType())) {
             queryWrapper.lambda().eq(YxUserBill::getType, criteria.getType());
         }
-        //日期查找
-        if (StringUtils.isNotBlank(criteria.getAddTimeStart()) && StringUtils.isNotBlank(criteria.getAddTimeEnd())) {
-            Integer addTimeStart = 0;
-            Integer addTimeEnd = 0;
-            try {
-                Date date = new Date();
-                Date dateEnd = new Date();
-                SimpleDateFormat sf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                date = sf.parse(criteria.getAddTimeStart());// 日期转换为时间戳
-                dateEnd = sf.parse(criteria.getAddTimeEnd());// 日期转换为时间戳
-                long longDate = date.getTime() / 1000;
-                long longDateEnd = dateEnd.getTime() / 1000;
-                addTimeStart = (int) longDate;
-                addTimeEnd = (int) longDateEnd;
-            } catch (ParseException e) {
-                e.printStackTrace();
-            }
-            if (addTimeEnd != 0 && addTimeStart != 0) {
-                queryWrapper.lambda().ge(YxUserBill::getAddTime, addTimeStart).le(YxUserBill::getAddTime, addTimeEnd);
-            }
-        }
+//        //日期查找
+//        if (StringUtils.isNotBlank(criteria.getAddTimeStart()) && StringUtils.isNotBlank(criteria.getAddTimeEnd())) {
+//            Integer addTimeStart = 0;
+//            Integer addTimeEnd = 0;
+//            try {
+//                Date date = new Date();
+//                Date dateEnd = new Date();
+//                SimpleDateFormat sf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+//                date = sf.parse(criteria.getAddTimeStart());// 日期转换为时间戳
+//                dateEnd = sf.parse(criteria.getAddTimeEnd());// 日期转换为时间戳
+//                long longDate = date.getTime() / 1000;
+//                long longDateEnd = dateEnd.getTime() / 1000;
+//                addTimeStart = (int) longDate;
+//                addTimeEnd = (int) longDateEnd;
+//            } catch (ParseException e) {
+//                e.printStackTrace();
+//            }
+//            if (addTimeEnd != 0 && addTimeStart != 0) {
+//                queryWrapper.lambda().ge(YxUserBill::getAddTime, addTimeStart).le(YxUserBill::getAddTime, addTimeEnd);
+//            }
+//        }
         User user = this.userService.getById(criteria.getUid());
 
         IPage<YxUserBill> ipage = this.page(new Page<>(pageable.getPageNumber() + 1, pageable.getPageSize()), queryWrapper);

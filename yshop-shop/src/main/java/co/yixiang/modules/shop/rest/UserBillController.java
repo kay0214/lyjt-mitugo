@@ -50,12 +50,6 @@ public class UserBillController {
         if (null != currUser.getChildUser()) {
             criteria.setChildUser(currUser.getChildUser());
         }
-        if (StringUtils.isNotBlank(criteria.getAddTimeStart()) && StringUtils.isBlank(criteria.getAddTimeEnd())) {
-            criteria.setAddTimeEnd(DateUtils.getDate());
-        }
-        if (StringUtils.isBlank(criteria.getAddTimeStart()) && StringUtils.isNotBlank(criteria.getAddTimeEnd())) {
-            criteria.setAddTimeStart(DateUtils.getDate());
-        }
         return new ResponseEntity(yxUserBillService.queryAll(criteria, pageable), HttpStatus.OK);
     }
 

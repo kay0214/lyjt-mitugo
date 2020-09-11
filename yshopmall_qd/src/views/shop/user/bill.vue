@@ -192,7 +192,7 @@ export default {
       return function(type){
       if(this.typeOptions.length){
         let i= this.typeOptions.filter(function(item){
-          for(let key in item){       
+          for(let key in item){
             if(key===type){
               return JSON.parse(JSON.stringify(item))
             }
@@ -231,7 +231,7 @@ export default {
         .catch(() => { })
     },
     beforeInit() {
-      
+
       getType().then(res=>{
         if(res){
           this.typeOptions=res
@@ -250,7 +250,7 @@ export default {
         type: this.type,
         pm: this.pm,
         addTimeStart:this.searchTime?this.searchTime[0]:null,
-        addTimeEnd:this.searchTime?this.searchTime[0]:null
+        addTimeEnd:this.searchTime?this.searchTime[1]:null
       }
       const query = this.query
       const type = query.type
