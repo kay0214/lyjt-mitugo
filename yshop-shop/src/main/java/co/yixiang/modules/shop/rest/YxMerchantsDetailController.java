@@ -146,13 +146,22 @@ public class YxMerchantsDetailController {
         map.put("data", JSON.toJSONString(yxStoreInfoDto));
         return new ResponseEntity<>(map, HttpStatus.OK);
     }
-    @PostMapping(value = "/modiyfMerWithdrawal")
+/*    @PostMapping(value = "/modiyfMerWithdrawal")
     @ApiOperation("商户可提现金额调增调减")
     @PreAuthorize("@el.check('admin','yxMerchantsDetail:modify')")
     public ResponseEntity<Object> modiyfUserCommission(@Validated @RequestBody UserMoneyDto param) {
         // 获取登陆用户的id
         int loginUid = SecurityUtils.getUserId().intValue();
         yxMerchantsDetailService.updateUserCommission(param);
-        return new ResponseEntity(HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }*/
+
+    @PostMapping(value = "/modiyfMerWithdrawal")
+    @Log("商户可提现金额调增调减")
+    @ApiOperation("商户可提现金额调增调减")
+    @PreAuthorize("@el.check('admin','yxMerchantsDetail:modify')")
+    public ResponseEntity<Object> modiyfUserCommission(@Validated @RequestBody UserMoneyDto param) {
+        yxMerchantsDetailService.updateUserCommission(param);
+        return new ResponseEntity(true,HttpStatus.OK);
     }
 }
