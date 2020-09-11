@@ -1,10 +1,12 @@
 package co.yixiang.modules.user.service.impl;
 
 import co.yixiang.common.service.impl.BaseServiceImpl;
+import co.yixiang.common.web.param.QueryParam;
 import co.yixiang.common.web.vo.Paging;
 import co.yixiang.enums.BillDetailEnum;
 import co.yixiang.enums.BillEnum;
 import co.yixiang.enums.BillInfoEnum;
+import co.yixiang.modules.couponUse.param.UserAccountQueryParam;
 import co.yixiang.modules.manage.entity.SystemUser;
 import co.yixiang.modules.manage.service.SystemUserService;
 import co.yixiang.modules.manage.web.vo.SystemUserQueryVo;
@@ -228,5 +230,24 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<YxUserBillMapper, YxU
         userBill.setStatus(BillEnum.STATUS_1.getValue());
         userBill.setUserType(2);
         yxUserBillMapper.insert(userBill);
+    }
+
+    /**
+     * 查询商户的线下交易流水列表
+     * @param param
+     * @return
+     */
+    @Override
+    public Paging<YxUserBillQueryVo> getYxUserAccountPageList(UserAccountQueryParam param, Long userId) {
+
+        QueryWrapper<YxUserBill> wrapper = new QueryWrapper<>();
+        wrapper.eq("status", 1).eq("uid", userId)
+                .eq("type", BillDetailEnum.TYPE_10.getValue())
+                .eq("user_type", 2).orderByDesc("id");
+
+        Page<YxUserBill> pageModel = new Page<>(param.getPage(), param.getLimit());
+
+        IPage<YxUserBill> pageList = yxUserBillMapper.selectPage(pageModel, wrapper);
+        return new Paging(pageList);
     }
 }
