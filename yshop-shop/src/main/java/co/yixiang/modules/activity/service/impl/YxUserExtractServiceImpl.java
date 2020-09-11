@@ -89,12 +89,6 @@ public class YxUserExtractServiceImpl extends BaseServiceImpl<YxUserExtractMappe
                 if (ObjectUtil.isNotEmpty(user)) {
                     extractDto.setUserTrueName(StringUtils.isNotEmpty(user.getRealName()) ? user.getRealName() : "");
                 }
-
-                if (0 == extractDto.getUserType()) {
-                    extractDto.setTruePrice(extractDto.getExtractPrice());
-                } else {
-                    extractDto.setTruePrice(extractDto.getExtractPrice().subtract(extractDto.getExtractPrice().multiply(EXTRACT_RATE)));
-                }
             }
         }
         map.put("content", extractDtoList);
