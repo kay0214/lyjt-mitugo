@@ -407,6 +407,7 @@ import mulpicUpload from '@/components/mul-pic-upload'
 import editor from '@/views/components/Editor'
 import { parseTime } from '@/utils/index'
 import { Message } from 'element-ui'
+import checkPermission from '@/utils/permission'
 // crud交由presenter持有
 const defaultCrud = CRUD({ title: '卡券表', url: 'api/yxCoupons', sort: 'id,desc', crudMethod: { ...crudYxCoupons },optShow: {
       add: true,
@@ -742,6 +743,10 @@ export default {
     },
     // 上下架操作
     handleUpload(id, status) {
+      let per=checkPermission(['admin','yxCoupons:edit','yxCoupons:del'])
+      if(!per){
+        return;
+      }
       this.$confirm(`确定进行[${status ? '下架' : '上架'}]操作?`, '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
@@ -763,6 +768,10 @@ export default {
     },
     // 热销操作
     handleHot(id, status) {
+      let per=checkPermission(['admin','yxCoupons:edit','yxCoupons:del'])
+      if(!per){
+        return;
+      }
       this.$confirm(`确定进行[${status ? '取消' : '设置'}热销榜单]操作?`, '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',

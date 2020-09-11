@@ -116,7 +116,7 @@ public class AuthController {
         //设置推广关系
         if (StrUtil.isNotEmpty(authUser.getSpread()) && !authUser.getSpread().equals("NaN")) {
             userService.setSpread(Integer.valueOf(authUser.getSpread()),
-                    jwtUser.getId().intValue());
+                    jwtUser.getId().intValue(),"");
         }
 
         // 返回 token
@@ -157,7 +157,6 @@ public class AuthController {
          * 2、目前登陆授权打通方式适用于新项目（也就是你yx_user、yx_wechat_user都是空的）
          * 3、如果你以前已经有数据请自行处理
          */
-        log.info("推荐人id：" + loginParam.getSpread());
         return ApiResult.ok(userService.wxappAuth(loginParam, request));
 
     }
@@ -254,7 +253,7 @@ public class AuthController {
             YxSystemAttachment systemAttachment = systemAttachmentService.getByCode(param.getInviteCode());
             if (systemAttachment != null) {
                 userService.setSpread(systemAttachment.getUid(),
-                        user.getUid());
+                        user.getUid(),"");
             }
         }
 

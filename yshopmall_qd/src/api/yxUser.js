@@ -47,3 +47,11 @@ export function withdraw(data) {
   })
 }
 
+export function modiyfUserCommission(data) {
+  return request({
+    url: 'api/yxUser/modiyfUserCommission',
+    method: 'post',
+    data
+  })
+}
+
