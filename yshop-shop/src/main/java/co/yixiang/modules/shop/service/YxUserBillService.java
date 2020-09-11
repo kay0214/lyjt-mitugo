@@ -80,4 +80,12 @@ public interface YxUserBillService  extends BaseService<YxUserBill>{
      */
     Map<String,Object> getPullNewPoint(YxUserBillQueryCriteria criteria, Pageable pageable);
 
+    /**
+     * 平台资金明细
+     *
+     * @param criteria
+     * @param pageable
+     * @return
+     */
+    Map<String,Object> queryAllNew(YxUserBillQueryCriteria criteria, Pageable pageable);
 }

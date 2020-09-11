@@ -39,7 +39,7 @@ public class UserBillController {
     @Autowired
     private UserService userService;
 
-    @ApiOperation(value = "查询")
+    @ApiOperation(value = "资金明细")
     @GetMapping(value = "/yxUserBill")
     @PreAuthorize("hasAnyRole('admin','YXUSERBILL_ALL','YXUSERBILL_SELECT')")
     public ResponseEntity getYxUserBills(YxUserBillQueryCriteria criteria, Pageable pageable) {
@@ -52,6 +52,14 @@ public class UserBillController {
         }
         return new ResponseEntity(yxUserBillService.queryAll(criteria, pageable), HttpStatus.OK);
     }
+
+    @ApiOperation(value = "平台资金明细")
+    @GetMapping(value = "/yxUserBillAll")
+    @PreAuthorize("hasAnyRole('admin','YXUSERBILL_ALL','YXUSERBILL_SELECT')")
+    public ResponseEntity getYxUserBillAll(YxUserBillQueryCriteria criteria, Pageable pageable) {
+        return new ResponseEntity(yxUserBillService.queryAllNew(criteria, pageable), HttpStatus.OK);
+    }
+
 
     @GetMapping(value = "/yxUserBillType")
     public ResponseEntity yxUserBillType() {
