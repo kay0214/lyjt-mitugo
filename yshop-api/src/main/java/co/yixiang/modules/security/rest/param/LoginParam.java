@@ -16,6 +16,8 @@ public class LoginParam {
 
     private String spread;
 
+    private String spreadType;
+
     private String encryptedData;
 
     private String iv;
