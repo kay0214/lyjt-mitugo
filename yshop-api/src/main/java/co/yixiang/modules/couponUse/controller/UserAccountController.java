@@ -3,53 +3,28 @@
  */
 package co.yixiang.modules.couponUse.controller;
 
-import cn.hutool.core.util.IdUtil;
 import co.yixiang.annotation.AnonymousAccess;
-import co.yixiang.common.api.ApiResult;
-import co.yixiang.common.constant.CommonConstant;
 import co.yixiang.common.web.controller.BaseController;
-import co.yixiang.common.web.param.QueryParam;
 import co.yixiang.common.web.vo.Paging;
-import co.yixiang.constant.ShopConstants;
 import co.yixiang.dozer.service.IGenerator;
-import co.yixiang.exception.BadRequestException;
-import co.yixiang.logging.aop.log.Log;
-import co.yixiang.modules.couponUse.criteria.YxCouponOrderUseQueryCriteria;
 import co.yixiang.modules.couponUse.dto.UserBillVo;
-import co.yixiang.modules.couponUse.dto.YxStoreInfoDto;
 import co.yixiang.modules.couponUse.param.UserAccountQueryParam;
-import co.yixiang.modules.coupons.service.YxCouponOrderService;
-import co.yixiang.modules.coupons.service.YxCouponOrderUseService;
-import co.yixiang.modules.coupons.service.YxCouponsService;
-import co.yixiang.modules.coupons.web.param.YxCouponsQueryParam;
-import co.yixiang.modules.coupons.web.vo.YxCouponsQueryVo;
-import co.yixiang.modules.image.service.YxImageInfoService;
 import co.yixiang.modules.manage.entity.SystemUser;
-import co.yixiang.modules.manage.entity.YxMerchantsDetail;
-import co.yixiang.modules.manage.service.YxMerchantsDetailService;
-import co.yixiang.modules.security.security.vo.AuthUser;
-import co.yixiang.modules.shop.entity.YxStoreInfo;
-import co.yixiang.modules.shop.service.YxStoreInfoService;
-import co.yixiang.modules.user.entity.YxUserBill;
 import co.yixiang.modules.user.service.YxUserBillService;
-import co.yixiang.modules.user.service.YxUserService;
-import co.yixiang.modules.user.web.vo.YxUserBillQueryVo;
-import co.yixiang.utils.*;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.wf.captcha.ArithmeticCaptcha;
+import co.yixiang.utils.RedisUtils;
+import co.yixiang.utils.StringUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
-import java.util.*;
-import java.util.concurrent.TimeUnit;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 交易流水
@@ -74,27 +49,18 @@ public class UserAccountController extends BaseController {
     }
 
 
-
     @AnonymousAccess
     @ApiOperation("B端：线下交易流水列表")
     @GetMapping(value = "/getUserAccountList")
-    public ResponseEntity<Object> getUserAccountList (
-                                                              UserAccountQueryParam param) {
-
-
-
-        Paging<UserBillVo> result = billService.getYxUserAccountPageList(param,36L);
-
-
+    public ResponseEntity<Object> getUserAccountList(UserAccountQueryParam param) {
+        Paging<UserBillVo> result = billService.getYxUserAccountPageList(param, 36L);
         return ResponseEntity.ok(result);
     }
 
     @AnonymousAccess
     @ApiOperation("B端：线上交易流水列表")
     @GetMapping(value = "/getUserProductAccountList")
-    public ResponseEntity<Object> getUserProductAccountList (@RequestHeader(value = "token") String token,
-                                                      UserAccountQueryParam param) {
-
+    public ResponseEntity<Object> getUserProductAccountList(@RequestHeader(value = "token") String token, UserAccountQueryParam param) {
         // 获取登陆用户的id
         Map<String, Object> map = new HashMap<>();
         SystemUser user = getRedisUser(token);
@@ -103,10 +69,7 @@ public class UserAccountController extends BaseController {
             map.put("statusDesc", "请先登录");
             return ResponseEntity.ok(map);
         }
-
-        Paging<UserBillVo> result = billService.getUserProductAccountList(param,user.getId());
-
-
+        Paging<UserBillVo> result = billService.getUserProductAccountList(param, user.getId());
         return ResponseEntity.ok(result);
     }
 

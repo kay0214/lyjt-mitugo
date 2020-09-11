@@ -191,7 +191,7 @@ public class CommissionServiceImpl implements CommissionService {
             BigDecimal oldMoney = yxUser.getNowMoney();
             yxUserMapper.updateUserMoney(parentBonus,oldMoney,yxUser.getUid());
 
-            insertBill(orderInfo, orderInfo.getParentId(), BillDetailEnum.TYPE_2.getValue(), parentBonus, yxUser.getNickname(), yxUser.getNowMoney(), 1,"推荐人分佣");
+            insertBill(orderInfo, orderInfo.getParentId(), BillDetailEnum.TYPE_2.getValue(), parentBonus, yxUser.getNickname(), yxUser.getNowMoney(), 3,"推荐人分佣");
 
             //拉新池
             BigDecimal referencePoint = orderInfo.getCommission().multiply(yxCommissionRate.getReferenceRate()).setScale(2, BigDecimal.ROUND_DOWN);
@@ -210,7 +210,7 @@ public class CommissionServiceImpl implements CommissionService {
             //更新佣金金额
             yxUserMapper.updateUserMoney(shareBonus,oldMoney,yxUser.getUid());
 
-            insertBill(orderInfo, orderInfo.getShareId(), BillDetailEnum.TYPE_2.getValue(), shareBonus, yxUser.getNickname(), yxUser.getNowMoney(), 1,"分享人分佣");
+            insertBill(orderInfo, orderInfo.getShareId(), BillDetailEnum.TYPE_2.getValue(), shareBonus, yxUser.getNickname(), yxUser.getNowMoney(), 3,"分享人分佣");
         }
 
         //分享人推荐人
@@ -225,7 +225,7 @@ public class CommissionServiceImpl implements CommissionService {
             yxUser.setBrokeragePrice(shareParentBonus);
             yxUserMapper.updateUserMoney(shareParentBonus,oldMoney,yxUser.getUid());
 
-            insertBill(orderInfo, orderInfo.getShareParentId(), BillDetailEnum.TYPE_2.getValue(), shareParentBonus, yxUser.getNickname(), yxUser.getNowMoney(), 1,"分享人推荐人分佣");
+            insertBill(orderInfo, orderInfo.getShareParentId(), BillDetailEnum.TYPE_2.getValue(), shareParentBonus, yxUser.getNickname(), yxUser.getNowMoney(), 3,"分享人推荐人分佣");
         }
 
         //商户、合伙人积分(分红池)
@@ -285,9 +285,9 @@ public class CommissionServiceImpl implements CommissionService {
         systemUserMapper.updateTotalScore(partnerPoint,oldTotal,partnerInfo.getId());
 
         //插入明细数据(商户)
-        insertBill(orderInfo, orderInfo.getMerId(), BillDetailEnum.TYPE_11.getValue(), merchantsPoint, merInfo.getNickName(), merInfo.getTotalScore(), 2,"商户分佣");
+        insertBill(orderInfo, orderInfo.getMerId(), BillDetailEnum.TYPE_11.getValue(), merchantsPoint, merInfo.getNickName(), merInfo.getTotalScore(), 1,"商户分佣");
         //插入明细数据(合伙人)
-        insertBill(orderInfo, merInfo.getParentId(), BillDetailEnum.TYPE_11.getValue(), partnerPoint, partnerInfo.getNickName(), partnerInfo.getTotalScore(), 3,"合伙人分佣");
+        insertBill(orderInfo, merInfo.getParentId(), BillDetailEnum.TYPE_11.getValue(), partnerPoint, partnerInfo.getNickName(), partnerInfo.getTotalScore(), 2,"合伙人分佣");
         BigDecimal totalPoint = yxFundsAccount.getBonusPoint().add(merchantsPoint).add(partnerPoint);
         //分红总积分
         yxFundsAccount.setBonusPoint(totalPoint);
@@ -336,7 +336,7 @@ public class CommissionServiceImpl implements CommissionService {
         yxUserBill.setUsername(userName);
         yxUserBill.setPm(1);
         yxUserBill.setTitle(title);
-        yxUserBill.setCategory(userType == 1 ? BillDetailEnum.CATEGORY_1.getValue() : BillDetailEnum.CATEGORY_2.getValue());
+        yxUserBill.setCategory(userType == 3 ? BillDetailEnum.CATEGORY_1.getValue() : BillDetailEnum.CATEGORY_2.getValue());
         yxUserBill.setType(type);
         yxUserBill.setBrokerageType(orderInfo.getBrokerageType());
         yxUserBill.setNumber(parentBonus);

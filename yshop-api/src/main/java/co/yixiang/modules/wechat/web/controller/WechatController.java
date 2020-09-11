@@ -284,7 +284,7 @@ public class WechatController extends BaseController {
             merBill.setAddTime(DateUtils.getNowTime());
             merBill.setStatus(1);
             merBill.setMerId(yxCouponOrder.getMerId());
-            merBill.setUserType(2);
+            merBill.setUserType(1);
             merBill.setUsername(systemUser.getNickName());
             this.yxUserBillService.save(merBill);
 
@@ -468,7 +468,7 @@ public class WechatController extends BaseController {
             userBill.setMark("小程序购买商品订单退款");
             userBill.setAddTime(OrderUtil.getSecondTimestampTwo());
             userBill.setStatus(1);
-            userBill.setUserType(1);
+            userBill.setUserType(3);
             yxUserBillService.save(userBill);
 
             // 更新商户余额
@@ -505,7 +505,7 @@ public class WechatController extends BaseController {
             merBill.setAddTime(DateUtils.getNowTime());
             merBill.setStatus(1);
             merBill.setMerId(orderInfo.getMerId());
-            merBill.setUserType(2);
+            merBill.setUserType(1);
             merBill.setUsername(systemUser.getNickName());
             merBill.setMark("小程序购买商品订单退款");
             this.yxUserBillService.save(merBill);

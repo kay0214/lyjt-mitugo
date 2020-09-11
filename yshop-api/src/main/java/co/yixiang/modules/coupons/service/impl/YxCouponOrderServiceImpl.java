@@ -755,7 +755,7 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         yxUserBill.setStatus(1);
         yxUserBill.setMerId(yxCouponOrder.getMerId());
 
-        yxUserBill.setUserType(1);
+        yxUserBill.setUserType(3);
         yxUserBill.setUsername(yxUser.getNickname());
         this.yxUserBillService.save(yxUserBill);
 
@@ -787,7 +787,7 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         merBill.setAddTime(DateUtils.getNowTime());
         merBill.setStatus(1);
         merBill.setMerId(yxCouponOrder.getMerId());
-        merBill.setUserType(2);
+        merBill.setUserType(1);
         merBill.setUsername(systemUser.getNickName());
         this.yxUserBillService.save(merBill);
 

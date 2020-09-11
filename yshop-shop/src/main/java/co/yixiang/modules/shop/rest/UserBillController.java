@@ -111,9 +111,9 @@ public class UserBillController {
     public ResponseEntity<Object> withdraw(@RequestBody YxUserExtract request) {
         int uid = SecurityUtils.getUserId().intValue();
         // 0->平台运营,1->合伙人,2->商户
-        int userType = 2;
+        int userType = 1;
         if (1 == SecurityUtils.getCurrUser().getUserRole()) {
-            userType = 3;
+            userType = 2;
         }
         boolean result = this.userService.updateUserWithdraw(uid, userType, request.getExtractPrice());
         return new ResponseEntity<>(result, HttpStatus.OK);

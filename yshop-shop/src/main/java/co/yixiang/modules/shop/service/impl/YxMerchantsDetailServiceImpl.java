@@ -529,7 +529,7 @@ public class YxMerchantsDetailServiceImpl extends BaseServiceImpl<YxMerchantsDet
         userBill.setAddTime(OrderUtil.getSecondTimestampTwo());
         userBill.setStatus(1);
         //后台商户
-        userBill.setUserType(2);
+        userBill.setUserType(1);
         yxUserBillService.save(userBill);
     }
 

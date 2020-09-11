@@ -66,11 +66,11 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<UserBillMapper, YxUse
         int userRole = 0;
         if (1 == criteria.getUserRole()) {
             userRole = 3;
-            queryWrapper.lambda().eq(YxUserBill::getUid, criteria.getUid()).eq(YxUserBill::getUserType, 3);
+            queryWrapper.lambda().eq(YxUserBill::getUid, criteria.getUid()).eq(YxUserBill::getUserType, 2);
         }
         if (2 == criteria.getUserRole()) {
             userRole = 2;
-            queryWrapper.lambda().eq(YxUserBill::getUid, criteria.getUid()).eq(YxUserBill::getUserType, 2);
+            queryWrapper.lambda().eq(YxUserBill::getUid, criteria.getUid()).eq(YxUserBill::getUserType, 1);
         }
         if (StringUtils.isNotBlank(criteria.getUsername())) {
             queryWrapper.lambda().like(YxUserBill::getUsername, criteria.getUsername());
