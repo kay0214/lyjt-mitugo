@@ -15,6 +15,7 @@ import co.yixiang.dozer.service.IGenerator;
 import co.yixiang.exception.BadRequestException;
 import co.yixiang.logging.aop.log.Log;
 import co.yixiang.modules.couponUse.criteria.YxCouponOrderUseQueryCriteria;
+import co.yixiang.modules.couponUse.dto.UserBillVo;
 import co.yixiang.modules.couponUse.dto.YxStoreInfoDto;
 import co.yixiang.modules.couponUse.param.UserAccountQueryParam;
 import co.yixiang.modules.coupons.service.YxCouponOrderService;
@@ -29,6 +30,7 @@ import co.yixiang.modules.manage.service.YxMerchantsDetailService;
 import co.yixiang.modules.security.security.vo.AuthUser;
 import co.yixiang.modules.shop.entity.YxStoreInfo;
 import co.yixiang.modules.shop.service.YxStoreInfoService;
+import co.yixiang.modules.user.entity.YxUserBill;
 import co.yixiang.modules.user.service.YxUserBillService;
 import co.yixiang.modules.user.service.YxUserService;
 import co.yixiang.modules.user.web.vo.YxUserBillQueryVo;
@@ -46,9 +48,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -78,19 +78,13 @@ public class UserAccountController extends BaseController {
     @AnonymousAccess
     @ApiOperation("B端：线下交易流水列表")
     @GetMapping(value = "/getUserAccountList")
-    public ResponseEntity<Object> getUserAccountList (@RequestHeader(value = "token") String token,
+    public ResponseEntity<Object> getUserAccountList (
                                                               UserAccountQueryParam param) {
 
-        // 获取登陆用户的id
-        Map<String, Object> map = new HashMap<>();
-        SystemUser user = getRedisUser(token);
-        if (null == user) {
-            map.put("status", "999");
-            map.put("statusDesc", "请先登录");
-            return ResponseEntity.ok(map);
-        }
 
-        Paging<YxUserBillQueryVo> result = billService.getYxUserAccountPageList(param,user.getId());
+
+        Paging<UserBillVo> result = billService.getYxUserAccountPageList(param,36L);
+
 
         return ResponseEntity.ok(result);
     }
@@ -110,10 +104,12 @@ public class UserAccountController extends BaseController {
             return ResponseEntity.ok(map);
         }
 
-        Paging<YxUserBillQueryVo> result = billService.getUserProductAccountList(param,user.getId());
+        Paging<UserBillVo> result = billService.getUserProductAccountList(param,user.getId());
+
 
         return ResponseEntity.ok(result);
     }
+
 
     /**
      * 从redis里面获取用户
