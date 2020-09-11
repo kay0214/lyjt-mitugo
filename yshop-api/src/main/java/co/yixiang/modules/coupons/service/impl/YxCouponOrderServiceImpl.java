@@ -343,9 +343,10 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         res = this.yxCouponOrderDetailService.saveBatch(details);
         if (!res) throw new ErrorRequestException("订单详情生成失败");
         //减库存加销量
-        coupons.setInventory(coupons.getInventory() - totalNum);
-        coupons.setSales(coupons.getSales() + totalNum);
-        res = this.couponsService.updateById(coupons);
+//        coupons.setInventory(coupons.getInventory() - totalNum);
+//        coupons.setSales(coupons.getSales() + totalNum);
+//        res = this.couponsService.updateById(coupons);
+        this.couponsService.updateAddSales(couponId,totalNum);
         if (!res) throw new ErrorRequestException("减库存加销量失败");
 
         //删除缓存
@@ -746,7 +747,7 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         yxUserBill.setPm(0);
         yxUserBill.setTitle("小程序本地生活购买");
         yxUserBill.setCategory(BillDetailEnum.CATEGORY_1.getValue());
-        yxUserBill.setType(BillDetailEnum.TYPE_3.getValue());
+        yxUserBill.setType(BillDetailEnum.TYPE_8.getValue());
         yxUserBill.setNumber(yxCouponOrder.getTotalPrice());
         // 目前只支持微信付款、没有余额
         yxUserBill.setBalance(yxUser.getNowMoney());
@@ -986,9 +987,12 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         if (null == yxCoupons) {
             throw new BadRequestException("未查询到卡券信息");
         }
-        yxCoupons.setSales(yxCoupons.getSales() - yxCouponOrder.getTotalNum());
-        yxCoupons.setInventory(yxCoupons.getInventory() + yxCouponOrder.getTotalNum());
-        this.couponsService.updateById(yxCoupons);
+        Integer mulCount = yxCouponOrder.getTotalNum();
+        if (yxCoupons.getSales() < yxCouponOrder.getTotalNum()) {
+            log.info("卡券id：" + yxCouponOrder.getCouponId() + "销量不足扣减、置0");
+            mulCount = yxCoupons.getSales();
+        }
+        this.couponsService.updateMulSales(yxCouponOrder.getCouponId(), mulCount);
         return true;
     }
 

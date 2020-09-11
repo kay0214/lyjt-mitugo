@@ -40,4 +40,12 @@ export function update(data) {
   })
 }
 
+export function modiyfMerWithdrawal(data) {
+  return request({
+    url: '/api/yxMerchantsDetail/modiyfMerWithdrawal',
+    method: 'post',
+    data
+  })
+}
+
 export default { add, edit, del }

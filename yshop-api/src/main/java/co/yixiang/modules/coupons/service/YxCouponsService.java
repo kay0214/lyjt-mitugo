@@ -92,4 +92,20 @@ public interface YxCouponsService extends BaseService<YxCoupons> {
      * @return
      */
     YxCouponsDto getCouponByOrderId(String orderId, int uid);
+
+    /**
+     * 增加销量
+     *
+     * @param couponId
+     * @param sales
+     */
+    void updateAddSales(Integer couponId, Integer sales);
+
+    /**
+     * 扣减销量
+     *
+     * @param couponId
+     * @param sales
+     */
+    void updateMulSales(Integer couponId,Integer sales);
 }

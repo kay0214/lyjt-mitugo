@@ -269,10 +269,13 @@ public class YxCouponOrderController extends BaseController {
 
         String orderId = order.getOrderId();
         YxCoupons yxCoupons = this.yxCouponsService.getById(order.getCouponId());
-        Integer buyCount = this.yxCouponOrderService.getBuyCount(uid,order.getCouponId());
+        Integer buyCount = this.yxCouponOrderService.getBuyCount(uid, order.getCouponId());
         buyCount = buyCount + order.getTotalNum();
-        if(buyCount > yxCoupons.getQuantityLimit()) {
+        if (buyCount > yxCoupons.getQuantityLimit()) {
             throw new BadRequestException("当前购买卡券数量超限");
+        }
+        if (0 == yxCoupons.getIsShow() || 1 == yxCoupons.getDelFlag()) {
+            throw new BadRequestException("当前卡券已被下架");
         }
 
         OrderExtendDTO orderDTO = new OrderExtendDTO();
@@ -446,13 +449,14 @@ public class YxCouponOrderController extends BaseController {
         return ApiResult.result(flag);
     }
 
-    @GetMapping("/buyCount/{couponId}")
+    @GetMapping("/buyCount/{couponId}/{cartNum}")
     @ApiOperation(value = "查询该用户已购买张数", notes = "查询该用户已购买张数")
-    public ApiResult<Boolean> buyCount(@PathVariable(value = "couponId") Integer couponId) {
+    public ApiResult<Boolean> buyCount(@PathVariable(value = "couponId") Integer couponId, @PathVariable(value = "cartNum") Integer cartNum) {
         int uid = SecurityUtils.getUserId().intValue();
         Integer count = this.yxCouponOrderService.getBuyCount(uid, couponId);
+        Integer totalCount = cartNum + count;
         YxCoupons yxCoupons = this.yxCouponsService.getById(couponId);
-        if (yxCoupons.getQuantityLimit() <= count) {
+        if (yxCoupons.getQuantityLimit() < totalCount) {
             return ApiResult.ok(false);
         }
         return ApiResult.ok(true);

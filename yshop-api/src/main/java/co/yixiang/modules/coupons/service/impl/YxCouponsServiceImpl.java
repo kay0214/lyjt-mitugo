@@ -397,4 +397,26 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
         yxCouponsDto.setStatusDesc("可核销");
         return yxCouponsDto;
     }
+
+    /**
+     * 增加销量
+     *
+     * @param couponId
+     * @param sales
+     */
+    @Override
+    public void updateAddSales(Integer couponId, Integer sales) {
+        yxCouponsMapper.updateAddSales(couponId,sales);
+    }
+
+    /**
+     * 扣减销量
+     *
+     * @param couponId
+     * @param sales
+     */
+    @Override
+    public void updateMulSales(Integer couponId, Integer sales) {
+        yxCouponsMapper.updateMulSales(couponId,sales);
+    }
 }

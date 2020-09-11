@@ -3,7 +3,7 @@
     <el-form ref="form" :model="form" :rules="rules" size="small" label-width="80px">
       <el-form-item label="快递公司" prop='deliveryName'>
         <!--<el-input v-model="form.deliveryName" style="width: 370px;"/>-->
-        <el-select v-model="form.deliveryName" filterable placeholder="请选择" style="width: 370px;">
+        <el-select v-model="form.deliveryName" filterable placeholder="请选择" style="width: 370px;" @change="$refs.form.validateField('deliveryName')">
           <el-option
             v-for="item in express"
             :key="item.id"

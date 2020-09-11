@@ -217,6 +217,7 @@
   import { isvalidPhone } from '@/utils/validate'
   import { Notification } from 'element-ui'
   import checkPermission from '@/utils/permission'
+  import storeMark from "@/assets/images/store_mark.png"
 
   // crud交由presenter持有
   const defaultCrud = CRUD({ title: '店铺表', url: 'api/yxStoreInfo', sort: 'id,desc',optShow: {
@@ -245,7 +246,6 @@
       return {
         map:null,
         geocoder: null,
-        marker: null,
         addOpenTime:false,//添加营业时间状态
         formOpenTime:[],
         BusinessTime:[new Date(),new Date()],
@@ -379,7 +379,7 @@
           center: center,
           zoom: 15,
           // 关闭控制选项和功能
-          draggable: false,
+          draggable: true,
           scrollwheel: false,
           disableDoubleClickZoom: false,
           keyboardShortcuts:false,
@@ -389,29 +389,50 @@
         });
         // 保存地图
         that.map = map;
+        var middleControl = document.createElement("div");
+        middleControl.className = "store-mark";
+        middleControl.innerHTML ='<img src="'+storeMark+'" />';
+        document.getElementById("mapContainer").appendChild(middleControl);
+        let timer = null;
+        qq.maps.event.addListener(that.map, 'center_changed', function() {
+            const center = map.getCenter();
+            if(timer){
+              clearTimeout(timer);
+            }
+            timer = setTimeout(()=>{
+              that.form.coordinateY = center.lat;
+              that.form.coordinateX = center.lng;
+              console.log(that.form)
+            },200)
+           
+        });
         //调用地址解析类
         that.geocoder = new qq.maps.Geocoder({
           complete : result=>{
             console.log(result)
             const { location } = result.detail;
-            that.map.setCenter(result.detail.location);
-            that.marker = new qq.maps.Marker({
-              map:that.map,
-              position: result.detail.location
-            });
+            that.map.setCenter(location);
             // 设置经纬度
             that.form.coordinateY = location.lat;
             that.form.coordinateX = location.lng;
           }
         });
-        that.codeAddress();
+        // 有经纬度跳到地址
+        if(that.form.coordinateY){
+          map.panTo(new qq.maps.LatLng(that.form.coordinateY, that.form.coordinateX))
+        }else{
+          // 无经纬度跳到地址的经纬度
+          that.codeAddress();
+        }
+        
       },
       codeAddress() {
         const that = this;
         //通过getLocation();方法获取位置信息值
-        that.marker && that.marker.setMap(null);
-        that.geocoder.getLocation(this.form.storeProvince + this.form.storeAddress);
-
+        if(that.geocoder){
+          that.geocoder.getLocation(this.form.storeProvince + this.form.storeAddress);
+        }
+        
       },
       setSliderImageArr(urls){
         this.sliderImageArr = urls
@@ -535,5 +556,21 @@
   }
   .el-table >>> .el-table__empty-block{
     min-height: 0;
+  }
+</style>
+<style>
+  .store-mark {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    z-index: 9;
+    width: 20px;
+    height: 20px;
+    margin: -10px 0 0 -10px;
+  }
+  .store-mark img{
+    width: 100%;
+    height: 100%;
+    display: block;
   }
 </style>
