@@ -8,10 +8,10 @@ import co.yixiang.common.service.impl.BaseServiceImpl;
 import co.yixiang.dozer.service.IGenerator;
 import co.yixiang.enums.BillDetailEnum;
 import co.yixiang.modules.shop.domain.User;
-import co.yixiang.modules.shop.domain.YxFundsDetail;
+import co.yixiang.modules.shop.domain.YxFundsAccount;
 import co.yixiang.modules.shop.domain.YxUserBill;
 import co.yixiang.modules.shop.service.UserService;
-import co.yixiang.modules.shop.service.YxFundsDetailService;
+import co.yixiang.modules.shop.service.YxFundsAccountService;
 import co.yixiang.modules.shop.service.YxUserBillService;
 import co.yixiang.modules.shop.service.dto.WithdrawReviewQueryCriteria;
 import co.yixiang.modules.shop.service.dto.YxUserBillDto;
@@ -53,6 +53,8 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<UserBillMapper, YxUse
     private UserService userService;
     @Autowired
     private UserBillMapper userBillMapper;
+    @Autowired
+    private YxFundsAccountService fundsAccountService;
 
     @Override
     //@Cacheable
@@ -187,21 +189,89 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<UserBillMapper, YxUse
     public Map<String, Object> getPointDetail(YxUserBillQueryCriteria criteria, Pageable pageable) {
         BigDecimal totalPoint = BigDecimal.ZERO;
         QueryWrapper<YxUserBill> queryWrapper = new QueryWrapper<>();
-        queryWrapper.lambda().eq(YxUserBill::getCategory, BillDetailEnum.CATEGORY_2);
+        queryWrapper.lambda().eq(YxUserBill::getCategory, BillDetailEnum.CATEGORY_2).eq(YxUserBill::getStatus, 1);
+        // 检索条件
+        if (StringUtils.isNotBlank(criteria.getAddTimeStart()) && StringUtils.isNotBlank(criteria.getAddTimeStart())) {
+            queryWrapper.lambda().ge(YxUserBill::getAddTime, DateUtils.stringToTimestamp(criteria.getAddTimeStart())).le(YxUserBill::getAddTime, DateUtils.stringToTimestamp(criteria.getAddTimeEnd()));
+        }
         if (0 != criteria.getUserRole()) {
             // 非管理员的情况、获取登陆用户的数据
             queryWrapper.lambda().eq(YxUserBill::getUid, criteria.getUid());
             User user = this.userService.getById(criteria.getUid());
             totalPoint = user.getTotalScore();
         } else {
-
+            YxFundsAccount yxFundsAccount = fundsAccountService.getOne(new QueryWrapper<YxFundsAccount>().lambda().eq(YxFundsAccount::getDelFlag, 0));
+            if (null != yxFundsAccount) {
+                totalPoint = yxFundsAccount.getBonusPoint().add(yxFundsAccount.getReferencePoint());
+            }
         }
         queryWrapper.lambda().orderByDesc(YxUserBill::getAddTime);
         IPage<YxUserBill> ipage = this.page(new Page<>(pageable.getPageNumber() + 1, pageable.getPageSize()), queryWrapper);
 
-        Map<String, Object> map = new LinkedHashMap<>(2);
+        Map<String, Object> map = new LinkedHashMap<>(3);
         map.put("content", ipage.getRecords());
         map.put("totalElements", ipage.getTotal());
+        map.put("totalPoint", totalPoint);
+        return map;
+    }
+
+    /**
+     * 获取分红池数据
+     *
+     * @param criteria
+     * @param pageable
+     * @return
+     */
+    @Override
+    public Map<String, Object> getShareDividendPoint(YxUserBillQueryCriteria criteria, Pageable pageable) {
+        BigDecimal totalPoint = BigDecimal.ZERO;
+        YxFundsAccount yxFundsAccount = fundsAccountService.getOne(new QueryWrapper<YxFundsAccount>().lambda().eq(YxFundsAccount::getDelFlag, 0));
+        if (null != yxFundsAccount) {
+            totalPoint = yxFundsAccount.getBonusPoint();
+        }
+        QueryWrapper<YxUserBill> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().eq(YxUserBill::getCategory, BillDetailEnum.CATEGORY_2).eq(YxUserBill::getType, BillDetailEnum.TYPE_11).eq(YxUserBill::getStatus, 1);
+        if (StringUtils.isNotBlank(criteria.getAddTimeStart()) && StringUtils.isNotBlank(criteria.getAddTimeStart())) {
+            queryWrapper.lambda().ge(YxUserBill::getAddTime, DateUtils.stringToTimestamp(criteria.getAddTimeStart())).le(YxUserBill::getAddTime, DateUtils.stringToTimestamp(criteria.getAddTimeEnd()));
+        }
+        if (StringUtils.isNotBlank(criteria.getUsername())) {
+            queryWrapper.lambda().like(YxUserBill::getUsername, criteria.getUsername());
+        }
+
+        IPage<YxUserBill> ipage = this.page(new Page<>(pageable.getPageNumber() + 1, pageable.getPageSize()), queryWrapper);
+        Map<String, Object> map = new LinkedHashMap<>(3);
+        map.put("content", ipage.getRecords());
+        map.put("totalElements", ipage.getTotal());
+        map.put("totalPoint", totalPoint);
+        return map;
+    }
+
+    /**
+     * 获取拉新池数据
+     *
+     * @param criteria
+     * @param pageable
+     * @return
+     */
+    @Override
+    public Map<String, Object> getPullNewPoint(YxUserBillQueryCriteria criteria, Pageable pageable) {
+
+        BigDecimal totalPoint = BigDecimal.ZERO;
+        YxFundsAccount yxFundsAccount = fundsAccountService.getOne(new QueryWrapper<YxFundsAccount>().lambda().eq(YxFundsAccount::getDelFlag, 0));
+        if (null != yxFundsAccount) {
+            totalPoint = yxFundsAccount.getReferencePoint();
+        }
+        QueryWrapper<YxUserBill> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().eq(YxUserBill::getCategory, BillDetailEnum.CATEGORY_2).eq(YxUserBill::getType, BillDetailEnum.TYPE_12).eq(YxUserBill::getStatus, 1);
+        if (StringUtils.isNotBlank(criteria.getAddTimeStart()) && StringUtils.isNotBlank(criteria.getAddTimeStart())) {
+            queryWrapper.lambda().ge(YxUserBill::getAddTime, DateUtils.stringToTimestamp(criteria.getAddTimeStart())).le(YxUserBill::getAddTime, DateUtils.stringToTimestamp(criteria.getAddTimeEnd()));
+        }
+
+        IPage<YxUserBill> ipage = this.page(new Page<>(pageable.getPageNumber() + 1, pageable.getPageSize()), queryWrapper);
+        Map<String, Object> map = new LinkedHashMap<>(3);
+        map.put("content", ipage.getRecords());
+        map.put("totalElements", ipage.getTotal());
+        map.put("totalPoint", totalPoint);
         return map;
     }
 }

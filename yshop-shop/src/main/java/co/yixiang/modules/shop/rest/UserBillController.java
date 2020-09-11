@@ -135,17 +135,48 @@ public class UserBillController {
     }
 
 
-    // 积分明细
+    /**
+     * 积分明细
+     *
+     * @param criteria
+     * @param pageable
+     * @return
+     */
     @Log("查询积分明细")
     @ApiOperation(value = "查询积分明细")
-    @GetMapping(value = "/pointDetail")
+    @PostMapping(value = "/pointDetail")
     public ResponseEntity<Object> getPointDetail(YxUserBillQueryCriteria criteria, Pageable pageable) {
         criteria.setUid(SecurityUtils.getUserId().intValue());
         criteria.setUserRole(SecurityUtils.getCurrUser().getUserRole());
         return new ResponseEntity(yxUserBillService.getPointDetail(criteria, pageable), HttpStatus.OK);
     }
 
+    /**
+     * 分红池
+     *
+     * @param criteria
+     * @param pageable
+     * @return
+     */
+    @Log("分红池")
+    @ApiOperation(value = "分红池")
+    @PostMapping(value = "/getShareDividendPoint")
+    public ResponseEntity<Object> getShareDividendPoint(YxUserBillQueryCriteria criteria, Pageable pageable) {
+        return new ResponseEntity(yxUserBillService.getShareDividendPoint(criteria, pageable), HttpStatus.OK);
+    }
 
-    // 拉新池
-    // 分红池
+    /**
+     * 拉新池
+     *
+     * @param criteria
+     * @param pageable
+     * @return
+     */
+    @Log("拉新池")
+    @ApiOperation(value = "拉新池")
+    @PostMapping(value = "/getPullNewPoint")
+    public ResponseEntity<Object> getPullNewPoint(YxUserBillQueryCriteria criteria, Pageable pageable) {
+        return new ResponseEntity(yxUserBillService.getPullNewPoint(criteria, pageable), HttpStatus.OK);
+    }
+
 }

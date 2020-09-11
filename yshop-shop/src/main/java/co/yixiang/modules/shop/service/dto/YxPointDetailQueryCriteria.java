@@ -28,4 +28,7 @@ public class YxPointDetailQueryCriteria extends BaseCriteria{
 
     private String addTimeStart;
     private String addTimeEnd;
+
+    //订单类型
+    private Integer orderType;
 }
