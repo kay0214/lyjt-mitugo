@@ -1,7 +1,10 @@
 package co.yixiang.modules.user.service;
 
 import co.yixiang.common.service.BaseService;
+import co.yixiang.common.web.param.QueryParam;
 import co.yixiang.common.web.vo.Paging;
+import co.yixiang.modules.couponUse.dto.UserBillVo;
+import co.yixiang.modules.couponUse.param.UserAccountQueryParam;
 import co.yixiang.modules.order.web.vo.YxStoreOrderQueryVo;
 import co.yixiang.modules.user.entity.YxUserBill;
 import co.yixiang.modules.user.web.dto.BillDTO;
@@ -67,4 +70,19 @@ public interface YxUserBillService extends BaseService<YxUserBill> {
      * @param order
      */
     void saveMerchantsBill(YxStoreOrderQueryVo order);
+
+    /**
+     * 查询商户的线下交易流水列表
+     * @param
+     * @return
+     */
+    Paging<UserBillVo> getYxUserAccountPageList(UserAccountQueryParam param, Long userId);
+
+    /**
+     * 查询商户的线上交易流水列表
+     * @param param
+     * @param id
+     * @return
+     */
+    Paging<UserBillVo> getUserProductAccountList(UserAccountQueryParam param, Long id);
 }

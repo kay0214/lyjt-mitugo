@@ -9,6 +9,8 @@
 package co.yixiang.modules.shop.service.dto;
 
 import lombok.Data;
+
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.io.Serializable;
 
@@ -104,7 +106,7 @@ public class UserDto implements Serializable {
 
     /** 总积分 */
 
-    private Integer totalScore;
+    private BigDecimal totalScore;
 
 
     /** 推荐用二维码地址 */

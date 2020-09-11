@@ -72,7 +72,7 @@ public class YxUserExtract extends BaseEntity {
     private Integer userType;
 
     @ApiModelProperty(value = "银行预留手机号")
-    private String phone;
+    private String bankMobile;
 
     @ApiModelProperty(value = "实际到账金额")
     private BigDecimal truePrice;
