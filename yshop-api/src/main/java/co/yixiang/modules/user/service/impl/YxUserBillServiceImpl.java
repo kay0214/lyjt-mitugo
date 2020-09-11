@@ -6,6 +6,7 @@ import co.yixiang.common.web.vo.Paging;
 import co.yixiang.enums.BillDetailEnum;
 import co.yixiang.enums.BillEnum;
 import co.yixiang.enums.BillInfoEnum;
+import co.yixiang.modules.couponUse.dto.UserBillVo;
 import co.yixiang.modules.couponUse.param.UserAccountQueryParam;
 import co.yixiang.modules.manage.entity.SystemUser;
 import co.yixiang.modules.manage.service.SystemUserService;
@@ -20,6 +21,8 @@ import co.yixiang.modules.user.web.dto.BillOrderDTO;
 import co.yixiang.modules.user.web.dto.BillOrderRecordDTO;
 import co.yixiang.modules.user.web.param.YxUserBillQueryParam;
 import co.yixiang.modules.user.web.vo.YxUserBillQueryVo;
+import co.yixiang.utils.CommonsUtils;
+import co.yixiang.utils.DateUtils;
 import co.yixiang.utils.OrderUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -238,7 +241,7 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<YxUserBillMapper, YxU
      * @return
      */
     @Override
-    public Paging<YxUserBillQueryVo> getYxUserAccountPageList(UserAccountQueryParam param, Long userId) {
+    public Paging<UserBillVo> getYxUserAccountPageList(UserAccountQueryParam param, Long userId) {
 
         QueryWrapper<YxUserBill> wrapper = new QueryWrapper<>();
         wrapper.eq("status", 1).eq("uid", userId)
@@ -250,11 +253,11 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<YxUserBillMapper, YxU
         Page<YxUserBill> pageModel = new Page<>(param.getPage(), param.getLimit());
 
         IPage<YxUserBill> pageList = yxUserBillMapper.selectPage(pageModel, wrapper);
-        return new Paging(pageList);
+        return getResultList(pageList);
     }
 
     @Override
-    public Paging<YxUserBillQueryVo> getUserProductAccountList(UserAccountQueryParam param, Long id) {
+    public Paging<UserBillVo> getUserProductAccountList(UserAccountQueryParam param, Long id) {
         QueryWrapper<YxUserBill> wrapper = new QueryWrapper<>();
         wrapper.eq("status", 1).eq("uid", id)
                 .eq("type", BillDetailEnum.TYPE_9.getValue())
@@ -264,6 +267,25 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<YxUserBillMapper, YxU
         Page<YxUserBill> pageModel = new Page<>(param.getPage(), param.getLimit());
 
         IPage<YxUserBill> pageList = yxUserBillMapper.selectPage(pageModel, wrapper);
-        return new Paging(pageList);
+
+
+        return getResultList(pageList);
     }
+
+    private Paging<UserBillVo> getResultList(IPage<YxUserBill> result) {
+        Paging<UserBillVo> resultStr = new Paging<UserBillVo>();
+        resultStr.setSum(result.getTotal()+"");
+        resultStr.setTotal(result.getTotal());
+        if(result.getRecords()!=null){
+            List<UserBillVo> list = new ArrayList<>();
+            for (YxUserBill item :result.getRecords()) {
+                UserBillVo userBillVo = CommonsUtils.convertBean(item,UserBillVo.class);
+                userBillVo.setAddTimeStr(DateUtils.timestampToStr10(item.getAddTime(),DateUtils.YYYY_MM_DD_HH_MM_SS));
+                list.add(userBillVo);
+            }
+            resultStr.setRecords(list);
+        }
+        return  resultStr;
+    }
+
 }

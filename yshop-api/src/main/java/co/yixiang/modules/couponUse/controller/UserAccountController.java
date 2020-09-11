@@ -78,22 +78,15 @@ public class UserAccountController extends BaseController {
     @AnonymousAccess
     @ApiOperation("B端：线下交易流水列表")
     @GetMapping(value = "/getUserAccountList")
-    public ResponseEntity<Object> getUserAccountList (@RequestHeader(value = "token") String token,
+    public ResponseEntity<Object> getUserAccountList (
                                                               UserAccountQueryParam param) {
 
-        // 获取登陆用户的id
-        Map<String, Object> map = new HashMap<>();
-        SystemUser user = getRedisUser(token);
-        if (null == user) {
-            map.put("status", "999");
-            map.put("statusDesc", "请先登录");
-            return ResponseEntity.ok(map);
-        }
-
-        Paging<YxUserBillQueryVo> result = billService.getYxUserAccountPageList(param,user.getId());
 
 
-        return ResponseEntity.ok(getResultList(result));
+        Paging<UserBillVo> result = billService.getYxUserAccountPageList(param,36L);
+
+
+        return ResponseEntity.ok(result);
     }
 
     @AnonymousAccess
@@ -111,27 +104,13 @@ public class UserAccountController extends BaseController {
             return ResponseEntity.ok(map);
         }
 
-        Paging<YxUserBillQueryVo> result = billService.getUserProductAccountList(param,user.getId());
+        Paging<UserBillVo> result = billService.getUserProductAccountList(param,user.getId());
 
 
-        return ResponseEntity.ok(getResultList(result));
+        return ResponseEntity.ok(result);
     }
 
-    private Paging<UserBillVo> getResultList(Paging<YxUserBillQueryVo> result) {
-        Paging<UserBillVo> resultStr = new Paging<UserBillVo>();
-        resultStr.setSum(result.getSum());
-        resultStr.setTotal(result.getTotal());
-        if(result.getRecords()!=null){
-            List<UserBillVo> list = new ArrayList<>();
-            for (YxUserBillQueryVo item :result.getRecords()) {
-                UserBillVo userBillVo = CommonsUtils.convertBean(item,UserBillVo.class);
-                userBillVo.setAddTimeStr(DateUtils.timestampToStr10(item.getAddTime()));
-                list.add(userBillVo);
-            }
-            resultStr.setRecords(list);
-        }
-        return  resultStr;
-    }
+
     /**
      * 从redis里面获取用户
      *
