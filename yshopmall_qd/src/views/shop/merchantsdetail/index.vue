@@ -675,6 +675,8 @@ formWithdraw:{},
       this.$refs.formWithdraw.validate(function(ret,obj){
         if(ret){          
           withdrawEdit(Object.assign(formData,{uid})).then(res=>{
+            console.log('xxxxxx')
+            console.log(res)
             if(res){
               Notification.success({
               title: '提交成功'
