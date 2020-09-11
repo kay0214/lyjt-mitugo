@@ -95,6 +95,26 @@ public class UserAccountController extends BaseController {
         return ResponseEntity.ok(result);
     }
 
+    @AnonymousAccess
+    @ApiOperation("B端：线上交易流水列表")
+    @GetMapping(value = "/getUserProductAccountList")
+    public ResponseEntity<Object> getUserProductAccountList (@RequestHeader(value = "token") String token,
+                                                      UserAccountQueryParam param) {
+
+        // 获取登陆用户的id
+        Map<String, Object> map = new HashMap<>();
+        SystemUser user = getRedisUser(token);
+        if (null == user) {
+            map.put("status", "999");
+            map.put("statusDesc", "请先登录");
+            return ResponseEntity.ok(map);
+        }
+
+        Paging<YxUserBillQueryVo> result = billService.getUserProductAccountList(param,user.getId());
+
+        return ResponseEntity.ok(result);
+    }
+
     /**
      * 从redis里面获取用户
      *

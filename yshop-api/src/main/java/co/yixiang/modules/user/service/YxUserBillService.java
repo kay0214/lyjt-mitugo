@@ -76,4 +76,12 @@ public interface YxUserBillService extends BaseService<YxUserBill> {
      * @return
      */
     Paging<YxUserBillQueryVo> getYxUserAccountPageList(UserAccountQueryParam param, Long userId);
+
+    /**
+     * 查询商户的线上交易流水列表
+     * @param param
+     * @param id
+     * @return
+     */
+    Paging<YxUserBillQueryVo> getUserProductAccountList(UserAccountQueryParam param, Long id);
 }

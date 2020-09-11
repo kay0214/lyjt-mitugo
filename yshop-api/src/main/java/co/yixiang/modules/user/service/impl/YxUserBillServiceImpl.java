@@ -250,4 +250,17 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<YxUserBillMapper, YxU
         IPage<YxUserBill> pageList = yxUserBillMapper.selectPage(pageModel, wrapper);
         return new Paging(pageList);
     }
+
+    @Override
+    public Paging<YxUserBillQueryVo> getUserProductAccountList(UserAccountQueryParam param, Long id) {
+        QueryWrapper<YxUserBill> wrapper = new QueryWrapper<>();
+        wrapper.eq("status", 1).eq("uid", id)
+                .eq("type", BillDetailEnum.TYPE_9.getValue())
+                .eq("user_type", 2).orderByDesc("id");
+
+        Page<YxUserBill> pageModel = new Page<>(param.getPage(), param.getLimit());
+
+        IPage<YxUserBill> pageList = yxUserBillMapper.selectPage(pageModel, wrapper);
+        return new Paging(pageList);
+    }
 }
