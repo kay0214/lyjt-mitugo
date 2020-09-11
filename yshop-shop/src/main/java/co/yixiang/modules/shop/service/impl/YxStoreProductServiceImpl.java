@@ -330,6 +330,7 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<StoreProductMappe
             yxStoreProductAttrValue.setCommission(new BigDecimal(df1.format(bigComm).toString()));
 
             productFormatDTO.setUnique(yxStoreProductAttrValue.getUnique());
+            productFormatDTO.setCommission(yxStoreProductAttrValue.getCommission().doubleValue());
 
             valueGroup.add(yxStoreProductAttrValue);
         }
