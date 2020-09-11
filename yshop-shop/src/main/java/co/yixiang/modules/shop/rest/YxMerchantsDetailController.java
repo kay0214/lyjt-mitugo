@@ -148,6 +148,7 @@ public class YxMerchantsDetailController {
     }
     @PostMapping(value = "/modiyfMerWithdrawal")
     @ApiOperation("商户可提现金额调增调减")
+    @PreAuthorize("@el.check('admin','yxMerchantsDetail:modify')")
     public ResponseEntity<Object> modiyfUserCommission(@Validated @RequestBody UserMoneyDto param) {
         // 获取登陆用户的id
         int loginUid = SecurityUtils.getUserId().intValue();

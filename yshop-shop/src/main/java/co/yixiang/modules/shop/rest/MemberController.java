@@ -112,6 +112,7 @@ public class MemberController {
 
 
     @PostMapping(value = "/yxUser/modiyfUserCommission")
+    @PreAuthorize("hasAnyRole('admin','YXUSER_MODIFY')")
     @ApiOperation("用户佣金调增调减")
     public ResponseEntity<Object> modiyfUserCommission(@Validated @RequestBody UserMoneyDto param) {
         // 获取登陆用户的id
