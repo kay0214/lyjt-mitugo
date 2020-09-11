@@ -140,7 +140,7 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<YxUserBillMapper, YxU
         List<BillDTO> billDTOList = yxUserBillMapper.getBillList(wrapper, pageModel);
         for (BillDTO billDTO : billDTOList) {
             QueryWrapper<YxUserBill> wrapperT = new QueryWrapper<>();
-            wrapperT.in("id", Arrays.asList(billDTO.getIds().split(",")));
+            wrapperT.in("id", Arrays.asList(billDTO.getIds().split(","))).orderByDesc("add_time");
             billDTO.setList(yxUserBillMapper.getUserBillList(wrapperT));
 
         }
