@@ -77,6 +77,8 @@ public class YxUserBill implements Serializable {
     /** 用户类型 0:预留 1:前台用户 2：后台商户 3：后台合伙人 */
     private Integer userType;
 
+    /** 佣金类型0:商品返佣 1：卡券返佣 */
+    private Integer brokerageType;
 
     public void copy(YxUserBill source){
         BeanUtil.copyProperties(source,this, CopyOptions.create().setIgnoreNullValue(true));
