@@ -29,6 +29,7 @@ import co.yixiang.modules.manage.service.YxMerchantsDetailService;
 import co.yixiang.modules.security.security.vo.AuthUser;
 import co.yixiang.modules.shop.entity.YxStoreInfo;
 import co.yixiang.modules.shop.service.YxStoreInfoService;
+import co.yixiang.modules.user.entity.YxUserBill;
 import co.yixiang.modules.user.service.YxUserBillService;
 import co.yixiang.modules.user.service.YxUserService;
 import co.yixiang.modules.user.web.vo.YxUserBillQueryVo;
@@ -91,6 +92,11 @@ public class UserAccountController extends BaseController {
         }
 
         Paging<YxUserBillQueryVo> result = billService.getYxUserAccountPageList(param,user.getId());
+        if(result.getRecords()!=null){
+            for (YxUserBillQueryVo item :result.getRecords()) {
+                item.setAddTimeStr(DateUtils.timestampToStr10(item.getAddTime()));
+            }
+        }
 
         return ResponseEntity.ok(result);
     }
@@ -111,6 +117,13 @@ public class UserAccountController extends BaseController {
         }
 
         Paging<YxUserBillQueryVo> result = billService.getUserProductAccountList(param,user.getId());
+
+        if(result.getRecords()!=null){
+            for (YxUserBillQueryVo item :result.getRecords()) {
+                item.setAddTimeStr(DateUtils.timestampToStr10(item.getAddTime()));
+            }
+        }
+
 
         return ResponseEntity.ok(result);
     }
