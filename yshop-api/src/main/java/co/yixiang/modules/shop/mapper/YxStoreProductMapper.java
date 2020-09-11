@@ -23,7 +23,7 @@ import java.io.Serializable;
 @Repository
 public interface YxStoreProductMapper extends BaseMapper<YxStoreProduct> {
 
-    @Update("update yx_store_product set stock=CAST(stock  AS SIGNED)-#{num}, sales=sales+#{num},ficti=ficti+#{num}" +
+    @Update("update yx_store_product set stock=CAST(stock  AS SIGNED)-#{num}, sales=sales+#{num} " +
             " where id=#{productId}")
     int decStockIncSales(@Param("num") int num,@Param("productId") int productId);
 
@@ -31,7 +31,7 @@ public interface YxStoreProductMapper extends BaseMapper<YxStoreProduct> {
             " where id=#{productId}")
     int incStockDecSales(@Param("num") int num,@Param("productId") int productId);
 
-    @Update("update yx_store_product set sales=sales + #{num}, ficti = ficti + #{num}" +
+    @Update("update yx_store_product set sales=sales + #{num} " +
             " where id=#{productId}")
     int incSales(@Param("num") int num,@Param("productId") int productId);
 

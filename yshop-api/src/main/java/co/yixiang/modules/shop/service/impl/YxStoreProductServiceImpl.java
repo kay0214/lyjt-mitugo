@@ -10,10 +10,7 @@ import co.yixiang.enums.ProductEnum;
 import co.yixiang.exception.ErrorRequestException;
 import co.yixiang.modules.commission.entity.YxCommissionRate;
 import co.yixiang.modules.commission.service.YxCommissionRateService;
-import co.yixiang.modules.shop.entity.YxStoreInfo;
-import co.yixiang.modules.shop.entity.YxStoreProduct;
-import co.yixiang.modules.shop.entity.YxStoreProductAttrResult;
-import co.yixiang.modules.shop.entity.YxStoreProductAttrValue;
+import co.yixiang.modules.shop.entity.*;
 import co.yixiang.modules.shop.mapper.YxStoreInfoMapper;
 import co.yixiang.modules.shop.mapper.YxStoreProductAttrValueMapper;
 import co.yixiang.modules.shop.mapper.YxStoreProductMapper;
@@ -92,6 +89,8 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
     @Autowired
     private YxStoreProductAttrResultService yxStoreProductAttrResultService;
 
+    @Autowired
+    private YxStoreCartService yxStoreCartService;
     /**
      * 增加库存 减少销量
      *
@@ -326,6 +325,11 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
         IPage<YxStoreProduct> pageList = yxStoreProductMapper.selectPage(pageModel, wrapper);
 
         list = storeProductMap.toDto(pageList.getRecords());
+        if(CollectionUtils.isNotEmpty(list)){
+            for(YxStoreProductQueryVo productQueryVo:list){
+                productQueryVo.setSales(productQueryVo.getSales() + productQueryVo.getFicti());
+            }
+        }
 
         return list;
     }
@@ -369,6 +373,9 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
 //        if(null == list){
 //            return new ArrayList<>();
 //        }
+        for(YxStoreProduct product:pageList.getRecords()){
+            product.setSales(product.getSales() + product.getFicti());
+        }
 
         return new Paging(pageList);
     }
@@ -404,5 +411,24 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
         List<YxStoreProduct> storeProductList = this.list(wrapper);
         List<YxStoreProductNoAttrQueryVo> queryVoList = CommonsUtils.convertBeanList(storeProductList, YxStoreProductNoAttrQueryVo.class);
         return queryVoList;
+    }
+
+    /**
+     * 根据cartId获取规格属性
+     * @param cartId
+     * @return
+     */
+    @Override
+    public String getProductArrtValueByCartId (int cartId){
+        //
+        YxStoreCart yxStoreCart = yxStoreCartService.getById(cartId);
+        if(StringUtils.isNotBlank(yxStoreCart.getProductAttrUnique())){
+            //规格属性不为空
+            YxStoreProductAttrValue attrValue =  storeProductAttrValueMapper.getProductArrtValueByCartId(cartId);
+            if(ObjectUtil.isEmpty(attrValue)){
+                return "产品规格属性已经被修改，请重新选择后下单！";
+            }
+        }
+        return null;
     }
 }

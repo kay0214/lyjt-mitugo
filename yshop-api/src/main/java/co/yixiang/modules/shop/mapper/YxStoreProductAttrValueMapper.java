@@ -55,4 +55,7 @@ public interface YxStoreProductAttrValueMapper extends BaseMapper<YxStoreProduct
      */
     IPage<YxStoreProductAttrValueQueryVo> getYxStoreProductAttrValuePageList(@Param("page") Page page, @Param("param") YxStoreProductAttrValueQueryParam yxStoreProductAttrValueQueryParam);
 
+
+    @Select("SELECT pav.* FROM yx_store_product_attr_value pav LEFT JOIN yx_store_cart sa on pav.`unique` = sa.product_attr_unique WHERE sa.id = #{cartId} ")
+    YxStoreProductAttrValue getProductArrtValueByCartId (@Param("cartId") int cartId);
 }
