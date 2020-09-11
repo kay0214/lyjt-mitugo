@@ -558,7 +558,7 @@
     min-height: 0;
   }
 </style>
-<style lang="less">
+<style>
   .store-mark {
     position: absolute;
     left: 50%;
@@ -567,10 +567,10 @@
     width: 20px;
     height: 20px;
     margin: -10px 0 0 -10px;
-    img{
-      width: 100%;
-      height: 100%;
-      display: block;
-    }
+  }
+  .store-mark img{
+    width: 100%;
+    height: 100%;
+    display: block;
   }
 </style>
