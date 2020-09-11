@@ -335,7 +335,7 @@ public class CommissionServiceImpl implements CommissionService {
         yxUserBill.setLinkId(orderInfo.getOrderId());
         yxUserBill.setUsername(userName);
         yxUserBill.setPm(1);
-        yxUserBill.setTitle("商品返佣");
+        yxUserBill.setTitle(BillDetailEnum.TYPE_2.getDesc());
         yxUserBill.setCategory(userType == 1 ? BillDetailEnum.CATEGORY_1.getValue() : BillDetailEnum.CATEGORY_2.getValue());
         yxUserBill.setType(type);
         yxUserBill.setBrokerageType(orderInfo.getBrokerageType());

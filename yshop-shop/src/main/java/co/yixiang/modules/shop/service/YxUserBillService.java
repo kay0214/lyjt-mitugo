@@ -61,4 +61,23 @@ public interface YxUserBillService  extends BaseService<YxUserBill>{
      * @return
      */
     Map<String,Object> getPointDetail(YxUserBillQueryCriteria criteria, Pageable pageable);
+
+    /**
+     * 分红池
+     *
+     * @param criteria
+     * @param pageable
+     * @return
+     */
+    Map<String,Object> getShareDividendPoint(YxUserBillQueryCriteria criteria, Pageable pageable);
+
+    /**
+     * 获取拉新池数据
+     * 
+     * @param criteria
+     * @param pageable
+     * @return
+     */
+    Map<String,Object> getPullNewPoint(YxUserBillQueryCriteria criteria, Pageable pageable);
+
 }

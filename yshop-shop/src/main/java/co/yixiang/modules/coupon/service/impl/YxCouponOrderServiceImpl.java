@@ -94,7 +94,7 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         if (null != criteria.getOrderStatus()) {
             if (7 == criteria.getOrderStatus()) {
                 queryWrapper.lambda().eq(YxCouponOrder::getRefundStatus, 1);
-            } else if (2 == criteria.getOrderStatus()) {
+            } else if (1 == criteria.getOrderStatus()) {
                 // 已过期
                 queryWrapper.lambda().eq(YxCouponOrder::getStatus, 1);
             }else if (8 == criteria.getOrderStatus()) {

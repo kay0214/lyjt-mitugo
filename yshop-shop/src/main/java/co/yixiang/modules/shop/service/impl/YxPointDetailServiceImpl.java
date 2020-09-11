@@ -1,5 +1,6 @@
 package co.yixiang.modules.shop.service.impl;
 
+import cn.hutool.core.util.ObjectUtil;
 import co.yixiang.common.service.impl.BaseServiceImpl;
 import co.yixiang.common.utils.QueryHelpPlus;
 import co.yixiang.dozer.service.IGenerator;
@@ -82,6 +83,21 @@ public class YxPointDetailServiceImpl extends BaseServiceImpl<YxPointDetailMappe
         if (StringUtils.isNotBlank(criteria.getAddTimeStart())&&StringUtils.isNotBlank( criteria.getAddTimeEnd())) {
             queryWrapper.lambda().between(YxPointDetail::getCreateTime, criteria.getAddTimeStart()+" 00:00:00", criteria.getAddTimeEnd()+" 23:59:59");
         }
+
+//        积分类别 0:拉新 1:分红
+        if (ObjectUtil.isNotEmpty(criteria.getType())) {
+            queryWrapper.lambda().eq(YxPointDetail::getType,criteria.getType());
+        }
+//        订单类型 0:商品购买 1:本地生活
+        if (ObjectUtil.isNotEmpty(criteria.getOrderType())) {
+            queryWrapper.lambda().eq(YxPointDetail::getOrderType, criteria.getOrderType());
+        }
+
+        if (StringUtils.isNotBlank(criteria.getAddTimeStart())&&StringUtils.isNotBlank( criteria.getAddTimeEnd())) {
+            queryWrapper.lambda().between(YxPointDetail::getCreateTime, criteria.getAddTimeStart()+" 00:00:00", criteria.getAddTimeEnd()+" 23:59:59");
+        }
+
+
         IPage<YxPointDetail> ipage = this.page(new Page<>(pageable.getPageNumber() + 1, pageable.getPageSize()), queryWrapper);
 
         Map<String, Object> map = new LinkedHashMap<>(3);
