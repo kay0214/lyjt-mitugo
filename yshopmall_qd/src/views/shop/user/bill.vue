@@ -99,7 +99,7 @@
       <el-table-column prop="pm" label="收支类型">
         <template slot-scope="scope">
           <span v-if="scope.row.pm == '0'">支出</span>
-          <span v-else-if="scope.row.pm == '1'">获得</span>
+          <span v-else-if="scope.row.pm == '1'">收入</span>
           <span v-else>未知</span>
         </template>
       </el-table-column>
@@ -164,7 +164,7 @@ export default {
       typeOptions: [],
       pmOptions: [
         { value: '0', label: '支出 ' },
-        { value: '1', label: '获得' }
+        { value: '1', label: '收入' }
       ],
       rules:{
         extractPrice:[
