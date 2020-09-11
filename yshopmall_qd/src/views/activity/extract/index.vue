@@ -23,11 +23,12 @@
     <el-table v-loading="loading" :data="data" size="small" style="width: 100%;">
       <el-table-column prop="id" label="id" />
       <el-table-column prop="extractPrice" label="提现金额" />
+      <el-table-column prop="truePrice" label="实际到账" />
       <el-table-column prop="extractType" label="提现方式">
         <template slot-scope="scope">
           <div v-if="scope.row.extractType='weixin'">
 
-            姓名:{{ scope.row.userTrueName }}<br>            
+            姓名:{{ scope.row.userTrueName }}<br>
             微信昵称:{{ scope.row.realName }}
           </div>
           <div v-else>
