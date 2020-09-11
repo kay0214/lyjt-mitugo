@@ -19,6 +19,8 @@ public interface MQConstant {
     String MITU_COMMISSION_TAG = "MITU_COMMISSION_TAG";
 
 
+    String MITU_WECHAT_NOTIFY_GROUP = "MITU_WECHAT_NOTIFY_GROUP";
+    String MITU_WECHAT_NOTIFY_TAG = "MITU_WECHAT_NOTIFY_TAG";
     /**
      * 提现
      */
