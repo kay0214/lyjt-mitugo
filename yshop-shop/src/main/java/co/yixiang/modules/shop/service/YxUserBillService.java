@@ -52,4 +52,13 @@ public interface YxUserBillService  extends BaseService<YxUserBill>{
     * @throws IOException /
     */
     void download(List<YxUserBillDto> all, HttpServletResponse response) throws IOException;
+
+    /**
+     * 获取用户积分明细
+     *
+     * @param criteria
+     * @param pageable
+     * @return
+     */
+    Map<String,Object> getPointDetail(YxUserBillQueryCriteria criteria, Pageable pageable);
 }

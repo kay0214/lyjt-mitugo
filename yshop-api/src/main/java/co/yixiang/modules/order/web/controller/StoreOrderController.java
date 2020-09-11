@@ -365,9 +365,9 @@ public class StoreOrderController extends BaseController {
         map.put("result", orderDTO);
         //开始处理支付
         if (StrUtil.isNotEmpty(orderId)) {
-//            yxStoreProductService.getProductArrtValueByCartId();
             //下单后，修改了规格属性
             String attMsg= yxStoreProductService.getProductArrtValueByCartId(Integer.parseInt(storeOrder.getCartId()));
+            log.info("-------------订单支付,返回结果为：【"+attMsg+"】 -------------");
             if(StringUtils.isNotBlank(attMsg)){
                 return ApiResult.fail(attMsg);
             }

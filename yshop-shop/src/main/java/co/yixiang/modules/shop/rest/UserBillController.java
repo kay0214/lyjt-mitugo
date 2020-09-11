@@ -134,4 +134,18 @@ public class UserBillController {
         return new ResponseEntity(yxUserBillService.queryAll(criteria, pageable), HttpStatus.OK);
     }
 
+
+    // 积分明细
+    @Log("查询积分明细")
+    @ApiOperation(value = "查询积分明细")
+    @GetMapping(value = "/pointDetail")
+    public ResponseEntity<Object> getPointDetail(YxUserBillQueryCriteria criteria, Pageable pageable) {
+        criteria.setUid(SecurityUtils.getUserId().intValue());
+        criteria.setUserRole(SecurityUtils.getCurrUser().getUserRole());
+        return new ResponseEntity(yxUserBillService.getPointDetail(criteria, pageable), HttpStatus.OK);
+    }
+
+
+    // 拉新池
+    // 分红池
 }

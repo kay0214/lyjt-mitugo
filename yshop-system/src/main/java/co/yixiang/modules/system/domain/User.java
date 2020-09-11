@@ -9,6 +9,7 @@ import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.Objects;
@@ -126,7 +127,7 @@ public class User implements Serializable {
     }
 
     /** 总积分 */
-    private Integer totalScore;
+    private BigDecimal totalScore;
 
 
     /** 推荐用二维码地址 */

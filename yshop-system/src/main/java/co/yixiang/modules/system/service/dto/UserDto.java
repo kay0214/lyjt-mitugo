@@ -11,6 +11,8 @@ package co.yixiang.modules.system.service.dto;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.io.Serializable;
 import java.sql.Timestamp;
@@ -97,7 +99,7 @@ public class UserDto implements Serializable {
 
     /** 总积分 */
 
-    private Integer totalScore;
+    private BigDecimal totalScore;
 
 
     /** 推荐用二维码地址 */

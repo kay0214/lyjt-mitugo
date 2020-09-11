@@ -414,20 +414,24 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
     }
 
     /**
-     * 根据cartId获取规格属性
+     * 验证产品
      * @param cartId
      * @return
      */
     @Override
-    public String getProductArrtValueByCartId (int cartId){
+    public String getProductArrtValueByCartId (int cartId) {
         //
         YxStoreCart yxStoreCart = yxStoreCartService.getById(cartId);
-        if(StringUtils.isNotBlank(yxStoreCart.getProductAttrUnique())){
+        if (StringUtils.isNotBlank(yxStoreCart.getProductAttrUnique())) {
             //规格属性不为空
-            YxStoreProductAttrValue attrValue =  storeProductAttrValueMapper.getProductArrtValueByCartId(cartId);
-            if(ObjectUtil.isEmpty(attrValue)){
+            YxStoreProductAttrValue attrValue = storeProductAttrValueMapper.getProductArrtValueByCartId(cartId);
+            if (ObjectUtil.isEmpty(attrValue)) {
                 return "产品规格属性已经被修改，请重新选择后下单！";
             }
+        }
+        YxStoreProduct product = this.getProductInfo(yxStoreCart.getProductId());
+        if (product.getIsShow().equals(0)||product.getIsDel().equals(1)) {
+            return "产品已下架或已删除，请重新选择后下单！";
         }
         return null;
     }

@@ -45,7 +45,7 @@ public interface YxUserService extends BaseService<YxUser> {
 
     List<PromUserDTO> getUserSpreadGrade(PromParam promParam,int uid);
 
-    boolean setSpread(int spread,int uid);
+    boolean setSpread(int spread,int uid,String spreadType);
 
     void decIntegral(int uid,double integral);
 

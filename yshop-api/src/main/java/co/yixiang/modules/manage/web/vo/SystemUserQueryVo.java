@@ -71,7 +71,7 @@ public class SystemUserQueryVo implements Serializable {
     private Integer merchantsStatus;
 
     @ApiModelProperty(value = "总积分")
-    private Integer totalScore;
+    private BigDecimal totalScore;
 
     @ApiModelProperty(value = "推荐用二维码地址")
     private String qrCodeUrl;

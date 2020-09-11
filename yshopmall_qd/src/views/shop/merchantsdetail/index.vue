@@ -245,7 +245,7 @@ trigger="click">
 
 <script>
 import crudYxMerchantsDetail,{examine as examineSubmit,update,modiyfMerWithdrawal as withdrawEdit } from '@/api/yxMerchantsDetail'
-import { isvalidPhone } from '@/utils/validate'
+import { isvalidPhone ,amountValid} from '@/utils/validate'
 import CRUD, { presenter, header, form, crud } from '@crud/crud'
 import rrOperation from '@crud/RR.operation'
 import crudOperation from '@crud/CRUD.operation'
@@ -395,6 +395,7 @@ formWithdraw:{},
         ],
         money: [
           { required: true, message: '必填项', trigger: 'blur' },
+          { validator: amountValid, trigger: 'blur'},
         ],
         ptype: [
           { required: true, message: '必填项', trigger: 'blur' },

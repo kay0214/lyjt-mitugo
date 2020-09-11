@@ -169,4 +169,46 @@
             socre ${sort},
             si.create_time DESC;
     </select>
+
+    <select id="selectStoreInfoVoList"  resultType="co.yixiang.modules.shop.web.vo.YxStoreInfoQueryVo">
+        SELECT
+            si.id,
+            si.store_nid,
+            si.store_name,
+            si.manage_user_name,
+            si.mer_id,
+            si.partner_id,
+            si.manage_mobile,
+            si.store_mobile,
+            si.`status`,
+            si.per_capita,
+            si.industry_category,
+            si.store_province,
+            si.store_address,
+            si.coordinate,
+            si.coordinate_x,
+            si.coordinate_y,
+            si.del_flag,
+            si.create_user_id,
+            si.update_user_id,
+            si.create_time,
+            si.update_time,
+            si.introduction,
+            IFNULL(SUM(spr.product_score + service_score),0) AS replyCount,
+            IFNULL(SUM(sp.sales), 0) AS salesCount
+        FROM
+            yx_store_info si
+        LEFT JOIN yx_store_product_reply spr ON si.mer_id = spr.mer_id
+        LEFT JOIN yx_store_product sp ON sp.store_id = si.id
+        WHERE
+            si.del_flag = 0
+        AND si.`status` = 0
+        <if test ="storeName !='' and storeName != null"> and si.store_name LIKE CONCAT('%',#{storeName},'%') </if>
+        GROUP BY
+            si.id
+        ORDER BY
+        <if test ="scoreOrder !='' and scoreOrder != null ">  replyCount ${scoreOrder}, </if>
+        <if test ="salesOrder !='' and salesOrder != null ">   salesCount ${salesOrder}, </if>
+        si.create_time DESC;
+    </select>
 </mapper>
