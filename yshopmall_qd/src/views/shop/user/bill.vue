@@ -89,6 +89,20 @@
           <span v-else>未知</span>
         </template>
       </el-table-column>
+      <el-table-column prop="type" label="明细类型">
+        <template slot-scope="scope">
+          {{
+            typeLabel(scope.row.type)
+          }}
+        </template>
+      </el-table-column>
+      <el-table-column prop="pm" label="收支类型">
+        <template slot-scope="scope">
+          <span v-if="scope.row.pm == '0'">支出</span>
+          <span v-else-if="scope.row.pm == '1'">获得</span>
+          <span v-else>未知</span>
+        </template>
+      </el-table-column>
       <el-table-column prop="number" label="明细数字">
         <template slot-scope="scope">
           <span v-if="scope.row.pm == 1">+</span>
@@ -171,14 +185,27 @@ export default {
   },
   mounted() {
     this.$nextTick(() => {
-      getType().then(res=>{
-        if(res){
-          this.typeOptions=res
-        }
-      }).catch(err=>{
-        Message({ message: err, type: 'error' })
-      })
     })
+  },
+  computed:{
+    typeLabel:function(){
+      return function(type){
+      if(this.typeOptions.length){
+        let i= this.typeOptions.filter(function(item){
+          for(let key in item){       
+            if(key===type){
+              return JSON.parse(JSON.stringify(item))
+            }
+          }
+        })
+        if(i.length){
+          return i[0][type]
+        }
+      }else{
+        return ""
+      }
+    }
+    }
   },
   methods: {
     formatTime,
@@ -204,6 +231,15 @@ export default {
         .catch(() => { })
     },
     beforeInit() {
+      
+      getType().then(res=>{
+        if(res){
+          this.typeOptions=res
+        }
+      }).catch(err=>{
+        Message({ message: err, type: 'error' })
+      })
+
       this.url = 'api/yxUserBill'
       const sort = 'id,desc'
       this.params = {
