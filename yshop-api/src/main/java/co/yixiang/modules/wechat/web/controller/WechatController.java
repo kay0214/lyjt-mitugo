@@ -52,7 +52,6 @@ import me.chanjar.weixin.mp.api.WxMpService;
 import me.chanjar.weixin.mp.bean.message.WxMpXmlMessage;
 import me.chanjar.weixin.mp.bean.message.WxMpXmlOutMessage;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -61,7 +60,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.math.BigDecimal;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -280,7 +278,7 @@ public class WechatController extends BaseController {
             merBill.setType(BillDetailEnum.TYPE_5.getValue());
             merBill.setNumber(truePrice);
             // 目前只支持微信付款、没有余额
-            merBill.setBalance(updateSystemUser.getWithdrawalAmount());
+            merBill.setBalance(systemUser.getWithdrawalAmount().subtract(truePrice));
             merBill.setAddTime(DateUtils.getNowTime());
             merBill.setStatus(1);
             merBill.setMerId(yxCouponOrder.getMerId());
