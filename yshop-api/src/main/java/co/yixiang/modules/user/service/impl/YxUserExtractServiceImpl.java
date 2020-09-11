@@ -71,7 +71,7 @@ public class YxUserExtractServiceImpl extends BaseServiceImpl<YxUserExtractMappe
 
         YxUserExtract userExtract = new YxUserExtract();
         userExtract.setUid(uid);
-        userExtract.setExtractType(StringUtils.isNotBlank(param.getExtractType()) ? param.getExtractType() : "weixin");
+        userExtract.setExtractType(StringUtils.isNotBlank(param.getExtractType()) ? param.getExtractType() : "bank");
         userExtract.setExtractPrice(new BigDecimal(param.getMoney()));
         userExtract.setAddTime(OrderUtil.getSecondTimestampTwo());
         userExtract.setBalance(balance);
