@@ -66,4 +66,8 @@ private Integer partnerId;
 @ApiModelProperty(value = "用户类型 0:预留 1:前台用户 2：后台商户 3：后台合伙人")
 private Integer userType;
 
+
+@ApiModelProperty(value = "添加时间")
+private String addTimeStr;
+
 }
