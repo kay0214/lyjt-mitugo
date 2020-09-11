@@ -225,7 +225,7 @@ public class CommissionServiceImpl implements CommissionService {
             yxUser.setBrokeragePrice(shareParentBonus);
             yxUserMapper.updateUserMoney(shareParentBonus,oldMoney,yxUser.getUid());
 
-            insertBill(orderInfo, orderInfo.getShareParentId(), BillDetailEnum.TYPE_2.getValue(), shareParentBonus, yxUser.getNickname(), yxUser.getNowMoney(), orderInfo.getShareParentType(),"分享人推荐人分佣");
+            insertBill(orderInfo, orderInfo.getShareParentId(), BillDetailEnum.TYPE_2.getValue(), shareParentBonus, yxUser.getNickname(), yxUser.getNowMoney(), 1,"分享人推荐人分佣");
         }
 
         //商户、合伙人积分(分红池)
