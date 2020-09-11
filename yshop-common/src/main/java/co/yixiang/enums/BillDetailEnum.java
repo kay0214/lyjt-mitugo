@@ -28,6 +28,9 @@ public enum BillDetailEnum {
 
 	TYPE_10("mer_off_pay","线下支付"),
 
+	TYPE_11("share_dividend","分红"),
+	TYPE_12("pull_new","拉新"),
+
 
 	CATEGORY_1("now_money","金额"),
 	CATEGORY_2("integral","积分");
