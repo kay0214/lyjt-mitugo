@@ -243,7 +243,9 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<YxUserBillMapper, YxU
         QueryWrapper<YxUserBill> wrapper = new QueryWrapper<>();
         wrapper.eq("status", 1).eq("uid", userId)
                 .eq("type", BillDetailEnum.TYPE_10.getValue())
-                .eq("user_type", 2).orderByDesc("id");
+                .eq("user_type", 2)
+                .eq("category", BillDetailEnum.CATEGORY_1.getValue())
+                .orderByDesc("id");
 
         Page<YxUserBill> pageModel = new Page<>(param.getPage(), param.getLimit());
 
@@ -256,7 +258,8 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<YxUserBillMapper, YxU
         QueryWrapper<YxUserBill> wrapper = new QueryWrapper<>();
         wrapper.eq("status", 1).eq("uid", id)
                 .eq("type", BillDetailEnum.TYPE_9.getValue())
-                .eq("user_type", 2).orderByDesc("id");
+                .eq("user_type", 2).eq("category", BillDetailEnum.CATEGORY_1.getValue())
+                .orderByDesc("id");
 
         Page<YxUserBill> pageModel = new Page<>(param.getPage(), param.getLimit());
 
