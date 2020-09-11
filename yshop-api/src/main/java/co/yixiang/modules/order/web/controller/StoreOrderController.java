@@ -181,7 +181,7 @@ public class StoreOrderController extends BaseController {
     /**
      * 订单创建
      */
-    @Log(value = "订单支付", type = 1)
+    @Log(value = "订单创建", type = 1)
     @PostMapping("/order/create/{key}")
     @ApiOperation(value = "订单创建", notes = "订单创建")
     public ApiResult<Map<String, Object>> create(@Valid @RequestBody OrderParam param,
