@@ -221,15 +221,15 @@ trigger="click">
   <el-form ref='formWithdraw' :model="formWithdraw" :rules="rules">
   <p>
     请输入可提现金额
-    <el-form-item prop='extractPrice'>
-      <el-input type='number' v-model="formWithdraw.extractPrice" placeholder="提现金额" :maxlength='12'/>
-    </el-form-item>
   </p>
+    <el-form-item prop='extractPrice' style='padding:10px 20px;'>
+      <el-input v-model="formWithdraw.extractPrice" placeholder="提现金额" :maxlength='12'/>
+    </el-form-item>
   <div style="text-align: right; margin: 0">
-    <el-button type="primary" size="mini" @click="withdrawEdit($event,formWithdraw.extractPrice)">提交</el-button>
+    <el-button type="primary" size="mini" @click="withdrawEdit($event,scope.row.uid,formWithdraw.extractPrice)">提交</el-button>
   </div>
   </el-form>
-  <el-button v-if="scope.row.examineStatus===2 || scope.row.examineStatus===0" v-permission="permission.edit" size="small" type="primary" icon="el-icon-edit" slot="reference" style='marginTop:10px' plain>修改金额</el-button>
+  <el-button v-permission="permission.modify" size="small" type="primary" icon="el-icon-edit" slot="reference" style='marginTop:10px' plain>修改金额</el-button>
 </el-popover>
 
           </template>
@@ -242,7 +242,7 @@ trigger="click">
 </template>
 
 <script>
-import crudYxMerchantsDetail,{examine as examineSubmit,update,withdrawEdit as modiyfMerWithdrawal} from '@/api/yxMerchantsDetail'
+import crudYxMerchantsDetail,{examine as examineSubmit,update,modiyfMerWithdrawal as withdrawEdit } from '@/api/yxMerchantsDetail'
 import { isvalidPhone } from '@/utils/validate'
 import CRUD, { presenter, header, form, crud } from '@crud/crud'
 import rrOperation from '@crud/RR.operation'
@@ -283,7 +283,8 @@ formWithdraw:{},
         add: ['admin', 'yxMerchantsDetail:insert'],
         edit: ['admin', 'yxMerchantsDetail:edit'],
         examine: ['admin', 'yxMerchantsDetail:examine'],
-        del: ['admin', 'yxMerchantsDetail:del']
+        del: ['admin', 'yxMerchantsDetail:del'],
+        modify:['admin','yxMerchantsDetail:modify']
       },
       rules: {
         username: [
@@ -388,6 +389,9 @@ formWithdraw:{},
           { required: true, message: '必填项', trigger: 'blur' },
         ],
         licenceImg: [
+          { required: true, message: '必填项', trigger: 'blur' },
+        ],
+        extractPrice: [
           { required: true, message: '必填项', trigger: 'blur' },
         ],
       },
@@ -662,10 +666,10 @@ formWithdraw:{},
       this.formDisabled=false
       this.dialogVisible=Boolean(this.crud.status.cu);
     },
-    withdrawEdit(btn,val){
+    withdrawEdit(btn,uid,val){
       this.$refs.formWithdraw.validate(function(ret,obj){
         if(ret){
-          withdrawEdit({extractPrice:val}).then(res=>{
+          withdrawEdit({uid:uid,money:val}).then(res=>{
             if(res){
               Notification.success({
               title: '提交成功'
@@ -676,10 +680,19 @@ formWithdraw:{},
               })
             }
           }).catch(err=>{
-            Notification.error({
-              title: err
-              })
+            // Notification.error({
+            //   title: err
+            //   })
           })
+        }else{
+          this.$message({
+              message: '请查看必填项',
+              type: 'success',
+              duration: 1000,
+              onClose: () => {
+                this.crud.toQuery()
+              }
+            })
         }
       })
 
