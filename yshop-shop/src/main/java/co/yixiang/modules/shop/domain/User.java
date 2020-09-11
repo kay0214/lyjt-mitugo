@@ -107,7 +107,7 @@ public class User implements Serializable {
 
 
     /** 总积分 */
-    private Integer totalScore;
+    private BigDecimal totalScore;
 
     /** 可提现金额 */
     private BigDecimal withdrawalAmount;
