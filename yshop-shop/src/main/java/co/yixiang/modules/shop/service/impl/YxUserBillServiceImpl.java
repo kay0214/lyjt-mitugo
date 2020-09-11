@@ -6,9 +6,12 @@ package co.yixiang.modules.shop.service.impl;
 
 import co.yixiang.common.service.impl.BaseServiceImpl;
 import co.yixiang.dozer.service.IGenerator;
+import co.yixiang.enums.BillDetailEnum;
 import co.yixiang.modules.shop.domain.User;
+import co.yixiang.modules.shop.domain.YxFundsDetail;
 import co.yixiang.modules.shop.domain.YxUserBill;
 import co.yixiang.modules.shop.service.UserService;
+import co.yixiang.modules.shop.service.YxFundsDetailService;
 import co.yixiang.modules.shop.service.YxUserBillService;
 import co.yixiang.modules.shop.service.dto.WithdrawReviewQueryCriteria;
 import co.yixiang.modules.shop.service.dto.YxUserBillDto;
@@ -58,7 +61,7 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<UserBillMapper, YxUse
 //        PageInfo<YxUserBillDto> page = new PageInfo<>(queryAll(criteria));
         QueryWrapper<YxUserBill> queryWrapper = new QueryWrapper<>();
         queryWrapper.lambda().orderByDesc(YxUserBill::getAddTime);
-        int userRole =0;
+        int userRole = 0;
         if (1 == criteria.getUserRole()) {
             userRole = 3;
             queryWrapper.lambda().eq(YxUserBill::getUid, criteria.getUid()).eq(YxUserBill::getUserType, 3);
@@ -90,7 +93,7 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<UserBillMapper, YxUse
             queryWrapper.lambda().eq(YxUserBill::getType, criteria.getType());
         }
         //日期查找
-        if (StringUtils.isNotBlank(criteria.getAddTimeStart())&&StringUtils.isNotBlank(criteria.getAddTimeEnd())) {
+        if (StringUtils.isNotBlank(criteria.getAddTimeStart()) && StringUtils.isNotBlank(criteria.getAddTimeEnd())) {
             Integer addTimeStart = 0;
             Integer addTimeEnd = 0;
             try {
@@ -99,12 +102,14 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<UserBillMapper, YxUse
                 SimpleDateFormat sf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                 date = sf.parse(criteria.getAddTimeStart());// 日期转换为时间戳
                 dateEnd = sf.parse(criteria.getAddTimeEnd());// 日期转换为时间戳
-                long longDate = date.getTime()/1000;
-                long longDateEnd = dateEnd.getTime()/1000;
-                addTimeStart =(int)longDate;
-                addTimeEnd =(int)longDateEnd;
-            } catch (ParseException e) {e.printStackTrace();}
-            if(addTimeEnd!=0&&addTimeStart!=0){
+                long longDate = date.getTime() / 1000;
+                long longDateEnd = dateEnd.getTime() / 1000;
+                addTimeStart = (int) longDate;
+                addTimeEnd = (int) longDateEnd;
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+            if (addTimeEnd != 0 && addTimeStart != 0) {
                 queryWrapper.lambda().ge(YxUserBill::getAddTime, addTimeStart).le(YxUserBill::getAddTime, addTimeEnd);
             }
         }
@@ -116,11 +121,11 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<UserBillMapper, YxUse
         map.put("content", ipage.getRecords());
         map.put("totalElements", ipage.getTotal());
         map.put("totalPrice", user.getTotalAmount());
-        BigDecimal bigOut = userBillMapper.getSumPrice(criteria.getUid(),0,userRole);
-        BigDecimal bigIn =  userBillMapper.getSumPrice(criteria.getUid(),1,userRole);
+        BigDecimal bigOut = userBillMapper.getSumPrice(criteria.getUid(), 0, userRole);
+        BigDecimal bigIn = userBillMapper.getSumPrice(criteria.getUid(), 1, userRole);
 //        map.put("remainPrice", user.getWithdrawalAmount());
         map.put("remainPrice", bigIn);
-        map.put("expenditurePrice",bigOut);
+        map.put("expenditurePrice", bigOut);
         return map;
     }
 
@@ -169,5 +174,34 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<UserBillMapper, YxUse
             list.add(map);
         }
         FileUtil.downloadExcel(list, response);
+    }
+
+    /**
+     * 获取用户积分明细
+     *
+     * @param criteria
+     * @param pageable
+     * @return
+     */
+    @Override
+    public Map<String, Object> getPointDetail(YxUserBillQueryCriteria criteria, Pageable pageable) {
+        BigDecimal totalPoint = BigDecimal.ZERO;
+        QueryWrapper<YxUserBill> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().eq(YxUserBill::getCategory, BillDetailEnum.CATEGORY_2);
+        if (0 != criteria.getUserRole()) {
+            // 非管理员的情况、获取登陆用户的数据
+            queryWrapper.lambda().eq(YxUserBill::getUid, criteria.getUid());
+            User user = this.userService.getById(criteria.getUid());
+            totalPoint = user.getTotalScore();
+        } else {
+
+        }
+        queryWrapper.lambda().orderByDesc(YxUserBill::getAddTime);
+        IPage<YxUserBill> ipage = this.page(new Page<>(pageable.getPageNumber() + 1, pageable.getPageSize()), queryWrapper);
+
+        Map<String, Object> map = new LinkedHashMap<>(2);
+        map.put("content", ipage.getRecords());
+        map.put("totalElements", ipage.getTotal());
+        return map;
     }
 }
