@@ -414,20 +414,32 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
     }
 
     /**
-     * 根据cartId获取规格属性
+     * 验证产品
      * @param cartId
      * @return
      */
     @Override
-    public String getProductArrtValueByCartId (int cartId){
+    public String getProductArrtValueByCartId (int cartId) {
         //
         YxStoreCart yxStoreCart = yxStoreCartService.getById(cartId);
-        if(StringUtils.isNotBlank(yxStoreCart.getProductAttrUnique())){
+        if (StringUtils.isNotBlank(yxStoreCart.getProductAttrUnique())) {
             //规格属性不为空
-            YxStoreProductAttrValue attrValue =  storeProductAttrValueMapper.getProductArrtValueByCartId(cartId);
-            if(ObjectUtil.isEmpty(attrValue)){
+            YxStoreProductAttrValue attrValue = storeProductAttrValueMapper.getProductArrtValueByCartId(cartId);
+            if (ObjectUtil.isEmpty(attrValue)) {
                 return "产品规格属性已经被修改，请重新选择后下单！";
             }
+            if (yxStoreCart.getCartNum() > attrValue.getStock()||0 == attrValue.getStock()) {
+                return "该产品库存不足或已售完，请重新选择！";
+            }
+        } else {
+            YxStoreProduct product = this.getProductInfo(yxStoreCart.getProductId());
+            if (0 == product.getIsShow()||1==product.getIsDel()) {
+                return "产品已下架或已删除，请重新选择后下单！";
+            }
+            if (yxStoreCart.getCartNum() > product.getStock()||0 == product.getStock()) {
+                return "该产品库存不足或已售完，请重新选择！";
+            }
+
         }
         return null;
     }

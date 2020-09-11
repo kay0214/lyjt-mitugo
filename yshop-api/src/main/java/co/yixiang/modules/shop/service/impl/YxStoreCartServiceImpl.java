@@ -371,7 +371,10 @@ public class YxStoreCartServiceImpl extends BaseServiceImpl<YxStoreCartMapper, Y
             if (ObjectUtil.isNull(productQueryVo)) {
                 throw new ErrorRequestException("该产品已下架或删除");
             }
-
+            if(0==productQueryVo.getIsShow()||1==productQueryVo.getIsDel()){
+                //下架
+                throw new ErrorRequestException("该产品已下架或删除");
+            }
             int stock = productService.getProductStock(productId, productAttrUnique);
             if (stock < cartNum) {
                 throw new ErrorRequestException(productQueryVo.getStoreName() + "库存不足" + cartNum);
