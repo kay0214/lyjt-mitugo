@@ -428,16 +428,10 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
             if (ObjectUtil.isEmpty(attrValue)) {
                 return "产品规格属性已经被修改，请重新选择后下单！";
             }
-            if (yxStoreCart.getCartNum() > attrValue.getStock()||0 == attrValue.getStock()) {
-                return "该产品库存不足或已售完，请重新选择！";
-            }
         } else {
             YxStoreProduct product = this.getProductInfo(yxStoreCart.getProductId());
             if (0 == product.getIsShow()||1==product.getIsDel()) {
                 return "产品已下架或已删除，请重新选择后下单！";
-            }
-            if (yxStoreCart.getCartNum() > product.getStock()||0 == product.getStock()) {
-                return "该产品库存不足或已售完，请重新选择！";
             }
 
         }
