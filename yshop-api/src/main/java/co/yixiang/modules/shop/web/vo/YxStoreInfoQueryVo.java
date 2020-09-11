@@ -100,4 +100,8 @@ public class YxStoreInfoQueryVo implements Serializable {
     @ApiModelProperty(value = "店铺轮播图")
     private List<String> storeRotationImages;
 
+    @ApiModelProperty(value = "店铺销量数")
+    private Integer salesCount;
+    @ApiModelProperty(value = "店铺评论数")
+    private Integer replyCount;
 }

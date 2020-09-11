@@ -72,4 +72,11 @@ public interface YxStoreInfoMapper extends BaseMapper<YxStoreInfo> {
      * @return
      */
     List<YxStoreInfoQueryVo> selectInfoListBySocre(String sort,String storeName);
+
+    /**
+     * 获取店铺列表
+     * @param yxStoreInfoQueryParam
+     * @return
+     */
+    List<YxStoreInfoQueryVo> selectStoreInfoVoList(YxStoreInfoQueryParam yxStoreInfoQueryParam);
 }
