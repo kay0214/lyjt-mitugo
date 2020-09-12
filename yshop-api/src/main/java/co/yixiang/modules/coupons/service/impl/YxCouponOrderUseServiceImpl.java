@@ -78,7 +78,9 @@ public class YxCouponOrderUseServiceImpl extends BaseServiceImpl<YxCouponOrderUs
     public Map<String, Object> queryAll(YxCouponOrderUseQueryCriteria criteria) {
 //        getPage(pageable);
 //        PageInfo<YxCouponOrderUse> page = new PageInfo<>(baseMapper.selectList(QueryHelpPlus.getPredicate(YxCouponOrderUse.class, criteria)));
-        IPage<YxCouponOrderUse> ipage = this.page(new Page<>(criteria.getPage(), criteria.getLimit()), new QueryWrapper<YxCouponOrderUse>().lambda().eq(YxCouponOrderUse::getCreateUserId, criteria.getCreateUserId()));
+        Page page = setPageParam(criteria, OrderItem.desc("id"));
+
+        IPage<YxCouponOrderUse> ipage = this.page(page, new QueryWrapper<YxCouponOrderUse>().lambda().eq(YxCouponOrderUse::getCreateUserId, criteria.getCreateUserId()));
         if (ipage.getTotal() == 0) {
             Map<String, Object> map = new LinkedHashMap<>(2);
             map.put("content", new ArrayList<>());
