@@ -2206,40 +2206,6 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
                 yxUserBill.setUserType(3);
                 yxUserBill.setUsername(yxUser.getNickname());
                 this.billService.save(yxUserBill);
-
-//                // 更新商户余额  商户余额在确认收货时更新
-//                SystemUser systemUser = this.systemUserService.getById(orderInfo.getMerId());
-//                if (null == systemUser) {
-//                    log.error("订单编号：" + orderInfo.getOrderId() + "未查询到商户所属的id，无法记录资金去向");
-//                    continue;
-//                }
-//                // 该笔资金实际到账
-//                SystemUser updateSystemUser = new SystemUser();
-//                BigDecimal truePrice = orderInfo.getPayPrice().subtract(orderInfo.getCommission());
-//                updateSystemUser.setId(systemUser.getId());
-//                updateSystemUser.setTotalAmount(truePrice);
-//                updateSystemUser.setWithdrawalAmount(truePrice);
-//                this.systemUserService.updateUserTotal(updateSystemUser);
-//
-//                // 更新商户明细
-//                // 插入商户资金明细
-//                YxUserBill merBill = new YxUserBill();
-//                merBill.setUid(orderInfo.getMerId());
-//                merBill.setLinkId(orderInfo.getOrderId());
-//                merBill.setPm(1);
-//                merBill.setTitle("小程序购买商品");
-//                merBill.setCategory(BillDetailEnum.CATEGORY_1.getValue());
-//                merBill.setType(BillDetailEnum.TYPE_3.getValue());
-//                merBill.setNumber(orderInfo.getPayPrice().subtract(orderInfo.getCommission()));
-//                // 目前只支持微信付款、没有余额
-//                merBill.setBalance(updateSystemUser.getWithdrawalAmount());
-//                merBill.setAddTime(DateUtils.getNowTime());
-//                merBill.setStatus(1);
-//                merBill.setMerId(orderInfo.getMerId());
-//                merBill.setUserType(2);
-//                merBill.setUsername(systemUser.getNickname());
-//                this.billService.save(merBill);
-
                 //模板消息推送
                 YxWechatUserQueryVo wechatUser = wechatUserService.getYxWechatUserById(orderInfo.getUid());
                 if (ObjectUtil.isNotNull(wechatUser)) {

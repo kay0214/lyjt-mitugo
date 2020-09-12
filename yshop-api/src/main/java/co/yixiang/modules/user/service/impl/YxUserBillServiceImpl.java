@@ -1,7 +1,6 @@
 package co.yixiang.modules.user.service.impl;
 
 import co.yixiang.common.service.impl.BaseServiceImpl;
-import co.yixiang.common.web.param.QueryParam;
 import co.yixiang.common.web.vo.Paging;
 import co.yixiang.enums.BillDetailEnum;
 import co.yixiang.enums.BillEnum;
@@ -205,13 +204,21 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<YxUserBillMapper, YxU
     @Override
     @Transactional
     public void saveMerchantsBill(YxStoreOrderQueryVo order) {
+        BigDecimal bigAmount = BigDecimal.ZERO;
+        BigDecimal bigTotle = BigDecimal.ZERO;
+        BigDecimal bigMerPrice = BigDecimal.ZERO;
+
+        //获取订单佣金
+        List<String> cartIds = Arrays.asList(order.getCartId().split(","));
+        BigDecimal bigDecimalComm = yxUserBillMapper.getSumCommission(cartIds);
+        // 商户收入=支付金额-佣金
+        bigMerPrice = order.getPayPrice().subtract(bigDecimalComm);
+
         //更新user表的可提现金额
         //订单支付金额
-        BigDecimal bigAmount = order.getPayPrice();
-        BigDecimal bigTotle = order.getPayPrice();
         SystemUserQueryVo systemUserQueryVo = systemUserService.getUserById(order.getMerId());
-        bigAmount = bigAmount.add(systemUserQueryVo.getWithdrawalAmount());
-        bigTotle = bigTotle.add(systemUserQueryVo.getTotalAmount());
+        bigAmount = bigMerPrice.add(systemUserQueryVo.getWithdrawalAmount());
+        bigTotle = bigMerPrice.add(systemUserQueryVo.getTotalAmount());
         SystemUser systemUser = systemUserService.getById(order.getMerId());
         systemUser.setWithdrawalAmount(bigAmount);
         systemUser.setTotalAmount(bigTotle);
@@ -221,16 +228,17 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<YxUserBillMapper, YxU
         userBill.setUid(order.getMerId());
         userBill.setLinkId(order.getOrderId());
         userBill.setPm(BillEnum.PM_1.getValue());
-        userBill.setTitle("商户返现");
+        userBill.setTitle("小程序购买商品");
         userBill.setCategory(BillDetailEnum.CATEGORY_1.getValue());
-        userBill.setType(BillDetailEnum.TYPE_9.getValue());
-        userBill.setNumber(order.getPayPrice());
+        userBill.setType(BillDetailEnum.TYPE_3.getValue());
+        userBill.setNumber(bigMerPrice);
         userBill.setUsername(systemUserQueryVo.getNickName());
         userBill.setBalance(order.getPayPrice());
         userBill.setMerId(order.getMerId());
-        userBill.setMark("订单确认收货，商户返现");
+        userBill.setMark("小程序购买商品，订单确认收货，商户收入");
         userBill.setAddTime(OrderUtil.getSecondTimestampTwo());
         userBill.setStatus(BillEnum.STATUS_1.getValue());
+        //商户
         userBill.setUserType(1);
         yxUserBillMapper.insert(userBill);
     }
@@ -260,7 +268,7 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<YxUserBillMapper, YxU
     public Paging<UserBillVo> getUserProductAccountList(UserAccountQueryParam param, Long id) {
         QueryWrapper<YxUserBill> wrapper = new QueryWrapper<>();
         wrapper.eq("status", 1).eq("uid", id)
-                .eq("type", BillDetailEnum.TYPE_9.getValue())
+                .eq("type", BillDetailEnum.TYPE_3.getValue())
                 .eq("user_type", 1).eq("category", BillDetailEnum.CATEGORY_1.getValue())
                 .orderByDesc("id");
 

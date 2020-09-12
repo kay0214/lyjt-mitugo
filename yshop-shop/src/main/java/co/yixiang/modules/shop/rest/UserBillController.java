@@ -8,9 +8,7 @@ import co.yixiang.modules.shop.service.YxUserBillService;
 import co.yixiang.modules.shop.service.dto.WithdrawReviewQueryCriteria;
 import co.yixiang.modules.shop.service.dto.YxUserBillQueryCriteria;
 import co.yixiang.utils.CurrUser;
-import co.yixiang.utils.DateUtils;
 import co.yixiang.utils.SecurityUtils;
-import co.yixiang.utils.StringUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,7 +62,7 @@ public class UserBillController {
     @GetMapping(value = "/yxUserBillType")
     public ResponseEntity yxUserBillType() {
         List<Map<String,String>> listType = new ArrayList<Map<String,String>>();
-        for(int i=1;i<=10;i++){
+        for(int i=1;i<10;i++){
             Map<String,String> mapType = new HashMap<String,String>();
             switch (i){
                 case 1:
@@ -91,10 +89,10 @@ public class UserBillController {
                 case 8:
                     mapType.put(BillDetailEnum.TYPE_8.getValue(),BillDetailEnum.TYPE_8.getDesc());
                     break;
-                case 9:
+                /*case 9:
                     mapType.put(BillDetailEnum.TYPE_9.getValue(),BillDetailEnum.TYPE_9.getDesc());
-                    break;
-                case 10:
+                    break;*/
+                case 9:
                     mapType.put(BillDetailEnum.TYPE_10.getValue(),BillDetailEnum.TYPE_10.getDesc());
                     break;
             }
