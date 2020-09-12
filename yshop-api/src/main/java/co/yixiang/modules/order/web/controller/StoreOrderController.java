@@ -181,7 +181,7 @@ public class StoreOrderController extends BaseController {
     /**
      * 订单创建
      */
-    @Log(value = "订单支付", type = 1)
+    @Log(value = "订单创建", type = 1)
     @PostMapping("/order/create/{key}")
     @ApiOperation(value = "订单创建", notes = "订单创建")
     public ApiResult<Map<String, Object>> create(@Valid @RequestBody OrderParam param,
@@ -365,6 +365,12 @@ public class StoreOrderController extends BaseController {
         map.put("result", orderDTO);
         //开始处理支付
         if (StrUtil.isNotEmpty(orderId)) {
+            //下单后，修改了规格属性
+            String attMsg= yxStoreProductService.getProductArrtValueByCartId(Integer.parseInt(storeOrder.getCartId()));
+            log.info("-------------订单支付,返回结果为：【"+attMsg+"】 -------------");
+            if(StringUtils.isNotBlank(attMsg)){
+                return ApiResult.fail(attMsg);
+            }
             switch (PayTypeEnum.toType(param.getPaytype())) {
                 case WEIXIN:
                     try {

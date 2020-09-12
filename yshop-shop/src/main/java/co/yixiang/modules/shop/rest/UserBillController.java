@@ -39,7 +39,7 @@ public class UserBillController {
     @Autowired
     private UserService userService;
 
-    @ApiOperation(value = "查询")
+    @ApiOperation(value = "资金明细")
     @GetMapping(value = "/yxUserBill")
     @PreAuthorize("hasAnyRole('admin','YXUSERBILL_ALL','YXUSERBILL_SELECT')")
     public ResponseEntity getYxUserBills(YxUserBillQueryCriteria criteria, Pageable pageable) {
@@ -50,14 +50,16 @@ public class UserBillController {
         if (null != currUser.getChildUser()) {
             criteria.setChildUser(currUser.getChildUser());
         }
-        if (StringUtils.isNotBlank(criteria.getAddTimeStart()) && StringUtils.isBlank(criteria.getAddTimeEnd())) {
-            criteria.setAddTimeEnd(DateUtils.getDate());
-        }
-        if (StringUtils.isBlank(criteria.getAddTimeStart()) && StringUtils.isNotBlank(criteria.getAddTimeEnd())) {
-            criteria.setAddTimeStart(DateUtils.getDate());
-        }
         return new ResponseEntity(yxUserBillService.queryAll(criteria, pageable), HttpStatus.OK);
     }
+
+    @ApiOperation(value = "平台资金明细")
+    @GetMapping(value = "/yxUserBillAll")
+    @PreAuthorize("hasAnyRole('admin','YXUSERBILL_ALL','YXUSERBILL_SELECT')")
+    public ResponseEntity getYxUserBillAll(YxUserBillQueryCriteria criteria, Pageable pageable) {
+        return new ResponseEntity(yxUserBillService.queryAllNew(criteria, pageable), HttpStatus.OK);
+    }
+
 
     @GetMapping(value = "/yxUserBillType")
     public ResponseEntity yxUserBillType() {
@@ -111,9 +113,9 @@ public class UserBillController {
     public ResponseEntity<Object> withdraw(@RequestBody YxUserExtract request) {
         int uid = SecurityUtils.getUserId().intValue();
         // 0->平台运营,1->合伙人,2->商户
-        int userType = 2;
+        int userType = 1;
         if (1 == SecurityUtils.getCurrUser().getUserRole()) {
-            userType = 3;
+            userType = 2;
         }
         boolean result = this.userService.updateUserWithdraw(uid, userType, request.getExtractPrice());
         return new ResponseEntity<>(result, HttpStatus.OK);
@@ -132,6 +134,51 @@ public class UserBillController {
     @GetMapping(value = "/withdrawReviewLog")
     public ResponseEntity<Object> getUserWithdrawList(WithdrawReviewQueryCriteria criteria, Pageable pageable) {
         return new ResponseEntity(yxUserBillService.queryAll(criteria, pageable), HttpStatus.OK);
+    }
+
+
+    /**
+     * 积分明细
+     *
+     * @param criteria
+     * @param pageable
+     * @return
+     */
+    @Log("查询积分明细")
+    @ApiOperation(value = "查询积分明细")
+    @PostMapping(value = "/pointDetail")
+    public ResponseEntity<Object> getPointDetail(YxUserBillQueryCriteria criteria, Pageable pageable) {
+        criteria.setUid(SecurityUtils.getUserId().intValue());
+        criteria.setUserRole(SecurityUtils.getCurrUser().getUserRole());
+        return new ResponseEntity(yxUserBillService.getPointDetail(criteria, pageable), HttpStatus.OK);
+    }
+
+    /**
+     * 分红池
+     *
+     * @param criteria
+     * @param pageable
+     * @return
+     */
+    @Log("分红池")
+    @ApiOperation(value = "分红池")
+    @PostMapping(value = "/getShareDividendPoint")
+    public ResponseEntity<Object> getShareDividendPoint(YxUserBillQueryCriteria criteria, Pageable pageable) {
+        return new ResponseEntity(yxUserBillService.getShareDividendPoint(criteria, pageable), HttpStatus.OK);
+    }
+
+    /**
+     * 拉新池
+     *
+     * @param criteria
+     * @param pageable
+     * @return
+     */
+    @Log("拉新池")
+    @ApiOperation(value = "拉新池")
+    @PostMapping(value = "/getPullNewPoint")
+    public ResponseEntity<Object> getPullNewPoint(YxUserBillQueryCriteria criteria, Pageable pageable) {
+        return new ResponseEntity(yxUserBillService.getPullNewPoint(criteria, pageable), HttpStatus.OK);
     }
 
 }

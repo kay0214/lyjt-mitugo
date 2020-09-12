@@ -1,10 +1,13 @@
 package co.yixiang.modules.user.service.impl;
 
 import co.yixiang.common.service.impl.BaseServiceImpl;
+import co.yixiang.common.web.param.QueryParam;
 import co.yixiang.common.web.vo.Paging;
 import co.yixiang.enums.BillDetailEnum;
 import co.yixiang.enums.BillEnum;
 import co.yixiang.enums.BillInfoEnum;
+import co.yixiang.modules.couponUse.dto.UserBillVo;
+import co.yixiang.modules.couponUse.param.UserAccountQueryParam;
 import co.yixiang.modules.manage.entity.SystemUser;
 import co.yixiang.modules.manage.service.SystemUserService;
 import co.yixiang.modules.manage.web.vo.SystemUserQueryVo;
@@ -18,6 +21,8 @@ import co.yixiang.modules.user.web.dto.BillOrderDTO;
 import co.yixiang.modules.user.web.dto.BillOrderRecordDTO;
 import co.yixiang.modules.user.web.param.YxUserBillQueryParam;
 import co.yixiang.modules.user.web.vo.YxUserBillQueryVo;
+import co.yixiang.utils.CommonsUtils;
+import co.yixiang.utils.DateUtils;
 import co.yixiang.utils.OrderUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -140,7 +145,7 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<YxUserBillMapper, YxU
         List<BillDTO> billDTOList = yxUserBillMapper.getBillList(wrapper, pageModel);
         for (BillDTO billDTO : billDTOList) {
             QueryWrapper<YxUserBill> wrapperT = new QueryWrapper<>();
-            wrapperT.in("id", Arrays.asList(billDTO.getIds().split(",")));
+            wrapperT.in("id", Arrays.asList(billDTO.getIds().split(","))).orderByDesc("add_time");
             billDTO.setList(yxUserBillMapper.getUserBillList(wrapperT));
 
         }
@@ -226,7 +231,61 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<YxUserBillMapper, YxU
         userBill.setMark("订单确认收货，商户返现");
         userBill.setAddTime(OrderUtil.getSecondTimestampTwo());
         userBill.setStatus(BillEnum.STATUS_1.getValue());
-        userBill.setUserType(2);
+        userBill.setUserType(1);
         yxUserBillMapper.insert(userBill);
     }
+
+    /**
+     * 查询商户的线下交易流水列表
+     * @param param
+     * @return
+     */
+    @Override
+    public Paging<UserBillVo> getYxUserAccountPageList(UserAccountQueryParam param, Long userId) {
+
+        QueryWrapper<YxUserBill> wrapper = new QueryWrapper<>();
+        wrapper.eq("status", 1).eq("uid", userId)
+                .eq("type", BillDetailEnum.TYPE_10.getValue())
+                .eq("user_type", 1)
+                .eq("category", BillDetailEnum.CATEGORY_1.getValue())
+                .orderByDesc("id");
+
+        Page<YxUserBill> pageModel = new Page<>(param.getPage(), param.getLimit());
+
+        IPage<YxUserBill> pageList = yxUserBillMapper.selectPage(pageModel, wrapper);
+        return getResultList(pageList);
+    }
+
+    @Override
+    public Paging<UserBillVo> getUserProductAccountList(UserAccountQueryParam param, Long id) {
+        QueryWrapper<YxUserBill> wrapper = new QueryWrapper<>();
+        wrapper.eq("status", 1).eq("uid", id)
+                .eq("type", BillDetailEnum.TYPE_9.getValue())
+                .eq("user_type", 1).eq("category", BillDetailEnum.CATEGORY_1.getValue())
+                .orderByDesc("id");
+
+        Page<YxUserBill> pageModel = new Page<>(param.getPage(), param.getLimit());
+
+        IPage<YxUserBill> pageList = yxUserBillMapper.selectPage(pageModel, wrapper);
+
+
+        return getResultList(pageList);
+    }
+
+    private Paging<UserBillVo> getResultList(IPage<YxUserBill> result) {
+        Paging<UserBillVo> resultStr = new Paging<UserBillVo>();
+        resultStr.setSum(result.getTotal()+"");
+        resultStr.setTotal(result.getTotal());
+        if(result.getRecords()!=null){
+            List<UserBillVo> list = new ArrayList<>();
+            for (YxUserBill item :result.getRecords()) {
+                UserBillVo userBillVo = CommonsUtils.convertBean(item,UserBillVo.class);
+                userBillVo.setAddTimeStr(DateUtils.timestampToStr10(item.getAddTime(),DateUtils.YYYY_MM_DD_HH_MM_SS));
+                list.add(userBillVo);
+            }
+            resultStr.setRecords(list);
+        }
+        return  resultStr;
+    }
+
 }

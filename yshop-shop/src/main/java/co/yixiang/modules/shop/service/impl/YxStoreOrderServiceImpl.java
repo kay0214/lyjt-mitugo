@@ -26,6 +26,7 @@ import co.yixiang.modules.shop.service.dto.*;
 import co.yixiang.modules.shop.service.mapper.*;
 import co.yixiang.mp.service.YxMiniPayService;
 import co.yixiang.mp.service.YxPayService;
+import co.yixiang.utils.DateUtils;
 import co.yixiang.utils.FileUtil;
 import co.yixiang.utils.OrderUtil;
 import com.alibaba.fastjson.JSON;
@@ -339,7 +340,7 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<StoreOrderMapper, Y
             map.put("用户电话", yxStoreOrder.getUserPhone());
             map.put("详细地址", yxStoreOrder.getUserAddress());
             map.put("购物车id", yxStoreOrder.getCartId());
-            map.put("运费金额", yxStoreOrder.getFreightPrice());
+//            map.put("运费金额", yxStoreOrder.getFreightPrice());
             map.put("订单商品总数", yxStoreOrder.getTotalNum());
             map.put("订单总价", yxStoreOrder.getTotalPrice());
             map.put("邮费", yxStoreOrder.getTotalPostage());
@@ -349,9 +350,12 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<StoreOrderMapper, Y
             map.put("优惠券id", yxStoreOrder.getCouponId());
             map.put("优惠券金额", yxStoreOrder.getCouponPrice());
             map.put("支付状态", yxStoreOrder.getPaid());
-            map.put("支付时间", yxStoreOrder.getPayTime());
+//            map.put("支付时间", yxStoreOrder.getPayTime());
+            map.put("创建时间", DateUtils.timestampToStr10(yxStoreOrder.getPayTime(), DateUtils.YYYY_MM_DD_HH_MM_SS));
+
             map.put("支付方式", yxStoreOrder.getPayType());
-            map.put("创建时间", yxStoreOrder.getAddTime());
+//            map.put("创建时间", yxStoreOrder.getAddTime());
+            map.put("创建时间", DateUtils.timestampToStr10(yxStoreOrder.getAddTime(), DateUtils.YYYY_MM_DD_HH_MM_SS));
             String strStatus ="";
             switch (yxStoreOrder.getStatus()){
                 case 0:strStatus="待发货";break;
@@ -370,7 +374,8 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<StoreOrderMapper, Y
             map.put("退款状态", strFund);
             map.put("退款图片", yxStoreOrder.getRefundReasonWapImg());
             map.put("退款用户说明", yxStoreOrder.getRefundReasonWapExplain());
-            map.put("退款时间", yxStoreOrder.getRefundReasonTime());
+//            map.put("退款时间", yxStoreOrder.getRefundReasonTime());
+            map.put("创建时间", DateUtils.timestampToStr10(yxStoreOrder.getRefundReasonTime(), DateUtils.YYYY_MM_DD_HH_MM_SS));
             map.put("前台退款原因", yxStoreOrder.getRefundReasonWap());
             map.put("不退款的理由", yxStoreOrder.getRefundReason());
             map.put("退款金额", yxStoreOrder.getRefundPrice());

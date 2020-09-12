@@ -103,6 +103,26 @@
             <el-button slot="reference" type="danger" icon="el-icon-delete" size="mini"/>
           </el-popover>
           -->
+          <br/>
+          <el-popover
+  placement="left"
+  width="260"
+trigger="click">
+  <el-form ref='formWithdraw' :model="formWithdraw" :rules="rules" style='padding:10px 20px;'>
+  <p>佣金调整</p>
+    <el-form-item label="类型" prop='ptype'>
+      <el-radio v-model="formWithdraw.ptype" :label="1" style='margin-left:20px;'>增</el-radio>
+      <el-radio v-model="formWithdraw.ptype" :label="0">减</el-radio>
+    </el-form-item>
+    <el-form-item label="金额" prop='money'>
+      <el-input v-model="formWithdraw.money " placeholder="金额" :maxlength='12'/>
+    </el-form-item>
+  <div style="text-align: right; margin: 0">
+    <el-button type="primary" size="mini" @click="modiyfUserCommission($event,formWithdraw,scope.row.uid)">提交</el-button>
+  </div>
+  </el-form>
+  <el-button v-permission="['admin','YXUSER_MODIFY']" size="small" type="primary" icon="el-icon-edit" slot="reference" style='marginTop:10px' plain>修改金额</el-button>
+</el-popover>
         </template>
       </el-table-column>
     </el-table>
@@ -121,10 +141,12 @@
 <script>
 import checkPermission from '@/utils/permission'
 import initData from '@/mixins/crud'
-import { del, onStatus } from '@/api/yxUser'
+import { del, onStatus,modiyfUserCommission } from '@/api/yxUser'
 import eForm from './form'
 import pForm from './formp'
 import { formatTime } from '@/utils/index'
+import { Notification } from 'element-ui'
+import { amountValid } from '@/utils/validate'
 export default {
   components: { eForm, pForm },
   mixins: [initData],
@@ -132,6 +154,7 @@ export default {
     return {
       delLoading: false,
       userType: '',
+      formWithdraw:{},
       queryTypeOptions: [
         { key: 'nickname', display_name: '用户昵称' },
         { key: 'phone', display_name: '手机号码' }
@@ -140,7 +163,16 @@ export default {
         { value: 'routine', label: '小程序' },
         { value: 'wechat', label: '公众号' },
         { value: 'H5', label: 'H5' }
-      ]
+      ],
+      rules:{
+        money: [
+          { required: true, message: '必填项', trigger: 'blur' },
+          { validator: amountValid, trigger: 'blur'},
+        ],
+        ptype: [
+          { required: true, message: '必填项', trigger: 'blur' },
+        ],
+      }
     }
   },
   created() {
@@ -255,6 +287,34 @@ export default {
         money: 0
       }
       _this.dialog = true
+    },
+    modiyfUserCommission(btn,formData,uid){
+      this.$refs.formWithdraw.validate(function(ret,obj){
+        if(ret){          
+          modiyfUserCommission(Object.assign(formData,{uid})).then(res=>{
+            console.log('xxxxxx')
+            console.log(res)
+            if(res){
+              Notification.success({
+              title: '提交成功'
+              })
+            }else{
+              Notification.error({
+              title: '提交失败'
+              })
+            }
+          }).catch(err=>{
+            // Notification.error({
+            //   title: err
+            //   })
+          })
+        }else{          
+          Notification.error({
+            title: '请查看必填项是否输入正确'
+            })
+        }
+      })
+
     }
   }
 }

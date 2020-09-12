@@ -52,4 +52,40 @@ public interface YxUserBillService  extends BaseService<YxUserBill>{
     * @throws IOException /
     */
     void download(List<YxUserBillDto> all, HttpServletResponse response) throws IOException;
+
+    /**
+     * 获取用户积分明细
+     *
+     * @param criteria
+     * @param pageable
+     * @return
+     */
+    Map<String,Object> getPointDetail(YxUserBillQueryCriteria criteria, Pageable pageable);
+
+    /**
+     * 分红池
+     *
+     * @param criteria
+     * @param pageable
+     * @return
+     */
+    Map<String,Object> getShareDividendPoint(YxUserBillQueryCriteria criteria, Pageable pageable);
+
+    /**
+     * 获取拉新池数据
+     * 
+     * @param criteria
+     * @param pageable
+     * @return
+     */
+    Map<String,Object> getPullNewPoint(YxUserBillQueryCriteria criteria, Pageable pageable);
+
+    /**
+     * 平台资金明细
+     *
+     * @param criteria
+     * @param pageable
+     * @return
+     */
+    Map<String,Object> queryAllNew(YxUserBillQueryCriteria criteria, Pageable pageable);
 }

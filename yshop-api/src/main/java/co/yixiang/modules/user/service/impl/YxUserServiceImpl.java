@@ -405,7 +405,7 @@ public class YxUserServiceImpl extends BaseServiceImpl<YxUserMapper, YxUser> imp
      * @param uid
      */
     @Override
-    public boolean setSpread(int spread, int uid) {
+    public boolean setSpread(int spread, int uid, String spreadType) {
         //如果分销没开启直接返回
         String open = systemConfigService.getData("store_brokerage_open");
         if (StrUtil.isEmpty(open) || open.equals("2")) return false;
@@ -432,8 +432,26 @@ public class YxUserServiceImpl extends BaseServiceImpl<YxUserMapper, YxUser> imp
         if (storeBrokerageStatus == 1 && userInfoT.getIsPromoter() == 0) {
             return true;
         }
-        YxUser yxUser = new YxUser();
 
+        YxUser yxUser = new YxUser();
+        // 判断推荐人类型 类型传值的即为后台用户
+        if (StringUtils.isNotBlank(spreadType)) {
+            SystemUser systemUser = this.systemUserMapper.selectById(spread);
+            if (null == systemUser) {
+                // 未查询到推荐人不做推荐人记录
+                return true;
+            }
+            // 1 合伙人 2 商户
+            if (1 == systemUser.getUserRole()) {
+                // 推荐人类型:1商户;2合伙人;3用户
+                yxUser.setParentType(2);
+            } else if (2 == systemUser.getUserRole()) {
+                yxUser.setParentType(1);
+            }
+        } else {
+            // 用户推广-设置推广人的推广人数+1
+            yxUserMapper.updateUserPusCount(spread);
+        }
         yxUser.setParentId(spread);
         // 推荐人类型:1商户;2合伙人;3用户 目前只有前端用户可以分享二维码
         yxUser.setParentType(3);
@@ -489,7 +507,7 @@ public class YxUserServiceImpl extends BaseServiceImpl<YxUserMapper, YxUser> imp
         // 查询用户提现申请中的金额
 //        LambdaQueryWrapper<YxUserExtract> queryWrapper = new QueryWrapper<YxUserExtract>().lambda().eq(YxUserExtract::getUid, id).eq(YxUserExtract::getUserType, 1);
         QueryWrapper<YxUserExtract> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("uid", id).eq("user_type", 1).eq("`status`", 0);
+        queryWrapper.eq("uid", id).eq("user_type", 3).eq("`status`", 0);
         queryWrapper.select("ifnull(sum(extract_price),0) as total ");
         Map<String, Object> map = yxUserExtractService.getMap(queryWrapper);
         userQueryVo.setFrozenPrice(new BigDecimal(String.valueOf(map.get("total"))));
@@ -627,7 +645,7 @@ public class YxUserServiceImpl extends BaseServiceImpl<YxUserMapper, YxUser> imp
             //设置推广关系
             if (StrUtil.isNotEmpty(spread) && !spread.equals("NaN")) {
                 this.setSpread(Integer.valueOf(spread),
-                        jwtUserT.getId().intValue());
+                        jwtUserT.getId().intValue(), "");
             }
 
             // 返回 token
@@ -646,6 +664,7 @@ public class YxUserServiceImpl extends BaseServiceImpl<YxUserMapper, YxUser> imp
         String encryptedData = loginParam.getEncryptedData();
         String iv = loginParam.getIv();
         String spread = loginParam.getSpread();
+        String spreadType = loginParam.getSpreadType();
         try {
             //读取redis配置
             String appId = RedisUtil.get(ShopKeyUtils.getWxAppAppId());
@@ -735,15 +754,11 @@ public class YxUserServiceImpl extends BaseServiceImpl<YxUserMapper, YxUser> imp
                     yxWechatUser.setUnionid(wxMpUser.getUnionId());
                 }
                 yxWechatUser.setUid(user.getUid());
-
                 wechatUserService.save(yxWechatUser);
 
                 //设置推广关系
                 if (StringUtils.isNotBlank(spread)) {
-                    this.setSpread(Integer.valueOf(spread),
-                            user.getUid());
-                    // 设置推广人的推广人数+1
-                    yxUserMapper.updateUserPusCount(Integer.valueOf(spread));
+                    this.setSpread(Integer.valueOf(spread), user.getUid(), spreadType);
                 }
 
             } else {
@@ -815,6 +830,6 @@ public class YxUserServiceImpl extends BaseServiceImpl<YxUserMapper, YxUser> imp
      */
     @Override
     public void updateExtractMoney(int uid, BigDecimal money) {
-        yxUserMapper.updateExtractMoney(uid,money);
+        yxUserMapper.updateExtractMoney(uid, money);
     }
 }

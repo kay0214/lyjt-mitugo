@@ -112,12 +112,13 @@ public class MemberController {
 
 
     @PostMapping(value = "/yxUser/modiyfUserCommission")
+    @PreAuthorize("hasAnyRole('admin','YXUSER_MODIFY')")
     @ApiOperation("用户佣金调增调减")
     public ResponseEntity<Object> modiyfUserCommission(@Validated @RequestBody UserMoneyDto param) {
         // 获取登陆用户的id
         int loginUid = SecurityUtils.getUserId().intValue();
         yxUserService.updateUserCommission(param);
-        return new ResponseEntity(HttpStatus.NO_CONTENT);
+        return new ResponseEntity(true,HttpStatus.OK);
 /*
         JSONObject jsonObject = JSON.parseObject(jsonStr);
         int uid = Integer.valueOf(jsonObject.get("uid").toString());

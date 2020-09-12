@@ -105,7 +105,7 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
     @Override
     public List<YxStoreInfoQueryVo> getStoreInfoList(YxStoreInfoQueryParam yxStoreInfoQueryParam){
         List<YxStoreInfoQueryVo> list = new ArrayList<>();
-        if(StringUtils.isBlank(yxStoreInfoQueryParam.getSalesOrder())&&StringUtils.isBlank(yxStoreInfoQueryParam.getScoreOrder())){
+        /*if(StringUtils.isBlank(yxStoreInfoQueryParam.getSalesOrder())&&StringUtils.isBlank(yxStoreInfoQueryParam.getScoreOrder())){
             //默认
             QueryWrapper<YxStoreInfo> wrapper = new QueryWrapper<YxStoreInfo>();
             wrapper.eq("del_flag", CommonEnum.DEL_STATUS_0.getValue()).eq("status",0);
@@ -125,7 +125,8 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
         if(ObjectUtil.isNotNull(yxStoreInfoQueryParam.getScoreOrder())&&StringUtils.isNotBlank(yxStoreInfoQueryParam.getScoreOrder())){
             //根据评分排序
             list = yxStoreInfoMapper.selectInfoListBySocre(yxStoreInfoQueryParam.getScoreOrder(),yxStoreInfoQueryParam.getStoreName());
-        }
+        }*/
+        list = yxStoreInfoMapper.selectStoreInfoVoList(yxStoreInfoQueryParam);
         if(!CollectionUtils.isEmpty(list)){
             for(YxStoreInfoQueryVo yxStoreInfoQueryVo:list){
                 //行业类别
@@ -135,6 +136,7 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
                 }
                 //店铺缩略图
                 yxStoreInfoQueryVo.setStoreImage(yxImageInfoService.selectImgByParam(yxStoreInfoQueryVo.getId(),CommonConstant.IMG_TYPE_STORE,CommonConstant.IMG_CATEGORY_PIC));
+//                yxStoreInfoQueryVo.setSalesCount();
             }
         }
         return list;

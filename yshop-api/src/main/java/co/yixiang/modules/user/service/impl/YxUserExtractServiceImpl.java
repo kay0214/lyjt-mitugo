@@ -7,6 +7,7 @@ import cn.hutool.core.util.StrUtil;
 import co.yixiang.common.service.impl.BaseServiceImpl;
 import co.yixiang.common.web.vo.Paging;
 import co.yixiang.exception.ErrorRequestException;
+import co.yixiang.modules.pay.param.PaySeachParam;
 import co.yixiang.modules.user.entity.YxUserExtract;
 import co.yixiang.modules.user.mapper.YxUserExtractMapper;
 import co.yixiang.modules.user.service.YxUserExtractService;
@@ -71,17 +72,16 @@ public class YxUserExtractServiceImpl extends BaseServiceImpl<YxUserExtractMappe
 
         YxUserExtract userExtract = new YxUserExtract();
         userExtract.setUid(uid);
-        userExtract.setExtractType(StringUtils.isNotBlank(param.getExtractType()) ? param.getExtractType() : "weixin");
+        userExtract.setExtractType(StringUtils.isNotBlank(param.getExtractType()) ? param.getExtractType() : "bank");
         userExtract.setExtractPrice(new BigDecimal(param.getMoney()));
         userExtract.setAddTime(OrderUtil.getSecondTimestampTwo());
         userExtract.setBalance(balance);
         userExtract.setStatus(0);
-        userExtract.setUserType(1);
         userExtract.setBankCode(param.getBankNo());
         userExtract.setBankAddress(userInfo.getBankName());
-        userExtract.setPhone(param.getPhone());
+        userExtract.setBankMobile(param.getPhone());
         // 前台用户提现
-        userExtract.setUserType(1);
+        userExtract.setUserType(3);
 
         if (StringUtils.isNotBlank(param.getName())) {
             userExtract.setRealName(param.getName());
@@ -135,6 +135,24 @@ public class YxUserExtractServiceImpl extends BaseServiceImpl<YxUserExtractMappe
         queryWrapper.orderByDesc("add_time");
         IPage<YxUserExtract> list = page(new Page<>(yxUserExtractQueryParam.getPage(), yxUserExtractQueryParam.getLimit()), queryWrapper);
         return new Paging<>(list);
+    }
+
+    /**
+     * 确认提现信息
+     * @param param
+     */
+    @Override
+    public YxUserExtract getConfirmOrder(PaySeachParam param) {
+        QueryWrapper<YxUserExtract> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("id", param.getId())
+                .eq("seq_no", param.getSeqNo())
+                .eq("true_price", param.getTotalAmount())
+                .eq("bank_code", param.getPayeeNo())
+                .eq("real_name", param.getPayeeName())
+                .eq("status", 0)
+                .eq("add_time", param.getAddTime());
+
+       return getOne(queryWrapper);
     }
 
 }
