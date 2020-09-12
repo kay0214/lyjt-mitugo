@@ -117,10 +117,11 @@ public interface YxUserBillMapper extends BaseMapper<YxUserBill> {
      */
     IPage<YxUserBillQueryVo> getYxUserBillPageList(@Param("page") Page page, @Param("param") YxUserBillQueryParam yxUserBillQueryParam);
 
-    @Select("SELECT IFNULL(SUM((commission)),0) from yx_store_cart" +
-            "WHERE id in " +
-            "   <foreach item='item' index='index' collection='cartIds' open='(' separator=',' close=')'>" +
-            "       #{item}" +
-            "   </foreach>" )
+    @Select("<script> SELECT IFNULL(SUM((commission)),0) from yx_store_cart" +
+            " WHERE 1=1" +
+            " and id in " +
+            "  <foreach item='cartid' index='index' collection='cartIds' open='(' separator=',' close=')'>" +
+            "  #{cartid} " +
+            " </foreach> </script>" )
     BigDecimal getSumCommission(@Param("cartIds") List<String> cartIds);
 }
