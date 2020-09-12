@@ -675,10 +675,6 @@ formWithdraw:{},
               title: '提交失败'
               })
             }
-          }).catch(err=>{
-            Notification.error({
-              title: err
-              })
           })
         }
       })
