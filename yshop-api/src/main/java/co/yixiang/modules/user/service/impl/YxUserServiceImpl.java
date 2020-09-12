@@ -507,7 +507,7 @@ public class YxUserServiceImpl extends BaseServiceImpl<YxUserMapper, YxUser> imp
         // 查询用户提现申请中的金额
 //        LambdaQueryWrapper<YxUserExtract> queryWrapper = new QueryWrapper<YxUserExtract>().lambda().eq(YxUserExtract::getUid, id).eq(YxUserExtract::getUserType, 1);
         QueryWrapper<YxUserExtract> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("uid", id).eq("user_type", 1).eq("`status`", 0);
+        queryWrapper.eq("uid", id).eq("user_type", 3).eq("`status`", 0);
         queryWrapper.select("ifnull(sum(extract_price),0) as total ");
         Map<String, Object> map = yxUserExtractService.getMap(queryWrapper);
         userQueryVo.setFrozenPrice(new BigDecimal(String.valueOf(map.get("total"))));

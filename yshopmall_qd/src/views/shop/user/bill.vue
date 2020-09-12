@@ -99,7 +99,7 @@
       <el-table-column prop="pm" label="收支类型">
         <template slot-scope="scope">
           <span v-if="scope.row.pm == '0'">支出</span>
-          <span v-else-if="scope.row.pm == '1'">获得</span>
+          <span v-else-if="scope.row.pm == '1'">收入</span>
           <span v-else>未知</span>
         </template>
       </el-table-column>
@@ -164,7 +164,7 @@ export default {
       typeOptions: [],
       pmOptions: [
         { value: '0', label: '支出 ' },
-        { value: '1', label: '获得' }
+        { value: '1', label: '收入' }
       ],
       rules:{
         extractPrice:[
@@ -192,7 +192,7 @@ export default {
       return function(type){
       if(this.typeOptions.length){
         let i= this.typeOptions.filter(function(item){
-          for(let key in item){       
+          for(let key in item){
             if(key===type){
               return JSON.parse(JSON.stringify(item))
             }
@@ -231,7 +231,7 @@ export default {
         .catch(() => { })
     },
     beforeInit() {
-      
+
       getType().then(res=>{
         if(res){
           this.typeOptions=res
@@ -250,7 +250,7 @@ export default {
         type: this.type,
         pm: this.pm,
         addTimeStart:this.searchTime?this.searchTime[0]:null,
-        addTimeEnd:this.searchTime?this.searchTime[0]:null
+        addTimeEnd:this.searchTime?this.searchTime[1]:null
       }
       const query = this.query
       const type = query.type

@@ -63,7 +63,7 @@ private Integer merId;
 @ApiModelProperty(value = "订单商品所属合伙人id")
 private Integer partnerId;
 
-@ApiModelProperty(value = "用户类型 0:预留 1:前台用户 2：后台商户 3：后台合伙人")
+@ApiModelProperty(value = "用户类型 0:预留 1商户;2合伙人;3用户")
 private Integer userType;
 
 }

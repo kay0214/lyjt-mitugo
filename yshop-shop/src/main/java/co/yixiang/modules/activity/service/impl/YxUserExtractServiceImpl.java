@@ -85,8 +85,8 @@ public class YxUserExtractServiceImpl extends BaseServiceImpl<YxUserExtractMappe
                 if (!extractDto.getExtractType().equals("weixin")) {
                     continue;
                 }
-                // 用户类型0:前台用户1后台用户
-                if (1 == extractDto.getUserType()) {
+                // 用户类型 1商户;2合伙人;3用户
+                if (3 == extractDto.getUserType()) {
                     YxUser user = yxUserService.getById(extractDto.getUid());
                     if (ObjectUtil.isNotEmpty(user)) {
                         extractDto.setUserTrueName(StringUtils.isNotBlank(user.getRealName()) ? user.getRealName().substring(0, 1) + "**" : "");
@@ -162,7 +162,7 @@ public class YxUserExtractServiceImpl extends BaseServiceImpl<YxUserExtractMappe
         // 实际到账金额
         BigDecimal truePrice = BigDecimal.ZERO;
         //  0:预留 1:前台用户 2：后台商户 3：后台合伙人
-        if (1 == yxUserExtract.getUserType()) {
+        if (3 == yxUserExtract.getUserType()) {
             yxUser = this.yxUserService.getOne(new QueryWrapper<YxUser>().lambda().eq(YxUser::getUid, yxUserExtract.getUid()));
             if (null == yxUser) {
                 throw new BadRequestException("查询用户信息失败");
@@ -191,7 +191,7 @@ public class YxUserExtractServiceImpl extends BaseServiceImpl<YxUserExtractMappe
             }
             mark = "提现失败,退回佣金" + resources.getExtractPrice() + "元";
             // 恢复用户余额
-            if (0 == yxUserExtract.getUserType()) {
+            if (3 == yxUserExtract.getUserType()) {
                 updateYxUser.setNowMoney(yxUser.getNowMoney().add(yxUserExtract.getExtractPrice()));
                 this.yxUserService.update(updateYxUser, new QueryWrapper<YxUser>().lambda().eq(YxUser::getUid, yxUserExtract.getUid()));
             } else {

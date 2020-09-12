@@ -34,9 +34,10 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author hupeng
@@ -66,11 +67,11 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<UserBillMapper, YxUse
         int userRole = 0;
         if (1 == criteria.getUserRole()) {
             userRole = 3;
-            queryWrapper.lambda().eq(YxUserBill::getUid, criteria.getUid()).eq(YxUserBill::getUserType, 3);
+            queryWrapper.lambda().eq(YxUserBill::getUid, criteria.getUid()).eq(YxUserBill::getUserType, 2);
         }
         if (2 == criteria.getUserRole()) {
             userRole = 2;
-            queryWrapper.lambda().eq(YxUserBill::getUid, criteria.getUid()).eq(YxUserBill::getUserType, 2);
+            queryWrapper.lambda().eq(YxUserBill::getUid, criteria.getUid()).eq(YxUserBill::getUserType, 1);
         }
         if (StringUtils.isNotBlank(criteria.getUsername())) {
             queryWrapper.lambda().like(YxUserBill::getUsername, criteria.getUsername());
@@ -83,7 +84,7 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<UserBillMapper, YxUse
             queryWrapper.lambda().like(YxUserBill::getTitle, criteria.getTitle());
         }
         if (StringUtils.isNotBlank(criteria.getAddTimeStart()) && StringUtils.isNotBlank(criteria.getAddTimeEnd())) {
-            queryWrapper.lambda().ge(YxUserBill::getAddTime, criteria.getAddTimeStart()).le(YxUserBill::getAddTime, criteria.getAddTimeEnd());
+            queryWrapper.lambda().ge(YxUserBill::getAddTime, DateUtils.stringToTimestamp(criteria.getAddTimeStart() + " 00:00:00")).le(YxUserBill::getAddTime, DateUtils.stringToTimestamp(criteria.getAddTimeEnd() + " 23:59:59"));
         }
         //明细种类
         if (StringUtils.isNotBlank(criteria.getCategory())) {
@@ -94,27 +95,27 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<UserBillMapper, YxUse
         if (StringUtils.isNotBlank(criteria.getType())) {
             queryWrapper.lambda().eq(YxUserBill::getType, criteria.getType());
         }
-        //日期查找
-        if (StringUtils.isNotBlank(criteria.getAddTimeStart()) && StringUtils.isNotBlank(criteria.getAddTimeEnd())) {
-            Integer addTimeStart = 0;
-            Integer addTimeEnd = 0;
-            try {
-                Date date = new Date();
-                Date dateEnd = new Date();
-                SimpleDateFormat sf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                date = sf.parse(criteria.getAddTimeStart());// 日期转换为时间戳
-                dateEnd = sf.parse(criteria.getAddTimeEnd());// 日期转换为时间戳
-                long longDate = date.getTime() / 1000;
-                long longDateEnd = dateEnd.getTime() / 1000;
-                addTimeStart = (int) longDate;
-                addTimeEnd = (int) longDateEnd;
-            } catch (ParseException e) {
-                e.printStackTrace();
-            }
-            if (addTimeEnd != 0 && addTimeStart != 0) {
-                queryWrapper.lambda().ge(YxUserBill::getAddTime, addTimeStart).le(YxUserBill::getAddTime, addTimeEnd);
-            }
-        }
+//        //日期查找
+//        if (StringUtils.isNotBlank(criteria.getAddTimeStart()) && StringUtils.isNotBlank(criteria.getAddTimeEnd())) {
+//            Integer addTimeStart = 0;
+//            Integer addTimeEnd = 0;
+//            try {
+//                Date date = new Date();
+//                Date dateEnd = new Date();
+//                SimpleDateFormat sf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+//                date = sf.parse(criteria.getAddTimeStart());// 日期转换为时间戳
+//                dateEnd = sf.parse(criteria.getAddTimeEnd());// 日期转换为时间戳
+//                long longDate = date.getTime() / 1000;
+//                long longDateEnd = dateEnd.getTime() / 1000;
+//                addTimeStart = (int) longDate;
+//                addTimeEnd = (int) longDateEnd;
+//            } catch (ParseException e) {
+//                e.printStackTrace();
+//            }
+//            if (addTimeEnd != 0 && addTimeStart != 0) {
+//                queryWrapper.lambda().ge(YxUserBill::getAddTime, addTimeStart).le(YxUserBill::getAddTime, addTimeEnd);
+//            }
+//        }
         User user = this.userService.getById(criteria.getUid());
 
         IPage<YxUserBill> ipage = this.page(new Page<>(pageable.getPageNumber() + 1, pageable.getPageSize()), queryWrapper);
@@ -189,7 +190,7 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<UserBillMapper, YxUse
     public Map<String, Object> getPointDetail(YxUserBillQueryCriteria criteria, Pageable pageable) {
         BigDecimal totalPoint = BigDecimal.ZERO;
         QueryWrapper<YxUserBill> queryWrapper = new QueryWrapper<>();
-        queryWrapper.lambda().eq(YxUserBill::getCategory, BillDetailEnum.CATEGORY_2).eq(YxUserBill::getStatus, 1);
+        queryWrapper.lambda().eq(YxUserBill::getCategory, BillDetailEnum.CATEGORY_2.getValue()).eq(YxUserBill::getStatus, 1);
         // 检索条件
         if (StringUtils.isNotBlank(criteria.getAddTimeStart()) && StringUtils.isNotBlank(criteria.getAddTimeStart())) {
             queryWrapper.lambda().ge(YxUserBill::getAddTime, DateUtils.stringToTimestamp(criteria.getAddTimeStart())).le(YxUserBill::getAddTime, DateUtils.stringToTimestamp(criteria.getAddTimeEnd()));
@@ -230,7 +231,7 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<UserBillMapper, YxUse
             totalPoint = yxFundsAccount.getBonusPoint();
         }
         QueryWrapper<YxUserBill> queryWrapper = new QueryWrapper<>();
-        queryWrapper.lambda().eq(YxUserBill::getCategory, BillDetailEnum.CATEGORY_2).eq(YxUserBill::getType, BillDetailEnum.TYPE_11).eq(YxUserBill::getStatus, 1);
+        queryWrapper.lambda().eq(YxUserBill::getCategory, BillDetailEnum.CATEGORY_2.getValue()).eq(YxUserBill::getType, BillDetailEnum.TYPE_11).eq(YxUserBill::getStatus, 1);
         if (StringUtils.isNotBlank(criteria.getAddTimeStart()) && StringUtils.isNotBlank(criteria.getAddTimeStart())) {
             queryWrapper.lambda().ge(YxUserBill::getAddTime, DateUtils.stringToTimestamp(criteria.getAddTimeStart())).le(YxUserBill::getAddTime, DateUtils.stringToTimestamp(criteria.getAddTimeEnd()));
         }
@@ -262,7 +263,7 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<UserBillMapper, YxUse
             totalPoint = yxFundsAccount.getReferencePoint();
         }
         QueryWrapper<YxUserBill> queryWrapper = new QueryWrapper<>();
-        queryWrapper.lambda().eq(YxUserBill::getCategory, BillDetailEnum.CATEGORY_2).eq(YxUserBill::getType, BillDetailEnum.TYPE_12).eq(YxUserBill::getStatus, 1);
+        queryWrapper.lambda().eq(YxUserBill::getCategory, BillDetailEnum.CATEGORY_2.getValue()).eq(YxUserBill::getType, BillDetailEnum.TYPE_12).eq(YxUserBill::getStatus, 1);
         if (StringUtils.isNotBlank(criteria.getAddTimeStart()) && StringUtils.isNotBlank(criteria.getAddTimeStart())) {
             queryWrapper.lambda().ge(YxUserBill::getAddTime, DateUtils.stringToTimestamp(criteria.getAddTimeStart())).le(YxUserBill::getAddTime, DateUtils.stringToTimestamp(criteria.getAddTimeEnd()));
         }
@@ -272,6 +273,53 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<UserBillMapper, YxUse
         map.put("content", ipage.getRecords());
         map.put("totalElements", ipage.getTotal());
         map.put("totalPoint", totalPoint);
+        return map;
+    }
+
+    /**
+     * 平台资金明细
+     *
+     * @param criteria
+     * @param pageable
+     * @return
+     */
+    @Override
+    public Map<String, Object> queryAllNew(YxUserBillQueryCriteria criteria, Pageable pageable) {
+        BigDecimal totalPrice = BigDecimal.ZERO;
+        YxFundsAccount yxFundsAccount = fundsAccountService.getOne(new QueryWrapper<YxFundsAccount>().lambda().eq(YxFundsAccount::getDelFlag, 0));
+        if (null != yxFundsAccount) {
+            // 平台分佣总金额
+            totalPrice = yxFundsAccount.getPrice();
+        }
+        QueryWrapper<YxUserBill> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().eq(YxUserBill::getCategory, BillDetailEnum.CATEGORY_1.getValue()).eq(YxUserBill::getStatus, 1);
+        if (StringUtils.isNotBlank(criteria.getAddTimeStart()) && StringUtils.isNotBlank(criteria.getAddTimeStart())) {
+            queryWrapper.lambda().ge(YxUserBill::getAddTime, DateUtils.stringToTimestamp(criteria.getAddTimeStart())).le(YxUserBill::getAddTime, DateUtils.stringToTimestamp(criteria.getAddTimeEnd()));
+        }
+        //收支类型
+        if (null != criteria.getPm()) {
+            queryWrapper.lambda().eq(YxUserBill::getPm, criteria.getPm());
+        }
+        if (StringUtils.isNotBlank(criteria.getTitle())) {
+            queryWrapper.lambda().like(YxUserBill::getTitle, criteria.getTitle());
+        }
+        //明细类型
+        if (StringUtils.isNotBlank(criteria.getType())) {
+            queryWrapper.lambda().eq(YxUserBill::getType, criteria.getType());
+        }
+        // 用户昵称
+        if (StringUtils.isNotBlank(criteria.getUsername())) {
+            queryWrapper.lambda().like(YxUserBill::getUsername, criteria.getUsername());
+        }
+        if (null != criteria.getUserType()) {
+            queryWrapper.lambda().eq(YxUserBill::getUserType, criteria.getUserType());
+        }
+
+        IPage<YxUserBill> ipage = this.page(new Page<>(pageable.getPageNumber() + 1, pageable.getPageSize()), queryWrapper);
+        Map<String, Object> map = new LinkedHashMap<>(3);
+        map.put("content", ipage.getRecords());
+        map.put("totalElements", ipage.getTotal());
+        map.put("totalPrice", totalPrice);
         return map;
     }
 }

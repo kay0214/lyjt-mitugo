@@ -52,7 +52,6 @@ import me.chanjar.weixin.mp.api.WxMpService;
 import me.chanjar.weixin.mp.bean.message.WxMpXmlMessage;
 import me.chanjar.weixin.mp.bean.message.WxMpXmlOutMessage;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -61,7 +60,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.math.BigDecimal;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -260,6 +258,7 @@ public class WechatController extends BaseController {
             // 该笔资金实际到账
             SystemUser updateSystemUser = new SystemUser();
             BigDecimal truePrice = yxCouponOrder.getTotalPrice().subtract(yxCouponOrder.getCommission());
+            BigDecimal balance = systemUser.getWithdrawalAmount().compareTo(truePrice) > 0 ? systemUser.getWithdrawalAmount().subtract(truePrice) : BigDecimal.ZERO;
             if (refundFee.compareTo(truePrice) > 0) {
                 updateSystemUser.setTotalAmount(truePrice.multiply(new BigDecimal(-1)));
                 updateSystemUser.setWithdrawalAmount(truePrice.multiply(new BigDecimal(-1)));
@@ -280,11 +279,11 @@ public class WechatController extends BaseController {
             merBill.setType(BillDetailEnum.TYPE_5.getValue());
             merBill.setNumber(truePrice);
             // 目前只支持微信付款、没有余额
-            merBill.setBalance(updateSystemUser.getWithdrawalAmount());
+            merBill.setBalance(balance);
             merBill.setAddTime(DateUtils.getNowTime());
             merBill.setStatus(1);
             merBill.setMerId(yxCouponOrder.getMerId());
-            merBill.setUserType(2);
+            merBill.setUserType(1);
             merBill.setUsername(systemUser.getNickName());
             this.yxUserBillService.save(merBill);
 
@@ -468,7 +467,7 @@ public class WechatController extends BaseController {
             userBill.setMark("小程序购买商品订单退款");
             userBill.setAddTime(OrderUtil.getSecondTimestampTwo());
             userBill.setStatus(1);
-            userBill.setUserType(1);
+            userBill.setUserType(3);
             yxUserBillService.save(userBill);
 
             // 更新商户余额
@@ -480,6 +479,7 @@ public class WechatController extends BaseController {
             // 该笔资金实际到账
             SystemUser updateSystemUser = new SystemUser();
             BigDecimal truePrice = orderInfo.getPayPrice().subtract(orderInfo.getCommission());
+            BigDecimal balance = systemUser.getWithdrawalAmount().compareTo(truePrice) > 0 ? systemUser.getWithdrawalAmount().subtract(truePrice) : BigDecimal.ZERO;
             if (refundFee.compareTo(truePrice) > 0) {
                 updateSystemUser.setTotalAmount(truePrice.multiply(new BigDecimal(-1)));
                 updateSystemUser.setWithdrawalAmount(truePrice.multiply(new BigDecimal(-1)));
@@ -501,11 +501,11 @@ public class WechatController extends BaseController {
             merBill.setType(BillDetailEnum.TYPE_5.getValue());
             merBill.setNumber(truePrice);
             // 目前只支持微信付款、没有余额
-            merBill.setBalance(updateSystemUser.getWithdrawalAmount());
+            merBill.setBalance(balance);
             merBill.setAddTime(DateUtils.getNowTime());
             merBill.setStatus(1);
             merBill.setMerId(orderInfo.getMerId());
-            merBill.setUserType(2);
+            merBill.setUserType(1);
             merBill.setUsername(systemUser.getNickName());
             merBill.setMark("小程序购买商品订单退款");
             this.yxUserBillService.save(merBill);

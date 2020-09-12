@@ -237,7 +237,7 @@ public class YxUserServiceImpl extends BaseServiceImpl<UserMapper, YxUser> imple
         userBill.setAddTime(OrderUtil.getSecondTimestampTwo());
         userBill.setStatus(1);
         //前端用户
-        userBill.setUserType(1);
+        userBill.setUserType(3);
         yxUserBillService.save(userBill);
     }
 

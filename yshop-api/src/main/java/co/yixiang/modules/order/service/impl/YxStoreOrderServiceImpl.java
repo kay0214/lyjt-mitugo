@@ -2102,8 +2102,8 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
             userBill.setMerId(yxStoreOrderQueryVo.getMerId());
             // 订单商品所属合伙人id
             userBill.setPartnerId(userInfo.getPartnerId());
-            //用户类型 0:预留 1:前台用户 2：后台商户 3：后台合伙人
-            userBill.setUserType(1);
+            //用户类型
+            userBill.setUserType(3);
             //用户名
             userBill.setUsername(userInfo.getNickname());
             billService.save(userBill);
@@ -2203,7 +2203,7 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
                 yxUserBill.setStatus(BillEnum.STATUS_1.getValue());
                 yxUserBill.setMerId(orderInfo.getMerId());
                 //前端用户
-                yxUserBill.setUserType(1);
+                yxUserBill.setUserType(3);
                 yxUserBill.setUsername(yxUser.getNickname());
                 this.billService.save(yxUserBill);
 

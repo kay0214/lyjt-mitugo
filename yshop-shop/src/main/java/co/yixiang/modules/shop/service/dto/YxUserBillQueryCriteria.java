@@ -4,21 +4,27 @@ import co.yixiang.annotation.Query;
 import lombok.Data;
 
 /**
-* @author hupeng
-* @date 2020-05-12
-*/
+ * @author hupeng
+ * @date 2020-05-12
+ */
 @Data
-public class YxUserBillQueryCriteria extends BaseCriteria{
+public class YxUserBillQueryCriteria extends BaseCriteria {
 
-    /** 用户名模糊查询 */
+    /**
+     * 用户名模糊查询
+     */
     @Query(type = Query.Type.EQUAL)
     private String username;
 
-    /** 账单明细种类 */
+    /**
+     * 账单明细种类
+     */
     @Query(type = Query.Type.EQUAL)
     private Integer pm;
 
-    /** 账单标题 */
+    /**
+     * 账单标题
+     */
     @Query(type = Query.Type.INNER_LIKE)
     private String title;
 
@@ -32,5 +38,7 @@ public class YxUserBillQueryCriteria extends BaseCriteria{
     private String category;
     // 明细类型
     private String type;
+    // 用户类型
+    private Integer userType;
 
 }

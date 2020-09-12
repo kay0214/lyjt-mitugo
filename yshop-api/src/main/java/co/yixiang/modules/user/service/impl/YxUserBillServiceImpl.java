@@ -231,7 +231,7 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<YxUserBillMapper, YxU
         userBill.setMark("订单确认收货，商户返现");
         userBill.setAddTime(OrderUtil.getSecondTimestampTwo());
         userBill.setStatus(BillEnum.STATUS_1.getValue());
-        userBill.setUserType(2);
+        userBill.setUserType(1);
         yxUserBillMapper.insert(userBill);
     }
 
@@ -246,7 +246,7 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<YxUserBillMapper, YxU
         QueryWrapper<YxUserBill> wrapper = new QueryWrapper<>();
         wrapper.eq("status", 1).eq("uid", userId)
                 .eq("type", BillDetailEnum.TYPE_10.getValue())
-                .eq("user_type", 2)
+                .eq("user_type", 1)
                 .eq("category", BillDetailEnum.CATEGORY_1.getValue())
                 .orderByDesc("id");
 
@@ -261,7 +261,7 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<YxUserBillMapper, YxU
         QueryWrapper<YxUserBill> wrapper = new QueryWrapper<>();
         wrapper.eq("status", 1).eq("uid", id)
                 .eq("type", BillDetailEnum.TYPE_9.getValue())
-                .eq("user_type", 2).eq("category", BillDetailEnum.CATEGORY_1.getValue())
+                .eq("user_type", 1).eq("category", BillDetailEnum.CATEGORY_1.getValue())
                 .orderByDesc("id");
 
         Page<YxUserBill> pageModel = new Page<>(param.getPage(), param.getLimit());
