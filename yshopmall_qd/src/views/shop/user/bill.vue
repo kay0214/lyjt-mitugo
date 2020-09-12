@@ -343,10 +343,6 @@ export default {
               title: '提现申请失败'
               })
             }
-          }).catch(err=>{
-            Notification.error({
-              title: err
-              })
           })
         }
       })
