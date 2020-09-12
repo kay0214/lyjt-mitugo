@@ -601,6 +601,7 @@ public class YxStoreCartServiceImpl extends BaseServiceImpl<YxStoreCartMapper, Y
         } else {
             bigCommission = product.getCommission();
         }
+        bigCommission = bigCommission.multiply(new BigDecimal(cartNum));
         storeCart.setCommission(bigCommission);
         //商户ID
         storeCart.setMerId(product.getMerId());
