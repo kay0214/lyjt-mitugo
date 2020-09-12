@@ -7,6 +7,7 @@ import cn.hutool.core.util.StrUtil;
 import co.yixiang.common.service.impl.BaseServiceImpl;
 import co.yixiang.common.web.vo.Paging;
 import co.yixiang.exception.ErrorRequestException;
+import co.yixiang.modules.pay.param.PaySeachParam;
 import co.yixiang.modules.user.entity.YxUserExtract;
 import co.yixiang.modules.user.mapper.YxUserExtractMapper;
 import co.yixiang.modules.user.service.YxUserExtractService;
@@ -134,6 +135,24 @@ public class YxUserExtractServiceImpl extends BaseServiceImpl<YxUserExtractMappe
         queryWrapper.orderByDesc("add_time");
         IPage<YxUserExtract> list = page(new Page<>(yxUserExtractQueryParam.getPage(), yxUserExtractQueryParam.getLimit()), queryWrapper);
         return new Paging<>(list);
+    }
+
+    /**
+     * 确认提现信息
+     * @param param
+     */
+    @Override
+    public YxUserExtract getConfirmOrder(PaySeachParam param) {
+        QueryWrapper<YxUserExtract> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("id", param.getId())
+                .eq("seq_no", param.getSeqNo())
+                .eq("true_price", param.getTotalAmount())
+                .eq("bank_code", param.getPayeeNo())
+                .eq("real_name", param.getPayeeName())
+                .eq("status", 0)
+                .eq("add_time", param.getAddTime());
+
+       return getOne(queryWrapper);
     }
 
 }

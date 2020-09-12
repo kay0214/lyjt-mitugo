@@ -49,8 +49,8 @@ export default {
         deliveryId: [
           { required: true, message: '必填项', trigger: 'blur' },
           {
-            pattern: /^[0-9]+$/,  
-            message: '请输入数字',
+            pattern: /^[a-zA-Z0-9]+$/,  
+            message: '请输入数字和英文',
             trigger: 'blur'
           },
         ]
