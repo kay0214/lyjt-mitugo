@@ -76,4 +76,10 @@ public class YxUserExtract extends BaseEntity {
 
     @ApiModelProperty(value = "实际到账金额")
     private BigDecimal truePrice;
+
+    @ApiModelProperty(value = "交易流水号")
+    private String seqNo;
+
+    @ApiModelProperty(value = "返回值")
+    private String retMess;
 }

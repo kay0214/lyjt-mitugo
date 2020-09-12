@@ -5,6 +5,7 @@ package co.yixiang.modules.user.service;
 
 import co.yixiang.common.service.BaseService;
 import co.yixiang.common.web.vo.Paging;
+import co.yixiang.modules.pay.param.PaySeachParam;
 import co.yixiang.modules.user.entity.YxUserExtract;
 import co.yixiang.modules.user.web.param.UserExtParam;
 import co.yixiang.modules.user.web.param.YxUserExtractQueryParam;
@@ -41,4 +42,9 @@ public interface YxUserExtractService extends BaseService<YxUserExtract> {
      */
     Paging<YxUserExtractQueryVo> getYxUserExtractPageList(YxUserExtractQueryParam yxUserExtractQueryParam) throws Exception;
 
+    /**
+     * 确认提现信息
+     * @param param
+     */
+    YxUserExtract getConfirmOrder(PaySeachParam param);
 }
