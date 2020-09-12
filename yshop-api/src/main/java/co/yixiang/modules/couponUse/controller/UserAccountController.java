@@ -52,8 +52,15 @@ public class UserAccountController extends BaseController {
     @AnonymousAccess
     @ApiOperation("B端：线下交易流水列表")
     @GetMapping(value = "/getUserAccountList")
-    public ResponseEntity<Object> getUserAccountList(UserAccountQueryParam param) {
-        Paging<UserBillVo> result = billService.getYxUserAccountPageList(param, 36L);
+    public ResponseEntity<Object> getUserAccountList(@RequestHeader(value = "token") String token,UserAccountQueryParam param) {
+        Map<String, Object> map = new HashMap<>();
+        SystemUser user = getRedisUser(token);
+        if (null == user) {
+            map.put("status", "999");
+            map.put("statusDesc", "请先登录");
+            return ResponseEntity.ok(map);
+        }
+        Paging<UserBillVo> result = billService.getYxUserAccountPageList(param,user.getId());
         return ResponseEntity.ok(result);
     }
 
