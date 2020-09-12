@@ -222,6 +222,8 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
         storeProductQueryVo.setVipPrice(BigDecimal.valueOf(vipPrice));
         storeProductQueryVo.setUserCollect(relationService
                 .isProductRelation(id, "product", uid, "collect"));
+        //销量= 销量+虚拟销量
+        storeProductQueryVo.setSales(storeProductQueryVo.getSales()+storeProductQueryVo.getFicti());
         productDTO.setStoreInfo(storeProductQueryVo);
         productDTO.setProductAttr((List<YxStoreProductAttrQueryVo>) returnMap.get("productAttr"));
         productDTO.setProductValue((Map<String, YxStoreProductAttrValue>) returnMap.get("productValue"));
