@@ -230,7 +230,7 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<YxUserBillMapper, YxU
         userBill.setPm(BillEnum.PM_1.getValue());
         userBill.setTitle("小程序商品购买");
         userBill.setCategory(BillDetailEnum.CATEGORY_1.getValue());
-        userBill.setType(BillDetailEnum.TYPE_9.getValue());
+        userBill.setType(BillDetailEnum.TYPE_3.getValue());
         userBill.setNumber(bigMerPrice);
         userBill.setUsername(systemUserQueryVo.getNickName());
         userBill.setBalance(order.getPayPrice());
@@ -268,7 +268,7 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<YxUserBillMapper, YxU
     public Paging<UserBillVo> getUserProductAccountList(UserAccountQueryParam param, Long id) {
         QueryWrapper<YxUserBill> wrapper = new QueryWrapper<>();
         wrapper.eq("status", 1).eq("uid", id)
-                .eq("type", BillDetailEnum.TYPE_9.getValue())
+                .in("type", BillDetailEnum.TYPE_3.getValue(),BillDetailEnum.TYPE_8.getValue())
                 .eq("user_type", 1).eq("category", BillDetailEnum.CATEGORY_1.getValue())
                 .orderByDesc("id");
 
