@@ -62,6 +62,8 @@ public class UserServiceImpl extends BaseServiceImpl<UserSysMapper, User> implem
     private YxMerchantsDetailMapper yxMerchantsDetailMapper;
     @Autowired
     private YxUserExtractMapper yxUserExtractMapper;
+    @Autowired
+    private UserSysMapper userSysMapper;
 
     @Override
     //@Cacheable
@@ -150,5 +152,16 @@ public class UserServiceImpl extends BaseServiceImpl<UserSysMapper, User> implem
         yxUserExtract.setUserType(userType);
         this.yxUserExtractMapper.insert(yxUserExtract);
         return true;
+    }
+
+    /**
+     * 更新商户可提现金额
+     *
+     * @param id
+     * @param withdrawalAmount
+     */
+    @Override
+    public void updateWithdrawalAmount(Integer id, BigDecimal withdrawalAmount) {
+        userSysMapper.updateWithdrawalAmount(id,withdrawalAmount);
     }
 }

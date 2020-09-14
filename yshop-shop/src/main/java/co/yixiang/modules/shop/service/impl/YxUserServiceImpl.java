@@ -242,4 +242,15 @@ public class YxUserServiceImpl extends BaseServiceImpl<UserMapper, YxUser> imple
         yxUserBillService.save(userBill);
     }
 
+    /**
+     * 提现驳回返回可提现金额
+     *
+     * @param uid
+     * @param nowMoney
+     */
+    @Override
+    public void updateAddMoney(Integer uid, BigDecimal nowMoney) {
+        yxUserMapper.updateMoney(nowMoney.doubleValue(), uid);
+    }
+
 }
