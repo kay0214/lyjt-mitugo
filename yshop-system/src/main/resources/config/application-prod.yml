@@ -6,10 +6,9 @@ spring:
     druid:
       type: com.alibaba.druid.pool.DruidDataSource
       driverClassName: net.sf.log4jdbc.sql.jdbcapi.DriverSpy
-      url: jdbc:log4jdbc:mysql://localhost:3306/yshop?serverTimezone=Asia/Shanghai&characterEncoding=utf8&useSSL=false
-      username: root
-      password: root
-
+      url: jdbc:log4jdbc:mysql://pc-8vb5rf7ug4dzljzsx.rwlb.zhangbei.rds.aliyuncs.com:3306/mitu?serverTimezone=Asia/Shanghai&characterEncoding=utf8&useSSL=false&zeroDateTimeBehavior=convertToNull
+      username: dbwrite
+      password: MsYMC@mWcD
       # 初始化配置
       initial-size: 3
       # 最小连接数
@@ -42,9 +41,9 @@ spring:
   redis:
     #数据库索引
     database: 0
-    host: 127.0.0.1
+    host: r-8vbggwhot2ztmuj8vm.redis.zhangbei.rds.aliyuncs.com
     port: 6379
-    password: root
+    password: Sc6mYzzXZS8El6zE
     #连接超时时间
     timeout: 5000
 
@@ -81,7 +80,7 @@ generator:
 swagger:
   enabled: false
   title: yshop商城管理后台API
-  serverUrl: http://127.0.0.1:8000
+  serverUrl:
   version: 2.2
 
 # 文件存储路径
@@ -90,25 +89,25 @@ swagger:
 #  2.如果想文件存在本地，并通过本地代理出去请填写localUrl： http://127.0.0.1:8000为本服务的ip+端口号
 #     线上的地址就是你通过nginx代理http://127.0.0.1:8000出来的地址。鉴于群里很多问的这里做个说明不在赘述
 file:
-  path: /hyjfdata/data/mitu/upload/file/
-  avatar: /hyjfdata/data/mitu/upload/avatar/
+  path: /mitudata/data/mitu/upload/file/
+  avatar: /mitudata/data/mitu/upload/avatar/
   # 文件大小 /M
   maxSize: 100
   avatarMaxSize: 5
-  localUrl: http://39.98.139.163:8000
+  localUrl: https://mitu-api.hyjf.com
 
 yshop:
   # 订单号生成配置  数据中心的id 每一个jar包都需要不同
   snowflake:
-    datacenterId: 1
+    datacenterId: ${spring.datacenterId}
   # 快鸟物流查询配置
   express:
     enable: true
     appId: 1607734
     appKey: 81f43a2e-f504-45c4-9b54-2637d59f8190
-  apiUrl: http://localhost:8009/api
-  hApi: https://localhost:8000
-  wechatCode: http://localhost:8000/upload/qrcode_for_gh_2ac8f422a79f_258.jpg
+  apiUrl: https://mitu-api.hyjf.com
+  hApi: https://mitu.hyjf.com
+  wechatCode: https://mitu.hyjf.com/upload/qrcode_for_gh_2ac8f422a79f_258.jpg
   miniAppID:
 
 mybatis-plus:
@@ -125,7 +124,7 @@ mybatis-plus:
 # 日志配置
 logging:
   config: classpath:logback-spring.xml
-  file: /hyjfdata/log/mitu/${spring.profiles.active}/ststem.log
+  file: /mitudata/log/mitu/${spring.profiles.active}/ststem.log
   file.max-size: 50MB
   #当参数定义int简单类型并使用@apiModelPerperty标签时,如果不指名example属性,会导致swagger类型转换错误,信息如下
   #java.lang.NumberFormatException: For input string: ""
@@ -140,6 +139,6 @@ dingding:
 
 #spring rocket mq
 rocketmq:
-  nameServer: newdev1-3:9876
+  nameServer: 192.168.11.240:9876;192.168.11.241:9876
   producer:
-    group: mitu-test
+    group: mitu-pro
