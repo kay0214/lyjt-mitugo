@@ -1,20 +1,25 @@
 package co.yixiang.modules.coupon.service.impl;
 
+import cn.hutool.core.date.DateTime;
 import co.yixiang.common.service.impl.BaseServiceImpl;
 import co.yixiang.common.utils.QueryHelpPlus;
 import co.yixiang.constant.LocalLiveConstants;
 import co.yixiang.constant.ShopConstants;
 import co.yixiang.dozer.service.IGenerator;
+import co.yixiang.exception.BadRequestException;
 import co.yixiang.modules.coupon.domain.CouponsCategoryRequest;
+import co.yixiang.modules.coupon.domain.YxCoupons;
 import co.yixiang.modules.coupon.domain.YxCouponsCategory;
 import co.yixiang.modules.coupon.service.YxCouponsCategoryService;
 import co.yixiang.modules.coupon.service.dto.YxCouponsCategoryDto;
 import co.yixiang.modules.coupon.service.dto.YxCouponsCategoryQueryCriteria;
 import co.yixiang.modules.coupon.service.mapper.YxCouponsCategoryMapper;
+import co.yixiang.modules.coupon.service.mapper.YxCouponsMapper;
 import co.yixiang.modules.shop.domain.YxImageInfo;
 import co.yixiang.modules.shop.service.YxImageInfoService;
 import co.yixiang.modules.shop.service.dto.YxStoreCategoryDto;
 import co.yixiang.utils.BeanUtils;
+import co.yixiang.utils.SecurityUtils;
 import co.yixiang.utils.StringUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.github.pagehelper.PageInfo;
@@ -45,6 +50,8 @@ public class YxCouponsCategoryServiceImpl extends BaseServiceImpl<YxCouponsCateg
     private YxCouponsCategoryMapper yxCouponsCategoryMapper;
     @Autowired
     private YxImageInfoService yxImageInfoService;
+    @Autowired
+    private YxCouponsMapper yxCouponsMapper;
 
     /**
      * 写入 ()
@@ -161,5 +168,23 @@ public class YxCouponsCategoryServiceImpl extends BaseServiceImpl<YxCouponsCateg
         map.put("totalElements", totalElements);
         map.put("content", CollectionUtils.isEmpty(trees) ? categoryDTOS : trees);
         return map;
+    }
+
+    @Override
+    public boolean deleteBatch(String[] idsArr) {
+        boolean delStatus = false;
+        for (String id : idsArr) {
+            YxCouponsCategory yxCouponsCategory = this.getById(id);
+            List<YxCoupons> list = this.yxCouponsMapper.selectList(new QueryWrapper<YxCoupons>().lambda().eq(YxCoupons::getCouponCategory, id).eq(YxCoupons::getDelFlag, 0));
+            if (null != list || list.size() > 0) {
+                throw new BadRequestException("卡券分类：" + yxCouponsCategory.getCateName() + "下有卡券未删除");
+            }
+            yxCouponsCategory.setId(Integer.valueOf(id));
+            yxCouponsCategory.setDelFlag(1);
+            yxCouponsCategory.setUpdateUserId(SecurityUtils.getUserId().intValue());
+            yxCouponsCategory.setUpdateTime(DateTime.now().toTimestamp());
+            delStatus = removeById(id);
+        }
+        return delStatus;
     }
 }

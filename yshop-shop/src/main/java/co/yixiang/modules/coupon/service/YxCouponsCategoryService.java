@@ -41,4 +41,12 @@ public interface YxCouponsCategoryService  extends BaseService<YxCouponsCategory
     List<YxCouponsCategory> queryAll(YxCouponsCategoryQueryCriteria criteria);
 
     Object buildTree(List<YxCouponsCategoryDto> categoryList);
+
+    /**
+     * 批量删除卡券分类
+     *
+     * @param idsArr
+     * @return
+     */
+    boolean deleteBatch(String[] idsArr);
 }

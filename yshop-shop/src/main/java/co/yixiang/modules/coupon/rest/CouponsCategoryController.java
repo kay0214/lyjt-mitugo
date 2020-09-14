@@ -7,11 +7,9 @@ import co.yixiang.constant.LocalLiveConstants;
 import co.yixiang.constant.ShopConstants;
 import co.yixiang.exception.BadRequestException;
 import co.yixiang.logging.aop.log.Log;
-import co.yixiang.modules.coupon.domain.CouponsCategoryAddRequest;
-import co.yixiang.modules.coupon.domain.CouponsCategoryModifyRequest;
-import co.yixiang.modules.coupon.domain.CouponsCategoryRequest;
-import co.yixiang.modules.coupon.domain.YxCouponsCategory;
+import co.yixiang.modules.coupon.domain.*;
 import co.yixiang.modules.coupon.service.YxCouponsCategoryService;
+import co.yixiang.modules.coupon.service.YxCouponsService;
 import co.yixiang.modules.coupon.service.dto.YxCouponsCategoryDto;
 import co.yixiang.modules.coupon.service.dto.YxCouponsCategoryQueryCriteria;
 import co.yixiang.modules.shop.domain.YxImageInfo;
@@ -23,6 +21,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -42,9 +41,11 @@ import java.util.List;
 @RequestMapping("/api/yxCouponsCategory")
 public class CouponsCategoryController {
 
-    private final YxCouponsCategoryService yxCouponsCategoryService;
+    @Autowired
+    private YxCouponsCategoryService yxCouponsCategoryService;
 
-    private final YxImageInfoService yxImageInfoService;
+    @Autowired
+    private YxImageInfoService yxImageInfoService;
 
     /**
      * Select 卡券分类
@@ -153,15 +154,8 @@ public class CouponsCategoryController {
     @DeleteMapping(value = "/{ids}")
     public ResponseEntity<Object> delete(@PathVariable String ids) {
         String[] idsArr = ids.split(",");
-        boolean delStatus = false;
-        for (String id : idsArr) {
-            YxCouponsCategory yxCouponsCategory = new YxCouponsCategory();
-            yxCouponsCategory.setId(Integer.valueOf(id));
-            yxCouponsCategory.setDelFlag(1);
-            yxCouponsCategory.setUpdateUserId(SecurityUtils.getUserId().intValue());
-            yxCouponsCategory.setUpdateTime(DateTime.now().toTimestamp());
-            delStatus = yxCouponsCategoryService.removeById(id);
-        }
+        boolean delStatus = yxCouponsCategoryService.deleteBatch(idsArr);
+
         return new ResponseEntity<>(delStatus, HttpStatus.OK);
     }
 
