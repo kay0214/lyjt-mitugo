@@ -79,11 +79,10 @@ public class CreatShareStoreServiceImpl implements CreatShareStoreService {
             //文案标题
             g.setFont(font.deriveFont(Font.BOLD, 32));
             g.setColor(new Color(29, 29, 29));
-            int fontlenb = getWatermarkLength(yxStoreInfo.getStoreName(), g);
             //高度
             //文字叠加,自动换行叠加
             int tempXb = 40;
-            int tempYb = 906;
+            int tempYb = 918;
             //单字符长度
             int tempCharLenb = 0;
             //单行字符总长度临时计算
@@ -113,13 +112,10 @@ public class CreatShareStoreServiceImpl implements CreatShareStoreService {
             g.setColor(new Color(47, 47, 47));
             String storeInfo = yxStoreInfo.getStoreProvince() + yxStoreInfo.getStoreAddress();
             int fontlen = getWatermarkLength(storeInfo, g);
-            //文字长度相对于图片宽度应该有多少行
-            int line = fontlen / (back.getWidth() + 200);
-            //高度
-            int y = tempYb + 50 - (line + 1) * 30 + 100;
+
             //文字叠加,自动换行叠加
             int tempX = 40;
-            int tempY = 1012;
+            int tempY = 1030;
             //单字符长度
             int tempCharLen = 0;
             //单行字符总长度临时计算
