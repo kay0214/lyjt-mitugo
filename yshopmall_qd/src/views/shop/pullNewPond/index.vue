@@ -23,11 +23,11 @@
       <el-table ref="table" v-loading="crud.loading" :data="crud.data" size="small" style="" @selection-change="crud.selectionChangeHandler">
         <el-table-column type="index" width="55" />
         <el-table-column v-if="columns.visible('username')" prop="username" label="用户昵称" />
-        <el-table-column v-if="columns.visible('orderId')" prop="orderId" label="订单编号" />
-        <el-table-column v-if="columns.visible('orderPrice')" prop="orderPrice" label="金额" />
-        <el-table-column v-if="columns.visible('createTime')" prop="createTime" label="订单日期">
+        <el-table-column v-if="columns.visible('linkId')" prop="linkId" label="订单编号" />
+        <el-table-column v-if="columns.visible('number')" prop="number" label="金额" />
+        <el-table-column v-if="columns.visible('addTime')" prop="addTime" label="订单日期">
           <template slot-scope="scope">
-            <span>{{ parseTime(scope.row.createTime) }}</span>
+            <span>{{ parseTime(scope.row.addTime) }}</span>
           </template>
         </el-table-column>
       </el-table>
@@ -47,8 +47,8 @@ import pagination from '@crud/Pagination'
 import MaterialList from "@/components/material";
 
 // crud交由presenter持有
-const defaultCrud = CRUD({ title: '拉新池', url: 'api/yxPointDetail/pullNew', sort: 'id,desc', crudMethod: { ...crudYxPointDetail }})
-const defaultForm = { id: null, uid: null, username: null, type: null, orderId: null, orderType: null, orderPrice: null, commission: null, merchantsId: null, merchantsPoint: null, partnerId: null, partnerPoint: null, delFlag: null, createUserId: null, updateUserId: null, createTime: null, updateTime: null }
+const defaultCrud = CRUD({ title: '拉新池', url: 'api/getPullNewPoint', sort: 'id,desc', crudMethod: { ...crudYxPointDetail }})
+const defaultForm = { id: null, uid: null, username: null, type: null, linkId: null, orderType: null, number: null, commission: null, merchantsId: null, merchantsPoint: null, partnerId: null, partnerPoint: null, delFlag: null, createUserId: null, updateUserId: null, addTime: null, updateTime: null }
 export default {
   name: 'YxPointDetail',
   components: { pagination, crudOperation, rrOperation, udOperation ,MaterialList},
@@ -67,7 +67,7 @@ export default {
   mounted(){
     //获取累计金额
     this.crud.refresh().then(res=>{
-      this.totalAmount=res.totalAmount
+      this.totalAmount=res.totalPoint
     })
   },
   watch: {

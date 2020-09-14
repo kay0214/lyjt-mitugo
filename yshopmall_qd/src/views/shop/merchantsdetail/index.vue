@@ -59,8 +59,8 @@
                 <el-input v-model="form.openAccountProvince" style="width: 370px;" />
               </el-form-item>
               <el-form-item label="银行卡信息" prop="bankType">
-                <el-radio v-model="form.bankType" :label="0">对私账号</el-radio>
-                <el-radio v-model="form.bankType" :label="1" style="width: 200px;">对公账号</el-radio>
+                <el-radio v-model="form.bankType" :label="0"  @change="bankTypeChanged">对私账号</el-radio>
+                <el-radio v-model="form.bankType" :label="1"  @change="bankTypeChanged" style="width: 200px;">对公账号</el-radio>
               </el-form-item>
               <el-form-item label="收款户名" prop="openAccountName">
                 <el-input v-model="form.openAccountName" style="width: 370px;" />
@@ -70,6 +70,11 @@
               </el-form-item>
               <el-form-item label="开户支行" prop="openAccountSubbranch">
                 <el-input v-model="form.openAccountSubbranch" style="width: 370px;" />
+              </el-form-item>
+              <el-form-item  label="联行号" prop="bankCode" :required="bankType == '1'">
+                <el-input v-model="form.bankCode" style="width: 370px;">
+                  <el-link  slot="append" href="https://www.icvio.cn" target="_blank">联行号查询</el-link>
+                </el-input>
               </el-form-item>
               <el-form-item label="认证类型" prop="merchantsType">
                 <el-radio v-model="form.merchantsType" :label="0">个人</el-radio>
@@ -191,6 +196,7 @@
         <el-table-column v-if="columns.visible('merchantsName')" prop="merchantsName" label="商户名称" />
         <el-table-column v-if="columns.visible('contacts')" prop="contacts" label="商户联系人" />
         <el-table-column v-if="columns.visible('contactMobile')" prop="contactMobile" label="联系人电话" />
+        <el-table-column v-if="columns.visible('withdrawalAmount')" prop="withdrawalAmount" label="可提现金额" />
         <el-table-column label="商户状态" align="center" v-permission="['admin','yxMerchantsDetail:switch']">
           <template slot-scope="scope">
             <div @click="updateStatus(scope.row.uid,scope.row.status)">
@@ -262,7 +268,7 @@ const defaultCrud = CRUD({ title: '商户详情表', url: 'api/yxMerchantsDetail
       del: false,
       download: false
     }})
-const defaultForm = { id: null, uid: null, nickName:null, merchantsContact:null, phone:null, username:null, examineStatus: null, address: null, contacts: null, contactMobile: null, mailbox: null, merchantsType: null, bankNo: null, openAccountProvince: null, bankType: null, openAccountName: null, openAccountBank: null, openAccountSubbranch: null, companyProvince: null, companyAddress: null, companyName: null, companyLegalPerson: null, companyPhone: null, businessCategory: null, qualificationsType: null, delFlag: null, createUserId: null, updateUserId: null, createTime: null, updateTime: null, merchantsName: null }
+const defaultForm = { id: null, uid: null, nickName:null, merchantsContact:null, phone:null, username:null, examineStatus: null, address: null, contacts: null, contactMobile: null, mailbox: null, merchantsType: null, bankNo: null, openAccountProvince: null, bankType: null, openAccountName: null, openAccountBank: null, openAccountSubbranch: null, companyProvince: null, companyAddress: null, companyName: null, companyLegalPerson: null, companyPhone: null, businessCategory: null, qualificationsType: null, delFlag: null, createUserId: null, updateUserId: null, createTime: null, updateTime: null, merchantsName: null,bankCode: null,withdrawalAmount: null }
 export default {
   name: 'YxMerchantsDetail',
   components: { pagination, crudOperation, rrOperation, udOperation ,MaterialList},
@@ -280,6 +286,7 @@ export default {
       }
     }
     return {
+      bankType: 1,
 formWithdraw:{},
       permission: {
         add: ['admin', 'yxMerchantsDetail:insert'],
@@ -348,6 +355,10 @@ formWithdraw:{},
         ],
         openAccountBank: [
           { required: true, message: '必填项', trigger: 'blur' },
+        ],
+        // 联行号， 对公需要
+        bankCode: [
+          { message: "联行号必填", trigger: 'blur' },
         ],
         openAccountSubbranch: [
           { required: true, message: '必填项', trigger: 'blur' },
@@ -460,6 +471,9 @@ formWithdraw:{},
     },
   },
   methods: {
+    bankTypeChanged(){
+      this.bankType = this.form.bankType;
+    },
     // 获取数据前设置好接口地址
     [CRUD.HOOK.beforeRefresh]() {
       return true
