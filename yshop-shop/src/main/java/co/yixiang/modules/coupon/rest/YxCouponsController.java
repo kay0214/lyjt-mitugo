@@ -219,6 +219,8 @@ public class YxCouponsController {
         if (null == yxCoupons.getFicti()) {
             yxCoupons.setFicti(0);
         }
+        // 虚拟销量设为null不更新数据库
+        yxCoupons.setSales(null);
         boolean updateStatus = yxCouponsService.updateById(yxCoupons);
         if (updateStatus) {
             if (updateStatus) {
