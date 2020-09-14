@@ -25,8 +25,8 @@
           />
         </template>
       </el-form-item>
-      <el-form-item label="发布数量" prop='totalCount' :maxlength='9' :rules="totalCountRules()">
-        <el-input v-model="form.totalCount" style="width: 300px;" />
+      <el-form-item label="发布数量" prop='totalCount' :rules="totalCountRules()">
+        <el-input v-model="form.totalCount" style="width: 300px;" maxlength='9' />
       </el-form-item>
       <el-form-item label="是否不限量" prop='isPermanent'>
         <el-radio v-model="form.isPermanent" :label="1">不限量</el-radio>
