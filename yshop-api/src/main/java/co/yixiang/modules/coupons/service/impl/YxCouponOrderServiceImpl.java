@@ -758,38 +758,7 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         yxUserBill.setUserType(3);
         yxUserBill.setUsername(yxUser.getNickname());
         this.yxUserBillService.save(yxUserBill);
-
-        // 更新商户余额
-        SystemUser systemUser = this.systemUserService.getById(yxCouponOrder.getMerId());
-        if (null == systemUser) {
-            log.error("订单编号：" + yxCouponOrder.getOrderId() + "未查询到商户所属的id，无法记录资金去向");
-            return;
-        }
-        // 该笔资金实际到账
-        SystemUser updateSystemUser = new SystemUser();
-        BigDecimal truePrice = yxCouponOrder.getTotalPrice().subtract(yxCouponOrder.getCommission());
-        updateSystemUser.setId(systemUser.getId());
-        updateSystemUser.setTotalAmount(truePrice);
-        updateSystemUser.setWithdrawalAmount(truePrice);
-        this.systemUserService.updateUserTotal(updateSystemUser);
-
-        // 插入商户资金明细
-        YxUserBill merBill = new YxUserBill();
-        merBill.setUid(yxCouponOrder.getMerId());
-        merBill.setLinkId(yxCouponOrder.getOrderId());
-        merBill.setPm(1);
-        merBill.setTitle("本地生活返现");
-        merBill.setCategory(BillDetailEnum.CATEGORY_1.getValue());
-        merBill.setType(BillDetailEnum.TYPE_9.getValue());
-        merBill.setNumber(truePrice);
-        // 目前只支持微信付款、没有余额
-        merBill.setBalance(systemUser.getWithdrawalAmount().add(truePrice));
-        merBill.setAddTime(DateUtils.getNowTime());
-        merBill.setStatus(1);
-        merBill.setMerId(yxCouponOrder.getMerId());
-        merBill.setUserType(1);
-        merBill.setUsername(systemUser.getNickName());
-        this.yxUserBillService.save(merBill);
+        // 商户收入在核销第一次的时候更新
 
         // 判断用户是否是分销客、不是更新成分销客
         if (0 == yxUser.getUserRole()) {
@@ -1125,11 +1094,41 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         this.yxCouponOrderUseService.save(yxCouponOrderUse);
 
         if (isFirst) {
+            // 更新商户余额
+            SystemUser systemUser = this.systemUserService.getById(yxCouponOrder.getMerId());
+            if (null == systemUser) {
+                log.error("订单编号：" + yxCouponOrder.getOrderId() + "未查询到商户所属的id，无法记录资金去向");
+            }
+            // 该笔资金实际到账
+            SystemUser updateSystemUser = new SystemUser();
+            BigDecimal truePrice = yxCouponOrder.getTotalPrice().subtract(yxCouponOrder.getCommission());
+            updateSystemUser.setId(systemUser.getId());
+            updateSystemUser.setTotalAmount(truePrice);
+            updateSystemUser.setWithdrawalAmount(truePrice);
+            this.systemUserService.updateUserTotal(updateSystemUser);
+
+            // 插入商户资金明细
+            YxUserBill merBill = new YxUserBill();
+            merBill.setUid(yxCouponOrder.getMerId());
+            merBill.setLinkId(yxCouponOrder.getOrderId());
+            merBill.setPm(1);
+            merBill.setTitle("本地生活返现");
+            merBill.setCategory(BillDetailEnum.CATEGORY_1.getValue());
+            merBill.setType(BillDetailEnum.TYPE_8.getValue());
+            merBill.setNumber(truePrice);
+            // 目前只支持微信付款、没有余额
+            merBill.setBalance(systemUser.getWithdrawalAmount().add(truePrice));
+            merBill.setAddTime(DateUtils.getNowTime());
+            merBill.setStatus(1);
+            merBill.setMerId(yxCouponOrder.getMerId());
+            merBill.setUserType(1);
+            merBill.setUsername(systemUser.getNickName());
+            this.yxUserBillService.save(merBill);
+
             // 分佣mq发送
             JSONObject jsonObject = new JSONObject();
             jsonObject.put("orderId", yxCouponOrder.getOrderId());
             jsonObject.put("orderType", "1");
-            // 分佣mq发送
             mqProducer.messageSend2(new MessageContent(MQConstant.MITU_TOPIC, MQConstant.MITU_COMMISSION_TAG, UUID.randomUUID().toString(), jsonObject));
         }
         map.put("status", "1");
