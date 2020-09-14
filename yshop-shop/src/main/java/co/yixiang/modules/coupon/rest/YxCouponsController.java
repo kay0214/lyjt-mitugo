@@ -216,6 +216,9 @@ public class YxCouponsController {
         yxCoupons.setUpdateTime(DateTime.now().toTimestamp());
         yxCoupons.setExpireDateStart(DateUtils.getDayStart(yxCoupons.getExpireDateStart()));
         yxCoupons.setExpireDateEnd(DateUtils.getDayEnd(yxCoupons.getExpireDateEnd()));
+        if (null == yxCoupons.getFicti()) {
+            yxCoupons.setFicti(0);
+        }
         boolean updateStatus = yxCouponsService.updateById(yxCoupons);
         if (updateStatus) {
             if (updateStatus) {
