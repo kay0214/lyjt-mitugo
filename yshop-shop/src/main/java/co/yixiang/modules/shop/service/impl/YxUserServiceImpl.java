@@ -1,7 +1,6 @@
 /**
  * Copyright (C) 2018-2020
  * All rights reserved, Designed By www.yixiang.co
-
  */
 package co.yixiang.modules.shop.service.impl;
 
@@ -9,6 +8,8 @@ import cn.hutool.core.util.NumberUtil;
 import co.yixiang.common.service.impl.BaseServiceImpl;
 import co.yixiang.common.utils.QueryHelpPlus;
 import co.yixiang.dozer.service.IGenerator;
+import co.yixiang.enums.BillDetailEnum;
+import co.yixiang.exception.BadRequestException;
 import co.yixiang.modules.shop.domain.YxUser;
 import co.yixiang.modules.shop.domain.YxUserBill;
 import co.yixiang.modules.shop.service.YxUserBillService;
@@ -40,9 +41,9 @@ import java.util.Map;
 //import org.springframework.cache.annotation.Cacheable;
 
 /**
-* @author hupeng
-* @date 2020-05-12
-*/
+ * @author hupeng
+ * @date 2020-05-12
+ */
 @Service
 @AllArgsConstructor
 //@CacheConfig(cacheNames = "yxUser")
@@ -56,7 +57,6 @@ public class YxUserServiceImpl extends BaseServiceImpl<UserMapper, YxUser> imple
     private final YxUserBillService yxUserBillService;
 
     private final UserMapper userMapper;
-
 
 
     @Override
@@ -73,7 +73,7 @@ public class YxUserServiceImpl extends BaseServiceImpl<UserMapper, YxUser> imple
 
     @Override
     //@Cacheable
-    public List<YxUser> queryAll(YxUserQueryCriteria criteria){
+    public List<YxUser> queryAll(YxUserQueryCriteria criteria) {
         return baseMapper.selectList(QueryHelpPlus.getPredicate(YxUser.class, criteria));
     }
 
@@ -82,7 +82,7 @@ public class YxUserServiceImpl extends BaseServiceImpl<UserMapper, YxUser> imple
     public void download(List<YxUserDto> all, HttpServletResponse response) throws IOException {
         List<Map<String, Object>> list = new ArrayList<>();
         for (YxUserDto yxUser : all) {
-            Map<String,Object> map = new LinkedHashMap<>();
+            Map<String, Object> map = new LinkedHashMap<>();
             map.put("用户账户(跟accout一样)", yxUser.getUsername());
             map.put("用户账号", yxUser.getAccount());
             map.put("用户密码（跟pwd）", yxUser.getPassword());
@@ -124,34 +124,34 @@ public class YxUserServiceImpl extends BaseServiceImpl<UserMapper, YxUser> imple
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void onStatus(Integer uid, int status) {
-        if(status == 1){
+        if (status == 1) {
             status = 0;
-        }else{
+        } else {
             status = 1;
         }
 
-        yxUserMapper.updateOnstatus(status,uid);
+        yxUserMapper.updateOnstatus(status, uid);
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void updateMoney(UserMoneyDto param) {
-        YxUserDto userDTO = generator.convert(getById(param.getUid()),YxUserDto.class);
+        YxUserDto userDTO = generator.convert(getById(param.getUid()), YxUserDto.class);
         Double newMoney = 0d;
         String mark = "";
         String type = "system_add";
         Integer pm = 1;
         String title = "系统增加余额";
-        if(param.getPtype() == 1){
-            mark = "系统增加了"+param.getMoney()+"余额";
-            newMoney = NumberUtil.add(userDTO.getNowMoney(),param.getMoney()).doubleValue();
-        }else{
+        if (param.getPtype() == 1) {
+            mark = "系统增加了" + param.getMoney() + "余额";
+            newMoney = NumberUtil.add(userDTO.getNowMoney(), param.getMoney()).doubleValue();
+        } else {
             title = "系统减少余额";
-            mark = "系统扣除了"+param.getMoney()+"余额";
+            mark = "系统扣除了" + param.getMoney() + "余额";
             type = "system_sub";
             pm = 0;
-            newMoney = NumberUtil.sub(userDTO.getNowMoney(),param.getMoney()).doubleValue();
-            if(newMoney < 0) newMoney = 0d;
+            newMoney = NumberUtil.sub(userDTO.getNowMoney(), param.getMoney()).doubleValue();
+            if (newMoney < 0) newMoney = 0d;
 
         }
         YxUser user = new YxUser();
@@ -176,14 +176,13 @@ public class YxUserServiceImpl extends BaseServiceImpl<UserMapper, YxUser> imple
 
     @Override
     public void incBrokeragePrice(double price, Integer uid) {
-        yxUserMapper.incBrokeragePrice(price,uid);
+        yxUserMapper.incBrokeragePrice(price, uid);
     }
 
     @Override
     public void incIntegral(int uid, double integral) {
         yxUserMapper.incIntegral(integral, uid);
     }
-
 
 
     @Override
@@ -194,25 +193,27 @@ public class YxUserServiceImpl extends BaseServiceImpl<UserMapper, YxUser> imple
         Double commission = 0d;
         Double nowMoney = 0d;
         String mark = "";
-        String type = "system_add";
+        String type = BillDetailEnum.TYPE_6.getValue();
         Integer pm = 1;
         String title = "增加佣金";
-        if(param.getPtype() == 1){
-            mark = "系统增加了"+param.getMoney()+"佣金";
-            commission = NumberUtil.add(user.getBrokeragePrice(),param.getMoney()).doubleValue();
-            nowMoney = NumberUtil.add(user.getNowMoney(),param.getMoney()).doubleValue();
-
+        if (param.getPtype() == 1) {
+            mark = "系统增加了" + param.getMoney() + "佣金";
+            commission = NumberUtil.add(user.getBrokeragePrice(), param.getMoney()).doubleValue();
+            if (new BigDecimal(commission).compareTo(new BigDecimal("99999999999999.99")) > 0) {
+                throw new BadRequestException("系统错误，请联系后台管理员");
+            }
+            nowMoney = NumberUtil.add(user.getNowMoney(), param.getMoney()).doubleValue();
 //            newMoney = NumberUtil.add(userDTO.getNowMoney(),param.getMoney()).doubleValue();
-        }else{
+        } else {
             title = "减少佣金";
-            mark = "系统扣除了"+param.getMoney()+"佣金";
-            type = "system_sub";
+            mark = "系统扣除了" + param.getMoney() + "佣金";
+            type = BillDetailEnum.TYPE_7.getValue();
             pm = 0;
-            commission = NumberUtil.sub(user.getBrokeragePrice(),param.getMoney()).doubleValue();
-            nowMoney = NumberUtil.sub(user.getNowMoney(),param.getMoney()).doubleValue();
+            commission = NumberUtil.sub(user.getBrokeragePrice(), param.getMoney()).doubleValue();
+            nowMoney = NumberUtil.sub(user.getNowMoney(), param.getMoney()).doubleValue();
 
-            if(commission < 0) commission = 0d;
-            if(nowMoney < 0) nowMoney = 0d;
+            if (commission < 0) commission = 0d;
+            if (nowMoney < 0) nowMoney = 0d;
 
         }
 //        YxUser user = new YxUser();
@@ -229,7 +230,7 @@ public class YxUserServiceImpl extends BaseServiceImpl<UserMapper, YxUser> imple
         userBill.setPm(pm);
         userBill.setTitle(title);
         //前端用户返回的是积分
-        userBill.setCategory("integral");
+        userBill.setCategory(BillDetailEnum.CATEGORY_1.getValue());
         userBill.setType(type);
         userBill.setNumber(BigDecimal.valueOf(param.getMoney()));
         userBill.setBalance(BigDecimal.valueOf(commission));
