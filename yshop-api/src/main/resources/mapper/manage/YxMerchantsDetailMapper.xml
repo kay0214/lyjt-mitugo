@@ -4,7 +4,7 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, uid, examine_status, address, contacts, contact_mobile, mailbox, merchants_type, person_idcard_img, person_idcard_img_face, person_idcard_img_back, bank_no, open_account_province, bank_type, open_account_name, open_account_bank, open_account_subbranch, company_province, company_address, company_name, company_legal_person, company_phone, business_category, qualifications_type, business_license_img, bank_open_prove_img, legal_idcard_img_face, legal_idcard_img_back, store_img, licence_img, del_flag, create_user_id, update_user_id, create_time, update_time
+        id, uid, examine_status, address, contacts, contact_mobile, mailbox, merchants_type, person_idcard_img, person_idcard_img_face, person_idcard_img_back, bank_no, open_account_province, bank_type, open_account_name, open_account_bank, open_account_subbranch, company_province, company_address, company_name, company_legal_person, company_phone, business_category, qualifications_type, business_license_img, bank_open_prove_img, legal_idcard_img_face, legal_idcard_img_back, store_img, licence_img, del_flag, create_user_id, update_user_id, create_time, update_time,bank_code
     </sql>
 
     <select id="getYxMerchantsDetailById" resultType="co.yixiang.modules.manage.web.vo.YxMerchantsDetailQueryVo">
