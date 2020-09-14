@@ -137,7 +137,7 @@ public class UserServiceImpl extends BaseServiceImpl<UserSysMapper, User> implem
         User updateUser = new User();
         updateUser.setId(user.getId());
         updateUser.setWithdrawalAmount(user.getWithdrawalAmount().subtract(extractPrice));
-        this.updateById(updateUser);
+        userSysMapper.updateWithdrawalAmountSub(user.getId(),extractPrice);
         // 记录审批申请表
         YxUserExtract yxUserExtract = new YxUserExtract();
         yxUserExtract.setUid(uid);
