@@ -25,7 +25,7 @@
           />
         </template>
       </el-form-item>
-      <el-form-item label="发布数量" prop='totalCount' :maxlength='9'>
+      <el-form-item label="发布数量" prop='totalCount' :maxlength='9' :rules="totalCountRules()">
         <el-input v-model="form.totalCount" style="width: 300px;" />
       </el-form-item>
       <el-form-item label="是否不限量" prop='isPermanent'>
@@ -46,6 +46,8 @@
 
 <script>
 import { add, edit } from '@/api/yxStoreCouponIssue'
+
+
 export default {
   name:'CouponissueForm',
   props: {
@@ -55,8 +57,19 @@ export default {
     }
   },
   data() {
+    const validatePass = (rule, value, callback) => {
+      if (value === '') {
+        callback(new Error('请输入密码'));
+      } else {
+        if (this.ruleForm.checkPass !== '') {
+          this.$refs.ruleForm.validateField('checkPass');
+        }
+        callback();
+      }
+    };
     return {
       loading: false, dialog: false,
+      isPermanentStatus: true,
       form: {
         id: '',
         cid: '',
@@ -83,14 +96,6 @@ export default {
         endTimeDate:[
           {required:true,message:'必填项',trigger:'blur'},
         ],
-        totalCount:[
-          {required:true,message:'必填项',trigger:'blur'},
-          {
-            pattern: /^[0-9]+$/,  
-            message: '请输入数字',
-            trigger: 'blur'
-          },
-        ],
         isPermanent:[
           {required:true,message:'必填项',trigger:'blur'},
         ],
@@ -99,10 +104,33 @@ export default {
         ],
       }
     }
+  }, 
+  watch: {
+    "form.isPermanent": function(newValue, old) {
+      this.isPermanentStatus = newValue == 1 ? false : true
+    }
   },
   methods: {
     cancel() {
       this.resetForm()
+    },
+    totalCountRules() {
+      return [
+          {
+            required: this.isPermanentStatus,
+            message: '必填项',
+            trigger: 'blur'
+          },
+          {
+            pattern: /^[0-9]+$/,  
+            message: '请输入数字',
+            trigger: 'blur'
+          },
+        ]
+    },
+    changePermanent() {
+      console.log(this.form.isPermanent)
+      // this.isPermanentStatus = this.form.isPermanent == 1 ? false : true
     },
     doSubmit() {
       this.$refs.form.validate(ret=>{
