@@ -59,8 +59,8 @@
                 <el-input v-model="form.openAccountProvince" style="width: 370px;" />
               </el-form-item>
               <el-form-item label="银行卡信息" prop="bankType">
-                <el-radio v-model="form.bankType" :label="0"  @change="bankTypeChanged">对私账号</el-radio>
-                <el-radio v-model="form.bankType" :label="1"  @change="bankTypeChanged" style="width: 200px;">对公账号</el-radio>
+                <el-radio v-model="form.bankType" :label="0" >对私账号</el-radio>
+                <el-radio v-model="form.bankType" :label="1" style="width: 200px;">对公账号</el-radio>
               </el-form-item>
               <el-form-item label="收款户名" prop="openAccountName">
                 <el-input v-model="form.openAccountName" style="width: 370px;" />
@@ -71,7 +71,7 @@
               <el-form-item label="开户支行" prop="openAccountSubbranch">
                 <el-input v-model="form.openAccountSubbranch" style="width: 370px;" />
               </el-form-item>
-              <el-form-item  label="联行号" prop="bankCode" :required="bankType == '1'">
+              <el-form-item  label="联行号" prop="bankCode"  :rules="bankCodeRuls()">
                 <el-input v-model="form.bankCode" style="width: 370px;">
                   <el-link  slot="append" href="https://www.icvio.cn" target="_blank">联行号查询</el-link>
                 </el-input>
@@ -286,8 +286,8 @@ export default {
       }
     }
     return {
-      bankType: 1,
-formWithdraw:{},
+      bankType: defaultForm.bankType,
+      formWithdraw:{},
       permission: {
         add: ['admin', 'yxMerchantsDetail:insert'],
         edit: ['admin', 'yxMerchantsDetail:edit'],
@@ -356,10 +356,7 @@ formWithdraw:{},
         openAccountBank: [
           { required: true, message: '必填项', trigger: 'blur' },
         ],
-        // 联行号， 对公需要
-        bankCode: [
-          { message: "联行号必填", trigger: 'blur' },
-        ],
+        
         openAccountSubbranch: [
           { required: true, message: '必填项', trigger: 'blur' },
         ],
@@ -469,11 +466,18 @@ formWithdraw:{},
       this.form.licenceImg = val.join(',')
       if (this.form.licenceImg != '') this.$refs.form.validateField('licenceImg')
     },
+    "form.bankType": function(newValue, old) {
+      this.bankType = newValue == 1
+    }
   },
   methods: {
-    bankTypeChanged(){
-      this.bankType = this.form.bankType;
+    // 联行号， 对公需要
+    bankCodeRuls(){
+      return [
+        { required: this.bankType, message: "联行号必填", trigger: 'blur' },
+      ]
     },
+    
     // 获取数据前设置好接口地址
     [CRUD.HOOK.beforeRefresh]() {
       return true
