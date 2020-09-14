@@ -239,6 +239,7 @@ public class YxUserServiceImpl extends BaseServiceImpl<UserMapper, YxUser> imple
         userBill.setStatus(1);
         //前端用户
         userBill.setUserType(3);
+        userBill.setUsername(user.getNickname());
         yxUserBillService.save(userBill);
     }
 
