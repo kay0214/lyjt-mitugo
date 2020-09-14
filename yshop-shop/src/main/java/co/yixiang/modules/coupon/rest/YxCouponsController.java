@@ -200,9 +200,7 @@ public class YxCouponsController {
         }
 
         QueryWrapper<YxCouponsCategory> couponsCategoryQueryWrapper = new QueryWrapper<>();
-        couponsCategoryQueryWrapper.lambda()
-                .and(obj1 -> obj1.eq(YxCouponsCategory::getId, request.getCouponCategory()))
-                .and(obj2 -> obj2.eq(YxCouponsCategory::getDelFlag, 0));
+        couponsCategoryQueryWrapper.lambda().eq(YxCouponsCategory::getId, request.getCouponCategory()).eq(YxCouponsCategory::getDelFlag, 0).eq(YxCouponsCategory::getIsShow, 1);
         YxCouponsCategory yxCouponsCategory = yxCouponsCategoryService.getOne(couponsCategoryQueryWrapper);
         if (yxCouponsCategory == null) {
             throw new BadRequestException("当前选择的卡券分类不存在!");
