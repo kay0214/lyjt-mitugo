@@ -70,7 +70,7 @@ public class CreatShareStoreServiceImpl implements CreatShareStoreService {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            g.drawImage(priductUrl.getScaledInstance(750, 604, Image.SCALE_DEFAULT), 40, 280, null);
+            g.drawImage(priductUrl.getScaledInstance(670, 604, Image.SCALE_DEFAULT), 40, 280, null);
             InputStream streamT = getClass().getClassLoader()
                     .getResourceAsStream("Alibaba-PuHuiTi-Regular.otf");
             File newFileT = new File("Alibaba-PuHuiTi-Regular.otf");
@@ -80,10 +80,7 @@ public class CreatShareStoreServiceImpl implements CreatShareStoreService {
             g.setFont(font.deriveFont(Font.BOLD, 32));
             g.setColor(new Color(29, 29, 29));
             int fontlenb = getWatermarkLength(yxStoreInfo.getStoreName(), g);
-            //文字长度相对于图片宽度应该有多少行
-            int lineb = fontlenb / (back.getWidth() + 200);
             //高度
-          //  int yb = back.getHeight() - (lineb + 1) * 30 + 100;
             //文字叠加,自动换行叠加
             int tempXb = 40;
             int tempYb = 906;
@@ -170,7 +167,7 @@ public class CreatShareStoreServiceImpl implements CreatShareStoreService {
             g.setFont(font.deriveFont(Font.PLAIN, 25));
             g.setColor(new Color(171, 171, 171));
             //绘制文字
-            g.drawString("扫描或长按小程序码", 210, 1366);
+            g.drawString("扫描或长按小程序码", 210, 1400);
 
             g.dispose();
             //先将画好的海报写到本地
