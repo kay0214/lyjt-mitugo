@@ -124,4 +124,6 @@ private Date createTime;
 @ApiModelProperty(value = "更新时间")
 private Date updateTime;
 
+@ApiModelProperty(value = "联行号")
+private String bankCode;
 }

@@ -8,6 +8,7 @@ import co.yixiang.common.service.impl.BaseServiceImpl;
 import co.yixiang.common.web.vo.Paging;
 import co.yixiang.exception.ErrorRequestException;
 import co.yixiang.modules.pay.param.PaySeachParam;
+import co.yixiang.modules.user.entity.YxUser;
 import co.yixiang.modules.user.entity.YxUserExtract;
 import co.yixiang.modules.user.mapper.YxUserExtractMapper;
 import co.yixiang.modules.user.service.YxUserExtractService;
@@ -113,6 +114,16 @@ public class YxUserExtractServiceImpl extends BaseServiceImpl<YxUserExtractMappe
 
         //更新佣金 money
         userService.updateExtractMoney(uid, money);
+
+        // 用户提现信息有未保存的保存到库里
+        if (StringUtils.isBlank(userInfo.getBankNo()) || StringUtils.isBlank(userInfo.getBankMobile()) || StringUtils.isBlank(param.getRealName())) {
+            YxUser yxUser = new YxUser();
+            yxUser.setUid(uid);
+            yxUser.setBankNo(param.getBankNo());
+            yxUser.setBankMobile(param.getPhone());
+            yxUser.setRealName(param.getRealName());
+            this.userService.updateById(yxUser);
+        }
     }
 
     @Override
@@ -139,6 +150,7 @@ public class YxUserExtractServiceImpl extends BaseServiceImpl<YxUserExtractMappe
 
     /**
      * 确认提现信息
+     *
      * @param param
      */
     @Override
@@ -152,7 +164,7 @@ public class YxUserExtractServiceImpl extends BaseServiceImpl<YxUserExtractMappe
                 .eq("status", 0)
                 .eq("add_time", param.getAddTime());
 
-       return getOne(queryWrapper);
+        return getOne(queryWrapper);
     }
 
 }

@@ -152,7 +152,7 @@ public class UserBillController {
      */
     @Log("查询积分明细")
     @ApiOperation(value = "查询积分明细")
-    @PostMapping(value = "/pointDetail")
+    @GetMapping(value = "/pointDetail")
     public ResponseEntity<Object> getPointDetail(YxUserBillQueryCriteria criteria, Pageable pageable) {
         criteria.setUid(SecurityUtils.getUserId().intValue());
         criteria.setUserRole(SecurityUtils.getCurrUser().getUserRole());
@@ -168,7 +168,7 @@ public class UserBillController {
      */
     @Log("分红池")
     @ApiOperation(value = "分红池")
-    @PostMapping(value = "/getShareDividendPoint")
+    @GetMapping(value = "/getShareDividendPoint")
     public ResponseEntity<Object> getShareDividendPoint(YxUserBillQueryCriteria criteria, Pageable pageable) {
         return new ResponseEntity(yxUserBillService.getShareDividendPoint(criteria, pageable), HttpStatus.OK);
     }
@@ -182,7 +182,7 @@ public class UserBillController {
      */
     @Log("拉新池")
     @ApiOperation(value = "拉新池")
-    @PostMapping(value = "/getPullNewPoint")
+    @GetMapping(value = "/getPullNewPoint")
     public ResponseEntity<Object> getPullNewPoint(YxUserBillQueryCriteria criteria, Pageable pageable) {
         return new ResponseEntity(yxUserBillService.getPullNewPoint(criteria, pageable), HttpStatus.OK);
     }

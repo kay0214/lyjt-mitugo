@@ -58,7 +58,7 @@ public class CouponsCategoryController {
     @GetMapping(value = "/categoryTree")
     @PreAuthorize("@el.check('admin','yxCouponsCategory:list')")
     public ResponseEntity getCouponsCategorys(YxCouponsCategoryQueryCriteria criteria, Pageable pageable) {
-
+        criteria.setIsShow(1);
         List<YxCouponsCategory> categoryDTOList = yxCouponsCategoryService.queryAll(criteria);
         List<YxCouponsCategoryDto> categoryDtoLists = CommonsUtils.convertBeanList(categoryDTOList, YxCouponsCategoryDto.class);
         return new ResponseEntity(yxCouponsCategoryService.buildTree(categoryDtoLists), HttpStatus.OK);
