@@ -210,7 +210,7 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<UserBillMapper, YxUse
             totalPoint = yxFundsAccount.getBonusPoint();
         }
         QueryWrapper<YxUserBill> queryWrapper = new QueryWrapper<>();
-        queryWrapper.lambda().eq(YxUserBill::getCategory, BillDetailEnum.CATEGORY_2.getValue()).eq(YxUserBill::getType, BillDetailEnum.TYPE_11).eq(YxUserBill::getStatus, 1);
+        queryWrapper.lambda().eq(YxUserBill::getCategory, BillDetailEnum.CATEGORY_2.getValue()).eq(YxUserBill::getType, BillDetailEnum.TYPE_11.getValue()).eq(YxUserBill::getStatus, 1);
         if (StringUtils.isNotBlank(criteria.getAddTimeStart()) && StringUtils.isNotBlank(criteria.getAddTimeStart())) {
             queryWrapper.lambda().ge(YxUserBill::getAddTime, DateUtils.stringToTimestamp(criteria.getAddTimeStart())).le(YxUserBill::getAddTime, DateUtils.stringToTimestamp(criteria.getAddTimeEnd()));
         }
@@ -242,7 +242,7 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<UserBillMapper, YxUse
             totalPoint = yxFundsAccount.getReferencePoint();
         }
         QueryWrapper<YxUserBill> queryWrapper = new QueryWrapper<>();
-        queryWrapper.lambda().eq(YxUserBill::getCategory, BillDetailEnum.CATEGORY_2.getValue()).eq(YxUserBill::getType, BillDetailEnum.TYPE_12).eq(YxUserBill::getStatus, 1);
+        queryWrapper.lambda().eq(YxUserBill::getCategory, BillDetailEnum.CATEGORY_2.getValue()).eq(YxUserBill::getType, BillDetailEnum.TYPE_12.getValue()).eq(YxUserBill::getStatus, 1);
         if (StringUtils.isNotBlank(criteria.getAddTimeStart()) && StringUtils.isNotBlank(criteria.getAddTimeStart())) {
             queryWrapper.lambda().ge(YxUserBill::getAddTime, DateUtils.stringToTimestamp(criteria.getAddTimeStart())).le(YxUserBill::getAddTime, DateUtils.stringToTimestamp(criteria.getAddTimeEnd()));
         }
