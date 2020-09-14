@@ -47,9 +47,6 @@ public class CouponsCategoryController {
     @Autowired
     private YxImageInfoService yxImageInfoService;
 
-    @Autowired
-    private YxCouponsService yxCouponsService;
-
     /**
      * Select 卡券分类
      *
@@ -157,19 +154,8 @@ public class CouponsCategoryController {
     @DeleteMapping(value = "/{ids}")
     public ResponseEntity<Object> delete(@PathVariable String ids) {
         String[] idsArr = ids.split(",");
-        boolean delStatus = false;
-        for (String id : idsArr) {
-            YxCouponsCategory yxCouponsCategory = new YxCouponsCategory();
-            List<YxCoupons> list = this.yxCouponsService.list(new QueryWrapper<YxCoupons>().lambda().eq(YxCoupons::getCouponCategory, id).eq(YxCoupons::getDelFlag, 0));
-            if (null != list || list.size() > 0) {
-                throw new BadRequestException("卡券分类id：" + id + "下有卡券未删除");
-            }
-            yxCouponsCategory.setId(Integer.valueOf(id));
-            yxCouponsCategory.setDelFlag(1);
-            yxCouponsCategory.setUpdateUserId(SecurityUtils.getUserId().intValue());
-            yxCouponsCategory.setUpdateTime(DateTime.now().toTimestamp());
-            delStatus = yxCouponsCategoryService.removeById(id);
-        }
+        boolean delStatus = yxCouponsCategoryService.deleteBatch(idsArr);
+
         return new ResponseEntity<>(delStatus, HttpStatus.OK);
     }
 
