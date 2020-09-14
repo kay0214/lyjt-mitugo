@@ -53,7 +53,7 @@ public class CreatShareStoreServiceImpl implements CreatShareStoreService {
         String spreadUrl = "";
         if (ObjectUtil.isNull(attachmentT)) {
             //创建图片
-            BufferedImage img = new BufferedImage(750, 1334, BufferedImage.TYPE_INT_RGB);
+            BufferedImage img = new BufferedImage(750, 1288, BufferedImage.TYPE_INT_RGB);
             //开启画图
             Graphics g = img.getGraphics();
             //背景 -- 读取互联网图片
@@ -61,7 +61,7 @@ public class CreatShareStoreServiceImpl implements CreatShareStoreService {
             ImageInputStream background = ImageIO.createImageInputStream(stream);
             BufferedImage back = ImageIO.read(background);
 
-            g.drawImage(back.getScaledInstance(750, 1334, Image.SCALE_DEFAULT), 0, 0, null); // 绘制缩小后的图
+            g.drawImage(back.getScaledInstance(750, 1288, Image.SCALE_DEFAULT), 0, 0, null); // 绘制缩小后的图
             //商品  banner图
             //读取互联网图片
             BufferedImage priductUrl = null;
@@ -70,7 +70,7 @@ public class CreatShareStoreServiceImpl implements CreatShareStoreService {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            g.drawImage(priductUrl.getScaledInstance(750, 590, Image.SCALE_DEFAULT), 0, 0, null);
+            g.drawImage(priductUrl.getScaledInstance(750, 604, Image.SCALE_DEFAULT), 40, 280, null);
             InputStream streamT = getClass().getClassLoader()
                     .getResourceAsStream("Alibaba-PuHuiTi-Regular.otf");
             File newFileT = new File("Alibaba-PuHuiTi-Regular.otf");
@@ -147,7 +147,12 @@ public class CreatShareStoreServiceImpl implements CreatShareStoreService {
             //最后叠加余下的文字
             g.drawString(sb.toString(), tempX, tempY + 50);
 
+            //背景 -- 读取互联网图片
+            InputStream stream2 = getClass().getClassLoader().getResourceAsStream("background.png");
+            ImageInputStream background2 = ImageIO.createImageInputStream(stream2);
+            BufferedImage back2 = ImageIO.read(background2);
 
+            g.drawImage(back2.getScaledInstance(750, 336, Image.SCALE_DEFAULT), 0, 1288, null); // 绘制缩小后的图
             //生成二维码返回链接
             String url = shareCode;
             //读取互联网图片
@@ -159,13 +164,14 @@ public class CreatShareStoreServiceImpl implements CreatShareStoreService {
                 e.printStackTrace();
             }
             // 绘制缩小后的图
-            g.drawImage(qrCode.getScaledInstance(174, 174, Image.SCALE_DEFAULT), 536, 1057, null);
+            g.drawImage(qrCode.getScaledInstance(122, 122, Image.SCALE_DEFAULT), 54, 1334, null);
 
             //二维码字体
             g.setFont(font.deriveFont(Font.PLAIN, 25));
             g.setColor(new Color(171, 171, 171));
             //绘制文字
-            g.drawString("扫描或长按小程序码", 515, 1260);
+            g.drawString("扫描或长按小程序码", 210, 1366);
+            g.drawString("查看商品详情", 210, 1400);
 
             g.dispose();
             //先将画好的海报写到本地
