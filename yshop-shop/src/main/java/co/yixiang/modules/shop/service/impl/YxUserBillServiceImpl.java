@@ -64,13 +64,13 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<UserBillMapper, YxUse
 //        PageInfo<YxUserBillDto> page = new PageInfo<>(queryAll(criteria));
         QueryWrapper<YxUserBill> queryWrapper = new QueryWrapper<>();
         queryWrapper.lambda().orderByDesc(YxUserBill::getAddTime);
-        int userRole = 0;
+        int userType = 0;
         if (1 == criteria.getUserRole()) {
-            userRole = 3;
+            userType = 2;
             queryWrapper.lambda().eq(YxUserBill::getUid, criteria.getUid()).eq(YxUserBill::getUserType, 2);
         }
         if (2 == criteria.getUserRole()) {
-            userRole = 2;
+            userType = 1;
             queryWrapper.lambda().eq(YxUserBill::getUid, criteria.getUid()).eq(YxUserBill::getUserType, 1);
         }
         if (StringUtils.isNotBlank(criteria.getUsername())) {
@@ -103,8 +103,8 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<UserBillMapper, YxUse
         map.put("content", ipage.getRecords());
         map.put("totalElements", ipage.getTotal());
         map.put("totalPrice", user.getWithdrawalAmount());
-        BigDecimal bigOut = userBillMapper.getSumPrice(criteria.getUid(), 0, userRole);
-        BigDecimal bigIn = userBillMapper.getSumPrice(criteria.getUid(), 1, userRole);
+        BigDecimal bigOut = userBillMapper.getSumPrice(criteria.getUid(), 0, userType);
+        BigDecimal bigIn = userBillMapper.getSumPrice(criteria.getUid(), 1, userType);
 //        map.put("remainPrice", user.getWithdrawalAmount());
         map.put("remainPrice", bigIn);
         map.put("expenditurePrice", bigOut);

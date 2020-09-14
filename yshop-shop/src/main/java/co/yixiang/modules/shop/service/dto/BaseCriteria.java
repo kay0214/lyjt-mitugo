@@ -14,6 +14,7 @@ import java.util.List;
 @Data
 public class BaseCriteria {
 
+    // 用户角色：0->平台运营,1->合伙人,2->商户
     private Integer userRole;
 
     private Integer uid;
