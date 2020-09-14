@@ -334,7 +334,7 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
             couponOrderDetail.setStatus(0);
             // 先用时间戳、扩展字段长度后再用uuid生成核销码
             String verifyCode = SnowflakeUtil.getOrderId(datacenterId);
-            couponOrderDetail.setVerifyCode(verifyCode.substring(1, 13));
+            couponOrderDetail.setVerifyCode(verifyCode);
             couponOrderDetail.setRemark("");
             couponOrderDetail.setCreateUserId(uid);
             couponOrderDetail.setCreateTime(DateTime.now());
