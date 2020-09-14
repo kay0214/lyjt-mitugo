@@ -115,7 +115,7 @@
             <el-date-picker
               v-model="form.expireDate"
               type="daterange"
-              range-separator="至"
+              range-separator="-"
               start-placeholder="有效期开始日期"
               end-placeholder="有效期结束日期"
               style="width:100%;"
@@ -184,7 +184,7 @@
               v-model="availableTime"
               is-range
               :arrow-control="false"
-              range-separator="至"
+              range-separator="-"
               start-placeholder="可用时段开始时间"
               end-placeholder="可用时段结束时间"
               placeholder="选择时间范围"

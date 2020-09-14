@@ -9,7 +9,7 @@
         <el-date-picker          
           type="daterange"
           v-model="query.searchTime"
-          range-separator="至"
+          range-separator="-"
           start-placeholder="订单日期"
           end-placeholder="订单日期"
           placeholder="选择时间范围"
