@@ -212,4 +212,8 @@ public class YxMerchantsDetailDto implements Serializable {
     /** 累计获取金额 */
     private BigDecimal totalAmount;
 
+
+    /** 联行号 */
+    private String bankCode;
+
 }
