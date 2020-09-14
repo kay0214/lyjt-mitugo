@@ -58,6 +58,14 @@ public class UserBillController {
         return new ResponseEntity(yxUserBillService.queryAllNew(criteria, pageable), HttpStatus.OK);
     }
 
+    @ApiOperation(value = "积分明细")
+    @GetMapping(value = "/yxUserPointBill")
+    @PreAuthorize("hasAnyRole('admin','YXUSERBILL_ALL','YXUSERBILL_SELECT')")
+    public ResponseEntity yxUserPointBill(YxUserBillQueryCriteria criteria, Pageable pageable) {
+        criteria.setCategory("integral");
+        return new ResponseEntity(yxUserBillService.queryAllNew(criteria, pageable), HttpStatus.OK);
+    }
+
 
     @GetMapping(value = "/yxUserBillType")
     public ResponseEntity yxUserBillType() {
@@ -89,7 +97,7 @@ public class UserBillController {
                 case 8:
                     mapType.put(BillDetailEnum.TYPE_8.getValue(),BillDetailEnum.TYPE_8.getDesc());
                     break;
-                /*case 9:
+               /* case 9:
                     mapType.put(BillDetailEnum.TYPE_9.getValue(),BillDetailEnum.TYPE_9.getDesc());
                     break;*/
                 case 9:
@@ -144,7 +152,7 @@ public class UserBillController {
      */
     @Log("查询积分明细")
     @ApiOperation(value = "查询积分明细")
-    @PostMapping(value = "/pointDetail")
+    @GetMapping(value = "/pointDetail")
     public ResponseEntity<Object> getPointDetail(YxUserBillQueryCriteria criteria, Pageable pageable) {
         criteria.setUid(SecurityUtils.getUserId().intValue());
         criteria.setUserRole(SecurityUtils.getCurrUser().getUserRole());
@@ -160,7 +168,7 @@ public class UserBillController {
      */
     @Log("分红池")
     @ApiOperation(value = "分红池")
-    @PostMapping(value = "/getShareDividendPoint")
+    @GetMapping(value = "/getShareDividendPoint")
     public ResponseEntity<Object> getShareDividendPoint(YxUserBillQueryCriteria criteria, Pageable pageable) {
         return new ResponseEntity(yxUserBillService.getShareDividendPoint(criteria, pageable), HttpStatus.OK);
     }
@@ -174,7 +182,7 @@ public class UserBillController {
      */
     @Log("拉新池")
     @ApiOperation(value = "拉新池")
-    @PostMapping(value = "/getPullNewPoint")
+    @GetMapping(value = "/getPullNewPoint")
     public ResponseEntity<Object> getPullNewPoint(YxUserBillQueryCriteria criteria, Pageable pageable) {
         return new ResponseEntity(yxUserBillService.getPullNewPoint(criteria, pageable), HttpStatus.OK);
     }

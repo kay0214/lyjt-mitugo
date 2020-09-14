@@ -133,6 +133,11 @@ public class CouponUseController extends BaseController {
         if (!PassWordUtil.getUserPassWord(password, user.getUserRole(), user.getUsername()).equals(pass)) {
             throw new BadRequestException("密码错误");
         }
+        // 判断当前登陆用户是否是商户
+        YxStoreInfo yxStoreInfo = this.yxStoreInfoService.getOne(new QueryWrapper<YxStoreInfo>().eq("mer_id", user.getId()));
+        if (null == yxStoreInfo) {
+            throw new BadRequestException("无可用门店，请先到蜜兔管理平台创建门店");
+        }
 
         // 生成一个token给前端 56
         String token = CommonConstant.COUPON_USE_LOGIN_TOKEN + SecretUtil.createRandomStr(10) + UUID.randomUUID();

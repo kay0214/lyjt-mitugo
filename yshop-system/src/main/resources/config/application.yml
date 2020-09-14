@@ -14,6 +14,8 @@ spring:
         enabled: false
   application:
     name: system
+  datacenterId: 1
+
 task:
   pool:
     # 核心线程池大小

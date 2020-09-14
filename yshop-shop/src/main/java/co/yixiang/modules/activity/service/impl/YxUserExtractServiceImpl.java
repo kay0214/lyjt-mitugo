@@ -180,8 +180,6 @@ public class YxUserExtractServiceImpl extends BaseServiceImpl<YxUserExtractMappe
         }
 
         // 梗库用
-        YxUser updateYxUser = new YxUser();
-        User updateUser = new User();
         YxUserExtract updateExtract = new YxUserExtract();
         // 审核驳回
         if (resources.getStatus() == -1) {
@@ -192,12 +190,9 @@ public class YxUserExtractServiceImpl extends BaseServiceImpl<YxUserExtractMappe
             mark = "提现失败,退回佣金" + resources.getExtractPrice() + "元";
             // 恢复用户余额
             if (3 == yxUserExtract.getUserType()) {
-                updateYxUser.setNowMoney(yxUser.getNowMoney().add(yxUserExtract.getExtractPrice()));
-                this.yxUserService.update(updateYxUser, new QueryWrapper<YxUser>().lambda().eq(YxUser::getUid, yxUserExtract.getUid()));
+                this.yxUserService.updateAddMoney(yxUserExtract.getUid(), yxUserExtract.getExtractPrice());
             } else {
-                updateUser.setId(user.getId());
-                updateUser.setWithdrawalAmount(user.getWithdrawalAmount().add(yxUserExtract.getExtractPrice()));
-                this.userService.updateById(updateUser);
+                this.userService.updateWithdrawalAmount(user.getId().intValue(), yxUserExtract.getExtractPrice());
             }
 
             // 更新审核记录

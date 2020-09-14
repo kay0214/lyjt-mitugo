@@ -6,6 +6,7 @@ package co.yixiang.modules.shop.service.dto;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 
 /**
@@ -200,4 +201,15 @@ public class YxMerchantsDetailDto implements Serializable {
 
     /** 用户名 */
     private String username;
+
+
+    /** 总积分 */
+    private BigDecimal totalScore;
+
+    /** 可提现金额 */
+    private BigDecimal withdrawalAmount;
+
+    /** 累计获取金额 */
+    private BigDecimal totalAmount;
+
 }

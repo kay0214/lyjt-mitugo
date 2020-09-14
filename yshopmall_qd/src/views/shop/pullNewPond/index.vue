@@ -24,7 +24,7 @@
         <el-table-column type="index" width="55" />
         <el-table-column v-if="columns.visible('username')" prop="username" label="用户昵称" />
         <el-table-column v-if="columns.visible('orderId')" prop="orderId" label="订单编号" />
-        <el-table-column v-if="columns.visible('orderPrice')" prop="orderPrice" label="金额" />
+        <el-table-column v-if="columns.visible('number')" prop="number" label="金额" />
         <el-table-column v-if="columns.visible('createTime')" prop="createTime" label="订单日期">
           <template slot-scope="scope">
             <span>{{ parseTime(scope.row.createTime) }}</span>
@@ -47,8 +47,8 @@ import pagination from '@crud/Pagination'
 import MaterialList from "@/components/material";
 
 // crud交由presenter持有
-const defaultCrud = CRUD({ title: '拉新池', url: 'api/yxPointDetail/pullNew', sort: 'id,desc', crudMethod: { ...crudYxPointDetail }})
-const defaultForm = { id: null, uid: null, username: null, type: null, orderId: null, orderType: null, orderPrice: null, commission: null, merchantsId: null, merchantsPoint: null, partnerId: null, partnerPoint: null, delFlag: null, createUserId: null, updateUserId: null, createTime: null, updateTime: null }
+const defaultCrud = CRUD({ title: '拉新池', url: 'api/getPullNewPoint', sort: 'id,desc', crudMethod: { ...crudYxPointDetail }})
+const defaultForm = { id: null, uid: null, username: null, type: null, orderId: null, orderType: null, number: null, commission: null, merchantsId: null, merchantsPoint: null, partnerId: null, partnerPoint: null, delFlag: null, createUserId: null, updateUserId: null, createTime: null, updateTime: null }
 export default {
   name: 'YxPointDetail',
   components: { pagination, crudOperation, rrOperation, udOperation ,MaterialList},

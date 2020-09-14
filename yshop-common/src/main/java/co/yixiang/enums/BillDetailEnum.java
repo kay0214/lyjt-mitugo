@@ -18,7 +18,8 @@ public enum BillDetailEnum {
 
 	TYPE_1("recharge","充值"),
 	TYPE_2("brokerage","返佣"),
-	TYPE_3("pay_product","消费"),
+//	TYPE_3("pay_product","消费"),
+	TYPE_3("pay_product","商品购买"),
 	TYPE_4("extract","提现"),
 	TYPE_5("pay_product_refund","退款"),
 	TYPE_6("system_add","系统添加"),

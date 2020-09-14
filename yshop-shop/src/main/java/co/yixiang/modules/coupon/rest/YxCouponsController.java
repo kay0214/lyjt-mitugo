@@ -200,9 +200,7 @@ public class YxCouponsController {
         }
 
         QueryWrapper<YxCouponsCategory> couponsCategoryQueryWrapper = new QueryWrapper<>();
-        couponsCategoryQueryWrapper.lambda()
-                .and(obj1 -> obj1.eq(YxCouponsCategory::getId, request.getCouponCategory()))
-                .and(obj2 -> obj2.eq(YxCouponsCategory::getDelFlag, 0));
+        couponsCategoryQueryWrapper.lambda().eq(YxCouponsCategory::getId, request.getCouponCategory()).eq(YxCouponsCategory::getDelFlag, 0).eq(YxCouponsCategory::getIsShow, 1);
         YxCouponsCategory yxCouponsCategory = yxCouponsCategoryService.getOne(couponsCategoryQueryWrapper);
         if (yxCouponsCategory == null) {
             throw new BadRequestException("当前选择的卡券分类不存在!");
@@ -216,6 +214,11 @@ public class YxCouponsController {
         yxCoupons.setUpdateTime(DateTime.now().toTimestamp());
         yxCoupons.setExpireDateStart(DateUtils.getDayStart(yxCoupons.getExpireDateStart()));
         yxCoupons.setExpireDateEnd(DateUtils.getDayEnd(yxCoupons.getExpireDateEnd()));
+        if (null == yxCoupons.getFicti()) {
+            yxCoupons.setFicti(0);
+        }
+        // 虚拟销量设为null不更新数据库
+        yxCoupons.setSales(null);
         boolean updateStatus = yxCouponsService.updateById(yxCoupons);
         if (updateStatus) {
             if (updateStatus) {

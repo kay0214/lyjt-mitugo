@@ -228,7 +228,7 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<YxUserBillMapper, YxU
         userBill.setUid(order.getMerId());
         userBill.setLinkId(order.getOrderId());
         userBill.setPm(BillEnum.PM_1.getValue());
-        userBill.setTitle("小程序购买商品");
+        userBill.setTitle("小程序商品购买");
         userBill.setCategory(BillDetailEnum.CATEGORY_1.getValue());
         userBill.setType(BillDetailEnum.TYPE_3.getValue());
         userBill.setNumber(bigMerPrice);
