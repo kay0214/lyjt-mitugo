@@ -539,6 +539,7 @@ public class YxMerchantsDetailServiceImpl extends BaseServiceImpl<YxMerchantsDet
         userBill.setStatus(1);
         //后台商户
         userBill.setUserType(1);
+        userBill.setUsername(user.getNickName());
         yxUserBillService.save(userBill);
     }
 
