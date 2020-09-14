@@ -102,7 +102,7 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<UserBillMapper, YxUse
         Map<String, Object> map = new LinkedHashMap<>(4);
         map.put("content", ipage.getRecords());
         map.put("totalElements", ipage.getTotal());
-        map.put("totalPrice", user.getTotalAmount());
+        map.put("totalPrice", user.getWithdrawalAmount());
         BigDecimal bigOut = userBillMapper.getSumPrice(criteria.getUid(), 0, userRole);
         BigDecimal bigIn = userBillMapper.getSumPrice(criteria.getUid(), 1, userRole);
 //        map.put("remainPrice", user.getWithdrawalAmount());

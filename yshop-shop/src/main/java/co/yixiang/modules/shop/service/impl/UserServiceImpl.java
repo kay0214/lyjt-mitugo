@@ -141,7 +141,7 @@ public class UserServiceImpl extends BaseServiceImpl<UserSysMapper, User> implem
         // 记录审批申请表
         YxUserExtract yxUserExtract = new YxUserExtract();
         yxUserExtract.setUid(uid);
-        yxUserExtract.setRealName(user.getNickName());
+        yxUserExtract.setRealName(user.getUsername());
         yxUserExtract.setExtractType("bank");
         yxUserExtract.setBankCode(yxMerchantsDetail.getBankNo());
         yxUserExtract.setBankAddress(yxMerchantsDetail.getOpenAccountBank());
