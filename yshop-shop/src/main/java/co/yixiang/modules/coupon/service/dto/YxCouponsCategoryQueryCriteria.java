@@ -25,5 +25,6 @@ public class YxCouponsCategoryQueryCriteria{
     @Query(blurry = "order asc")
     private Integer sort;
 
-
+    @Query(type = Query.Type.EQUAL)
+    private Integer isShow;
 }

@@ -197,6 +197,14 @@ public interface ShopConstants {
 	 */
 	int IMG_LICENCE=9;
 
+	/**
+	 * 分佣
+	 */
 	String COMMISSION_ORDER="COMMISSION_ORDER:";
+
+	/**
+	 * 提现
+	 */
+	String WITHDRAW_USER="WITHDRAW_USER:";
 
 }

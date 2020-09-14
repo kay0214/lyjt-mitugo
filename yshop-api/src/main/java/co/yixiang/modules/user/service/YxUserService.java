@@ -87,4 +87,23 @@ public interface YxUserService extends BaseService<YxUser> {
      * @param money
      */
     void updateExtractMoney(int uid, BigDecimal money);
+
+    /**
+     * 查询admin的用户
+     * @param uid
+     * @return
+     */
+    SystemUser getSystemUserById(Integer uid);
+
+    /**
+     * 增加用户提现金额
+     * @param updateYxUser
+     */
+    void updateUserMoney(YxUser updateYxUser);
+
+    /**
+     * 增加商户提现金额
+     * @param updateYxUser
+     */
+    void updateMerMoney(YxUser updateYxUser);
 }
