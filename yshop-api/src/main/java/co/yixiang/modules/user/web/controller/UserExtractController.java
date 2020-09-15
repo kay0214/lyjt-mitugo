@@ -81,7 +81,9 @@ public class UserExtractController extends BaseController {
         int uid = SecurityUtils.getUserId().intValue();
         userExtractService.userExtract(uid, param);
 
-        return ApiResult.ok("申请提现成功，请等待审核");
+        ApiResult result = ApiResult.ok();
+        result.setMsg("申请提现成功，请等待审核");
+        return result;
     }
 
 
