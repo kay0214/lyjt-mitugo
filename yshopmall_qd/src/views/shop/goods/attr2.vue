@@ -435,10 +435,18 @@ export default {
           var that = this
           isFormatAttr(this.form.id, { items: this.items, attrs: this.attrs }).then(res => {
             this.attrs = res
+            if(res.length){
+              for(let i in res){
+                this.$set(this.form2,['price'+i],res[i].price)
+                this.$set(this.form2,['sales'+i],res[i].sales)
+                this.$set(this.form2,['cost'+i],res[i].cost)
+                this.$set(this.form2,['commission'+i],res[i].commission)
+              }
+            }
           }).catch(err => {
             this.loading = false
-            Message({ message: err.response.data.message, type: 'error' })
-            console.log(err.response.data.message)
+            Message({ message: err, type: 'error' })
+            console.log(err)
           })
         }
       })
