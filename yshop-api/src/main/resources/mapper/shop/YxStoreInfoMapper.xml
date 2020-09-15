@@ -194,34 +194,36 @@
         si.create_time,
         si.update_time,
         si.introduction,
-        IFNULL(
-        SUM(
-        spr.product_score + service_score
-        ),
-        0
-        ) AS replySum,
-        IFNULL(SUM(sp.sales), 0) AS salesCount,
-        count(sp.id) AS productCount,
-        IFNULL(
-        ROUND(
-        (
-        IFNULL(
-        SUM(
-        spr.product_score + service_score
-        ),
-        0
-        ) / count(sp.id)
-        ) / 2,
-        1
-        ),
-        0
-        ) AS replyCount
+        spn.salesCount as salesCount,
+        spr.replyCount as replyCount
         FROM
-            yx_store_info si
-        LEFT JOIN yx_store_product_reply spr ON si.mer_id = spr.mer_id
-        LEFT JOIN yx_store_product sp ON sp.store_id = si.id
+        yx_store_info si
+        INNER JOIN (
+        SELECT
+        IFNULL(SUM(sp.sales), 0) AS salesCount,
+        store_id,
+        COUNT(sp.id) AS productCount
+        FROM
+        yx_store_product sp
+        GROUP BY
+        sp.store_id
+        ) AS spn ON spn.store_id = si.id
+        INNER JOIN (
+        SELECT
+        ROUND(
+        AVG(
+        product_score + service_score
+        ),
+        1
+        ) AS replyCount,
+        mer_id
+        FROM
+        yx_store_product_reply
+        GROUP BY
+        mer_id
+        ) AS spr ON si.mer_id = spr.mer_id
         WHERE
-            si.del_flag = 0
+        si.del_flag = 0
         AND si.`status` = 0
         <if test ="storeName !='' and storeName != null"> and si.store_name LIKE CONCAT('%',#{storeName},'%') </if>
         GROUP BY

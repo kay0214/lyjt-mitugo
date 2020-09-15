@@ -77,6 +77,7 @@ public interface YxStoreCouponIssueMapper extends BaseMapper<YxStoreCouponIssue>
             "A.total_count as totalCount,A.id,B.coupon_price as couponPrice," +
             "B.use_min_price as useMinPrice, " +
             "B.store_id as storeId" +
+            "A.`status` as status"+
             " from yx_store_coupon_issue A left join yx_store_coupon B " +
             "on A.cid = B.id " +
             "where A.status =1 " +
