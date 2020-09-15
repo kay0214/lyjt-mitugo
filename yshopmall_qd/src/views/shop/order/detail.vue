@@ -22,7 +22,7 @@
           <div class="text item">支付方式: {{ form.payTypeName }}</div>
         </el-col>
         <el-col :span="12">
-          <div class="text item">订单状态: {{ form.statusName }}</div>
+          <div class="text item">订单状态: <span v-html="form.statusName"></span></div>
           <div class="text item">商品总价: {{ form.totalPrice }}</div>
           <div class="text item">优惠券金额: {{ form.couponPrice }}</div>
           <div class="text item">创建时间: {{ parseTime(form.addTime) }}</div>
