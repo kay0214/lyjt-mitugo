@@ -217,6 +217,7 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<UserBillMapper, YxUse
         if (StringUtils.isNotBlank(criteria.getUsername())) {
             queryWrapper.lambda().like(YxUserBill::getUsername, criteria.getUsername());
         }
+        queryWrapper.lambda().orderByDesc(YxUserBill::getAddTime);
 
         IPage<YxUserBill> ipage = this.page(new Page<>(pageable.getPageNumber() + 1, pageable.getPageSize()), queryWrapper);
         Map<String, Object> map = new LinkedHashMap<>(3);
@@ -246,6 +247,7 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<UserBillMapper, YxUse
         if (StringUtils.isNotBlank(criteria.getAddTimeStart()) && StringUtils.isNotBlank(criteria.getAddTimeStart())) {
             queryWrapper.lambda().ge(YxUserBill::getAddTime, DateUtils.stringToTimestamp(criteria.getAddTimeStart() + " 00:00:00")).le(YxUserBill::getAddTime, DateUtils.stringToTimestamp(criteria.getAddTimeEnd() + " 23:59:59"));
         }
+        queryWrapper.lambda().orderByDesc(YxUserBill::getAddTime);
 
         IPage<YxUserBill> ipage = this.page(new Page<>(pageable.getPageNumber() + 1, pageable.getPageSize()), queryWrapper);
         Map<String, Object> map = new LinkedHashMap<>(3);
