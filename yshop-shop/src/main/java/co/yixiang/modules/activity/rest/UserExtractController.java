@@ -17,6 +17,7 @@ import co.yixiang.modules.shop.service.YxWechatUserService;
 import co.yixiang.mp.service.YxPayService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -33,23 +34,8 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("api")
 public class UserExtractController {
 
-    private final YxUserExtractService yxUserExtractService;
-    private final YxUserService yxUserService;
-    private final YxUserBillService yxUserBillService;
-    private final YxWechatUserService wechatUserService;
-    private final YxPayService payService;
-    private final IGenerator generator;
-
-    public UserExtractController(YxUserExtractService yxUserExtractService, YxUserService yxUserService,
-                                 YxUserBillService yxUserBillService, YxWechatUserService wechatUserService,
-                                 YxPayService payService, IGenerator generator) {
-        this.yxUserExtractService = yxUserExtractService;
-        this.yxUserService = yxUserService;
-        this.yxUserBillService = yxUserBillService;
-        this.wechatUserService = wechatUserService;
-        this.payService = payService;
-        this.generator = generator;
-    }
+    @Autowired
+    private YxUserExtractService yxUserExtractService;
 
     @ApiOperation(value = "查询提现记录")
     @GetMapping(value = "/yxUserExtract")
