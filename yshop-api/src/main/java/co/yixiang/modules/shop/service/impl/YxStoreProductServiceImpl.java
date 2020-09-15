@@ -421,10 +421,30 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
      * @return
      */
     @Override
-    public String getProductArrtValueByCartId (int cartId) {
+    public String getProductArrtValueByCartId (String cartId) {
         //
-        YxStoreCart yxStoreCart = yxStoreCartService.getById(cartId);
-        if (StringUtils.isNotBlank(yxStoreCart.getProductAttrUnique())) {
+        String [] cartIds = cartId.split(",");
+        List<String> listCarts = java.util.Arrays.asList(cartIds);
+        QueryWrapper<YxStoreCart> wrapper = new QueryWrapper<YxStoreCart>();
+        wrapper.in("id",listCarts);
+        List<YxStoreCart> yxStoreCartList = yxStoreCartService.list(wrapper);
+//        YxStoreCart yxStoreCart = yxStoreCartService.getById(cartId);
+        if(CollectionUtils.isNotEmpty(yxStoreCartList)){
+            for(YxStoreCart yxStoreCart:yxStoreCartList){
+                if (StringUtils.isNotBlank(yxStoreCart.getProductAttrUnique())) {
+                    //规格属性不为空
+                    YxStoreProductAttrValue attrValue = storeProductAttrValueMapper.getProductArrtValueByCartId(yxStoreCart.getId().intValue());
+                    if (ObjectUtil.isEmpty(attrValue)) {
+                        return "产品规格属性已经被修改，请重新选择后下单！";
+                    }
+                }
+                YxStoreProduct product = this.getProductInfo(yxStoreCart.getProductId());
+                if (product.getIsShow().equals(0)||product.getIsDel().equals(1)) {
+                    return "产品已下架或已删除，请重新选择后下单！";
+                }
+            }
+        }
+        /*if (StringUtils.isNotBlank(yxStoreCart.getProductAttrUnique())) {
             //规格属性不为空
             YxStoreProductAttrValue attrValue = storeProductAttrValueMapper.getProductArrtValueByCartId(cartId);
             if (ObjectUtil.isEmpty(attrValue)) {
@@ -434,7 +454,7 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
         YxStoreProduct product = this.getProductInfo(yxStoreCart.getProductId());
         if (product.getIsShow().equals(0)||product.getIsDel().equals(1)) {
             return "产品已下架或已删除，请重新选择后下单！";
-        }
+        }*/
         return null;
     }
 }

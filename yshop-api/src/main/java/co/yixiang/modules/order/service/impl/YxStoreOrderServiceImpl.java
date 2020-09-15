@@ -66,6 +66,7 @@ import co.yixiang.tools.service.AlipayConfigService;
 import co.yixiang.utils.DateUtils;
 import co.yixiang.utils.OrderUtil;
 import co.yixiang.utils.SnowflakeUtil;
+import co.yixiang.utils.StringUtils;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -2135,7 +2136,13 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
 
             if (orderQueryVo.getPayPrice().doubleValue() <= 0) throw new ErrorRequestException("该支付无需支付");
             bigPayPrice = bigPayPrice.add(orderQueryVo.getPayPrice());
-
+            //判断
+            //下单后，修改了规格属性
+            String attMsg= productService.getProductArrtValueByCartId(orderQueryVo.getCartId());
+            log.info("-------------创建订单时,订单支付,返回结果为：【"+attMsg+"】 -------------");
+            if(StringUtils.isNotBlank(attMsg)){
+                throw new ErrorRequestException(attMsg);
+            }
         }
         YxWechatUser wechatUser = wechatUserService.getById(orderInfo.get(0).getUid());
         if (ObjectUtil.isNull(wechatUser)) throw new ErrorRequestException("用户错误");
