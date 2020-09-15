@@ -62,6 +62,10 @@ public class CreatShareStoreServiceImpl implements CreatShareStoreService {
             BufferedImage back = ImageIO.read(background);
 
             g.drawImage(back.getScaledInstance(750, 1288, Image.SCALE_DEFAULT), 0, 0, null); // 绘制缩小后的图
+
+            BufferedImage head = ImageIO.read(getClass().getClassLoader().getResourceAsStream("head.png"));
+            g.drawImage(head.getScaledInstance(750, 280, Image.SCALE_DEFAULT), 0, 0, null);
+
             //商品  banner图
             //读取互联网图片
             BufferedImage priductUrl = null;
@@ -94,11 +98,11 @@ public class CreatShareStoreServiceImpl implements CreatShareStoreService {
                 tempLineLenb += tempCharLenb;
                 if (tempLineLenb >= (back.getWidth() + 220)) {
                     //长度已经满一行,进行文字叠加
-                    g.drawString(sbb.toString(), tempXb, tempYb + 12);
+                    g.drawString(sbb.toString(), tempXb, tempYb + 24);
                     //清空内容,重新追加
                     sbb.delete(0, sbb.length());
                     //每行文字间距50
-                    tempYb += 12;
+                    tempYb += 24;
                     tempLineLenb = 0;
                 }
                 //追加字符
@@ -127,18 +131,18 @@ public class CreatShareStoreServiceImpl implements CreatShareStoreService {
                 tempLineLen += tempCharLen;
                 if (tempLineLen >= (back.getWidth() + 180)) {
                     //长度已经满一行,进行文字叠加
-                    g.drawString(sb.toString(), tempX, tempY + 16);
+                    g.drawString(sb.toString(), tempX, tempY + 32);
                     //清空内容,重新追加
                     sb.delete(0, sb.length());
-                    //每行文字间距50
-                    tempY += 16;
+                    //每行文字间距32
+                    tempY += 32;
                     tempLineLen = 0;
                 }
                 //追加字符
                 sb.append(tempChar);
             }
             //最后叠加余下的文字
-            g.drawString(sb.toString(), tempX, tempY + 16);
+            g.drawString(sb.toString(), tempX, tempY + 32);
 
             //背景 -- 读取互联网图片
             InputStream stream2 = getClass().getClassLoader().getResourceAsStream("background.png");
