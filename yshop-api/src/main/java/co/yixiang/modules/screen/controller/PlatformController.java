@@ -5,11 +5,14 @@ package co.yixiang.modules.screen.controller;
 
 import co.yixiang.annotation.AnonymousAccess;
 import co.yixiang.common.web.controller.BaseController;
-import co.yixiang.constant.ShopConstants;
+import co.yixiang.constant.CacheConstant;
 import co.yixiang.dozer.service.IGenerator;
 import co.yixiang.modules.screen.dto.PlatformDto;
 import co.yixiang.modules.screen.service.PlatformService;
 import co.yixiang.utils.RedisUtils;
+import com.alicp.jetcache.anno.CacheRefresh;
+import com.alicp.jetcache.anno.CacheType;
+import com.alicp.jetcache.anno.Cached;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -43,20 +46,17 @@ public class PlatformController extends BaseController {
 
 
     @AnonymousAccess
+    @Cached(name="cachedLocalLifeIndex-", expire = CacheConstant.DEFAULT_EXPIRE_TIME, cacheType = CacheType.BOTH)
+    @CacheRefresh(refresh = CacheConstant.DEFAULT_REFRESH_TIME, stopRefreshAfterLastAccess = CacheConstant.DEFAULT_STOP_REFRESH_TIME)
     @GetMapping(value = "/getTodayData")
     @ApiOperation("今日数据统计")
     public ResponseEntity<Object> getTodayData() {
         Map<String, Object> map = new HashMap<>();
 
         PlatformDto platform = platformService.getTodayData();
-        if (redisUtils.hasKey(ShopConstants.DATA_STATISTICS)) {
-            map.put("status", "1");
-            map.put("statusDesc", "成功");
-            map.put("data", redisUtils.get(ShopConstants.DATA_STATISTICS));
-            return ResponseEntity.ok(map);
-        }
-        map.put("status", "999");
-        map.put("statusDesc", "未查询到数据，请稍后查看");
+        map.put("status", "1");
+        map.put("statusDesc", "成功");
+        map.put("data", platform);
         return ResponseEntity.ok(map);
     }
 
