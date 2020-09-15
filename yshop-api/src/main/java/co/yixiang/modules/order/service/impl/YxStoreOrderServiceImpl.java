@@ -1819,7 +1819,11 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
         List<Integer> couIds = new ArrayList<Integer>();
 
         if (ObjectUtil.isNotEmpty(param.getCouponIdList())) {
-            couIds = param.getCouponIdList();
+            for (Integer couId : param.getCouponIdList()) {
+                if (couId > 0) {
+                    couIds.add(couId);
+                }
+            }
         }
         for (YxStoreStoreCartQueryVo storeStoreCartQueryVo : storeCartQueryVoList) {
             //mark

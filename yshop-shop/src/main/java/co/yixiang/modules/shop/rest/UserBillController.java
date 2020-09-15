@@ -118,7 +118,7 @@ public class UserBillController {
     @PreAuthorize("hasAnyRole('admin','YXUSERBILL_ALL','YXUSERBILL_WITHDRAW')")
     public ResponseEntity<Object> withdraw(@RequestBody YxUserExtract request) {
         int uid = SecurityUtils.getUserId().intValue();
-        // 0->平台运营,1->合伙人,2->商户
+        // 0->平台运营,1->合伙人,2->商户 userType 1商户;2合伙人;3用户
         int userType = 1;
         if (1 == SecurityUtils.getCurrUser().getUserRole()) {
             userType = 2;
