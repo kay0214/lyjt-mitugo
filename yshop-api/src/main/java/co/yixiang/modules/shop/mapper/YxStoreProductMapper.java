@@ -1,12 +1,13 @@
 package co.yixiang.modules.shop.mapper;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import co.yixiang.modules.shop.entity.YxStoreProduct;
 import co.yixiang.modules.shop.web.param.YxStoreProductQueryParam;
 import co.yixiang.modules.shop.web.vo.YxStoreProductQueryVo;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 import org.springframework.stereotype.Repository;
 
@@ -54,4 +55,17 @@ public interface YxStoreProductMapper extends BaseMapper<YxStoreProduct> {
      */
     IPage<YxStoreProductQueryVo> getYxStoreProductPageList(@Param("page") Page page, @Param("param") YxStoreProductQueryParam yxStoreProductQueryParam);
 
+    /**
+     * 所有商品数量
+     * @return
+     */
+    @Select("select count(0) from yx_store_product where is_del=0")
+    Integer getAllProduct();
+
+    /**
+     * 本地生活商品数量
+     * @return
+     */
+    @Select("select count(0) from yx_coupons where is_show=0 and del_flag=0")
+    Integer getLocalProduct();
 }

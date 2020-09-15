@@ -72,4 +72,16 @@ public interface YxStoreProductService extends BaseService<YxStoreProduct> {
      * @return
      */
     public String getProductArrtValueByCartId (int cartId);
+
+    /**
+     * 查询所有商品数量
+     * @return
+     */
+    Integer getAllProduct();
+
+    /**
+     * 本地生活商品数量
+     * @return
+     */
+    Integer getLocalProduct();
 }

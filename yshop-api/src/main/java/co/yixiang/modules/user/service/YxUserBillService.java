@@ -1,7 +1,6 @@
 package co.yixiang.modules.user.service;
 
 import co.yixiang.common.service.BaseService;
-import co.yixiang.common.web.param.QueryParam;
 import co.yixiang.common.web.vo.Paging;
 import co.yixiang.modules.couponUse.dto.UserBillVo;
 import co.yixiang.modules.couponUse.param.UserAccountQueryParam;
@@ -85,4 +84,16 @@ public interface YxUserBillService extends BaseService<YxUserBill> {
      * @return
      */
     Paging<UserBillVo> getUserProductAccountList(UserAccountQueryParam param, Long id);
+
+    /**
+     * 查询线下支付的信息
+     * @return
+     */
+    Map<String, Object> getTodayOffPayData();
+
+    /**
+     * 线上支付信息
+     * @return
+     */
+    Map<String, Object> getOnlinePayData();
 }

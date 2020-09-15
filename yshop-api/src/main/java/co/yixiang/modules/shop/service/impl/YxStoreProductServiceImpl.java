@@ -437,4 +437,22 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
         }
         return null;
     }
+
+    /**
+     * 所有商品数量
+     * @return
+     */
+    @Override
+    public Integer getAllProduct() {
+        return yxStoreProductMapper.getAllProduct();
+    }
+
+    /**
+     * 本地生活商品数量
+     * @return
+     */
+    @Override
+    public Integer getLocalProduct() {
+        return yxStoreProductMapper.getLocalProduct();
+    }
 }

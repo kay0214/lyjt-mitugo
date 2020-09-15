@@ -280,6 +280,24 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<YxUserBillMapper, YxU
         return getResultList(pageList);
     }
 
+    /**
+     * 查询线下支付的数据统计
+     * @return
+     */
+    @Override
+    public Map<String, Object> getTodayOffPayData() {
+        return yxUserBillMapper.getTodayOffPayData();
+    }
+
+    /**
+     * 线上支付信息
+     * @return
+     */
+    @Override
+    public Map<String, Object> getOnlinePayData() {
+        return yxUserBillMapper.getOnlinePayData();
+    }
+
     private Paging<UserBillVo> getResultList(IPage<YxUserBill> result) {
         Paging<UserBillVo> resultStr = new Paging<UserBillVo>();
         resultStr.setSum(result.getTotal()+"");

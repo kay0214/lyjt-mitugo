@@ -864,4 +864,40 @@ public class YxUserServiceImpl extends BaseServiceImpl<YxUserMapper, YxUser> imp
     public void updateMerMoney(YxUser updateYxUser) {
         yxUserMapper.updateAddMerMoney(updateYxUser.getUid(), updateYxUser.getNowMoney());
     }
+
+    /**
+     * 查询所有商户数量
+     * @return
+     */
+    @Override
+    public Integer getAllMer() {
+        return yxUserMapper.getAllMer();
+    }
+
+    /**
+     * 查询所有认证通过商户数量
+     * @return
+     */
+    @Override
+    public Integer getAllOkMer() {
+        return yxUserMapper.getAllOkMer();
+    }
+
+    /**
+     * 平台的用户数量
+     * @return
+     */
+    @Override
+    public Integer getAllUser() {
+        return yxUserMapper.getAllUser();
+    }
+
+    /**
+     * 分销客用户数量
+     * @return
+     */
+    @Override
+    public Integer getAllFxUser() {
+        return yxUserMapper.getAllFxUser();
+    }
 }

@@ -19,6 +19,7 @@ import org.springframework.stereotype.Repository;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
@@ -124,4 +125,12 @@ public interface YxUserBillMapper extends BaseMapper<YxUserBill> {
             "  #{cartid} " +
             " </foreach> </script>" )
     BigDecimal getSumCommission(@Param("cartIds") List<String> cartIds);
+
+    @Select("select count(0) as todayOffPayCount,IFNULL(sum(number),0) as todayOffPay from yx_user_bill where pm=1 and type='mer_off_pay' " +
+            "and add_time BETWEEN UNIX_TIMESTAMP(CAST(SYSDATE()AS DATE)) and (UNIX_TIMESTAMP(CAST(SYSDATE()AS DATE) + INTERVAL 1 DAY))")
+    Map<String, Object> getTodayOffPayData();
+
+    @Select("select count(0) as todayOnlinePayCount,IFNULL(sum(number),0) as todayOnlinePay from yx_user_bill where pm=0 and user_type=3 and (type='pay_product' or type='pay_coupon')" +
+            "and add_time BETWEEN UNIX_TIMESTAMP(CAST(SYSDATE()AS DATE)) and (UNIX_TIMESTAMP(CAST(SYSDATE()AS DATE) + INTERVAL 1 DAY))")
+    Map<String, Object> getOnlinePayData();
 }

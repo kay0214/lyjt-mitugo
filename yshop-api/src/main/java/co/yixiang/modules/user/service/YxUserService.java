@@ -10,8 +10,6 @@ import co.yixiang.modules.user.web.dto.PromUserDTO;
 import co.yixiang.modules.user.web.param.PromParam;
 import co.yixiang.modules.user.web.param.YxUserQueryParam;
 import co.yixiang.modules.user.web.vo.YxUserQueryVo;
-import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Update;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.Serializable;
@@ -106,4 +104,28 @@ public interface YxUserService extends BaseService<YxUser> {
      * @param updateYxUser
      */
     void updateMerMoney(YxUser updateYxUser);
+
+    /**
+     * 查询所有商户数量
+     * @return
+     */
+    Integer getAllMer();
+
+    /**
+     * 查询所有认证通过的商户数量
+     * @return
+     */
+    Integer getAllOkMer();
+
+    /**
+     * 平台的用户数量
+     * @return
+     */
+    Integer getAllUser();
+
+    /**
+     * 分销客数量
+     * @return
+     */
+    Integer getAllFxUser();
 }

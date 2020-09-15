@@ -207,4 +207,9 @@ public interface ShopConstants {
 	 */
 	String WITHDRAW_USER="WITHDRAW_USER:";
 
+	/**
+	 * 实时数据统计
+	 */
+	String DATA_STATISTICS="DATA_STATISTICS";
+
 }

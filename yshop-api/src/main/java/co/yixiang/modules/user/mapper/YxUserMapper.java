@@ -115,4 +115,32 @@ public interface YxUserMapper extends BaseMapper<YxUser> {
      */
     @Update( "update user set withdrawal_amount = withdrawal_amount + ${money} where id = #{uid}")
     void updateAddMerMoney(@Param("uid")Integer uid, @Param("money")BigDecimal money);
+
+    /**
+     * 查询所有商户
+     * @return
+     */
+    @Select("select count(0) as allMer from yx_merchants_detail where status=0  and del_flag=0")
+    Integer getAllMer();
+
+    /**
+     * 查询所有认证通过商户数量
+     * @return
+     */
+    @Select("select count(0) as allMer from yx_merchants_detail where status=0 and examine_status=1 and del_flag=0")
+    Integer getAllOkMer();
+
+    /**
+     * 平台的用户数量
+     * @return
+     */
+    @Select("select count(0) as allMer from yx_user where status=1")
+    Integer getAllUser();
+
+    /**
+     * 分销客用户数量
+     * @return
+     */
+    @Select("select count(0) as allMer from yx_user where status=1 and user_role=1")
+    Integer getAllFxUser();
 }
