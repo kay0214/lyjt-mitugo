@@ -19,7 +19,6 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.math.BigDecimal;
 import java.net.URL;
 
 import static co.yixiang.utils.FileUtil.transformStyle;
@@ -129,21 +128,22 @@ public class CreatShareProductServiceImpl implements CreatShareProductService {
             g.setColor(new Color(249, 64, 64));
             g.drawString("¥", 238, 1214);
             //价格
-            String priceValue = productInfo.getPrice().divide(new BigDecimal("1")).toString();
+            String priceValue = productInfo.getPrice().toString();
+            String priceInt = priceValue.substring(0,priceValue.indexOf("."));
             g.setFont(font.deriveFont(Font.PLAIN, 56));
             g.setColor(new Color(249, 64, 64));
-            g.drawString(priceValue, 258, 1182);
+            g.drawString(priceInt, 258, 1200);
             //价格
             g.setFont(font.deriveFont(Font.PLAIN, 39.2f));
             g.setColor(new Color(249, 64, 64));
-            g.drawString(productInfo.getPrice().toString().replace(priceValue,""), 318, 1214);
+            g.drawString(priceValue.replace(priceInt,""), 318, 1214);
 
             //原价
             g.setFont(font.deriveFont(Font.PLAIN, 28));
             g.setColor(new Color(171, 171, 171));
             String price = "¥" + productInfo.getOtPrice();
-            g.drawString(price, 390, 1024);
-            g.drawLine(390, 1010, 385 + price.length()*22, 1010);
+            g.drawString(price, 390, 1204);
+            g.drawLine(390, 1190, 385 + price.length()*14, 1190);
 
             //背景 -- 读取互联网图片
             InputStream stream2 = getClass().getClassLoader().getResourceAsStream("background2.png");
