@@ -71,5 +71,5 @@ public interface YxStoreProductService extends BaseService<YxStoreProduct> {
      * @param cartId
      * @return
      */
-    public String getProductArrtValueByCartId (int cartId);
+    public String getProductArrtValueByCartId (String cartId);
 }

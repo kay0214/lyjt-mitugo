@@ -71,6 +71,10 @@ export default {
     })
   },
   watch: {
+    'query.searchTime'(value) {
+      this.crud.query.addTimeStart = value ? value[0] : ''
+      this.crud.query.addTimeEnd = value ? value[1] : ''
+    }
   },
   methods: {
     // 获取数据前设置好接口地址
