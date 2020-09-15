@@ -2268,7 +2268,7 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
                 }
             }
             //支付比例：
-            BigDecimal pricePayProduct = product.getPrice();
+            BigDecimal pricePayProduct = bigPrice;
             if (orderInfo.getDeductionPrice().compareTo(BigDecimal.ZERO) > 0) {
                 //抵扣金额>0
                 BigDecimal bigProportion = bigPrice.divide(totlePrice, BigDecimal.ROUND_HALF_UP);
