@@ -67,7 +67,7 @@ public class CreatShareProductServiceImpl implements CreatShareProductService {
             g.setColor(new Color(29, 29, 29));
             //文字叠加,自动换行叠加
             int tempXb = 40;
-            int tempYb = 918;
+            int tempYb = 925;
             //单字符长度
             int tempCharLenb = 0;
             //单行字符总长度临时计算
