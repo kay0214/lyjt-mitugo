@@ -98,7 +98,7 @@ public class CreatShareStoreServiceImpl implements CreatShareStoreService {
                     //清空内容,重新追加
                     sbb.delete(0, sbb.length());
                     //每行文字间距50
-                    tempYb += 50;
+                    tempYb += 12;
                     tempLineLenb = 0;
                 }
                 //追加字符
@@ -131,7 +131,7 @@ public class CreatShareStoreServiceImpl implements CreatShareStoreService {
                     //清空内容,重新追加
                     sb.delete(0, sb.length());
                     //每行文字间距50
-                    tempY += 50;
+                    tempY += 16;
                     tempLineLen = 0;
                 }
                 //追加字符
