@@ -196,7 +196,7 @@ public class CommissionServiceImpl implements CommissionService {
             //拉新池
             BigDecimal referencePoint = orderInfo.getCommission().multiply(yxCommissionRate.getReferenceRate()).setScale(2, BigDecimal.ROUND_DOWN);
             yxFundsAccount = updatePullNewPoint(orderInfo, referencePoint, yxFundsAccount);
-            insertBill(orderInfo, orderInfo.getParentId(), BillDetailEnum.TYPE_12.getValue(), referencePoint, yxUser.getNickname(), yxFundsAccount.getReferencePoint(), 3, "拉新分佣");
+            insertBill(orderInfo, orderInfo.getParentId(), BillDetailEnum.TYPE_12.getValue(), referencePoint, yxUser.getNickname(), yxFundsAccount.getReferencePoint(), 0, "拉新分佣");
             allBonus = allBonus.add(parentBonus).add(referencePoint);
         }
 
