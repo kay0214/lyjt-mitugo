@@ -46,10 +46,7 @@ import co.yixiang.modules.shop.mapper.YxStoreCouponMapper;
 import co.yixiang.modules.shop.mapper.YxStoreCouponUserMapper;
 import co.yixiang.modules.shop.mapper.YxStoreInfoMapper;
 import co.yixiang.modules.shop.service.*;
-import co.yixiang.modules.shop.web.vo.YxStoreCartQueryVo;
-import co.yixiang.modules.shop.web.vo.YxStoreInfoQueryVo;
-import co.yixiang.modules.shop.web.vo.YxStoreStoreCartQueryVo;
-import co.yixiang.modules.shop.web.vo.YxSystemStoreQueryVo;
+import co.yixiang.modules.shop.web.vo.*;
 import co.yixiang.modules.user.entity.YxUser;
 import co.yixiang.modules.user.entity.YxUserBill;
 import co.yixiang.modules.user.entity.YxWechatUser;
@@ -63,10 +60,7 @@ import co.yixiang.mp.service.YxTemplateService;
 import co.yixiang.tools.domain.AlipayConfig;
 import co.yixiang.tools.domain.vo.TradeVo;
 import co.yixiang.tools.service.AlipayConfigService;
-import co.yixiang.utils.DateUtils;
-import co.yixiang.utils.OrderUtil;
-import co.yixiang.utils.SnowflakeUtil;
-import co.yixiang.utils.StringUtils;
+import co.yixiang.utils.*;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -189,7 +183,8 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
 
     @Value("${yshop.snowflake.datacenterId}")
     private Integer datacenterId;
-
+    @Autowired
+    private RedisUtils redisUtils;
     /**
      * 订单退款
      *
@@ -1882,6 +1877,9 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
                     throw new ErrorRequestException("使用优惠劵失败");
                 }
             }
+
+            List<YxStoreOrderRedisVo> redisVoList = new ArrayList<YxStoreOrderRedisVo>();
+
             List<String> cartIds = new ArrayList<>();
             for (YxStoreCartQueryVo cart : storeStoreCartQueryVo.getCartList()) {
                 //校验产品
@@ -1902,7 +1900,22 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
                     }
                     gainIntegral = NumberUtil.add(gainIntegral, cartInfoGainIntegral).intValue();
                 }
+
+                YxStoreOrderRedisVo redisVo = new YxStoreOrderRedisVo();
+                redisVo.setCartId(cart.getId().intValue());
+                redisVo.setProductId(cart.getProductId());
+                BigDecimal productPrice = BigDecimal.ZERO;
+                if(StringUtils.isNotBlank(cart.getProductAttrUnique())){
+                    productPrice = cart.getProductInfo().getAttrInfo().getPrice();
+                }else{
+                    productPrice = cart.getProductInfo().getPrice();
+                }
+                redisVo.setProductPrice(productPrice);
+                redisVo.setIsPostage(cart.getProductInfo().getIsPostage());
+                redisVo.setPostage(cart.getProductInfo().getPostage());
+                redisVoList.add(redisVo);
             }
+
             if (OrderInfoEnum.SHIPPIING_TYPE_1.getValue().equals(param.getShippingType())) {
                 //邮寄方式
                 bigOrderPayPrice = NumberUtil.add(bigOrderPayPrice, payPostage);
@@ -1970,16 +1983,6 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
             storeOrder.setMerId(storeStoreCartQueryVo.getMerId());
             //店铺id
             storeOrder.setStoreId(storeStoreCartQueryVo.getStoreId());
-          /*  //推荐人id
-            storeOrder.setParentId(userInfo.getParentId());
-            //推荐人类型:1商户;2合伙人;3用户
-            storeOrder.setParentType(userInfo.getParentType());
-            //分享人用户ID
-            //分享人的推荐人用户ID
-            //分享人的推荐人类型:1商户;2合伙人;3用户
-            //下单时的佣金
-//            storeOrder.setCommission();
-            //分佣状态 0:未分佣 1:已分佣*/
             //支付单号
             storeOrder.setPaymentNo(payOrderNo);
             //
@@ -2016,6 +2019,8 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
             cartObj.setIsPay(2);
             storeCartMapper.update(cartObj, wrapper);
 
+            //存入redis(产品信息)
+            redisUtils.set("orderInfo_orderId:"+orderSn,redisVoList);
             //增加状态
             orderStatusService.create(storeOrder.getId(), "cache_key_create_order", "订单生成");
             //加入redis，30分钟自动取消
@@ -2136,13 +2141,6 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
 
             if (orderQueryVo.getPayPrice().doubleValue() <= 0) throw new ErrorRequestException("该支付无需支付");
             bigPayPrice = bigPayPrice.add(orderQueryVo.getPayPrice());
-            //判断
-            //下单后，修改了规格属性
-            String attMsg= productService.getProductArrtValueByCartId(orderQueryVo.getCartId());
-            log.info("-------------创建订单时,订单支付,返回结果为：【"+attMsg+"】 -------------");
-            if(StringUtils.isNotBlank(attMsg)){
-                throw new ErrorRequestException(attMsg);
-            }
         }
         YxWechatUser wechatUser = wechatUserService.getById(orderInfo.get(0).getUid());
         if (ObjectUtil.isNull(wechatUser)) throw new ErrorRequestException("用户错误");
@@ -2173,6 +2171,7 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
         storeOrder.setPayType(payType);
         storeOrder.setPayTime(OrderUtil.getSecondTimestampTwo());
         yxStoreOrderMapper.update(storeOrder, wrapper);
+        //
 
         List<YxStoreOrderQueryVo> orderInfoList = getOrderInfoList(orderId, 0);
         YxUser yxUser = this.userService.getById(orderInfoList.get(0).getUid());
@@ -2182,7 +2181,7 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
                 userService.incPayCount(orderInfo.getUid());
                 //增加状态
                 orderStatusService.create(orderInfo.getId(), "pay_success", "用户付款成功");
-                //修改购物车表
+               /* //修改购物车表
                 QueryWrapper<YxStoreCart> cartQueryWrapper = new QueryWrapper<>();
                 List<String> listCart = new ArrayList<>();
                 listCart.add(orderInfo.getCartId());
@@ -2192,12 +2191,13 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
                     listCart = Arrays.asList(carIds);
                 }
                 cartQueryWrapper.in("id", listCart);
-                List<YxStoreCart> storeCartList = yxStoreCartService.list(cartQueryWrapper);
+                List<YxStoreCart> storeCartList = yxStoreCartService.list(cartQueryWrapper);*/
                 //
-                getProductCartInfoOrderId(orderInfo, storeCartList);
+                String keyRedis = "orderInfo_orderId:"+orderInfo.getOrderId();
+//                getProductCartInfoOrderId(orderInfo, storeCartList);
                 //保存信息
-                yxStoreCartService.saveOrUpdateBatch(storeCartList);
-
+//                yxStoreCartService.saveOrUpdateBatch(storeCartList);
+                getProductCartInfoOrderIdRedis(keyRedis,orderInfo);
                 // 插入资金明细
                 YxUserBill yxUserBill = new YxUserBill();
                 yxUserBill.setUid(orderInfo.getUid());
@@ -2244,7 +2244,46 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
         }
         return null;
     }
-
+    public void getProductCartInfoOrderIdRedis(String rdisKey,YxStoreOrderQueryVo orderInfo) {
+        List<YxStoreOrderRedisVo>  redisVoList =(List<YxStoreOrderRedisVo>) redisUtils.get(rdisKey);
+        BigDecimal totlePrice = orderInfo.getTotalPrice();
+        BigDecimal postagePrice = BigDecimal.ZERO;
+        List<YxStoreCart> storeCartList = new ArrayList<YxStoreCart>();
+        if(CollectionUtils.isNotEmpty(redisVoList)){
+            for(YxStoreOrderRedisVo redisVo:redisVoList){
+                YxStoreCart storeCart = yxStoreCartService.getById(redisVo.getCartId());
+                BigDecimal bigPrice = redisVo.getProductPrice();
+                if (orderInfo.getPayPostage().compareTo(BigDecimal.ZERO) > 0) {
+                    //支付邮费不为0
+                    if (redisVo.getIsPostage() == 0) {
+                        //不包邮
+                        postagePrice = redisVo.getPostage();
+                    }
+                }
+                //支付比例：
+                BigDecimal pricePayProduct = bigPrice;
+                if (orderInfo.getDeductionPrice().compareTo(BigDecimal.ZERO) > 0) {
+                    //抵扣金额>0
+                    BigDecimal bigProportion = bigPrice.divide(totlePrice, BigDecimal.ROUND_HALF_UP);
+                    //支付比例：
+                    //订单金额*支付比例= 产品的支付金额
+                    pricePayProduct = orderInfo.getPayPrice().multiply(bigProportion);
+                }
+                if (postagePrice.compareTo(BigDecimal.ZERO) > 0) {
+                    //实际支付= 支付金额+邮费
+                    pricePayProduct = pricePayProduct.add(postagePrice);
+                }
+                //实际支付金额
+                storeCart.setPayPrice(pricePayProduct);
+                //产品金额
+                storeCart.setTotalPrice(bigPrice);
+                storeCart.setIsPay(1);
+                storeCartList.add(storeCart);
+            }
+        }
+        yxStoreCartService.saveOrUpdateBatch(storeCartList);
+        redisUtils.del(rdisKey);
+    }
     /**
      * 计算实际支付金额&总金额（购物车表）
      *
