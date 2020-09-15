@@ -89,6 +89,7 @@ import mulpicUpload from '@/components/mul-pic-upload'
 import Treeselect from '@riophae/vue-treeselect'
 import '@riophae/vue-treeselect/dist/vue-treeselect.css'
 import MaterialList from '@/components/material'
+import { sub } from '@/utils/math'
 export default {
   components: { editor, picUpload, mulpicUpload, Treeselect, MaterialList },
   props: {
@@ -100,8 +101,8 @@ export default {
   computed: {
     commission: function () {
       if(!isNaN(this.form.price) && !isNaN(this.form.settlement)) {
-        return this.form.price - this.form.settlement
-      } else return ''
+        return sub(this.form.price,this.form.settlement)
+      } else return 0
     }
   },
   data() {
@@ -126,7 +127,7 @@ export default {
     };
     //佣金校验 销售价price-平台结算价settlement>=0
     let commissionValue=(r,value,callback)=>{
-      let val=this.form.price*1-this.form.settlement*1
+      let val= sub(this.form.price*1,this.form.settlement*1)
       if(val<0){
         callback(new Error("佣金=销售价-平台结算价 (佣金>=0)"));
       }else{

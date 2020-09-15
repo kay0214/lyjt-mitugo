@@ -3,16 +3,34 @@
     <!--工具栏-->
     <div class="head-container">
       <el-row>
-        <el-input v-model="query.username" clearable placeholder="用户昵称" style="width: 200px;marginRight:20px;" class="filter-item" @keyup.enter.native="crud.toQuery" />        
-        <el-select v-model="query.category" clearable placeholder="明细种类" class="filter-item" style="width: 130px">
-        <el-option
-          v-for="item in categoryOptions"
-          :key="item.value"
-          :label="item.label"
-          :value="item.value"
-        />
-      </el-select>
-      <el-date-picker          
+        <el-input v-model="query.username" clearable placeholder="用户昵称" style="width: 200px;" class="filter-item" @keyup.enter.native="crud.toQuery" />
+        <!--<el-select v-model="query.category" clearable placeholder="明细种类" class="filter-item" style="width: 130px">-->
+        <!--<el-option-->
+          <!--v-for="item in categoryOptions"-->
+          <!--:key="item.value"-->
+          <!--:label="item.label"-->
+          <!--:value="item.value"-->
+        <!--/>-->
+      <!--</el-select>-->
+        <el-select v-model="type" clearable placeholder="明细类型" class="filter-item" style="width: 130px">
+          <template v-for="item in typeOptions">
+            <el-option
+              v-for="(val,key) in item"
+              :key="key"
+              :label="val"
+              :value="key"
+            />
+          </template>
+        </el-select>
+        <!--<el-select v-model="pm" clearable placeholder="收支类型" class="filter-item" style="width: 130px">-->
+          <!--<el-option-->
+            <!--v-for="item in pmOptions"-->
+            <!--:key="item.value"-->
+            <!--:label="item.label"-->
+            <!--:value="item.value"-->
+          <!--/>-->
+        <!--</el-select>-->
+      <el-date-picker
           type="daterange"
           v-model="searchTime"
           range-separator="-"
@@ -83,15 +101,15 @@
           </template>
         </el-table-column> -->
         <el-table-column v-if="columns.visible('linkId')" prop="linkId" label="订单编号" />
-        <!-- <el-table-column label="订单类型" align="center">
+         <el-table-column label="订单类型" align="center">
           <template slot-scope="scope">
             <div>
-              <el-tag v-if="scope.row.orderType == 1">本地生活</el-tag>
-              <el-tag v-else-if="scope.row.orderType == 0">商品购买</el-tag>
+              <el-tag v-if="scope.row.brokerageType == 1">本地生活</el-tag>
+              <el-tag v-else-if="scope.row.brokerageType == 0">商品购买</el-tag>
               <el-tag v-else></el-tag>
             </div>
           </template>
-        </el-table-column> -->
+        </el-table-column>
       <el-table-column prop="category" label="明细种类">
         <template slot-scope="scope">
           <span v-if="scope.row.category == 'now_money'">余额</span>
@@ -99,6 +117,13 @@
           <span v-else>未知</span>
         </template>
       </el-table-column>
+        <el-table-column prop="type" label="明细类型">
+          <template slot-scope="scope">
+            {{
+            typeLabel(scope.row.type)
+            }}
+          </template>
+        </el-table-column>
         <el-table-column v-if="columns.visible('number')" prop="number" label="积分" />
         <!-- <el-table-column v-if="columns.visible('commission')" prop="commission" label="订单佣金" /> -->
         <!-- <el-table-column v-if="columns.visible('merUsername')" prop="merUsername" label="商户用户名" /> -->
@@ -135,7 +160,7 @@ const defaultCrud = CRUD({ title: '积分获取明细', url: 'api/pointDetail', 
       del: false,
       download: false
     },query: {
-      category: '', type: '',pm:'',addTimeStart:'',addTimeEnd:''  
+      category: '', type: '',pm:'',addTimeStart:'',addTimeEnd:''
     },
     crudMethod: { ...crudYxPointDetail }})
 const defaultForm = { id: null, uid: null, username: null, type: null, orderId: null, orderType: null, orderPrice: null, commission: null, merchantsId: null, merchantsPoint: null, partnerId: null, partnerPoint: null, delFlag: null, createUserId: null, updateUserId: null, createTime: null, updateTime: null }
@@ -197,6 +222,26 @@ export default {
         Message({ message: err, type: 'error' })
       })
     })
+  },
+  computed:{
+    typeLabel:function(){
+      return function(type){
+        if(this.typeOptions.length){
+          let i= this.typeOptions.filter(function(item){
+            for(let key in item){
+              if(key===type){
+                return JSON.parse(JSON.stringify(item))
+              }
+            }
+          })
+          if(i.length){
+            return i[0][type]
+          }
+        }else{
+          return ""
+        }
+      }
+    }
   },
   methods: {
     // 获取数据前设置好接口地址
