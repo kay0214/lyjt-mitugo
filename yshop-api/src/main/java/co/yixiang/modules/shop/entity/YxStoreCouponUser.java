@@ -66,4 +66,7 @@ public class YxStoreCouponUser extends BaseEntity {
 
     @ApiModelProperty(value = "店铺id")
     private Integer storeId;
+
+    @ApiModelProperty(value = "优惠券前台领取ID")
+    private Integer issueCouponId;
 }
