@@ -67,13 +67,6 @@ public interface YxStoreProductService extends BaseService<YxStoreProduct> {
     public List<YxStoreProductNoAttrQueryVo> getProductListByStoreId(int storeId);
 
     /**
-     * 根据cartId获取规格属性
-     * @param cartId
-     * @return
-     */
-    public String getProductArrtValueByCartId (int cartId);
-
-    /**
      * 查询所有商品数量
      * @return
      */
@@ -84,5 +77,11 @@ public interface YxStoreProductService extends BaseService<YxStoreProduct> {
      * @return
      */
     Integer getLocalProduct();
+
+    /**
+     * 根据cartId获取规格属性
+     * @param cartId
+     * @return
+     */
     public String getProductArrtValueByCartId (String cartId);
 }
