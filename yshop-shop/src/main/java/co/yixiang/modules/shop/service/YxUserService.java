@@ -14,6 +14,7 @@ import org.springframework.data.domain.Pageable;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -55,4 +56,12 @@ public interface YxUserService  extends BaseService<YxUser>{
     void incIntegral(int uid, double integral);
 
     void updateUserCommission(UserMoneyDto param);
+
+    /**
+     * 提现驳回返回可提现金额
+     *
+     * @param uid
+     * @param nowMoney
+     */
+    void updateAddMoney(Integer uid, BigDecimal nowMoney);
 }

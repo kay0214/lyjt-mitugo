@@ -118,6 +118,9 @@ public class YxMerchantsDetailServiceImpl extends BaseServiceImpl<YxMerchantsDet
             User user = this.userService.getById(vo.getUid());
             if (null != user && StringUtils.isNotBlank(user.getUsername())) {
                 dto.setUsername(user.getUsername());
+                dto.setTotalAmount(user.getTotalAmount());
+                dto.setWithdrawalAmount(user.getWithdrawalAmount());
+                dto.setTotalScore(user.getTotalScore());
             }
             list.add(dto);
         }
@@ -129,6 +132,12 @@ public class YxMerchantsDetailServiceImpl extends BaseServiceImpl<YxMerchantsDet
     }
 
 
+    /**
+     * 原有方法已废弃使用
+     *
+     * @param criteria 条件参数
+     * @return
+     */
     @Override
     //@Cacheable
     public List<YxMerchantsDetailDto> queryAll(YxMerchantsDetailQueryCriteria criteria) {
@@ -495,20 +504,20 @@ public class YxMerchantsDetailServiceImpl extends BaseServiceImpl<YxMerchantsDet
         String type = "system_add";
         Integer pm = 1;
         String title = "增加可提现金额";
-        if(param.getPtype() == 1){
-            mark = "系统增加了"+param.getMoney()+"可提现金额";
-            withDrawa = NumberUtil.add(user.getWithdrawalAmount(),param.getMoney()).doubleValue();
-            totleMoney = NumberUtil.add(user.getTotalAmount(),param.getMoney()).doubleValue();
-        }else{
+        if (param.getPtype() == 1) {
+            mark = "系统增加了" + param.getMoney() + "可提现金额";
+            withDrawa = NumberUtil.add(user.getWithdrawalAmount(), param.getMoney()).doubleValue();
+            totleMoney = NumberUtil.add(user.getTotalAmount(), param.getMoney()).doubleValue();
+        } else {
             title = "减少可提现金额";
-            mark = "系统扣除了"+param.getMoney()+"可提现金额";
+            mark = "系统扣除了" + param.getMoney() + "可提现金额";
             type = "system_sub";
             pm = 0;
-            withDrawa = NumberUtil.sub(user.getWithdrawalAmount(),param.getMoney()).doubleValue();
-            totleMoney = NumberUtil.sub(user.getTotalAmount(),param.getMoney()).doubleValue();
+            withDrawa = NumberUtil.sub(user.getWithdrawalAmount(), param.getMoney()).doubleValue();
+            totleMoney = NumberUtil.sub(user.getTotalAmount(), param.getMoney()).doubleValue();
 
-            if(withDrawa < 0) withDrawa = 0d;
-            if(totleMoney < 0) totleMoney = 0d;
+            if (withDrawa < 0) withDrawa = 0d;
+            if (totleMoney < 0) totleMoney = 0d;
 
         }
         user.setWithdrawalAmount(BigDecimal.valueOf(withDrawa));
@@ -530,6 +539,7 @@ public class YxMerchantsDetailServiceImpl extends BaseServiceImpl<YxMerchantsDet
         userBill.setStatus(1);
         //后台商户
         userBill.setUserType(1);
+        userBill.setUsername(user.getNickName());
         yxUserBillService.save(userBill);
     }
 

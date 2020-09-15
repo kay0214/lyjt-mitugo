@@ -68,10 +68,10 @@
           <el-form-item v-show="form.couponType === 2" prop="discount" :required="form.couponType === 2" label="折扣券折扣率">
             <el-input v-model="form.discount" style="width: 100%;" maxlength="4" />
           </el-form-item>
-          <el-form-item v-show="form.couponType === 3" prop="threshold" :required="form.couponType === 3" label="使用门槛">
+          <el-form-item v-if="form.couponType === 3" prop="threshold" label="使用门槛">
             <el-input v-model="form.threshold" style="width: 100%;" maxlength="12" />
           </el-form-item>
-          <el-form-item v-show="form.couponType === 3" prop="discountAmount" :required="form.couponType === 3" label="优惠金额">
+          <el-form-item v-id="form.couponType === 3" prop="discountAmount" label="优惠金额">
             <el-input v-model="form.discountAmount" style="width: 100%;" maxlength="12" />
           </el-form-item>
           <el-form-item label="卡券分类" prop="couponCategory">
@@ -115,7 +115,7 @@
             <el-date-picker
               v-model="form.expireDate"
               type="daterange"
-              range-separator="至"
+              range-separator="-"
               start-placeholder="有效期开始日期"
               end-placeholder="有效期结束日期"
               style="width:100%;"
@@ -183,8 +183,7 @@
             <el-time-picker
               v-model="availableTime"
               is-range
-              :arrow-control="false"
-              range-separator="至"
+              range-separator="-"
               start-placeholder="可用时段开始时间"
               end-placeholder="可用时段结束时间"
               placeholder="选择时间范围"
@@ -433,7 +432,7 @@ export default {
   data() {
     return {
       expireDate: defaultForm.expireDateStart && defaultForm.expireDateEnd ? [defaultForm.expireDateStart, defaultForm.expireDateEnd] : null, // 有效期
-      availableTime: [defaultForm.availableTimeStart ? defaultForm.availableTimeStart : parseTime((new Date(2020, 9, 10, 9, 0)),'{h}:{i}'), defaultForm.availableTimeEnd ? defaultForm.availableTimeEnd : parseTime((new Date(2020, 9, 10, 22, 0)),'{h}:{i}')], // 可用时段
+      availableTime: [form.availableTimeStart ? form.availableTimeStart : parseTime((new Date(2020, 9, 10, 9, 0)),'{h}:{i}'), form.availableTimeEnd ? form.availableTimeEnd : parseTime((new Date(2020, 9, 10, 22, 0)),'{h}:{i}')], // 可用时段
       imageArr: imageArr,
       sliderImageArr: defaultForm.sliderImage || [],
       selections: {
@@ -458,7 +457,7 @@ export default {
           { required: true, message: '卡券类型不能为空', trigger: 'blur' }
         ],
         couponCategory: [
-          { required: true, message: '卡券分类不能为空', trigger: 'blur' }
+          { required: true, message: '卡券分类不能为空', trigger: 'change' }
         ],
         denomination: [
           {
@@ -488,9 +487,11 @@ export default {
         }],
         threshold: [{ validator: (rule, value, callback) => {
           if (this.form.couponType === 3 && (!value || value === '')) {
-            return callback(new Error('使用门槛不能为空不能为空'))
+            return callback(new Error('使用门槛不能为空'))
           } else { callback() }
-        }, trigger: 'blur' },
+        }, trigger: 'blur',
+          required: true
+        },
         {
           pattern: /^[0-9]{0,6}([.]{1}[0-9]{0,2}){0,1}$/,  //正则
           message: '请输入数字--限定6位整数2位小数'
@@ -499,7 +500,9 @@ export default {
           if (this.form.couponType === 3 && (!value || value === '')) {
             return callback(new Error('优惠金额不能为空'))
           } else { callback() }
-        }, trigger: 'blur' },
+        }, trigger: 'blur',
+          required: true
+        },
         {
           pattern: /^[0-9]{0,6}([.]{1}[0-9]{0,2}){0,1}$/,  //正则
           message: '请输入数字--限定6位整数2位小数'
@@ -526,7 +529,7 @@ export default {
           }
         ],
         commission: [
-          { required: true, message: '佣金不能为空', trigger: 'blur' }
+          { required: true, message: '佣金不能为空', trigger: 'change' }
         ],
         quantityLimit: [
           { required: true, message: '每人限购数量不能为空', trigger: 'blur' },
@@ -543,12 +546,15 @@ export default {
           }
         ],
         ficti: [
-          // { trigger: 'blur' },
+          { required: true, message:'请输入虚拟销量', trigger: 'blur' },
           {
             pattern: /^[0-9]{0,8}$/,  //正则
             message: '请输入数字--限制8位整数',
             trigger: 'blur'
           }
+        ],
+        sort: [
+          { required: true, message:'请输入排序', trigger: 'blur' },
         ],
         writeOff: [
           { required: true, message: '核销次数不能为空', trigger: 'blur' },
@@ -588,7 +594,7 @@ export default {
               return callback(new Error('可用时间不能为空'))
             }
             callback()
-          }, trigger: 'blur' }],
+          }, trigger: 'blur', required: true }],
         // availableTimeStart: [
         //   { required: true, message: '可用时间始不能为空', trigger: 'blur' }
         // ],
@@ -660,8 +666,8 @@ export default {
     //   }
     // },
     availableTime(value){
-      this.form.availableTimeEnd = value[1]
-      this.form.availableTimeStart = value[0]
+      this.form.availableTimeEnd = value ? value[1] : ''
+      this.form.availableTimeStart = value ? value[0] : ''
     }
   },
   mounted() {

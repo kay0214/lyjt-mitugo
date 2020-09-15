@@ -12,6 +12,8 @@ import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Update;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigDecimal;
+
 /**
 * @author hupeng
 * @date 2020-05-12
@@ -32,6 +34,4 @@ public interface UserMapper extends CoreMapper<YxUser> {
     @Update("update yx_user set integral=integral+#{integral}" +
             " where uid=#{uid}")
     int incIntegral(@Param("integral") double integral,@Param("uid") int uid);
-
-
 }

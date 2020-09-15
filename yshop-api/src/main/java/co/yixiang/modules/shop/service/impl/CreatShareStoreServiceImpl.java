@@ -53,7 +53,7 @@ public class CreatShareStoreServiceImpl implements CreatShareStoreService {
         String spreadUrl = "";
         if (ObjectUtil.isNull(attachmentT)) {
             //创建图片
-            BufferedImage img = new BufferedImage(750, 1334, BufferedImage.TYPE_INT_RGB);
+            BufferedImage img = new BufferedImage(750, 1624, BufferedImage.TYPE_INT_RGB);
             //开启画图
             Graphics g = img.getGraphics();
             //背景 -- 读取互联网图片
@@ -61,7 +61,7 @@ public class CreatShareStoreServiceImpl implements CreatShareStoreService {
             ImageInputStream background = ImageIO.createImageInputStream(stream);
             BufferedImage back = ImageIO.read(background);
 
-            g.drawImage(back.getScaledInstance(750, 1334, Image.SCALE_DEFAULT), 0, 0, null); // 绘制缩小后的图
+            g.drawImage(back.getScaledInstance(750, 1288, Image.SCALE_DEFAULT), 0, 0, null); // 绘制缩小后的图
             //商品  banner图
             //读取互联网图片
             BufferedImage priductUrl = null;
@@ -70,23 +70,20 @@ public class CreatShareStoreServiceImpl implements CreatShareStoreService {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            g.drawImage(priductUrl.getScaledInstance(750, 590, Image.SCALE_DEFAULT), 0, 0, null);
+            g.drawImage(priductUrl.getScaledInstance(670, 604, Image.SCALE_DEFAULT), 40, 280, null);
             InputStream streamT = getClass().getClassLoader()
                     .getResourceAsStream("Alibaba-PuHuiTi-Regular.otf");
             File newFileT = new File("Alibaba-PuHuiTi-Regular.otf");
             FileUtils.copyInputStreamToFile(streamT, newFileT);
             Font font = Font.createFont(Font.TRUETYPE_FONT, newFileT);
             //文案标题
-            g.setFont(font.deriveFont(Font.BOLD, 34));
+            g.setFont(font.deriveFont(Font.BOLD, 32));
             g.setColor(new Color(29, 29, 29));
             int fontlenb = getWatermarkLength(yxStoreInfo.getStoreName(), g);
-            //文字长度相对于图片宽度应该有多少行
-            int lineb = fontlenb / (back.getWidth() + 200);
             //高度
-            int yb = back.getHeight() - (lineb + 1) * 30 + 100;
             //文字叠加,自动换行叠加
-            int tempXb = 32;
-            int tempYb = yb;
+            int tempXb = 40;
+            int tempYb = 906;
             //单字符长度
             int tempCharLenb = 0;
             //单行字符总长度临时计算
@@ -98,7 +95,7 @@ public class CreatShareStoreServiceImpl implements CreatShareStoreService {
                 tempLineLenb += tempCharLenb;
                 if (tempLineLenb >= (back.getWidth() + 220)) {
                     //长度已经满一行,进行文字叠加
-                    g.drawString(sbb.toString(), tempXb, tempYb + 50);
+                    g.drawString(sbb.toString(), tempXb, tempYb + 12);
                     //清空内容,重新追加
                     sbb.delete(0, sbb.length());
                     //每行文字间距50
@@ -108,11 +105,11 @@ public class CreatShareStoreServiceImpl implements CreatShareStoreService {
                 //追加字符
                 sbb.append(tempChar);
             }
-            g.drawString(sbb.toString(), tempXb, tempYb + 50);
+            g.drawString(sbb.toString(), tempXb, tempYb + 12);
 
             //------------------------------------------------文案-----------------------
             //文案
-            g.setFont(font.deriveFont(Font.PLAIN, 30));
+            g.setFont(font.deriveFont(Font.PLAIN, 24));
             g.setColor(new Color(47, 47, 47));
             String storeInfo = yxStoreInfo.getStoreProvince() + yxStoreInfo.getStoreAddress();
             int fontlen = getWatermarkLength(storeInfo, g);
@@ -121,8 +118,8 @@ public class CreatShareStoreServiceImpl implements CreatShareStoreService {
             //高度
             int y = tempYb + 50 - (line + 1) * 30 + 100;
             //文字叠加,自动换行叠加
-            int tempX = 32;
-            int tempY = y+50;
+            int tempX = 40;
+            int tempY = 1012;
             //单字符长度
             int tempCharLen = 0;
             //单行字符总长度临时计算
@@ -134,7 +131,7 @@ public class CreatShareStoreServiceImpl implements CreatShareStoreService {
                 tempLineLen += tempCharLen;
                 if (tempLineLen >= (back.getWidth() + 180)) {
                     //长度已经满一行,进行文字叠加
-                    g.drawString(sb.toString(), tempX, tempY + 50);
+                    g.drawString(sb.toString(), tempX, tempY + 16);
                     //清空内容,重新追加
                     sb.delete(0, sb.length());
                     //每行文字间距50
@@ -145,9 +142,14 @@ public class CreatShareStoreServiceImpl implements CreatShareStoreService {
                 sb.append(tempChar);
             }
             //最后叠加余下的文字
-            g.drawString(sb.toString(), tempX, tempY + 50);
+            g.drawString(sb.toString(), tempX, tempY + 16);
 
+            //背景 -- 读取互联网图片
+            InputStream stream2 = getClass().getClassLoader().getResourceAsStream("background.png");
+            ImageInputStream background2 = ImageIO.createImageInputStream(stream2);
+            BufferedImage back2 = ImageIO.read(background2);
 
+            g.drawImage(back2.getScaledInstance(750, 336, Image.SCALE_DEFAULT), 0, 1288, null); // 绘制缩小后的图
             //生成二维码返回链接
             String url = shareCode;
             //读取互联网图片
@@ -159,13 +161,13 @@ public class CreatShareStoreServiceImpl implements CreatShareStoreService {
                 e.printStackTrace();
             }
             // 绘制缩小后的图
-            g.drawImage(qrCode.getScaledInstance(174, 174, Image.SCALE_DEFAULT), 536, 1057, null);
+            g.drawImage(qrCode.getScaledInstance(122, 122, Image.SCALE_DEFAULT), 54, 1334, null);
 
             //二维码字体
             g.setFont(font.deriveFont(Font.PLAIN, 25));
             g.setColor(new Color(171, 171, 171));
             //绘制文字
-            g.drawString("扫描或长按小程序码", 515, 1260);
+            g.drawString("扫描或长按小程序码", 210, 1400);
 
             g.dispose();
             //先将画好的海报写到本地

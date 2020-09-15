@@ -15,7 +15,7 @@
       <el-date-picker          
           type="daterange"
           v-model="searchTime"
-          range-separator="至"
+          range-separator="-"
           start-placeholder="开始日期"
           end-placeholder="结束日期"
           placeholder="选择时间范围"

@@ -58,4 +58,12 @@ public interface UserService extends BaseService<User> {
      * @return
      */
     boolean updateUserWithdraw(Integer uid, Integer userType, BigDecimal extractPrice);
+
+    /**
+     * 更新商户提现金额
+     *
+     * @param id
+     * @param withdrawalAmount
+     */
+    void updateWithdrawalAmount(Integer id, BigDecimal withdrawalAmount);
 }

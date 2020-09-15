@@ -5,11 +5,11 @@
     <div class="head-container">
       <!--如果想在工具栏加入更多按钮，可以使用插槽方式， slot = 'left' or 'right'-->
       <el-row>
-        <el-input v-model="query.username" clearable placeholder="用户昵称" style="width: 200px;marginRight:20px;" class="filter-item" @keyup.enter.native="crud.toQuery" />        
-        <el-date-picker          
+        <el-input v-model="query.username" clearable placeholder="用户昵称" style="width: 200px;marginRight:20px;" class="filter-item" @keyup.enter.native="crud.toQuery" />
+        <el-date-picker
           type="daterange"
           v-model="query.searchTime"
-          range-separator="至"
+          range-separator="-"
           start-placeholder="订单日期"
           end-placeholder="订单日期"
           placeholder="选择时间范围"
@@ -18,16 +18,16 @@
         </el-date-picker>
         <el-button class="filter-item" size="mini" type="success" icon="el-icon-search" @click="crud.toQuery">搜索</el-button>
       </el-row>
-      <el-row :gutter='6' style="margin:20px;"><el-col :span='4'>累计总金额: <span>{{totalAmount}}</span></el-col></el-row>
+      <el-row :gutter='6' style="margin:20px;"><el-col :span='4'>累计总积分: <span>{{totalAmount}}</span></el-col></el-row>
       <!--表格渲染-->
       <el-table ref="table" v-loading="crud.loading" :data="crud.data" size="small" style="" @selection-change="crud.selectionChangeHandler">
         <el-table-column type="index" width="55" />
         <el-table-column v-if="columns.visible('username')" prop="username" label="用户昵称" />
-        <el-table-column v-if="columns.visible('orderId')" prop="orderId" label="订单编号" />
-        <el-table-column v-if="columns.visible('orderPrice')" prop="orderPrice" label="金额" />
-        <el-table-column v-if="columns.visible('createTime')" prop="createTime" label="订单日期">
+        <el-table-column v-if="columns.visible('linkId')" prop="linkId" label="订单编号" />
+        <el-table-column v-if="columns.visible('number')" prop="number" label="积分" />
+        <el-table-column v-if="columns.visible('addTime')" prop="addTime" label="订单日期">
           <template slot-scope="scope">
-            <span>{{ parseTime(scope.row.createTime) }}</span>
+            <span>{{ parseTime(scope.row.addTime) }}</span>
           </template>
         </el-table-column>
       </el-table>
@@ -47,8 +47,8 @@ import pagination from '@crud/Pagination'
 import MaterialList from "@/components/material";
 
 // crud交由presenter持有
-const defaultCrud = CRUD({ title: '拉新池', url: 'api/yxPointDetail/pullNew', sort: 'id,desc', crudMethod: { ...crudYxPointDetail }})
-const defaultForm = { id: null, uid: null, username: null, type: null, orderId: null, orderType: null, orderPrice: null, commission: null, merchantsId: null, merchantsPoint: null, partnerId: null, partnerPoint: null, delFlag: null, createUserId: null, updateUserId: null, createTime: null, updateTime: null }
+const defaultCrud = CRUD({ title: '拉新池', url: 'api/getPullNewPoint', sort: 'id,desc', crudMethod: { ...crudYxPointDetail }})
+const defaultForm = { id: null, uid: null, username: null, type: null, linkId: null, orderType: null, number: null, commission: null, merchantsId: null, merchantsPoint: null, partnerId: null, partnerPoint: null, delFlag: null, createUserId: null, updateUserId: null, addTime: null, updateTime: null }
 export default {
   name: 'YxPointDetail',
   components: { pagination, crudOperation, rrOperation, udOperation ,MaterialList},
@@ -61,18 +61,18 @@ export default {
         edit: ['admin', 'yxPointDetail:edit'],
         del: ['admin', 'yxPointDetail:del']
       },
-      rules: {}   
+      rules: {}
     }
   },
   mounted(){
     //获取累计金额
     this.crud.refresh().then(res=>{
-      this.totalAmount=res.totalAmount
+      this.totalAmount=res.totalPoint
     })
   },
   watch: {
   },
-  methods: {    
+  methods: {
     // 获取数据前设置好接口地址
     [CRUD.HOOK.beforeRefresh]() {
       return true

@@ -832,4 +832,36 @@ public class YxUserServiceImpl extends BaseServiceImpl<YxUserMapper, YxUser> imp
     public void updateExtractMoney(int uid, BigDecimal money) {
         yxUserMapper.updateExtractMoney(uid, money);
     }
+
+    /**
+     * 查询admin 的用户
+     * @param uid
+     * @return
+     */
+    @Override
+    public SystemUser getSystemUserById(Integer uid) {
+        QueryWrapper<SystemUser> wrapper = new QueryWrapper<>();
+        wrapper.eq("id", uid).eq("merchants_status", 0)
+                .eq("user_role", 2)
+                .eq("enabled", 1);
+        return systemUserMapper.selectOne(wrapper);
+    }
+
+    /**
+     * 增加用户提现金额
+     * @param updateYxUser
+     */
+    @Override
+    public void updateUserMoney(YxUser updateYxUser) {
+        yxUserMapper.updateAddUserMoney(updateYxUser.getUid(), updateYxUser.getNowMoney());
+    }
+
+    /**
+     * 增加商户金额
+     * @param updateYxUser
+     */
+    @Override
+    public void updateMerMoney(YxUser updateYxUser) {
+        yxUserMapper.updateAddMerMoney(updateYxUser.getUid(), updateYxUser.getNowMoney());
+    }
 }

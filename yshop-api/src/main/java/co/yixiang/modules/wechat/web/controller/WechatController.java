@@ -3,7 +3,6 @@
  */
 package co.yixiang.modules.wechat.web.controller;
 
-import cn.hutool.core.util.ObjectUtil;
 import co.yixiang.annotation.AnonymousAccess;
 import co.yixiang.common.api.ApiResult;
 import co.yixiang.common.rocketmq.MqProducer;
@@ -14,7 +13,6 @@ import co.yixiang.enums.BillDetailEnum;
 import co.yixiang.enums.OrderInfoEnum;
 import co.yixiang.modules.coupons.entity.YxCouponOrder;
 import co.yixiang.modules.coupons.service.YxCouponOrderService;
-import co.yixiang.modules.manage.entity.SystemUser;
 import co.yixiang.modules.manage.service.SystemUserService;
 import co.yixiang.modules.offpay.entity.YxOffPayOrder;
 import co.yixiang.modules.offpay.service.YxOffPayOrderService;
@@ -24,14 +22,15 @@ import co.yixiang.modules.order.web.vo.YxStoreOrderQueryVo;
 import co.yixiang.modules.shop.service.YxStoreInfoService;
 import co.yixiang.modules.shop.service.YxSystemConfigService;
 import co.yixiang.modules.shop.web.vo.YxStoreInfoQueryVo;
+import co.yixiang.modules.user.entity.YxUser;
 import co.yixiang.modules.user.entity.YxUserBill;
 import co.yixiang.modules.user.entity.YxUserRecharge;
 import co.yixiang.modules.user.service.YxUserBillService;
 import co.yixiang.modules.user.service.YxUserRechargeService;
+import co.yixiang.modules.user.service.YxUserService;
 import co.yixiang.mp.config.WxMpConfiguration;
 import co.yixiang.mp.config.WxPayConfiguration;
 import co.yixiang.utils.BigNum;
-import co.yixiang.utils.DateUtils;
 import co.yixiang.utils.OrderUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -91,6 +90,8 @@ public class WechatController extends BaseController {
     private YxStoreInfoService yxStoreInfoService;
     @Autowired
     private MqProducer mqProducer;
+    @Autowired
+    private YxUserService yxUserService;
 
 
     /**
@@ -226,6 +227,13 @@ public class WechatController extends BaseController {
             if (yxCouponOrder.getRefundStatus() == 2) {
                 return WxPayNotifyResponse.success("处理成功!");
             }
+
+            YxUser yxUser = this.yxUserService.getById(yxCouponOrder.getUid());
+            if (null == yxUser) {
+                log.info("用户id：" + yxCouponOrder.getUid() + "不存在");
+                return WxPayNotifyResponse.success("处理失败!");
+            }
+
             YxCouponOrder couponOrder = new YxCouponOrder();
             //修改状态
             couponOrder.setId(yxCouponOrder.getId());
@@ -247,45 +255,46 @@ public class WechatController extends BaseController {
             userBill.setMark("");
             userBill.setAddTime(OrderUtil.getSecondTimestampTwo());
             userBill.setStatus(1);
+            userBill.setUsername(yxUser.getNickname());
             yxUserBillService.save(userBill);
-
-            // 更新商户余额
-            SystemUser systemUser = this.systemUserService.getById(yxCouponOrder.getMerId());
-            if (null == systemUser) {
-                log.error("订单编号：" + yxCouponOrder.getOrderId() + "未查询到商户所属的id，无法记录退款资金去向");
-                return WxPayNotifyResponse.success("处理成功!");
-            }
-            // 该笔资金实际到账
-            SystemUser updateSystemUser = new SystemUser();
-            BigDecimal truePrice = yxCouponOrder.getTotalPrice().subtract(yxCouponOrder.getCommission());
-            BigDecimal balance = systemUser.getWithdrawalAmount().compareTo(truePrice) > 0 ? systemUser.getWithdrawalAmount().subtract(truePrice) : BigDecimal.ZERO;
-            if (refundFee.compareTo(truePrice) > 0) {
-                updateSystemUser.setTotalAmount(truePrice.multiply(new BigDecimal(-1)));
-                updateSystemUser.setWithdrawalAmount(truePrice.multiply(new BigDecimal(-1)));
-            } else {
-                updateSystemUser.setTotalAmount(refundFee.multiply(new BigDecimal(-1)));
-                updateSystemUser.setWithdrawalAmount(refundFee.multiply(new BigDecimal(-1)));
-            }
-            updateSystemUser.setId(systemUser.getId());
-            this.systemUserService.updateUserTotal(updateSystemUser);
-
-            // 插入商户资金明细
-            YxUserBill merBill = new YxUserBill();
-            merBill.setUid(yxCouponOrder.getMerId());
-            merBill.setLinkId(yxCouponOrder.getOrderId());
-            merBill.setPm(0);
-            merBill.setTitle("本地生活订单退款");
-            merBill.setCategory(BillDetailEnum.CATEGORY_1.getValue());
-            merBill.setType(BillDetailEnum.TYPE_5.getValue());
-            merBill.setNumber(truePrice);
-            // 目前只支持微信付款、没有余额
-            merBill.setBalance(balance);
-            merBill.setAddTime(DateUtils.getNowTime());
-            merBill.setStatus(1);
-            merBill.setMerId(yxCouponOrder.getMerId());
-            merBill.setUserType(1);
-            merBill.setUsername(systemUser.getNickName());
-            this.yxUserBillService.save(merBill);
+//
+//            // 更新商户余额
+//            SystemUser systemUser = this.systemUserService.getById(yxCouponOrder.getMerId());
+//            if (null == systemUser) {
+//                log.error("订单编号：" + yxCouponOrder.getOrderId() + "未查询到商户所属的id，无法记录退款资金去向");
+//                return WxPayNotifyResponse.success("处理成功!");
+//            }
+//            // 该笔资金实际到账
+//            SystemUser updateSystemUser = new SystemUser();
+//            BigDecimal truePrice = yxCouponOrder.getTotalPrice().subtract(yxCouponOrder.getCommission());
+//            BigDecimal balance = systemUser.getWithdrawalAmount().compareTo(truePrice) > 0 ? systemUser.getWithdrawalAmount().subtract(truePrice) : BigDecimal.ZERO;
+//            if (refundFee.compareTo(truePrice) > 0) {
+//                updateSystemUser.setTotalAmount(truePrice.multiply(new BigDecimal(-1)));
+//                updateSystemUser.setWithdrawalAmount(truePrice.multiply(new BigDecimal(-1)));
+//            } else {
+//                updateSystemUser.setTotalAmount(refundFee.multiply(new BigDecimal(-1)));
+//                updateSystemUser.setWithdrawalAmount(refundFee.multiply(new BigDecimal(-1)));
+//            }
+//            updateSystemUser.setId(systemUser.getId());
+//            this.systemUserService.updateUserTotal(updateSystemUser);
+//
+//            // 插入商户资金明细
+//            YxUserBill merBill = new YxUserBill();
+//            merBill.setUid(yxCouponOrder.getMerId());
+//            merBill.setLinkId(yxCouponOrder.getOrderId());
+//            merBill.setPm(0);
+//            merBill.setTitle("本地生活订单退款");
+//            merBill.setCategory(BillDetailEnum.CATEGORY_1.getValue());
+//            merBill.setType(BillDetailEnum.TYPE_5.getValue());
+//            merBill.setNumber(truePrice);
+//            // 目前只支持微信付款、没有余额
+//            merBill.setBalance(balance);
+//            merBill.setAddTime(DateUtils.getNowTime());
+//            merBill.setStatus(1);
+//            merBill.setMerId(yxCouponOrder.getMerId());
+//            merBill.setUserType(1);
+//            merBill.setUsername(systemUser.getNickName());
+//            this.yxUserBillService.save(merBill);
 
             return WxPayNotifyResponse.success("处理成功!");
         } catch (WxPayException | IllegalAccessException e) {
@@ -447,6 +456,12 @@ public class WechatController extends BaseController {
             if (orderInfo.getRefundStatus() == 2) {
                 return WxPayNotifyResponse.success("处理成功!");
             }
+            YxUser yxUser = this.yxUserService.getById(orderInfo.getUid());
+            if (null == yxUser) {
+                log.info("用户id：" + orderInfo.getUid() + "不存在");
+                return WxPayNotifyResponse.success("处理失败!");
+            }
+
             YxStoreOrder storeOrder = new YxStoreOrder();
             //修改状态
             storeOrder.setId(orderInfo.getId());
@@ -468,47 +483,48 @@ public class WechatController extends BaseController {
             userBill.setAddTime(OrderUtil.getSecondTimestampTwo());
             userBill.setStatus(1);
             userBill.setUserType(3);
+            userBill.setUsername(yxUser.getNickname());
             yxUserBillService.save(userBill);
-
-            // 更新商户余额
-            SystemUser systemUser = this.systemUserService.getById(orderInfo.getMerId());
-            if (ObjectUtil.isEmpty(systemUser)) {
-                log.error("订单编号：" + orderInfo.getOrderId() + "未查询到商户所属的id，无法记录退款资金去向");
-                return WxPayNotifyResponse.success("处理成功!");
-            }
-            // 该笔资金实际到账
-            SystemUser updateSystemUser = new SystemUser();
-            BigDecimal truePrice = orderInfo.getPayPrice().subtract(orderInfo.getCommission());
-            BigDecimal balance = systemUser.getWithdrawalAmount().compareTo(truePrice) > 0 ? systemUser.getWithdrawalAmount().subtract(truePrice) : BigDecimal.ZERO;
-            if (refundFee.compareTo(truePrice) > 0) {
-                updateSystemUser.setTotalAmount(truePrice.multiply(new BigDecimal(-1)));
-                updateSystemUser.setWithdrawalAmount(truePrice.multiply(new BigDecimal(-1)));
-            } else {
-                updateSystemUser.setTotalAmount(refundFee.multiply(new BigDecimal(-1)));
-                updateSystemUser.setWithdrawalAmount(refundFee.multiply(new BigDecimal(-1)));
-            }
-            updateSystemUser.setId(systemUser.getId());
-//            this.systemUserService.updateById(updateSystemUser);
-            this.systemUserService.updateUserTotal(updateSystemUser);
-
-            // 插入商户资金明细
-            YxUserBill merBill = new YxUserBill();
-            merBill.setUid(orderInfo.getMerId());
-            merBill.setLinkId(orderInfo.getOrderId());
-            merBill.setPm(0);
-            merBill.setTitle("小程序购买商品订单退款");
-            merBill.setCategory(BillDetailEnum.CATEGORY_1.getValue());
-            merBill.setType(BillDetailEnum.TYPE_5.getValue());
-            merBill.setNumber(truePrice);
-            // 目前只支持微信付款、没有余额
-            merBill.setBalance(balance);
-            merBill.setAddTime(DateUtils.getNowTime());
-            merBill.setStatus(1);
-            merBill.setMerId(orderInfo.getMerId());
-            merBill.setUserType(1);
-            merBill.setUsername(systemUser.getNickName());
-            merBill.setMark("小程序购买商品订单退款");
-            this.yxUserBillService.save(merBill);
+//
+//            // 更新商户余额
+//            SystemUser systemUser = this.systemUserService.getById(orderInfo.getMerId());
+//            if (ObjectUtil.isEmpty(systemUser)) {
+//                log.error("订单编号：" + orderInfo.getOrderId() + "未查询到商户所属的id，无法记录退款资金去向");
+//                return WxPayNotifyResponse.success("处理成功!");
+//            }
+//            // 该笔资金实际到账
+//            SystemUser updateSystemUser = new SystemUser();
+//            BigDecimal truePrice = orderInfo.getPayPrice().subtract(orderInfo.getCommission());
+//            BigDecimal balance = systemUser.getWithdrawalAmount().compareTo(truePrice) > 0 ? systemUser.getWithdrawalAmount().subtract(truePrice) : BigDecimal.ZERO;
+//            if (refundFee.compareTo(truePrice) > 0) {
+//                updateSystemUser.setTotalAmount(truePrice.multiply(new BigDecimal(-1)));
+//                updateSystemUser.setWithdrawalAmount(truePrice.multiply(new BigDecimal(-1)));
+//            } else {
+//                updateSystemUser.setTotalAmount(refundFee.multiply(new BigDecimal(-1)));
+//                updateSystemUser.setWithdrawalAmount(refundFee.multiply(new BigDecimal(-1)));
+//            }
+//            updateSystemUser.setId(systemUser.getId());
+////            this.systemUserService.updateById(updateSystemUser);
+//            this.systemUserService.updateUserTotal(updateSystemUser);
+//
+//            // 插入商户资金明细
+//            YxUserBill merBill = new YxUserBill();
+//            merBill.setUid(orderInfo.getMerId());
+//            merBill.setLinkId(orderInfo.getOrderId());
+//            merBill.setPm(0);
+//            merBill.setTitle("小程序购买商品订单退款");
+//            merBill.setCategory(BillDetailEnum.CATEGORY_1.getValue());
+//            merBill.setType(BillDetailEnum.TYPE_5.getValue());
+//            merBill.setNumber(truePrice);
+//            // 目前只支持微信付款、没有余额
+//            merBill.setBalance(balance);
+//            merBill.setAddTime(DateUtils.getNowTime());
+//            merBill.setStatus(1);
+//            merBill.setMerId(orderInfo.getMerId());
+//            merBill.setUserType(1);
+//            merBill.setUsername(systemUser.getNickName());
+//            merBill.setMark("小程序购买商品订单退款");
+//            this.yxUserBillService.save(merBill);
 
             log.info("退款回调通知处理 ，更新 ： " + JSONObject.toJSONString(orderInfo));
             return WxPayNotifyResponse.success("处理成功!");

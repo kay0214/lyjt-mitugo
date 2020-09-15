@@ -1,7 +1,9 @@
 package co.yixiang.common.rocketmq;
 
 import co.yixiang.common.rocketmq.service.CommissionService;
+import co.yixiang.common.rocketmq.service.WithdrawService;
 import co.yixiang.constant.MQConstant;
+import co.yixiang.utils.StringUtils;
 import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.rocketmq.client.consumer.DefaultMQPushConsumer;
@@ -24,15 +26,18 @@ public class WithdrawConsumer implements RocketMQListener<String>, RocketMQPushC
     private static int MAX_RECONSUME_TIME = 3;
 
     @Autowired
-    CommissionService commissionService;
+    WithdrawService withdrawService;
 
     @Override
     public void onMessage(String message) {
         JSONObject callBackResult = JSONObject.parseObject(message);
-        String orderId = callBackResult.getString("orderId");
-        String orderType = callBackResult.getString("orderType");
-        log.info("提现订单号：{},订单类型:{}", orderId,orderType);
-        commissionService.updateInfo(orderId,orderType);
+        String id = callBackResult.getString("id");
+        log.info("提现id：{}", id);
+        if(StringUtils.isBlank(id)){
+            log.info("提现id为空：{}");
+            return;
+        }
+        withdrawService.updateWithdraw(id);
     }
 
 
