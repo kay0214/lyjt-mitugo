@@ -30,14 +30,14 @@
         </el-col>
       </el-row>
     </el-card>
-    <el-card v-if="form.storeId == 0">
+    <el-card v-if="form.deliveryId">
       <div slot="header">
         <span>物流信息</span>
       </div>
       <div class="text item">快递公司:{{ form.deliveryName }}</div>
       <div class="text item">快递单号:{{ form.deliveryId }}</div>
 
-      <div><el-button :loading="loading" type="primary" @click="express">查看物流</el-button></div>
+      <div style='margin:14px 0 20px;'><el-button size='mini' :loading="loading" type="primary" @click="express">查看物流</el-button></div>
       <div style="margin-top: 20px">
       <el-timeline v-if="form.deliveryId && expressInfo.length > 0">
         <el-timeline-item
