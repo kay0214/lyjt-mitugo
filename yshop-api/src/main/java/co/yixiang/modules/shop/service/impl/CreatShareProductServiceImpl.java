@@ -46,6 +46,9 @@ public class CreatShareProductServiceImpl implements CreatShareProductService {
             BufferedImage back = ImageIO.read(background);
 
             g.drawImage(back.getScaledInstance(750, 1288, Image.SCALE_DEFAULT), 0, 0, null); // 绘制缩小后的图
+
+            BufferedImage head = ImageIO.read(getClass().getClassLoader().getResourceAsStream("head.png"));
+            g.drawImage(head.getScaledInstance(750, 280, Image.SCALE_DEFAULT), 0, 0, null);
             //商品  banner图
             //读取互联网图片
             BufferedImage priductUrl = null;
@@ -54,7 +57,7 @@ public class CreatShareProductServiceImpl implements CreatShareProductService {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            g.drawImage(priductUrl.getScaledInstance(670, 604, Image.SCALE_DEFAULT), 0, 0, null);
+            g.drawImage(priductUrl.getScaledInstance(670, 604, Image.SCALE_DEFAULT), 40, 280, null);
             InputStream streamT = getClass().getClassLoader()
                     .getResourceAsStream("Alibaba-PuHuiTi-Regular.otf");
             File newFileT = new File("Alibaba-PuHuiTi-Regular.otf");
@@ -63,7 +66,6 @@ public class CreatShareProductServiceImpl implements CreatShareProductService {
             //文案标题
             g.setFont(font.deriveFont(Font.BOLD, 32));
             g.setColor(new Color(29, 29, 29));
-            int fontlenb = getWatermarkLength(productInfo.getStoreName(), g);
             //文字叠加,自动换行叠加
             int tempXb = 40;
             int tempYb = 918;
@@ -77,28 +79,23 @@ public class CreatShareProductServiceImpl implements CreatShareProductService {
                 tempCharLenb = getCharLen(tempChar, g);
                 tempLineLenb += tempCharLenb;
                 if (tempLineLenb >= (back.getWidth() + 220)) {
-                    g.drawString(sbb.toString(), tempXb, tempYb + 12);
+                    g.drawString(sbb.toString(), tempXb, tempYb + 24);
                     //清空内容,重新追加
                     sbb.delete(0, sbb.length());
                     //每行文字间距50
-                    tempYb += 12;
+                    tempYb += 24;
                     tempLineLenb = 0;
                 }
                 //追加字符
                 sbb.append(tempChar);
             }
-            g.drawString(sbb.toString(), tempXb, tempYb + 12);
+            g.drawString(sbb.toString(), tempXb, tempYb + 24);
 
             //------------------------------------------------文案-----------------------
 
             //文案
             g.setFont(font.deriveFont(Font.PLAIN, 24));
             g.setColor(new Color(47, 47, 47));
-            int fontlen = getWatermarkLength(productInfo.getStoreInfo(), g);
-            //文字长度相对于图片宽度应该有多少行
-            int line = fontlen / (back.getWidth() + 200);
-            //高度
-            int y = tempYb + 50 - (line + 1) * 30 + 100;
             //文字叠加,自动换行叠加
             int tempX = 40;
             int tempY = 1030;
@@ -113,18 +110,18 @@ public class CreatShareProductServiceImpl implements CreatShareProductService {
                 tempLineLen += tempCharLen;
                 if (tempLineLen >= (back.getWidth() + 180)) {
                     //长度已经满一行,进行文字叠加
-                    g.drawString(sb.toString(), tempX, tempY + 16);
+                    g.drawString(sb.toString(), tempX, tempY + 32);
                     //清空内容,重新追加
                     sb.delete(0, sb.length());
-                    //每行文字间距50
-                    tempY += 16;
+                    //每行文字间距32
+                    tempY += 32;
                     tempLineLen = 0;
                 }
                 //追加字符
                 sb.append(tempChar);
             }
             //最后叠加余下的文字
-            g.drawString(sb.toString(), tempX, tempY + 16);
+            g.drawString(sb.toString(), tempX, tempY + 32);
 
 
             //价格
@@ -166,17 +163,17 @@ public class CreatShareProductServiceImpl implements CreatShareProductService {
                 e.printStackTrace();
             }
             // 绘制缩小后的图
-            g.drawImage(qrCode.getScaledInstance(174, 174, Image.SCALE_DEFAULT), 536, 1057, null);
+            g.drawImage(qrCode.getScaledInstance(122, 122, Image.SCALE_DEFAULT), 54, 1334, null);
 
             //二维码字体
             g.setFont(font.deriveFont(Font.PLAIN, 20));
             g.setColor(new Color(171, 171, 171));
             //绘制文字
-            g.drawString("扫描或长按小程序码", 210, 1260);
+            g.drawString("扫描或长按小程序码", 210, 1400);
 
             g.setFont(font.deriveFont(Font.PLAIN, 20));
             g.setColor(new Color(171, 171, 171));
-            g.drawString("查看商品详情", 210, 1260);
+            g.drawString("查看商品详情", 210, 1440);
 
             g.dispose();
             //先将画好的海报写到本地

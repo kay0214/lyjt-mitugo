@@ -1811,13 +1811,10 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
         //支付单号
         String payOrderNo = SnowflakeUtil.getOrderId(datacenterId);
 
-        Double totalPrice = 0d;
-        Double payPrice = 0d;
         Double payPostage = 0d;
 
         BigDecimal bigOrderPayPrice = new BigDecimal(0);
         BigDecimal bigOrderTotlePrice = new BigDecimal(0);
-        BigDecimal bigOrderPayPostage = new BigDecimal(0);
 
         List<Integer> couIds = new ArrayList<Integer>();
 
@@ -1923,7 +1920,9 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
             // 积分抵扣
             double deductionPrice = 0; //抵扣金额
             double usedIntegral = 0; //使用的积分
-            if (payPrice <= 0) payPrice = 0d;
+            if (bigOrderPayPrice.compareTo(BigDecimal.ZERO) < 0) {
+                bigOrderPayPrice = BigDecimal.ZERO;
+            }
 
             //组合数据
             YxStoreOrder storeOrder = new YxStoreOrder();
@@ -2043,7 +2042,7 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
     public List<YxStoreOrderQueryVo> getOrderInfoList(String unique, int uid) {
         QueryWrapper<YxStoreOrder> wrapper = new QueryWrapper<>();
         wrapper.eq("is_del", 0).and(
-                i -> i.eq("`unique`", unique).or().eq("payment_no", unique).or().eq("unique_key", unique)).or().eq("order_id", unique).or().eq("extend_order_id",unique);
+                i -> i.eq("`unique`", unique).or().eq("payment_no", unique).or().eq("unique_key", unique)).or().eq("order_id", unique).or().eq("extend_order_id", unique);
         if (uid > 0) wrapper.eq("uid", uid);
 
         return orderMap.toDto(yxStoreOrderMapper.selectList(wrapper));
