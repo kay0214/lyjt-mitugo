@@ -2,16 +2,17 @@
   <div class="app-container">
     <!--工具栏-->
     <div class="head-container">
+      <el-input v-model="query.title" clearable placeholder="输入标题" style="width: 200px;" class="filter-item" @keyup.enter.native="toQuery" />
        <el-input v-model="query.username" clearable placeholder="输入用户昵称" style="width: 200px;" class="filter-item" @keyup.enter.native="toQuery" />
-      <el-select v-model="query.category" clearable placeholder="明细种类" class="filter-item" style="width: 130px">
+      <!-- <el-select v-model="query.category" clearable placeholder="明细种类" class="filter-item" style="width: 130px">
         <el-option
           v-for="item in categoryOptions"
           :key="item.value"
           :label="item.label"
           :value="item.value"
         />
-      </el-select>
-      <!-- <el-select v-model="query.type" clearable placeholder="明细类型" class="filter-item" style="width: 130px">
+      </el-select> -->
+      <el-select v-model="query.type" clearable placeholder="明细类型" class="filter-item" style="width: 130px">
         <template v-for="item in typeOptions">
         <el-option
           v-for="(val,key) in item"
@@ -20,7 +21,7 @@
           :value="key"
         />
         </template>
-      </el-select> -->
+      </el-select>
       <el-select v-model="query.pm" clearable placeholder="收支类型" class="filter-item" style="width: 130px">
         <el-option
           v-for="item in pmOptions"
@@ -81,11 +82,19 @@
       <el-table ref="table" v-loading="crud.loading" :data="crud.data" size="small" style="width: 100%;" @selection-change="crud.selectionChangeHandler">
         <el-table-column type="selection" width="55" />
         <el-table-column v-if="columns.visible('id')" prop="id" label="主键" />
+        <el-table-column v-if="columns.visible('title')" prop="title" label="标题" />
         <el-table-column prop="category" label="明细种类">
           <template slot-scope="scope">
             <span v-if="scope.row.category == 'now_money'">余额</span>
             <span v-else-if="scope.row.category == 'integral'">积分</span>
             <span v-else>未知</span>
+          </template>
+        </el-table-column>        
+        <el-table-column prop="type" label="明细类型">
+          <template slot-scope="scope">
+            {{
+              typeLabel(scope.row.type)
+            }}
           </template>
         </el-table-column>
         <el-table-column v-if="columns.visible('uid')" prop="uid" label="用户uid" />
@@ -199,10 +208,21 @@ export default {
   computed:{
     typeLabel:function(){
       return function(type){
-      return this.categoryOptions[this.categoryOptions.findIndex(item=>{
-                 return parseInt(item.value)===type
-                })].label
+      if(this.typeOptions.length){
+        let i= this.typeOptions.filter(function(item){
+          for(let key in item){
+            if(key===type){
+              return JSON.parse(JSON.stringify(item))
+            }
+          }
+        })
+        if(i.length){
+          return i[0][type]
+        }
+      }else{
+        return ""
       }
+    }
     }
   },
   methods: {
