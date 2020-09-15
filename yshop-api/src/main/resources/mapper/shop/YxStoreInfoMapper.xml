@@ -194,15 +194,14 @@
         si.create_time,
         si.update_time,
         si.introduction,
-        spn.salesCount as salesCount,
+        IFNULL(spn.salesCount,0) as salesCount,
         IFNULL(spr.replyCount,0) AS replyCount
         FROM
         yx_store_info si
         LEFT JOIN (
         SELECT
-        IFNULL(SUM(sp.sales), 0) AS salesCount,
-        store_id,
-        COUNT(sp.id) AS productCount
+        IFNULL(SUM(sp.sales+sp.ficti), 0) AS salesCount,
+        store_id
         FROM
         yx_store_product sp
         GROUP BY
@@ -226,8 +225,6 @@
         si.del_flag = 0
         AND si.`status` = 0
         <if test ="storeName !='' and storeName != null"> and si.store_name LIKE CONCAT('%',#{storeName},'%') </if>
-        GROUP BY
-            si.id
         ORDER BY
         <if test ="scoreOrder !='' and scoreOrder != null ">  replyCount ${scoreOrder}, </if>
         <if test ="salesOrder !='' and salesOrder != null ">   salesCount ${salesOrder}, </if>
