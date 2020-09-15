@@ -292,9 +292,9 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
         //销量排序
         if (ObjectUtil.isNotNull(productQueryParam.getSalesOrder()) && StringUtils.isNotBlank(productQueryParam.getSalesOrder())) {
             if (productQueryParam.getSalesOrder().equals("desc")) {
-                wrapper.orderByDesc("sales");
+                wrapper.orderByDesc("sales + ficti");
             } else if (productQueryParam.getSalesOrder().equals("asc")) {
-                wrapper.orderByAsc("sales");
+                wrapper.orderByAsc("sales + ficti");
             }
         }
 
