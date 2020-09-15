@@ -295,6 +295,7 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<UserBillMapper, YxUse
         if (null != criteria.getUserType()) {
             queryWrapper.lambda().eq(YxUserBill::getUserType, criteria.getUserType());
         }
+        queryWrapper.lambda().orderByDesc(YxUserBill::getAddTime);
 
         IPage<YxUserBill> ipage = this.page(new Page<>(pageable.getPageNumber() + 1, pageable.getPageSize()), queryWrapper);
         Map<String, Object> map = new LinkedHashMap<>(3);
