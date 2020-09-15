@@ -53,7 +53,7 @@ public interface YxStoreCouponUserService extends BaseService<YxStoreCouponUser>
      */
     Paging<YxStoreCouponUserQueryVo> getYxStoreCouponUserPageList(YxStoreCouponUserQueryParam yxStoreCouponUserQueryParam) throws Exception;
 
-    void addUserCouponNew(int uid, int cid,int storeId);
+    void addUserCouponNew(int uid, int cid,int storeId,int issueCouponId);
 
     /**
      * 创建订单时，获取用户可用优惠券

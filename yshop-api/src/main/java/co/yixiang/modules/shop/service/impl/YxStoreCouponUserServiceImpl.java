@@ -272,7 +272,7 @@ public class YxStoreCouponUserServiceImpl extends BaseServiceImpl<YxStoreCouponU
      * @param storeId
      */
     @Override
-    public void addUserCouponNew(int uid, int cid,int storeId) {
+    public void addUserCouponNew(int uid, int cid,int storeId,int issueCouponId) {
         YxStoreCouponQueryVo storeCouponQueryVo = storeCouponService.
                 getYxStoreCouponById(cid);
         if(ObjectUtil.isNull(storeCouponQueryVo)) throw new ErrorRequestException("优惠劵不存在");
@@ -290,6 +290,8 @@ public class YxStoreCouponUserServiceImpl extends BaseServiceImpl<YxStoreCouponU
         int endTime = addTime + storeCouponQueryVo.getCouponTime() * 86400;
         couponUser.setEndTime(endTime);
         couponUser.setType("get");
+        //领取id
+        couponUser.setIssueCouponId(issueCouponId);
 
         save(couponUser);
 

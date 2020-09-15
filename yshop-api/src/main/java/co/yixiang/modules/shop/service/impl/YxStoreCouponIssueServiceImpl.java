@@ -10,6 +10,7 @@ import co.yixiang.common.web.vo.Paging;
 import co.yixiang.exception.ErrorRequestException;
 import co.yixiang.modules.shop.entity.YxStoreCouponIssue;
 import co.yixiang.modules.shop.entity.YxStoreCouponIssueUser;
+import co.yixiang.modules.shop.entity.YxStoreCouponUser;
 import co.yixiang.modules.shop.entity.YxStoreInfo;
 import co.yixiang.modules.shop.mapper.YxStoreCouponIssueMapper;
 import co.yixiang.modules.shop.mapper.YxStoreCouponIssueUserMapper;
@@ -27,6 +28,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import java.io.Serializable;
 import java.util.List;
@@ -95,6 +97,16 @@ public class YxStoreCouponIssueServiceImpl extends BaseServiceImpl<YxStoreCoupon
         return count;
     }
 
+    public Integer couponUserCount(int id, int uid) {
+        QueryWrapper<YxStoreCouponUser> wrapper= new QueryWrapper<YxStoreCouponUser>();
+        wrapper.eq("uid",uid).eq("issue_coupon_id",id);
+        List<YxStoreCouponUser> couponUserList =  storeCouponUserService.list(wrapper);
+        if(!CollectionUtils.isEmpty(couponUserList)){
+            return couponUserList.get(0).getStatus();
+        }
+        return -1;
+    }
+
     /**
      * 优惠券列表
      * @param page
@@ -155,7 +167,7 @@ public class YxStoreCouponIssueServiceImpl extends BaseServiceImpl<YxStoreCoupon
             throw new ErrorRequestException("抱歉优惠卷已经领取完了");
         }
 
-        storeCouponUserService.addUserCouponNew(uid,couponIssueQueryVo.getCid(),couponQueryVo.getStoreId());
+        storeCouponUserService.addUserCouponNew(uid,couponIssueQueryVo.getCid(),couponQueryVo.getStoreId(),id);
 
         storeCouponIssueUserService.addUserIssue(uid,id);
 
@@ -205,6 +217,10 @@ public class YxStoreCouponIssueServiceImpl extends BaseServiceImpl<YxStoreCoupon
                     couponIssue.setIsUse(true);
                 } else {
                     couponIssue.setIsUse(false);
+                }
+                Integer userdFlg = couponUserCount(couponIssue.getId(),uid);
+                if(ObjectUtil.isNotNull(userdFlg)){
+                    couponIssue.setUsedFlg(userdFlg);
                 }
             }
         }
