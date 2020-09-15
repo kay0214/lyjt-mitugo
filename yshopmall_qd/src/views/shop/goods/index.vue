@@ -438,6 +438,7 @@ export default {
         isPostage: data.isPostage,
         isDel: data.isDel,
         merUse: data.merUse,
+        settlement:data.settlement,
         giveIntegral: data.giveIntegral,
         cost: data.cost,
         isSeckill: data.isSeckill,
