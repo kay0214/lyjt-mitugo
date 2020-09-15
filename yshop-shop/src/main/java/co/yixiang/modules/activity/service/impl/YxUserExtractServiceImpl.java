@@ -82,9 +82,6 @@ public class YxUserExtractServiceImpl extends BaseServiceImpl<YxUserExtractMappe
         List<YxUserExtractDto> extractDtoList = generator.convert(page.getList(), YxUserExtractDto.class);
         if (!CollectionUtils.isEmpty(extractDtoList)) {
             for (YxUserExtractDto extractDto : extractDtoList) {
-                if (!extractDto.getExtractType().equals("weixin")) {
-                    continue;
-                }
                 // 用户类型 1商户;2合伙人;3用户
                 if (3 == extractDto.getUserType()) {
                     YxUser user = yxUserService.getById(extractDto.getUid());
@@ -161,13 +158,13 @@ public class YxUserExtractServiceImpl extends BaseServiceImpl<YxUserExtractMappe
         String mark = "";
         // 实际到账金额
         BigDecimal truePrice = BigDecimal.ZERO;
-        //  0:预留 1:前台用户 2：后台商户 3：后台合伙人
+        //  0:预留 1商户;2合伙人;3用户
         if (3 == yxUserExtract.getUserType()) {
             yxUser = this.yxUserService.getOne(new QueryWrapper<YxUser>().lambda().eq(YxUser::getUid, yxUserExtract.getUid()));
             if (null == yxUser) {
                 throw new BadRequestException("查询用户信息失败");
             }
-            username = yxUser.getUsername();
+            username = yxUser.getNickname();
             truePrice = yxUserExtract.getExtractPrice();
         } else {
             user = this.userService.getById(resources.getUid());

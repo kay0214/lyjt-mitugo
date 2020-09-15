@@ -70,7 +70,7 @@ public class UserBillController {
     @GetMapping(value = "/yxUserBillType")
     public ResponseEntity yxUserBillType() {
         List<Map<String,String>> listType = new ArrayList<Map<String,String>>();
-        for(int i=1;i<10;i++){
+        for(int i=1;i<=12;i++){
             Map<String,String> mapType = new HashMap<String,String>();
             switch (i){
                 case 1:
@@ -97,11 +97,17 @@ public class UserBillController {
                 case 8:
                     mapType.put(BillDetailEnum.TYPE_8.getValue(),BillDetailEnum.TYPE_8.getDesc());
                     break;
-               /* case 9:
-                    mapType.put(BillDetailEnum.TYPE_9.getValue(),BillDetailEnum.TYPE_9.getDesc());
-                    break;*/
                 case 9:
+                    mapType.put(BillDetailEnum.TYPE_9.getValue(),BillDetailEnum.TYPE_9.getDesc());
+                    break;
+                case 10:
                     mapType.put(BillDetailEnum.TYPE_10.getValue(),BillDetailEnum.TYPE_10.getDesc());
+                    break;
+                case 11:
+                    mapType.put(BillDetailEnum.TYPE_11.getValue(),BillDetailEnum.TYPE_11.getDesc());
+                    break;
+                case 12:
+                    mapType.put(BillDetailEnum.TYPE_12.getValue(),BillDetailEnum.TYPE_12.getDesc());
                     break;
             }
             listType.add(mapType);
