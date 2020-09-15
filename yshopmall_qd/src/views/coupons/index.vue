@@ -407,6 +407,7 @@ import editor from '@/views/components/Editor'
 import { parseTime } from '@/utils/index'
 import { Message } from 'element-ui'
 import checkPermission from '@/utils/permission'
+import { sub } from "@/utils/math"
 // crud交由presenter持有
 const defaultCrud = CRUD({ title: '卡券表', url: 'api/yxCoupons', sort: 'id,desc', crudMethod: { ...crudYxCoupons },optShow: {
       add: true,
@@ -744,7 +745,7 @@ export default {
     //   this.form.availableTimeEnd = this.availableTime[1]
     // },
     setCommission() {
-      const commission = this.form.sellingPrice - this.form.settlementPrice
+      const commission = sub(this.form.sellingPrice,this.form.settlementPrice)
       this.form.commission = isNaN(commission) ? null : commission
     },
     // 上下架操作
