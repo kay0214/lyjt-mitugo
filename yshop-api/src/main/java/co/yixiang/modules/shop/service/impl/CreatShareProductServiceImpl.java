@@ -132,18 +132,19 @@ public class CreatShareProductServiceImpl implements CreatShareProductService {
             String priceInt = priceValue.substring(0,priceValue.indexOf("."));
             g.setFont(font.deriveFont(Font.PLAIN, 56));
             g.setColor(new Color(249, 64, 64));
-            g.drawString(priceInt, 258, 1200);
+            g.drawString(priceInt, 258, 1210);
             //价格
             g.setFont(font.deriveFont(Font.PLAIN, 39.2f));
             g.setColor(new Color(249, 64, 64));
-            g.drawString(priceValue.replace(priceInt,""), 318, 1214);
+            int x = 258+priceInt.length()*30;
+            g.drawString(priceValue.replace(priceInt,""), x, 1214);
 
             //原价
             g.setFont(font.deriveFont(Font.PLAIN, 28));
             g.setColor(new Color(171, 171, 171));
             String price = "¥" + productInfo.getOtPrice();
-            g.drawString(price, 390, 1204);
-            g.drawLine(390, 1190, 385 + price.length()*14, 1190);
+            g.drawString(price, x+62, 1204);
+            g.drawLine(x+62, 1180, x+62 + price.length()*28, 1180);
 
             //背景 -- 读取互联网图片
             InputStream stream2 = getClass().getClassLoader().getResourceAsStream("background2.png");
