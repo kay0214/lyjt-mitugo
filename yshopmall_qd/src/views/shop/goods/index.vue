@@ -262,6 +262,9 @@ export default {
       this.isAdd = false
       const _this = this.$refs.form
       _this.getCates()
+      console.log('jianan')
+      console.log(data.storeCategory)
+      console.log(data.settlement)
       _this.form = {
         id: data.id,
         merId: data.merId,
@@ -274,6 +277,7 @@ export default {
         keyword: data.keyword,
         barCode: data.barCode,
         storeCategory: data.cateFlg?( data.storeCategory || {id:null}):{id:null},
+        storeCategoryId: data.cateFlg?data.storeCategory.id:null,
         price: data.price,
         vipPrice: data.vipPrice,
         otPrice: data.otPrice,
@@ -438,6 +442,7 @@ export default {
         isPostage: data.isPostage,
         isDel: data.isDel,
         merUse: data.merUse,
+        settlement:data.settlement,
         giveIntegral: data.giveIntegral,
         cost: data.cost,
         isSeckill: data.isSeckill,

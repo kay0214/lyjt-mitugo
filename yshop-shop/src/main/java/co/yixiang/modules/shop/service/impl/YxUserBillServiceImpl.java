@@ -212,11 +212,12 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<UserBillMapper, YxUse
         QueryWrapper<YxUserBill> queryWrapper = new QueryWrapper<>();
         queryWrapper.lambda().eq(YxUserBill::getCategory, BillDetailEnum.CATEGORY_2.getValue()).eq(YxUserBill::getType, BillDetailEnum.TYPE_11.getValue()).eq(YxUserBill::getStatus, 1);
         if (StringUtils.isNotBlank(criteria.getAddTimeStart()) && StringUtils.isNotBlank(criteria.getAddTimeStart())) {
-            queryWrapper.lambda().ge(YxUserBill::getAddTime, DateUtils.stringToTimestamp(criteria.getAddTimeStart())).le(YxUserBill::getAddTime, DateUtils.stringToTimestamp(criteria.getAddTimeEnd()));
+            queryWrapper.lambda().ge(YxUserBill::getAddTime, DateUtils.stringToTimestamp(criteria.getAddTimeStart() + " 00:00:00")).le(YxUserBill::getAddTime, DateUtils.stringToTimestamp(criteria.getAddTimeEnd() + " 23:59:59"));
         }
         if (StringUtils.isNotBlank(criteria.getUsername())) {
             queryWrapper.lambda().like(YxUserBill::getUsername, criteria.getUsername());
         }
+        queryWrapper.lambda().orderByDesc(YxUserBill::getAddTime);
 
         IPage<YxUserBill> ipage = this.page(new Page<>(pageable.getPageNumber() + 1, pageable.getPageSize()), queryWrapper);
         Map<String, Object> map = new LinkedHashMap<>(3);
@@ -244,8 +245,9 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<UserBillMapper, YxUse
         QueryWrapper<YxUserBill> queryWrapper = new QueryWrapper<>();
         queryWrapper.lambda().eq(YxUserBill::getCategory, BillDetailEnum.CATEGORY_2.getValue()).eq(YxUserBill::getType, BillDetailEnum.TYPE_12.getValue()).eq(YxUserBill::getStatus, 1);
         if (StringUtils.isNotBlank(criteria.getAddTimeStart()) && StringUtils.isNotBlank(criteria.getAddTimeStart())) {
-            queryWrapper.lambda().ge(YxUserBill::getAddTime, DateUtils.stringToTimestamp(criteria.getAddTimeStart())).le(YxUserBill::getAddTime, DateUtils.stringToTimestamp(criteria.getAddTimeEnd()));
+            queryWrapper.lambda().ge(YxUserBill::getAddTime, DateUtils.stringToTimestamp(criteria.getAddTimeStart() + " 00:00:00")).le(YxUserBill::getAddTime, DateUtils.stringToTimestamp(criteria.getAddTimeEnd() + " 23:59:59"));
         }
+        queryWrapper.lambda().orderByDesc(YxUserBill::getAddTime);
 
         IPage<YxUserBill> ipage = this.page(new Page<>(pageable.getPageNumber() + 1, pageable.getPageSize()), queryWrapper);
         Map<String, Object> map = new LinkedHashMap<>(3);
@@ -273,7 +275,7 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<UserBillMapper, YxUse
         QueryWrapper<YxUserBill> queryWrapper = new QueryWrapper<>();
         queryWrapper.lambda().eq(YxUserBill::getCategory, BillDetailEnum.CATEGORY_1.getValue()).eq(YxUserBill::getStatus, 1);
         if (StringUtils.isNotBlank(criteria.getAddTimeStart()) && StringUtils.isNotBlank(criteria.getAddTimeStart())) {
-            queryWrapper.lambda().ge(YxUserBill::getAddTime, DateUtils.stringToTimestamp(criteria.getAddTimeStart())).le(YxUserBill::getAddTime, DateUtils.stringToTimestamp(criteria.getAddTimeEnd()));
+            queryWrapper.lambda().ge(YxUserBill::getAddTime, DateUtils.stringToTimestamp(criteria.getAddTimeStart() + " 00:00:00")).le(YxUserBill::getAddTime, DateUtils.stringToTimestamp(criteria.getAddTimeEnd() + " 23:59:59"));
         }
         //收支类型
         if (null != criteria.getPm()) {
@@ -293,6 +295,7 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<UserBillMapper, YxUse
         if (null != criteria.getUserType()) {
             queryWrapper.lambda().eq(YxUserBill::getUserType, criteria.getUserType());
         }
+        queryWrapper.lambda().orderByDesc(YxUserBill::getAddTime);
 
         IPage<YxUserBill> ipage = this.page(new Page<>(pageable.getPageNumber() + 1, pageable.getPageSize()), queryWrapper);
         Map<String, Object> map = new LinkedHashMap<>(3);

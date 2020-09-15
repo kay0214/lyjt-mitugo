@@ -122,7 +122,7 @@ export default {
             trigger: 'blur'
           },
           {
-            pattern: /^[0-9]+$/,  
+            pattern: /^[0-9]+([.]{1}[0-9]+){0,1}$/,  
             message: '请输入数字',
             trigger: 'blur'
           },

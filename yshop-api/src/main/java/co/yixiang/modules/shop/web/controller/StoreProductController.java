@@ -163,17 +163,17 @@ public class StoreProductController extends BaseController {
                 //小程序地址
                 siteUrl = siteUrl + "/" + pageType + "/";
                 //生成二维码
-                QrCodeUtil.generate(siteUrl + "?productId=" + id + "&spread=" + uid + "&codeType=" + AppFromEnum.ROUNTINE.getValue(), 180, 180,
+                QrCodeUtil.generate(siteUrl + "?productId=" + id + "&spread=" + uid + "&codeType=" + AppFromEnum.ROUNTINE.getValue(), 122, 122,
                         FileUtil.file(fileDir + name));
             } else if (userType.equals(AppFromEnum.APP.getValue())) {
                 //h5地址
                 siteUrl = siteUrl + "/" + pageType + "/";
                 //生成二维码
-                QrCodeUtil.generate(siteUrl + "?productId=" + id + "&spread=" + uid + "&codeType=" + AppFromEnum.APP.getValue(), 180, 180,
+                QrCodeUtil.generate(siteUrl + "?productId=" + id + "&spread=" + uid + "&codeType=" + AppFromEnum.APP.getValue(), 122, 122,
                         FileUtil.file(fileDir + name));
             } else {//如果类型是h5
                 //生成二维码
-                QrCodeUtil.generate(siteUrl + "/detail/" + id + "?spread=" + uid, 180, 180,
+                QrCodeUtil.generate(siteUrl + "/detail/" + id + "?spread=" + uid, 122, 122,
                         FileUtil.file(fileDir + name));
             }
             systemAttachmentService.attachmentAdd(name, String.valueOf(FileUtil.size(file)),

@@ -150,6 +150,7 @@ public class UserServiceImpl extends BaseServiceImpl<UserSysMapper, User> implem
         yxUserExtract.setAddTime(OrderUtil.getSecondTimestampTwo());
         yxUserExtract.setStatus(0);
         yxUserExtract.setUserType(userType);
+        yxUserExtract.setBankMobile(user.getPhone());
         this.yxUserExtractMapper.insert(yxUserExtract);
         return true;
     }

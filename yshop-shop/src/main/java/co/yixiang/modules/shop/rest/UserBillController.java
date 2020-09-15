@@ -58,7 +58,7 @@ public class UserBillController {
         return new ResponseEntity(yxUserBillService.queryAllNew(criteria, pageable), HttpStatus.OK);
     }
 
-    @ApiOperation(value = "积分明细")
+    @ApiOperation(value = "积分明细 废弃")
     @GetMapping(value = "/yxUserPointBill")
     @PreAuthorize("hasAnyRole('admin','YXUSERBILL_ALL','YXUSERBILL_SELECT')")
     public ResponseEntity yxUserPointBill(YxUserBillQueryCriteria criteria, Pageable pageable) {
@@ -70,7 +70,7 @@ public class UserBillController {
     @GetMapping(value = "/yxUserBillType")
     public ResponseEntity yxUserBillType() {
         List<Map<String,String>> listType = new ArrayList<Map<String,String>>();
-        for(int i=1;i<10;i++){
+        for(int i=1;i<=12;i++){
             Map<String,String> mapType = new HashMap<String,String>();
             switch (i){
                 case 1:
@@ -97,11 +97,17 @@ public class UserBillController {
                 case 8:
                     mapType.put(BillDetailEnum.TYPE_8.getValue(),BillDetailEnum.TYPE_8.getDesc());
                     break;
-               /* case 9:
-                    mapType.put(BillDetailEnum.TYPE_9.getValue(),BillDetailEnum.TYPE_9.getDesc());
-                    break;*/
                 case 9:
+                    mapType.put(BillDetailEnum.TYPE_9.getValue(),BillDetailEnum.TYPE_9.getDesc());
+                    break;
+                case 10:
                     mapType.put(BillDetailEnum.TYPE_10.getValue(),BillDetailEnum.TYPE_10.getDesc());
+                    break;
+                case 11:
+                    mapType.put(BillDetailEnum.TYPE_11.getValue(),BillDetailEnum.TYPE_11.getDesc());
+                    break;
+                case 12:
+                    mapType.put(BillDetailEnum.TYPE_12.getValue(),BillDetailEnum.TYPE_12.getDesc());
                     break;
             }
             listType.add(mapType);
@@ -118,7 +124,7 @@ public class UserBillController {
     @PreAuthorize("hasAnyRole('admin','YXUSERBILL_ALL','YXUSERBILL_WITHDRAW')")
     public ResponseEntity<Object> withdraw(@RequestBody YxUserExtract request) {
         int uid = SecurityUtils.getUserId().intValue();
-        // 0->平台运营,1->合伙人,2->商户
+        // 0->平台运营,1->合伙人,2->商户 userType 1商户;2合伙人;3用户
         int userType = 1;
         if (1 == SecurityUtils.getCurrUser().getUserRole()) {
             userType = 2;

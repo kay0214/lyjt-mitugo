@@ -12,7 +12,7 @@
       <!-- <crudOperation :permission="permission" /> -->
       <!--表单组件-->
       <el-dialog :close-on-click-modal="false" :before-close="crud.cancelCU" :visible.sync="crud.status.cu > 0" :title="crud.status.title" width="500px">
-        <el-form ref="form" :model="form" :rules="rules" size="small" label-width="80px">          
+        <el-form ref="form" :model="form" :rules="rules" size="small" label-width="80px">
           <el-form-item label="姓名">
             <el-input v-model="form.merchantsName" style="width: 370px;" />
           </el-form-item>
@@ -42,8 +42,8 @@
         <el-table-column type="selection" width="55" />
         <el-table-column v-if="columns.visible('username')" prop="username" label="姓名" />
         <el-table-column v-if="columns.visible('extractPrice')" prop="extractPrice" label="提现金额" />
-        <el-table-column v-if="columns.visible('wechat ')" prop="wechat " label="微信号" />
-        <el-table-column v-if="columns.visible('ExtractType ')" prop="ExtractType " label="提现方式" />
+        <el-table-column v-if="columns.visible('wechat')" prop="wechat" label="用户名" />
+        <el-table-column v-if="columns.visible('extractType')" prop="extractType" label="提现方式" />
         <el-table-column prop="createTime" label="添加时间">
           <template slot-scope="scope">
             <span>{{ formatTime(scope.row.createTime) }}</span>

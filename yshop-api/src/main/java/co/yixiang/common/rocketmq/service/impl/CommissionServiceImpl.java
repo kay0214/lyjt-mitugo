@@ -185,7 +185,7 @@ public class CommissionServiceImpl implements CommissionService {
         BigDecimal allBonus = new BigDecimal("0");
 
         //推荐人
-        if (null != orderInfo.getParentId() && orderInfo.getParentType() == 3) {
+        if (null != orderInfo.getParentId() && orderInfo.getParentType() == 3 && 0 != orderInfo.getParentId()) {
             BigDecimal parentBonus = orderInfo.getCommission().multiply(yxCommissionRate.getParentRate()).setScale(2, BigDecimal.ROUND_DOWN);
             YxUser yxUser = yxUserMapper.selectById(orderInfo.getParentId());
             BigDecimal oldMoney = yxUser.getNowMoney();
@@ -196,12 +196,12 @@ public class CommissionServiceImpl implements CommissionService {
             //拉新池
             BigDecimal referencePoint = orderInfo.getCommission().multiply(yxCommissionRate.getReferenceRate()).setScale(2, BigDecimal.ROUND_DOWN);
             yxFundsAccount = updatePullNewPoint(orderInfo, referencePoint, yxFundsAccount);
-            insertBill(orderInfo, orderInfo.getParentId(), BillDetailEnum.TYPE_12.getValue(), referencePoint, yxUser.getNickname(), yxFundsAccount.getReferencePoint(), 3, "拉新分佣");
+            insertBill(orderInfo, orderInfo.getParentId(), BillDetailEnum.TYPE_12.getValue(), referencePoint, yxUser.getNickname(), yxFundsAccount.getReferencePoint(), 0, "拉新分佣");
             allBonus = allBonus.add(parentBonus).add(referencePoint);
         }
 
         //分享人
-        if (null != orderInfo.getShareId()) {
+        if (null != orderInfo.getShareId()&&orderInfo.getShareId() != 0) {
             BigDecimal shareBonus = orderInfo.getCommission().multiply(yxCommissionRate.getShareRate()).setScale(2, BigDecimal.ROUND_DOWN);
             allBonus = allBonus.add(shareBonus);
 
@@ -214,7 +214,7 @@ public class CommissionServiceImpl implements CommissionService {
         }
 
         //分享人推荐人
-        if (null != orderInfo.getShareParentId() && orderInfo.getShareParentType() == 3) {
+        if (null != orderInfo.getShareParentId() && orderInfo.getShareParentType() == 3 && 0 != orderInfo.getShareParentId()) {
             BigDecimal shareParentBonus = orderInfo.getCommission().multiply(yxCommissionRate.getShareParentRate()).setScale(2, BigDecimal.ROUND_DOWN);
             allBonus = allBonus.add(shareParentBonus);
 

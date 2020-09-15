@@ -56,5 +56,8 @@ public class YxStoreCouponIssueQueryVo implements Serializable {
     @ApiModelProperty(value = "优惠券名")
     private String conponName;
 
+    @ApiModelProperty(value = "使用状态（0：未使用，1：已使用, 2:已过期，-1：未领取）")
+    private Integer usedFlg;
+
 
 }

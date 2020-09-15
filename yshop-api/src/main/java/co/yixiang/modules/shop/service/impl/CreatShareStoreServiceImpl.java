@@ -62,6 +62,10 @@ public class CreatShareStoreServiceImpl implements CreatShareStoreService {
             BufferedImage back = ImageIO.read(background);
 
             g.drawImage(back.getScaledInstance(750, 1288, Image.SCALE_DEFAULT), 0, 0, null); // 绘制缩小后的图
+
+            BufferedImage head = ImageIO.read(getClass().getClassLoader().getResourceAsStream("head.png"));
+            g.drawImage(head.getScaledInstance(750, 280, Image.SCALE_DEFAULT), 0, 0, null);
+
             //商品  banner图
             //读取互联网图片
             BufferedImage priductUrl = null;
@@ -79,11 +83,10 @@ public class CreatShareStoreServiceImpl implements CreatShareStoreService {
             //文案标题
             g.setFont(font.deriveFont(Font.BOLD, 32));
             g.setColor(new Color(29, 29, 29));
-            int fontlenb = getWatermarkLength(yxStoreInfo.getStoreName(), g);
             //高度
             //文字叠加,自动换行叠加
             int tempXb = 40;
-            int tempYb = 906;
+            int tempYb = 918;
             //单字符长度
             int tempCharLenb = 0;
             //单行字符总长度临时计算
@@ -95,11 +98,11 @@ public class CreatShareStoreServiceImpl implements CreatShareStoreService {
                 tempLineLenb += tempCharLenb;
                 if (tempLineLenb >= (back.getWidth() + 220)) {
                     //长度已经满一行,进行文字叠加
-                    g.drawString(sbb.toString(), tempXb, tempYb + 12);
+                    g.drawString(sbb.toString(), tempXb, tempYb + 24);
                     //清空内容,重新追加
                     sbb.delete(0, sbb.length());
                     //每行文字间距50
-                    tempYb += 50;
+                    tempYb += 24;
                     tempLineLenb = 0;
                 }
                 //追加字符
@@ -113,13 +116,10 @@ public class CreatShareStoreServiceImpl implements CreatShareStoreService {
             g.setColor(new Color(47, 47, 47));
             String storeInfo = yxStoreInfo.getStoreProvince() + yxStoreInfo.getStoreAddress();
             int fontlen = getWatermarkLength(storeInfo, g);
-            //文字长度相对于图片宽度应该有多少行
-            int line = fontlen / (back.getWidth() + 200);
-            //高度
-            int y = tempYb + 50 - (line + 1) * 30 + 100;
+
             //文字叠加,自动换行叠加
             int tempX = 40;
-            int tempY = 1012;
+            int tempY = 1030;
             //单字符长度
             int tempCharLen = 0;
             //单行字符总长度临时计算
@@ -131,18 +131,18 @@ public class CreatShareStoreServiceImpl implements CreatShareStoreService {
                 tempLineLen += tempCharLen;
                 if (tempLineLen >= (back.getWidth() + 180)) {
                     //长度已经满一行,进行文字叠加
-                    g.drawString(sb.toString(), tempX, tempY + 16);
+                    g.drawString(sb.toString(), tempX, tempY + 32);
                     //清空内容,重新追加
                     sb.delete(0, sb.length());
-                    //每行文字间距50
-                    tempY += 50;
+                    //每行文字间距32
+                    tempY += 32;
                     tempLineLen = 0;
                 }
                 //追加字符
                 sb.append(tempChar);
             }
             //最后叠加余下的文字
-            g.drawString(sb.toString(), tempX, tempY + 16);
+            g.drawString(sb.toString(), tempX, tempY + 32);
 
             //背景 -- 读取互联网图片
             InputStream stream2 = getClass().getClassLoader().getResourceAsStream("background.png");

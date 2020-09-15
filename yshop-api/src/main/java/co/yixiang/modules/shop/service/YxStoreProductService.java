@@ -84,4 +84,5 @@ public interface YxStoreProductService extends BaseService<YxStoreProduct> {
      * @return
      */
     Integer getLocalProduct();
+    public String getProductArrtValueByCartId (String cartId);
 }

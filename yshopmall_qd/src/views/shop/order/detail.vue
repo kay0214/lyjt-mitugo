@@ -22,7 +22,7 @@
           <div class="text item">支付方式: {{ form.payTypeName }}</div>
         </el-col>
         <el-col :span="12">
-          <div class="text item">订单状态: {{ form.statusName }}</div>
+          <div class="text item">订单状态: <span v-html="form.statusName"></span></div>
           <div class="text item">商品总价: {{ form.totalPrice }}</div>
           <div class="text item">优惠券金额: {{ form.couponPrice }}</div>
           <div class="text item">创建时间: {{ parseTime(form.addTime) }}</div>
@@ -30,14 +30,14 @@
         </el-col>
       </el-row>
     </el-card>
-    <el-card v-if="form.storeId == 0">
+    <el-card v-if="form.deliveryId">
       <div slot="header">
         <span>物流信息</span>
       </div>
       <div class="text item">快递公司:{{ form.deliveryName }}</div>
       <div class="text item">快递单号:{{ form.deliveryId }}</div>
 
-      <div><el-button :loading="loading" type="primary" @click="express">查看物流</el-button></div>
+      <!-- <div style='margin:14px 0 20px;'><el-button size='mini' :loading="loading" type="primary" @click="express">查看物流</el-button></div> -->
       <div style="margin-top: 20px">
       <el-timeline v-if="form.deliveryId && expressInfo.length > 0">
         <el-timeline-item
@@ -49,9 +49,9 @@
         </el-timeline-item>
       </el-timeline>
       <el-timeline :reverse="false" v-else>
-        <el-timeline-item>
+        <!-- <el-timeline-item>
           暂无物流信息
-        </el-timeline-item>
+        </el-timeline-item> -->
       </el-timeline>
       </div>
     </el-card>
