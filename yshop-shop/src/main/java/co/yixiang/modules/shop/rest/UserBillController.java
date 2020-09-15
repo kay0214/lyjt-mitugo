@@ -58,7 +58,7 @@ public class UserBillController {
         return new ResponseEntity(yxUserBillService.queryAllNew(criteria, pageable), HttpStatus.OK);
     }
 
-    @ApiOperation(value = "积分明细")
+    @ApiOperation(value = "积分明细 废弃")
     @GetMapping(value = "/yxUserPointBill")
     @PreAuthorize("hasAnyRole('admin','YXUSERBILL_ALL','YXUSERBILL_SELECT')")
     public ResponseEntity yxUserPointBill(YxUserBillQueryCriteria criteria, Pageable pageable) {

@@ -71,7 +71,7 @@
           <el-form-item v-if="form.couponType === 3" prop="threshold" label="使用门槛">
             <el-input v-model="form.threshold" style="width: 100%;" maxlength="12" />
           </el-form-item>
-          <el-form-item v-id="form.couponType === 3" prop="discountAmount" label="优惠金额">
+          <el-form-item v-if="form.couponType === 3" prop="discountAmount" label="优惠金额">
             <el-input v-model="form.discountAmount" style="width: 100%;" maxlength="12" />
           </el-form-item>
           <el-form-item label="卡券分类" prop="couponCategory">
