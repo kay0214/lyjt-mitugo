@@ -176,7 +176,7 @@ public class YxCouponsCategoryServiceImpl extends BaseServiceImpl<YxCouponsCateg
         for (String id : idsArr) {
             YxCouponsCategory yxCouponsCategory = this.getById(id);
             List<YxCoupons> list = this.yxCouponsMapper.selectList(new QueryWrapper<YxCoupons>().lambda().eq(YxCoupons::getCouponCategory, id).eq(YxCoupons::getDelFlag, 0));
-            if (null != list || list.size() > 0) {
+            if (null != list && list.size() > 0) {
                 throw new BadRequestException("卡券分类：" + yxCouponsCategory.getCateName() + "下有卡券未删除");
             }
             yxCouponsCategory.setId(Integer.valueOf(id));
