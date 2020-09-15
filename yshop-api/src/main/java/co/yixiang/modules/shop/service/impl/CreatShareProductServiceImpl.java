@@ -144,7 +144,7 @@ public class CreatShareProductServiceImpl implements CreatShareProductService {
             g.setColor(new Color(171, 171, 171));
             String price = "¥" + productInfo.getOtPrice();
             g.drawString(price, x+62, 1214);
-            g.drawLine(x+62, 1210, x+62 + price.length()*28, 1210);
+            g.drawLine(x+62, 1205, x+62 + price.length()*14, 1205);
 
             //背景 -- 读取互联网图片
             InputStream stream2 = getClass().getClassLoader().getResourceAsStream("background2.png");
