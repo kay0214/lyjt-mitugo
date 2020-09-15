@@ -42,7 +42,7 @@
         <el-table-column type="selection" width="55" />
         <el-table-column v-if="columns.visible('username')" prop="username" label="姓名" />
         <el-table-column v-if="columns.visible('extractPrice')" prop="extractPrice" label="提现金额" />
-        <el-table-column v-if="columns.visible('wechat')" prop="wechat" label="微信号" />
+        <el-table-column v-if="columns.visible('wechat')" prop="wechat" label="用户名" />
         <el-table-column v-if="columns.visible('extractType')" prop="extractType" label="提现方式" />
         <el-table-column prop="createTime" label="添加时间">
           <template slot-scope="scope">

@@ -81,7 +81,8 @@
       <!--表格渲染-->
       <el-table ref="table" v-loading="crud.loading" :data="crud.data" size="small" style="width: 100%;" @selection-change="crud.selectionChangeHandler">
         <el-table-column type="selection" width="55" />
-        <el-table-column v-if="columns.visible('id')" prop="id" label="主键" />
+        <el-table-column v-if="columns.visible('uid')" prop="uid" label="用户uid" />
+        <el-table-column v-if="columns.visible('username')" prop="username" label="用户名" />
         <el-table-column v-if="columns.visible('title')" prop="title" label="标题" />
         <el-table-column prop="category" label="明细种类">
           <template slot-scope="scope">
@@ -89,7 +90,7 @@
             <span v-else-if="scope.row.category == 'integral'">积分</span>
             <span v-else>未知</span>
           </template>
-        </el-table-column>        
+        </el-table-column>
         <el-table-column prop="type" label="明细类型">
           <template slot-scope="scope">
             {{
@@ -97,8 +98,6 @@
             }}
           </template>
         </el-table-column>
-        <el-table-column v-if="columns.visible('uid')" prop="uid" label="用户uid" />
-        <el-table-column v-if="columns.visible('username')" prop="username" label="用户名" />
         <el-table-column v-if="columns.visible('linkId')" prop="linkId" label="订单号" />
         <el-table-column v-if="columns.visible('pm')" prop="pm" label="收支类型" >
         <template slot-scope="scope">
@@ -189,7 +188,7 @@ export default {
       pmOptions: [
         { value: '0', label: '支出 ' },
         { value: '1', label: '收入' }
-      ],    
+      ],
     }
   },
   created() {
