@@ -73,7 +73,7 @@
               <el-col :span="4">                
                 <el-form-item :prop='`price${index}`' :class="attr.check ? 'check':''" label="金额:" 
                 :rules="rules.price">
-                  <el-input v-model="form2['price'+index]" style="width: 100%" placeholder="金额" @input="(val)=>{attr.price=val}"
+                  <el-input v-model="form2['price'+index]" style="width: 100%" placeholder="金额" @input="(val)=>{attr.price=val}" @change="priceChange($event,index)"
                   ></el-input>
                 </el-form-item>
               </el-col>
@@ -94,7 +94,7 @@
               <el-col :span="3">
                 <el-form-item :prop='`commission${index}`' :class="attr.check ? 'check':''" label="佣金:" 
                 :rules='rules.commission'>
-                  <el-input v-model="form2['commission'+index]" placeholder="佣金" style="width: 100%" @input="(val)=>{attr.commission=val}"
+                  <el-input readonly v-model="form2['commission'+index]" placeholder="佣金" style="width: 100%" @input="(val)=>{attr.commission=val}"
                   ></el-input>
                 </el-form-item>                
               </el-col>
@@ -345,7 +345,8 @@ export default {
         ficti: '',
         browse: '',
         codePath: '',
-        soureLink: ''
+        soureLink: '',
+        settlement:''
       }
     },
     setAttrPic(index, pic) {
@@ -483,6 +484,9 @@ export default {
           })
         })
         .catch(() => { })
+    },
+    priceChange(val,index){
+      this.form2['commission'+index]=val-this.form.settlement
     }
   }
 }
