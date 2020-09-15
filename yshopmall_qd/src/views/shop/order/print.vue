@@ -10,7 +10,7 @@
     >打印</el-button>
 
     <div id="printList">
-      <div class="order-list" v-for="(list, index) in printList">
+      <div class="order-list" v-for="(list, index) in printList" :key='index'>
       <el-header class="order-title">订货单</el-header>
 
       <div class="order-info">
@@ -30,9 +30,16 @@
         <el-table-column prop="cartInfoMap.productInfo.productId" width="80mm" label="商品编号" />
 
         <el-table-column prop="cartInfoMap.productInfo.storeName" width="172mm" label="商品名称" />
-
-        <el-table-column prop="cartInfoMap.productInfo.unitName" width="80mm" label="商品规格" />
-
+        
+        <el-table-column prop="cartInfoMap" width="80mm" label="商品规格" >
+          <template slot-scope="scope">
+            <span v-if="scope.row.cartInfoMap.productInfo.attrInfo && 
+            scope.row.cartInfoMap.productInfo.attrInfo.suk">
+            {{ scope.row.cartInfoMap.productInfo.attrInfo.suk }}</span>
+            <span v-else></span>
+          </template>
+        </el-table-column>
+        
         <el-table-column prop="cartInfoMap.productInfo.unitName" width="80mm" label="单位" />
 
         <el-table-column prop="cartInfoMap.productInfo.price" width="80mm" label="单价" />
