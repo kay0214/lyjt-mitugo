@@ -11,11 +11,16 @@ package co.yixiang.modules.shop.service.impl;
 import co.yixiang.common.service.impl.BaseServiceImpl;
 import co.yixiang.common.utils.QueryHelpPlus;
 import co.yixiang.dozer.service.IGenerator;
+import co.yixiang.exception.BadRequestException;
 import co.yixiang.modules.activity.domain.YxUserExtract;
 import co.yixiang.modules.activity.service.mapper.YxUserExtractMapper;
+import co.yixiang.modules.shop.domain.User;
 import co.yixiang.modules.shop.domain.YxExamineLog;
 import co.yixiang.modules.shop.domain.YxMerchantsDetail;
+import co.yixiang.modules.shop.domain.YxUser;
+import co.yixiang.modules.shop.service.UserService;
 import co.yixiang.modules.shop.service.YxExamineLogService;
+import co.yixiang.modules.shop.service.YxUserService;
 import co.yixiang.modules.shop.service.dto.YxExamineLogDto;
 import co.yixiang.modules.shop.service.dto.YxExamineLogQueryCriteria;
 import co.yixiang.modules.shop.service.mapper.YxExamineLogMapper;
@@ -61,6 +66,10 @@ public class YxExamineLogServiceImpl extends BaseServiceImpl<YxExamineLogMapper,
     private YxMerchantsDetailMapper yxMerchantsDetailMapper;
     @Autowired
     private YxUserExtractMapper yxUserExtractMapper;
+    @Autowired
+    private YxUserService yxUserService;
+    @Autowired
+    private UserService userService;
 
     @Override
     //@Cacheable
@@ -118,8 +127,31 @@ public class YxExamineLogServiceImpl extends BaseServiceImpl<YxExamineLogMapper,
         List<YxExamineLogDto> list = generator.convert(ipage.getRecords(), YxExamineLogDto.class);
         // 查询提现数据
         for (YxExamineLogDto dto : list) {
+            YxUser yxUser = new YxUser();
+            User user = new User();
+            String username = "";
+            String realName = "";
             YxUserExtract yxUserExtract = yxUserExtractMapper.selectById(dto.getTypeId());
-            dto.setWechat(yxUserExtract.getWechat());
+            //  0:预留 1商户;2合伙人;3用户
+            if (3 == yxUserExtract.getUserType()) {
+                yxUser = this.yxUserService.getOne(new QueryWrapper<YxUser>().lambda().eq(YxUser::getUid, yxUserExtract.getUid()));
+                if (null == yxUser) {
+                    throw new BadRequestException("查询用户信息失败");
+                }
+                username = yxUser.getNickname();
+                realName = yxUser.getRealName().substring(0, 1) + "**";
+            } else {
+                user = this.userService.getById(yxUserExtract.getUid());
+                if (null == user) {
+                    throw new BadRequestException("查询用户信息失败");
+                }
+                username = user.getNickName();
+                realName = user.getMerchantsContact().substring(0, 1) + "**";
+            }
+            // 放用户名
+            dto.setWechat(username);
+            // 放真实姓名
+            dto.setUsername(realName);
             dto.setUserType(yxUserExtract.getUserType());
             dto.setExtractPrice(yxUserExtract.getExtractPrice());
             switch (yxUserExtract.getExtractType()) {

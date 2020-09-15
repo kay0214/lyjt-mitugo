@@ -2,16 +2,17 @@
   <div class="app-container">
     <!--工具栏-->
     <div class="head-container">
+      <el-input v-model="query.title" clearable placeholder="输入标题" style="width: 200px;" class="filter-item" @keyup.enter.native="toQuery" />
        <el-input v-model="query.username" clearable placeholder="输入用户昵称" style="width: 200px;" class="filter-item" @keyup.enter.native="toQuery" />
-      <el-select v-model="query.category" clearable placeholder="明细种类" class="filter-item" style="width: 130px">
+      <!-- <el-select v-model="query.category" clearable placeholder="明细种类" class="filter-item" style="width: 130px">
         <el-option
           v-for="item in categoryOptions"
           :key="item.value"
           :label="item.label"
           :value="item.value"
         />
-      </el-select>
-      <!-- <el-select v-model="query.type" clearable placeholder="明细类型" class="filter-item" style="width: 130px">
+      </el-select> -->
+      <el-select v-model="query.type" clearable placeholder="明细类型" class="filter-item" style="width: 130px">
         <template v-for="item in typeOptions">
         <el-option
           v-for="(val,key) in item"
@@ -20,7 +21,7 @@
           :value="key"
         />
         </template>
-      </el-select> -->
+      </el-select>
       <el-select v-model="query.pm" clearable placeholder="收支类型" class="filter-item" style="width: 130px">
         <el-option
           v-for="item in pmOptions"
@@ -59,14 +60,14 @@
           <el-form-item label="用户名">
             <el-input v-model="form.username" style="width: 370px;" />
           </el-form-item>
-          <el-form-item label="订单号" prop="orderId">
-            <el-input v-model="form.orderId" style="width: 370px;" />
+          <el-form-item label="订单号" prop="linkId">
+            <el-input v-model="form.linkId" style="width: 370px;" />
           </el-form-item>
           <el-form-item label="收支类型" prop="pm">
             <el-input v-model="form.pm" style="width: 370px;" />
           </el-form-item>
-          <el-form-item label="订单金额" prop="orderAmount">
-            <el-input v-model="form.orderAmount" style="width: 370px;" />
+          <el-form-item label="订单金额" prop="number">
+            <el-input v-model="form.number" style="width: 370px;" />
           </el-form-item>
           <el-form-item label="订单日期" prop="addTime">
             <el-input v-model="form.addTime" style="width: 370px;" />
@@ -80,17 +81,24 @@
       <!--表格渲染-->
       <el-table ref="table" v-loading="crud.loading" :data="crud.data" size="small" style="width: 100%;" @selection-change="crud.selectionChangeHandler">
         <el-table-column type="selection" width="55" />
-        <el-table-column v-if="columns.visible('id')" prop="id" label="主键" />
-        <el-table-column v-if="columns.visible('type')" prop="type" label="明细种类" >
+        <el-table-column v-if="columns.visible('uid')" prop="uid" label="用户uid" />
+        <el-table-column v-if="columns.visible('username')" prop="username" label="用户名" />
+        <el-table-column v-if="columns.visible('title')" prop="title" label="标题" />
+        <el-table-column prop="category" label="明细种类">
+          <template slot-scope="scope">
+            <span v-if="scope.row.category == 'now_money'">余额</span>
+            <span v-else-if="scope.row.category == 'integral'">积分</span>
+            <span v-else>未知</span>
+          </template>
+        </el-table-column>
+        <el-table-column prop="type" label="明细类型">
           <template slot-scope="scope">
             {{
               typeLabel(scope.row.type)
             }}
           </template>
         </el-table-column>
-        <el-table-column v-if="columns.visible('uid')" prop="uid" label="用户uid" />
-        <el-table-column v-if="columns.visible('username')" prop="username" label="用户名" />
-        <el-table-column v-if="columns.visible('orderId')" prop="orderId" label="订单号" />
+        <el-table-column v-if="columns.visible('linkId')" prop="linkId" label="订单号" />
         <el-table-column v-if="columns.visible('pm')" prop="pm" label="收支类型" >
         <template slot-scope="scope">
           <span v-if="scope.row.pm == '0'">支出</span>
@@ -98,7 +106,7 @@
           <span v-else>未知</span>
         </template>
       </el-table-column>
-        <el-table-column v-if="columns.visible('orderAmount')" prop="orderAmount" label="订单金额" />
+        <el-table-column v-if="columns.visible('number')" prop="number" label="金额" />
         <el-table-column v-if="columns.visible('addTime')" prop="addTime" label="订单日期">
           <template slot-scope="scope">
             <span>{{ parseTime(scope.row.addTime) }}</span>
@@ -130,7 +138,7 @@ import MaterialList from "@/components/material";
 import {getType} from '@/api/yxUserBill'
 
 // crud交由presenter持有
-const defaultCrud = CRUD({ title: '平台资金明细', url: 'api/fundsDetail', sort: 'id,desc',optShow: {
+const defaultCrud = CRUD({ title: '平台资金明细', url: 'api/yxUserBillAll', sort: 'id,desc',optShow: {
       add: true,
       edit: true,
       del: true,
@@ -139,7 +147,7 @@ const defaultCrud = CRUD({ title: '平台资金明细', url: 'api/fundsDetail', 
     query: {
       username:'',category:'',type:'',pm:'',addTimeStart:'',addTimeEnd:'',
     }, crudMethod: { ...crudFundsDetail }})
-const defaultForm = { id: null, type: null, uid: null, username: null, orderId: null, pm: null, orderAmount: null, addTime: null }
+const defaultForm = { id: null, type: null, uid: null, username: null, linkId: null, pm: null, number: null, addTime: null }
 export default {
   name: 'FundsDetail',
   components: { pagination, crudOperation, rrOperation, udOperation ,MaterialList},
@@ -157,13 +165,13 @@ export default {
         type: [
           { required: true, message: '1:微商城下单,2:本地生活下单,3:微商城退款,4:本地生活退款不能为空', trigger: 'blur' }
         ],
-        orderId: [
+        linkId: [
           { required: true, message: '订单号不能为空', trigger: 'blur' }
         ],
         pm: [
           { required: true, message: '明细种类; 0:支出;1:收入不能为空', trigger: 'blur' }
         ],
-        orderAmount: [
+        number: [
           { required: true, message: '订单金额不能为空', trigger: 'blur' }
         ],
         addTime: [
@@ -180,7 +188,7 @@ export default {
       pmOptions: [
         { value: '0', label: '支出 ' },
         { value: '1', label: '收入' }
-      ],    
+      ],
     }
   },
   created() {
@@ -199,10 +207,21 @@ export default {
   computed:{
     typeLabel:function(){
       return function(type){
-      return this.categoryOptions[this.categoryOptions.findIndex(item=>{
-                 return parseInt(item.value)===type
-                })].label
+      if(this.typeOptions.length){
+        let i= this.typeOptions.filter(function(item){
+          for(let key in item){
+            if(key===type){
+              return JSON.parse(JSON.stringify(item))
+            }
+          }
+        })
+        if(i.length){
+          return i[0][type]
+        }
+      }else{
+        return ""
       }
+    }
     }
   },
   methods: {

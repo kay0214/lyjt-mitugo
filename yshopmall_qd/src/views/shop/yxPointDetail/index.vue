@@ -37,10 +37,10 @@
             <el-input v-model="form.type" style="width: 370px;" />
           </el-form-item>
           <el-form-item label="订单编号">
-            <el-input v-model="form.orderId" style="width: 370px;" />
+            <el-input v-model="form.linkId" style="width: 370px;" />
           </el-form-item>
           <el-form-item label="订单类型 0:商品购买 1:本地生活">
-            <el-input v-model="form.orderType" style="width: 370px;" />
+            <el-input v-model="form.brokerageType" style="width: 370px;" />
           </el-form-item>
           <el-form-item label="订单金额">
             <el-input v-model="form.orderPrice" style="width: 370px;" />
@@ -82,7 +82,7 @@
             </div>
           </template>
         </el-table-column> -->
-        <el-table-column v-if="columns.visible('orderId')" prop="orderId" label="订单编号" />
+        <el-table-column v-if="columns.visible('linkId')" prop="linkId" label="订单编号" />
         <!-- <el-table-column label="订单类型" align="center">
           <template slot-scope="scope">
             <div>
@@ -99,15 +99,15 @@
           <span v-else>未知</span>
         </template>
       </el-table-column>
-        <el-table-column v-if="columns.visible('orderPrice')" prop="orderPrice" label="订单金额" />
+        <el-table-column v-if="columns.visible('number')" prop="number" label="积分" />
         <!-- <el-table-column v-if="columns.visible('commission')" prop="commission" label="订单佣金" /> -->
         <!-- <el-table-column v-if="columns.visible('merUsername')" prop="merUsername" label="商户用户名" /> -->
         <!-- <el-table-column v-if="columns.visible('merchantsPoint')" prop="merchantsPoint" label="商户获取积分数" /> -->
         <!-- <el-table-column v-if="columns.visible('parUsername')" prop="parUsername" label="合伙人用户名" /> -->
         <!-- <el-table-column v-if="columns.visible('partnerPoint')" prop="partnerPoint" label="合伙人获取积分数" /> -->
-        <el-table-column v-if="columns.visible('createTime')" prop="createTime" label="创建时间">
+        <el-table-column v-if="columns.visible('addTime')" prop="addTime" label="创建时间">
           <template slot-scope="scope">
-            <span>{{ parseTime(scope.row.createTime) }}</span>
+            <span>{{ parseTime(scope.row.addTime) }}</span>
           </template>
         </el-table-column>
       </el-table>
@@ -129,7 +129,7 @@ import MaterialList from "@/components/material";
 import { Message } from 'element-ui'
 
 // crud交由presenter持有
-const defaultCrud = CRUD({ title: '积分获取明细', url: 'api/yxPointDetail', sort: 'id,desc',optShow: {
+const defaultCrud = CRUD({ title: '积分获取明细', url: 'api/pointDetail', sort: 'id,desc',optShow: {
       add: false,
       edit: false,
       del: false,

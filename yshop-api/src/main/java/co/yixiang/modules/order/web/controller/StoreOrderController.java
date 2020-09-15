@@ -366,7 +366,7 @@ public class StoreOrderController extends BaseController {
         //开始处理支付
         if (StrUtil.isNotEmpty(orderId)) {
             //下单后，修改了规格属性
-            String attMsg= yxStoreProductService.getProductArrtValueByCartId(Integer.parseInt(storeOrder.getCartId()));
+            String attMsg= yxStoreProductService.getProductArrtValueByCartId(storeOrder.getCartId());
             log.info("-------------订单支付,返回结果为：【"+attMsg+"】 -------------");
             if(StringUtils.isNotBlank(attMsg)){
                 return ApiResult.fail(attMsg);
@@ -920,6 +920,7 @@ public class StoreOrderController extends BaseController {
             storeOrderService.yuePayOrderList(orderIdList, uid);
             return ApiResult.ok(map, "支付成功");
         }
+
         switch (PayTypeEnum.toType(param.getPayType())) {
             case WEIXIN:
                 try {
