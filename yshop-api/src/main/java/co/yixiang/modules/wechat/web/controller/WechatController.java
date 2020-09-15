@@ -244,8 +244,8 @@ public class WechatController extends BaseController {
 
             // 插入bill表
             YxUserBill userBill = new YxUserBill();
-            userBill.setUid(couponOrder.getUid());
-            userBill.setLinkId(couponOrder.getOrderId());
+            userBill.setUid(yxCouponOrder.getUid());
+            userBill.setLinkId(yxCouponOrder.getOrderId());
             userBill.setPm(1);
             userBill.setTitle("本地生活订单退款");
             userBill.setCategory("now_money");
