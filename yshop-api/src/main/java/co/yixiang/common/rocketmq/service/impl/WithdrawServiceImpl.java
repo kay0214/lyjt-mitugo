@@ -313,6 +313,7 @@ public class WithdrawServiceImpl implements WithdrawService {
      * @return
      */
     private String sendPayRequest(WithdrawInfo info) {
+        //return "ok";
         return HttpUtils.postJson(payUrl,JSONObject.toJSONString(info));
     }
 

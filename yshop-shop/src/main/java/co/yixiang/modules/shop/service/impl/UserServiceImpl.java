@@ -126,7 +126,7 @@ public class UserServiceImpl extends BaseServiceImpl<UserSysMapper, User> implem
             throw new BadRequestException("提现金额必须大于50");
         }
         User user = this.getById(uid);
-        if (extractPrice.compareTo(user.getWithdrawalAmount()) < 0) {
+        if (extractPrice.compareTo(user.getWithdrawalAmount()) > 0) {
             throw new BadRequestException("当前可用提现金额不足");
         }
         YxMerchantsDetail yxMerchantsDetail = this.yxMerchantsDetailMapper.selectOne(new QueryWrapper<YxMerchantsDetail>().lambda().eq(YxMerchantsDetail::getUid, uid));
@@ -137,11 +137,11 @@ public class UserServiceImpl extends BaseServiceImpl<UserSysMapper, User> implem
         User updateUser = new User();
         updateUser.setId(user.getId());
         updateUser.setWithdrawalAmount(user.getWithdrawalAmount().subtract(extractPrice));
-        this.updateById(updateUser);
+        userSysMapper.updateWithdrawalAmountSub(user.getId(),extractPrice);
         // 记录审批申请表
         YxUserExtract yxUserExtract = new YxUserExtract();
         yxUserExtract.setUid(uid);
-        yxUserExtract.setRealName(user.getNickName());
+        yxUserExtract.setRealName(user.getUsername());
         yxUserExtract.setExtractType("bank");
         yxUserExtract.setBankCode(yxMerchantsDetail.getBankNo());
         yxUserExtract.setBankAddress(yxMerchantsDetail.getOpenAccountBank());
@@ -154,6 +154,11 @@ public class UserServiceImpl extends BaseServiceImpl<UserSysMapper, User> implem
         return true;
     }
 
+    public static void main(String[] args) {
+        BigDecimal extractPrice = new BigDecimal("100");
+        BigDecimal b = new BigDecimal("1000000");
+        System.out.println(extractPrice.compareTo(b));
+    }
     /**
      * 更新商户可提现金额
      *
