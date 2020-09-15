@@ -166,7 +166,7 @@ public class YxStoreInfoController extends BaseController {
                 //小程序地址
                 siteUrl = siteUrl + "/shop/";
                 //生成二维码
-                QrCodeUtil.generate(siteUrl + "?productId=" + id + "&spread=" + uid + "&codeType=" + AppFromEnum.ROUNTINE.getValue(), 250, 250,
+                QrCodeUtil.generate(siteUrl + "?productId=" + id + "&spread=" + uid + "&codeType=" + AppFromEnum.ROUNTINE.getValue(), 122, 122,
                         FileUtil.file(fileDir + name));
             } else if (userType.equals(AppFromEnum.APP.getValue())) {
                 //h5地址
