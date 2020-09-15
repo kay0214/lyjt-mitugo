@@ -264,6 +264,7 @@ export default {
             detail: []
           }]
           this.attrs = []
+          this.$set(this.form,['itemValue'+0],'')
         }
       })
     },
