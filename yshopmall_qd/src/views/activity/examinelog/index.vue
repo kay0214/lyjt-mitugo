@@ -59,7 +59,7 @@
             驳回<br>
             驳回原因：{{ scope.row.failMsg }}
             <br>
-            未通过时间：{{ formatTimeTwo(scope.row.failTime) }}
+            未通过时间：{{ scope.row.failTime?formatTimeTwo(scope.row.failTime):'' }}
           </div>
           </template>
         </el-table-column>
