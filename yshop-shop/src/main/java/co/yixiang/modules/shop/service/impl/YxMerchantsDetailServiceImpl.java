@@ -345,24 +345,24 @@ public class YxMerchantsDetailServiceImpl extends BaseServiceImpl<YxMerchantsDet
         // 审核通过生成一个默认店铺
         if (1 == resources.getExamineStatus() && null == yxStoreInfo) {
             User user = this.userService.getById(yxMerchantsDetail.getUid());
-            yxStoreInfo = new YxStoreInfo();
+            YxStoreInfo insertStore = new YxStoreInfo();
             // 店铺编号
-            yxStoreInfo.setStoreNid("S" + SecretUtil.createRandomStr(8) + resources.getId());
-            yxStoreInfo.setStoreName("未命名店铺");
-            yxStoreInfo.setManageUserName(yxMerchantsDetail.getContacts());
-            yxStoreInfo.setMerId(yxMerchantsDetail.getUid());
+            insertStore.setStoreNid("S" + SecretUtil.createRandomStr(8) + resources.getId());
+            insertStore.setStoreName("未命名店铺");
+            insertStore.setManageUserName(yxMerchantsDetail.getContacts());
+            insertStore.setMerId(yxMerchantsDetail.getUid());
             // 重新获取下
-            yxStoreInfo.setPartnerId(user.getParentId());
-            yxStoreInfo.setManageMobile(yxMerchantsDetail.getContactMobile());
-            yxStoreInfo.setStoreMobile(yxMerchantsDetail.getContactMobile());
+            insertStore.setPartnerId(user.getParentId());
+            insertStore.setManageMobile(yxMerchantsDetail.getContactMobile());
+            insertStore.setStoreMobile(yxMerchantsDetail.getContactMobile());
             // 状态：0：上架，1：下架
-            yxStoreInfo.setStatus(1);
-            yxStoreInfo.setStoreProvince("");
-            yxStoreInfo.setStoreAddress("");
-            yxStoreInfo.setPerCapita(BigDecimal.ZERO);
-            yxStoreInfo.setDelFlag(0);
-            yxStoreInfo.setCoordinate(new GeoPoint(BigDecimal.ZERO, BigDecimal.ZERO));
-            yxStoreInfoService.save(yxStoreInfo);
+            insertStore.setStatus(1);
+            insertStore.setStoreProvince("");
+            insertStore.setStoreAddress("");
+            insertStore.setPerCapita(BigDecimal.ZERO);
+            insertStore.setDelFlag(0);
+            insertStore.setCoordinate(new GeoPoint(BigDecimal.ZERO, BigDecimal.ZERO));
+            yxStoreInfoService.save(insertStore);
 
             // 生成店铺分销用的二维码
             //判断用户是否小程序,注意小程序二维码生成路径要与H5不一样 不然会导致都跳转到小程序问题
@@ -375,10 +375,10 @@ public class YxMerchantsDetailServiceImpl extends BaseServiceImpl<YxMerchantsDet
                 QrConfig config = new QrConfig(180, 180);
                 config.setMargin(0);
                 String fileDir = path + "qrcode" + File.separator;
-                String name = yxStoreInfo.getId() + "_" + yxMerchantsDetail.getUid() + "_mer_" + "_store_detail_wap.jpg";
+                String name = insertStore.getId() + "_" + yxMerchantsDetail.getUid() + "_mer_" + "_store_detail_wap.jpg";
 //                File file = FileUtil.mkdir(new File(fileDir));
                 //生成二维码
-                QrCodeUtil.generate(siteUrl + "?productId=" + yxStoreInfo.getId() + "&spread=" + yxMerchantsDetail.getUid() + "&spreadType=mer&codeType=" + AppFromEnum.ROUNTINE.getValue(), config,
+                QrCodeUtil.generate(siteUrl + "?productId=" + insertStore.getId() + "&spread=" + yxMerchantsDetail.getUid() + "&spreadType=mer&codeType=" + AppFromEnum.ROUNTINE.getValue(), config,
                         FileUtil.file(fileDir + name));
 
                 String qrcodeUrl = apiUrl + "/file/qrcode/" + name;
