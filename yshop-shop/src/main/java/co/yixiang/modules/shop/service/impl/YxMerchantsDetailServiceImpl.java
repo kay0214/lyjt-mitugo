@@ -7,6 +7,7 @@ import cn.hutool.core.util.NumberUtil;
 import co.yixiang.common.service.impl.BaseServiceImpl;
 import co.yixiang.common.utils.QueryHelpPlus;
 import co.yixiang.constant.ShopConstants;
+import co.yixiang.constant.SystemConfigConstants;
 import co.yixiang.dozer.service.IGenerator;
 import co.yixiang.exception.BadRequestException;
 import co.yixiang.modules.mybatis.GeoPoint;
@@ -66,6 +67,8 @@ public class YxMerchantsDetailServiceImpl extends BaseServiceImpl<YxMerchantsDet
     private UserService userService;
     @Autowired
     private YxUserBillService yxUserBillService;
+    @Autowired
+    private YxSystemConfigService systemConfigService;
 
     @Override
     //@Cacheable
@@ -320,8 +323,6 @@ public class YxMerchantsDetailServiceImpl extends BaseServiceImpl<YxMerchantsDet
         if (1 == yxMerchantsDetail.getExamineStatus()) {
             throw new BadRequestException("当前商户已被审核通过");
         }
-        yxMerchantsDetail.setExamineStatus(resources.getExamineStatus());
-        this.updateById(yxMerchantsDetail);
         YxExamineLog yxExamineLog = new YxExamineLog();
         // 审批类型 1:提现 2:商户信息
         yxExamineLog.setUid(yxMerchantsDetail.getUid());
@@ -335,6 +336,19 @@ public class YxMerchantsDetailServiceImpl extends BaseServiceImpl<YxMerchantsDet
         YxStoreInfo yxStoreInfo = this.yxStoreInfoService.getOne(new QueryWrapper<YxStoreInfo>().lambda().eq(YxStoreInfo::getMerId, yxMerchantsDetail.getUid()));
         // 审核通过生成一个默认店铺
         if (1 == resources.getExamineStatus() && null == yxStoreInfo) {
+            // 生成店铺分销用的二维码
+            //判断用户是否小程序,注意小程序二维码生成路径要与H5不一样 不然会导致都跳转到小程序问题
+            String siteUrl = systemConfigService.getData(SystemConfigConstants.SITE_URL);
+            if (StringUtils.isNotBlank(siteUrl)) {
+//                File file = cn.hutool.core.io.FileUtil.mkdir(new File(fileDir));
+//                QrCodeUtil.generate(siteUrl + "?spread=" + uid, 180, 180,
+//                        cn.hutool.core.io.FileUtil.file(fileDir + name));
+//
+//                systemAttachmentService.attachmentAdd(name, String.valueOf(cn.hutool.core.io.FileUtil.size(file)),
+//                        fileDir + name, "qrcode/" + name);
+//
+//                qrcodeUrl = fileDir + name;
+            }
             User user = this.userService.getById(yxMerchantsDetail.getUid());
             yxStoreInfo = new YxStoreInfo();
             // 店铺编号
@@ -355,6 +369,9 @@ public class YxMerchantsDetailServiceImpl extends BaseServiceImpl<YxMerchantsDet
             yxStoreInfo.setCoordinate(new GeoPoint(BigDecimal.ZERO, BigDecimal.ZERO));
             yxStoreInfoService.save(yxStoreInfo);
         }
+        // 审核状态更新后放、审核通过的场景生成二维码
+        yxMerchantsDetail.setExamineStatus(resources.getExamineStatus());
+        this.updateById(yxMerchantsDetail);
         return true;
     }
 
