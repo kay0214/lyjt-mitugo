@@ -20,6 +20,7 @@ import co.yixiang.modules.shop.service.dto.UserMoneyDto;
 import co.yixiang.modules.shop.service.dto.YxMerchantsDetailDto;
 import co.yixiang.modules.shop.service.dto.YxMerchantsDetailQueryCriteria;
 import co.yixiang.modules.shop.service.mapper.YxMerchantsDetailMapper;
+import co.yixiang.modules.shop.service.mapper.YxStoreInfoMapper;
 import co.yixiang.utils.FileUtil;
 import co.yixiang.utils.OrderUtil;
 import co.yixiang.utils.SecretUtil;
@@ -69,8 +70,10 @@ public class YxMerchantsDetailServiceImpl extends BaseServiceImpl<YxMerchantsDet
     private YxImageInfoService yxImageInfoService;
     @Autowired
     private YxExamineLogService yxExamineLogService;
+    //    @Autowired
+//    private YxStoreInfoService yxStoreInfoService;
     @Autowired
-    private YxStoreInfoService yxStoreInfoService;
+    private YxStoreInfoMapper yxStoreInfoMapper;
     @Autowired
     private UserService userService;
     @Autowired
@@ -341,7 +344,7 @@ public class YxMerchantsDetailServiceImpl extends BaseServiceImpl<YxMerchantsDet
         yxExamineLog.setRemark(resources.getExamineRemark());
         yxExamineLog.setDelFlag(0);
         yxExamineLogService.save(yxExamineLog);
-        YxStoreInfo yxStoreInfo = this.yxStoreInfoService.getOne(new QueryWrapper<YxStoreInfo>().lambda().eq(YxStoreInfo::getMerId, yxMerchantsDetail.getUid()));
+        YxStoreInfo yxStoreInfo = this.yxStoreInfoMapper.selectOne(new QueryWrapper<YxStoreInfo>().lambda().eq(YxStoreInfo::getMerId, yxMerchantsDetail.getUid()));
         // 审核通过生成一个默认店铺
         if (1 == resources.getExamineStatus() && null == yxStoreInfo) {
             User user = this.userService.getById(yxMerchantsDetail.getUid());
@@ -362,7 +365,7 @@ public class YxMerchantsDetailServiceImpl extends BaseServiceImpl<YxMerchantsDet
             insertStore.setPerCapita(BigDecimal.ZERO);
             insertStore.setDelFlag(0);
             insertStore.setCoordinate(new GeoPoint(BigDecimal.ZERO, BigDecimal.ZERO));
-            yxStoreInfoService.save(insertStore);
+            yxStoreInfoMapper.insert(insertStore);
 
             // 生成店铺分销用的二维码
             //判断用户是否小程序,注意小程序二维码生成路径要与H5不一样 不然会导致都跳转到小程序问题
