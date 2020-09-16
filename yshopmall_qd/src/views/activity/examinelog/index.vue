@@ -41,8 +41,9 @@
       <el-table ref="table" v-loading="crud.loading" :data="crud.data" size="small" style="width: 100%;" @selection-change="crud.selectionChangeHandler">
         <el-table-column type="selection" width="55" />
         <el-table-column v-if="columns.visible('username')" prop="username" label="姓名" />
-        <el-table-column v-if="columns.visible('extractPrice')" prop="extractPrice" label="提现金额" />
         <el-table-column v-if="columns.visible('wechat')" prop="wechat" label="用户名" />
+        <el-table-column v-if="columns.visible('typeId')" prop="typeId" label="提现申请ID" />
+        <el-table-column v-if="columns.visible('extractPrice')" prop="extractPrice" label="提现金额" />
         <el-table-column v-if="columns.visible('extractType')" prop="extractType" label="提现方式" />
         <el-table-column prop="createTime" label="添加时间">
           <template slot-scope="scope">
@@ -51,11 +52,15 @@
         </el-table-column>
         <el-table-column label="审批状态" align="center">
           <template slot-scope="scope">
-            <div><!--/**  0->待审核,1->通过,2->驳回 */-->
-              <el-tag v-if="scope.row.status == 1">通过</el-tag>
-              <el-tag v-else-if="scope.row.status == 2">驳回</el-tag>
-              <el-tag v-else>待审核</el-tag>
-            </div>
+            <div v-if="scope.row.status==1">
+            通过
+          </div>
+          <div v-else>
+            驳回<br>
+            驳回原因：{{ scope.row.failMsg }}
+            <br>
+            未通过时间：{{ scope.row.failTime?formatTimeTwo(scope.row.failTime):'' }}
+          </div>
           </template>
         </el-table-column>
         <!-- <el-table-column v-if="columns.visible('mark')" prop="mark" label="审核说明" /> -->
@@ -74,7 +79,7 @@ import crudOperation from '@crud/CRUD.operation'
 import udOperation from '@crud/UD.operation'
 import pagination from '@crud/Pagination'
 import MaterialList from "@/components/material";
-import { formatTime } from '@/utils/index'
+import { formatTime,formatTimeTwo } from '@/utils/index'
 
 // crud交由presenter持有
 const defaultCrud = CRUD({ title: '提现审批记录', query: { type: 2 }, url: 'api/yxExamineLog/extract', sort: 'id,desc', crudMethod: { ...yxWithdrawExamineLog },optShow: {

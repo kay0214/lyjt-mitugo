@@ -24,7 +24,32 @@
         <el-table-column type="index" width="55" />
         <el-table-column v-if="columns.visible('username')" prop="username" label="用户昵称" />
         <el-table-column v-if="columns.visible('linkId')" prop="linkId" label="订单编号" />
+        <el-table-column label="订单类型" align="center">
+          <template slot-scope="scope">
+            <div>
+              <el-tag v-if="scope.row.brokerageType == 1">本地生活</el-tag>
+              <el-tag v-else-if="scope.row.brokerageType == 0">商品购买</el-tag>
+              <el-tag v-else></el-tag>
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column prop="title" label="账单标题" />
+        <el-table-column prop="category" label="明细种类">
+        <template slot-scope="scope">
+          <span v-if="scope.row.category == 'now_money'">余额</span>
+          <span v-else-if="scope.row.category == 'integral'">积分</span>
+          <span v-else>未知</span>
+        </template>
+      </el-table-column>
         <el-table-column v-if="columns.visible('number')" prop="number" label="积分" />
+        <el-table-column prop="userType" label="用户类型">
+        <template slot-scope="scope">
+          <span v-if="scope.row.userType == 0">预留</span>
+          <span v-else-if="scope.row.userType == 1">商户</span>
+          <span v-else-if="scope.row.userType == 2">合伙人</span>
+          <span v-else>用户</span>
+        </template>
+      </el-table-column>
         <el-table-column v-if="columns.visible('addTime')" prop="addTime" label="订单日期">
           <template slot-scope="scope">
             <span>{{ parseTime(scope.row.addTime) }}</span>

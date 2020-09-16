@@ -319,6 +319,7 @@ export default {
      })
     },
     doAdd() {
+      this.form.storeCategory.id=this.form.storeCategoryId
       add(this.form).then(res => {
         this.resetForm()
         this.$notify({
@@ -338,6 +339,7 @@ export default {
       })
     },
     doEdit() {
+      this.form.storeCategory.id=this.form.storeCategoryId
       edit(this.form).then(res => {
         this.resetForm()
         this.$notify({

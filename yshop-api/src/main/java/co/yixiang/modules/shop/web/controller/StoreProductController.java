@@ -152,7 +152,7 @@ public class StoreProductController extends BaseController {
         if (!userType.equals(AppFromEnum.ROUNTINE.getValue())) {
             userType = AppFromEnum.H5.getValue();
         }
-        String name = id + "_" + uid + "_" + pageType + "_" + userType + "_product_detail_wap.jpg";
+        String name = uid + "_" + id + "_" + pageType + "_" + userType + "_product_detail_wap.jpg";
         YxSystemAttachment attachment = systemAttachmentService.getInfo(name);
         String fileDir = path + "qrcode" + File.separator;
         String qrcodeUrl = "";
@@ -183,7 +183,7 @@ public class StoreProductController extends BaseController {
         } else {
             qrcodeUrl = apiUrl + "/file/" + attachment.getSattDir();
         }
-        String spreadPicName = id + "_" + uid + "_" + pageType + "_" + userType + "_product_user_spread.jpg";
+        String spreadPicName = uid + "_" + id + "_" + pageType + "_" + userType + "_product_user_spread.jpg";
         String spreadPicPath = fileDir + spreadPicName;
         ProductInfo productInfo = new ProductInfo();
         if (pageType.equals("good")) {

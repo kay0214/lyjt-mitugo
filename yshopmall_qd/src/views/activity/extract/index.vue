@@ -21,7 +21,7 @@
     <eForm ref="form" :is-add="isAdd" />
     <!--表格渲染-->
     <el-table v-loading="loading" :data="data" size="small" style="width: 100%;">
-
+      <el-table-column prop="id" label="申请ID" />
       <el-table-column prop="realName" label="用户名" />
       <el-table-column prop="userTrueName" label="真实姓名" />
       <el-table-column prop="bankCode" label="银行卡号" />
@@ -63,6 +63,7 @@
       <el-table-column v-if="checkPermission(['admin','YXUSEREXTRACT_ALL','YXUSEREXTRACT_EDIT','YXUSEREXTRACT_DELETE'])" label="操作" width="150px" align="center">
         <template slot-scope="scope">
           <el-button
+            v-if='scope.row.status!==1 && scope.row.status!==-1'
             v-permission="['admin','YXUSEREXTRACT_ALL','YXUSEREXTRACT_EDIT']"
             size="mini"
             type="primary"

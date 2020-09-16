@@ -53,7 +53,7 @@ public class YxExamineLogController {
     }
 
     @GetMapping
-    @ApiOperation("查询审核记录")
+    @ApiOperation("查询商户审核记录")
     @PreAuthorize("@el.check('admin','yxExamineLog:list')")
     public ResponseEntity<Object> getYxExamineLogs(YxExamineLogQueryCriteria criteria, Pageable pageable) {
         CurrUser currUser = SecurityUtils.getCurrUser();
@@ -66,7 +66,7 @@ public class YxExamineLogController {
     }
 
     @GetMapping("/extract")
-    @ApiOperation("查询审核记录")
+    @ApiOperation("查询提现审核记录")
     @PreAuthorize("@el.check('admin','yxExamineLog:extract')")
     public ResponseEntity<Object> getExtractYxExamineLogs(YxExamineLogQueryCriteria criteria, Pageable pageable) {
         criteria.setType(1);
