@@ -347,6 +347,7 @@ public class YxMerchantsDetailServiceImpl extends BaseServiceImpl<YxMerchantsDet
 //                systemAttachmentService.attachmentAdd(name, String.valueOf(cn.hutool.core.io.FileUtil.size(file)),
 //                        fileDir + name, "qrcode/" + name);
 //
+//
 //                qrcodeUrl = fileDir + name;
             }
             User user = this.userService.getById(yxMerchantsDetail.getUid());
