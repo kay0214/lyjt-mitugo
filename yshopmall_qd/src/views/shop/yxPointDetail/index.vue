@@ -12,7 +12,7 @@
           <!--:value="item.value"-->
         <!--/>-->
       <!--</el-select>-->
-        <el-select v-model="type" clearable placeholder="明细类型" class="filter-item" style="width: 130px">
+        <el-select v-model="query.type" clearable placeholder="明细类型" class="filter-item" style="width: 130px">
           <template v-for="item in typeOptions">
             <el-option
               v-for="(val,key) in item"
