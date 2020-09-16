@@ -21,7 +21,7 @@
     <eForm ref="form" :is-add="isAdd" />
     <!--表格渲染-->
     <el-table v-loading="loading" :data="data" size="small" style="width: 100%;">
-
+      <el-table-column prop="id" label="申请ID" />
       <el-table-column prop="realName" label="用户名" />
       <el-table-column prop="userTrueName" label="真实姓名" />
       <el-table-column prop="bankCode" label="银行卡号" />

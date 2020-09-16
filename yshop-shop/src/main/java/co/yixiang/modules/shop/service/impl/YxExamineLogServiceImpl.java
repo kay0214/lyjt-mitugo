@@ -152,6 +152,8 @@ public class YxExamineLogServiceImpl extends BaseServiceImpl<YxExamineLogMapper,
                     realName = user.getMerchantsContact().substring(0, 1) + "**";
                 }
             }
+            // 驳回信息
+            dto.setFailMsg(yxUserExtract.getFailMsg());
             // 放用户名
             dto.setWechat(username);
             // 放真实姓名

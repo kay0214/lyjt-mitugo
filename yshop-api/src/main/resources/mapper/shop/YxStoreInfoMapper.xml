@@ -209,12 +209,7 @@
         ) AS spn ON spn.store_id = si.id
         LEFT JOIN (
         SELECT
-        ROUND(
-        AVG(
-        product_score + service_score
-        ),
-        1
-        ) AS replyCount,
+        ROUND((AVG(product_score +	 service_score))/2,1) AS replyCount,
         mer_id
         FROM
         yx_store_product_reply
