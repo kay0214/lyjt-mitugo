@@ -20,6 +20,7 @@ import co.yixiang.modules.shop.web.param.YxStoreCouponUserQueryParam;
 import co.yixiang.modules.shop.web.vo.YxStoreCouponQueryVo;
 import co.yixiang.modules.shop.web.vo.YxStoreCouponUserQueryVo;
 import co.yixiang.utils.CommonsUtils;
+import co.yixiang.utils.DateUtils;
 import co.yixiang.utils.OrderUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -351,6 +352,11 @@ public class YxStoreCouponUserServiceImpl extends BaseServiceImpl<YxStoreCouponU
                         couponUser.set_msg("可使用");
                     }
                 }
+                //格式化日期
+                String strFormatStart = DateUtils.timestampToStr10(couponUser.getAddTime(),DateUtils.YYYY_MM_DD_HH_MM_SS);
+                String strFormatEnd = DateUtils.timestampToStr10(couponUser.getEndTime(),DateUtils.YYYY_MM_DD_HH_MM_SS);
+                couponUser.setFormatEndTime(strFormatEnd);
+                couponUser.setFormatStartTime(strFormatStart);
             }
         }
         return ApiResult.ok(paging);

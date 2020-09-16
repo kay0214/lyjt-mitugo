@@ -100,6 +100,8 @@ public class YxExamineLogDto implements Serializable {
     /** 提现金额 */
     private BigDecimal extractPrice;
 
+    /** 无效原因 */
+    private String failMsg;
 
     /** bank = 银行卡 alipay = 支付宝wx=微信 */
     private String extractType;

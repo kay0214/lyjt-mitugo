@@ -139,7 +139,9 @@ public class YxExamineLogServiceImpl extends BaseServiceImpl<YxExamineLogMapper,
                     throw new BadRequestException("查询用户信息失败");
                 }
                 username = yxUser.getNickname();
-                realName = yxUser.getRealName().substring(0, 1) + "**";
+                if (StringUtils.isNotBlank(realName)) {
+                    realName = yxUser.getRealName().substring(0, 1) + "**";
+                }
             } else {
                 user = this.userService.getById(yxUserExtract.getUid());
                 if (null == user) {
@@ -150,6 +152,8 @@ public class YxExamineLogServiceImpl extends BaseServiceImpl<YxExamineLogMapper,
                     realName = user.getMerchantsContact().substring(0, 1) + "**";
                 }
             }
+            // 驳回信息
+            dto.setFailMsg(yxUserExtract.getFailMsg());
             // 放用户名
             dto.setWechat(username);
             // 放真实姓名

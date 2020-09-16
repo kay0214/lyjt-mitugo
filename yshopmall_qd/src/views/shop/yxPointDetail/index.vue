@@ -13,7 +13,7 @@
         <!--/>-->
       <!--</el-select>-->
         <el-select v-model="query.type" clearable placeholder="明细类型" class="filter-item" style="width: 130px">
-          <template v-for="item in typeOptions">
+          <template v-for="item in pointTypeOptions">
             <el-option
               v-for="(val,key) in item"
               :key="key"
@@ -204,6 +204,9 @@ export default {
         { value: 'integral', label: '积分' }
       ],
       typeOptions: [],
+      pointTypeOptions:[
+        {"share_dividend":"分红"},
+        {"pull_new":"拉新"}],
       pmOptions: [
         { value: '0', label: '支出 ' },
         { value: '1', label: '获得' }
