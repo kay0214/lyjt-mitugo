@@ -142,8 +142,8 @@ public class YxUserExtractServiceImpl extends BaseServiceImpl<YxUserExtractMappe
 //        IPage<YxUserExtractQueryVo> iPage = yxUserExtractMapper.getYxUserExtractPageList(page, yxUserExtractQueryParam);
 
         QueryWrapper<YxUserExtract> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("uid", yxUserExtractQueryParam.getUid()).eq("status", 1);
-        queryWrapper.orderByDesc("add_time");
+        queryWrapper.lambda().eq(YxUserExtract::getUid, yxUserExtractQueryParam.getUid()).eq(YxUserExtract::getStatus, 1).eq(YxUserExtract::getUserType, 3);
+        queryWrapper.lambda().orderByDesc(YxUserExtract::getAddTime);
         IPage<YxUserExtract> list = page(new Page<>(yxUserExtractQueryParam.getPage(), yxUserExtractQueryParam.getLimit()), queryWrapper);
         return new Paging<>(list);
     }
