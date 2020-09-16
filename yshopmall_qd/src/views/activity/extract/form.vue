@@ -17,11 +17,11 @@
         <el-radio v-model="form.status" :label="-1">无效</el-radio>
         <el-radio v-model="form.status" :label="1">通过</el-radio>
       </el-form-item>
-      <el-form-item v-if='form.status>0' label="无效原因">     
-        <el-input v-model="form.mark" style="width: 300px;" rows="5" type="textarea" />
+      <el-form-item v-if='form.status>0' label="无效原因">
+        <el-input v-model="form.mark" style="width: 300px;" rows="5" type="textarea" maxlength="100" show-word-limit/>
       </el-form-item>
-      <el-form-item v-if='!(form.status>0)' label="无效原因" prop='failMsg'>     
-        <el-input v-model="form.failMsg" style="width: 300px;" rows="5" type="textarea" />
+      <el-form-item v-if='!(form.status>0)' label="无效原因" prop='failMsg'>
+        <el-input v-model="form.failMsg" style="width: 300px;" rows="5" type="textarea" maxlength="100" show-word-limit/>
       </el-form-item>
     </el-form>
     <div slot="footer" class="dialog-footer">

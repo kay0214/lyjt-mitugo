@@ -3,7 +3,7 @@
     <!--工具栏-->
     <div class="head-container">
       <!--表单组件-->
-        <el-form ref="form" :model="form" :rules="rules" size="small" label-width="150px"> 
+        <el-form ref="form" :model="form" :rules="rules" size="small" label-width="150px">
           <el-row :gutter='20'>
             <el-col :span='6'>
               <el-form-item label="平台抽成" prop='fundsRate'>
@@ -18,7 +18,7 @@
             </el-col>
             <el-col :span='6'>
               <el-form-item label="拉新池" prop='referenceRate'>
-                <el-input class='percent' v-model="form.referenceRate" />
+                <el-input class='percent score' v-model="form.referenceRate" />
               </el-form-item>
               <el-form-item label="分享人上级抽成" prop='shareParentRate'>
                 <el-input class='percent' v-model="form.shareParentRate" />
@@ -30,13 +30,13 @@
             <el-col :span='6'>
               <el-form-item label="购买人上级抽成" prop='parentRate'>
                 <el-input class='percent' v-model="form.parentRate" />
-              </el-form-item>  
+              </el-form-item>
             </el-col>
-          </el-row>  
-      </el-form>   
+          </el-row>
+      </el-form>
         <el-col slot="footer" :offset='10' class="dialog-footer" style='marginTop:30px'>
           <el-button size='medium' :loading="sublLoading" type="primary" @click="submit">保存</el-button>
-        </el-col>   
+        </el-col>
     </div>
   </div>
 </template>
@@ -110,7 +110,7 @@ export default {
             trigger: 'blur'
           },
         ],
-      }    
+      }
     }
   },
   watch: {
@@ -135,11 +135,11 @@ export default {
     async submit() {
        this.$refs.form.validate(ret=>{
         if(!ret){
-          return 
+          return
         }else{
           if(this.form.fundsRate*1+this.form.shareRate*1+this.form.
   shareParentRate*1+this.form.parentRate*1+this.form.merRate*1+this.form.
-  partnerRate*1+this.form.referenceRate*1===100){            
+  partnerRate*1+this.form.referenceRate*1===100){
             this.sublLoading = true
             edit(this.form).then(res => {
               this.sublLoading = false
@@ -164,7 +164,7 @@ export default {
             })
           }
         }
-      })      
+      })
     },
   }
 }

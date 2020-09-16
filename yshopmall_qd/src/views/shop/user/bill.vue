@@ -223,7 +223,11 @@ export default {
               type: 'success',
               duration: 1000,
               onClose: () => {
-                this.init()
+                this.init().then(res=>{
+                  res.remainPrice?this.remainPrice=res.remainPrice:{}
+                  res.totalPrice?this.totalPrice=res.totalPrice:{}
+                  res.expenditurePrice?this.expenditurePrice=res.expenditurePrice:{}
+                })
               }
             })
           })
@@ -264,7 +268,11 @@ export default {
         this.delLoading = false
         this.$refs[uid].doClose()
         this.dleChangePage()
-        this.init()
+        this.init().then(res=>{
+          res.remainPrice?this.remainPrice=res.remainPrice:{}
+          res.totalPrice?this.totalPrice=res.totalPrice:{}
+          res.expenditurePrice?this.expenditurePrice=res.expenditurePrice:{}
+        })
         this.$notify({
           title: '删除成功',
           type: 'success',
@@ -331,12 +339,18 @@ export default {
       _this.dialog = true
     },
     withdraw(btn,val){
+      let that=this
       this.$refs.formWithdraw.validate(function(ret,obj){
         if(ret){
           withdraw({extractPrice:val}).then(res=>{
             if(res){
               Notification.success({
               title: '提现申请成功'
+              })
+              that.init().then(res=>{
+                res.remainPrice?that.remainPrice=res.remainPrice:{}
+                res.totalPrice?that.totalPrice=res.totalPrice:{}
+                res.expenditurePrice?that.expenditurePrice=res.expenditurePrice:{}
               })
             }else{
               Notification.error({
