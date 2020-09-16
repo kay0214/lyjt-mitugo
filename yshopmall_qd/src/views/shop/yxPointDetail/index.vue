@@ -91,6 +91,7 @@
       <el-table ref="table" v-loading="crud.loading" :data="crud.data" size="small" style="width: 100%;" @selection-change="crud.selectionChangeHandler">
         <el-table-column type="selection" width="55" />
         <el-table-column v-if="columns.visible('username')" prop="username" label="用户昵称" />
+        <el-table-column prop="title" label="账单标题" />
         <!-- <el-table-column label="积分类别" align="center">
           <template slot-scope="scope">
             <div>
@@ -125,6 +126,14 @@
           </template>
         </el-table-column>
         <el-table-column v-if="columns.visible('number')" prop="number" label="积分" />
+        <el-table-column prop="userType" label="用户类型">
+        <template slot-scope="scope">
+          <span v-if="scope.row.userType == 0">预留</span>
+          <span v-else-if="scope.row.userType == 1">商户</span>
+          <span v-else-if="scope.row.userType == 2">合伙人</span>
+          <span v-else>用户</span>
+        </template>
+      </el-table-column>
         <!-- <el-table-column v-if="columns.visible('commission')" prop="commission" label="订单佣金" /> -->
         <!-- <el-table-column v-if="columns.visible('merUsername')" prop="merUsername" label="商户用户名" /> -->
         <!-- <el-table-column v-if="columns.visible('merchantsPoint')" prop="merchantsPoint" label="商户获取积分数" /> -->
