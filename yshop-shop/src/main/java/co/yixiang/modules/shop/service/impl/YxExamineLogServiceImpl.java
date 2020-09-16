@@ -116,7 +116,7 @@ public class YxExamineLogServiceImpl extends BaseServiceImpl<YxExamineLogMapper,
 //        getPage(pageable);
 //        PageInfo<YxExamineLogDto> page = new PageInfo<>(queryAll(criteria));
         QueryWrapper<YxExamineLog> queryWrapper = new QueryWrapper<>();
-        queryWrapper.orderByDesc("create_time");
+        queryWrapper.lambda().orderByDesc(YxExamineLog::getCreateTime);
         if (null != criteria.getType()) {
             queryWrapper.lambda().eq(YxExamineLog::getType, criteria.getType());
         }
@@ -139,14 +139,18 @@ public class YxExamineLogServiceImpl extends BaseServiceImpl<YxExamineLogMapper,
                     throw new BadRequestException("查询用户信息失败");
                 }
                 username = yxUser.getNickname();
-                realName = yxUser.getRealName().substring(0, 1) + "**";
+                if (StringUtils.isNotBlank(realName)) {
+                    realName = yxUser.getRealName().substring(0, 1) + "**";
+                }
             } else {
                 user = this.userService.getById(yxUserExtract.getUid());
                 if (null == user) {
                     throw new BadRequestException("查询用户信息失败");
                 }
                 username = user.getNickName();
-                realName = user.getMerchantsContact().substring(0, 1) + "**";
+                if (StringUtils.isNotBlank(user.getMerchantsContact())) {
+                    realName = user.getMerchantsContact().substring(0, 1) + "**";
+                }
             }
             // 放用户名
             dto.setWechat(username);

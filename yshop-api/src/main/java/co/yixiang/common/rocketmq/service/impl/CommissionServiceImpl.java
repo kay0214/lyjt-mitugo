@@ -188,44 +188,54 @@ public class CommissionServiceImpl implements CommissionService {
         if (null != orderInfo.getParentId() && orderInfo.getParentType() == 3 && 0 != orderInfo.getParentId()) {
             BigDecimal parentBonus = orderInfo.getCommission().multiply(yxCommissionRate.getParentRate()).setScale(2, BigDecimal.ROUND_DOWN);
             YxUser yxUser = yxUserMapper.selectById(orderInfo.getParentId());
-            BigDecimal oldMoney = yxUser.getNowMoney();
-            yxUserMapper.updateUserMoney(parentBonus, oldMoney, yxUser.getUid());
+            if(parentBonus.compareTo(BigDecimal.ZERO)>0){
+                BigDecimal oldMoney = yxUser.getNowMoney();
+                yxUserMapper.updateUserMoney(parentBonus, oldMoney, yxUser.getUid());
 
-            insertBill(orderInfo, orderInfo.getParentId(), BillDetailEnum.TYPE_2.getValue(), parentBonus, yxUser.getNickname(), yxUser.getNowMoney(), 3, "推荐人分佣");
+                insertBill(orderInfo, orderInfo.getParentId(), BillDetailEnum.TYPE_2.getValue(), parentBonus, yxUser.getNickname(), yxUser.getNowMoney(), 3, "推荐人分佣");
+            }
 
             //拉新池
             BigDecimal referencePoint = orderInfo.getCommission().multiply(yxCommissionRate.getReferenceRate()).setScale(2, BigDecimal.ROUND_DOWN);
-            yxFundsAccount = updatePullNewPoint(orderInfo, referencePoint, yxFundsAccount);
-            insertBill(orderInfo, orderInfo.getParentId(), BillDetailEnum.TYPE_12.getValue(), referencePoint, yxUser.getNickname(), yxFundsAccount.getReferencePoint(), 0, "拉新分佣");
+            if(referencePoint.compareTo(BigDecimal.ZERO)>0){
+                yxFundsAccount = updatePullNewPoint(orderInfo, referencePoint, yxFundsAccount);
+                insertBill(orderInfo, orderInfo.getParentId(), BillDetailEnum.TYPE_12.getValue(), referencePoint, yxUser.getNickname(), yxFundsAccount.getReferencePoint(), 0, "拉新分佣");
+
+            }
             allBonus = allBonus.add(parentBonus).add(referencePoint);
         }
 
         //分享人
         if (null != orderInfo.getShareId()&&orderInfo.getShareId() != 0) {
             BigDecimal shareBonus = orderInfo.getCommission().multiply(yxCommissionRate.getShareRate()).setScale(2, BigDecimal.ROUND_DOWN);
-            allBonus = allBonus.add(shareBonus);
+            if(shareBonus.compareTo(BigDecimal.ZERO)>0){
+                allBonus = allBonus.add(shareBonus);
 
-            YxUser yxUser = yxUserMapper.selectById(orderInfo.getShareId());
-            BigDecimal oldMoney = yxUser.getNowMoney();
-            //更新佣金金额
-            yxUserMapper.updateUserMoney(shareBonus, oldMoney, yxUser.getUid());
+                YxUser yxUser = yxUserMapper.selectById(orderInfo.getShareId());
+                BigDecimal oldMoney = yxUser.getNowMoney();
+                //更新佣金金额
+                yxUserMapper.updateUserMoney(shareBonus, oldMoney, yxUser.getUid());
 
-            insertBill(orderInfo, orderInfo.getShareId(), BillDetailEnum.TYPE_2.getValue(), shareBonus, yxUser.getNickname(), yxUser.getNowMoney(), 3, "分享人分佣");
+                insertBill(orderInfo, orderInfo.getShareId(), BillDetailEnum.TYPE_2.getValue(), shareBonus, yxUser.getNickname(), yxUser.getNowMoney(), 3, "分享人分佣");
+            }
         }
 
         //分享人推荐人
         if (null != orderInfo.getShareParentId() && orderInfo.getShareParentType() == 3 && 0 != orderInfo.getShareParentId()) {
             BigDecimal shareParentBonus = orderInfo.getCommission().multiply(yxCommissionRate.getShareParentRate()).setScale(2, BigDecimal.ROUND_DOWN);
-            allBonus = allBonus.add(shareParentBonus);
+            if(shareParentBonus.compareTo(BigDecimal.ZERO)>0){
+                allBonus = allBonus.add(shareParentBonus);
 
-            YxUser yxUser = yxUserMapper.selectById(orderInfo.getShareParentId());
-            BigDecimal oldMoney = yxUser.getNowMoney();
-            //更新佣金金额
-            yxUser.setNowMoney(shareParentBonus);
-            yxUser.setBrokeragePrice(shareParentBonus);
-            yxUserMapper.updateUserMoney(shareParentBonus, oldMoney, yxUser.getUid());
+                YxUser yxUser = yxUserMapper.selectById(orderInfo.getShareParentId());
+                BigDecimal oldMoney = yxUser.getNowMoney();
+                //更新佣金金额
+                yxUser.setNowMoney(shareParentBonus);
+                yxUser.setBrokeragePrice(shareParentBonus);
+                yxUserMapper.updateUserMoney(shareParentBonus, oldMoney, yxUser.getUid());
 
-            insertBill(orderInfo, orderInfo.getShareParentId(), BillDetailEnum.TYPE_2.getValue(), shareParentBonus, yxUser.getNickname(), yxUser.getNowMoney(), 3, "分享人推荐人分佣");
+                insertBill(orderInfo, orderInfo.getShareParentId(), BillDetailEnum.TYPE_2.getValue(), shareParentBonus, yxUser.getNickname(), yxUser.getNowMoney(), 3, "分享人推荐人分佣");
+            }
+
         }
 
         //商户、合伙人积分(分红池)
@@ -240,16 +250,18 @@ public class CommissionServiceImpl implements CommissionService {
 
         //平台
         BigDecimal fundsBonus = orderInfo.getCommission().subtract(allBonus);
-        YxFundsDetail yxFundsDetail = new YxFundsDetail();
-        yxFundsDetail.setType(orderInfo.getBrokerageType() == 0 ? 1 : 2);
-        yxFundsDetail.setUid(orderInfo.getUid());
-        yxFundsDetail.setUsername(orderInfo.getUsername());
-        yxFundsDetail.setOrderId(orderInfo.getOrderId());
-        yxFundsDetail.setPm(1);
-        yxFundsDetail.setOrderAmount(fundsBonus);
-        yxFundsDetailMapper.insert(yxFundsDetail);
-        BigDecimal oldPrice = yxFundsAccount.getPrice();
-        yxFundsAccountMapper.updateFundsAccount(fundsBonus, oldPrice, yxFundsAccount.getId());
+        if(fundsBonus.compareTo(BigDecimal.ZERO)>0){
+            YxFundsDetail yxFundsDetail = new YxFundsDetail();
+            yxFundsDetail.setType(orderInfo.getBrokerageType() == 0 ? 1 : 2);
+            yxFundsDetail.setUid(orderInfo.getUid());
+            yxFundsDetail.setUsername(orderInfo.getUsername());
+            yxFundsDetail.setOrderId(orderInfo.getOrderId());
+            yxFundsDetail.setPm(1);
+            yxFundsDetail.setOrderAmount(fundsBonus);
+            yxFundsDetailMapper.insert(yxFundsDetail);
+        }
+        yxFundsAccountMapper.updateFundsAccount(fundsBonus, yxFundsAccount.getId(),yxFundsAccount.getBonusPoint(),yxFundsAccount.getReferencePoint());
+
     }
 
     public YxFundsAccount updatePullNewPoint(OrderInfo orderInfo, BigDecimal referencePoint, YxFundsAccount yxFundsAccount) {
@@ -274,21 +286,25 @@ public class CommissionServiceImpl implements CommissionService {
     public YxFundsAccount updateDividendPoint(OrderInfo orderInfo, BigDecimal merchantsPoint, BigDecimal partnerPoint, YxFundsAccount yxFundsAccount) {
         //商户
         SystemUser merInfo = systemUserMapper.selectById(orderInfo.getMerId());
-        insertPointDetail(orderInfo, merchantsPoint, merInfo.getParentId(), partnerPoint, 1);
         BigDecimal oldTotal = merInfo.getTotalScore();
-        merInfo.setTotalScore(merchantsPoint);
-        systemUserMapper.updateTotalScore(merchantsPoint, oldTotal, merInfo.getId());
 
-        //合伙人
-        SystemUser partnerInfo = systemUserMapper.selectById(merInfo.getParentId());
-        oldTotal = partnerInfo.getTotalScore();
-        partnerInfo.setTotalScore(partnerPoint);
-        systemUserMapper.updateTotalScore(partnerPoint, oldTotal, partnerInfo.getId());
+        if(merchantsPoint.compareTo(BigDecimal.ZERO)>0){
+            insertPointDetail(orderInfo, merchantsPoint, merInfo.getParentId(), partnerPoint, 1);
+            merInfo.setTotalScore(merchantsPoint);
+            systemUserMapper.updateTotalScore(merchantsPoint, oldTotal, merInfo.getId());
+            //插入明细数据(商户)
+            insertBill(orderInfo, orderInfo.getMerId(), BillDetailEnum.TYPE_11.getValue(), merchantsPoint, merInfo.getNickName(), merInfo.getTotalScore(), 1, "商户分佣");
+        }
 
-        //插入明细数据(商户)
-        insertBill(orderInfo, orderInfo.getMerId(), BillDetailEnum.TYPE_11.getValue(), merchantsPoint, merInfo.getNickName(), merInfo.getTotalScore(), 1, "商户分佣");
-        //插入明细数据(合伙人)
-        insertBill(orderInfo, merInfo.getParentId(), BillDetailEnum.TYPE_11.getValue(), partnerPoint, partnerInfo.getNickName(), partnerInfo.getTotalScore(), 2, "合伙人分佣");
+        if(partnerPoint.compareTo(BigDecimal.ZERO)>0){
+            //合伙人
+            SystemUser partnerInfo = systemUserMapper.selectById(merInfo.getParentId());
+            oldTotal = partnerInfo.getTotalScore();
+            partnerInfo.setTotalScore(partnerPoint);
+            systemUserMapper.updateTotalScore(partnerPoint, oldTotal, partnerInfo.getId());
+            //插入明细数据(合伙人)
+            insertBill(orderInfo, merInfo.getParentId(), BillDetailEnum.TYPE_11.getValue(), partnerPoint, partnerInfo.getNickName(), partnerInfo.getTotalScore(), 2, "合伙人分佣");
+        }
         BigDecimal totalPoint = yxFundsAccount.getBonusPoint().add(merchantsPoint).add(partnerPoint);
         //分红总积分
         yxFundsAccount.setBonusPoint(totalPoint);
