@@ -52,7 +52,7 @@ spring:
     timeout: 5000
 #配置rocketmq
 rocketmq:
-  nameServer: 39.98.139.164:9876
+  nameServer: 39.101.216.130:9876
   producer:
     group: mitu-dev
     sendMessageTimeout: 300000
