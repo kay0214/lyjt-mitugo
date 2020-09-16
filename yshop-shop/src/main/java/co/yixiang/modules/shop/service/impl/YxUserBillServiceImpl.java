@@ -172,7 +172,14 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<UserBillMapper, YxUse
         queryWrapper.lambda().eq(YxUserBill::getCategory, BillDetailEnum.CATEGORY_2.getValue()).eq(YxUserBill::getStatus, 1);
         // 检索条件
         if (StringUtils.isNotBlank(criteria.getAddTimeStart()) && StringUtils.isNotBlank(criteria.getAddTimeStart())) {
-            queryWrapper.lambda().ge(YxUserBill::getAddTime, DateUtils.stringToTimestamp(criteria.getAddTimeStart())).le(YxUserBill::getAddTime, DateUtils.stringToTimestamp(criteria.getAddTimeEnd()));
+            queryWrapper.lambda().ge(YxUserBill::getAddTime, DateUtils.stringToTimestamp(criteria.getAddTimeStart() + " 00:00:00")).le(YxUserBill::getAddTime, DateUtils.stringToTimestamp(criteria.getAddTimeEnd() + " 23:59:59"));
+        }
+        // 用户昵称模糊查询
+        if (StringUtils.isNotBlank(criteria.getUsername())) {
+            queryWrapper.lambda().like(YxUserBill::getUsername, criteria.getUsername());
+        }
+        if (StringUtils.isNotBlank(criteria.getType())) {
+            queryWrapper.lambda().eq(YxUserBill::getType, criteria.getType());
         }
         if (0 != criteria.getUserRole()) {
             // 非管理员的情况、获取登陆用户的数据

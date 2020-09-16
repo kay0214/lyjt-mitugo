@@ -116,7 +116,7 @@ public class YxExamineLogServiceImpl extends BaseServiceImpl<YxExamineLogMapper,
 //        getPage(pageable);
 //        PageInfo<YxExamineLogDto> page = new PageInfo<>(queryAll(criteria));
         QueryWrapper<YxExamineLog> queryWrapper = new QueryWrapper<>();
-        queryWrapper.orderByDesc("create_time");
+        queryWrapper.lambda().orderByDesc(YxExamineLog::getCreateTime);
         if (null != criteria.getType()) {
             queryWrapper.lambda().eq(YxExamineLog::getType, criteria.getType());
         }
