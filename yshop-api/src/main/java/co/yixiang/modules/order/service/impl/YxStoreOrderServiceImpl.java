@@ -5,6 +5,7 @@ import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import co.yixiang.common.api.ApiResult;
 import co.yixiang.common.rocketmq.MqProducer;
 import co.yixiang.common.service.impl.BaseServiceImpl;
 import co.yixiang.common.web.vo.Paging;
@@ -32,19 +33,10 @@ import co.yixiang.modules.order.service.YxStoreOrderCartInfoService;
 import co.yixiang.modules.order.service.YxStoreOrderService;
 import co.yixiang.modules.order.service.YxStoreOrderStatusService;
 import co.yixiang.modules.order.web.dto.*;
-import co.yixiang.modules.order.web.param.OrderNewParam;
-import co.yixiang.modules.order.web.param.OrderParam;
-import co.yixiang.modules.order.web.param.RefundParam;
-import co.yixiang.modules.order.web.param.YxStoreOrderQueryParam;
+import co.yixiang.modules.order.web.param.*;
 import co.yixiang.modules.order.web.vo.YxStoreOrderQueryVo;
-import co.yixiang.modules.shop.entity.YxStoreCart;
-import co.yixiang.modules.shop.entity.YxStoreCouponUser;
-import co.yixiang.modules.shop.entity.YxStoreProduct;
-import co.yixiang.modules.shop.entity.YxStoreProductAttrValue;
-import co.yixiang.modules.shop.mapper.YxStoreCartMapper;
-import co.yixiang.modules.shop.mapper.YxStoreCouponMapper;
-import co.yixiang.modules.shop.mapper.YxStoreCouponUserMapper;
-import co.yixiang.modules.shop.mapper.YxStoreInfoMapper;
+import co.yixiang.modules.shop.entity.*;
+import co.yixiang.modules.shop.mapper.*;
 import co.yixiang.modules.shop.service.*;
 import co.yixiang.modules.shop.web.vo.*;
 import co.yixiang.modules.user.entity.YxUser;
@@ -2404,4 +2396,116 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
         return computeDTO;
     }
 
+
+    @Override
+    public List<OrderCartInfoDTO> getReplyProductList(String unique){
+        List<OrderCartInfoDTO> orderCartInfoDTOList = new ArrayList<OrderCartInfoDTO>();
+        YxStoreOrderQueryVo storeOrderQueryVo = this.getOrderInfo(unique,0);
+        if(ObjectUtil.isNull(storeOrderQueryVo)){
+           return null;
+        }
+        List<String> listCartIds = Arrays.asList(storeOrderQueryVo.getCartId().split(","));
+        QueryWrapper<YxStoreOrderCartInfo> wrapper = new QueryWrapper<YxStoreOrderCartInfo>();
+        wrapper.in("cart_id",listCartIds);
+        List<YxStoreOrderCartInfo> cartList =  orderCartInfoService.list(wrapper);
+        if(CollectionUtils.isEmpty(cartList)){
+            return null;
+        }
+        for(YxStoreOrderCartInfo cartInfo:cartList){
+            OrderCartInfoDTO orderCartInfoDTO = new OrderCartInfoDTO();
+            YxStoreCartQueryVo cartQueryVo = JSONObject.parseObject(cartInfo.getCartInfo(),
+                    YxStoreCartQueryVo.class);
+
+            orderCartInfoDTO.setBargainId(cartQueryVo.getBargainId());
+            orderCartInfoDTO.setCartNum(cartQueryVo.getCartNum());
+            orderCartInfoDTO.setCombinationId(cartQueryVo.getCombinationId());
+            orderCartInfoDTO.setOrderId(storeOrderQueryVo.getOrderId());
+            orderCartInfoDTO.setSeckillId(cartQueryVo.getSeckillId());
+            orderCartInfoDTO.setProductId(cartQueryVo.getProductId());
+            ProductDTO productDTO = new ProductDTO();
+            productDTO.setImage(cartQueryVo.getProductInfo().getImage());
+            productDTO.setPrice(cartQueryVo.getProductInfo().getPrice().doubleValue());
+            productDTO.setStoreName(cartQueryVo.getProductInfo().getStoreName());
+            if (ObjectUtil.isNotEmpty(cartQueryVo.getProductInfo().getAttrInfo())) {
+                ProductAttrDTO productAttrDTO = new ProductAttrDTO();
+                productAttrDTO.setImage(cartQueryVo.getProductInfo().getAttrInfo().getImage());
+                productAttrDTO.setPrice(cartQueryVo.getProductInfo().getAttrInfo().getPrice().doubleValue());
+                productAttrDTO.setProductId(cartQueryVo.getProductInfo().getAttrInfo().getProductId());
+                productAttrDTO.setSuk(cartQueryVo.getProductInfo().getAttrInfo().getSuk());
+                productDTO.setAttrInfo(productAttrDTO);
+            }
+            orderCartInfoDTO.setProductInfo(productDTO);
+
+            orderCartInfoDTOList.add(orderCartInfoDTO);
+        }
+        return orderCartInfoDTOList;
+    }
+
+
+    @Transactional
+    @Override
+    public ApiResult<Object> replyOrderInfo(OrderReplyParam replyParam,int uid){
+        List<StoreProductReplyParam> productReplyList = replyParam.getProductReplyList();
+        YxStoreOrderQueryVo storeOrderQueryVo = this.getOrderInfo(replyParam.getOrderNo(),uid);
+        if(ObjectUtil.isNull(storeOrderQueryVo)){
+//            return null;
+            return ApiResult.fail("评价订单不存在");
+        }
+        List<String> listCartIds = Arrays.asList(storeOrderQueryVo.getCartId().split(","));
+        QueryWrapper<YxStoreOrderCartInfo> wrapper = new QueryWrapper<YxStoreOrderCartInfo>();
+        wrapper.in("cart_id",listCartIds);
+        List<YxStoreOrderCartInfo> cartList =  orderCartInfoService.list(wrapper);
+        if(CollectionUtils.isEmpty(cartList)){
+            return ApiResult.fail("评价产品信息不存在");
+        }
+
+        QueryWrapper<YxStoreOrder> orderQueryWrapper = new QueryWrapper<>();
+        orderQueryWrapper.eq("order_id",replyParam.getOrderNo());
+        List<YxStoreOrder> storeOrderList = this.list(orderQueryWrapper);
+        YxStoreOrder storeOrder = storeOrderList.get(0);
+
+        int count = getInfoCount(storeOrder.getId());
+        if (count > 0) return ApiResult.fail("该产品已评价");
+
+        List<YxStoreProductReply> replyList = new ArrayList<>();
+        for(YxStoreOrderCartInfo cartInfo:cartList) {
+            for (StoreProductReplyParam productReplyParam : productReplyList) {
+                if (productReplyParam.getProductScore() < 1) return ApiResult.fail("请为产品评分");
+                if (productReplyParam.getServiceScore() < 1) return ApiResult.fail("请为商家服务评分");
+                if(!cartInfo.getProductId().equals(productReplyParam.getProductId())){
+                    continue;
+                }
+                YxStoreProductReply productReply = new YxStoreProductReply();
+                productReply.setProductScore(productReplyParam.getProductScore());
+                productReply.setServiceScore(productReplyParam.getServiceScore());
+                productReply.setUid(uid);
+                productReply.setOid(storeOrder.getId());
+                productReply.setProductId(cartInfo.getProductId());
+                productReply.setAddTime(OrderUtil.getSecondTimestampTwo());
+                productReply.setReplyType("product");
+                productReply.setComment(productReplyParam.getComment());
+                productReply.setPics(StringUtils.isNotBlank(productReplyParam.getPics())?productReply.getPics():"");
+                productReply.setUnique(cartInfo.getUnique());
+                //所在商户
+                YxStoreProduct product = productService.getProductInfo(cartInfo.getProductId());
+                productReply.setMerId(product.getMerId());
+                replyList.add(productReply);
+            }
+        }
+        storeProductReplyService.saveBatch(replyList);
+
+        //更新订单状态
+        storeOrder.setStatus(3);
+        this.updateById(storeOrder);
+
+        orderStatusService.create(storeOrder.getId(), "check_order_over", "用户评价");
+
+        return ApiResult.ok("ok");
+    }
+
+    public int getInfoCount(Integer oid) {
+        QueryWrapper<YxStoreProductReply> wrapper = new QueryWrapper<>();
+        wrapper.eq("oid", oid);
+        return storeProductReplyService.count(wrapper);
+    }
 }

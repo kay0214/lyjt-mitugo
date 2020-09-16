@@ -1,5 +1,6 @@
 package co.yixiang.modules.order.service;
 
+import co.yixiang.common.api.ApiResult;
 import co.yixiang.common.service.BaseService;
 import co.yixiang.common.web.vo.Paging;
 import co.yixiang.modules.manage.web.dto.OrderDataDTO;
@@ -9,10 +10,7 @@ import co.yixiang.modules.manage.web.param.OrderPriceParam;
 import co.yixiang.modules.manage.web.param.OrderRefundParam;
 import co.yixiang.modules.order.entity.YxStoreOrder;
 import co.yixiang.modules.order.web.dto.*;
-import co.yixiang.modules.order.web.param.OrderNewParam;
-import co.yixiang.modules.order.web.param.OrderParam;
-import co.yixiang.modules.order.web.param.RefundParam;
-import co.yixiang.modules.order.web.param.YxStoreOrderQueryParam;
+import co.yixiang.modules.order.web.param.*;
 import co.yixiang.modules.order.web.vo.YxStoreOrderQueryVo;
 import co.yixiang.modules.shop.web.vo.YxStoreCartQueryVo;
 import co.yixiang.modules.shop.web.vo.YxStoreStoreCartQueryVo;
@@ -177,4 +175,8 @@ public interface YxStoreOrderService extends BaseService<YxStoreOrder> {
 
     ComputeDTO computedOrderNew(int uid, String key,List<Integer> couponIds);
 
+
+    List<OrderCartInfoDTO> getReplyProductList(String unique);
+
+    ApiResult<Object> replyOrderInfo(OrderReplyParam replyParam, int uid);
 }
