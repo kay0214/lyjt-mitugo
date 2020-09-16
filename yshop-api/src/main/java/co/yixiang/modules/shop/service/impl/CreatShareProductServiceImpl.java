@@ -170,11 +170,11 @@ public class CreatShareProductServiceImpl implements CreatShareProductService {
             g.setFont(font.deriveFont(Font.PLAIN, 20));
             g.setColor(new Color(171, 171, 171));
             //绘制文字
-            g.drawString("扫描或长按小程序码", 210, 1400);
+            g.drawString("扫描或长按小程序码", 210, 1374);
 
             g.setFont(font.deriveFont(Font.PLAIN, 20));
             g.setColor(new Color(171, 171, 171));
-            g.drawString("查看商品详情", 210, 1440);
+            g.drawString("查看商品详情", 210, 1414);
 
             g.dispose();
             //先将画好的海报写到本地

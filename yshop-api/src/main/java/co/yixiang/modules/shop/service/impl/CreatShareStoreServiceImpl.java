@@ -167,7 +167,7 @@ public class CreatShareStoreServiceImpl implements CreatShareStoreService {
             g.setFont(font.deriveFont(Font.PLAIN, 25));
             g.setColor(new Color(171, 171, 171));
             //绘制文字
-            g.drawString("扫描或长按小程序码", 210, 1400);
+            g.drawString("扫描或长按小程序码", 210, 1395);
 
             g.dispose();
             //先将画好的海报写到本地
