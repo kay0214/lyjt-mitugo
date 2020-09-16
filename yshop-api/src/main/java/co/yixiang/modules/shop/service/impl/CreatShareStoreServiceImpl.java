@@ -145,7 +145,7 @@ public class CreatShareStoreServiceImpl implements CreatShareStoreService {
             g.drawString(sb.toString(), tempX, tempY + 32);
 
             //背景 -- 读取互联网图片
-            InputStream stream2 = getClass().getClassLoader().getResourceAsStream("background.png");
+            InputStream stream2 = getClass().getClassLoader().getResourceAsStream("background2.png");
             ImageInputStream background2 = ImageIO.createImageInputStream(stream2);
             BufferedImage back2 = ImageIO.read(background2);
 
