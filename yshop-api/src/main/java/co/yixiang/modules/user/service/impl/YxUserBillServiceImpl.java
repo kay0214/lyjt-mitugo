@@ -140,6 +140,7 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<YxUserBillMapper, YxU
                 wrapper.in("type", Arrays.asList(str.split(",")));
 
         }
+        wrapper.eq("user_type", 3);
         Page<YxUserBill> pageModel = new Page<>(page, limit);
         List<BillDTO> billDTOList = yxUserBillMapper.getBillList(wrapper, pageModel);
         for (BillDTO billDTO : billDTOList) {
@@ -245,6 +246,7 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<YxUserBillMapper, YxU
 
     /**
      * 查询商户的线下交易流水列表
+     *
      * @param param
      * @return
      */
@@ -268,7 +270,7 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<YxUserBillMapper, YxU
     public Paging<UserBillVo> getUserProductAccountList(UserAccountQueryParam param, Long id) {
         QueryWrapper<YxUserBill> wrapper = new QueryWrapper<>();
         wrapper.eq("status", 1).eq("uid", id)
-                .in("type", BillDetailEnum.TYPE_3.getValue(),BillDetailEnum.TYPE_8.getValue())
+                .in("type", BillDetailEnum.TYPE_3.getValue(), BillDetailEnum.TYPE_8.getValue())
                 .eq("user_type", 1).eq("category", BillDetailEnum.CATEGORY_1.getValue())
                 .orderByDesc("id");
 
@@ -282,6 +284,7 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<YxUserBillMapper, YxU
 
     /**
      * 查询线下支付的数据统计
+     *
      * @return
      */
     @Override
@@ -291,6 +294,7 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<YxUserBillMapper, YxU
 
     /**
      * 线上支付信息
+     *
      * @return
      */
     @Override
@@ -300,18 +304,18 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<YxUserBillMapper, YxU
 
     private Paging<UserBillVo> getResultList(IPage<YxUserBill> result) {
         Paging<UserBillVo> resultStr = new Paging<UserBillVo>();
-        resultStr.setSum(result.getTotal()+"");
+        resultStr.setSum(result.getTotal() + "");
         resultStr.setTotal(result.getTotal());
-        if(result.getRecords()!=null){
+        if (result.getRecords() != null) {
             List<UserBillVo> list = new ArrayList<>();
-            for (YxUserBill item :result.getRecords()) {
-                UserBillVo userBillVo = CommonsUtils.convertBean(item,UserBillVo.class);
-                userBillVo.setAddTimeStr(DateUtils.timestampToStr10(item.getAddTime(),DateUtils.YYYY_MM_DD_HH_MM_SS));
+            for (YxUserBill item : result.getRecords()) {
+                UserBillVo userBillVo = CommonsUtils.convertBean(item, UserBillVo.class);
+                userBillVo.setAddTimeStr(DateUtils.timestampToStr10(item.getAddTime(), DateUtils.YYYY_MM_DD_HH_MM_SS));
                 list.add(userBillVo);
             }
             resultStr.setRecords(list);
         }
-        return  resultStr;
+        return resultStr;
     }
 
 }
