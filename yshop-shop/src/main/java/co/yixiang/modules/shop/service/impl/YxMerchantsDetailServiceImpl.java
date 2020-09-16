@@ -27,7 +27,6 @@ import co.yixiang.utils.StringUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -542,6 +541,7 @@ public class YxMerchantsDetailServiceImpl extends BaseServiceImpl<YxMerchantsDet
             mark = "系统增加了" + param.getMoney() + "可提现金额";
             withDrawa = NumberUtil.add(user.getWithdrawalAmount(), param.getMoney()).doubleValue();
             totleMoney = NumberUtil.add(user.getTotalAmount(), param.getMoney()).doubleValue();
+            userService.updateAddAmount(user.getId(), new BigDecimal(param.getMoney()));
         } else {
             title = "减少可提现金额";
             mark = "系统扣除了" + param.getMoney() + "可提现金额";
@@ -550,13 +550,14 @@ public class YxMerchantsDetailServiceImpl extends BaseServiceImpl<YxMerchantsDet
             withDrawa = NumberUtil.sub(user.getWithdrawalAmount(), param.getMoney()).doubleValue();
             totleMoney = NumberUtil.sub(user.getTotalAmount(), param.getMoney()).doubleValue();
 
-            if (withDrawa < 0) withDrawa = 0d;
-            if (totleMoney < 0) totleMoney = 0d;
-
+            if (withDrawa < 0 || totleMoney < 0) {
+                throw new BadRequestException("商户余额不足");
+            }
+            userService.updateAmountSub(user.getId(), new BigDecimal(param.getMoney()));
         }
-        user.setWithdrawalAmount(BigDecimal.valueOf(withDrawa));
-        user.setTotalAmount(BigDecimal.valueOf(totleMoney));
-        userService.updateById(user);
+//        user.setWithdrawalAmount(BigDecimal.valueOf(withDrawa));
+//        user.setTotalAmount(BigDecimal.valueOf(totleMoney));
+//        userService.updateById(user);
 
         YxUserBill userBill = new YxUserBill();
         userBill.setUid(user.getId().intValue());

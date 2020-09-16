@@ -170,4 +170,26 @@ public class UserServiceImpl extends BaseServiceImpl<UserSysMapper, User> implem
     public void updateWithdrawalAmount(Integer id, BigDecimal withdrawalAmount) {
         userSysMapper.updateWithdrawalAmount(id,withdrawalAmount);
     }
+
+    /**
+     * 增加商户金额
+     *
+     * @param id
+     * @param money
+     */
+    @Override
+    public void updateAddAmount(Long id, BigDecimal money) {
+        userSysMapper.updateAmount(id,money);
+    }
+
+    /**
+     * 减少商户总金额
+     *
+     * @param id
+     * @param money
+     */
+    @Override
+    public void updateAmountSub(Long id, BigDecimal money) {
+        userSysMapper.updateAmountSub(id,money);
+    }
 }
