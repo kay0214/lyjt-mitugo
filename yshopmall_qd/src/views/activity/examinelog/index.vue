@@ -108,6 +108,7 @@ export default {
   },
   methods: {
     formatTime,
+    formatTimeTwo,
     // 获取数据前设置好接口地址
     [CRUD.HOOK.beforeRefresh]() {
       return true
