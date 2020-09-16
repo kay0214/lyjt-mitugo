@@ -53,16 +53,13 @@
         <el-table-column label="审批状态" align="center">
           <template slot-scope="scope">
             <div v-if="scope.row.status==1">
-            提现通过
-          </div>
-          <div v-else-if="scope.row.status==-1">
-            提现未通过<br>
-            未通过原因：{{ scope.row.failMsg }}
-            <br>
-            未通过时间：{{ formatTime(scope.row.failTime) }}
+            通过
           </div>
           <div v-else>
-            未提现
+            驳回<br>
+            驳回原因：{{ scope.row.failMsg }}
+            <br>
+            未通过时间：{{ formatTimeTwo(scope.row.failTime) }}
           </div>
           </template>
         </el-table-column>
@@ -82,7 +79,7 @@ import crudOperation from '@crud/CRUD.operation'
 import udOperation from '@crud/UD.operation'
 import pagination from '@crud/Pagination'
 import MaterialList from "@/components/material";
-import { formatTime } from '@/utils/index'
+import { formatTime,formatTimeTwo } from '@/utils/index'
 
 // crud交由presenter持有
 const defaultCrud = CRUD({ title: '提现审批记录', query: { type: 2 }, url: 'api/yxExamineLog/extract', sort: 'id,desc', crudMethod: { ...yxWithdrawExamineLog },optShow: {

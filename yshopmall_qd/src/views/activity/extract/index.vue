@@ -63,6 +63,7 @@
       <el-table-column v-if="checkPermission(['admin','YXUSEREXTRACT_ALL','YXUSEREXTRACT_EDIT','YXUSEREXTRACT_DELETE'])" label="操作" width="150px" align="center">
         <template slot-scope="scope">
           <el-button
+            v-if='scope.row.status!==1 && scope.row.status!==-1'
             v-permission="['admin','YXUSEREXTRACT_ALL','YXUSEREXTRACT_EDIT']"
             size="mini"
             type="primary"
