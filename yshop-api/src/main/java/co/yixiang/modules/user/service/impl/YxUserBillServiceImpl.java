@@ -213,9 +213,8 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<YxUserBillMapper, YxU
         List<String> cartIds = Arrays.asList(order.getCartId().split(","));
         BigDecimal bigDecimalComm = yxUserBillMapper.getSumCommission(cartIds);
         // 商户收入=支付金额-佣金 小于0 的情况给个0
-        bigMerPrice = order.getPayPrice().subtract(bigDecimalComm);
-        if (bigMerPrice.compareTo(BigDecimal.ZERO) < 0) {
-            bigMerPrice = BigDecimal.ZERO;
+        if(order.getPayPrice().compareTo(bigDecimalComm) > 0) {
+            bigMerPrice = order.getPayPrice().subtract(bigDecimalComm);
         }
 
         //更新user表的可提现金额
