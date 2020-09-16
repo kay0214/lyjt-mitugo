@@ -70,7 +70,7 @@
           <el-table-column v-if="columns.visible('couponPrice')" prop="couponPrice" label="商品信息" >
              <template slot-scope="scope">
                <img :src='scope.row.image' :width='30'/>
-              <span>{{scope.row.yxCouponsDto.couponName}}</span>
+              <span>{{scope.row.yxCouponsDto?(scope.row.yxCouponsDto.couponName?scope.row.yxCouponsDto.couponName:''):''}}</span>
             </template>
           </el-table-column>
           <el-table-column v-if="columns.visible('couponPrice')" prop="couponPrice" label="实际支付" />
