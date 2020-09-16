@@ -155,7 +155,7 @@ public class LocaLifeIndexController {
 
         Map<String, Object> map = new HashMap<String, Object>();
         map.put("data", getHotDataJson());
-        map.put("status", "200");
+        map.put("status", 200);
         map.put("msg", "成功");
         return ResponseEntity.ok(map);
     }

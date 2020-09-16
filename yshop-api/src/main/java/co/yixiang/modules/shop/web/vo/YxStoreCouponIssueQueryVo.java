@@ -60,4 +60,10 @@ public class YxStoreCouponIssueQueryVo implements Serializable {
     private Integer usedFlg;
 
 
+    @ApiModelProperty(value = "优惠券领取开启时间-格式化")
+    private String formatStartTime;
+
+    @ApiModelProperty(value = "优惠券领取结束时间-格式化")
+    private String formatEndTime;
+
 }
