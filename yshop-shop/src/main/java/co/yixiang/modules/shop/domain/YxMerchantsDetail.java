@@ -135,6 +135,9 @@ public class YxMerchantsDetail implements Serializable {
     /** 联行号 */
     private String bankCode;
 
+    /** */
+    private String qrcode;
+
 
     public void copy(YxMerchantsDetail source) {
         BeanUtil.copyProperties(source, this, CopyOptions.create().setIgnoreNullValue(true));
