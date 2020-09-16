@@ -553,7 +553,7 @@ public class YxMerchantsDetailServiceImpl extends BaseServiceImpl<YxMerchantsDet
             if (withDrawa < 0 || totleMoney < 0) {
                 throw new BadRequestException("商户余额不足");
             }
-            userService.updateAmountSub(user.getId(), new BigDecimal(param.getMoney()));
+            userService.updateWithdrawalAmountSub(user.getId().intValue(), new BigDecimal(param.getMoney()));
         }
 //        user.setWithdrawalAmount(BigDecimal.valueOf(withDrawa));
 //        user.setTotalAmount(BigDecimal.valueOf(totleMoney));
