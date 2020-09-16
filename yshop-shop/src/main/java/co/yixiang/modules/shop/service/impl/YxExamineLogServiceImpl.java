@@ -146,7 +146,9 @@ public class YxExamineLogServiceImpl extends BaseServiceImpl<YxExamineLogMapper,
                     throw new BadRequestException("查询用户信息失败");
                 }
                 username = user.getNickName();
-                realName = user.getMerchantsContact().substring(0, 1) + "**";
+                if (StringUtils.isNotBlank(user.getMerchantsContact())) {
+                    realName = user.getMerchantsContact().substring(0, 1) + "**";
+                }
             }
             // 放用户名
             dto.setWechat(username);
