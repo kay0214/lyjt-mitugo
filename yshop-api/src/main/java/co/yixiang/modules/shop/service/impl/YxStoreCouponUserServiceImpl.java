@@ -353,8 +353,8 @@ public class YxStoreCouponUserServiceImpl extends BaseServiceImpl<YxStoreCouponU
                     }
                 }
                 //格式化日期
-                String strFormatStart = DateUtils.timestampToStr10(couponUser.getAddTime(),DateUtils.YYYY_MM_DD_HH_MM_SS);
-                String strFormatEnd = DateUtils.timestampToStr10(couponUser.getEndTime(),DateUtils.YYYY_MM_DD_HH_MM_SS);
+                String strFormatStart = DateUtils.timestampToStr10(couponUser.getAddTime(),DateUtils.YYYY_MM_DD);
+                String strFormatEnd = DateUtils.timestampToStr10(couponUser.getEndTime(),DateUtils.YYYY_MM_DD);
                 couponUser.setFormatEndTime(strFormatEnd);
                 couponUser.setFormatStartTime(strFormatStart);
             }
