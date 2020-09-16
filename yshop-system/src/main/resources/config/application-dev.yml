@@ -129,6 +129,6 @@ logging:
 
 #spring rocket mq
 rocketmq:
-  nameServer: 39.98.139.163:9876
+  nameServer: 39.98.139.164:9876
   producer:
     group: mitu-dev
