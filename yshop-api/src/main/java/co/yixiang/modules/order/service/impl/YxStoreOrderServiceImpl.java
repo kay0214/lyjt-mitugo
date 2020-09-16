@@ -2052,7 +2052,7 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
     public List<YxStoreOrderQueryVo> getOrderInfoList(String unique, int uid) {
         QueryWrapper<YxStoreOrder> wrapper = new QueryWrapper<>();
         wrapper.eq("is_del", 0).and(
-                i -> i.eq("`unique`", unique).or().eq("payment_no", unique).or().eq("unique_key", unique)).or().eq("order_id", unique).or().eq("extend_order_id", unique);
+                i -> i.eq("`unique`", unique).or().eq("payment_no", unique).or().eq("unique_key", unique).or().eq("order_id", unique).or().eq("extend_order_id", unique));
         if (uid > 0) wrapper.eq("uid", uid);
 
         return orderMap.toDto(yxStoreOrderMapper.selectList(wrapper));
