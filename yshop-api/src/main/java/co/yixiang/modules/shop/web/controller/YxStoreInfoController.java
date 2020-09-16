@@ -4,6 +4,7 @@ import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.qrcode.QrCodeUtil;
+import cn.hutool.extra.qrcode.QrConfig;
 import co.yixiang.annotation.AnonymousAccess;
 import co.yixiang.common.api.ApiResult;
 import co.yixiang.common.web.controller.BaseController;
@@ -161,22 +162,24 @@ public class YxStoreInfoController extends BaseController {
         String qrcodeUrl = "";
         if (ObjectUtil.isNull(attachment)) {
             File file = FileUtil.mkdir(new File(fileDir));
+            QrConfig config = new QrConfig(122, 122);
+            config.setMargin(0);
             //如果类型是小程序
             if (userType.equals(AppFromEnum.ROUNTINE.getValue())) {
                 //小程序地址
                 siteUrl = siteUrl + "/shop/";
                 //生成二维码
-                QrCodeUtil.generate(siteUrl + "?productId=" + id + "&spread=" + uid + "&codeType=" + AppFromEnum.ROUNTINE.getValue(), 122, 122,
+                QrCodeUtil.generate(siteUrl + "?productId=" + id + "&spread=" + uid + "&codeType=" + AppFromEnum.ROUNTINE.getValue(), config,
                         FileUtil.file(fileDir + name));
             } else if (userType.equals(AppFromEnum.APP.getValue())) {
                 //h5地址
                 siteUrl = siteUrl + "/shop/";
                 //生成二维码
-                QrCodeUtil.generate(siteUrl + "?productId=" + id + "&spread=" + uid + "&codeType=" + AppFromEnum.APP.getValue(), 122, 122,
+                QrCodeUtil.generate(siteUrl + "?productId=" + id + "&spread=" + uid + "&codeType=" + AppFromEnum.APP.getValue(), config,
                         FileUtil.file(fileDir + name));
             } else {//如果类型是h5
                 //生成二维码
-                QrCodeUtil.generate(siteUrl + "/detail/" + id + "?spread=" + uid, 122, 122,
+                QrCodeUtil.generate(siteUrl + "/detail/" + id + "?spread=" + uid, config,
                         FileUtil.file(fileDir + name));
             }
             systemAttachmentService.attachmentAdd(name, String.valueOf(FileUtil.size(file)),

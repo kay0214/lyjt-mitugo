@@ -145,7 +145,7 @@ public class CreatShareStoreServiceImpl implements CreatShareStoreService {
             g.drawString(sb.toString(), tempX, tempY + 32);
 
             //背景 -- 读取互联网图片
-            InputStream stream2 = getClass().getClassLoader().getResourceAsStream("background.png");
+            InputStream stream2 = getClass().getClassLoader().getResourceAsStream("background2.png");
             ImageInputStream background2 = ImageIO.createImageInputStream(stream2);
             BufferedImage back2 = ImageIO.read(background2);
 
@@ -167,7 +167,7 @@ public class CreatShareStoreServiceImpl implements CreatShareStoreService {
             g.setFont(font.deriveFont(Font.PLAIN, 25));
             g.setColor(new Color(171, 171, 171));
             //绘制文字
-            g.drawString("扫描或长按小程序码", 210, 1400);
+            g.drawString("扫描或长按小程序码", 210, 1395);
 
             g.dispose();
             //先将画好的海报写到本地

@@ -19,11 +19,9 @@ import co.yixiang.modules.order.entity.YxStoreOrder;
 import co.yixiang.modules.order.mapper.YxStoreOrderMapper;
 import co.yixiang.modules.shop.entity.YxStoreCart;
 import co.yixiang.modules.shop.mapper.YxStoreCartMapper;
-import co.yixiang.modules.user.entity.YxFundsDetail;
 import co.yixiang.modules.user.entity.YxPointDetail;
 import co.yixiang.modules.user.entity.YxUser;
 import co.yixiang.modules.user.entity.YxUserBill;
-import co.yixiang.modules.user.mapper.YxFundsDetailMapper;
 import co.yixiang.modules.user.mapper.YxPointDetailMapper;
 import co.yixiang.modules.user.mapper.YxUserBillMapper;
 import co.yixiang.modules.user.mapper.YxUserMapper;
@@ -68,9 +66,6 @@ public class CommissionServiceImpl implements CommissionService {
 
     @Autowired
     YxPointDetailMapper yxPointDetailMapper;
-
-    @Autowired
-    YxFundsDetailMapper yxFundsDetailMapper;
 
     @Autowired
     YxFundsAccountMapper yxFundsAccountMapper;
@@ -251,14 +246,7 @@ public class CommissionServiceImpl implements CommissionService {
         //平台
         BigDecimal fundsBonus = orderInfo.getCommission().subtract(allBonus);
         if(fundsBonus.compareTo(BigDecimal.ZERO)>0){
-            YxFundsDetail yxFundsDetail = new YxFundsDetail();
-            yxFundsDetail.setType(orderInfo.getBrokerageType() == 0 ? 1 : 2);
-            yxFundsDetail.setUid(orderInfo.getUid());
-            yxFundsDetail.setUsername(orderInfo.getUsername());
-            yxFundsDetail.setOrderId(orderInfo.getOrderId());
-            yxFundsDetail.setPm(1);
-            yxFundsDetail.setOrderAmount(fundsBonus);
-            yxFundsDetailMapper.insert(yxFundsDetail);
+            insertBill(orderInfo, 0, BillDetailEnum.TYPE_2.getValue(), fundsBonus, "平台账户", BigDecimal.ZERO, 4, "平台账户分佣");
         }
         yxFundsAccountMapper.updateFundsAccount(fundsBonus, yxFundsAccount.getId(),yxFundsAccount.getBonusPoint(),yxFundsAccount.getReferencePoint());
 
@@ -353,7 +341,7 @@ public class CommissionServiceImpl implements CommissionService {
         yxUserBill.setUsername(userName);
         yxUserBill.setPm(1);
         yxUserBill.setTitle(title);
-        yxUserBill.setCategory(userType == 3 ? BillDetailEnum.CATEGORY_1.getValue() : BillDetailEnum.CATEGORY_2.getValue());
+        yxUserBill.setCategory(userType == 3||userType == 4 ? BillDetailEnum.CATEGORY_1.getValue() : BillDetailEnum.CATEGORY_2.getValue());
         yxUserBill.setType(type);
         yxUserBill.setBrokerageType(orderInfo.getBrokerageType());
         yxUserBill.setNumber(parentBonus);

@@ -664,6 +664,25 @@ public class StoreOrderController extends BaseController {
 
     }
 
+    @PostMapping("/order/replyProductList")
+    @ApiOperation(value = "订单评论产品信息", notes = "订单评论产品信息")
+    public ApiResult<Object> replyProductList(@RequestBody String jsonStr) {
+        JSONObject jsonObject = JSON.parseObject(jsonStr);
+        String unique = jsonObject.getString("unique");
+        if (StrUtil.isEmpty(unique)) return ApiResult.fail("参数错误");
+        List<OrderCartInfoDTO> listResult = storeOrderService.getReplyProductList(unique);
+        return ApiResult.ok(listResult);
+    }
+
+    @PostMapping("/order/commentNew")
+    @ApiOperation(value = "订单评价（多个）", notes = "订单评价（多个）")
+    public ApiResult<Object> commentNew(@Valid @RequestBody OrderReplyParam replyParam) {
+        int uid = SecurityUtils.getUserId().intValue();
+        if(ObjectUtil.isEmpty(replyParam)){
+            return ApiResult.fail("请提交评论内容");
+        }
+        return storeOrderService.replyOrderInfo(replyParam,uid);
+    }
 
     /**
      * 订单删除
