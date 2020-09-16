@@ -2281,8 +2281,8 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
                 storeCartList.add(storeCart);
             }
         }
-        yxStoreCartService.saveOrUpdateBatch(storeCartList);
         redisUtils.del(rdisKey);
+        yxStoreCartService.saveOrUpdateBatch(storeCartList);
     }
     /**
      * 计算实际支付金额&总金额（购物车表）
