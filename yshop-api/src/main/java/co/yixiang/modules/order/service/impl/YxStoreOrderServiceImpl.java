@@ -2263,10 +2263,10 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
                 BigDecimal pricePayProduct = bigPrice;
                 if (orderInfo.getDeductionPrice().compareTo(BigDecimal.ZERO) > 0) {
                     //抵扣金额>0
-                    BigDecimal bigProportion = bigPrice.divide(totlePrice, BigDecimal.ROUND_HALF_UP);
+                    BigDecimal bigProportion = bigPrice.divide(totlePrice, 8, BigDecimal.ROUND_DOWN);
                     //支付比例：
                     //订单金额*支付比例= 产品的支付金额
-                    pricePayProduct = orderInfo.getPayPrice().multiply(bigProportion);
+                    pricePayProduct = orderInfo.getPayPrice().multiply(bigProportion).setScale(2, BigDecimal.ROUND_DOWN);
                 }
                 if (postagePrice.compareTo(BigDecimal.ZERO) > 0) {
                     //实际支付= 支付金额+邮费
