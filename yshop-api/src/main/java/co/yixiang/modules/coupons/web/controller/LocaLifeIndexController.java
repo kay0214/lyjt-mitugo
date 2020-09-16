@@ -15,6 +15,8 @@ import co.yixiang.modules.shop.entity.YxSystemGroupData;
 import co.yixiang.modules.shop.service.YxStoreInfoService;
 import co.yixiang.modules.shop.service.YxSystemGroupDataService;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.alicp.jetcache.anno.CacheRefresh;
 import com.alicp.jetcache.anno.CacheType;
 import com.alicp.jetcache.anno.Cached;
@@ -24,10 +26,12 @@ import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -142,6 +146,41 @@ public class LocaLifeIndexController {
     ,@RequestHeader(value = "location", required = false) String location) throws Exception{
         Paging<LocalLiveListVo> paging = yxStoreInfoService.getLocalLiveList(localLiveQueryParam,location);
         return ApiResult.ok(paging);
+    }
+
+    @AnonymousAccess
+    @GetMapping("/getHotData")
+    @ApiOperation(value = "获取hot数据",notes = "获取hot数据")
+    public ResponseEntity getHotData() {
+
+        Map<String, Object> map = new HashMap<String, Object>();
+        map.put("data", getHotDataJson());
+        map.put("status", "200");
+        map.put("msg", "成功");
+        return ResponseEntity.ok(map);
+    }
+
+    private  JSONObject getHotDataJson(){
+
+        JSONArray jsa = new JSONArray();
+        JSONObject jso = new JSONObject();
+        jso.put("id",1);
+        jso.put("img","https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1600230723408&di=475555ce3be69f51f07c9f109a6cd8bc&imgtype=0&src=http%3A%2F%2Fimage.biaobaiju.com%2Fuploads%2F20181113%2F11%2F1542079423-iJeKmqrfXu.jpg");
+
+        jso.put("url","https://baijiahao.baidu.com/s?id=1677893142703276561&wfr=spider&for=pc");
+
+        JSONObject jso1 = new JSONObject();
+        jso1.put("id",2);
+        jso1.put("img","https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=1152899291,1406946364&fm=26&gp=0.jpg");
+        jso1.put("url","https://news.online.sh.cn/news/gb/content/2020-09/16/content_9642092_2.htm");
+
+        jsa.add(jso);
+        jsa.add(jso1);
+
+        JSONObject result = new JSONObject();
+        result.put("total",2);
+        result.put("records",jsa);
+        return result;
     }
 
 }
