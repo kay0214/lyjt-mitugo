@@ -46,4 +46,6 @@ public interface YxSystemConfigService  extends BaseService<YxSystemConfig>{
     void download(List<YxSystemConfigDto> all, HttpServletResponse response) throws IOException;
 
     YxSystemConfig findByKey(String store_brokerage_statu);
+
+    String getData(String name);
 }
