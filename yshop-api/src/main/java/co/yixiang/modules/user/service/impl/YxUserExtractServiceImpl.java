@@ -56,7 +56,7 @@ public class YxUserExtractServiceImpl extends BaseServiceImpl<YxUserExtractMappe
      * @param param
      */
     @Override
-    public void userExtract(int uid, UserExtParam param) {
+    public void updateUserExtract(int uid, UserExtParam param) {
         YxUserQueryVo userInfo = userService.getYxUserById(uid);
         BigDecimal extractPrice = userInfo.getNowMoney();
         if (extractPrice.compareTo(BigDecimal.ZERO) <= 0) {
