@@ -154,6 +154,7 @@ public class YxExamineLogServiceImpl extends BaseServiceImpl<YxExamineLogMapper,
             }
             // 驳回信息
             dto.setFailMsg(yxUserExtract.getFailMsg());
+            dto.setFailTime(yxUserExtract.getFailTime());
             // 放用户名
             dto.setWechat(username);
             // 放真实姓名
