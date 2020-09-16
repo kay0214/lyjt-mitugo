@@ -51,11 +51,18 @@
         </el-table-column>
         <el-table-column label="审批状态" align="center">
           <template slot-scope="scope">
-            <div><!--/**  0->待审核,1->通过,2->驳回 */-->
-              <el-tag v-if="scope.row.status == 1">通过</el-tag>
-              <el-tag v-else-if="scope.row.status == 2">驳回</el-tag>
-              <el-tag v-else>待审核</el-tag>
-            </div>
+            <div v-if="scope.row.status==1">
+            提现通过
+          </div>
+          <div v-else-if="scope.row.status==-1">
+            提现未通过<br>
+            未通过原因：{{ scope.row.failMsg }}
+            <br>
+            未通过时间：{{ formatTime(scope.row.failTime) }}
+          </div>
+          <div v-else>
+            未提现
+          </div>
           </template>
         </el-table-column>
         <!-- <el-table-column v-if="columns.visible('mark')" prop="mark" label="审核说明" /> -->
