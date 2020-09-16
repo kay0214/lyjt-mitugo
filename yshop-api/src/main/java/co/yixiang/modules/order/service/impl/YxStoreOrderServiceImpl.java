@@ -36,7 +36,10 @@ import co.yixiang.modules.order.web.dto.*;
 import co.yixiang.modules.order.web.param.*;
 import co.yixiang.modules.order.web.vo.YxStoreOrderQueryVo;
 import co.yixiang.modules.shop.entity.*;
-import co.yixiang.modules.shop.mapper.*;
+import co.yixiang.modules.shop.mapper.YxStoreCartMapper;
+import co.yixiang.modules.shop.mapper.YxStoreCouponMapper;
+import co.yixiang.modules.shop.mapper.YxStoreCouponUserMapper;
+import co.yixiang.modules.shop.mapper.YxStoreInfoMapper;
 import co.yixiang.modules.shop.service.*;
 import co.yixiang.modules.shop.web.vo.*;
 import co.yixiang.modules.user.entity.YxUser;
@@ -177,6 +180,7 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
     private Integer datacenterId;
     @Autowired
     private RedisUtils redisUtils;
+
     /**
      * 订单退款
      *
@@ -613,13 +617,15 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
         // 商户资金明细生成
         userBillService.saveMerchantsBill(order);
 
-        // 发送mq分佣
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.put("orderId", orderId);
-        // 0 商品分佣 1 卡券分佣
-        jsonObject.put("orderType", "0");
-        mqProducer.messageSend2(new MessageContent(MQConstant.MITU_TOPIC, MQConstant.MITU_COMMISSION_TAG, UUID.randomUUID().toString(), jsonObject));
-
+        // 实付金额大于0的才可以分佣
+        if (order.getPayPrice().compareTo(BigDecimal.ZERO) > 0) {
+            // 发送mq分佣
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("orderId", orderId);
+            // 0 商品分佣 1 卡券分佣
+            jsonObject.put("orderType", "0");
+            mqProducer.messageSend2(new MessageContent(MQConstant.MITU_TOPIC, MQConstant.MITU_COMMISSION_TAG, UUID.randomUUID().toString(), jsonObject));
+        }
 //        //奖励积分 没有积分
 //        gainUserIntegral(order);
         //分销计算
@@ -1897,9 +1903,9 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
                 redisVo.setCartId(cart.getId().intValue());
                 redisVo.setProductId(cart.getProductId());
                 BigDecimal productPrice = BigDecimal.ZERO;
-                if(StringUtils.isNotBlank(cart.getProductAttrUnique())){
+                if (StringUtils.isNotBlank(cart.getProductAttrUnique())) {
                     productPrice = cart.getProductInfo().getAttrInfo().getPrice();
-                }else{
+                } else {
                     productPrice = cart.getProductInfo().getPrice();
                 }
                 redisVo.setProductPrice(productPrice);
@@ -2012,7 +2018,7 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
             storeCartMapper.update(cartObj, wrapper);
 
             //存入redis(产品信息)
-            redisUtils.set("orderInfo_orderId:"+orderSn,redisVoList);
+            redisUtils.set("orderInfo_orderId:" + orderSn, redisVoList);
             //增加状态
             orderStatusService.create(storeOrder.getId(), "cache_key_create_order", "订单生成");
             //加入redis，30分钟自动取消
@@ -2185,11 +2191,11 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
                 cartQueryWrapper.in("id", listCart);
                 List<YxStoreCart> storeCartList = yxStoreCartService.list(cartQueryWrapper);*/
                 //
-                String keyRedis = "orderInfo_orderId:"+orderInfo.getOrderId();
+                String keyRedis = "orderInfo_orderId:" + orderInfo.getOrderId();
 //                getProductCartInfoOrderId(orderInfo, storeCartList);
                 //保存信息
 //                yxStoreCartService.saveOrUpdateBatch(storeCartList);
-                getProductCartInfoOrderIdRedis(keyRedis,orderInfo);
+                getProductCartInfoOrderIdRedis(keyRedis, orderInfo);
                 // 插入资金明细
                 YxUserBill yxUserBill = new YxUserBill();
                 yxUserBill.setUid(orderInfo.getUid());
@@ -2236,13 +2242,14 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
         }
         return null;
     }
-    public void getProductCartInfoOrderIdRedis(String rdisKey,YxStoreOrderQueryVo orderInfo) {
-        List<YxStoreOrderRedisVo>  redisVoList =(List<YxStoreOrderRedisVo>) redisUtils.get(rdisKey);
+
+    public void getProductCartInfoOrderIdRedis(String rdisKey, YxStoreOrderQueryVo orderInfo) {
+        List<YxStoreOrderRedisVo> redisVoList = (List<YxStoreOrderRedisVo>) redisUtils.get(rdisKey);
         BigDecimal totlePrice = orderInfo.getTotalPrice();
         BigDecimal postagePrice = BigDecimal.ZERO;
         List<YxStoreCart> storeCartList = new ArrayList<YxStoreCart>();
-        if(CollectionUtils.isNotEmpty(redisVoList)){
-            for(YxStoreOrderRedisVo redisVo:redisVoList){
+        if (CollectionUtils.isNotEmpty(redisVoList)) {
+            for (YxStoreOrderRedisVo redisVo : redisVoList) {
                 YxStoreCart storeCart = yxStoreCartService.getById(redisVo.getCartId());
                 BigDecimal bigPrice = redisVo.getProductPrice();
                 if (orderInfo.getPayPostage().compareTo(BigDecimal.ZERO) > 0) {
@@ -2276,6 +2283,7 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
         redisUtils.del(rdisKey);
         yxStoreCartService.saveOrUpdateBatch(storeCartList);
     }
+
     /**
      * 计算实际支付金额&总金额（购物车表）
      *
@@ -2398,20 +2406,20 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
 
 
     @Override
-    public List<OrderCartInfoDTO> getReplyProductList(String unique){
+    public List<OrderCartInfoDTO> getReplyProductList(String unique) {
         List<OrderCartInfoDTO> orderCartInfoDTOList = new ArrayList<OrderCartInfoDTO>();
-        YxStoreOrderQueryVo storeOrderQueryVo = this.getOrderInfo(unique,0);
-        if(ObjectUtil.isNull(storeOrderQueryVo)){
-           return null;
+        YxStoreOrderQueryVo storeOrderQueryVo = this.getOrderInfo(unique, 0);
+        if (ObjectUtil.isNull(storeOrderQueryVo)) {
+            return null;
         }
         List<String> listCartIds = Arrays.asList(storeOrderQueryVo.getCartId().split(","));
         QueryWrapper<YxStoreOrderCartInfo> wrapper = new QueryWrapper<YxStoreOrderCartInfo>();
-        wrapper.in("cart_id",listCartIds);
-        List<YxStoreOrderCartInfo> cartList =  orderCartInfoService.list(wrapper);
-        if(CollectionUtils.isEmpty(cartList)){
+        wrapper.in("cart_id", listCartIds);
+        List<YxStoreOrderCartInfo> cartList = orderCartInfoService.list(wrapper);
+        if (CollectionUtils.isEmpty(cartList)) {
             return null;
         }
-        for(YxStoreOrderCartInfo cartInfo:cartList){
+        for (YxStoreOrderCartInfo cartInfo : cartList) {
             OrderCartInfoDTO orderCartInfoDTO = new OrderCartInfoDTO();
             YxStoreCartQueryVo cartQueryVo = JSONObject.parseObject(cartInfo.getCartInfo(),
                     YxStoreCartQueryVo.class);
@@ -2444,23 +2452,23 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
 
     @Transactional
     @Override
-    public ApiResult<Object> replyOrderInfo(OrderReplyParam replyParam,int uid){
+    public ApiResult<Object> replyOrderInfo(OrderReplyParam replyParam, int uid) {
         List<StoreProductReplyParam> productReplyList = replyParam.getProductReplyList();
-        YxStoreOrderQueryVo storeOrderQueryVo = this.getOrderInfo(replyParam.getOrderNo(),uid);
-        if(ObjectUtil.isNull(storeOrderQueryVo)){
+        YxStoreOrderQueryVo storeOrderQueryVo = this.getOrderInfo(replyParam.getOrderNo(), uid);
+        if (ObjectUtil.isNull(storeOrderQueryVo)) {
 //            return null;
             return ApiResult.fail("评价订单不存在");
         }
         List<String> listCartIds = Arrays.asList(storeOrderQueryVo.getCartId().split(","));
         QueryWrapper<YxStoreOrderCartInfo> wrapper = new QueryWrapper<YxStoreOrderCartInfo>();
-        wrapper.in("cart_id",listCartIds);
-        List<YxStoreOrderCartInfo> cartList =  orderCartInfoService.list(wrapper);
-        if(CollectionUtils.isEmpty(cartList)){
+        wrapper.in("cart_id", listCartIds);
+        List<YxStoreOrderCartInfo> cartList = orderCartInfoService.list(wrapper);
+        if (CollectionUtils.isEmpty(cartList)) {
             return ApiResult.fail("评价产品信息不存在");
         }
 
         QueryWrapper<YxStoreOrder> orderQueryWrapper = new QueryWrapper<>();
-        orderQueryWrapper.eq("order_id",replyParam.getOrderNo());
+        orderQueryWrapper.eq("order_id", replyParam.getOrderNo());
         List<YxStoreOrder> storeOrderList = this.list(orderQueryWrapper);
         YxStoreOrder storeOrder = storeOrderList.get(0);
 
@@ -2468,11 +2476,11 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
         if (count > 0) return ApiResult.fail("该产品已评价");
 
         List<YxStoreProductReply> replyList = new ArrayList<>();
-        for(YxStoreOrderCartInfo cartInfo:cartList) {
+        for (YxStoreOrderCartInfo cartInfo : cartList) {
             for (StoreProductReplyParam productReplyParam : productReplyList) {
                 if (productReplyParam.getProductScore() < 1) return ApiResult.fail("请为产品评分");
                 if (productReplyParam.getServiceScore() < 1) return ApiResult.fail("请为商家服务评分");
-                if(!cartInfo.getProductId().equals(productReplyParam.getProductId())){
+                if (!cartInfo.getProductId().equals(productReplyParam.getProductId())) {
                     continue;
                 }
                 YxStoreProductReply productReply = new YxStoreProductReply();
@@ -2484,7 +2492,7 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
                 productReply.setAddTime(OrderUtil.getSecondTimestampTwo());
                 productReply.setReplyType("product");
                 productReply.setComment(productReplyParam.getComment());
-                productReply.setPics(StringUtils.isNotBlank(productReplyParam.getPics())?productReply.getPics():"");
+                productReply.setPics(StringUtils.isNotBlank(productReplyParam.getPics()) ? productReply.getPics() : "");
                 productReply.setUnique(cartInfo.getUnique());
                 //所在商户
                 YxStoreProduct product = productService.getProductInfo(cartInfo.getProductId());
