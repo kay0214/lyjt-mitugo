@@ -32,4 +32,6 @@ public class StoreProductReplyParam extends BaseEntity {
     @ApiModelProperty(value = "评论图片")
     private String pics;
 
+    @ApiModelProperty(value = "产品属性unique")
+    private String unique;
 }

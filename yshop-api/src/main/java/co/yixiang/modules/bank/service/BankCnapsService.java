@@ -38,4 +38,6 @@ public interface BankCnapsService extends BaseService<BankCnaps> {
      * @return
      */
     List<BankCnaps> getAllCnaps();
+
+    List<String> getAllCnapsByName(String bankName);
 }

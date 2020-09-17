@@ -68,6 +68,7 @@ public class BankCodeController extends BaseController {
 
         List<String> provinces = regService.getAllProvinces();
         List<BankCnaps> cnaps = cnapsService.getAllCnaps();
+
         BankSelectVo result = new BankSelectVo();
         result.setCnaps(cnaps);
         result.setProvinces(provinces);
@@ -78,18 +79,20 @@ public class BankCodeController extends BaseController {
 
     @PostMapping("/getCitys")
     @ApiOperation(value = "查询所有市 传 name",notes = "查询所有市")
-    public ApiResult<Object> getCitys(@RequestBody BankCodeReg param) throws Exception{
+    public ApiResult<Object> getCitys(@RequestBody BankCodeReg param) {
 
         List<String> citys = regService.getAllCitys(param.getName());
 
-
-        return ApiResult.ok(null);
+        return ApiResult.ok(citys);
     }
 
     @PostMapping("/getBanks")
     @ApiOperation(value = "查询联行号",notes = "查询联行号",response = BankCodeQueryVo.class)
-    public ApiResult<Paging<BankCodeQueryVo>> getBanks() throws Exception{
-        return ApiResult.ok(null);
+    public ApiResult<Paging<BankCodeQueryVo>> getBanks(@RequestBody BankCodeQueryParam queryParam){
+
+        Paging<BankCodeQueryVo> result = bankCodeService.getBanks(queryParam);
+
+        return ApiResult.ok(result);
     }
 
 }

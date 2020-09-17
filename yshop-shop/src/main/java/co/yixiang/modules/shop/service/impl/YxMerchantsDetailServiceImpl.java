@@ -348,7 +348,7 @@ public class YxMerchantsDetailServiceImpl extends BaseServiceImpl<YxMerchantsDet
             yxStoreInfo = new YxStoreInfo();
             // 店铺编号
             yxStoreInfo.setStoreNid("S" + SecretUtil.createRandomStr(8) + resources.getId());
-            yxStoreInfo.setStoreName("未命名店铺");
+            yxStoreInfo.setStoreName(yxMerchantsDetail.getMerchantsName());
             yxStoreInfo.setManageUserName(yxMerchantsDetail.getContacts());
             yxStoreInfo.setMerId(yxMerchantsDetail.getUid());
             // 重新获取下

@@ -13,8 +13,12 @@ import lombok.Data;
 * @date 2020-05-12
 */
 @Data
-public class YxMaterialQueryCriteria{
+public class YxMaterialQueryCriteria extends BaseCriteria{
 
     @Query
     private String groupId;
+
+    /** 所属租户 */
+    @Query(type = Query.Type.EQUAL)
+    private String createId;
 }
