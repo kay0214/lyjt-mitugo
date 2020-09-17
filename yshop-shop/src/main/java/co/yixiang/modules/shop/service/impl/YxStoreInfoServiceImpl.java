@@ -12,6 +12,7 @@ import co.yixiang.common.service.impl.BaseServiceImpl;
 import co.yixiang.common.utils.QueryHelpPlus;
 import co.yixiang.constant.ShopConstants;
 import co.yixiang.dozer.service.IGenerator;
+import co.yixiang.exception.BadRequestException;
 import co.yixiang.modules.mybatis.GeoPoint;
 import co.yixiang.modules.shop.domain.*;
 import co.yixiang.modules.shop.service.YxStoreInfoService;
@@ -200,7 +201,7 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
         }
         //删除详情图片
         QueryWrapper<YxSystemAttachment> queryWrapperAtt = new QueryWrapper();
-        queryWrapperAtt.like("name",request.getId()+"_%").like("name","%store%");
+        queryWrapperAtt.like("name", request.getId() + "_%").like("name", "%store%");
         yxSystemAttachmentMapper.delete(queryWrapperAtt);
 
         //批量保存数据
@@ -243,8 +244,49 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
 
     @Override
     public void onSale(Integer id, int status) {
+        // 状态：0：上架，1：下架
         if (status == 1) {
             status = 0;
+            // 判断是否满足上架条件
+            YxStoreInfo yxStoreInfo = this.getById(id);
+            if (StringUtils.isBlank(yxStoreInfo.getStoreName())) {
+                throw new BadRequestException("请先设置店铺名称");
+            }
+            if (StringUtils.isBlank(yxStoreInfo.getManageUserName())) {
+                throw new BadRequestException("请先设置管理人用户名");
+            }
+            if (StringUtils.isBlank(yxStoreInfo.getManageMobile())) {
+                throw new BadRequestException("请先设置管理人电话");
+            }
+            if (StringUtils.isBlank(yxStoreInfo.getStoreMobile())) {
+                throw new BadRequestException("请先设置店铺电话");
+            }
+            // 营业时间校验
+            List<YxStoreAttribute> attributeList = yxStoreAttributeService.list(new QueryWrapper<YxStoreAttribute>().lambda().eq(YxStoreAttribute::getAttributeType, 0).eq(YxStoreAttribute::getStoreId, id));
+            if (null == attributeList || attributeList.size() <= 0) {
+                throw new BadRequestException("请先设置营业时间");
+            }
+            if (null == yxStoreInfo.getIndustryCategory()) {
+                throw new BadRequestException("请先设置行业类别");
+            }
+            // 店铺图片和轮播图
+            String pic = yxImageInfoService.selectImgByParam(id, ShopConstants.IMG_TYPE_STORE, ShopConstants.IMG_CATEGORY_PIC);
+            if (StringUtils.isBlank(pic)) {
+                throw new BadRequestException("请先设置店铺图片");
+            }
+            String rotation = yxImageInfoService.selectImgByParam(id, ShopConstants.IMG_TYPE_STORE, ShopConstants.IMG_CATEGORY_ROTATION1);
+            if (StringUtils.isBlank(rotation)) {
+                throw new BadRequestException("请先设置店铺轮播图");
+            }
+            if (StringUtils.isBlank(yxStoreInfo.getStoreProvince())) {
+                throw new BadRequestException("请先设置店铺省市区");
+            }
+            if (StringUtils.isBlank(yxStoreInfo.getStoreAddress())) {
+                throw new BadRequestException("请先设置店铺详细地址");
+            }
+            if (StringUtils.isBlank(yxStoreInfo.getIntroduction())) {
+                throw new BadRequestException("请先设置店铺介绍");
+            }
         } else {
             status = 1;
         }

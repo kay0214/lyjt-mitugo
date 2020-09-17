@@ -26,7 +26,7 @@ public interface YxUserExtractMapper extends BaseMapper<YxUserExtract> {
 
     @Select("select IFNULL(sum(extract_price),0) from yx_user_extract " +
             "where status=1 " +
-            "and uid=#{uid}")
+            "and uid=#{uid} and user_type = 3")
     BigDecimal sumPrice(@Param("uid") int uid);
 
     /**

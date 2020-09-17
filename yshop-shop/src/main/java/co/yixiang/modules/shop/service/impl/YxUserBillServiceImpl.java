@@ -63,6 +63,7 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<UserBillMapper, YxUse
 //        getPage(pageable);
 //        PageInfo<YxUserBillDto> page = new PageInfo<>(queryAll(criteria));
         QueryWrapper<YxUserBill> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().eq(YxUserBill::getCategory, BillDetailEnum.CATEGORY_1.getValue());
         queryWrapper.lambda().orderByDesc(YxUserBill::getAddTime);
         int userType = 0;
         if (1 == criteria.getUserRole()) {

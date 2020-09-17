@@ -29,7 +29,7 @@ import java.sql.Timestamp;
 @Data
 @TableName("yx_store_info")
 public class YxStoreInfo implements Serializable {
-    @Id
+
     @TableId(value = "id", type = IdType.AUTO)
     private Integer id;
 

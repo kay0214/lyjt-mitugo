@@ -4,11 +4,14 @@
 package co.yixiang.modules.shop.service.impl;
 
 import cn.hutool.core.util.NumberUtil;
+import cn.hutool.extra.qrcode.QrCodeUtil;
+import cn.hutool.extra.qrcode.QrConfig;
 import co.yixiang.common.service.impl.BaseServiceImpl;
 import co.yixiang.common.utils.QueryHelpPlus;
 import co.yixiang.constant.ShopConstants;
 import co.yixiang.constant.SystemConfigConstants;
 import co.yixiang.dozer.service.IGenerator;
+import co.yixiang.enums.AppFromEnum;
 import co.yixiang.exception.BadRequestException;
 import co.yixiang.modules.mybatis.GeoPoint;
 import co.yixiang.modules.shop.domain.*;
@@ -17,6 +20,7 @@ import co.yixiang.modules.shop.service.dto.UserMoneyDto;
 import co.yixiang.modules.shop.service.dto.YxMerchantsDetailDto;
 import co.yixiang.modules.shop.service.dto.YxMerchantsDetailQueryCriteria;
 import co.yixiang.modules.shop.service.mapper.YxMerchantsDetailMapper;
+import co.yixiang.modules.shop.service.mapper.YxStoreInfoMapper;
 import co.yixiang.utils.FileUtil;
 import co.yixiang.utils.OrderUtil;
 import co.yixiang.utils.SecretUtil;
@@ -24,15 +28,16 @@ import co.yixiang.utils.StringUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletResponse;
+import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -51,18 +56,24 @@ import java.util.Map;
  */
 @Slf4j
 @Service
-@AllArgsConstructor
+//@AllArgsConstructor
 //@CacheConfig(cacheNames = "yxMerchantsDetail")
 @Transactional(propagation = Propagation.SUPPORTS, readOnly = true, rollbackFor = Exception.class)
 public class YxMerchantsDetailServiceImpl extends BaseServiceImpl<YxMerchantsDetailMapper, YxMerchantsDetail> implements YxMerchantsDetailService {
 
-    private final IGenerator generator;
+    @Value("${file.path}")
+    private String path;
+
+    @Autowired
+    private IGenerator generator;
     @Autowired
     private YxImageInfoService yxImageInfoService;
     @Autowired
     private YxExamineLogService yxExamineLogService;
+    //    @Autowired
+//    private YxStoreInfoService yxStoreInfoService;
     @Autowired
-    private YxStoreInfoService yxStoreInfoService;
+    private YxStoreInfoMapper yxStoreInfoMapper;
     @Autowired
     private UserService userService;
     @Autowired
@@ -333,41 +344,49 @@ public class YxMerchantsDetailServiceImpl extends BaseServiceImpl<YxMerchantsDet
         yxExamineLog.setRemark(resources.getExamineRemark());
         yxExamineLog.setDelFlag(0);
         yxExamineLogService.save(yxExamineLog);
-        YxStoreInfo yxStoreInfo = this.yxStoreInfoService.getOne(new QueryWrapper<YxStoreInfo>().lambda().eq(YxStoreInfo::getMerId, yxMerchantsDetail.getUid()));
+        YxStoreInfo yxStoreInfo = this.yxStoreInfoMapper.selectOne(new QueryWrapper<YxStoreInfo>().lambda().eq(YxStoreInfo::getMerId, yxMerchantsDetail.getUid()));
         // 审核通过生成一个默认店铺
         if (1 == resources.getExamineStatus() && null == yxStoreInfo) {
+            User user = this.userService.getById(yxMerchantsDetail.getUid());
+            YxStoreInfo insertStore = new YxStoreInfo();
+            // 店铺编号
+            insertStore.setStoreNid("S" + SecretUtil.createRandomStr(8) + resources.getId());
+            insertStore.setStoreName("未命名店铺");
+            insertStore.setManageUserName(yxMerchantsDetail.getContacts());
+            insertStore.setMerId(yxMerchantsDetail.getUid());
+            // 重新获取下
+            insertStore.setPartnerId(user.getParentId());
+            insertStore.setManageMobile(yxMerchantsDetail.getContactMobile());
+            insertStore.setStoreMobile(yxMerchantsDetail.getContactMobile());
+            // 状态：0：上架，1：下架
+            insertStore.setStatus(1);
+            insertStore.setStoreProvince("");
+            insertStore.setStoreAddress("");
+            insertStore.setPerCapita(BigDecimal.ZERO);
+            insertStore.setDelFlag(0);
+            insertStore.setCoordinate(new GeoPoint(BigDecimal.ZERO, BigDecimal.ZERO));
+            yxStoreInfoMapper.insert(insertStore);
+
             // 生成店铺分销用的二维码
             //判断用户是否小程序,注意小程序二维码生成路径要与H5不一样 不然会导致都跳转到小程序问题
             String siteUrl = systemConfigService.getData(SystemConfigConstants.SITE_URL);
-            if (StringUtils.isNotBlank(siteUrl)) {
-//                File file = cn.hutool.core.io.FileUtil.mkdir(new File(fileDir));
-//                QrCodeUtil.generate(siteUrl + "?spread=" + uid, 180, 180,
-//                        cn.hutool.core.io.FileUtil.file(fileDir + name));
-//
-//                systemAttachmentService.attachmentAdd(name, String.valueOf(cn.hutool.core.io.FileUtil.size(file)),
-//                        fileDir + name, "qrcode/" + name);
-//
-//                qrcodeUrl = fileDir + name;
+            String apiUrl = systemConfigService.getData(SystemConfigConstants.API_URL);
+            if (StringUtils.isNotBlank(siteUrl) && StringUtils.isNotBlank(apiUrl)) {
+                //小程序地址
+                siteUrl = siteUrl + "/shop/";
+                // 二维码长宽
+                QrConfig config = new QrConfig(180, 180);
+                config.setMargin(0);
+                String fileDir = path + "qrcode" + File.separator;
+                String name = insertStore.getId() + "_" + yxMerchantsDetail.getUid() + "_mer_" + "_store_detail_wap.jpg";
+//                File file = FileUtil.mkdir(new File(fileDir));
+                //生成二维码
+                QrCodeUtil.generate(siteUrl + "?productId=" + insertStore.getId() + "&spread=" + yxMerchantsDetail.getUid() + "&spreadType=mer&codeType=" + AppFromEnum.ROUNTINE.getValue(), config,
+                        FileUtil.file(fileDir + name));
+
+                String qrcodeUrl = apiUrl + "/file/qrcode/" + name;
+                yxMerchantsDetail.setQrcode(qrcodeUrl);
             }
-            User user = this.userService.getById(yxMerchantsDetail.getUid());
-            yxStoreInfo = new YxStoreInfo();
-            // 店铺编号
-            yxStoreInfo.setStoreNid("S" + SecretUtil.createRandomStr(8) + resources.getId());
-            yxStoreInfo.setStoreName("未命名店铺");
-            yxStoreInfo.setManageUserName(yxMerchantsDetail.getContacts());
-            yxStoreInfo.setMerId(yxMerchantsDetail.getUid());
-            // 重新获取下
-            yxStoreInfo.setPartnerId(user.getParentId());
-            yxStoreInfo.setManageMobile(yxMerchantsDetail.getContactMobile());
-            yxStoreInfo.setStoreMobile(yxMerchantsDetail.getContactMobile());
-            // 状态：0：上架，1：下架
-            yxStoreInfo.setStatus(1);
-            yxStoreInfo.setStoreProvince("");
-            yxStoreInfo.setStoreAddress("");
-            yxStoreInfo.setPerCapita(BigDecimal.ZERO);
-            yxStoreInfo.setDelFlag(0);
-            yxStoreInfo.setCoordinate(new GeoPoint(BigDecimal.ZERO, BigDecimal.ZERO));
-            yxStoreInfoService.save(yxStoreInfo);
         }
         // 审核状态更新后放、审核通过的场景生成二维码
         yxMerchantsDetail.setExamineStatus(resources.getExamineStatus());
@@ -525,6 +544,7 @@ public class YxMerchantsDetailServiceImpl extends BaseServiceImpl<YxMerchantsDet
             mark = "系统增加了" + param.getMoney() + "可提现金额";
             withDrawa = NumberUtil.add(user.getWithdrawalAmount(), param.getMoney()).doubleValue();
             totleMoney = NumberUtil.add(user.getTotalAmount(), param.getMoney()).doubleValue();
+            userService.updateAddAmount(user.getId(), new BigDecimal(param.getMoney()));
         } else {
             title = "减少可提现金额";
             mark = "系统扣除了" + param.getMoney() + "可提现金额";
@@ -533,13 +553,14 @@ public class YxMerchantsDetailServiceImpl extends BaseServiceImpl<YxMerchantsDet
             withDrawa = NumberUtil.sub(user.getWithdrawalAmount(), param.getMoney()).doubleValue();
             totleMoney = NumberUtil.sub(user.getTotalAmount(), param.getMoney()).doubleValue();
 
-            if (withDrawa < 0) withDrawa = 0d;
-            if (totleMoney < 0) totleMoney = 0d;
-
+            if (withDrawa < 0 || totleMoney < 0) {
+                throw new BadRequestException("商户余额不足");
+            }
+            userService.updateWithdrawalAmountSub(user.getId().intValue(), new BigDecimal(param.getMoney()));
         }
-        user.setWithdrawalAmount(BigDecimal.valueOf(withDrawa));
-        user.setTotalAmount(BigDecimal.valueOf(totleMoney));
-        userService.updateById(user);
+//        user.setWithdrawalAmount(BigDecimal.valueOf(withDrawa));
+//        user.setTotalAmount(BigDecimal.valueOf(totleMoney));
+//        userService.updateById(user);
 
         YxUserBill userBill = new YxUserBill();
         userBill.setUid(user.getId().intValue());

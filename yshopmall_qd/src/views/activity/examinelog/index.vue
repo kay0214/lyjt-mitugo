@@ -59,7 +59,7 @@
             驳回<br>
             驳回原因：{{ scope.row.failMsg }}
             <br>
-            未通过时间：{{ scope.row.failTime?formatTimeTwo(scope.row.failTime):'' }}
+            驳回时间：{{ scope.row.failTime?formatTimeTwo(scope.row.failTime):'' }}
           </div>
           </template>
         </el-table-column>
@@ -108,6 +108,7 @@ export default {
   },
   methods: {
     formatTime,
+    formatTimeTwo,
     // 获取数据前设置好接口地址
     [CRUD.HOOK.beforeRefresh]() {
       return true
