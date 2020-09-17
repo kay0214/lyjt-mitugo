@@ -7,7 +7,7 @@ import co.yixiang.annotation.AnonymousAccess;
 import co.yixiang.common.api.ApiResult;
 import co.yixiang.common.web.controller.BaseController;
 import co.yixiang.constant.ShopConstants;
-import co.yixiang.logging.aop.log.Log;
+import co.yixiang.modules.coupons.service.YxCouponOrderService;
 import co.yixiang.modules.order.service.YxStoreOrderService;
 import co.yixiang.modules.shop.service.YxStoreProductRelationService;
 import co.yixiang.modules.shop.service.YxSystemGroupDataService;
@@ -58,6 +58,8 @@ public class UserController extends BaseController {
     private final YxUserSignService userSignService;
     private final YxUserBillService userBillService;
     private final YxSystemUserLevelService systemUserLevelService;
+    @Autowired
+    private YxCouponOrderService yxCouponOrderService;
 
     private static Lock lock = new ReentrantLock(false);
 
@@ -104,6 +106,7 @@ public class UserController extends BaseController {
             yxUserQueryVo.setVipId(yxUserQueryVo.getLevel());
             yxUserQueryVo.setVipName(systemUserLevelQueryVo.getName());
         }
+        yxUserQueryVo.setCouponOrderStatusNum(yxCouponOrderService.orderData(uid));
         return ApiResult.ok(yxUserQueryVo);
     }
 
