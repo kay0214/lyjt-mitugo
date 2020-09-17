@@ -2247,11 +2247,11 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
         List<YxStoreOrderRedisVo> redisVoList = (List<YxStoreOrderRedisVo>) redisUtils.get(rdisKey);
         BigDecimal totlePrice = orderInfo.getTotalPrice();
         BigDecimal postagePrice = BigDecimal.ZERO;
+        BigDecimal bigPrice = orderInfo.getPayPrice();
         List<YxStoreCart> storeCartList = new ArrayList<YxStoreCart>();
         if (CollectionUtils.isNotEmpty(redisVoList)) {
             for (YxStoreOrderRedisVo redisVo : redisVoList) {
                 YxStoreCart storeCart = yxStoreCartService.getById(redisVo.getCartId());
-                BigDecimal bigPrice = redisVo.getProductPrice();
                 if (orderInfo.getPayPostage().compareTo(BigDecimal.ZERO) > 0) {
                     //支付邮费不为0
                     if (redisVo.getIsPostage() == 0) {
@@ -2268,10 +2268,10 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
                     //订单金额*支付比例= 产品的支付金额
                     pricePayProduct = orderInfo.getPayPrice().multiply(bigProportion).setScale(2, BigDecimal.ROUND_DOWN);
                 }
-                if (postagePrice.compareTo(BigDecimal.ZERO) > 0) {
+               /* if (postagePrice.compareTo(BigDecimal.ZERO) > 0) {
                     //实际支付= 支付金额+邮费
                     pricePayProduct = pricePayProduct.add(postagePrice);
-                }
+                }*/
                 // 分佣金额
                 if (pricePayProduct.compareTo(storeCart.getCommission()) < 0) {
                     storeCart.setCommission(pricePayProduct);
