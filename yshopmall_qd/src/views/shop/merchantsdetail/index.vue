@@ -160,10 +160,10 @@
             </div>            
             <el-form-item v-if='crud.status.edit' label=" " prop="checkbox">
                 <el-row type='flex'>
-                    <el-checkbox  v-model="form.checkbox" name="checkbox"></el-checkbox>
-                    <span style='margin:0 10px'>我已阅读并同意</span>
-                    <span style='margin:0 10px'><router-link to="/member/yxMerchantsDetail/pdf1" target="_blank">协议一 </router-link></span>
-                    <span style='margin:0 10px'><router-link to="/member/yxMerchantsDetail/pdf2" target="_blank">协议二 </router-link></span>
+                  <el-checkbox v-model="form.checkbox" name='checkbox' ></el-checkbox>
+                  <span style='margin:0 10px'>我已阅读并同意</span>
+                  <span style='margin:0 10px'><router-link to="/member/yxMerchantsDetail/pdf1" target="_blank">协议一 </router-link></span>
+                  <span style='margin:0 10px'><router-link to="/member/yxMerchantsDetail/pdf2" target="_blank">协议二 </router-link></span>
                 </el-row>
             </el-form-item>
             <el-form-item v-else label=" ">
@@ -424,7 +424,8 @@ export default {
           { required: true, message: '必填项', trigger: 'blur' },
         ],
         checkbox: [
-          { required: true, message: '必填项', trigger: 'blur' },
+          { required: true, message: '必选项', trigger: 'change' },
+          { validator:(r,v,c)=>{if(!v) return c(new Error('必选项'))}, trigger: 'change' },
         ],
       },
       qualificationsType:[], //主体资质类型
