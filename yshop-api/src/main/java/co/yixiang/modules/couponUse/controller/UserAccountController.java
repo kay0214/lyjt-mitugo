@@ -49,7 +49,7 @@ public class UserAccountController extends BaseController {
     @AnonymousAccess
     @ApiOperation("B端：线下交易流水列表")
     @GetMapping(value = "/getUserAccountList")
-    public ResponseEntity<Object> getUserAccountList(@RequestHeader(value = "token") String token, @RequestBody UserAccountQueryParam param) {
+    public ResponseEntity<Object> getUserAccountList(@RequestHeader(value = "token") String token, UserAccountQueryParam param) {
         Map<String, Object> map = new HashMap<>();
         SystemUser user = getRedisUser(token);
         if (null == user) {
@@ -64,7 +64,7 @@ public class UserAccountController extends BaseController {
     @AnonymousAccess
     @ApiOperation("B端：线上交易流水列表")
     @GetMapping(value = "/getUserProductAccountList")
-    public ResponseEntity<Object> getUserProductAccountList(@RequestHeader(value = "token") String token, @RequestBody UserAccountQueryParam param) {
+    public ResponseEntity<Object> getUserProductAccountList(@RequestHeader(value = "token") String token, UserAccountQueryParam param) {
         // 获取登陆用户的id
         Map<String, Object> map = new HashMap<>();
         SystemUser user = getRedisUser(token);
