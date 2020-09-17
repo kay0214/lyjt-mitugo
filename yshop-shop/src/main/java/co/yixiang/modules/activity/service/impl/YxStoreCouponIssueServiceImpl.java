@@ -104,7 +104,7 @@ public class YxStoreCouponIssueServiceImpl extends BaseServiceImpl<YxStoreCoupon
             map.put("优惠券领取结束时间", yxStoreCouponIssue.getEndTime());
             map.put("优惠券领取数量", yxStoreCouponIssue.getTotalCount());
             map.put("优惠券剩余领取数量", yxStoreCouponIssue.getRemainCount());
-            map.put("是否无限张数", yxStoreCouponIssue.getIsPermanent());
+//            map.put("是否无限张数", yxStoreCouponIssue.getIsPermanent());
             map.put("1 正常 0 未开启 -1 已无效", yxStoreCouponIssue.getStatus());
             map.put(" isDel", yxStoreCouponIssue.getIsDel());
             map.put("优惠券添加时间", yxStoreCouponIssue.getAddTime());

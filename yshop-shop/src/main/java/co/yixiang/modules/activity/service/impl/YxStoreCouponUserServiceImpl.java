@@ -9,15 +9,13 @@ import co.yixiang.common.utils.QueryHelpPlus;
 import co.yixiang.dozer.service.IGenerator;
 import co.yixiang.modules.activity.domain.YxStoreCouponUser;
 import co.yixiang.modules.activity.service.YxStoreCouponUserService;
+import co.yixiang.modules.activity.service.dto.YxStoreCouponQueryParam;
 import co.yixiang.modules.activity.service.dto.YxStoreCouponUserDto;
 import co.yixiang.modules.activity.service.dto.YxStoreCouponUserQueryCriteria;
 import co.yixiang.modules.activity.service.mapper.YxStoreCouponUserMapper;
-import co.yixiang.modules.shop.domain.YxUser;
 import co.yixiang.modules.shop.service.YxUserService;
+import co.yixiang.utils.BeanUtils;
 import co.yixiang.utils.FileUtil;
-import co.yixiang.utils.StringUtils;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -49,13 +47,14 @@ public class YxStoreCouponUserServiceImpl extends BaseServiceImpl<YxStoreCouponU
 
     private final IGenerator generator;
     private final YxUserService userService;
+    private final YxStoreCouponUserMapper storeCouponUserMapper;
 
     @Override
     //@Cacheable
     public Map<String, Object> queryAll(YxStoreCouponUserQueryCriteria criteria, Pageable pageable) {
 //        getPage(pageable);
 //        PageInfo<YxStoreCouponUser> page = new PageInfo<>(queryAll(criteria));
-        QueryWrapper<YxStoreCouponUser> queryWrapper = new QueryWrapper<>();
+        /*QueryWrapper<YxStoreCouponUser> queryWrapper = new QueryWrapper<>();
         queryWrapper.lambda().orderByDesc(YxStoreCouponUser::getAddTime);
         if (0 != criteria.getUserRole()) {
             if (null == criteria.getChildStoreId() || criteria.getChildStoreId().size() <= 0) {
@@ -81,10 +80,19 @@ public class YxStoreCouponUserServiceImpl extends BaseServiceImpl<YxStoreCouponU
         }
         Map<String, Object> map = new LinkedHashMap<>(2);
         map.put("content", storeOrderDTOS);
-        map.put("totalElements", ipage.getTotal());
+        map.put("totalElements", ipage.getTotal());*/
+
+        YxStoreCouponQueryParam queryParam = new YxStoreCouponQueryParam();
+        BeanUtils.copyProperties(criteria,queryParam);
+        Page<YxStoreCouponUserDto> pageParam = new Page<YxStoreCouponUserDto>(pageable.getPageNumber()+1,pageable.getPageSize());
+        int countSize = storeCouponUserMapper.countCouponUserPage(queryParam,criteria.getChildStoreId());
+        List<YxStoreCouponUserDto> storeCouponUserDtoList = storeCouponUserMapper.selectCouponUserPage(pageParam,queryParam,criteria.getChildStoreId());
+
+        Map<String, Object> map = new LinkedHashMap<>(2);
+        map.put("content", storeCouponUserDtoList);
+        map.put("totalElements", countSize);
         return map;
     }
-
 
     @Override
     //@Cacheable
