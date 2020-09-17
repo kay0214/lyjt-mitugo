@@ -24,7 +24,7 @@ import java.math.BigDecimal;
  */
 public interface YxUserExtractService extends BaseService<YxUserExtract> {
 
-    void userExtract(int uid, UserExtParam param);
+    void updateUserExtract(int uid, UserExtParam param);
 
     BigDecimal extractSum(int uid);
 

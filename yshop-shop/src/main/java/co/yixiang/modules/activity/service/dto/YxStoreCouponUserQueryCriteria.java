@@ -18,4 +18,7 @@ public class YxStoreCouponUserQueryCriteria extends BaseCriteria {
     // 模糊
     @Query(type = Query.Type.INNER_LIKE)
     private String couponTitle;
+    @Query(type = Query.Type.INNER_LIKE)
+    private String userName;
+
 }

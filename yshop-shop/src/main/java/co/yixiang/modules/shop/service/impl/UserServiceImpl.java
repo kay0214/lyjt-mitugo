@@ -13,7 +13,6 @@ import co.yixiang.common.utils.QueryHelpPlus;
 import co.yixiang.dozer.service.IGenerator;
 import co.yixiang.exception.BadRequestException;
 import co.yixiang.modules.activity.domain.YxUserExtract;
-import co.yixiang.modules.activity.service.YxUserExtractService;
 import co.yixiang.modules.activity.service.mapper.YxUserExtractMapper;
 import co.yixiang.modules.shop.domain.User;
 import co.yixiang.modules.shop.domain.YxMerchantsDetail;
@@ -137,7 +136,7 @@ public class UserServiceImpl extends BaseServiceImpl<UserSysMapper, User> implem
         User updateUser = new User();
         updateUser.setId(user.getId());
         updateUser.setWithdrawalAmount(user.getWithdrawalAmount().subtract(extractPrice));
-        userSysMapper.updateWithdrawalAmountSub(user.getId(),extractPrice);
+        userSysMapper.updateWithdrawalAmountSub(user.getId().intValue(), extractPrice);
         // 记录审批申请表
         YxUserExtract yxUserExtract = new YxUserExtract();
         yxUserExtract.setUid(uid);
@@ -160,6 +159,7 @@ public class UserServiceImpl extends BaseServiceImpl<UserSysMapper, User> implem
         BigDecimal b = new BigDecimal("1000000");
         System.out.println(extractPrice.compareTo(b));
     }
+
     /**
      * 更新商户可提现金额
      *
@@ -168,6 +168,39 @@ public class UserServiceImpl extends BaseServiceImpl<UserSysMapper, User> implem
      */
     @Override
     public void updateWithdrawalAmount(Integer id, BigDecimal withdrawalAmount) {
-        userSysMapper.updateWithdrawalAmount(id,withdrawalAmount);
+        userSysMapper.updateWithdrawalAmount(id, withdrawalAmount);
+    }
+
+    /**
+     * 增加商户金额
+     *
+     * @param id
+     * @param money
+     */
+    @Override
+    public void updateAddAmount(Long id, BigDecimal money) {
+        userSysMapper.updateAmount(id, money);
+    }
+
+    /**
+     * 减少商户总金额
+     *
+     * @param id
+     * @param money
+     */
+    @Override
+    public void updateAmountSub(Long id, BigDecimal money) {
+        userSysMapper.updateAmountSub(id, money);
+    }
+
+    /**
+     * 减少商户可提现金额
+     *
+     * @param id
+     * @param withdrawalAmount
+     */
+    @Override
+    public void updateWithdrawalAmountSub(int id, BigDecimal withdrawalAmount) {
+        userSysMapper.updateWithdrawalAmountSub(id, withdrawalAmount);
     }
 }

@@ -79,7 +79,7 @@ public class UserExtractController extends BaseController {
     @ApiOperation(value = "用户提现", notes = "用户提现")
     public ApiResult<String> addYxUserExtract(@Valid @RequestBody UserExtParam param) throws Exception {
         int uid = SecurityUtils.getUserId().intValue();
-        userExtractService.userExtract(uid, param);
+        userExtractService.updateUserExtract(uid, param);
 
         ApiResult result = ApiResult.ok();
         result.setMsg("申请提现成功，请等待审核");

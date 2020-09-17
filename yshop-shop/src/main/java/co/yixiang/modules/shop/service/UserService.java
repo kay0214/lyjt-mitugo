@@ -66,4 +66,26 @@ public interface UserService extends BaseService<User> {
      * @param withdrawalAmount
      */
     void updateWithdrawalAmount(Integer id, BigDecimal withdrawalAmount);
+
+    /**
+     * 增加商户金额
+     * @param id
+     * @param money
+     */
+    void updateAddAmount(Long id, BigDecimal money);
+
+    /**
+     * 减少商户总金额
+     * @param id
+     * @param money
+     */
+    void updateAmountSub(Long id, BigDecimal money);
+
+    /**
+     * 减少商户的可提现金额
+     *
+     * @param id
+     * @param withdrawalAmount
+     */
+    void updateWithdrawalAmountSub(int id, BigDecimal withdrawalAmount);
 }

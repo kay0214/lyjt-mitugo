@@ -38,7 +38,7 @@ public interface UserBillMapper extends CoreMapper<YxUserBill> {
     List<YxUserBillDto> withdrawReviewLog(@Param("linkId") Integer linkId);
 
 
-    @Select("<script>SELECT IFNULL(SUM(number),0) as subSum from yx_user_bill where pm=#{pm} AND uid = #{uid} AND user_type = #{usetType} </script>")
+    @Select("<script>SELECT IFNULL(SUM(number),0) as subSum from yx_user_bill where pm=#{pm} AND uid = #{uid} AND user_type = #{usetType} and category = 'now_money' </script>")
     BigDecimal getSumPrice(@Param("uid") Integer uid, @Param("pm") Integer pm, @Param("usetType") Integer usetType);
 
 }

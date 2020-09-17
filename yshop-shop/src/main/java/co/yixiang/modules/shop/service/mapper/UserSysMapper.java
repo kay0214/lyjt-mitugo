@@ -36,9 +36,22 @@ public interface UserSysMapper extends CoreMapper<User> {
 
     /**
      * 更新商户可提现金额
+     *
      * @param id
      * @param extractPrice
      */
     @Update("update `user` set withdrawal_amount = withdrawal_amount - #{extractPrice} where id = #{id}")
-    void updateWithdrawalAmountSub(@Param("id")Long id, @Param("extractPrice")BigDecimal extractPrice);
+    void updateWithdrawalAmountSub(@Param("id") Integer id, @Param("extractPrice") BigDecimal extractPrice);
+
+    /**
+     * 更新商户金额
+     *
+     * @param id
+     * @param money
+     */
+    @Update("update `user` set withdrawal_amount = withdrawal_amount - #{money},total_amount = total_amount - #{money} where id = #{id}")
+    void updateAmountSub(@Param("id") Long id, @Param("money") BigDecimal money);
+
+    @Update("update `user` set withdrawal_amount = withdrawal_amount + #{money},total_amount = total_amount + #{money} where id = #{id}")
+    void updateAmount(@Param("id") Long id, @Param("money") BigDecimal money);
 }
