@@ -2246,32 +2246,23 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
     public void getProductCartInfoOrderIdRedis(String rdisKey, YxStoreOrderQueryVo orderInfo) {
         List<YxStoreOrderRedisVo> redisVoList = (List<YxStoreOrderRedisVo>) redisUtils.get(rdisKey);
         BigDecimal totlePrice = orderInfo.getTotalPrice();
-        BigDecimal postagePrice = BigDecimal.ZERO;
-        BigDecimal bigPrice = orderInfo.getPayPrice();
+        BigDecimal bigPrice = BigDecimal.ZERO;
         List<YxStoreCart> storeCartList = new ArrayList<YxStoreCart>();
         if (CollectionUtils.isNotEmpty(redisVoList)) {
             for (YxStoreOrderRedisVo redisVo : redisVoList) {
                 YxStoreCart storeCart = yxStoreCartService.getById(redisVo.getCartId());
-                if (orderInfo.getPayPostage().compareTo(BigDecimal.ZERO) > 0) {
-                    //支付邮费不为0
-                    if (redisVo.getIsPostage() == 0) {
-                        //不包邮
-                        postagePrice = redisVo.getPostage();
-                    }
-                }
+
+                bigPrice = redisVo.getProductPrice().multiply(new BigDecimal(storeCart.getCartNum()));
+
                 //支付比例：
-                BigDecimal pricePayProduct = bigPrice;
-                if (orderInfo.getDeductionPrice().compareTo(BigDecimal.ZERO) > 0) {
-                    //抵扣金额>0
-                    BigDecimal bigProportion = bigPrice.divide(totlePrice, 8, BigDecimal.ROUND_DOWN);
+                BigDecimal pricePayProduct = orderInfo.getPayPrice();
+                if (orderInfo.getDeductionPrice().compareTo(BigDecimal.ZERO) > 0||orderInfo.getCouponPrice().compareTo(BigDecimal.ZERO)>0) {
+                    //抵扣金额>0 或者优惠券金额>0
                     //支付比例：
+                    BigDecimal bigProportion = bigPrice.divide(totlePrice, 8, BigDecimal.ROUND_DOWN);
                     //订单金额*支付比例= 产品的支付金额
                     pricePayProduct = orderInfo.getPayPrice().multiply(bigProportion).setScale(2, BigDecimal.ROUND_DOWN);
                 }
-               /* if (postagePrice.compareTo(BigDecimal.ZERO) > 0) {
-                    //实际支付= 支付金额+邮费
-                    pricePayProduct = pricePayProduct.add(postagePrice);
-                }*/
                 // 分佣金额
                 if (pricePayProduct.compareTo(storeCart.getCommission()) < 0) {
                     storeCart.setCommission(pricePayProduct);
