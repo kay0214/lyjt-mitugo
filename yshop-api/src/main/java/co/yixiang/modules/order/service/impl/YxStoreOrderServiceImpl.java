@@ -2018,7 +2018,7 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
             storeCartMapper.update(cartObj, wrapper);
 
             //存入redis(产品信息)
-            redisUtils.set("orderInfo_orderId:" + orderSn, redisVoList, 1800L);
+            redisService.saveCode("orderInfo_orderId:" + orderSn, redisVoList, 1800L);
             //增加状态
             orderStatusService.create(storeOrder.getId(), "cache_key_create_order", "订单生成");
             //加入redis，30分钟自动取消
@@ -2244,7 +2244,7 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
     }
 
     public void getProductCartInfoOrderIdRedis(String rdisKey, YxStoreOrderQueryVo orderInfo) {
-        List<YxStoreOrderRedisVo> redisVoList = (List<YxStoreOrderRedisVo>) redisUtils.get(rdisKey);
+        List<YxStoreOrderRedisVo> redisVoList = (List<YxStoreOrderRedisVo>) redisService.getObj(rdisKey);
         BigDecimal totlePrice = orderInfo.getTotalPrice();
         BigDecimal bigPrice = BigDecimal.ZERO;
         List<YxStoreCart> storeCartList = new ArrayList<YxStoreCart>();
@@ -2275,7 +2275,7 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
                 storeCartList.add(storeCart);
             }
         }
-        redisUtils.del(rdisKey);
+        redisService.delete(rdisKey);
         yxStoreCartService.saveOrUpdateBatch(storeCartList);
     }
 
