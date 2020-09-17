@@ -32,6 +32,10 @@
                   <a @click="$refs.email.dialog = true">修改邮箱</a>
                 </div>
               </li>
+              <li>
+                  <p style='margin:0 10px 5px 0'>我已阅读并同意</p>
+                  <span style='margin:0 10px'><router-link to="/member/yxMerchantsDetail/pdf1" target="_blank">协议一 </router-link></span>
+                  <span style='margin:0 10px'><router-link to="/member/yxMerchantsDetail/pdf2" target="_blank">协议二 </router-link></span></li>
             </ul>
           </div>
         </el-card>

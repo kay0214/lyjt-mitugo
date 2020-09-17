@@ -21,6 +21,16 @@ export const constantRouterMap = [
     hidden: true
   },
   {
+    path: '/member/yxMerchantsDetail/pdf1',
+    component: (resolve) => require(['@/views/pdfs/pdf1'], resolve),
+    hidden: true
+  },
+  {
+    path: '/member/yxMerchantsDetail/pdf2',
+    component: (resolve) => require(['@/views/pdfs/pdf2'], resolve),
+    hidden: true
+  },
+  {
     path: '/redirect',
     component: Layout,
     hidden: true,
