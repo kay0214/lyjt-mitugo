@@ -348,9 +348,9 @@ public class UserBillController extends BaseController {
                 systemAttachmentService.attachmentAdd(name, String.valueOf(FileUtil.size(file)),
                         fileDir + name, "qrcode/" + name);
 
-                qrcodeUrl = apiUrl + fileDir + name;
+                qrcodeUrl = apiUrl + "/file/qrcode/" + name;
             } else {
-                qrcodeUrl = apiUrl + attachment.getAttDir();
+                qrcodeUrl = apiUrl + "/file/" + attachment.getSattDir();
             }
 
             String spreadPicName = uid + "_" + userType + "_user_spread.jpg";
