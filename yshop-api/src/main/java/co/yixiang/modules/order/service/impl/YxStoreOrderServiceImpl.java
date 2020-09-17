@@ -2273,9 +2273,8 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
                     pricePayProduct = pricePayProduct.add(postagePrice);
                 }
                 // 分佣金额
-                BigDecimal bigCommission = storeCart.getCommission().multiply(new BigDecimal(storeCart.getCartNum()));
-                if (pricePayProduct.compareTo(bigCommission) < 0) {
-                    storeCart.setCommission(pricePayProduct.divide(new BigDecimal(storeCart.getCartNum()), 2, BigDecimal.ROUND_DOWN));
+                if (pricePayProduct.compareTo(storeCart.getCommission()) < 0) {
+                    storeCart.setCommission(pricePayProduct);
                 }
                 //实际支付金额
                 storeCart.setPayPrice(pricePayProduct);
