@@ -1,11 +1,19 @@
 package co.yixiang.modules.bank.web.controller;
 
-import co.yixiang.modules.bank.entity.BankCode;
+import co.yixiang.common.api.ApiResult;
+import co.yixiang.common.web.controller.BaseController;
+import co.yixiang.common.web.vo.Paging;
+import co.yixiang.constant.CacheConstant;
+import co.yixiang.modules.bank.entity.BankCnaps;
+import co.yixiang.modules.bank.entity.BankCodeReg;
+import co.yixiang.modules.bank.service.BankCnapsService;
+import co.yixiang.modules.bank.service.BankCodeRegService;
 import co.yixiang.modules.bank.service.BankCodeService;
 import co.yixiang.modules.bank.web.param.BankCodeQueryParam;
 import co.yixiang.modules.bank.web.vo.BankCodeQueryVo;
-import co.yixiang.common.web.controller.BaseController;
-import co.yixiang.common.api.ApiResult;
+import co.yixiang.modules.bank.web.vo.BankSelectVo;
+import com.alicp.jetcache.anno.CacheType;
+import com.alicp.jetcache.anno.Cached;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -16,9 +24,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
-
-import co.yixiang.common.web.vo.Paging;
-import co.yixiang.common.web.param.IdParam;
+import java.util.List;
 
 /**
  * <p>
@@ -37,45 +43,13 @@ public class BankCodeController extends BaseController {
     @Autowired
     private BankCodeService bankCodeService;
 
-    /**
-    * 添加联行号表
-    */
-    @PostMapping("/add")
-    @ApiOperation(value = "添加BankCode对象",notes = "添加联行号表",response = ApiResult.class)
-    public ApiResult<Boolean> addBankCode(@Valid @RequestBody BankCode bankCode) throws Exception{
-        boolean flag = bankCodeService.save(bankCode);
-        return ApiResult.result(flag);
-    }
+    @Autowired
+    private BankCodeRegService regService;
 
-    /**
-    * 修改联行号表
-    */
-    @PostMapping("/update")
-    @ApiOperation(value = "修改BankCode对象",notes = "修改联行号表",response = ApiResult.class)
-    public ApiResult<Boolean> updateBankCode(@Valid @RequestBody BankCode bankCode) throws Exception{
-        boolean flag = bankCodeService.updateById(bankCode);
-        return ApiResult.result(flag);
-    }
+    @Autowired
+    private BankCnapsService cnapsService;
 
-    /**
-    * 删除联行号表
-    */
-    @PostMapping("/delete")
-    @ApiOperation(value = "删除BankCode对象",notes = "删除联行号表",response = ApiResult.class)
-    public ApiResult<Boolean> deleteBankCode(@Valid @RequestBody IdParam idParam) throws Exception{
-        boolean flag = bankCodeService.removeById(idParam.getId());
-        return ApiResult.result(flag);
-    }
 
-    /**
-    * 获取联行号表
-    */
-    @PostMapping("/info")
-    @ApiOperation(value = "获取BankCode对象详情",notes = "查看联行号表",response = BankCodeQueryVo.class)
-    public ApiResult<BankCodeQueryVo> getBankCode(@Valid @RequestBody IdParam idParam) throws Exception{
-        BankCodeQueryVo bankCodeQueryVo = bankCodeService.getBankCodeById(idParam.getId());
-        return ApiResult.ok(bankCodeQueryVo);
-    }
 
     /**
      * 联行号表分页列表
@@ -85,6 +59,37 @@ public class BankCodeController extends BaseController {
     public ApiResult<Paging<BankCodeQueryVo>> getBankCodePageList(@Valid @RequestBody(required = false) BankCodeQueryParam bankCodeQueryParam) throws Exception{
         Paging<BankCodeQueryVo> paging = bankCodeService.getBankCodePageList(bankCodeQueryParam);
         return ApiResult.ok(paging);
+    }
+
+    @Cached(name="getAllBankProvince-", expire = CacheConstant.DEFAULT_EXPIRE_TIME, cacheType = CacheType.BOTH)
+    @PostMapping("/getAllBankProvince")
+    @ApiOperation(value = "联行号查询： 查询所有银行和省份",notes = "查询所有银行和省份",response = BankSelectVo.class)
+    public ApiResult<BankSelectVo> getAllBank() {
+
+        List<String> provinces = regService.getAllProvinces();
+        List<BankCnaps> cnaps = cnapsService.getAllCnaps();
+        BankSelectVo result = new BankSelectVo();
+        result.setCnaps(cnaps);
+        result.setProvinces(provinces);
+        return ApiResult.ok(result);
+
+    }
+
+
+    @PostMapping("/getCitys")
+    @ApiOperation(value = "查询所有市 传 name",notes = "查询所有市")
+    public ApiResult<Object> getCitys(@RequestBody BankCodeReg param) throws Exception{
+
+        List<String> citys = regService.getAllCitys(param.getName());
+
+
+        return ApiResult.ok(null);
+    }
+
+    @PostMapping("/getBanks")
+    @ApiOperation(value = "查询联行号",notes = "查询联行号",response = BankCodeQueryVo.class)
+    public ApiResult<Paging<BankCodeQueryVo>> getBanks() throws Exception{
+        return ApiResult.ok(null);
     }
 
 }

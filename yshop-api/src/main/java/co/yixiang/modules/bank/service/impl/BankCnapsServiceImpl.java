@@ -16,6 +16,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.metadata.OrderItem;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import java.io.Serializable;
+import java.util.List;
 
 
 /**
@@ -29,7 +30,8 @@ import java.io.Serializable;
 @Slf4j
 @Service
 @Transactional(rollbackFor = Exception.class)
-public class BankCnapsServiceImpl extends BaseServiceImpl<BankCnapsMapper, BankCnaps> implements BankCnapsService {
+public class BankCnapsServiceImpl extends BaseServiceImpl<BankCnapsMapper, BankCnaps> implements BankCnapsService
+{
 
     @Autowired
     private BankCnapsMapper bankCnapsMapper;
@@ -44,6 +46,11 @@ public class BankCnapsServiceImpl extends BaseServiceImpl<BankCnapsMapper, BankC
         Page page = setPageParam(bankCnapsQueryParam,OrderItem.desc("create_time"));
         IPage<BankCnapsQueryVo> iPage = bankCnapsMapper.getBankCnapsPageList(page,bankCnapsQueryParam);
         return new Paging(iPage);
+    }
+
+    @Override
+    public List<BankCnaps> getAllCnaps() {
+        return bankCnapsMapper.getAllCnaps();
     }
 
 }
