@@ -371,7 +371,7 @@ public class UserBillController extends BaseController {
                     ImageInputStream background = ImageIO.createImageInputStream(stream);
                     BufferedImage back = ImageIO.read(background);
 
-                    g.drawImage(back.getScaledInstance(750, 1288, Image.SCALE_DEFAULT), 0, 0, null); // 绘制缩小后的图
+                    g.drawImage(back.getScaledInstance(750, 1624, Image.SCALE_DEFAULT), 0, 0, null); // 绘制缩小后的图
 
                     BufferedImage head = ImageIO.read(getClass().getClassLoader().getResourceAsStream("head.png"));
                     g.drawImage(head.getScaledInstance(750, 280, Image.SCALE_DEFAULT), 0, 0, null);
@@ -403,13 +403,13 @@ public class UserBillController extends BaseController {
                     g.setFont(font.deriveFont(Font.PLAIN, 25));
                     g.setColor(new Color(171, 171, 171));
                     //绘制文字
-                    g.drawString(userInfo.getNickname() + "邀您加入", 210, 1360);
+                    g.drawString(userInfo.getNickname() + "邀您加入", 210, 1365);
 
                     //二维码字体
                     g.setFont(font.deriveFont(Font.PLAIN, 25));
                     g.setColor(new Color(171, 171, 171));
                     //绘制文字
-                    g.drawString("扫描或长按小程序码", 210, 1395);
+                    g.drawString("扫描或长按小程序码", 210, 1400);
 
                     g.dispose();
                     //先将画好的海报写到本地
