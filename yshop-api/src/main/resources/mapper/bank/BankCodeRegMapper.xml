@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="co.yixiang.modules.bank.mapper.BankCodeRegMapper">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, pname, name, bank_code
+    </sql>
+
+    <select id="getBankCodeRegById" resultType="co.yixiang.modules.bank.web.vo.BankCodeRegQueryVo">
+        select <include refid="Base_Column_List"/> from bank_code_reg where id = #{id}
+    </select>
+
+    <select id="getBankCodeRegPageList" resultType="co.yixiang.modules.bank.web.vo.BankCodeRegQueryVo">
+        select <include refid="Base_Column_List"/> from bank_code_reg
+    </select>
+
+</mapper>
