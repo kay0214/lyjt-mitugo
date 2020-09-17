@@ -2436,6 +2436,7 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
                 productAttrDTO.setPrice(cartQueryVo.getProductInfo().getAttrInfo().getPrice().doubleValue());
                 productAttrDTO.setProductId(cartQueryVo.getProductInfo().getAttrInfo().getProductId());
                 productAttrDTO.setSuk(cartQueryVo.getProductInfo().getAttrInfo().getSuk());
+                productAttrDTO.setUnique(cartQueryVo.getProductInfo().getAttrInfo().getUnique());
                 productDTO.setAttrInfo(productAttrDTO);
             }
             orderCartInfoDTO.setProductInfo(productDTO);
@@ -2479,19 +2480,27 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
                 if (!cartInfo.getProductId().equals(productReplyParam.getProductId())) {
                     continue;
                 }
+                YxStoreCart cart = yxStoreCartService.getById(cartInfo.getCartId());
+
+                if(StringUtils.isNotBlank(productReplyParam.getUnique())){
+                    if(!cart.getProductAttrUnique().equals(productReplyParam.getUnique())){
+                        //同一商品不同属性
+                        continue;
+                    }
+                }
                 YxStoreProductReply productReply = new YxStoreProductReply();
                 productReply.setProductScore(productReplyParam.getProductScore());
                 productReply.setServiceScore(productReplyParam.getServiceScore());
                 productReply.setUid(uid);
                 productReply.setOid(storeOrder.getId());
-                productReply.setProductId(cartInfo.getProductId());
+                productReply.setProductId(cart.getProductId());
                 productReply.setAddTime(OrderUtil.getSecondTimestampTwo());
                 productReply.setReplyType("product");
                 productReply.setComment(productReplyParam.getComment());
                 productReply.setPics(StringUtils.isNotBlank(productReplyParam.getPics()) ? productReply.getPics() : "");
                 productReply.setUnique(cartInfo.getUnique());
                 //所在商户
-                YxStoreProduct product = productService.getProductInfo(cartInfo.getProductId());
+                YxStoreProduct product = productService.getProductInfo(cart.getProductId());
                 productReply.setMerId(product.getMerId());
                 replyList.add(productReply);
             }
