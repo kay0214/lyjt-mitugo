@@ -5,6 +5,7 @@
  */
 package co.yixiang.modules.shop.service.dto;
 
+import co.yixiang.annotation.Query;
 import lombok.Data;
 
 /**
@@ -13,4 +14,8 @@ import lombok.Data;
 */
 @Data
 public class YxMaterialGroupQueryCriteria{
+
+    /** 所属租户 */
+    @Query(type = Query.Type.EQUAL)
+    private String createId;
 }
