@@ -134,7 +134,7 @@ public class CommissionServiceImpl implements CommissionService {
             orderInfo.setBrokerageType(0);
             orderInfo.setCartId(cartId);
             orderInfo.setUsername(yxUser.getNickname());
-            orderInfo.setCommission(yxStoreCart.getCommission().multiply(new BigDecimal(yxStoreCart.getCartNum().toString())));
+            orderInfo.setCommission(yxStoreCart.getCommission());
             updateAccount(orderInfo);
         }
     }
@@ -163,7 +163,7 @@ public class CommissionServiceImpl implements CommissionService {
         orderInfo.setBrokerageType(1);
         orderInfo.setPayPrice(yxCouponOrder.getCouponPrice());
         orderInfo.setUsername(yxUser.getNickname());
-        orderInfo.setCommission(yxCouponOrder.getCommission().multiply(new BigDecimal(yxCouponOrder.getTotalNum().toString())));
+        orderInfo.setCommission(yxCouponOrder.getCommission());
         updateAccount(orderInfo);
     }
 
