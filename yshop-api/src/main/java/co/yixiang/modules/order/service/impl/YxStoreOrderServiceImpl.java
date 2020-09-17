@@ -2018,7 +2018,7 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
             storeCartMapper.update(cartObj, wrapper);
 
             //存入redis(产品信息)
-            redisUtils.set("orderInfo_orderId:" + orderSn, redisVoList,1800L);
+            redisUtils.set("orderInfo_orderId:" + orderSn, redisVoList, 1800L);
             //增加状态
             orderStatusService.create(storeOrder.getId(), "cache_key_create_order", "订单生成");
             //加入redis，30分钟自动取消
@@ -2251,12 +2251,12 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
         if (CollectionUtils.isNotEmpty(redisVoList)) {
             for (YxStoreOrderRedisVo redisVo : redisVoList) {
                 YxStoreCart storeCart = yxStoreCartService.getById(redisVo.getCartId());
-
+                // 记录的原价
                 bigPrice = redisVo.getProductPrice().multiply(new BigDecimal(storeCart.getCartNum()));
 
-                //支付比例：
-                BigDecimal pricePayProduct = orderInfo.getPayPrice();
-                if (orderInfo.getDeductionPrice().compareTo(BigDecimal.ZERO) > 0||orderInfo.getCouponPrice().compareTo(BigDecimal.ZERO)>0) {
+                //支付比例：记录优惠券扣减后的价格
+                BigDecimal pricePayProduct = bigPrice;
+                if (orderInfo.getDeductionPrice().compareTo(BigDecimal.ZERO) > 0 || orderInfo.getCouponPrice().compareTo(BigDecimal.ZERO) > 0) {
                     //抵扣金额>0 或者优惠券金额>0
                     //支付比例：
                     BigDecimal bigProportion = bigPrice.divide(totlePrice, 8, BigDecimal.ROUND_DOWN);
