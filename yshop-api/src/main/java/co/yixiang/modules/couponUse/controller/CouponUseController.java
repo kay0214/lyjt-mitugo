@@ -154,7 +154,6 @@ public class CouponUseController extends BaseController {
 
     @AnonymousAccess
     @GetMapping(value = "/getMerchantsDetailByUid")
-    @Log("获取商户及门店信息")
     @ApiOperation("B端：获取商户及门店信息")
     public ResponseEntity<Object> getMerchantsDetailByUid(@RequestHeader(value = "token") String token) {
 
@@ -220,7 +219,6 @@ public class CouponUseController extends BaseController {
 
 
     @AnonymousAccess
-    @Log("查询核销记录")
     @ApiOperation("B端：查询核销记录")
     @PostMapping("/getOrderUseList")
     public ResponseEntity<Object> getOrderUseList(@RequestHeader(value = "token") String token, @RequestBody YxCouponOrderUseQueryCriteria criteria) {
@@ -287,7 +285,6 @@ public class CouponUseController extends BaseController {
     }
 
     @AnonymousAccess
-    @Log("手动核销查询卡券")
     @ApiOperation("B端：手动核销查询卡券")
     @GetMapping(value = "/getUseCouponInput")
     public ResponseEntity<Object> getUseCouponInput(@RequestHeader(value = "token") String token, @RequestParam(value = "orderId") String orderId) {

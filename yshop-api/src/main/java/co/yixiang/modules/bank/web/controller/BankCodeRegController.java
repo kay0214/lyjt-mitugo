@@ -38,46 +38,6 @@ public class BankCodeRegController extends BaseController {
     private BankCodeRegService bankCodeRegService;
 
     /**
-    * 添加联行号地区代码
-    */
-    @PostMapping("/add")
-    @ApiOperation(value = "添加BankCodeReg对象",notes = "添加联行号地区代码",response = ApiResult.class)
-    public ApiResult<Boolean> addBankCodeReg(@Valid @RequestBody BankCodeReg bankCodeReg) throws Exception{
-        boolean flag = bankCodeRegService.save(bankCodeReg);
-        return ApiResult.result(flag);
-    }
-
-    /**
-    * 修改联行号地区代码
-    */
-    @PostMapping("/update")
-    @ApiOperation(value = "修改BankCodeReg对象",notes = "修改联行号地区代码",response = ApiResult.class)
-    public ApiResult<Boolean> updateBankCodeReg(@Valid @RequestBody BankCodeReg bankCodeReg) throws Exception{
-        boolean flag = bankCodeRegService.updateById(bankCodeReg);
-        return ApiResult.result(flag);
-    }
-
-    /**
-    * 删除联行号地区代码
-    */
-    @PostMapping("/delete")
-    @ApiOperation(value = "删除BankCodeReg对象",notes = "删除联行号地区代码",response = ApiResult.class)
-    public ApiResult<Boolean> deleteBankCodeReg(@Valid @RequestBody IdParam idParam) throws Exception{
-        boolean flag = bankCodeRegService.removeById(idParam.getId());
-        return ApiResult.result(flag);
-    }
-
-    /**
-    * 获取联行号地区代码
-    */
-    @PostMapping("/info")
-    @ApiOperation(value = "获取BankCodeReg对象详情",notes = "查看联行号地区代码",response = BankCodeRegQueryVo.class)
-    public ApiResult<BankCodeRegQueryVo> getBankCodeReg(@Valid @RequestBody IdParam idParam) throws Exception{
-        BankCodeRegQueryVo bankCodeRegQueryVo = bankCodeRegService.getBankCodeRegById(idParam.getId());
-        return ApiResult.ok(bankCodeRegQueryVo);
-    }
-
-    /**
      * 联行号地区代码分页列表
      */
     @PostMapping("/getPageList")

@@ -1,15 +1,17 @@
 package co.yixiang.modules.bank.mapper;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import co.yixiang.modules.bank.entity.BankCodeReg;
 import co.yixiang.modules.bank.web.param.BankCodeRegQueryParam;
 import co.yixiang.modules.bank.web.vo.BankCodeRegQueryVo;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
 import org.springframework.stereotype.Repository;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * <p>
@@ -37,4 +39,18 @@ public interface BankCodeRegMapper extends BaseMapper<BankCodeReg> {
      */
     IPage<BankCodeRegQueryVo> getBankCodeRegPageList(@Param("page") Page page, @Param("param") BankCodeRegQueryParam bankCodeRegQueryParam);
 
+    /**
+     * 查询所有省份
+     * @return
+     */
+    @Select(" select pname from bank_code_reg GROUP BY pname ORDER BY bank_code asc ")
+    List<String> getAllProvinces();
+
+    /**
+     * 查询所有市
+     * @param name
+     * @return
+     */
+    @Select(" select pname from bank_code_reg GROUP BY pname ORDER BY bank_code asc ")
+    List<String> getAllCitys(String name);
 }

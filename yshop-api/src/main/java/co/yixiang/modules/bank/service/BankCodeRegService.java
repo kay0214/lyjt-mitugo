@@ -7,6 +7,7 @@ import co.yixiang.modules.bank.web.vo.BankCodeRegQueryVo;
 import co.yixiang.common.web.vo.Paging;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * <p>
@@ -32,4 +33,16 @@ public interface BankCodeRegService extends BaseService<BankCodeReg> {
      */
     Paging<BankCodeRegQueryVo> getBankCodeRegPageList(BankCodeRegQueryParam bankCodeRegQueryParam) throws Exception;
 
+    /**
+     * 查询所有的省份
+     * @return
+     */
+    List<String> getAllProvinces();
+
+    /**
+     * 查询所有市
+     * @param name
+     * @return
+     */
+    List<String> getAllCitys(String name);
 }

@@ -2274,8 +2274,9 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
                 storeCart.setIsPay(1);
                 storeCartList.add(storeCart);
             }
+            redisService.delete(rdisKey);
         }
-        redisService.delete(rdisKey);
+
         yxStoreCartService.saveOrUpdateBatch(storeCartList);
     }
 

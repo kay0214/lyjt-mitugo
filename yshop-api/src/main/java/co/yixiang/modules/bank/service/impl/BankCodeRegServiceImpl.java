@@ -16,6 +16,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.metadata.OrderItem;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import java.io.Serializable;
+import java.util.List;
 
 
 /**
@@ -29,7 +30,8 @@ import java.io.Serializable;
 @Slf4j
 @Service
 @Transactional(rollbackFor = Exception.class)
-public class BankCodeRegServiceImpl extends BaseServiceImpl<BankCodeRegMapper, BankCodeReg> implements BankCodeRegService {
+public class BankCodeRegServiceImpl extends BaseServiceImpl<BankCodeRegMapper, BankCodeReg> implements BankCodeRegService
+{
 
     @Autowired
     private BankCodeRegMapper bankCodeRegMapper;
@@ -44,6 +46,25 @@ public class BankCodeRegServiceImpl extends BaseServiceImpl<BankCodeRegMapper, B
         Page page = setPageParam(bankCodeRegQueryParam,OrderItem.desc("create_time"));
         IPage<BankCodeRegQueryVo> iPage = bankCodeRegMapper.getBankCodeRegPageList(page,bankCodeRegQueryParam);
         return new Paging(iPage);
+    }
+
+    /**
+     * 查询所有的省份
+     * @return
+     */
+    @Override
+    public List<String> getAllProvinces() {
+        return bankCodeRegMapper.getAllProvinces();
+    }
+
+    /**
+     * 查询所有市
+     * @param name
+     * @return
+     */
+    @Override
+    public List<String> getAllCitys(String name) {
+        return bankCodeRegMapper.getAllCitys(name);
     }
 
 }
