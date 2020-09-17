@@ -22,7 +22,7 @@
     <!--表格渲染-->
     <el-table v-loading="loading" :data="data" size="small" style="width: 100%;">
       <el-table-column prop="couponTitle" label="优惠券名称" />
-      <el-table-column prop="nickname" label="所属用户" />
+      <el-table-column prop="nickname" label="用户名" />
       <el-table-column prop="couponPrice" label="优惠券的面值" />
       <el-table-column prop="useMinPrice" label="优惠券最低消费" />
       <el-table-column label="优惠券开始时间">
@@ -86,7 +86,8 @@ export default {
     return {
       delLoading: false,
       queryTypeOptions: [
-        { key: 'couponTitle', display_name: '优惠券名称' }
+        { key: 'couponTitle', display_name: '优惠券名称' },
+        { key: 'userName', display_name: '用户名' }
       ]
     }
   },
