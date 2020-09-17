@@ -1,15 +1,17 @@
 package co.yixiang.modules.bank.mapper;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import co.yixiang.modules.bank.entity.BankCnaps;
 import co.yixiang.modules.bank.web.param.BankCnapsQueryParam;
 import co.yixiang.modules.bank.web.vo.BankCnapsQueryVo;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
 import org.springframework.stereotype.Repository;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * <p>
@@ -37,4 +39,6 @@ public interface BankCnapsMapper extends BaseMapper<BankCnaps> {
      */
     IPage<BankCnapsQueryVo> getBankCnapsPageList(@Param("page") Page page, @Param("param") BankCnapsQueryParam bankCnapsQueryParam);
 
+    @Select(" select * from bank_cnaps ")
+    List<BankCnaps> getAllCnaps();
 }

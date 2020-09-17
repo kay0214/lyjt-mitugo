@@ -669,7 +669,7 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
                 wrapper.eq("status", 1);
                 break;
             case STATUS_MINUS_1://退款售后
-                wrapper.in("status", 7, 8, 9).or().eq("refund_status", 1);
+                wrapper.in("refund_status", 1, 2);
                 break;
             case STATUS_MINUS_2://已取消
                 wrapper.eq("status", 10);

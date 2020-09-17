@@ -1,5 +1,6 @@
 package co.yixiang.modules.user.web.vo;
 
+import co.yixiang.modules.coupons.web.vo.OrderCountVO;
 import co.yixiang.modules.order.web.dto.OrderCountDTO;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModel;
@@ -175,4 +176,6 @@ private String pwd;*/
 
     @ApiModelProperty(value = "冻结金额")
     private BigDecimal frozenPrice;
+
+    private OrderCountVO couponOrderStatusNum;
 }

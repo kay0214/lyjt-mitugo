@@ -7,6 +7,7 @@ import co.yixiang.modules.bank.web.vo.BankCnapsQueryVo;
 import co.yixiang.common.web.vo.Paging;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * <p>
@@ -32,4 +33,9 @@ public interface BankCnapsService extends BaseService<BankCnaps> {
      */
     Paging<BankCnapsQueryVo> getBankCnapsPageList(BankCnapsQueryParam bankCnapsQueryParam) throws Exception;
 
+    /**
+     * 查询所有信息
+     * @return
+     */
+    List<BankCnaps> getAllCnaps();
 }

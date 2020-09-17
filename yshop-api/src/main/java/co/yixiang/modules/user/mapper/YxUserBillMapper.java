@@ -118,7 +118,7 @@ public interface YxUserBillMapper extends BaseMapper<YxUserBill> {
      */
     IPage<YxUserBillQueryVo> getYxUserBillPageList(@Param("page") Page page, @Param("param") YxUserBillQueryParam yxUserBillQueryParam);
 
-    @Select("<script> SELECT IFNULL(SUM((commission * cart_num)),0) from yx_store_cart" +
+    @Select("<script> SELECT IFNULL(SUM((commission)),0) from yx_store_cart" +
             " WHERE 1=1" +
             " and id in " +
             "  <foreach item='cartid' index='index' collection='cartIds' open='(' separator=',' close=')'>" +
