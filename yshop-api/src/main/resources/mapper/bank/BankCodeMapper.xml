@@ -13,6 +13,12 @@
 
     <select id="getBankCodePageList" resultType="co.yixiang.modules.bank.web.vo.BankCodeQueryVo">
         select <include refid="Base_Column_List"/> from bank_code
+        WHERE
+        1=1
+        <if test ="param.bankId !='' and param.bankId != null"> and bank_id =#{param.bankId} </if>
+        <if test ="param.regIds !='' and param.regIds != null"> and reg_id in (${param.regIds}) </if>
+        <if test ="param.keyWord !='' and param.keyWord != null"> and bank_add LIKE CONCAT('%',#{param.keyWord},'%') </if>
+        order by bank_code asc
     </select>
 
 </mapper>

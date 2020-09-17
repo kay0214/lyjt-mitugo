@@ -32,4 +32,10 @@ public interface BankCodeService extends BaseService<BankCode> {
      */
     Paging<BankCodeQueryVo> getBankCodePageList(BankCodeQueryParam bankCodeQueryParam) throws Exception;
 
+    /**
+     * 查询联行号
+     * @param queryParam
+     * @return
+     */
+    Paging<BankCodeQueryVo> getBanks(BankCodeQueryParam queryParam);
 }

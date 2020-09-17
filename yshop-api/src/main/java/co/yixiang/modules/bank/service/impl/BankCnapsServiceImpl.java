@@ -53,4 +53,9 @@ public class BankCnapsServiceImpl extends BaseServiceImpl<BankCnapsMapper, BankC
         return bankCnapsMapper.getAllCnaps();
     }
 
+    @Override
+    public List<String> getAllCnapsByName(String bankName) {
+        return bankCnapsMapper.getAllCnapsByName(bankName);
+    }
+
 }

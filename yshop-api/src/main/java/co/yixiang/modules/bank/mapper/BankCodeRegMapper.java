@@ -51,6 +51,14 @@ public interface BankCodeRegMapper extends BaseMapper<BankCodeReg> {
      * @param name
      * @return
      */
-    @Select(" select pname from bank_code_reg GROUP BY pname ORDER BY bank_code asc ")
-    List<String> getAllCitys(String name);
+    @Select(" select name from bank_code_reg where pname=#{name} GROUP BY pname ORDER BY bank_code asc ")
+    List<String> getAllCitys(@Param("name") String name);
+
+    /**
+     * 查询编码
+     * @param citys
+     * @return
+     */
+    @Select(" select id from bank_code_reg where name=#{citys} and pname=#{province}")
+    List<String> getBankCodes(@Param("province")String province ,@Param("citys") String citys);
 }

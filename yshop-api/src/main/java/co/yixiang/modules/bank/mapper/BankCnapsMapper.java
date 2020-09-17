@@ -39,6 +39,18 @@ public interface BankCnapsMapper extends BaseMapper<BankCnaps> {
      */
     IPage<BankCnapsQueryVo> getBankCnapsPageList(@Param("page") Page page, @Param("param") BankCnapsQueryParam bankCnapsQueryParam);
 
+    /**
+     * 查询所有银行
+     * @return
+     */
     @Select(" select * from bank_cnaps ")
     List<BankCnaps> getAllCnaps();
+
+    /**
+     * 根据银行名称查询
+     * @param bankName
+     * @return
+     */
+    @Select(" select id from bank_cnaps where NAME = #{bankName} ")
+    List<String> getAllCnapsByName(@Param("bankName") String bankName);
 }
