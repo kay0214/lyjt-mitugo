@@ -9,11 +9,11 @@ import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.qrcode.QrCodeUtil;
+import cn.hutool.extra.qrcode.QrConfig;
 import co.yixiang.common.api.ApiResult;
 import co.yixiang.common.web.controller.BaseController;
 import co.yixiang.constant.SystemConfigConstants;
 import co.yixiang.enums.AppFromEnum;
-import co.yixiang.logging.aop.log.Log;
 import co.yixiang.modules.shop.service.YxSystemConfigService;
 import co.yixiang.modules.user.entity.YxSystemAttachment;
 import co.yixiang.modules.user.entity.YxUser;
@@ -37,12 +37,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
+import javax.imageio.ImageIO;
+import javax.imageio.stream.ImageInputStream;
 import javax.validation.Valid;
 import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -118,9 +122,9 @@ public class UserBillController extends BaseController {
     /**
      * 分销二维码海报生成
      */
-    @GetMapping("/spread/banner")
+    @GetMapping("/spread/banner2")
     @ApiOperation(value = "分销二维码海报生成", notes = "分销二维码海报生成")
-    public ApiResult<Object> spreadBanner(@RequestParam(value = "", required = false) String form) {
+    public ApiResult<Object> spreadBanner2(@RequestParam(value = "", required = false) String form) {
         int uid = SecurityUtils.getUserId().intValue();
         YxUserQueryVo userInfo = yxUserService.getYxUserById(uid);
         String siteUrl = systemConfigService.getData(SystemConfigConstants.SITE_URL);
@@ -207,7 +211,9 @@ public class UserBillController extends BaseController {
                     siteUrl = siteUrl + "/distribution/";
                 }
                 File file = FileUtil.mkdir(new File(fileDir));
-                QrCodeUtil.generate(siteUrl + "?spread=" + uid, 180, 180,
+                QrConfig config = new QrConfig(122, 122);
+                config.setMargin(0);
+                QrCodeUtil.generate(siteUrl + "?spread=" + uid, config,
                         FileUtil.file(fileDir + name));
 
                 systemAttachmentService.attachmentAdd(name, String.valueOf(FileUtil.size(file)),
@@ -243,7 +249,17 @@ public class UserBillController extends BaseController {
                             newFile,
                             FileUtil.file(spreadPicPath),
                             userInfo.getNickname() + "邀您加入",
-                            Color.BLACK,
+                            Color.LIGHT_GRAY,
+                            f, //字体
+                            50, //x坐标修正值。 默认在中间，偏移量相对于中间偏移
+                            300, //y坐标修正值。 默认在中间，偏移量相对于中间偏移
+                            0.8f//透明度：alpha 必须是范围 [0.0, 1.0] 之内（包含边界值）的一个浮点数字
+                    );                    //font.
+                    ImgUtil.pressText(//
+                            newFile,
+                            FileUtil.file(spreadPicPath),
+                            "扫描或长按小程序码",
+                            Color.LIGHT_GRAY,
                             f, //字体
                             50, //x坐标修正值。 默认在中间，偏移量相对于中间偏移
                             300, //y坐标修正值。 默认在中间，偏移量相对于中间偏移
@@ -287,6 +303,146 @@ public class UserBillController extends BaseController {
         return ApiResult.ok(list);
     }
 
+
+    /**
+     * 分销二维码海报生成
+     */
+    @GetMapping("/spread/banner")
+    @ApiOperation(value = "分销二维码海报生成", notes = "分销二维码海报生成")
+    public ApiResult<Object> spreadBanner(@RequestParam(value = "", required = false) String form) {
+        int uid = SecurityUtils.getUserId().intValue();
+        YxUserQueryVo userInfo = yxUserService.getYxUserById(uid);
+        String siteUrl = systemConfigService.getData(SystemConfigConstants.SITE_URL);
+        if (StrUtil.isEmpty(siteUrl)) {
+            return ApiResult.fail("未配置h5地址");
+        }
+        String apiUrl = systemConfigService.getData(SystemConfigConstants.API_URL);
+        if (StrUtil.isEmpty(apiUrl)) {
+            return ApiResult.fail("未配置api地址");
+        }
+
+        String spreadUrl = "";
+
+            String userType = userInfo.getUserType();
+            if (!userType.equals(AppFromEnum.ROUNTINE.getValue())) {
+                userType = AppFromEnum.H5.getValue();
+            }
+
+            String name = uid + "_" + userType + "_user_wap.jpg";
+
+            YxSystemAttachment attachment = systemAttachmentService.getInfo(name);
+            String fileDir = path + "qrcode" + File.separator;
+            String qrcodeUrl = "";
+            if (ObjectUtil.isNull(attachment)) {
+                //生成二维码
+                //判断用户是否小程序,注意小程序二维码生成路径要与H5不一样 不然会导致都跳转到小程序问题
+                if (userType.equals(AppFromEnum.ROUNTINE.getValue())) {
+                    siteUrl = siteUrl + "/distribution/";
+                }
+                File file = FileUtil.mkdir(new File(fileDir));
+                QrConfig config = new QrConfig(122, 122);
+                config.setMargin(0);
+                QrCodeUtil.generate(siteUrl + "?spread=" + uid, config,
+                        FileUtil.file(fileDir + name));
+
+                systemAttachmentService.attachmentAdd(name, String.valueOf(FileUtil.size(file)),
+                        fileDir + name, "qrcode/" + name);
+
+                qrcodeUrl = apiUrl + fileDir + name;
+            } else {
+                qrcodeUrl = apiUrl + attachment.getAttDir();
+            }
+
+            String spreadPicName = uid + "_" + userType + "_user_spread.jpg";
+            String spreadPicPath = fileDir + spreadPicName;
+
+            YxSystemAttachment attachmentT = systemAttachmentService.getInfo(spreadPicName);
+
+
+            if (ObjectUtil.isNull(attachmentT)) {
+                try {
+
+                    //创建图片
+                    BufferedImage img = new BufferedImage(750, 1624, BufferedImage.TYPE_INT_RGB);
+                    //开启画图
+                    Graphics g = img.getGraphics();
+                    //背景 -- 读取互联网图片
+                    InputStream stream = getClass().getClassLoader().getResourceAsStream("background.png");
+                    ImageInputStream background = ImageIO.createImageInputStream(stream);
+                    BufferedImage back = ImageIO.read(background);
+
+                    g.drawImage(back.getScaledInstance(750, 1288, Image.SCALE_DEFAULT), 0, 0, null); // 绘制缩小后的图
+
+                    BufferedImage head = ImageIO.read(getClass().getClassLoader().getResourceAsStream("head.png"));
+                    g.drawImage(head.getScaledInstance(750, 280, Image.SCALE_DEFAULT), 0, 0, null);
+
+                    //商品  banner图
+                    //读取互联网图片
+                    BufferedImage fx = ImageIO.read(getClass().getClassLoader().getResourceAsStream("fx.jpg"));
+                    g.drawImage(fx.getScaledInstance(670, 1000, Image.SCALE_DEFAULT), 40, 280, null);
+
+                    InputStream streamT = getClass().getClassLoader()
+                            .getResourceAsStream("Alibaba-PuHuiTi-Regular.otf");
+                    File newFileT = new File("Alibaba-PuHuiTi-Regular.otf");
+                    FileUtils.copyInputStreamToFile(streamT, newFileT);
+                    Font font = Font.createFont(Font.TRUETYPE_FONT, newFileT);
+
+                    //读取二维码图片
+                    BufferedImage qrCode = null;
+                    try {
+                        qrCode = ImageIO.read(new URL(qrcodeUrl));
+                    } catch (IOException e) {
+                        log.error("二维码图片读取失败", e);
+                        e.printStackTrace();
+                    }
+                    // 绘制缩小后的图
+                    g.drawImage(qrCode.getScaledInstance(122, 122, Image.SCALE_DEFAULT), 40, 1320, null);
+
+
+                    //二维码字体
+                    g.setFont(font.deriveFont(Font.PLAIN, 25));
+                    g.setColor(new Color(171, 171, 171));
+                    //绘制文字
+                    g.drawString(userInfo.getNickname() + "邀您加入", 210, 1360);
+
+                    //二维码字体
+                    g.setFont(font.deriveFont(Font.PLAIN, 25));
+                    g.setColor(new Color(171, 171, 171));
+                    //绘制文字
+                    g.drawString("扫描或长按小程序码", 210, 1395);
+
+                    g.dispose();
+                    //先将画好的海报写到本地
+                    File file = new File(spreadPicPath);
+                    try {
+                        ImageIO.write(img, "jpg", file);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    systemAttachmentService.attachmentAdd(spreadPicName,
+                            String.valueOf(FileUtil.size(new File(spreadPicPath))),
+                            spreadPicPath, "qrcode/" + spreadPicName);
+                    spreadUrl = apiUrl + "/file/qrcode/" + spreadPicName;
+                    //保存到本地 生成文件名字
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            } else {
+                spreadUrl = apiUrl + "/file/" + attachmentT.getSattDir();
+            }
+
+        java.util.List<Map<String, Object>> list = new ArrayList<>();
+
+
+        Map<String, Object> map = new LinkedHashMap<>();
+        map.put("id", 1);
+        map.put("pic", "");
+        map.put("title", "分享海报");
+        map.put("wap_poster", spreadUrl);
+        list.add(map);
+        return ApiResult.ok(list);
+    }
 
     /**
      * 推荐用户

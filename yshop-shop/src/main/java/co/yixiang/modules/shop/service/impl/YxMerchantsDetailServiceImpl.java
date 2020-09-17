@@ -20,7 +20,6 @@ import co.yixiang.modules.shop.service.dto.UserMoneyDto;
 import co.yixiang.modules.shop.service.dto.YxMerchantsDetailDto;
 import co.yixiang.modules.shop.service.dto.YxMerchantsDetailQueryCriteria;
 import co.yixiang.modules.shop.service.mapper.YxMerchantsDetailMapper;
-import co.yixiang.modules.shop.service.mapper.YxStoreInfoMapper;
 import co.yixiang.utils.FileUtil;
 import co.yixiang.utils.OrderUtil;
 import co.yixiang.utils.SecretUtil;
@@ -70,10 +69,8 @@ public class YxMerchantsDetailServiceImpl extends BaseServiceImpl<YxMerchantsDet
     private YxImageInfoService yxImageInfoService;
     @Autowired
     private YxExamineLogService yxExamineLogService;
-    //    @Autowired
-//    private YxStoreInfoService yxStoreInfoService;
     @Autowired
-    private YxStoreInfoMapper yxStoreInfoMapper;
+    private YxStoreInfoService yxStoreInfoService;
     @Autowired
     private UserService userService;
     @Autowired
@@ -344,44 +341,46 @@ public class YxMerchantsDetailServiceImpl extends BaseServiceImpl<YxMerchantsDet
         yxExamineLog.setRemark(resources.getExamineRemark());
         yxExamineLog.setDelFlag(0);
         yxExamineLogService.save(yxExamineLog);
-        YxStoreInfo yxStoreInfo = this.yxStoreInfoMapper.selectOne(new QueryWrapper<YxStoreInfo>().lambda().eq(YxStoreInfo::getMerId, yxMerchantsDetail.getUid()));
+        YxStoreInfo yxStoreInfo = this.yxStoreInfoService.getOne(new QueryWrapper<YxStoreInfo>().lambda().eq(YxStoreInfo::getMerId, yxMerchantsDetail.getUid()));
         // 审核通过生成一个默认店铺
         if (1 == resources.getExamineStatus() && null == yxStoreInfo) {
             User user = this.userService.getById(yxMerchantsDetail.getUid());
-            YxStoreInfo insertStore = new YxStoreInfo();
+            yxStoreInfo = new YxStoreInfo();
             // 店铺编号
-            insertStore.setStoreNid("S" + SecretUtil.createRandomStr(8) + resources.getId());
-            insertStore.setStoreName("未命名店铺");
-            insertStore.setManageUserName(yxMerchantsDetail.getContacts());
-            insertStore.setMerId(yxMerchantsDetail.getUid());
+            yxStoreInfo.setStoreNid("S" + SecretUtil.createRandomStr(8) + resources.getId());
+            yxStoreInfo.setStoreName("未命名店铺");
+            yxStoreInfo.setManageUserName(yxMerchantsDetail.getContacts());
+            yxStoreInfo.setMerId(yxMerchantsDetail.getUid());
             // 重新获取下
-            insertStore.setPartnerId(user.getParentId());
-            insertStore.setManageMobile(yxMerchantsDetail.getContactMobile());
-            insertStore.setStoreMobile(yxMerchantsDetail.getContactMobile());
+            yxStoreInfo.setPartnerId(user.getParentId());
+            yxStoreInfo.setManageMobile(yxMerchantsDetail.getContactMobile());
+            yxStoreInfo.setStoreMobile(yxMerchantsDetail.getContactMobile());
             // 状态：0：上架，1：下架
-            insertStore.setStatus(1);
-            insertStore.setStoreProvince("");
-            insertStore.setStoreAddress("");
-            insertStore.setPerCapita(BigDecimal.ZERO);
-            insertStore.setDelFlag(0);
-            insertStore.setCoordinate(new GeoPoint(BigDecimal.ZERO, BigDecimal.ZERO));
-            yxStoreInfoMapper.insert(insertStore);
+            yxStoreInfo.setStatus(1);
+            yxStoreInfo.setStoreProvince("");
+            yxStoreInfo.setStoreAddress("");
+            yxStoreInfo.setPerCapita(BigDecimal.ZERO);
+            yxStoreInfo.setDelFlag(0);
+            yxStoreInfo.setCoordinate(new GeoPoint(BigDecimal.ZERO, BigDecimal.ZERO));
+            yxStoreInfoService.save(yxStoreInfo);
 
             // 生成店铺分销用的二维码
             //判断用户是否小程序,注意小程序二维码生成路径要与H5不一样 不然会导致都跳转到小程序问题
             String siteUrl = systemConfigService.getData(SystemConfigConstants.SITE_URL);
             String apiUrl = systemConfigService.getData(SystemConfigConstants.API_URL);
             if (StringUtils.isNotBlank(siteUrl) && StringUtils.isNotBlank(apiUrl)) {
+                // 重新查库获取到当前商铺的id
+                yxStoreInfo = this.yxStoreInfoService.getOne(new QueryWrapper<YxStoreInfo>().lambda().eq(YxStoreInfo::getMerId, yxMerchantsDetail.getUid()));
                 //小程序地址
                 siteUrl = siteUrl + "/shop/";
                 // 二维码长宽
                 QrConfig config = new QrConfig(180, 180);
                 config.setMargin(0);
                 String fileDir = path + "qrcode" + File.separator;
-                String name = insertStore.getId() + "_" + yxMerchantsDetail.getUid() + "_mer_" + "_store_detail_wap.jpg";
+                String name = yxStoreInfo.getId() + "_" + yxMerchantsDetail.getUid() + "_mer_" + "_store_detail_wap.jpg";
 //                File file = FileUtil.mkdir(new File(fileDir));
                 //生成二维码
-                QrCodeUtil.generate(siteUrl + "?productId=" + insertStore.getId() + "&spread=" + yxMerchantsDetail.getUid() + "&spreadType=mer&codeType=" + AppFromEnum.ROUNTINE.getValue(), config,
+                QrCodeUtil.generate(siteUrl + "?productId=" + yxStoreInfo.getId() + "&spread=" + yxMerchantsDetail.getUid() + "&spreadType=mer&codeType=" + AppFromEnum.ROUNTINE.getValue(), config,
                         FileUtil.file(fileDir + name));
 
                 String qrcodeUrl = apiUrl + "/file/qrcode/" + name;

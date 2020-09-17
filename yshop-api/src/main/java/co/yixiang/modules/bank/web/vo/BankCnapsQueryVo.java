@@ -1,11 +1,11 @@
 package co.yixiang.modules.bank.web.vo;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-import java.io.Serializable;
 
-import java.util.Date;
+import java.io.Serializable;
 
 /**
  * <p>
