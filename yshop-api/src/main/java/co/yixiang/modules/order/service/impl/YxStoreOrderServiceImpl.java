@@ -2018,7 +2018,7 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
             storeCartMapper.update(cartObj, wrapper);
 
             //存入redis(产品信息)
-            redisUtils.set("orderInfo_orderId:" + orderSn, redisVoList);
+            redisUtils.set("orderInfo_orderId:" + orderSn, redisVoList,1800L);
             //增加状态
             orderStatusService.create(storeOrder.getId(), "cache_key_create_order", "订单生成");
             //加入redis，30分钟自动取消
