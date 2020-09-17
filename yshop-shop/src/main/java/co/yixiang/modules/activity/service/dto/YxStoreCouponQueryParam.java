@@ -19,7 +19,5 @@ import lombok.EqualsAndHashCode;
 public class YxStoreCouponQueryParam extends QueryParam {
     private String userName;
     private String couponTitle;
-    private Integer pageStart;
-    private Integer pageEnd;
 
 }
