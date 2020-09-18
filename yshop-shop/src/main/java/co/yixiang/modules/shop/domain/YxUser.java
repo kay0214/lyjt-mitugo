@@ -192,6 +192,9 @@ public class YxUser implements Serializable {
     /** 银行预留手机号 */
     private String bankMobile;
 
+    /** 联行号 */
+    private String cnapsCode;
+
 
     public void copy(YxUser source){
         BeanUtil.copyProperties(source,this, CopyOptions.create().setIgnoreNullValue(true));
