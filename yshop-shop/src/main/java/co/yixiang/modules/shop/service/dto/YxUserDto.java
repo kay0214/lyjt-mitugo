@@ -154,4 +154,6 @@ public class YxUserDto implements Serializable {
     /** 银行预留手机号 */
     private String bankMobile;
 
+    /** 联行号 */
+    private String cnapsCode;
 }

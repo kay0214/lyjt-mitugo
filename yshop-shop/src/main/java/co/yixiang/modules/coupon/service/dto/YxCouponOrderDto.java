@@ -21,6 +21,10 @@ public class YxCouponOrderDto implements Serializable {
 
     private Integer id;
 
+    /**
+     * 状态说明
+     */
+    private String statusName;
 
     /**
      * 订单号
