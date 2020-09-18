@@ -25,6 +25,7 @@ import com.qiniu.storage.UploadManager;
 import com.qiniu.storage.model.DefaultPutRet;
 import com.qiniu.storage.model.FileInfo;
 import com.qiniu.util.Auth;
+import com.qiniu.util.StringMap;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -106,12 +107,12 @@ public class QiNiuServiceImpl implements QiNiuService {
         Configuration cfg = new Configuration(QiNiuUtil.getRegion(qiniuConfig.getZone()));
         UploadManager uploadManager = new UploadManager(cfg);
         Auth auth = Auth.create(qiniuConfig.getAccessKey(), qiniuConfig.getSecretKey());
-        String upToken = auth.uploadToken(qiniuConfig.getBucket());
         try {
             String key = file.getOriginalFilename();
-            if(qiniuContentService.getOne(new QueryWrapper<QiniuContent>().eq("name",key)) != null) {
+           /* if(qiniuContentService.getOne(new QueryWrapper<QiniuContent>().eq("name",key)) != null) {
                 key = QiNiuUtil.getKey(key);
-            }
+            }*/
+            String upToken = auth.uploadToken(qiniuConfig.getBucket(),key, 3600, new StringMap().put("insertOnly", 0));
             Response response = uploadManager.put(file.getBytes(), key, upToken);
             //解析上传成功的结果
 
