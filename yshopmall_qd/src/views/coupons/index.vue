@@ -750,7 +750,7 @@ export default {
     },
     // 上下架操作
     handleUpload(id, status) {
-      let per=checkPermission(['admin','yxCoupons:edit','yxCoupons:del'])
+      let per=checkPermission(['admin','yxCoupons:putoff'])
       if(!per){
         return;
       }
@@ -775,7 +775,7 @@ export default {
     },
     // 热销操作
     handleHot(id, status) {
-      let per=checkPermission(['admin','yxCoupons:edit','yxCoupons:del'])
+      let per=checkPermission(['admin','yxCoupons:popular'])
       if(!per){
         return;
       }

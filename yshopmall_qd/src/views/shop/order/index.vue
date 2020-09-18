@@ -124,7 +124,7 @@
         <el-table-column prop="payTypeName" label="支付状态" />
         <el-table-column prop="statusName" label="订单状态">
           <template slot-scope="scope">
-            <span v-html="scope.row.statusName">{{ scope.row.addTime }}</span>
+            <span v-html="scope.row.statusName"></span>
           </template>
         </el-table-column>
         <el-table-column prop="addTime" width="160" label="创建时间">
