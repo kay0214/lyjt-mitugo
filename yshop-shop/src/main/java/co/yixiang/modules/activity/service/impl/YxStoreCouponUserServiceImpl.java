@@ -85,8 +85,9 @@ public class YxStoreCouponUserServiceImpl extends BaseServiceImpl<YxStoreCouponU
         YxStoreCouponQueryParam queryParam = new YxStoreCouponQueryParam();
         BeanUtils.copyProperties(criteria,queryParam);
         Page<YxStoreCouponUserDto> pageParam = new Page<YxStoreCouponUserDto>(pageable.getPageNumber()+1,pageable.getPageSize());
-        int countSize = storeCouponUserMapper.countCouponUserPage(queryParam,criteria.getChildStoreId());
-        List<YxStoreCouponUserDto> storeCouponUserDtoList = storeCouponUserMapper.selectCouponUserPage(pageParam,queryParam,criteria.getChildStoreId());
+        List<Long> storeIds = criteria.getChildStoreId();
+        int countSize = storeCouponUserMapper.countCouponUserPage(queryParam,storeIds);
+        List<YxStoreCouponUserDto> storeCouponUserDtoList = storeCouponUserMapper.selectCouponUserPage(pageParam,queryParam,storeIds);
 
         Map<String, Object> map = new LinkedHashMap<>(2);
         map.put("content", storeCouponUserDtoList);
