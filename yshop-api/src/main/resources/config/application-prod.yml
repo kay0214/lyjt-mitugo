@@ -50,7 +50,16 @@ spring:
     password: Sc6mYzzXZS8El6zE
     #连接超时时间
     timeout: 5000
-
+redis:
+  ip: r-8vbggwhot2ztmuj8vm.redis.zhangbei.rds.aliyuncs.com
+  port: 6379
+  pool:
+    maxActive:  1024
+    maxIdle: 200
+    maxWait: 10000
+    testOnBorrow: true
+    testOnReturn: true
+    password: Sc6mYzzXZS8El6zE
 #配置rocketmq
 rocketmq:
   nameServer: 192.168.11.240:9876;192.168.11.241:9876
