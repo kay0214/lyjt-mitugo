@@ -136,4 +136,9 @@ public interface CommonConstant {
      * 本地生活下单锁
      */
     String LOCK_COUPON_COMMIT_ORDER = "LOCK_COUPON_COMMIT_ORDER";
+
+    /**
+     * 产品库存_key+_+id+_+unique
+     */
+    public static final String SHOP_PRODUCT_STOCK = "shop_product_stock:";
 }
