@@ -166,8 +166,9 @@
                   <span style='margin:0 10px'><router-link to="/member/yxMerchantsDetail/pdf2" target="_blank">协议二 </router-link></span>
                 </el-row>
             </el-form-item>
-            <el-form-item v-else label=" ">
+            <el-form-item v-else-if='!crud.status.add' label=" ">
               <el-row type='flex'>
+                    <el-checkbox v-model="form.checkbox" name='checkbox' checked readonly></el-checkbox>
                     <span style='margin:0 10px'>我已阅读并同意</span>
                     <span style='margin:0 10px'><router-link to="/member/yxMerchantsDetail/pdf1" target="_blank">协议一 </router-link></span>
                     <span style='margin:0 10px'><router-link to="/member/yxMerchantsDetail/pdf2" target="_blank">协议二 </router-link></span>
