@@ -4,6 +4,7 @@ import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import co.yixiang.annotation.AnonymousAccess;
 import co.yixiang.common.api.ApiResult;
+import co.yixiang.common.constant.CommonConstant;
 import co.yixiang.common.util.IpUtils;
 import co.yixiang.common.web.controller.BaseController;
 import co.yixiang.common.web.param.IdParam;
@@ -31,6 +32,7 @@ import co.yixiang.modules.shop.service.YxSystemStoreService;
 import co.yixiang.modules.user.service.YxUserAddressService;
 import co.yixiang.modules.user.service.YxUserService;
 import co.yixiang.utils.CommonsUtils;
+import co.yixiang.utils.RedisLockUtils;
 import co.yixiang.utils.SecurityUtils;
 import co.yixiang.utils.StringUtils;
 import com.alibaba.fastjson.JSON;
@@ -45,12 +47,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.*;
 
 /**
  * <p>
@@ -80,9 +77,6 @@ public class YxCouponOrderController extends BaseController {
 
     @Autowired
     private YxSystemStoreService systemStoreService;
-
-    private static Lock lock = new ReentrantLock(false);
-
 
     /**
      * 通过卡券ID, 获取卡券和卡券所属商户信息
@@ -183,7 +177,9 @@ public class YxCouponOrderController extends BaseController {
 
         Map<String, Object> map = new LinkedHashMap<>();
         int uid = SecurityUtils.getUserId().intValue();
-        if (StrUtil.isEmpty(key)) return ApiResult.fail("参数错误");
+        if (StrUtil.isEmpty(key)) {
+            return ApiResult.fail("参数错误");
+        }
 
         // 校验订单是否已存在
         YxCouponOrder couponOrder = yxCouponOrderService.getOne(new QueryWrapper<YxCouponOrder>().eq("`unique`", key).eq("del_flag", 0));
@@ -195,19 +191,30 @@ public class YxCouponOrderController extends BaseController {
             map.put("result", orderExtendDTO);
             return ApiResult.ok(map, "订单已生成");
         }
-        if (param.getFrom().equals("weixin")) param.setIsChannel(0);
-
-        //创建订单
-        YxCouponOrder order = null;
-        try {
-            lock.lock();
-            order = yxCouponOrderService.createOrder(uid, key, param);
-        } finally {
-            lock.unlock();
+        if (param.getFrom().equals("weixin")) {
+            param.setIsChannel(0);
         }
 
+        String lockKey = CommonConstant.LOCK_COUPON_COMMIT_ORDER + param.getCouponId();
+        String requestId = UUID.randomUUID().toString();
+        //创建订单
+        YxCouponOrder order = null;
+        while (true) {
+            if (RedisLockUtils.tryGetLock(lockKey, requestId, 5)) {
+                try {
+                    order = yxCouponOrderService.createOrder(uid, key, param);
+                    break;
+                } catch (ErrorRequestException e) {
+                    throw e;
+                } finally {
+                    RedisLockUtils.releaseLock(lockKey, requestId);
+                }
+            }
+        }
 
-        if (ObjectUtil.isNull(order)) throw new ErrorRequestException("订单生成失败");
+        if (ObjectUtil.isNull(order)) {
+            throw new ErrorRequestException("订单生成失败");
+        }
 
         String orderId = order.getOrderId();
 
@@ -440,13 +447,7 @@ public class YxCouponOrderController extends BaseController {
     @PostMapping("/cancel")
     @ApiOperation(value = "取消YxCouponOrder对象", notes = "取消卡券订单表", response = ApiResult.class)
     public ApiResult<Boolean> cancelYxCouponOrder(@Valid @RequestBody IdParam idParam) throws Exception {
-        boolean flag;
-        try {
-            lock.lock();
-            flag = yxCouponOrderService.updateOrderStatusCancel(idParam.getId());
-        } finally {
-            lock.unlock();
-        }
+        boolean flag = yxCouponOrderService.updateOrderStatusCancel(idParam.getId());
         return ApiResult.result(flag);
     }
 

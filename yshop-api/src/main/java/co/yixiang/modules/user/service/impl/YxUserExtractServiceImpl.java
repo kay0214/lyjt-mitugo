@@ -119,15 +119,13 @@ public class YxUserExtractServiceImpl extends BaseServiceImpl<YxUserExtractMappe
         userService.updateExtractMoney(uid, money);
 
         // 用户提现信息有未保存的保存到库里
-        if (StringUtils.isBlank(userInfo.getBankNo()) || StringUtils.isBlank(userInfo.getBankMobile()) || StringUtils.isBlank(param.getRealName())) {
-            YxUser yxUser = new YxUser();
-            yxUser.setUid(uid);
-            yxUser.setBankNo(param.getBankNo());
-            yxUser.setBankMobile(param.getPhone());
-            yxUser.setRealName(param.getRealName());
-            yxUser.setCnapsCode(param.getCnapsCode());
-            this.userService.updateById(yxUser);
-        }
+        YxUser yxUser = new YxUser();
+        yxUser.setUid(uid);
+        yxUser.setBankNo(param.getBankNo());
+        yxUser.setBankMobile(param.getPhone());
+        yxUser.setRealName(param.getRealName());
+        yxUser.setCnapsCode(param.getCnapsCode());
+        this.userService.updateById(yxUser);
     }
 
     @Override

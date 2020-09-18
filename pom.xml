@@ -34,7 +34,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>1.8</java.version>
-        <jedis.version>2.9.0</jedis.version>
+        <jedis.version>3.1.0</jedis.version>
         <log4jdbc.version>1.16</log4jdbc.version>
         <swagger.version>2.9.2</swagger.version>
         <fastjson.version>1.2.70</fastjson.version>
@@ -42,6 +42,7 @@
         <hutool.version>5.2.5</hutool.version>
         <commons-pool2.version>2.5.0</commons-pool2.version>
         <mapstruct.version>1.2.0.Final</mapstruct.version>
+        <framework.version>1.1.0</framework.version>
     </properties>
 
 
@@ -210,6 +211,16 @@
             <version>1.20</version>
         </dependency>
     </dependencies>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.hyjf.framework</groupId>
+                <artifactId>redis-spring-boot-starter</artifactId>
+                <version>${framework.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <build>
         <plugins>
