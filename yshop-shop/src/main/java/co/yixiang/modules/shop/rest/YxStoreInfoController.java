@@ -136,7 +136,7 @@ public class YxStoreInfoController {
     @PostMapping(value = "/setFreeShipping")
     @Log("修改包邮金额")
     @ApiOperation("修改包邮金额")
-//    @PreAuthorize("@el.check('admin','yxStoreInfo:edit')")
+    @PreAuthorize("@el.check('admin','yxStoreInfo:freeShip')")
     public ResponseEntity<Object> setFreeShipping(@RequestBody String jsonStr) {
         JSONObject jsonObject = JSON.parseObject(jsonStr);
         String strPostager = jsonObject.getString("freePostage");
