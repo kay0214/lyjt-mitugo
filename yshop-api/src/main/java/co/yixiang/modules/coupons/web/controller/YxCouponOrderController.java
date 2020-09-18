@@ -32,6 +32,7 @@ import co.yixiang.modules.shop.service.YxSystemStoreService;
 import co.yixiang.modules.user.service.YxUserAddressService;
 import co.yixiang.modules.user.service.YxUserService;
 import co.yixiang.utils.CommonsUtils;
+import co.yixiang.utils.RedisUtil;
 import co.yixiang.utils.SecurityUtils;
 import co.yixiang.utils.StringUtils;
 import com.alibaba.fastjson.JSON;
@@ -198,18 +199,18 @@ public class YxCouponOrderController extends BaseController {
         String requestId = UUID.randomUUID().toString();
         //创建订单
         YxCouponOrder order = null;
-//        while (true) {
-//            if (RedisLockUtils.tryGetLock(lockKey, requestId, 5)) {
-//                try {
-        order = yxCouponOrderService.createOrder(uid, key, param);
-//                    break;
-//                } catch (ErrorRequestException e) {
-//                    throw e;
-//                } finally {
-//                    RedisLockUtils.releaseLock(lockKey, requestId);
-//                }
-//            }
-//        }
+        while (true) {
+            if (RedisUtil.tryGetLock(lockKey, requestId, 5)) {
+                try {
+                    order = yxCouponOrderService.createOrder(uid, key, param);
+                    break;
+                } catch (ErrorRequestException e) {
+                    throw e;
+                } finally {
+                    RedisUtil.releaseLock(lockKey, requestId);
+                }
+            }
+        }
 
         if (ObjectUtil.isNull(order)) {
             throw new ErrorRequestException("订单生成失败");
