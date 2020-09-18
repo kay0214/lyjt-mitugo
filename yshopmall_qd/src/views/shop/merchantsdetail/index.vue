@@ -166,8 +166,9 @@
                   <span style='margin:0 10px'><router-link to="/member/yxMerchantsDetail/pdf2" target="_blank">协议二 </router-link></span>
                 </el-row>
             </el-form-item>
-            <el-form-item v-else label=" ">
+            <el-form-item v-else-if='!crud.status.add' label=" ">
               <el-row type='flex'>
+                    <el-checkbox v-model="form.checkbox" name='checkbox' checked readonly></el-checkbox>
                     <span style='margin:0 10px'>我已阅读并同意</span>
                     <span style='margin:0 10px'><router-link to="/member/yxMerchantsDetail/pdf1" target="_blank">协议一 </router-link></span>
                     <span style='margin:0 10px'><router-link to="/member/yxMerchantsDetail/pdf2" target="_blank">协议二 </router-link></span>
@@ -212,7 +213,7 @@
         <el-table-column v-if="columns.visible('contacts')" prop="contacts" label="商户联系人" />
         <el-table-column v-if="columns.visible('contactMobile')" prop="contactMobile" label="联系人电话" />
         <el-table-column v-if="columns.visible('withdrawalAmount')" prop="withdrawalAmount" label="可提现金额" />
-        <el-table-column label="商户状态" align="center" v-permission="['admin','yxMerchantsDetail:switch']">
+        <el-table-column label="商户状态" align="center">
           <template slot-scope="scope">
             <div @click="updateStatus(scope.row.uid,scope.row.status)">
               <el-tag v-if="scope.row.status == 1">已禁用</el-tag>
@@ -275,6 +276,7 @@ import pagination from '@crud/Pagination'
 import MaterialList from "@/components/material";
 import { get as getDictDetail } from '@/api/system/dictDetail'
 import { Notification } from 'element-ui'
+import checkPermission from '@/utils/permission'
 
 // crud交由presenter持有
 const defaultCrud = CRUD({ title: '商户详情表', url: 'api/yxMerchantsDetail/getYxMerchantsDetailsList', sort: 'id,desc', crudMethod: { ...crudYxMerchantsDetail },optShow: {
@@ -680,6 +682,10 @@ export default {
     },
     //启禁用商户状态
     updateStatus(uid,status) {
+      let per=checkPermission(['admin','yxMerchantsDetail:switch'])
+      if(!per){
+        return;
+      }
       this.$confirm(`确定进行[${status ? '启用' : '禁用'}]操作?`, '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
