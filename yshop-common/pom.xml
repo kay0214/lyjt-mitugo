@@ -47,5 +47,9 @@
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.hyjf.framework</groupId>
+            <artifactId>redis-spring-boot-starter</artifactId>
+        </dependency>
     </dependencies>
 </project>

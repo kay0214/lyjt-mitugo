@@ -39,6 +39,7 @@
       </el-table-column>
       <el-table-column prop="phone" label="手机号码" />
       <el-table-column prop="realName" label="真实姓名" />
+      <el-table-column prop="nowMoney" label="用户余额" />
       <el-table-column prop="brokeragePrice" label="佣金金额" />
       <el-table-column label="用户角色" align="center">
         <template slot-scope="scope">
@@ -290,7 +291,7 @@ export default {
     },
     modiyfUserCommission(btn,formData,uid){
       this.$refs.formWithdraw.validate(function(ret,obj){
-        if(ret){          
+        if(ret){
           modiyfUserCommission(Object.assign(formData,{uid})).then(res=>{
             console.log('xxxxxx')
             console.log(res)
@@ -308,7 +309,7 @@ export default {
             //   title: err
             //   })
           })
-        }else{          
+        }else{
           Notification.error({
             title: '请查看必填项是否输入正确'
             })
