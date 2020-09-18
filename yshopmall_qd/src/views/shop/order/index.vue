@@ -27,9 +27,9 @@
         <el-tab-pane name="-2">
           <span slot="label"><i class="el-icon-finished"></i> 已退款</span>
         </el-tab-pane>
-        <!-- <el-tab-pane name="-4">
+         <el-tab-pane name="-4">
           <span slot="label"><i class="el-icon-circle-close"></i> 已删除</span>
-        </el-tab-pane> -->
+        </el-tab-pane>
       </el-tabs>
       <!--工具栏-->
       <div class="head-container">
