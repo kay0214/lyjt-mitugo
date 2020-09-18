@@ -138,7 +138,7 @@ public interface CommonConstant {
     String LOCK_COUPON_COMMIT_ORDER = "LOCK_COUPON_COMMIT_ORDER";
 
     /**
-     * 产品库存_key+_+id+_+unique
+     * 产品库存_key+：+id+：+unique
      */
     public static final String SHOP_PRODUCT_STOCK = "shop_product_stock:";
 }
