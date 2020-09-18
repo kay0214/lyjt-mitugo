@@ -50,16 +50,6 @@ spring:
     password: RH06863b3e6
     #连接超时时间
     timeout: 5000
-redis:
-  ip: newdev1-3
-  port: 6379
-  pool:
-    maxActive:  1024
-    maxIdle: 200
-    maxWait: 10000
-    testOnBorrow: true
-    testOnReturn: true
-    password: RH06863b3e6
 #配置rocketmq
 rocketmq:
   nameServer: 39.98.140.134:9876
