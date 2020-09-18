@@ -118,7 +118,7 @@ public class QiNiuServiceImpl implements QiNiuService {
 
             DefaultPutRet putRet = JSON.parseObject(response.bodyString(), DefaultPutRet.class);
 
-            QiniuContent content = qiniuContentService.getOne(new QueryWrapper<QiniuContent>().eq("name",FileUtil.getFileNameNoEx(putRet.key)));
+            QiniuContent content = qiniuContentService.getOne(new QueryWrapper<QiniuContent>().eq("name",FileUtil.getFileNameNoEx(putRet.key)).eq("suffix", FileUtil.getExtensionName(putRet.key)));
             if (content == null) {
                 //存入数据库
                 QiniuContent qiniuContent = new QiniuContent();
