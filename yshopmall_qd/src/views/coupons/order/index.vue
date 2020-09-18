@@ -100,10 +100,9 @@
               <span>{{ formatTime(scope.row.createTime) }}</span>
             </template>
           </el-table-column>         
-          <el-table-column v-permission="['admin','yxCouponOrder:edit','yxCouponOrder:refund']" label="操作" width="150px" align="center">
+          <el-table-column label="操作" width="150px" align="center">
             <template slot-scope="scope">
               <el-button
-              v-permission="permission.edit"
               size="mini"
               type="primary"
               @click="detail(scope.row)"
