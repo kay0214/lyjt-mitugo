@@ -150,6 +150,7 @@ public class UserServiceImpl extends BaseServiceImpl<UserSysMapper, User> implem
         yxUserExtract.setStatus(0);
         yxUserExtract.setUserType(userType);
         yxUserExtract.setBankMobile(user.getPhone());
+        yxUserExtract.setCnapsCode(yxMerchantsDetail.getBankCode());
         this.yxUserExtractMapper.insert(yxUserExtract);
         return true;
     }
