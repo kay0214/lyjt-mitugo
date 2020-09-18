@@ -3,41 +3,28 @@
  */
 package co.yixiang.common.rocketmq.service.impl;
 
-import co.yixiang.common.rocketmq.entity.OrderInfo;
 import co.yixiang.common.rocketmq.entity.WithdrawInfo;
-import co.yixiang.common.rocketmq.service.CommissionService;
 import co.yixiang.common.rocketmq.service.WithdrawService;
 import co.yixiang.common.util.HttpUtils;
 import co.yixiang.constant.ShopConstants;
 import co.yixiang.enums.BillDetailEnum;
-import co.yixiang.modules.commission.entity.YxCommissionRate;
-import co.yixiang.modules.commission.mapper.YxCommissionRateMapper;
-import co.yixiang.modules.coupons.entity.YxCouponOrder;
-import co.yixiang.modules.coupons.mapper.YxCouponOrderMapper;
-import co.yixiang.modules.funds.entity.YxFundsAccount;
-import co.yixiang.modules.funds.mapper.YxFundsAccountMapper;
 import co.yixiang.modules.manage.entity.SystemUser;
 import co.yixiang.modules.manage.entity.YxMerchantsDetail;
-import co.yixiang.modules.manage.mapper.SystemUserMapper;
 import co.yixiang.modules.manage.service.YxMerchantsDetailService;
-import co.yixiang.modules.order.entity.YxStoreOrder;
-import co.yixiang.modules.order.mapper.YxStoreOrderMapper;
-import co.yixiang.modules.shop.entity.YxStoreCart;
-import co.yixiang.modules.shop.mapper.YxStoreCartMapper;
-import co.yixiang.modules.user.entity.*;
-import co.yixiang.modules.user.mapper.YxFundsDetailMapper;
-import co.yixiang.modules.user.mapper.YxPointDetailMapper;
+import co.yixiang.modules.user.entity.YxUser;
+import co.yixiang.modules.user.entity.YxUserBill;
+import co.yixiang.modules.user.entity.YxUserExtract;
 import co.yixiang.modules.user.mapper.YxUserBillMapper;
-import co.yixiang.modules.user.mapper.YxUserMapper;
 import co.yixiang.modules.user.service.YxUserBillService;
 import co.yixiang.modules.user.service.YxUserExtractService;
 import co.yixiang.modules.user.service.YxUserService;
-import co.yixiang.utils.*;
+import co.yixiang.utils.DateUtils;
+import co.yixiang.utils.OrderUtil;
+import co.yixiang.utils.RedisUtil;
+import co.yixiang.utils.SnowflakeUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.http.client.HttpClient;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -45,8 +32,6 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.Arrays;
-import java.util.List;
 
 
 @Slf4j
@@ -335,7 +320,8 @@ public class WithdrawServiceImpl implements WithdrawService {
         // 银行卡
         info.setPayeeNo(userExtract.getBankCode());
         info.setPayeeName(userExtract.getRealName());
-
+        // 联行号
+        info.setBankCode(userExtract.getCnapsCode());
         return info;
     }
 

@@ -35,4 +35,8 @@ public class UserExtParam implements Serializable {
 
     // 银行卡号
     private String bankNo;
+
+    // 联行号
+    // @NotBlank(message = "联行号不能为空")
+    private String cnapsCode;
 }

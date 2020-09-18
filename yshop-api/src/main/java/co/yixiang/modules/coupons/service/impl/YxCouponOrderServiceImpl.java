@@ -274,7 +274,8 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         YxCouponOrder couponOrder = new YxCouponOrder();
         couponOrder.setUid(uid);
         couponOrder.setOrderId(orderSn);
-        couponOrder.setRealName(StringUtils.isNotBlank(userInfo.getRealName()) ? userInfo.getRealName() : "");
+        // 订单存放用户昵称、真实姓名可能会不存在、无法区分订单所属
+        couponOrder.setRealName(userInfo.getNickname());
         couponOrder.setUserPhone(StringUtils.isNotBlank(userInfo.getPhone()) ? userInfo.getPhone() : "");
         couponOrder.setTotalNum(totalNum);
         couponOrder.setTotalPrice(BigDecimal.valueOf(totalPrice));
@@ -634,6 +635,7 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         storeOrder.setRefundStatus(OrderInfoEnum.REFUND_STATUS_1.getValue());
         storeOrder.setRefundReasonTime(OrderUtil.getSecondTimestampTwo());
         storeOrder.setRefundReasonWapExplain(param.getRefund_reason_wap_explain());
+        storeOrder.setRefundReasonWap(param.getText());
         storeOrder.setId(order.getId());
         yxCouponOrderMapper.updateById(storeOrder);
 

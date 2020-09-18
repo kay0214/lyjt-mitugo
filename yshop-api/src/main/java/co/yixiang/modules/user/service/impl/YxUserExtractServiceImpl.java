@@ -69,6 +69,7 @@ public class YxUserExtractServiceImpl extends BaseServiceImpl<YxUserExtractMappe
         if (money.compareTo(BigDecimal.ZERO) <= 0) {
             throw new ErrorRequestException("提现佣金大于0");
         }
+
         BigDecimal balance = extractPrice.subtract(money);
 
         YxUserExtract userExtract = new YxUserExtract();
@@ -81,6 +82,8 @@ public class YxUserExtractServiceImpl extends BaseServiceImpl<YxUserExtractMappe
         userExtract.setBankCode(param.getBankNo());
         userExtract.setBankAddress(userInfo.getBankName());
         userExtract.setBankMobile(param.getPhone());
+        // 联行号
+        userExtract.setCnapsCode(param.getCnapsCode());
         // 前台用户提现
         userExtract.setUserType(3);
 
@@ -122,6 +125,7 @@ public class YxUserExtractServiceImpl extends BaseServiceImpl<YxUserExtractMappe
             yxUser.setBankNo(param.getBankNo());
             yxUser.setBankMobile(param.getPhone());
             yxUser.setRealName(param.getRealName());
+            yxUser.setCnapsCode(param.getCnapsCode());
             this.userService.updateById(yxUser);
         }
     }

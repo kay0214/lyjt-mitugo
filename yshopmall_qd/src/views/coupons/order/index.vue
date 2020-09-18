@@ -2,8 +2,8 @@
   <div class="app-container">
     <div class="container">
       <el-tabs v-model="orderStatus" type="card" @tab-click="handleOrder">
-        
-          <el-tab-pane 
+
+          <el-tab-pane
           v-for="(item,index) in orderStatusList"
           :key='item.value'
           :label="item.value"
@@ -46,7 +46,7 @@
         <!--表单组件-->
         <!-- <el-dialog :close-on-click-modal="false" :before-close="crud.cancelCU" :visible.sync="crud.status.cu > 0" :title="crud.status.title" width="500px">
           <el-form ref="form" :model="form" :rules="rules" size="small" label-width="80px">
-            <div>{{form}}</div>            
+            <div>{{form}}</div>
             <el-form-item label="订单号" prop="orderId">
               <el-input v-model="form.orderId" style="width: 370px;" disabled/>
             </el-form-item>
@@ -73,7 +73,7 @@
               <span>{{scope.row.yxCouponsDto?(scope.row.yxCouponsDto.couponName?scope.row.yxCouponsDto.couponName:''):''}}</span>
             </template>
           </el-table-column>
-          <el-table-column v-if="columns.visible('couponPrice')" prop="couponPrice" label="实际支付" />
+          <el-table-column v-if="columns.visible('totalPrice')" prop="totalPrice" label="实际支付" />
           <el-table-column v-if="columns.visible('commission')" prop="commission" label="佣金" />
           <el-table-column v-if="columns.visible('payStaus')" prop="payStaus" label="支付状态" ><!-- 0未支付 1已支付-->
             <template slot-scope="scope">
@@ -93,7 +93,7 @@
                   <!-- 备注说明：<br/> -->
                   <span v-if='parseInt(scope.row.status)==8'>退款时间：{{parseTime(scope.row.refundReasonTime)}}<br/></span>
               </div>
-            </template>            
+            </template>
           </el-table-column>
           <el-table-column v-if="columns.visible('createTime')" prop="createTime" label="创建时间">
             <template slot-scope="scope">
@@ -108,14 +108,14 @@
               @click="detail(scope.row)"
             >
               订单详情</el-button>
-              <el-button 
+              <el-button
               v-permission="permission.refund"
               v-if='scope.row.refundStatus===1'
               size="mini"
               type="danger"
               @click="refund(scope.row)"
             >
-              退款</el-button><!--0 未退款 1 申请中 2 已退款-->             
+              退款</el-button><!--0 未退款 1 申请中 2 已退款-->
             </template>
           </el-table-column>
         </el-table>
@@ -138,7 +138,7 @@ import eDetail from './detail'
 import eRefund from './refund'
 
 // crud交由presenter持有
-const defaultCrud = CRUD({ title: '卡券订单表', url: 'api/yxCouponOrder', 
+const defaultCrud = CRUD({ title: '卡券订单表', url: 'api/yxCouponOrder',
 sort: 'id,desc', crudMethod: { ...crudYxCouponOrder }, query:{orderStatus: '',orderType: '',value:'' }})
 const defaultForm = {  orderId: null,  mark: null }
 export default {
@@ -154,10 +154,10 @@ export default {
         refund: ['admin', 'yxCouponOrder:refund']
       },
       rules: {
-      },  
+      },
       orderStatus:'',
       orderType: '',
-      orderStatusList:[ 
+      orderStatusList:[
         { value: ' ', label: '全部订单' },
         { value: '0', label: '待支付' },
         { value: '1', label: '已过期' },
@@ -170,7 +170,7 @@ export default {
         { value: '8', label: '已退款' },
         // { value: '9', label: '退款驳回'},
         { value: '10', label: '已取消'},
-      ],  
+      ],
       queryTypeOptions: [
         { key: 'orderId', display_name: '订单号' },
         { key: 'realName', display_name: '用户姓名' },
@@ -195,7 +195,7 @@ export default {
       this.crud.query.orderStatus = tab.label
       this.crud.page.page = 1
       this.crud.toQuery()
-    },    
+    },
     beforeInit() {
       this.url = 'api/yxCouponOrder'
       const sort = 'id,desc'
@@ -209,7 +209,7 @@ export default {
     detail(data) {
       // this.isAdd = false
       const _this = this.$refs.form1
-      _this.form = {        
+      _this.form = {
         orderId: data.orderId,
         totalNum: data.totalNum,
         commission: data.commission,
@@ -230,7 +230,7 @@ export default {
           orderId: data.orderId,
           refundPrice: '',
           refundStatus: '',
-          refundReason: '',  
+          refundReason: '',
         }
         _this.dialog = true
     },

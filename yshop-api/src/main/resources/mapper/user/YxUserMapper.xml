@@ -4,7 +4,7 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        uid, username, account, password, pwd, real_name, birthday, card_id, mark, partner_id, group_id, nickname, avatar, phone, add_time, add_ip, last_time, last_ip, now_money, brokerage_price, integral, sign_num, status, level, spread_uid, spread_time, user_type, is_promoter, pay_count, spread_count, clean_time, addres, adminid, login_type, bank_name, bank_no, user_role, qr_code_url, parent_id, parent_type,bank_mobile
+        uid, username, account, password, pwd, real_name, birthday, card_id, mark, partner_id, group_id, nickname, avatar, phone, add_time, add_ip, last_time, last_ip, now_money, brokerage_price, integral, sign_num, status, level, spread_uid, spread_time, user_type, is_promoter, pay_count, spread_count, clean_time, addres, adminid, login_type, bank_name, bank_no, user_role, qr_code_url, parent_id, parent_type,bank_mobile,cnaps_code
     </sql>
 
     <select id="getYxUserById" resultType="co.yixiang.modules.user.web.vo.YxUserQueryVo">

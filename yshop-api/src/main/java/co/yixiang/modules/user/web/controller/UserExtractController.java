@@ -68,6 +68,7 @@ public class UserExtractController extends BaseController {
         map.put("bankNo", StringUtils.isNotBlank(userInfo.getBankNo()) ? userInfo.getBankNo() : "");
         map.put("realName", StringUtils.isNotBlank(userInfo.getRealName()) ? userInfo.getRealName() : "");
         map.put("minPrice", systemConfigService.getData(SystemConfigConstants.USER_EXTRACT_MIN_PRICE));
+        map.put("cnapsCode", StringUtils.isNotBlank(userInfo.getCnapsCode()) ? userInfo.getCnapsCode() : "");
         return ApiResult.ok(map);
     }
 
