@@ -131,4 +131,9 @@ public interface CommonConstant {
      *
      */
     String COUPON_USE_LOGIN_TOKEN = "COUPON_USE_LOGIN_TOKEN:";
+
+    /**
+     * 本地生活下单锁
+     */
+    String LOCK_COUPON_COMMIT_ORDER = "LOCK_COUPON_COMMIT_ORDER";
 }
