@@ -269,6 +269,7 @@ public class YxCouponsController {
     @Log("上架下架操作")
     @ApiOperation("卡券上下架操作")
     @PostMapping(value = "/pufOff/{id}")
+    @PreAuthorize("@el.check('admin','yxCoupons:putoff')")
     public ResponseEntity<Object> putOff(@PathVariable Integer id) {
 
         QueryWrapper<YxCoupons> yxCouponsQueryWrapper = new QueryWrapper<>();
@@ -291,6 +292,7 @@ public class YxCouponsController {
     @Log("设为热销操作")
     @ApiOperation("设为热销操作")
     @PostMapping(value = "/popular/{id}")
+    @PreAuthorize("@el.check('admin','yxCoupons:popular')")
     public ResponseEntity<Object> popular(@PathVariable Integer id) {
 
         QueryWrapper<YxCoupons> yxCouponsQueryWrapper = new QueryWrapper<>();
