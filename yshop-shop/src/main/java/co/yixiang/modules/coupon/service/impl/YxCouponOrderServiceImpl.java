@@ -142,7 +142,12 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
             List<YxCouponOrderDetail> detailList = this.yxCouponOrderDetailService.list(new QueryWrapper<YxCouponOrderDetail>().lambda().eq(YxCouponOrderDetail::getCouponId, couponId));
             yxCouponOrderDto.setDetailList(generator.convert(detailList, YxCouponOrderDetailDto.class));
             if (yxCouponOrderDto.getRefundStatus() == 1) {
-                String refundTime = OrderUtil.stampToDate(String.valueOf(yxCouponOrderDto.getRefundReasonTime()));
+                String refundTime = "";
+                if (null != yxCouponOrderDto.getRefundReasonTime()) {
+                    refundTime = OrderUtil.stampToDate(String.valueOf(yxCouponOrderDto.getRefundReasonTime()));
+                }
+                yxCouponOrderDto.setRefundReasonWap(StringUtils.isNotBlank(yxCouponOrderDto.getRefundReasonWap()) ? yxCouponOrderDto.getRefundReasonWap() : "");
+                yxCouponOrderDto.setRefundReasonWapExplain(StringUtils.isNotBlank(yxCouponOrderDto.getRefundReasonWapExplain()) ? yxCouponOrderDto.getRefundReasonWapExplain() : "");
                 String str = "<b style='color:#f124c7'>申请退款</b><br/>" +
                         "<span>退款原因：" + yxCouponOrderDto.getRefundReasonWap() + "</span><br/>" +
                         "<span>备注说明：" + yxCouponOrderDto.getRefundReasonWapExplain() + "</span><br/>" +
