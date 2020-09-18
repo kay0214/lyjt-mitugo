@@ -141,7 +141,7 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
             // 卡券详情
             List<YxCouponOrderDetail> detailList = this.yxCouponOrderDetailService.list(new QueryWrapper<YxCouponOrderDetail>().lambda().eq(YxCouponOrderDetail::getCouponId, couponId));
             yxCouponOrderDto.setDetailList(generator.convert(detailList, YxCouponOrderDetailDto.class));
-            if (yxCouponOrderDto.getRefundStatus() == 1 || yxCouponOrderDto.getRefundStatus() == 2) {
+            if (yxCouponOrderDto.getRefundStatus() == 1) {
                 String refundTime = OrderUtil.stampToDate(String.valueOf(yxCouponOrderDto.getRefundReasonTime()));
                 String str = "<b style='color:#f124c7'>申请退款</b><br/>" +
                         "<span>退款原因：" + yxCouponOrderDto.getRefundReasonWap() + "</span><br/>" +
