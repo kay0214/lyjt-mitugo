@@ -899,7 +899,7 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         QueryWrapper<YxCouponOrder> wrapper4 = new QueryWrapper<>();
         wrapper4.eq("uid", uid);
         wrapper4.eq("del_flag", CommonEnum.DEL_STATUS_0.getValue());
-        wrapper4.in("status", 7, 8, 9);
+        wrapper4.in("refund_status", 1, 2);
         countVO.setRefundCount(this.count(wrapper4));
 
         // 累计订单数量
