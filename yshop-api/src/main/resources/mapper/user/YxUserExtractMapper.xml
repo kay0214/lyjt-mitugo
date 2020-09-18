@@ -4,7 +4,7 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, uid, real_name, extract_type, bank_code, bank_address, alipay_code, extract_price, mark, balance, fail_msg, fail_time, add_time, status, wechat
+        id, uid, real_name, extract_type, bank_code, bank_address, alipay_code, extract_price, mark, balance, fail_msg, fail_time, add_time, status, wechat,cnaps_code
     </sql>
 
     <select id="getYxUserExtractById" resultType="co.yixiang.modules.user.web.vo.YxUserExtractQueryVo">
