@@ -681,7 +681,8 @@ public class StoreOrderController extends BaseController {
         if(ObjectUtil.isEmpty(replyParam)){
             return ApiResult.fail("请提交评论内容");
         }
-        return storeOrderService.replyOrderInfo(replyParam,uid);
+        ApiResult<Object> result= storeOrderService.replyOrderInfo(replyParam,uid);
+        return result;
     }
 
     /**

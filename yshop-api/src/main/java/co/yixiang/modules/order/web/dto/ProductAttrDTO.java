@@ -15,4 +15,5 @@ public class ProductAttrDTO  implements Serializable {
     private String suk;
     private Double price;
     private String image;
+    private String unique;
 }

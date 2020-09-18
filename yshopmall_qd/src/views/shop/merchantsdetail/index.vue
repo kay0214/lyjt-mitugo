@@ -86,13 +86,13 @@
             <!-- 以下是个人认证 -->
             <div v-if="!crud.status.add && form.merchantsType == 0">
               <el-form-item label="手持证件照" prop="personIdCard">
-                <MaterialList v-model="perIdCard" type="image" :num="1" :width="150" :height="150" :readOnly='Boolean(examineEdit)' />
+                <MaterialList v-model="perIdCard" type="image" :num="1" :width="150" :height="150" :readonly='formDisabled' />
               </el-form-item>
               <el-form-item label="证件照人像面" prop="personIdCardFace">
-                <MaterialList v-model="perIdCardFace" type="image" :num="1" :width="150" :height="150" :readOnly='Boolean(examineEdit)' />
+                <MaterialList v-model="perIdCardFace" type="image" :num="1" :width="150" :height="150" :readonly='formDisabled' />
               </el-form-item>
               <el-form-item label="证件照国徽面" prop="personIdCardBack">
-                <MaterialList v-model="perIdCardBack" type="image" :num="1" :width="150" :height="150" :readOnly='Boolean(examineEdit)'/>
+                <MaterialList v-model="perIdCardBack" type="image" :num="1" :width="150" :height="150" :readonly='formDisabled'/>
               </el-form-item>
             </div>
             <!-- 以下是企业 -->
@@ -140,26 +140,41 @@
                 </el-select>
               </el-form-item>
               <el-form-item label="营业执照" prop="businessLicenseImg">
-                <MaterialList v-model="businessLicenseImg" type="image" :num="1" :width="150" :height="150" :readOnly='Boolean(examineEdit)'/>
+                <MaterialList v-model="businessLicenseImg" type="image" :num="1" :width="150" :height="150" :readonly='Boolean(examineEdit)'/>
               </el-form-item>
               <el-form-item label="银行开户证明" prop="bankOpenProveImg">
-                <MaterialList v-model="bankOpenProveImg" type="image" :num="1" :width="150" :height="150" :readOnly='Boolean(examineEdit)'/>
+                <MaterialList v-model="bankOpenProveImg" type="image" :num="1" :width="150" :height="150" :readonly='Boolean(examineEdit)'/>
               </el-form-item>
               <el-form-item label="法人身份证头像面" prop="legalIdCardFace">
-                <MaterialList v-model="legalIdCardFace" type="image" :num="1" :width="150" :height="150" :readOnly='Boolean(examineEdit)'/>
+                <MaterialList v-model="legalIdCardFace" type="image" :num="1" :width="150" :height="150" :readonly='Boolean(examineEdit)'/>
               </el-form-item>
               <el-form-item label="法人身份证国徽面" prop="legalIdCardBack">
-                <MaterialList v-model="legalIdCardBack" type="image" :num="1" :width="150" :height="150" :readOnly='Boolean(examineEdit)'/>
+                <MaterialList v-model="legalIdCardBack" type="image" :num="1" :width="150" :height="150" :readonly='Boolean(examineEdit)'/>
               </el-form-item>
               <el-form-item label="门店照及经营场所" prop="storeImg">
-                <MaterialList v-model="storeImg" type="image" :num="1" :width="150" :height="150" :readOnly='Boolean(examineEdit)'/>
+                <MaterialList v-model="storeImg" type="image" :num="1" :width="150" :height="150" :readonly='Boolean(examineEdit)'/>
               </el-form-item>
               <el-form-item label="医疗机构许可证" prop="licenceImg">
-                <MaterialList v-model="licenceImg" type="image" :num="1" :width="150" :height="150" :readOnly='Boolean(examineEdit)'/>
+                <MaterialList v-model="licenceImg" type="image" :num="1" :width="150" :height="150" :readonly='Boolean(examineEdit)'/>
               </el-form-item>
-            </div>
+            </div>            
+            <el-form-item v-if='crud.status.edit' label=" " prop="checkbox">
+                <el-row type='flex'>
+                  <el-checkbox v-model="form.checkbox" name='checkbox' ></el-checkbox>
+                  <span style='margin:0 10px'>我已阅读并同意</span>
+                  <span style='margin:0 10px'><router-link to="/member/yxMerchantsDetail/pdf1" target="_blank">协议一 </router-link></span>
+                  <span style='margin:0 10px'><router-link to="/member/yxMerchantsDetail/pdf2" target="_blank">协议二 </router-link></span>
+                </el-row>
+            </el-form-item>
+            <el-form-item v-else label=" ">
+              <el-row type='flex'>
+                    <span style='margin:0 10px'>我已阅读并同意</span>
+                    <span style='margin:0 10px'><router-link to="/member/yxMerchantsDetail/pdf1" target="_blank">协议一 </router-link></span>
+                    <span style='margin:0 10px'><router-link to="/member/yxMerchantsDetail/pdf2" target="_blank">协议二 </router-link></span>
+                </el-row>
+            </el-form-item>
         </el-form>
-        <div slot="footer" class="dialog-footer">
+        <div slot="footer" class="dialog-footer">          
           <div v-if="crud.status.add || crud.status.edit">
             <el-button type="text" @click="crud.cancelCU">取消</el-button>
             <el-button :loading="crud.cu === 2" type="primary" @click="crud.submitCU">确认</el-button>
@@ -407,6 +422,10 @@ export default {
         ],
         ptype: [
           { required: true, message: '必填项', trigger: 'blur' },
+        ],
+        checkbox: [
+          { required: true, message: '必选项', trigger: 'change' },
+          { validator:(r,v,c)=>{if(!v) return c(new Error('必选项'))}, trigger: 'change' },
         ],
       },
       qualificationsType:[], //主体资质类型
