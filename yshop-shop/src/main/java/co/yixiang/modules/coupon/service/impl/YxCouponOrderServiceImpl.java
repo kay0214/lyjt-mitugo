@@ -27,6 +27,7 @@ import co.yixiang.modules.shop.service.YxImageInfoService;
 import co.yixiang.modules.shop.service.YxStoreInfoService;
 import co.yixiang.mp.service.YxMiniPayService;
 import co.yixiang.utils.FileUtil;
+import co.yixiang.utils.OrderUtil;
 import co.yixiang.utils.StringUtils;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -97,7 +98,7 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
             } else if (1 == criteria.getOrderStatus()) {
                 // 已过期
                 queryWrapper.lambda().eq(YxCouponOrder::getStatus, 1);
-            }else if (8 == criteria.getOrderStatus()) {
+            } else if (8 == criteria.getOrderStatus()) {
                 queryWrapper.lambda().eq(YxCouponOrder::getStatus, criteria.getOrderStatus());
             } else {
                 queryWrapper.lambda().eq(YxCouponOrder::getStatus, criteria.getOrderStatus()).eq(YxCouponOrder::getRefundStatus, 0);
@@ -136,9 +137,19 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
                 yxCouponOrderDto.setImage(thumbnail.getImgUrl());
             }
             yxCouponOrderDto.setYxCouponsDto(generator.convert(yxCoupons, YxCouponsDto.class));
+            String orderStatusStr = "";
             // 卡券详情
             List<YxCouponOrderDetail> detailList = this.yxCouponOrderDetailService.list(new QueryWrapper<YxCouponOrderDetail>().lambda().eq(YxCouponOrderDetail::getCouponId, couponId));
             yxCouponOrderDto.setDetailList(generator.convert(detailList, YxCouponOrderDetailDto.class));
+            if (yxCouponOrderDto.getRefundStatus() == 1) {
+                String refundTime = OrderUtil.stampToDate(String.valueOf(yxCouponOrderDto.getRefundReasonTime()));
+                String str = "<b style='color:#f124c7'>申请退款</b><br/>" +
+                        "<span>退款原因：" + yxCouponOrderDto.getRefundReasonWap() + "</span><br/>" +
+                        "<span>备注说明：" + yxCouponOrderDto.getRefundReasonWapExplain() + "</span><br/>" +
+                        "<span>退款时间：" + refundTime + "</span><br/>";
+                orderStatusStr = str;
+            }
+            yxCouponOrderDto.setStatusName(orderStatusStr);
             list.add(yxCouponOrderDto);
         }
 

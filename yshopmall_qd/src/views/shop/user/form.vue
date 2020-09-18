@@ -1,6 +1,6 @@
 <template>
-  <el-dialog :append-to-body="true" :close-on-click-modal="false" :before-close="cancel" :visible.sync="dialog" :title="isAdd ? '新增' : '编辑'" width="500px">
-    <el-form ref="form" :model="form" :rules="rules" size="small" label-width="80px">
+  <el-dialog :append-to-body="true" :close-on-click-modal="false" :before-close="cancel" :visible.sync="dialog" :title="isAdd ? '新增' : '编辑'" width="550px">
+    <el-form ref="form" :model="form" :rules="rules" size="small" label-width="120px">
       <el-form-item label="用户昵称">
         <el-input v-model="form.nickname" :disabled="true" style="width: 370px;" />
       </el-form-item>
@@ -17,11 +17,14 @@
         <el-radio v-model="form.userRole" :label="1">分销客</el-radio>
         <el-radio v-model="form.userRole" :label="0">普通会员</el-radio>
       </el-form-item>
-      <el-form-item label="提现银行">
-        <el-input v-model="form.bankName" :disabled="true" style="width: 370px;" />
-      </el-form-item>
       <el-form-item label="银行卡号">
         <el-input v-model="form.bankNo" :disabled="true" style="width: 370px;" />
+      </el-form-item>
+      <el-form-item label="联行号">
+        <el-input v-model="form.cnapsCode" :disabled="true" style="width: 370px;" />
+      </el-form-item>
+      <el-form-item label="银行预留手机号">
+        <el-input v-model="form.bankMobile" :disabled="true" style="width: 370px;" />
       </el-form-item>
     </el-form>
     <div slot="footer" class="dialog-footer">
@@ -109,7 +112,7 @@ export default {
     doSubmit() {
       this.loading = true
       this.$refs.form.validate((ret,obj)=>{
-        if(ret){  
+        if(ret){
           if (this.isAdd) {
             this.doAdd()
           } else this.doEdit()
