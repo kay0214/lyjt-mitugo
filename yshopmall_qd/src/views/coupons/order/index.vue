@@ -66,7 +66,7 @@
         <el-table ref="table" v-loading="crud.loading" :data="crud.data" size="small" style="width: 100%;" @selection-change="crud.selectionChangeHandler">
           <el-table-column type="selection" width="55" />
           <el-table-column v-if="columns.visible('orderId')" prop="orderId" label="订单号" />
-          <el-table-column v-if="columns.visible('realName')" prop="realName" label="用户姓名" />
+          <el-table-column v-if="columns.visible('realName')" prop="realName" label="用户昵称" />
           <el-table-column v-if="columns.visible('couponPrice')" prop="couponPrice" label="商品信息" >
              <template slot-scope="scope">
                <img :src='scope.row.image' :width='30'/>

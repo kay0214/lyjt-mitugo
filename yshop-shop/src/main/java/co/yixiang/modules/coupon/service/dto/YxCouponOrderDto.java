@@ -126,6 +126,11 @@ public class YxCouponOrderDto implements Serializable {
 
     private String refundReasonWapExplain;
 
+    /**
+     * 退款用户说明
+     */
+
+    private String refundReasonWap;
 
     /**
      * 退款时间
