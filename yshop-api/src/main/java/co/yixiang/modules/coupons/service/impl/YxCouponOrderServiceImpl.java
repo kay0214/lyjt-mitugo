@@ -634,6 +634,7 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         storeOrder.setRefundStatus(OrderInfoEnum.REFUND_STATUS_1.getValue());
         storeOrder.setRefundReasonTime(OrderUtil.getSecondTimestampTwo());
         storeOrder.setRefundReasonWapExplain(param.getRefund_reason_wap_explain());
+        storeOrder.setRefundReasonWap(param.getText());
         storeOrder.setId(order.getId());
         yxCouponOrderMapper.updateById(storeOrder);
 

@@ -31,7 +31,9 @@ public class YxCouponOrder extends BaseEntity {
     @TableId(value = "id", type = IdType.AUTO)
     private Integer id;
 
-    /** 唯一值 */
+    /**
+     * 唯一值
+     */
     @TableField(value = "`unique`")
     private String unique;
 
@@ -86,6 +88,9 @@ public class YxCouponOrder extends BaseEntity {
 
     @ApiModelProperty(value = "退款用户说明")
     private String refundReasonWapExplain;
+
+    @ApiModelProperty(value = "前台退款理由")
+    private String refundReasonWap;
 
     @ApiModelProperty(value = "退款时间")
     private Integer refundReasonTime;
