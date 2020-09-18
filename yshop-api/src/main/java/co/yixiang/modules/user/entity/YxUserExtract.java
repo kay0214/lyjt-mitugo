@@ -82,4 +82,7 @@ public class YxUserExtract extends BaseEntity {
 
     @ApiModelProperty(value = "返回值")
     private String retMess;
+
+    @ApiModelProperty(value = "联行号")
+    private String cnapsCode;
 }

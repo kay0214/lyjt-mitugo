@@ -178,4 +178,6 @@ private String pwd;*/
     private BigDecimal frozenPrice;
 
     private OrderCountVO couponOrderStatusNum;
+    @ApiModelProperty(value = "联行号")
+    private String cnapsCode;
 }

@@ -23,7 +23,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.validation.Valid;
 import java.util.List;
 
 /**
@@ -48,18 +47,6 @@ public class BankCodeController extends BaseController {
 
     @Autowired
     private BankCnapsService cnapsService;
-
-
-
-    /**
-     * 联行号表分页列表
-     */
-    @PostMapping("/getPageList")
-    @ApiOperation(value = "获取BankCode分页列表",notes = "联行号表分页列表",response = BankCodeQueryVo.class)
-    public ApiResult<Paging<BankCodeQueryVo>> getBankCodePageList(@Valid @RequestBody(required = false) BankCodeQueryParam bankCodeQueryParam) throws Exception{
-        Paging<BankCodeQueryVo> paging = bankCodeService.getBankCodePageList(bankCodeQueryParam);
-        return ApiResult.ok(paging);
-    }
 
     @Cached(name="getAllBankProvince-", expire = CacheConstant.DEFAULT_EXPIRE_TIME, cacheType = CacheType.BOTH)
     @PostMapping("/getAllBankProvince")
