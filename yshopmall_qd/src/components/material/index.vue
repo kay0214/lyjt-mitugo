@@ -268,6 +268,9 @@ export default {
       })
     },
     toSeleteMaterial() {
+      if (this.readonly) {
+        return
+      }
       this.listDialogVisible = true
       if (this.tableData.length <= 0) {
         this.materialgroupPage()
