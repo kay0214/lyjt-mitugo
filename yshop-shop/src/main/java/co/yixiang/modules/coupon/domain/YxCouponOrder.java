@@ -108,6 +108,11 @@ public class YxCouponOrder implements Serializable {
     private String refundReasonWapExplain;
 
 
+    /**
+     * 退款用户理由
+     */
+    private String refundReasonWap;
+
     /** 退款时间 */
     private Integer refundReasonTime;
 
