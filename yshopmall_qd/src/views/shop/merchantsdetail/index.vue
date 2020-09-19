@@ -11,29 +11,29 @@
             <!-- 以下是新增展示字段 -->
             <div v-if="crud.status.add">
               <el-form-item label="商户名称" prop="nickName">
-                <el-input v-model="form.nickName"  style="width: 350px;"/>
+                <el-input v-model="form.nickName" :maxlength='20' style="width: 350px;"/>
               </el-form-item>
               <el-form-item label="商户联系人" prop="merchantsContact">
-                <el-input v-model="form.merchantsContact"  style="width: 350px;"/>
+                <el-input v-model="form.merchantsContact" :maxlength='20' style="width: 350px;"/>
               </el-form-item>
               <el-form-item label="商户联系人手机" prop="phone">
                 <el-input v-model.number="form.phone"  style="width: 350px;"/>
               </el-form-item>
               <el-form-item label="用户名" prop="username">
-                <el-input v-model="form.username"  style="width: 350px;"/>
+                <el-input v-model="form.username" :maxlength='20' style="width: 350px;"/>
               </el-form-item>
             </div>
 
             <!-- 以下是编辑页面展示字段 -->
             <div v-if="crud.status.edit || examineEdit">
               <el-form-item label="商户名称" prop="merchantsName">
-                <el-input v-model="form.merchantsName"  style="width: 350px;"/>
+                <el-input v-model="form.merchantsName" :maxlength='20' style="width: 350px;"/>
               </el-form-item>
               <el-form-item label="商户地址" prop="address">
-                <el-input v-model="form.address" style="width: 370px;" maxlength="50" />
+                <el-input v-model="form.address" style="width: 370px;"  :maxlength='200' />
               </el-form-item>
               <el-form-item label="联系人" prop="contacts">
-                <el-input v-model="form.contacts" style="width: 370px;" />
+                <el-input v-model="form.contacts" :maxlength='20' style="width: 370px;" />
               </el-form-item>
               <el-form-item label="联系电话" prop="contactMobile">
                 <el-input v-model="form.contactMobile" style="width: 370px;" />
@@ -53,7 +53,7 @@
             -->
             <div v-if="!crud.status.add">
               <el-form-item label="银行账号" prop="bankNo">
-                <el-input v-model="form.bankNo" style="width: 370px;" />
+                <el-input v-model="form.bankNo" :maxlength='20' style="width: 370px;" />
               </el-form-item>
               <el-form-item label="开户省市" prop="openAccountProvince">
                 <el-input v-model="form.openAccountProvince" style="width: 370px;" />
@@ -63,13 +63,13 @@
                 <el-radio v-model="form.bankType" :label="1" style="width: 200px;">对公账号</el-radio>
               </el-form-item>
               <el-form-item label="收款户名" prop="openAccountName">
-                <el-input v-model="form.openAccountName" style="width: 370px;" />
+                <el-input v-model="form.openAccountName" :maxlength='40' style="width: 370px;" />
               </el-form-item>
               <el-form-item label="开户行" prop="openAccountBank">
-                <el-input v-model="form.openAccountBank" style="width: 370px;" />
+                <el-input v-model="form.openAccountBank" :maxlength='20' style="width: 370px;" />
               </el-form-item>
               <el-form-item label="开户支行" prop="openAccountSubbranch">
-                <el-input v-model="form.openAccountSubbranch" style="width: 370px;" />
+                <el-input v-model="form.openAccountSubbranch" :maxlength='20' style="width: 370px;" />
               </el-form-item>
               <el-form-item  label="联行号" prop="bankCode"  :rules="bankCodeRuls()">
                 <el-input v-model="form.bankCode" style="width: 370px;">
@@ -101,16 +101,16 @@
                 <el-input v-model="form.companyProvince" style="width: 370px;" />
               </el-form-item>
               <el-form-item label="企业所在详细地址" prop="companyAddress">
-                <el-input v-model="form.companyAddress" style="width: 370px;" />
+                <el-input v-model="form.companyAddress" :maxlength='200' style="width: 370px;" />
               </el-form-item>
               <el-form-item label="公司名称" prop="companyName">
-                <el-input v-model="form.companyName" style="width: 370px;" />
+                <el-input v-model="form.companyName" :maxlength='40' style="width: 370px;" />
               </el-form-item>
               <el-form-item label="法定代表人" prop="companyLegalPerson">
-                <el-input v-model="form.companyLegalPerson" style="width: 370px;" />
+                <el-input v-model="form.companyLegalPerson" :maxlength='20' style="width: 370px;" />
               </el-form-item>
               <el-form-item label="公司电话" prop="companyPhone">
-                <el-input v-model="form.companyPhone" style="width: 370px;" />
+                <el-input v-model="form.companyPhone" :maxlength='20' style="width: 370px;" />
               </el-form-item>
             </div>
 
