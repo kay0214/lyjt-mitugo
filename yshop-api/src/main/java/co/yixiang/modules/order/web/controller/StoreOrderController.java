@@ -66,8 +66,6 @@ import java.io.File;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.*;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * <p>
@@ -100,8 +98,6 @@ public class StoreOrderController extends BaseController {
     private final YxSystemStoreStaffService systemStoreStaffService;
     @Autowired
     private YxStoreProductService yxStoreProductService;
-
-    private static Lock lock = new ReentrantLock(false);
 
     @Value("${file.path}")
     private String path;
@@ -179,7 +175,7 @@ public class StoreOrderController extends BaseController {
     }
 
     /**
-     * 订单创建
+     * 订单创建  这个接口貌似废弃了 用下面的createOrder
      */
     @Log(value = "订单创建", type = 1)
     @PostMapping("/order/create/{key}")
@@ -918,11 +914,31 @@ public class StoreOrderController extends BaseController {
         }
         //创建订单
         List<YxStoreOrder> orderCreateList = new ArrayList<YxStoreOrder>();
+//        try {
+//            lock.lock();
+//            orderCreateList = storeOrderService.createOrderNew(uid, key, param);
+//        } finally {
+//            lock.unlock();
+//        }
+
+        // 批量扣减redis余量
+        Map<String, Integer> redisMap = new HashMap<>();
         try {
-            lock.lock();
+            this.storeOrderService.updateRedisRemainAmount(uid, key, redisMap);
             orderCreateList = storeOrderService.createOrderNew(uid, key, param);
+        } catch (ErrorRequestException e) {
+            throw e;
+        } catch (Exception e) {
+            log.info("订单生成失败，日志：", e);
+            throw new ErrorRequestException("订单生成失败");
         } finally {
-            lock.unlock();
+            // redis扣减map有值的情况回滚redis数据
+            if (!redisMap.isEmpty()) {
+                // redis回滚
+                for (Map.Entry<String, Integer> entry : redisMap.entrySet()) {
+                    RedisUtil.incr(entry.getKey(), entry.getValue());
+                }
+            }
         }
 
         if (CollectionUtils.isEmpty(orderCreateList)) throw new ErrorRequestException("订单生成失败");
