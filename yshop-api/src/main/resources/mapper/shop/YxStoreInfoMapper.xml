@@ -219,10 +219,10 @@
         WHERE
         si.del_flag = 0
         AND si.`status` = 0
-        <if test ="storeName !='' and storeName != null"> and si.store_name LIKE CONCAT('%',#{storeName},'%') </if>
+        <if test ="param.storeName !='' and param.storeName != null"> and si.store_name LIKE CONCAT('%',#{param.storeName},'%') </if>
         ORDER BY
-        <if test ="scoreOrder !='' and scoreOrder != null ">  replyCount ${scoreOrder}, </if>
-        <if test ="salesOrder !='' and salesOrder != null ">   salesCount ${salesOrder}, </if>
-        si.create_time DESC;
+        <if test ="param.scoreOrder !='' and param.scoreOrder != null ">  replyCount ${param.scoreOrder}, </if>
+        <if test ="param.salesOrder !='' and param.salesOrder != null ">   salesCount ${param.salesOrder}, </if>
+        si.create_time DESC
     </select>
 </mapper>

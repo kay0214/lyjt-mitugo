@@ -28,6 +28,7 @@ public interface YxStoreInfoMapper extends BaseMapper<YxStoreInfo> {
 
     /**
      * 根据ID获取查询对象
+     *
      * @param id
      * @return
      */
@@ -35,6 +36,7 @@ public interface YxStoreInfoMapper extends BaseMapper<YxStoreInfo> {
 
     /**
      * 获取分页对象
+     *
      * @param page
      * @param yxStoreInfoQueryParam
      * @return
@@ -44,14 +46,16 @@ public interface YxStoreInfoMapper extends BaseMapper<YxStoreInfo> {
 
     /**
      * 根据经纬度查询
+     *
      * @param lnt
      * @param lat
      * @return
      */
-    YxStoreInfoQueryVo getYxStoreInfoByPoint(BigDecimal lnt,BigDecimal lat);
+    YxStoreInfoQueryVo getYxStoreInfoByPoint(BigDecimal lnt, BigDecimal lat);
 
     /**
      * 本地生活
+     *
      * @param page
      * @param localLiveQueryParam
      * @return
@@ -61,22 +65,25 @@ public interface YxStoreInfoMapper extends BaseMapper<YxStoreInfo> {
 
     /**
      * 根据销量排序
+     *
      * @param sort
      * @return
      */
-    List<YxStoreInfoQueryVo> selectInfoListBySales(String sort,String storeName);
+    List<YxStoreInfoQueryVo> selectInfoListBySales(String sort, String storeName);
 
     /**
      * 根据评分排序
+     *
      * @param sort
      * @return
      */
-    List<YxStoreInfoQueryVo> selectInfoListBySocre(String sort,String storeName);
+    List<YxStoreInfoQueryVo> selectInfoListBySocre(String sort, String storeName);
 
     /**
      * 获取店铺列表
+     *
      * @param yxStoreInfoQueryParam
      * @return
      */
-    List<YxStoreInfoQueryVo> selectStoreInfoVoList(YxStoreInfoQueryParam yxStoreInfoQueryParam);
+    List<YxStoreInfoQueryVo> selectStoreInfoVoList(@Param("page") Page page, @Param("param") YxStoreInfoQueryParam yxStoreInfoQueryParam);
 }

@@ -137,6 +137,12 @@ public interface CommonConstant {
      */
     String LOCK_COUPON_COMMIT_ORDER = "LOCK_COUPON_COMMIT_ORDER";
 
+
+    /**
+     * 本地生活下单锁
+     */
+    String LOCK_SHOP_COMMIT_ORDER = "LOCK_SHOP_COMMIT_ORDER";
+
     /**
      * 产品库存_key+：+id+：+unique
      */
