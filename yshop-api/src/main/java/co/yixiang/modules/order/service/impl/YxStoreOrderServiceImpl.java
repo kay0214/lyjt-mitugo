@@ -2538,10 +2538,12 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
         for (YxStoreCartQueryVo cart : cartInfo) {
             String salesLock = CommonConstant.LOCK_SHOP_COMMIT_ORDER + cart.getProductId() + ":" + cart.getProductAttrUnique();
             String shopKey = CommonConstant.SHOP_PRODUCT_STOCK + cart.getProductId() + ":" + cart.getProductAttrUnique();
+            log.info("redisKey:" + shopKey);
             while (true) {
                 if (RedisUtil.tryGetLock(salesLock, requestId, 5)) {
                     RedisUtil.decr(shopKey, cart.getCartNum());
                     redisMap.put(shopKey, cart.getCartNum());
+                    log.info("剩余数量：" + RedisUtil.get(shopKey));
                     if (Integer.valueOf(RedisUtil.get(shopKey)) < 0) {
                         // 扣减redis失败释放商品锁
                         RedisUtil.releaseLock(salesLock, requestId);
