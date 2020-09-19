@@ -33,7 +33,7 @@
                 </div>
               </li>
               <li>
-                  <p style='margin:0 10px 5px 0'>我已阅读并同意</p>
+                  <span style='margin:0 10px 5px 0'><el-checkbox v-model="form.checkbox" name='checkbox' checked disabled></el-checkbox></span>
                   <span style='margin:0 10px'><router-link to="/member/yxMerchantsDetail/pdf1" target="_blank">协议一 </router-link></span>
                   <span style='margin:0 10px'><router-link to="/member/yxMerchantsDetail/pdf2" target="_blank">协议二 </router-link></span></li>
             </ul>

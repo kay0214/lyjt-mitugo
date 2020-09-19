@@ -427,7 +427,7 @@ export default {
         ],
         checkbox: [
           { required: true, message: '必选项', trigger: 'change' },
-          { validator:(r,v,c)=>{if(!v) return c(new Error('必选项'))}, trigger: 'change' },
+          { validator:(r,v,c)=>{if(!v){ return c(new Error('必选项') )}else{c()}}, trigger: 'change' },
         ],
       },
       qualificationsType:[], //主体资质类型
