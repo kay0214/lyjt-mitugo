@@ -222,6 +222,7 @@ export default {
         status: data.status,
         addTime: data.addTime,
         payTime: data.payTime,
+        mark:data.mark,
         createTime:data.createTime,
         couponOrderUseList: data.couponOrderUseList,
       }
