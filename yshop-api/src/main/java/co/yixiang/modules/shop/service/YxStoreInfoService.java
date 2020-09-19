@@ -11,6 +11,7 @@ import co.yixiang.modules.shop.web.param.YxStoreInfoQueryParam;
 import co.yixiang.modules.shop.web.vo.YxStoreInfoDetailQueryVo;
 import co.yixiang.modules.shop.web.vo.YxStoreInfoQueryVo;
 import co.yixiang.common.web.vo.Paging;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 
 import java.io.Serializable;
 import java.util.List;
@@ -44,7 +45,7 @@ public interface YxStoreInfoService extends BaseService<YxStoreInfo> {
      * @param yxStoreInfoQueryParam
      * @return
      */
-    List<YxStoreInfoQueryVo> getStoreInfoList(YxStoreInfoQueryParam yxStoreInfoQueryParam);
+    IPage<YxStoreInfoQueryVo> getStoreInfoList(YxStoreInfoQueryParam yxStoreInfoQueryParam);
     /**
      * 显示店铺详情
      * @param id

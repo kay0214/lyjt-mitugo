@@ -38,6 +38,7 @@ import co.yixiang.modules.user.service.YxUserService;
 import co.yixiang.modules.user.web.vo.YxUserQueryVo;
 import co.yixiang.utils.SecurityUtils;
 import co.yixiang.utils.StringUtils;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
@@ -282,14 +283,14 @@ public class StoreProductController extends BaseController {
         if (StringUtils.isNotBlank(productQueryParam.getName())) {
             YxStoreInfoQueryParam yxStoreInfoQueryParam = new YxStoreInfoQueryParam();
             yxStoreInfoQueryParam.setStoreName(productQueryParam.getName());
-            List<YxStoreInfoQueryVo> yxStoreInfoQueryVoList = yxStoreInfoService.getStoreInfoList(yxStoreInfoQueryParam);
-            if (!CollectionUtils.isEmpty(yxStoreInfoQueryVoList)) {
-                productAndStoreQueryVo.setSumStoe(yxStoreInfoQueryVoList.size());
-                productAndStoreQueryVo.setStoreName(yxStoreInfoQueryVoList.get(0).getStoreName());
-                productAndStoreQueryVo.setIndustryCategoryInfo(yxStoreInfoQueryVoList.get(0).getIndustryCategoryInfo());
-                productAndStoreQueryVo.setStoreId(yxStoreInfoQueryVoList.get(0).getId());
-                productAndStoreQueryVo.setStoreAddress(yxStoreInfoQueryVoList.get(0).getStoreProvince() + yxStoreInfoQueryVoList.get(0).getStoreAddress());
-                productAndStoreQueryVo.setStoreImage(yxImageInfoService.selectImgByParam(yxStoreInfoQueryVoList.get(0).getId(), CommonConstant.IMG_TYPE_STORE, CommonConstant.IMG_CATEGORY_PIC));
+            IPage<YxStoreInfoQueryVo> yxStoreInfoQueryVoList = yxStoreInfoService.getStoreInfoList(yxStoreInfoQueryParam);
+            if (!CollectionUtils.isEmpty(yxStoreInfoQueryVoList.getRecords())) {
+                productAndStoreQueryVo.setSumStoe(Integer.parseInt(yxStoreInfoQueryVoList.getTotal() + ""));
+                productAndStoreQueryVo.setStoreName(yxStoreInfoQueryVoList.getRecords().get(0).getStoreName());
+                productAndStoreQueryVo.setIndustryCategoryInfo(yxStoreInfoQueryVoList.getRecords().get(0).getIndustryCategoryInfo());
+                productAndStoreQueryVo.setStoreId(yxStoreInfoQueryVoList.getRecords().get(0).getId());
+                productAndStoreQueryVo.setStoreAddress(yxStoreInfoQueryVoList.getRecords().get(0).getStoreProvince() + yxStoreInfoQueryVoList.getRecords().get(0).getStoreAddress());
+                productAndStoreQueryVo.setStoreImage(yxImageInfoService.selectImgByParam(yxStoreInfoQueryVoList.getRecords().get(0).getId(), CommonConstant.IMG_TYPE_STORE, CommonConstant.IMG_CATEGORY_PIC));
 
             }
         }

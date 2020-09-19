@@ -6,6 +6,7 @@ import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import co.yixiang.common.api.ApiResult;
+import co.yixiang.common.constant.CommonConstant;
 import co.yixiang.common.rocketmq.MqProducer;
 import co.yixiang.common.service.impl.BaseServiceImpl;
 import co.yixiang.common.web.vo.Paging;
@@ -2482,8 +2483,8 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
                 }
                 YxStoreCart cart = yxStoreCartService.getById(cartInfo.getCartId());
 
-                if(StringUtils.isNotBlank(productReplyParam.getUnique())){
-                    if(!cart.getProductAttrUnique().equals(productReplyParam.getUnique())){
+                if (StringUtils.isNotBlank(productReplyParam.getUnique())) {
+                    if (!cart.getProductAttrUnique().equals(productReplyParam.getUnique())) {
                         //同一商品不同属性
                         continue;
                     }
@@ -2514,6 +2515,44 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
         orderStatusService.create(storeOrder.getId(), "check_order_over", "用户评价");
 
         return ApiResult.ok("ok");
+    }
+
+    /**
+     * 下单前扣减redis库存
+     *
+     * @param uid
+     * @param key
+     * @param redisMap
+     */
+    @Override
+    public void updateRedisRemainAmount(Integer uid, String key, Map<String, Integer> redisMap) {
+
+        String requestId = UUID.randomUUID().toString();
+
+        CacheDTO cacheDTO = getCacheOrderInfo(uid, key);
+        if (ObjectUtil.isNull(cacheDTO)) {
+            throw new ErrorRequestException("订单已过期,请刷新当前页面");
+        }
+        List<YxStoreCartQueryVo> cartInfo = cacheDTO.getCartInfo();
+        //减库存加销量
+        for (YxStoreCartQueryVo cart : cartInfo) {
+            String salesLock = CommonConstant.LOCK_SHOP_COMMIT_ORDER + cart.getProductId() + ":" + cart.getProductAttrUnique();
+            String shopKey = CommonConstant.SHOP_PRODUCT_STOCK + cart.getProductId() + ":" + cart.getProductAttrUnique();
+            while (true) {
+                if (RedisUtil.tryGetLock(salesLock, requestId, 5)) {
+                    RedisUtil.decr(shopKey, cart.getCartNum());
+                    redisMap.put(shopKey, cart.getCartNum());
+                    if (Integer.valueOf(RedisUtil.get(shopKey)) < 0) {
+                        // 扣减redis失败释放商品锁
+                        RedisUtil.releaseLock(salesLock, requestId);
+                        // 抛出异常
+                        throw new ErrorRequestException("存在库存不足的商品！");
+                    }
+                    break;
+                }
+            }
+        }
+
     }
 
     public int getInfoCount(Integer oid) {
