@@ -59,7 +59,8 @@
       <div slot="header">
         <span>备注信息</span>
       </div>
-      <div class="text item">{{ form.remark }}</div>
+      <div class="text item">用户备注信息：{{ form.mark }}</div>
+      <div class="text item">商户备注信息：{{ form.remark }}</div>
     </el-card>
   </el-dialog>
 </template>

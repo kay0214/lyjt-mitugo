@@ -45,7 +45,7 @@
       <div slot="header">
         <span>备注信息</span>
       </div>
-      <div class="text item">{{ form.remark }}</div>
+      <div class="text item">{{ form.mark }}</div>
     </el-card>
   </el-dialog>
 </template>
