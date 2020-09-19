@@ -22,7 +22,7 @@ import java.util.List;
  */
 @Component
 @Slf4j
-public class CouponNoPayCancleTask {
+public class CouponNoPayCancelTask {
 
     @Autowired
     private YxCouponOrderService yxCouponOrderService;
