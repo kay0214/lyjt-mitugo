@@ -2538,6 +2538,7 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
             for (YxStoreCartQueryVo cart : storeStoreCartQueryVo.getCartList()) {
                 String salesLock = CommonConstant.LOCK_SHOP_COMMIT_ORDER + cart.getProductId() + ":" + cart.getProductAttrUnique();
                 String shopKey = CommonConstant.SHOP_PRODUCT_STOCK + cart.getProductId() + ":" + cart.getProductAttrUnique();
+                log.info("shopKey" + shopKey);
                 while (true) {
                     if (RedisUtil.tryGetLock(salesLock, requestId, 5)) {
                         RedisUtil.decr(shopKey, cart.getCartNum());
