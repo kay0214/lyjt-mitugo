@@ -2542,7 +2542,8 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
                     if (RedisUtil.tryGetLock(salesLock, requestId, 5)) {
                         RedisUtil.decr(shopKey, cart.getCartNum());
                         redisMap.put(shopKey, cart.getCartNum());
-                        if (Integer.valueOf(RedisUtil.get(shopKey)) < 0) {
+                        Integer remainStr = RedisUtil.get(shopKey);
+                        if (remainStr < 0) {
                             // 扣减redis失败释放商品锁
                             RedisUtil.releaseLock(salesLock, requestId);
                             // 抛出异常
