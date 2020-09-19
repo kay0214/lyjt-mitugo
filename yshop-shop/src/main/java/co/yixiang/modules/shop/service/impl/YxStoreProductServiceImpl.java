@@ -214,7 +214,7 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<StoreProductMappe
         storeProduct.setCateId(storeProduct.getStoreCategory().getId().toString());
         this.save(storeProduct);
         //存入redis
-        String redisKey = ShopConstants.SHOP_PRODUCT_STOCK+"_key:"+storeProduct.getId();
+        String redisKey = ShopConstants.SHOP_PRODUCT_STOCK+storeProduct.getId();
         redisUtils.set(redisKey,storeProduct.getStock());
 
         return storeProduct;
@@ -310,7 +310,7 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<StoreProductMappe
         }
         // 平台结算
         BigDecimal bigDecimalSellt  = yxStoreProductParam.getSettlement();
-        delRedis(id,ShopConstants.SHOP_PRODUCT_STOCK+"_key:"+id+":");
+        delRedis(id,ShopConstants.SHOP_PRODUCT_STOCK+id+":");
         List<YxStoreProductAttrValue> valueGroup = new ArrayList<>();
         for (ProductFormatDto productFormatDTO : valueList) {
             YxStoreProductAttrValue yxStoreProductAttrValue = new YxStoreProductAttrValue();
@@ -339,7 +339,7 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<StoreProductMappe
 
             valueGroup.add(yxStoreProductAttrValue);
             //库存存入redis
-            String redisKey = ShopConstants.SHOP_PRODUCT_STOCK+"_key:"+id+":"+yxStoreProductAttrValue.getUnique();
+            String redisKey = ShopConstants.SHOP_PRODUCT_STOCK+id+":"+yxStoreProductAttrValue.getUnique();
             redisUtils.set(redisKey,yxStoreProductAttrValue.getStock());
         }
 
@@ -445,7 +445,7 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<StoreProductMappe
         yxSystemAttachmentMapper.delete(queryWrapperAtt);
 
         //修改redis
-        String redisKey = ShopConstants.SHOP_PRODUCT_STOCK+"_key"+":"+resources.getId();
+        String redisKey = ShopConstants.SHOP_PRODUCT_STOCK+resources.getId();
         redisUtils.set(redisKey,resources.getStock());
 
         this.saveOrUpdate(resources);

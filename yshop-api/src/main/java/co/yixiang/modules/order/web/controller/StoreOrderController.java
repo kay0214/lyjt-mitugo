@@ -244,10 +244,10 @@ public class StoreOrderController extends BaseController {
 
         // 批量扣减redis余量
         Map<String, Integer> redisMap = new HashMap<>();
-        this.storeOrderService.updateRedisRemainAmount(uid, key, redisMap);
         //创建订单
         YxStoreOrder order = null;
         try {
+            this.storeOrderService.updateRedisRemainAmount(uid, key, redisMap);
             order = storeOrderService.createOrder(uid, key, param);
         } catch (ErrorRequestException e) {
             // redis扣减map有值的情况回滚redis数据
