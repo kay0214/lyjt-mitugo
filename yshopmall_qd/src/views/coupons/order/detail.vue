@@ -22,7 +22,8 @@
           <div class="text item">支付方式: {{ form.payType }}</div>
         </el-col>
         <el-col :span="12">
-          <div class="text item">订单状态: {{ orderStatusList[parseInt(form.status)] }}</div>
+          <div class="text item" v-if='form.refundStatus ===1'>订单状态: 申请退款</div>
+          <div class="text item" v-else>订单状态: {{ orderStatusList[parseInt(form.status)] }}</div>
           <div class="text item">商品总价: {{ form.totalPrice }}</div>
           <div class="text item"></div>
           <div class="text item">创建时间: {{ parseTime(form.createTime) }}</div>
@@ -73,7 +74,7 @@ export default {
         // { value: '7', label: '退款中' },
         // { value: '8', label: '已退款' },
         // { value: '9', label: '退款驳回'},
-        '待支付','已过期','待发放','支付失败','待使用','已使用','已核销','退款中','已退款','退款驳回',
+        '待支付','已过期','待发放','支付失败','待使用','已使用','已核销','退款中','已退款','退款驳回','已取消',
       ],  
       form: {
         orderId: '',

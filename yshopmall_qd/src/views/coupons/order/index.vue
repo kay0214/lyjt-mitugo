@@ -224,6 +224,7 @@ export default {
         payTime: data.payTime,
         mark:data.mark,
         createTime:data.createTime,
+        refundStatus:data.refundStatus,
         couponOrderUseList: data.couponOrderUseList,
       }
       _this.dialog = true
