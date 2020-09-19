@@ -222,6 +222,7 @@ export default {
         status: data.status,
         addTime: data.addTime,
         payTime: data.payTime,
+        createTime:data.createTime,
         couponOrderUseList: data.couponOrderUseList,
       }
       _this.dialog = true

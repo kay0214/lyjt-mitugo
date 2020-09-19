@@ -25,7 +25,7 @@
           <div class="text item">订单状态: {{ orderStatusList[parseInt(form.status)] }}</div>
           <div class="text item">商品总价: {{ form.totalPrice }}</div>
           <div class="text item"></div>
-          <div class="text item">创建时间: {{ parseTime(form.addTime) }}</div>
+          <div class="text item">创建时间: {{ parseTime(form.createTime) }}</div>
           <div class="text item">支付时间: {{ parseTime(form.payTime) }}</div>
         </el-col>
       </el-row>
@@ -84,6 +84,7 @@ export default {
         status: '',
         addTime: '',
         payTime: '',
+        createTime:'',
         couponOrderUseList: '',
       },
       rules: {
