@@ -927,6 +927,11 @@ public class StoreOrderController extends BaseController {
             this.storeOrderService.updateRedisRemainAmount(uid, key, redisMap);
             orderCreateList = storeOrderService.createOrderNew(uid, key, param);
         } catch (ErrorRequestException e) {
+            throw e;
+        } catch (Exception e) {
+            log.info("订单生成失败，日志：", e);
+            throw new ErrorRequestException("订单生成失败");
+        } finally {
             // redis扣减map有值的情况回滚redis数据
             if (!redisMap.isEmpty()) {
                 // redis回滚
@@ -934,7 +939,6 @@ public class StoreOrderController extends BaseController {
                     RedisUtil.incr(entry.getKey(), entry.getValue());
                 }
             }
-            throw e;
         }
 
         if (CollectionUtils.isEmpty(orderCreateList)) throw new ErrorRequestException("订单生成失败");
