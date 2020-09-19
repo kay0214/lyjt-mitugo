@@ -119,7 +119,7 @@
             <!-- 下拉框 取值从dict的business_category和qualifications_type、两个下拉框联动 -->
               <el-form-item label="经营类目" prop="businessCategory">
                 <!-- <el-input v-model="form.businessCategory" style="width: 370px;" /> -->
-                <el-select v-model="form.businessCategory" placeholder="请选择" @change="businessCategoryChange">
+                <el-select v-model="form.businessCategory" placeholder="请选择" @change="businessCategoryChange($event,true)">
                   <el-option
                     v-for="item in dict.business_category"
                     :key="item.value"
@@ -132,7 +132,7 @@
                 <!-- <el-input v-model="form.qualificationsType" style="width: 370px;" /> -->
                 <el-select v-model="form.qualificationsType" placeholder="请选择">
                   <el-option
-                    v-for="item in qualificationsType"
+                    v-for="item in qualificationsTypes"
                     :key="item.value"
                     :label="item.label"
                     :value="item.value">
@@ -430,7 +430,8 @@ export default {
           { validator:(r,v,c)=>{if(!v){ return c(new Error('必选项') )}else{c()}}, trigger: 'change' },
         ],
       },
-      qualificationsType:[], //主体资质类型
+      qualificationsType:[],
+      qualificationsTypes:[], //主体资质类型
       examineEdit:0,  //审核状态
       readStatus:0, //查看状态
       dialogVisible:this.crud.status.cu>0,
@@ -489,7 +490,7 @@ export default {
     },
     "form.bankType": function(newValue, old) {
       this.bankType = newValue == 1
-    }
+    },
   },
   methods: {
     // 联行号， 对公需要
@@ -502,8 +503,12 @@ export default {
     // 获取数据前设置好接口地址
     [CRUD.HOOK.beforeRefresh]() {
       return true
-    }, // 新增与编辑前做的操作
-    [CRUD.HOOK.afterToCU](crud, form) {
+    }, 
+    [CRUD.HOOK.beforeToCU](crud,form) {      
+      this.businessCategoryChange(form.businessCategory)
+    }, 
+    // 新增与编辑前做的操作
+    [CRUD.HOOK.afterToCU]() {
       // 个人认证
       if (form.personIdCard) {
         this.perIdCard = form.personIdCard.split(',')
@@ -553,10 +558,12 @@ export default {
       }
     },
     //获取主体资质类型列表
-    businessCategoryChange(v){
-      this.form.qualificationsType=""
+    businessCategoryChange(v,isSelect=false){
+      if(isSelect){
+        this.form.qualificationsType=""
+      }
       getDictDetail(v).then(res=>{
-          this.qualificationsType=res.content;
+          this.qualificationsTypes=res.content;
       })
     },
 
@@ -566,6 +573,7 @@ export default {
       this.dialogVisible=Boolean(this.examineEdit)
 
       this.crud.resetForm(JSON.parse(JSON.stringify(data)))
+      this.businessCategoryChange(this.form.businessCategory)
       /*图片默认值赋值*/
       // 个人认证
       if (this.form.personIdCard) {
