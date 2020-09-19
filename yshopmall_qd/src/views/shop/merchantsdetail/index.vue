@@ -140,22 +140,22 @@
                 </el-select>
               </el-form-item>
               <el-form-item label="营业执照" prop="businessLicenseImg">
-                <MaterialList v-model="businessLicenseImg" type="image" :num="1" :width="150" :height="150" :readonly='Boolean(examineEdit)'/>
+                <MaterialList v-model="businessLicenseImg" type="image" :num="1" :width="150" :height="150" :readonly='Boolean(formDisabled)'/>
               </el-form-item>
               <el-form-item label="银行开户证明" prop="bankOpenProveImg">
-                <MaterialList v-model="bankOpenProveImg" type="image" :num="1" :width="150" :height="150" :readonly='Boolean(examineEdit)'/>
+                <MaterialList v-model="bankOpenProveImg" type="image" :num="1" :width="150" :height="150" :readonly='Boolean(formDisabled)'/>
               </el-form-item>
               <el-form-item label="法人身份证头像面" prop="legalIdCardFace">
-                <MaterialList v-model="legalIdCardFace" type="image" :num="1" :width="150" :height="150" :readonly='Boolean(examineEdit)'/>
+                <MaterialList v-model="legalIdCardFace" type="image" :num="1" :width="150" :height="150" :readonly='Boolean(formDisabled)'/>
               </el-form-item>
               <el-form-item label="法人身份证国徽面" prop="legalIdCardBack">
-                <MaterialList v-model="legalIdCardBack" type="image" :num="1" :width="150" :height="150" :readonly='Boolean(examineEdit)'/>
+                <MaterialList v-model="legalIdCardBack" type="image" :num="1" :width="150" :height="150" :readonly='Boolean(formDisabled)'/>
               </el-form-item>
               <el-form-item label="门店照及经营场所" prop="storeImg">
-                <MaterialList v-model="storeImg" type="image" :num="1" :width="150" :height="150" :readonly='Boolean(examineEdit)'/>
+                <MaterialList v-model="storeImg" type="image" :num="1" :width="150" :height="150" :readonly='Boolean(formDisabled)'/>
               </el-form-item>
               <el-form-item label="医疗机构许可证" prop="licenceImg">
-                <MaterialList v-model="licenceImg" type="image" :num="1" :width="150" :height="150" :readonly='Boolean(examineEdit)'/>
+                <MaterialList v-model="licenceImg" type="image" :num="1" :width="150" :height="150" :readonly='Boolean(formDisabled)'/>
               </el-form-item>
             </div>            
             <el-form-item v-if='crud.status.edit' label=" " prop="checkbox">
