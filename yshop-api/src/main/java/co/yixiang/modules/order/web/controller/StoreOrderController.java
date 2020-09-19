@@ -241,13 +241,23 @@ public class StoreOrderController extends BaseController {
 
 
         if (param.getFrom().equals("weixin")) param.setIsChannel(0);
+
+        // 批量扣减redis余量
+        Map<String, Integer> redisMap = new HashMap<>();
+        this.storeOrderService.updateRedisRemainAmount(uid, key, redisMap);
         //创建订单
         YxStoreOrder order = null;
         try {
-            lock.lock();
             order = storeOrderService.createOrder(uid, key, param);
-        } finally {
-            lock.unlock();
+        } catch (ErrorRequestException e) {
+            // redis扣减map有值的情况回滚redis数据
+            if (!redisMap.isEmpty()) {
+                // redis回滚
+                for (Map.Entry<String, Integer> entry : redisMap.entrySet()) {
+                    RedisUtil.incr(entry.getKey(), entry.getValue());
+                }
+            }
+            throw e;
         }
 
 
@@ -366,9 +376,9 @@ public class StoreOrderController extends BaseController {
         //开始处理支付
         if (StrUtil.isNotEmpty(orderId)) {
             //下单后，修改了规格属性
-            String attMsg= yxStoreProductService.getProductArrtValueByCartId(storeOrder.getCartId());
-            log.info("-------------订单支付,返回结果为：【"+attMsg+"】 -------------");
-            if(StringUtils.isNotBlank(attMsg)){
+            String attMsg = yxStoreProductService.getProductArrtValueByCartId(storeOrder.getCartId());
+            log.info("-------------订单支付,返回结果为：【" + attMsg + "】 -------------");
+            if (StringUtils.isNotBlank(attMsg)) {
                 return ApiResult.fail(attMsg);
             }
             switch (PayTypeEnum.toType(param.getPaytype())) {
@@ -678,10 +688,10 @@ public class StoreOrderController extends BaseController {
     @ApiOperation(value = "订单评价（多个）", notes = "订单评价（多个）")
     public ApiResult<Object> commentNew(@Valid @RequestBody OrderReplyParam replyParam) {
         int uid = SecurityUtils.getUserId().intValue();
-        if(ObjectUtil.isEmpty(replyParam)){
+        if (ObjectUtil.isEmpty(replyParam)) {
             return ApiResult.fail("请提交评论内容");
         }
-        ApiResult<Object> result= storeOrderService.replyOrderInfo(replyParam,uid);
+        ApiResult<Object> result = storeOrderService.replyOrderInfo(replyParam, uid);
         return result;
     }
 
@@ -834,7 +844,7 @@ public class StoreOrderController extends BaseController {
     @PostMapping("/order/confirmNew")
     @ApiOperation(value = "订单确认（带店铺信息）", notes = "订单确认（带店铺信息）")
     public ApiResult<ConfirmNewOrderDTO> confirmNew(@RequestBody String jsonStr) {
-        log.info("订单确认（带店铺信息）参数为："+ JSONObject.toJSONString(jsonStr));
+        log.info("订单确认（带店铺信息）参数为：" + JSONObject.toJSONString(jsonStr));
         JSONObject jsonObject = JSON.parseObject(jsonStr);
         String cartId = jsonObject.getString("cartId");
         if (StrUtil.isEmpty(cartId)) {
@@ -888,7 +898,7 @@ public class StoreOrderController extends BaseController {
     @ApiOperation(value = "订单创建（多个订单）", notes = "（多个订单）")
     public ApiResult<Map<String, Object>> createOrderList(@Valid @RequestBody OrderNewParam param,
                                                           @PathVariable String key, HttpServletRequest request) {
-        log.info("创建订单（多个）参数为："+ JSONObject.toJSONString(param)+"，key = "+key);
+        log.info("创建订单（多个）参数为：" + JSONObject.toJSONString(param) + "，key = " + key);
         Map<String, Object> map = new LinkedHashMap<>();
         int uid = SecurityUtils.getUserId().intValue();
         if (StrUtil.isEmpty(key)) return ApiResult.fail("参数错误");
@@ -976,8 +986,8 @@ public class StoreOrderController extends BaseController {
     @PostMapping("/order/computedNew/{key}")
     @ApiOperation(value = "计算订单金额（新）", notes = "计算订单金额（新）")
     public ApiResult<Map<String, Object>> computedNew(@RequestBody String jsonStr,
-                                                        @PathVariable String key) {
-        log.info("计算订单金额（新）参数为："+ JSONObject.toJSONString(jsonStr));
+                                                      @PathVariable String key) {
+        log.info("计算订单金额（新）参数为：" + JSONObject.toJSONString(jsonStr));
 
         Map<String, Object> map = new LinkedHashMap<>();
         int uid = SecurityUtils.getUserId().intValue();
@@ -997,11 +1007,11 @@ public class StoreOrderController extends BaseController {
         JSONObject jsonObject = JSON.parseObject(jsonStr);
         String addressId = jsonObject.getString("addressId");
         String couponId = jsonObject.getString("couponId");
-        String[] couponIds = StringUtils.isNotBlank(couponId)?couponId.split(","):null;
+        String[] couponIds = StringUtils.isNotBlank(couponId) ? couponId.split(",") : null;
         List<Integer> listCoupon = new ArrayList<>();
 
-        if(null!=couponIds&&couponIds.length>0){
-            for(int i=0;i<couponIds.length;i++){
+        if (null != couponIds && couponIds.length > 0) {
+            for (int i = 0; i < couponIds.length; i++) {
                 listCoupon.add(Integer.valueOf(couponIds[i]));
             }
         }
