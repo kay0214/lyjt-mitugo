@@ -179,4 +179,13 @@ public interface YxStoreOrderService extends BaseService<YxStoreOrder> {
     List<OrderCartInfoDTO> getReplyProductList(String unique);
 
     ApiResult<Object> replyOrderInfo(OrderReplyParam replyParam, int uid);
+
+    /**
+     * 下单前扣减redis库存
+     *
+     * @param uid
+     * @param key
+     * @param redisMap
+     */
+    void updateRedisRemainAmount(Integer uid, String key, Map<String,Integer> redisMap);
 }

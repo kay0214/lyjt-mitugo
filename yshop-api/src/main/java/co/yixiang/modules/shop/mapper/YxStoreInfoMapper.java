@@ -85,5 +85,5 @@ public interface YxStoreInfoMapper extends BaseMapper<YxStoreInfo> {
      * @param yxStoreInfoQueryParam
      * @return
      */
-    List<YxStoreInfoQueryVo> selectStoreInfoVoList(@Param("page") Page page, @Param("param") YxStoreInfoQueryParam yxStoreInfoQueryParam);
+    IPage<YxStoreInfoQueryVo> selectStoreInfoVoList(@Param("page") Page page, @Param("param") YxStoreInfoQueryParam yxStoreInfoQueryParam);
 }

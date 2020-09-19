@@ -26,6 +26,7 @@ import co.yixiang.modules.user.service.YxSystemAttachmentService;
 import co.yixiang.modules.user.service.YxUserService;
 import co.yixiang.modules.user.web.vo.YxUserQueryVo;
 import co.yixiang.utils.SecurityUtils;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -120,8 +121,8 @@ public class YxStoreInfoController extends BaseController {
     @PostMapping("/getStoreInfoList")
     @ApiOperation(value = "查询店铺列表信息", notes = "查询店铺列表信息")
     public ApiResult<List<YxStoreInfoQueryVo>> productsAndStore(@RequestBody YxStoreInfoQueryParam yxStoreInfoQueryParam) {
-        List<YxStoreInfoQueryVo> yxStoreInfoQueryVoList = yxStoreInfoService.getStoreInfoList(yxStoreInfoQueryParam);
-        return ApiResult.ok(yxStoreInfoQueryVoList);
+        IPage<YxStoreInfoQueryVo> yxStoreInfoQueryVoList = yxStoreInfoService.getStoreInfoList(yxStoreInfoQueryParam);
+        return ApiResult.ok(yxStoreInfoQueryVoList.getRecords());
     }
 
     /**

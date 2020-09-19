@@ -104,8 +104,7 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
      * @return
      */
     @Override
-    public List<YxStoreInfoQueryVo> getStoreInfoList(YxStoreInfoQueryParam yxStoreInfoQueryParam) {
-        List<YxStoreInfoQueryVo> list = new ArrayList<>();
+    public IPage<YxStoreInfoQueryVo> getStoreInfoList(YxStoreInfoQueryParam yxStoreInfoQueryParam) {
         /*if(StringUtils.isBlank(yxStoreInfoQueryParam.getSalesOrder())&&StringUtils.isBlank(yxStoreInfoQueryParam.getScoreOrder())){
             //默认
             QueryWrapper<YxStoreInfo> wrapper = new QueryWrapper<YxStoreInfo>();
@@ -127,9 +126,9 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
             //根据评分排序
             list = yxStoreInfoMapper.selectInfoListBySocre(yxStoreInfoQueryParam.getScoreOrder(),yxStoreInfoQueryParam.getStoreName());
         }*/
-        list = yxStoreInfoMapper.selectStoreInfoVoList(new Page<>(yxStoreInfoQueryParam.getPage(), yxStoreInfoQueryParam.getLimit()), yxStoreInfoQueryParam);
-        if (!CollectionUtils.isEmpty(list)) {
-            for (YxStoreInfoQueryVo yxStoreInfoQueryVo : list) {
+        IPage<YxStoreInfoQueryVo> list = yxStoreInfoMapper.selectStoreInfoVoList(new Page<>(yxStoreInfoQueryParam.getPage(), yxStoreInfoQueryParam.getLimit()), yxStoreInfoQueryParam);
+        if (!CollectionUtils.isEmpty(list.getRecords())) {
+            for (YxStoreInfoQueryVo yxStoreInfoQueryVo : list.getRecords()) {
                 //行业类别
                 DictDetail dictDetail = dictDetailService.getDictDetailValueByType(CommonConstant.DICT_TYPE_INDUSTRY_CATEGORY, yxStoreInfoQueryVo.getIndustryCategory());
                 if (null != dictDetail) {
