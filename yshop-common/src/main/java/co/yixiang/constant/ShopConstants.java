@@ -212,4 +212,8 @@ public interface ShopConstants {
 	 */
 	String DATA_STATISTICS="DATA_STATISTICS";
 
+	/**
+	 * 产品库存_key+：+id+：+unique
+	 */
+	public static final String SHOP_PRODUCT_STOCK = "shop_product_stock:";
 }

@@ -274,7 +274,9 @@ export default {
         cleanTime: data.cleanTime,
         addres: data.addres,
         adminid: data.adminid,
-        loginType: data.loginType
+        loginType: data.loginType,
+        bankMobile: data.bankMobile,
+        cnapsCode: data.cnapsCode
       }
       _this.dialog = true
     },

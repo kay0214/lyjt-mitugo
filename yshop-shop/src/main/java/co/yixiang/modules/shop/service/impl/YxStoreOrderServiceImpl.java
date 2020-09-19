@@ -358,10 +358,16 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<StoreOrderMapper, Y
             map.put("创建时间", DateUtils.timestampToStr10(yxStoreOrder.getAddTime(), DateUtils.YYYY_MM_DD_HH_MM_SS));
             String strStatus ="";
             switch (yxStoreOrder.getStatus()){
-                case 0:strStatus="待发货";break;
+                /*case 0:strStatus="待发货";break;
                 case 1:strStatus="待收货";break;
                 case 2:strStatus="已收";break;
-                case 3:strStatus="待评价";break;
+                case 3:strStatus="待评价";break;*/
+
+                case 0:strStatus = yxStoreOrder.getPaid().equals(0)?"未支付":"未发货";break;
+                case 1:strStatus="待收货";break;
+                case 2:strStatus="待评价";break;
+                case 3:strStatus="交易完成";break;
+
             }
             map.put("订单状态",strStatus);
             String strFund="";
@@ -387,7 +393,7 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<StoreOrderMapper, Y
             map.put("使用积分", yxStoreOrder.getUseIntegral());
             map.put("给用户退了多少积分", yxStoreOrder.getBackIntegral());
             map.put("备注", yxStoreOrder.getMark());
-            map.put("是否删除", yxStoreOrder.getIsDel());
+            map.put("是否删除", yxStoreOrder.getIsDel()==1?"已删除":"未删除");
 //            map.put("唯一id(md5加密)类似id", yxStoreOrder.getUnique());
             map.put("管理员备注", yxStoreOrder.getRemark());
             map.put("商户ID", yxStoreOrder.getMerId());

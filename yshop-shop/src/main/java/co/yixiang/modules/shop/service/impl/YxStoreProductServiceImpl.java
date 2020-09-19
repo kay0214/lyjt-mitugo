@@ -9,6 +9,7 @@ import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import co.yixiang.common.service.impl.BaseServiceImpl;
 import co.yixiang.common.utils.QueryHelpPlus;
+import co.yixiang.constant.ShopConstants;
 import co.yixiang.dozer.service.IGenerator;
 import co.yixiang.exception.BadRequestException;
 import co.yixiang.modules.shop.domain.*;
@@ -17,10 +18,7 @@ import co.yixiang.modules.shop.service.dto.*;
 import co.yixiang.modules.shop.service.mapper.StoreProductAttrMapper;
 import co.yixiang.modules.shop.service.mapper.StoreProductMapper;
 import co.yixiang.modules.shop.service.mapper.YxSystemAttachmentMapper;
-import co.yixiang.utils.BeanUtils;
-import co.yixiang.utils.FileUtil;
-import co.yixiang.utils.OrderUtil;
-import co.yixiang.utils.StringUtils;
+import co.yixiang.utils.*;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -32,6 +30,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -78,6 +77,8 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<StoreProductMappe
     private YxSystemAttachmentService yxSystemAttachmentService;
     @Autowired
     private YxSystemAttachmentMapper yxSystemAttachmentMapper;
+    @Autowired
+    private RedisUtils redisUtils;
 
     @Override
     //@Cacheable
@@ -212,6 +213,10 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<StoreProductMappe
         if (!check) throw new BadRequestException("商品分类必选选择二级");
         storeProduct.setCateId(storeProduct.getStoreCategory().getId().toString());
         this.save(storeProduct);
+        //存入redis
+        String redisKey = ShopConstants.SHOP_PRODUCT_STOCK+"_key:"+storeProduct.getId();
+        redisUtils.set(redisKey,storeProduct.getStock());
+
         return storeProduct;
     }
 
@@ -305,7 +310,7 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<StoreProductMappe
         }
         // 平台结算
         BigDecimal bigDecimalSellt  = yxStoreProductParam.getSettlement();
-
+        delRedis(id,ShopConstants.SHOP_PRODUCT_STOCK+"_key:"+id+":");
         List<YxStoreProductAttrValue> valueGroup = new ArrayList<>();
         for (ProductFormatDto productFormatDTO : valueList) {
             YxStoreProductAttrValue yxStoreProductAttrValue = new YxStoreProductAttrValue();
@@ -333,6 +338,9 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<StoreProductMappe
             productFormatDTO.setCommission(yxStoreProductAttrValue.getCommission().doubleValue());
 
             valueGroup.add(yxStoreProductAttrValue);
+            //库存存入redis
+            String redisKey = ShopConstants.SHOP_PRODUCT_STOCK+"_key:"+id+":"+yxStoreProductAttrValue.getUnique();
+            redisUtils.set(redisKey,yxStoreProductAttrValue.getStock());
         }
 
         if (attrGroup.isEmpty() || valueGroup.isEmpty()) {
@@ -385,6 +393,17 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<StoreProductMappe
         setResult(map, id);
     }
 
+    private  void  delRedis(int productId,String redisKey){
+        List<YxStoreProductAttrValue> resultList= yxStoreProductAttrValueService.list(new QueryWrapper<YxStoreProductAttrValue>().eq("product_id", productId));
+        if(CollectionUtils.isEmpty(resultList)){
+            return;
+        }
+        for(YxStoreProductAttrValue value:resultList){
+            String delRed = redisKey+value.getUnique();
+            redisUtils.del(delRed);
+        }
+    }
+
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void setResult(Map<String, Object> map, Integer id) {
@@ -424,6 +443,11 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<StoreProductMappe
         QueryWrapper<YxSystemAttachment> queryWrapperAtt = new QueryWrapper();
         queryWrapperAtt.like("name",resources.getId()+"_%").like("name","%good%");
         yxSystemAttachmentMapper.delete(queryWrapperAtt);
+
+        //修改redis
+        String redisKey = ShopConstants.SHOP_PRODUCT_STOCK+"_key"+":"+resources.getId();
+        redisUtils.set(redisKey,resources.getStock());
+
         this.saveOrUpdate(resources);
     }
 

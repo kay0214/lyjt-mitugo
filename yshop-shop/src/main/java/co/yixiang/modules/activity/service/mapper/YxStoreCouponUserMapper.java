@@ -31,7 +31,7 @@ public interface YxStoreCouponUserMapper extends CoreMapper<YxStoreCouponUser> {
             "scu.is_fail,scu.store_id,scu.issue_coupon_id,yu.nickname " +
             " FROM yx_store_coupon_user scu LEFT JOIN yx_user yu ON scu.uid = yu.uid" +
             " where 1=1 " +
-            " <if test=\"storeIds != null and storeIds.length > 0\">"+
+            " <if test=\"storeIds != null\">"+
             " and scu.store_id IN " +
             "  <foreach item='storeId' index='index' collection='storeIds' open='(' separator=',' close=')'>" +
             "  #{storeId} " +
@@ -45,7 +45,7 @@ public interface YxStoreCouponUserMapper extends CoreMapper<YxStoreCouponUser> {
 
     @Select("<script> SELECT count(scu.id) FROM yx_store_coupon_user scu LEFT JOIN yx_user yu ON scu.uid = yu.uid" +
             " where 1=1 " +
-            " <if test=\"storeIds != null and storeIds.length > 0\">"+
+            " <if test=\"storeIds != null\">"+
             " and scu.store_id IN " +
             "  <foreach item='storeId' index='index' collection='storeIds' open='(' separator=',' close=')'>" +
             "  #{storeId} " +
