@@ -157,7 +157,7 @@
               <el-form-item label="医疗机构许可证" prop="licenceImg">
                 <MaterialList v-model="licenceImg" type="image" :num="1" :width="150" :height="150" :readonly='Boolean(formDisabled)'/>
               </el-form-item>
-            </div>            
+            </div>
             <el-form-item v-if='crud.status.edit' label=" " prop="checkbox">
                 <el-row type='flex'>
                   <el-checkbox v-model="form.checkbox" name='checkbox' ></el-checkbox>
@@ -175,7 +175,7 @@
                 </el-row>
             </el-form-item>
         </el-form>
-        <div slot="footer" class="dialog-footer">          
+        <div slot="footer" class="dialog-footer">
           <div v-if="crud.status.add || crud.status.edit">
             <el-button type="text" @click="crud.cancelCU">取消</el-button>
             <el-button :loading="crud.cu === 2" type="primary" @click="crud.submitCU">确认</el-button>
@@ -228,7 +228,7 @@
           </template>
         </el-table-column>
         <el-table-column v-permission="['admin','yxMerchantsDetail:edit','yxMerchantsDetail:examine','yxMerchantsDetail:del']" label="操作" width="250px" align="center">
-          <template slot-scope="scope">
+          <template v-if="!crud.loading" slot-scope="scope">
             <el-button v-if="scope.row.examineStatus===3" v-permission="permission.examine" size="mini" type="primary" icon="el-icon-s-check" @click="examineOpt(scope.row)" plain></el-button>
             <el-button v-if="scope.row.examineStatus===2 || scope.row.examineStatus===0" v-permission="permission.edit" size="mini" type="primary" icon="el-icon-edit" @click="crud.toEdit(scope.row)" ></el-button>
 
@@ -373,7 +373,7 @@ export default {
         openAccountBank: [
           { required: true, message: '必填项', trigger: 'blur' },
         ],
-        
+
         openAccountSubbranch: [
           { required: true, message: '必填项', trigger: 'blur' },
         ],
@@ -499,14 +499,14 @@ export default {
         { required: this.bankType, message: "联行号必填", trigger: 'blur' },
       ]
     },
-    
+
     // 获取数据前设置好接口地址
     [CRUD.HOOK.beforeRefresh]() {
       return true
-    }, 
-    [CRUD.HOOK.beforeToCU](crud,form) {      
+    },
+    [CRUD.HOOK.beforeToCU](crud,form) {
       this.businessCategoryChange(form.businessCategory)
-    }, 
+    },
     // 新增与编辑前做的操作
     [CRUD.HOOK.afterToCU]() {
       // 个人认证
@@ -725,7 +725,7 @@ export default {
     },
     withdrawEdit(btn,formData,uid){
       this.$refs.formWithdraw.validate(function(ret,obj){
-        if(ret){          
+        if(ret){
           withdrawEdit(Object.assign(formData,{uid})).then(res=>{
             console.log('xxxxxx')
             console.log(res)
@@ -739,7 +739,7 @@ export default {
               })
             }
           })
-        }else{          
+        }else{
           Notification.error({
             title: '请查看必填项是否输入正确'
             })
