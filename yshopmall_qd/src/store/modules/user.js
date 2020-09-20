@@ -7,7 +7,8 @@ const user = {
     user: {},
     roles: [],
     // 第一次加载菜单时用到
-    loadMenus: false
+    loadMenus: false,
+    examineStatus: -1 // 商户认证状态 -1非商户 99未认证, 已认证: 1
   },
 
   mutations: {
@@ -22,6 +23,9 @@ const user = {
     },
     SET_LOAD_MENUS: (state, loadMenus) => {
       state.loadMenus = loadMenus
+    },
+    SET_ROLE_EXAMINE_STATUS: (state, examineStatus) => {
+      state.examineStatus = examineStatus
     }
   },
 
@@ -34,6 +38,8 @@ const user = {
           setToken(res.token, rememberMe)
           commit('SET_TOKEN', res.token)
           setUserInfo(res.user, commit)
+          // 商户身份设置商户认证状态
+          commit('SET_ROLE_EXAMINE_STATUS', res.examineStatus)
           // 第一次加载菜单时用到， 具体见 src 目录下的 permission.js
           commit('SET_LOAD_MENUS', true)
           resolve()
@@ -48,6 +54,7 @@ const user = {
       return new Promise((resolve, reject) => {
         getInfo().then(res => {
           setUserInfo(res, commit)
+          commit('SET_ROLE_EXAMINE_STATUS', res.examineStatus)
           resolve(res)
         }).catch(error => {
           reject(error)

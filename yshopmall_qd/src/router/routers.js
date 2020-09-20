@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import Layout from '../layout/index'
+import store from '../store'
 
 Vue.use(Router)
 
@@ -70,8 +71,16 @@ export const constantRouterMap = [
   }
 ]
 
-export default new Router({
+const router = new Router({
   mode: 'history',
   scrollBehavior: () => ({ y: 0 }),
   routes: constantRouterMap
 })
+router.beforeEach((to, from, next) => {
+  // 验证商户是否认证
+  const { userRole, examineStatus } = store.state.user.user
+  if (to.name !== 'Login' && to.path !== '/member/yxMerchantsDetail' && userRole === 2 && examineStatus !== 1) next({ path: '/member/yxMerchantsDetail?dialog=1' })
+  else next()
+  next()
+})
+export default router
