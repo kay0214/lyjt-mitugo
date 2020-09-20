@@ -62,15 +62,18 @@
           <el-form ref='formWithdraw' :model="formWithdraw" :rules="rules">
           <p>
             提现金额
-            <el-form-item prop='extractPrice'>
+          </p>
+          <el-form-item prop='extractPrice'>
               <el-input type='number' v-model="formWithdraw.extractPrice" placeholder="输入提现金额" :maxlength='12'/>
             </el-form-item>
-          </p>
+          <p style="font-size:12px">提现收取1%手续费</p>
           <div style="text-align: right; margin: 0">
             <el-button type="primary" size="mini" @click="withdraw($event,formWithdraw.extractPrice)">提现</el-button>
           </div>
           </el-form>
+          
           <el-button v-permission='permission.withdraw' slot="reference" type="primary">提现</el-button>
+          
         </el-popover>
       </el-row>
 
