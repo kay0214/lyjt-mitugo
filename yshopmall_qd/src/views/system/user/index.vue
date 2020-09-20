@@ -15,6 +15,7 @@
           />
         </div>
         <el-tree
+          v-if="deptDatas"
           :data="deptDatas"
           :props="defaultProps"
           :expand-on-click-node="false"
@@ -122,6 +123,7 @@
                 v-model="form.roles"
                 style="width: 437px"
                 multiple
+                :multiple-limit="1"
                 placeholder="请选择"
                 @remove-tag="deleteTag"
                 @change="changeRole"
