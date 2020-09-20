@@ -85,7 +85,7 @@ import pagination from '@crud/Pagination'
 import MaterialList from "@/components/material";
 
 // crud交由presenter持有
-const defaultCrud = CRUD({ title: '平台账户表', url: 'api/yxFundsAccount', sort: 'id,desc', crudMethod: { ...crudYxFundsAccount }})
+const defaultCrud = CRUD({ title: '平台账户', url: 'api/yxFundsAccount', sort: 'id,desc', crudMethod: { ...crudYxFundsAccount }})
 const defaultForm = { id: null, price: null, bonusPoint: null, referencePoint: null, delFlag: null, createUserId: null, updateUserId: null, createTime: null, updateTime: null }
 export default {
   name: 'YxFundsAccount',

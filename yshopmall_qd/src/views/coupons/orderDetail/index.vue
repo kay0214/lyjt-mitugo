@@ -105,7 +105,7 @@ import pagination from '@crud/Pagination'
 import MaterialList from "@/components/material";
 
 // crud交由presenter持有
-const defaultCrud = CRUD({ title: '卡券订单详情表', url: 'api/yxCouponOrderDetail', sort: 'id,desc', crudMethod: { ...crudYxCouponOrderDetail }})
+const defaultCrud = CRUD({ title: '卡券订单详情', url: 'api/yxCouponOrderDetail', sort: 'id,desc', crudMethod: { ...crudYxCouponOrderDetail }})
 const defaultForm = { id: null, orderId: null, uid: null, couponId: null, useCount: null, usedCount: null, status: null, remark: null, verifyCode: null, delFlag: null, createUserId: null, updateUserId: null, createTime: null, updateTime: null }
 export default {
   name: 'YxCouponOrderDetail',

@@ -279,7 +279,7 @@ import { Notification } from 'element-ui'
 import checkPermission from '@/utils/permission'
 
 // crud交由presenter持有
-const defaultCrud = CRUD({ title: '商户详情表', url: 'api/yxMerchantsDetail/getYxMerchantsDetailsList', sort: 'id,desc', crudMethod: { ...crudYxMerchantsDetail },optShow: {
+const defaultCrud = CRUD({ title: '商户详情', url: 'api/yxMerchantsDetail/getYxMerchantsDetailsList', sort: 'id,desc', crudMethod: { ...crudYxMerchantsDetail },optShow: {
       add: true,
       edit: false,
       del: false,
@@ -503,6 +503,13 @@ export default {
 
     // 获取数据前设置好接口地址
     [CRUD.HOOK.beforeRefresh]() {
+      return true
+    },
+    [CRUD.HOOK.afterRefresh]() {
+      const {dialog} = this.$route.query
+      if(dialog == '1' && this.crud.data && this.crud.data.length === 1){
+        this.crud.toEdit(this.crud.data[0])
+      }
       return true
     },
     [CRUD.HOOK.beforeToCU](crud,form) {

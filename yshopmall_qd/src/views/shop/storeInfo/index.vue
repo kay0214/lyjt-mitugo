@@ -220,7 +220,7 @@
   import storeMark from "@/assets/images/store_mark.png"
 
   // crud交由presenter持有
-  const defaultCrud = CRUD({ title: '店铺表', url: 'api/yxStoreInfo', sort: 'id,desc',optShow: {
+  const defaultCrud = CRUD({ title: '店铺', url: 'api/yxStoreInfo', sort: 'id,desc',optShow: {
       add: false,
       edit: false,
       del: false,
