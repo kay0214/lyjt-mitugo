@@ -51,7 +51,7 @@ public interface BankCodeRegMapper extends BaseMapper<BankCodeReg> {
      * @param name
      * @return
      */
-    @Select(" select name from bank_code_reg where pname=#{name} GROUP BY pname ORDER BY bank_code asc ")
+    @Select(" select name from bank_code_reg where pname=#{name} GROUP BY name ORDER BY bank_code asc ")
     List<String> getAllCitys(@Param("name") String name);
 
     /**
