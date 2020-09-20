@@ -493,6 +493,7 @@ export default {
     },
   },
   methods: {
+    checkPermission,
     // 联行号， 对公需要
     bankCodeRuls(){
       return [
