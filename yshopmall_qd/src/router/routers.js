@@ -77,10 +77,14 @@ const router = new Router({
   routes: constantRouterMap
 })
 router.beforeEach((to, from, next) => {
-  // 验证商户是否认证
-  const { userRole, examineStatus } = store.state.user.user
-  if (to.name !== 'Login' && to.path !== '/member/yxMerchantsDetail' && userRole === 2 && examineStatus !== 1) next({ path: '/member/yxMerchantsDetail?dialog=1' })
-  else next()
-  next()
+  // 验证商户是否认证, 未认证跳转认证
+  try {
+    const { userRole, examineStatus } = store.state.user.user
+    if (to.name !== 'Login' && to.fullPath !== '/member/yxMerchantsDetail?dialog=1' && userRole === 2 && examineStatus !== 1) {
+      next({ path: '/member/yxMerchantsDetail?dialog=1' })
+    } else next()
+  } catch (e) {
+    next()
+  }
 })
 export default router
