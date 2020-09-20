@@ -10,19 +10,22 @@ import cn.hutool.crypto.asymmetric.KeyType;
 import cn.hutool.crypto.asymmetric.RSA;
 import co.yixiang.annotation.AnonymousAccess;
 import co.yixiang.exception.BadRequestException;
-import co.yixiang.logging.aop.log.Log;
 import co.yixiang.modules.security.config.SecurityProperties;
 import co.yixiang.modules.security.security.TokenProvider;
 import co.yixiang.modules.security.security.vo.AuthUser;
 import co.yixiang.modules.security.security.vo.JwtUser;
 import co.yixiang.modules.security.service.OnlineUserService;
+import co.yixiang.modules.shop.domain.YxMerchantsDetail;
+import co.yixiang.modules.shop.service.YxMerchantsDetailService;
 import co.yixiang.utils.RedisUtils;
 import co.yixiang.utils.SecurityUtils;
 import co.yixiang.utils.StringUtils;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.wf.captcha.ArithmeticCaptcha;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -32,12 +35,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
@@ -67,6 +65,8 @@ public class AuthController {
     private final OnlineUserService onlineUserService;
     private final TokenProvider tokenProvider;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
+    @Autowired
+    private YxMerchantsDetailService yxMerchantsDetailService;
 
     public AuthController(SecurityProperties properties, RedisUtils redisUtils, UserDetailsService userDetailsService, OnlineUserService onlineUserService, TokenProvider tokenProvider, AuthenticationManagerBuilder authenticationManagerBuilder) {
         this.properties = properties;
@@ -105,10 +105,20 @@ public class AuthController {
         // 保存在线信息
         onlineUserService.save(jwtUser, token, request);
         // 返回 token 与 用户信息
-        Map<String,Object> authInfo = new HashMap<String,Object>(2){{
+        Map<String,Object> authInfo = new HashMap<String,Object>(3){{
             put("token", properties.getTokenStartWith() + token);
             put("user", jwtUser);
         }};
+        // 查询商户认证状态
+        if(jwtUser.getUserRole().intValue()==1){
+            YxMerchantsDetail merchantsDetail =  this.yxMerchantsDetailService.getOne(new QueryWrapper<YxMerchantsDetail>().eq("uid", jwtUser.getId()));
+            if (null == merchantsDetail) {
+                authInfo.put("examineStatus","99");
+            }else {
+                authInfo.put("examineStatus",merchantsDetail.getExamineStatus());
+            }
+        }
+
         if(singleLogin){
             //踢掉之前已经登录的token
             onlineUserService.checkLoginOnUser(authUser.getUsername(),token);
