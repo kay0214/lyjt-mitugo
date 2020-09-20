@@ -127,7 +127,7 @@
             <!-- 下拉框 取值从dict的business_category和qualifications_type、两个下拉框联动 -->
               <el-form-item label="经营类目" prop="businessCategory">
                 <!-- <el-input v-model="form.businessCategory" style="width: 370px;" /> -->
-                <el-select v-model="form.businessCategory" placeholder="请选择" @change="businessCategoryChange($event,true)">
+                <el-select v-model="form.businessCategory" placeholder="请选择" style="width: 370px;">
                   <el-option
                     v-for="item in dict.business_category"
                     :key="item.value"
@@ -138,9 +138,9 @@
               </el-form-item>
               <el-form-item label="主体资质类型" prop="qualificationsType">
                 <!-- <el-input v-model="form.qualificationsType" style="width: 370px;" /> -->
-                <el-select v-model="form.qualificationsType" placeholder="请选择">
+                <el-select v-model="form.qualificationsType" placeholder="请选择" style="width: 370px;">
                   <el-option
-                    v-for="item in qualificationsTypes"
+                    v-for="item in dict.qualifications_type"
                     :key="item.value"
                     :label="item.label"
                     :value="item.value">
@@ -299,7 +299,7 @@ export default {
   name: 'YxMerchantsDetail',
   components: { pagination, crudOperation, rrOperation, udOperation ,MaterialList},
   mixins: [presenter(defaultCrud), header(), form(defaultForm), crud()],
-  dicts: ['merchants_status','business_category'],
+  dicts: ['merchants_status','business_category','qualifications_type'],
   data() {
     // 自定义验证
     const validPhone = (rule, value, callback) => {
@@ -523,9 +523,6 @@ export default {
       }
       return true
     },
-    [CRUD.HOOK.beforeToCU](crud,form) {
-      this.businessCategoryChange(form.businessCategory)
-    },
     // 新增与编辑前做的操作
     [CRUD.HOOK.afterToCU]() {
       // 个人认证
@@ -576,15 +573,6 @@ export default {
         this.licenceImg = []
       }
     },
-    //获取主体资质类型列表
-    businessCategoryChange(v,isSelect=false){
-      if(isSelect){
-        this.form.qualificationsType=""
-      }
-      getDictDetail(v).then(res=>{
-          this.qualificationsTypes=res.content;
-      })
-    },
 
     //显示审核弹出框
     examineOpt(data){
@@ -592,7 +580,6 @@ export default {
       this.dialogVisible=Boolean(this.examineEdit)
 
       this.crud.resetForm(JSON.parse(JSON.stringify(data)))
-      this.businessCategoryChange(this.form.businessCategory)
       /*图片默认值赋值*/
       // 个人认证
       if (this.form.personIdCard) {
