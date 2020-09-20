@@ -97,6 +97,14 @@
             </div>
             <!-- 以下是企业 -->
             <div v-if="!crud.status.add &&form.merchantsType==1">
+              <el-form-item label="企业所在省市区">
+                <el-cascader
+                  size="large"
+                  :options="options"
+                  v-model="selectedOptions"
+                  @change="selectedProvince" style="width: 370px;" >
+                </el-cascader>
+              </el-form-item>
               <el-form-item label="企业所在省市区" prop="companyProvince">
                 <el-input v-model="form.companyProvince" style="width: 370px;" />
               </el-form-item>
@@ -277,6 +285,7 @@ import MaterialList from "@/components/material";
 import { get as getDictDetail } from '@/api/system/dictDetail'
 import { Notification } from 'element-ui'
 import checkPermission from '@/utils/permission'
+import { provinceAndCityData, regionData, provinceAndCityDataPlus, regionDataPlus, CodeToText, TextToCode } from 'element-china-area-data'
 
 // crud交由presenter持有
 const defaultCrud = CRUD({ title: '商户详情', url: 'api/yxMerchantsDetail/getYxMerchantsDetailsList', sort: 'id,desc', crudMethod: { ...crudYxMerchantsDetail },optShow: {
@@ -447,6 +456,8 @@ export default {
       legalIdCardBack:[],//法人身份证国徽面
       storeImg:[],//门店照及经营场所
       licenceImg:[],//医疗机构许可证
+      options: regionData,
+      selectedOptions: []
    }
   },
   watch: {
@@ -754,6 +765,13 @@ export default {
         }
       })
 
+    },
+    selectedProvince(val){
+      let pcr=[]
+      val.forEach(item=>{
+        pcr.push(CodeToText[item])
+      })
+      this.form.companyProvince=pcr.join('/')
     }
   }
 }
