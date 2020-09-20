@@ -524,7 +524,7 @@ export default {
       return true
     },
     // 新增与编辑前做的操作
-    [CRUD.HOOK.afterToCU]() {
+    [CRUD.HOOK.afterToCU](crud,form) {
       // 个人认证
       if (form.personIdCard) {
         this.perIdCard = form.personIdCard.split(',')
