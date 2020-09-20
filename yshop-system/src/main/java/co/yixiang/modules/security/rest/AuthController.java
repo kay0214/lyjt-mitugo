@@ -110,13 +110,15 @@ public class AuthController {
             put("user", jwtUser);
         }};
         // 查询商户认证状态
-        if(jwtUser.getUserRole().intValue()==1){
+        if(jwtUser.getUserRole().intValue()==2){
             YxMerchantsDetail merchantsDetail =  this.yxMerchantsDetailService.getOne(new QueryWrapper<YxMerchantsDetail>().eq("uid", jwtUser.getId()));
             if (null == merchantsDetail) {
                 authInfo.put("examineStatus",99);
             }else {
                 authInfo.put("examineStatus",merchantsDetail.getExamineStatus());
             }
+        }else{
+            authInfo.put("examineStatus",-1);
         }
 
         if(singleLogin){
