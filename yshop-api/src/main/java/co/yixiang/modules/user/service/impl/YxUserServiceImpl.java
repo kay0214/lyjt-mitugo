@@ -438,6 +438,7 @@ public class YxUserServiceImpl extends BaseServiceImpl<YxUserMapper, YxUser> imp
         if (StringUtils.isNotBlank(spreadType)) {
             SystemUser systemUser = this.systemUserMapper.selectById(spread);
             if (null == systemUser) {
+                log.info("后台用户推荐人id:" + spread + "未查询到相应用户");
                 // 未查询到推荐人不做推荐人记录
                 return true;
             }
