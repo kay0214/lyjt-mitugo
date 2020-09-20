@@ -34,10 +34,10 @@
             </when>
 
             <when test ="param.distanceOrder != '' and param.distanceOrder != null">
-                <if test ="param.distanceOrder == 'desc'">
+                <if test ="param.distanceOrder == 'desc' and param.lnt  != '' and param.lnt != null">
                     order by distance desc;
                 </if>
-                <if test ="param.distanceOrder == 'asc'">
+                <if test ="param.distanceOrder == 'asc' and param.lnt  != '' and param.lnt != null">
                     order by distance asc;
                 </if>
             </when>
