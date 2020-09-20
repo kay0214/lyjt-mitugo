@@ -113,7 +113,7 @@ public class AuthController {
         if(jwtUser.getUserRole().intValue()==1){
             YxMerchantsDetail merchantsDetail =  this.yxMerchantsDetailService.getOne(new QueryWrapper<YxMerchantsDetail>().eq("uid", jwtUser.getId()));
             if (null == merchantsDetail) {
-                authInfo.put("examineStatus","99");
+                authInfo.put("examineStatus",99);
             }else {
                 authInfo.put("examineStatus",merchantsDetail.getExamineStatus());
             }
