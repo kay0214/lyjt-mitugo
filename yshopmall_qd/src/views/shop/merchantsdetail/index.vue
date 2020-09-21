@@ -27,7 +27,7 @@
             <!-- 以下是编辑页面展示字段 -->
             <div v-if="crud.status.edit || examineEdit">
               <el-form-item label="商户名称" prop="merchantsName">
-                <el-input v-model="form.merchantsName" :maxlength='20' style="width: 350px;"/>
+                <el-input v-model="form.merchantsName" :maxlength='20' style="width: 370px;"/>
               </el-form-item>
               <el-form-item label="商户地址" prop="address">
                 <el-input v-model="form.address" style="width: 370px;"  :maxlength='200' />
