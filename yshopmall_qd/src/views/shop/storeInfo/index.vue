@@ -140,7 +140,12 @@
             @setValue="setSliderImageArr" />
           </el-form-item>
           <el-form-item label="店铺省市区" prop="storeProvince">
-            <el-input v-model="form.storeProvince" style="width: 700px;"/>
+            <el-cascader
+              :options="options"
+              v-model="selectedOptions"
+              @change='selectedProvince' style="width: 700px;" >
+            </el-cascader>
+            <!-- <el-input v-model="form.storeProvince" style="width: 700px;"/> -->
           </el-form-item>
           <el-form-item label="店铺详细地址" prop="storeAddress">
             <el-input v-model="form.storeAddress" style="width: 700px;"  @change="codeAddress" />
@@ -220,6 +225,7 @@
   import { Notification } from 'element-ui'
   import checkPermission from '@/utils/permission'
   import storeMark from "@/assets/images/store_mark.png"
+  import { provinceAndCityData, regionData, provinceAndCityDataPlus, regionDataPlus, CodeToText, TextToCode } from 'element-china-area-data'
 
   // crud交由presenter持有
   const defaultCrud = CRUD({ title: '店铺', url: 'api/yxStoreInfo', sort: 'id,desc',optShow: {
@@ -325,7 +331,7 @@
             { required: true, message: '店铺介绍不能为空', trigger: 'blur' }
           ],
           storeProvince: [
-            { required: true, message: '店铺省市区不能为空', trigger: 'blur' }
+            { required: true, message: '店铺省市区不能为空', trigger: 'change' }
           ],
           storeAddress: [
             { required: true, message: '店铺详细地址不能为空', trigger: 'blur' }
@@ -334,7 +340,11 @@
           openTime: [
             { required: true, message: '营业时间至少有一项', trigger: 'blur' }
           ]
-        }    }
+        },
+        options: regionData,
+        selectedOptions: [], 
+        storeProvinceTest:''   
+      }
     },
     watch: {
       picArr(val) {
@@ -432,7 +442,7 @@
         const that = this;
         //通过getLocation();方法获取位置信息值
         if(that.geocoder){
-          that.geocoder.getLocation(this.form.storeProvince + this.form.storeAddress);
+          that.geocoder.getLocation(this.storeProvinceTest + this.form.storeAddress);
         }
         
       },
@@ -453,6 +463,9 @@
         }
         if (form.sliderImageArr && form.id) {
           this.sliderImageArr = form.sliderImageArr.split(',')
+        }
+        if(form.storeProvince){
+          this.selectedOptions=form.storeProvince.split(',')
         }
         this.$nextTick(()=>{
           document.getElementById('mapContainer').innerHTML = "";
@@ -529,7 +542,16 @@
             })
           })
         }
-      }
+      },
+      selectedProvince(val){
+        let pcr=[],pcrt=[]
+        val.forEach(item=>{
+          pcr.push(item)
+          pcrt.push(CodeToText[item])
+        })
+        this.form.storeProvince=pcr.join(',')
+        this.storeProvinceTest=pcrt.join('')
+      },
 
     },
 
