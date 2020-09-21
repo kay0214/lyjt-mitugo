@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import Layout from '../layout/index'
-import store from '../store'
+// import store from '../store'
 
 Vue.use(Router)
 
@@ -76,15 +76,16 @@ const router = new Router({
   scrollBehavior: () => ({ y: 0 }),
   routes: constantRouterMap
 })
-router.beforeEach((to, from, next) => {
-  // 验证商户是否认证, 未认证跳转认证
-  try {
-    const { userRole, examineStatus } = store.state.user.user
-    if (to.name !== 'Login' && to.fullPath !== '/member/yxMerchantsDetail?dialog=1' && userRole === 2 && examineStatus !== 1) {
-      next({ path: '/member/yxMerchantsDetail?dialog=1' })
-    } else next()
-  } catch (e) {
-    next()
-  }
-})
+// router.beforeEach((to, from, next) => {
+//   // 验证商户是否认证, 未认证跳转认证
+//   try {
+//     const { userRole, examineStatus } = store.state.user.user
+//     // examineStatus 1: 已审核， 3： 审核中
+//     if (to.name !== 'Login' && to.fullPath !== '/member/yxMerchantsDetail?dialog=1' && userRole === 2 && examineStatus !== 1 && examineStatus !== 3) {
+//       next({ path: '/member/yxMerchantsDetail?dialog=1' })
+//     } else next()
+//   } catch (e) {
+//     next()
+//   }
+// })
 export default router
