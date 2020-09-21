@@ -31,8 +31,8 @@
               </el-form-item>
               <el-form-item label="商户所在省市区" prop="province">
                 <el-cascader
-                  :options="moptions"
-                  v-model="options"
+                  :options="options"
+                  v-model="selectedMOptions"
                   @change='selectedMProvince' style="width: 370px;" >
                 </el-cascader>
               </el-form-item>
