@@ -106,18 +106,18 @@ public class QiNiuServiceImpl implements QiNiuService {
         Configuration cfg = new Configuration(QiNiuUtil.getRegion(qiniuConfig.getZone()));
         UploadManager uploadManager = new UploadManager(cfg);
         Auth auth = Auth.create(qiniuConfig.getAccessKey(), qiniuConfig.getSecretKey());
+        String upToken = auth.uploadToken(qiniuConfig.getBucket());
         try {
             String key = file.getOriginalFilename();
-            if(qiniuContentService.getOne(new QueryWrapper<QiniuContent>().eq("name",key)) != null) {
+            if(qiniuContentService.getOne(new QueryWrapper<QiniuContent>().eq("name", FileUtil.getFileNameNoEx(key))) != null) {
                 key = QiNiuUtil.getKey(key);
             }
-            String upToken = auth.uploadToken(qiniuConfig.getBucket());
             Response response = uploadManager.put(file.getBytes(), key, upToken);
             //解析上传成功的结果
 
             DefaultPutRet putRet = JSON.parseObject(response.bodyString(), DefaultPutRet.class);
 
-            QiniuContent content = qiniuContentService.getOne(new QueryWrapper<QiniuContent>().eq("name",FileUtil.getFileNameNoEx(putRet.key)).eq("suffix", FileUtil.getExtensionName(putRet.key)));
+            QiniuContent content = qiniuContentService.getOne(new QueryWrapper<QiniuContent>().eq("name",FileUtil.getFileNameNoEx(putRet.key)));
             if (content == null) {
                 //存入数据库
                 QiniuContent qiniuContent = new QiniuContent();
@@ -132,7 +132,7 @@ public class QiNiuServiceImpl implements QiNiuService {
             }
             return content;
         } catch (Exception e) {
-           throw new BadRequestException(e.getMessage());
+            throw new BadRequestException(e.getMessage());
         }
     }
 

@@ -93,17 +93,25 @@ public class YxExamineLogServiceImpl extends BaseServiceImpl<YxExamineLogMapper,
         if (StringUtils.isNotBlank(criteria.getUsername())) {
             queryWrapper.lambda().like(YxExamineLog::getUsername, criteria.getUsername());
         }
+
+        Map<String, Object> map = new LinkedHashMap<>(2);
         IPage<YxExamineLog> ipage = this.page(new Page<>(pageable.getPageNumber() + 1, pageable.getPageSize()), queryWrapper);
+        if(ipage.getTotal() <= 0) {
+            map.put("content", new ArrayList<YxExamineLogDto>());
+            map.put("totalElements", 0);
+            return map;
+        }
         List<YxExamineLogDto> list = generator.convert(ipage.getRecords(), YxExamineLogDto.class);
         // 查询商户认证数据
         for (YxExamineLogDto dto : list) {
             YxMerchantsDetail yxMerchantsDetail = yxMerchantsDetailMapper.selectById(dto.getTypeId());
-            dto.setContacts(yxMerchantsDetail.getContacts());
-            dto.setContactMobile(yxMerchantsDetail.getContactMobile());
-            dto.setMerchantsName(yxMerchantsDetail.getMerchantsName());
+            if(null != yxMerchantsDetail) {
+                dto.setContacts(yxMerchantsDetail.getContacts());
+                dto.setContactMobile(yxMerchantsDetail.getContactMobile());
+                dto.setMerchantsName(yxMerchantsDetail.getMerchantsName());
+            }
         }
 
-        Map<String, Object> map = new LinkedHashMap<>(2);
         map.put("content", list);
         map.put("totalElements", ipage.getTotal());
         return map;

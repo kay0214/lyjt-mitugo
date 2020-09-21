@@ -310,6 +310,7 @@ public class SysUserServiceImpl extends BaseServiceImpl<SysUserMapper, User> imp
             yxMerchantsDetail.setUid(resources.getId().intValue());
             // 用户昵称作为商户名称
             yxMerchantsDetail.setMerchantsName(resources.getNickName());
+            yxMerchantsDetail.setProvince("");
             yxMerchantsDetail.setAddress("");
             yxMerchantsDetail.setContacts(resources.getMerchantsContact());
             yxMerchantsDetail.setContactMobile(resources.getPhone());
