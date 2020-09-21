@@ -225,7 +225,17 @@
         <el-table-column v-if="columns.visible('username')" prop="username" label="商户用户名" />
         <el-table-column v-if="columns.visible('merchantsName')" prop="merchantsName" label="商户名称" />
         <el-table-column v-if="columns.visible('contacts')" prop="contacts" label="商户联系人" />
-        <el-table-column v-if="columns.visible('contactMobile')" prop="contactMobile" label="联系人电话" />
+        <el-table-column v-if="columns.visible('contactMobile')" prop="contactMobile" label="联系人电话" />        
+        <el-table-column v-if="columns.visible('qrcode')" prop="qrcode" label="推荐码" >
+          <template slot-scope="scope" v-if='scope.row.qrcode'>
+            <el-image 
+              class="el-avatar"
+              :src="scope.row.qrcode" 
+              :preview-src-list="scope.row.qrcode.split(',')">
+            </el-image>
+            <!-- <img :src="scope.row.qrcode" alt="" > -->
+          </template>
+        </el-table-column>
         <el-table-column v-if="columns.visible('withdrawalAmount')" prop="withdrawalAmount" label="可提现金额" />
         <el-table-column label="商户状态" align="center">
           <template slot-scope="scope">
