@@ -3,8 +3,10 @@ package co.yixiang.modules.shop.mapper;
 import co.yixiang.modules.shop.entity.YxStoreProduct;
 import co.yixiang.modules.shop.web.param.YxStoreProductQueryParam;
 import co.yixiang.modules.shop.web.vo.YxStoreProductQueryVo;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.Constants;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
@@ -68,4 +70,7 @@ public interface YxStoreProductMapper extends BaseMapper<YxStoreProduct> {
      */
     @Select("select count(0) from yx_coupons where is_show=0 and del_flag=0")
     Integer getLocalProduct();
+
+    @Select("select * from (select sp.* from yx_store_product sp INNER JOIN yx_store_info si ON sp.store_id = si.id AND si.`status` = 0 AND si.del_flag = 0 ) t ${ew.customSqlSegment}")
+    IPage<YxStoreProduct> selectPageAllProduct(Page<YxStoreProduct> pageModel,@Param(Constants.WRAPPER) QueryWrapper<YxStoreProduct> wrapper);
 }
