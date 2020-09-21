@@ -136,7 +136,7 @@
           </el-form-item>
           <el-form-item label="轮播图" prop="sliderImageArr">
             <MaterialList v-model="sliderImageArr"
-            style="width: 700px" type="image" :num="4" :width="150" :height="150"
+            style="width: 700px" type="image" :num="8" :width="150" :height="150"
             @setValue="setSliderImageArr" />
           </el-form-item>
           <el-form-item label="店铺省市区" prop="storeProvince">
