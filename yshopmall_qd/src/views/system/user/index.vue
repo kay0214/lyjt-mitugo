@@ -88,6 +88,7 @@
               <treeselect
                 v-model="form.dept.id"
                 :options="depts"
+                :load-options="loadOptions"
                 style="width: 178px"
                 placeholder="选择部门"
                 @select="selectFun"
@@ -423,6 +424,9 @@ export default {
     },
     checkboxT(row, rowIndex) {
       return row.id !== this.user.id
+    },
+    loadOptions({action, parentNode, callback }) {
+      parentNode.children=undefined
     }
   }
 }
