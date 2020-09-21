@@ -7,8 +7,9 @@
       <el-form-item label="小程序跳转page">
         <el-input v-model="form.url" style="width: 300px;" maxlength="200" />
       </el-form-item>
-      <el-form-item label="分类图标">
-        <MaterialList v-model="form.imageArr" style="width: 300px" type="image" :num="1" :width="150" :height="150" />
+      <el-form-item label="分类图标" prop="pic">
+        <MaterialList v-model="form.imageArr" style="width: 300px" type="image" :num="1" :width="150" :height="150" 
+        @setValue='(val)=>{form.imageArr=val;this.form.pic = val.join(",") ;$refs.form.validateField("pic")}'/>
       </el-form-item>
       <el-form-item label="排序">
         <el-input v-model="form.sort" style="width: 300px;" maxlength="3" />
@@ -59,6 +60,13 @@ export default {
             message: '请输入分类名称',
             trigger: 'blur'
           }
+        ],
+        pic: [
+          {
+            required: true,
+            message: '必选项',
+            trigger: 'change'
+          }
         ]
       }
     }
@@ -75,10 +83,16 @@ export default {
       this.resetForm()
     },
     doSubmit() {
-      this.loading = true
-      if (this.isAdd) {
-        this.doAdd()
-      } else this.doEdit()
+      this.$refs['form'].validate(valid=>{
+       if(!valid){
+         return;
+       }else{
+        this.loading = true
+        if (this.isAdd) {
+          this.doAdd()
+        } else this.doEdit()
+       }
+     })
     },
     doAdd() {
       add(this.form).then(res => {
