@@ -216,4 +216,6 @@ public class YxMerchantsDetailDto implements Serializable {
     /** 联行号 */
     private String bankCode;
 
+    /** */
+    private String qrcode;
 }

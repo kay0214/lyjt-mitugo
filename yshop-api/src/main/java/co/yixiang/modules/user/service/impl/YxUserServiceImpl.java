@@ -408,29 +408,8 @@ public class YxUserServiceImpl extends BaseServiceImpl<YxUserMapper, YxUser> imp
     public boolean setSpread(int spread, int uid, String spreadType) {
         //如果分销没开启直接返回
         String open = systemConfigService.getData("store_brokerage_open");
-        if (StrUtil.isEmpty(open) || open.equals("2")) return false;
-        //当前用户信息
-        YxUserQueryVo userInfo = getYxUserById(uid);
-        if (ObjectUtil.isNull(userInfo)) return true;
-
-        //当前用户有上级直接返回
-        if (userInfo.getSpreadUid() > 0) return true;
-        //没有推广编号直接返回
-        if (spread == 0) return true;
-        if (spread == uid) return true;
-
-        //不能互相成为上下级
-        YxUserQueryVo userInfoT = getYxUserById(spread);
-        if (ObjectUtil.isNull(userInfoT)) return true;
-
-        if (userInfoT.getSpreadUid() == uid) return true;
-
-        //1-指定分销 2-人人分销
-        int storeBrokerageStatus = Integer.valueOf(systemConfigService
-                .getData(SystemConfigConstants.STORE_BROKERAGE_STATU));
-        //如果是指定分销，如果 推广人不是分销员不能形成关系
-        if (storeBrokerageStatus == 1 && userInfoT.getIsPromoter() == 0) {
-            return true;
+        if (StrUtil.isEmpty(open) || open.equals("2")) {
+            return false;
         }
 
         YxUser yxUser = new YxUser();
@@ -450,6 +429,36 @@ public class YxUserServiceImpl extends BaseServiceImpl<YxUserMapper, YxUser> imp
                 yxUser.setParentType(1);
             }
         } else {
+            //当前用户信息
+            YxUserQueryVo userInfo = getYxUserById(uid);
+            if (ObjectUtil.isNull(userInfo)) {
+                return true;
+            }
+
+            //当前用户有上级直接返回
+            if (userInfo.getSpreadUid() > 0) {
+                return true;
+            }
+            //没有推广编号直接返回
+            if (spread == 0 || spread == uid) {
+                return true;
+            }
+
+            //不能互相成为上下级
+            YxUserQueryVo userInfoT = getYxUserById(spread);
+            if (ObjectUtil.isNull(userInfoT)) {
+                return true;
+            }
+            if (userInfoT.getSpreadUid() == uid) {
+                return true;
+            }
+            //1-指定分销 2-人人分销
+            int storeBrokerageStatus = Integer.valueOf(systemConfigService
+                    .getData(SystemConfigConstants.STORE_BROKERAGE_STATU));
+            //如果是指定分销，如果 推广人不是分销员不能形成关系
+            if (storeBrokerageStatus == 1 && userInfoT.getIsPromoter() == 0) {
+                return true;
+            }
             // 用户推广-设置推广人的推广人数+1
             yxUserMapper.updateUserPusCount(spread);
         }
@@ -836,6 +845,7 @@ public class YxUserServiceImpl extends BaseServiceImpl<YxUserMapper, YxUser> imp
 
     /**
      * 查询admin 的用户
+     *
      * @param uid
      * @return
      */
@@ -850,6 +860,7 @@ public class YxUserServiceImpl extends BaseServiceImpl<YxUserMapper, YxUser> imp
 
     /**
      * 增加用户提现金额
+     *
      * @param updateYxUser
      */
     @Override
@@ -859,6 +870,7 @@ public class YxUserServiceImpl extends BaseServiceImpl<YxUserMapper, YxUser> imp
 
     /**
      * 增加商户金额
+     *
      * @param updateYxUser
      */
     @Override
@@ -868,6 +880,7 @@ public class YxUserServiceImpl extends BaseServiceImpl<YxUserMapper, YxUser> imp
 
     /**
      * 查询所有商户数量
+     *
      * @return
      */
     @Override
@@ -877,6 +890,7 @@ public class YxUserServiceImpl extends BaseServiceImpl<YxUserMapper, YxUser> imp
 
     /**
      * 查询所有认证通过商户数量
+     *
      * @return
      */
     @Override
@@ -886,6 +900,7 @@ public class YxUserServiceImpl extends BaseServiceImpl<YxUserMapper, YxUser> imp
 
     /**
      * 平台的用户数量
+     *
      * @return
      */
     @Override
@@ -895,6 +910,7 @@ public class YxUserServiceImpl extends BaseServiceImpl<YxUserMapper, YxUser> imp
 
     /**
      * 分销客用户数量
+     *
      * @return
      */
     @Override
