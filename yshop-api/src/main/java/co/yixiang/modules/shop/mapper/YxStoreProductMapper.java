@@ -71,6 +71,6 @@ public interface YxStoreProductMapper extends BaseMapper<YxStoreProduct> {
     @Select("select count(0) from yx_coupons where is_show=0 and del_flag=0")
     Integer getLocalProduct();
 
-    @Select("select sp.* from yx_store_product sp inner join yx_store_info si on sp.store_id = si.id and si.`status` = 0 and si.del_flag = 0 ${ew.customSqlSegment}")
+    @Select("select * from (select sp.* from yx_store_product sp INNER JOIN yx_store_info si ON sp.store_id = si.id AND si.`status` = 0 AND si.del_flag = 0 ) t ${ew.customSqlSegment}")
     IPage<YxStoreProduct> selectPageAllProduct(Page<YxStoreProduct> pageModel,@Param(Constants.WRAPPER) QueryWrapper<YxStoreProduct> wrapper);
 }
