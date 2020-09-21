@@ -63,7 +63,12 @@
                 <el-input v-model="form.bankNo" :maxlength='20' style="width: 370px;" />
               </el-form-item>
               <el-form-item label="开户省市" prop="openAccountProvince">
-                <el-input v-model="form.openAccountProvince" style="width: 370px;" />
+                <el-cascader
+                  :options="opOptions"
+                  v-model="selectedOPOptions"
+                  @change='selectedOProvince' style="width: 370px;" >
+                </el-cascader>
+                <!-- <el-input v-model="form.openAccountProvince" style="width: 370px;" /> -->
               </el-form-item>
               <el-form-item label="银行卡信息" prop="bankType">
                 <el-radio v-model="form.bankType" :label="0" >对私账号</el-radio>
@@ -295,7 +300,13 @@ const defaultCrud = CRUD({ title: '商户详情', url: 'api/yxMerchantsDetail/ge
       del: false,
       download: false
     }})
-const defaultForm = { id: null, uid: null, nickName:null, merchantsContact:null, phone:null, username:null, examineStatus: null, address: null, contacts: null, contactMobile: null, mailbox: null, merchantsType: null, bankNo: null, openAccountProvince: null, bankType: null, openAccountName: null, openAccountBank: null, openAccountSubbranch: null,province: null, companyProvince: null, companyAddress: null, companyName: null, companyLegalPerson: null, companyPhone: null, businessCategory: null, qualificationsType: null, delFlag: null, createUserId: null, updateUserId: null, createTime: null, updateTime: null, merchantsName: null,bankCode: null,withdrawalAmount: null }
+const defaultForm = { id: null, uid: null, nickName:null, merchantsContact:null, phone:null, 
+username:null, examineStatus: null, address: null, contacts: null, contactMobile: null, mailbox: null, 
+merchantsType: null, bankNo: null, openAccountProvince: null, bankType: null, openAccountName: null, 
+openAccountBank: null, openAccountSubbranch: null,province: null, companyProvince: null, 
+companyAddress: null, companyName: null, companyLegalPerson: null, companyPhone: null, businessCategory: null, 
+qualificationsType: null, delFlag: null, createUserId: null, updateUserId: null, createTime: null, 
+updateTime: null, merchantsName: null,bankCode: null,withdrawalAmount: null }
 export default {
   name: 'YxMerchantsDetail',
   components: { pagination, crudOperation, rrOperation, udOperation ,MaterialList},
@@ -372,7 +383,7 @@ export default {
           { required: true, message: '必填项', trigger: 'blur' },
         ],
         openAccountProvince: [
-          { required: true, message: '必填项', trigger: 'blur' },
+          { required: true, message: '必选项', trigger: 'change' },
         ],
         bankType: [
           { required: true, message: '必填项', trigger: 'blur' },
@@ -462,8 +473,9 @@ export default {
       licenceImg:[],//医疗机构许可证
       options: regionData,
       selectedOptions: [],
-      moptions: provinceAndCityData,
-      selectedMOptions: []
+      opOptions: provinceAndCityData,
+      selectedMOptions: [],
+      selectedOPOptions: []
    }
   },
   watch: {
@@ -554,6 +566,9 @@ export default {
       if(form.province){
       this.selectedMOptions=form.province.split(',')
       }
+      if(form.openAccountProvince){
+      this.selectedOPOptions=form.openAccountProvince.split(',')
+      }
       if (form.businessLicenseImg) {
         this.businessLicenseImg = form.businessLicenseImg.split(',')
       }else{
@@ -615,6 +630,9 @@ export default {
       }
       if(form.province){
       this.selectedMOptions=form.province.split(',')
+      }
+      if(form.openAccountProvince){
+      this.selectedOPOptions=form.openAccountProvince.split(',')
       }
       if (this.form.businessLicenseImg) {
         this.businessLicenseImg = this.form.businessLicenseImg.split(',')
@@ -783,6 +801,13 @@ export default {
         pcr.push(item)
       })
       this.form.province=pcr.join(',')
+    },
+    selectedOProvince(val){
+      let pcr=[]
+      val.forEach(item=>{
+        pcr.push(item)
+      })
+      this.form.openAccountProvince=pcr.join(',')
     }
   }
 }
