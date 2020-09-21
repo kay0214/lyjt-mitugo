@@ -109,7 +109,7 @@ public class QiNiuServiceImpl implements QiNiuService {
         String upToken = auth.uploadToken(qiniuConfig.getBucket());
         try {
             String key = file.getOriginalFilename();
-            if(qiniuContentService.getOne(new QueryWrapper<QiniuContent>().eq("name", FileUtil.getFileNameNoEx(key))) != null) {
+            if(qiniuContentService.getOne(new QueryWrapper<QiniuContent>().eq("name", FileUtil.getFileNameNoEx(key)).eq("suffix",FileUtil.getExtensionName(key))) != null) {
                 key = QiNiuUtil.getKey(key);
             }
             Response response = uploadManager.put(file.getBytes(), key, upToken);
@@ -117,7 +117,7 @@ public class QiNiuServiceImpl implements QiNiuService {
 
             DefaultPutRet putRet = JSON.parseObject(response.bodyString(), DefaultPutRet.class);
 
-            QiniuContent content = qiniuContentService.getOne(new QueryWrapper<QiniuContent>().eq("name",FileUtil.getFileNameNoEx(putRet.key)));
+            QiniuContent content = qiniuContentService.getOne(new QueryWrapper<QiniuContent>().eq("name",FileUtil.getFileNameNoEx(putRet.key)).eq("suffix",FileUtil.getExtensionName(key)));
             if (content == null) {
                 //存入数据库
                 QiniuContent qiniuContent = new QiniuContent();
