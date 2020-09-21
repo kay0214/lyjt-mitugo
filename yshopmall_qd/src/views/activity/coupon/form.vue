@@ -57,6 +57,14 @@ export default {
           {required:true,message:'必填项',trigger:'blur'},
 
         ],
+        couponPrice:[
+          {required:true,message:'必填项',trigger:'blur'},
+          {
+            pattern: /^[0-9]+([.]{1}[0-9]+){0,1}$/,  
+            message: '请输入数字',
+            trigger: 'blur'
+          },
+        ],
         useMinPrice:[
           {required:true,message:'必填项',trigger:'blur'},
           {
