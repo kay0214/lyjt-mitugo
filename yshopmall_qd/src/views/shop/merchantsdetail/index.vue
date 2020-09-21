@@ -27,7 +27,7 @@
             <!-- 以下是编辑页面展示字段 -->
             <div v-if="crud.status.edit || examineEdit">
               <el-form-item label="商户名称" prop="merchantsName">
-                <el-input v-model="form.merchantsName" :maxlength='20' style="width: 350px;"/>
+                <el-input v-model="form.merchantsName" :maxlength='20' style="width: 370px;"/>
               </el-form-item>
               <el-form-item label="商户地址" prop="address">
                 <el-input v-model="form.address" style="width: 370px;"  :maxlength='200' />
@@ -97,16 +97,12 @@
             </div>
             <!-- 以下是企业 -->
             <div v-if="!crud.status.add &&form.merchantsType==1">
-              <el-form-item label="企业所在省市区">
+              <el-form-item label="企业所在省市区" prop="companyProvince">
                 <el-cascader
-                  size="large"
                   :options="options"
                   v-model="selectedOptions"
-                  @change="selectedProvince" style="width: 370px;" >
+                  @change='selectedProvince' style="width: 370px;" >
                 </el-cascader>
-              </el-form-item>
-              <el-form-item label="企业所在省市区" prop="companyProvince">
-                <el-input v-model="form.companyProvince" style="width: 370px;" />
               </el-form-item>
               <el-form-item label="企业所在详细地址" prop="companyAddress">
                 <el-input v-model="form.companyAddress" :maxlength='200' style="width: 370px;" />
@@ -388,7 +384,7 @@ export default {
         ],
         //以下是企业
         companyProvince: [
-          { required: true, message: '必填项', trigger: 'blur' },
+          { required: true, message: '必填项', trigger: 'change' },
         ],
         companyAddress: [
           { required: true, message: '必填项', trigger: 'blur' },
@@ -404,10 +400,10 @@ export default {
         ],
         //以下是企业与个体户
         businessCategory: [
-          { required: true, message: '必填项', trigger: 'blur' },
+          { required: true, message: '必填项', trigger: 'change' },
         ],
         qualificationsType: [
-          { required: true, message: '必填项', trigger: 'blur' },
+          { required: true, message: '必填项', trigger: 'change' },
         ],
         businessLicenseImg: [
           { required: true, message: '必填项', trigger: 'blur' },
@@ -542,6 +538,9 @@ export default {
         this.perIdCardBack = []
       }
       // 企业和个体户
+      if(form.companyProvince){
+      this.selectedOptions=form.companyProvince.split(',')
+      }
       if (form.businessLicenseImg) {
         this.businessLicenseImg = form.businessLicenseImg.split(',')
       }else{
@@ -751,14 +750,13 @@ export default {
             })
         }
       })
-
     },
     selectedProvince(val){
       let pcr=[]
       val.forEach(item=>{
-        pcr.push(CodeToText[item])
+        pcr.push(item)
       })
-      this.form.companyProvince=pcr.join('/')
+      this.form.companyProvince=pcr.join(',')
     }
   }
 }
