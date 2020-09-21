@@ -29,7 +29,14 @@
               <el-form-item label="商户名称" prop="merchantsName">
                 <el-input v-model="form.merchantsName" :maxlength='20' style="width: 370px;"/>
               </el-form-item>
-              <el-form-item label="商户地址" prop="address">
+              <el-form-item label="商户所在省市区" prop="province">
+                <el-cascader
+                  :options="moptions"
+                  v-model="options"
+                  @change='selectedMProvince' style="width: 370px;" >
+                </el-cascader>
+              </el-form-item>
+              <el-form-item label="商户所在详细地址" prop="address">
                 <el-input v-model="form.address" style="width: 370px;"  :maxlength='200' />
               </el-form-item>
               <el-form-item label="联系人" prop="contacts">
@@ -166,16 +173,14 @@
                 <el-row type='flex'>
                   <el-checkbox v-model="form.checkbox" name='checkbox' ></el-checkbox>
                   <span style='margin:0 10px'>我已阅读并同意</span>
-                  <span style='margin:0 10px'><router-link to="/member/yxMerchantsDetail/pdf1" target="_blank">协议一 </router-link></span>
-                  <span style='margin:0 10px'><router-link to="/member/yxMerchantsDetail/pdf2" target="_blank">协议二 </router-link></span>
+                  <span style='margin:0 10px'><router-link to="/pdfs/openPlatformService.pdf" style='text-decoration:underline' target="_blank">“蜜兔GO”开放平台服务协议 </router-link></span>
                 </el-row>
             </el-form-item>
             <el-form-item v-else-if='!crud.status.add' label=" ">
               <el-row type='flex'>
                     <el-checkbox v-model="form.checkbox" name='checkbox' checked readonly></el-checkbox>
                     <span style='margin:0 10px'>我已阅读并同意</span>
-                    <span style='margin:0 10px'><router-link to="/member/yxMerchantsDetail/pdf1" target="_blank">协议一 </router-link></span>
-                    <span style='margin:0 10px'><router-link to="/member/yxMerchantsDetail/pdf2" target="_blank">协议二 </router-link></span>
+                    <span style='margin:0 10px'><router-link to="/pdfs/openPlatformService.pdf" style='text-decoration:underline' target="_blank">“蜜兔GO”开放平台服务协议 </router-link></span>
                 </el-row>
             </el-form-item>
         </el-form>
@@ -290,7 +295,7 @@ const defaultCrud = CRUD({ title: '商户详情', url: 'api/yxMerchantsDetail/ge
       del: false,
       download: false
     }})
-const defaultForm = { id: null, uid: null, nickName:null, merchantsContact:null, phone:null, username:null, examineStatus: null, address: null, contacts: null, contactMobile: null, mailbox: null, merchantsType: null, bankNo: null, openAccountProvince: null, bankType: null, openAccountName: null, openAccountBank: null, openAccountSubbranch: null, companyProvince: null, companyAddress: null, companyName: null, companyLegalPerson: null, companyPhone: null, businessCategory: null, qualificationsType: null, delFlag: null, createUserId: null, updateUserId: null, createTime: null, updateTime: null, merchantsName: null,bankCode: null,withdrawalAmount: null }
+const defaultForm = { id: null, uid: null, nickName:null, merchantsContact:null, phone:null, username:null, examineStatus: null, address: null, contacts: null, contactMobile: null, mailbox: null, merchantsType: null, bankNo: null, openAccountProvince: null, bankType: null, openAccountName: null, openAccountBank: null, openAccountSubbranch: null,province: null, companyProvince: null, companyAddress: null, companyName: null, companyLegalPerson: null, companyPhone: null, businessCategory: null, qualificationsType: null, delFlag: null, createUserId: null, updateUserId: null, createTime: null, updateTime: null, merchantsName: null,bankCode: null,withdrawalAmount: null }
 export default {
   name: 'YxMerchantsDetail',
   components: { pagination, crudOperation, rrOperation, udOperation ,MaterialList},
@@ -383,8 +388,11 @@ export default {
           { required: true, message: '必填项', trigger: 'blur' },
         ],
         //以下是企业
+        province: [
+          { required: true, message: '必选项', trigger: 'change' },
+        ],
         companyProvince: [
-          { required: true, message: '必填项', trigger: 'change' },
+          { required: true, message: '必选项', trigger: 'change' },
         ],
         companyAddress: [
           { required: true, message: '必填项', trigger: 'blur' },
@@ -400,10 +408,10 @@ export default {
         ],
         //以下是企业与个体户
         businessCategory: [
-          { required: true, message: '必填项', trigger: 'change' },
+          { required: true, message: '必选项', trigger: 'change' },
         ],
         qualificationsType: [
-          { required: true, message: '必填项', trigger: 'change' },
+          { required: true, message: '必选项', trigger: 'change' },
         ],
         businessLicenseImg: [
           { required: true, message: '必填项', trigger: 'blur' },
@@ -453,7 +461,9 @@ export default {
       storeImg:[],//门店照及经营场所
       licenceImg:[],//医疗机构许可证
       options: regionData,
-      selectedOptions: []
+      selectedOptions: [],
+      moptions: provinceAndCityData,
+      selectedMOptions: []
    }
   },
   watch: {
@@ -541,6 +551,9 @@ export default {
       if(form.companyProvince){
       this.selectedOptions=form.companyProvince.split(',')
       }
+      if(form.province){
+      this.selectedMOptions=form.province.split(',')
+      }
       if (form.businessLicenseImg) {
         this.businessLicenseImg = form.businessLicenseImg.split(',')
       }else{
@@ -597,6 +610,12 @@ export default {
         this.perIdCardBack = []
       }
       // 企业和个体户
+      if(form.companyProvince){
+      this.selectedOptions=form.companyProvince.split(',')
+      }
+      if(form.province){
+      this.selectedMOptions=form.province.split(',')
+      }
       if (this.form.businessLicenseImg) {
         this.businessLicenseImg = this.form.businessLicenseImg.split(',')
       }else{
@@ -757,6 +776,13 @@ export default {
         pcr.push(item)
       })
       this.form.companyProvince=pcr.join(',')
+    },
+    selectedMProvince(val){
+      let pcr=[]
+      val.forEach(item=>{
+        pcr.push(item)
+      })
+      this.form.province=pcr.join(',')
     }
   }
 }
