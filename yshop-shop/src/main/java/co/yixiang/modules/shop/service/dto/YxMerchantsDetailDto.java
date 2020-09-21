@@ -29,6 +29,8 @@ public class YxMerchantsDetailDto implements Serializable {
 
     private Integer examineStatus;
 
+    /** 商户所在省市区 */
+    private String province;
 
     /** 商户地址 */
 

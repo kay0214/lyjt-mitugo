@@ -31,6 +31,8 @@ public class YxMerchantsDetail implements Serializable {
     /** 审批状态：0->待审核,1->通过,2->驳回 */
     private Integer examineStatus;
 
+    /** 商户所在省市区 */
+    private String province;
 
     /** 商户地址 */
     private String address;
