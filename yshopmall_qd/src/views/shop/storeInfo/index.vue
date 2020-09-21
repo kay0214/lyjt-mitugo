@@ -70,7 +70,9 @@
                 range-separator="-"
                 start-placeholder="开始时间"
                 end-placeholder="结束时间"
-                placeholder="选择时间范围">
+                placeholder="选择时间范围"
+                format="HH:mm"
+                value-format='HH:mm'>
               </el-time-picker>
             </el-col>
             <el-col :span='4'>
@@ -248,7 +250,7 @@
         geocoder: null,
         addOpenTime:false,//添加营业时间状态
         formOpenTime:[],
-        BusinessTime:[new Date(),new Date()],
+        BusinessTime:[parseTime(new Date(),'{h}:{i}'),parseTime(new Date(),'{h}:{i}')],
         freePostage:0,//包邮金额
         editFreePostage:false,
         editFreePostageStep:0,
@@ -499,7 +501,7 @@
           openDay=this.selections.week[this.form.BusinessDayBegin].label+"至"+this.selections.week[this.form.BusinessDayEnd].label
         }
         this.BusinessTime.map(item=>{
-          openTime.push(parseTime(item,'{h}:{i}:{s}'))
+          openTime.push(item)
         })
         this.formOpenTime.push({
           openDay,
