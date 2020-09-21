@@ -170,8 +170,8 @@ public class SysUserServiceImpl extends BaseServiceImpl<SysUserMapper, User> imp
      * @param encryptPassword 密码
      */
     @Override
-    public void updatePass(String username, String encryptPassword,String userPass) {
-        userMapper.updatePass(encryptPassword,userPass, DateUtil.format(new Date(), "yyyy-MM-dd HH:mm:ss"), username);
+    public void updatePass(String username, String encryptPassword, String userPass) {
+        userMapper.updatePass(encryptPassword, userPass, DateUtil.format(new Date(), "yyyy-MM-dd HH:mm:ss"), username);
     }
 
     /**
@@ -254,13 +254,14 @@ public class SysUserServiceImpl extends BaseServiceImpl<SysUserMapper, User> imp
             }
         }
         // 根据用户的角色设定用户user表里用户的角色
+        resources.setUserRole(0);
         if (isMer) {
             resources.setUserRole(2);
         }
         if (isPartner) {
             resources.setUserRole(1);
         }
-        resources.setUserpassword(PassWordUtil.getUserPassWord("123456",resources.getUserRole(),resources.getUsername()));
+        resources.setUserpassword(PassWordUtil.getUserPassWord("123456", resources.getUserRole(), resources.getUsername()));
         boolean result = this.save(resources);
 
         usersRoles.setUserId(resources.getId());
@@ -296,7 +297,7 @@ public class SysUserServiceImpl extends BaseServiceImpl<SysUserMapper, User> imp
         resources.setEnabled(true);
         resources.setDeptId(1L);
         resources.setJobId(13L);
-        resources.setUserpassword(PassWordUtil.getUserPassWord("123456",resources.getUserRole(),resources.getUsername()));
+        resources.setUserpassword(PassWordUtil.getUserPassWord("123456", resources.getUserRole(), resources.getUsername()));
         boolean result = this.save(resources);
 
         usersRoles.setUserId(resources.getId());
