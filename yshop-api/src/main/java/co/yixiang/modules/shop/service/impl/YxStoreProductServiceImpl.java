@@ -10,7 +10,10 @@ import co.yixiang.enums.ProductEnum;
 import co.yixiang.exception.ErrorRequestException;
 import co.yixiang.modules.commission.entity.YxCommissionRate;
 import co.yixiang.modules.commission.service.YxCommissionRateService;
-import co.yixiang.modules.shop.entity.*;
+import co.yixiang.modules.shop.entity.YxStoreCart;
+import co.yixiang.modules.shop.entity.YxStoreProduct;
+import co.yixiang.modules.shop.entity.YxStoreProductAttrResult;
+import co.yixiang.modules.shop.entity.YxStoreProductAttrValue;
 import co.yixiang.modules.shop.mapper.YxStoreInfoMapper;
 import co.yixiang.modules.shop.mapper.YxStoreProductAttrValueMapper;
 import co.yixiang.modules.shop.mapper.YxStoreProductMapper;
@@ -38,7 +41,6 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.metadata.OrderItem;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
-import com.baomidou.mybatisplus.core.toolkit.ObjectUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -91,6 +93,7 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
 
     @Autowired
     private YxStoreCartService yxStoreCartService;
+
     /**
      * 增加库存 减少销量
      *
@@ -104,7 +107,7 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
             storeProductAttrService.incProductAttrStock(num, productId, unique);
             yxStoreProductMapper.decSales(num, productId);
             //更新attResult
-            setAttrbuteResultByProductId(num,productId,unique,1);
+            setAttrbuteResultByProductId(num, productId, unique, 1);
         } else {
             yxStoreProductMapper.incStockDecSales(num, productId);
         }
@@ -123,14 +126,14 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
             storeProductAttrService.decProductAttrStock(num, productId, unique);
             yxStoreProductMapper.incSales(num, productId);
             //更新attResult
-            setAttrbuteResultByProductId(num,productId,unique,-1);
+            setAttrbuteResultByProductId(num, productId, unique, -1);
         } else {
             yxStoreProductMapper.decStockIncSales(num, productId);
         }
     }
 
 
-    private void setAttrbuteResultByProductId(int num, int productId, String unique, Integer type){
+    private void setAttrbuteResultByProductId(int num, int productId, String unique, Integer type) {
         YxStoreProductAttrResult yxStoreProductAttrResult = yxStoreProductAttrResultService
                 .getOne(new QueryWrapper<YxStoreProductAttrResult>().eq("product_id", productId));
         if (ObjectUtil.isNull(yxStoreProductAttrResult)) return;
@@ -144,25 +147,25 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
                 jsonObject.get("value").toString(),
                 ProductFormatDto.class);
 
-        if(CollectionUtils.isEmpty(valueList)){
+        if (CollectionUtils.isEmpty(valueList)) {
             return;
         }
-        for(ProductFormatDto productFormatDto:valueList){
-            if(productFormatDto.getUnique().equals(unique)){
+        for (ProductFormatDto productFormatDto : valueList) {
+            if (productFormatDto.getUnique().equals(unique)) {
                 //
-                int sunSales =0;
-                if(productFormatDto.getSales()!=0){
-                    sunSales = productFormatDto.getSales()-num;
+                int sunSales = 0;
+                if (productFormatDto.getSales() != 0) {
+                    sunSales = productFormatDto.getSales() - num;
                 }
-                if(1==type){
-                    sunSales = productFormatDto.getSales()+num;
+                if (1 == type) {
+                    sunSales = productFormatDto.getSales() + num;
                 }
                 productFormatDto.setSales(sunSales);
             }
         }
 
         Map<String, Object> map = new LinkedHashMap<>();
-        map.put("attr",  JSONObject.toJSON(attrList));
+        map.put("attr", JSONObject.toJSON(attrList));
         map.put("value", JSONObject.toJSON(valueList));
 
         yxStoreProductAttrResult.setResult(JSON.toJSONString(map));
@@ -223,7 +226,7 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
         storeProductQueryVo.setUserCollect(relationService
                 .isProductRelation(id, "product", uid, "collect"));
         //销量= 销量+虚拟销量
-        storeProductQueryVo.setSales(storeProductQueryVo.getSales()+storeProductQueryVo.getFicti());
+        storeProductQueryVo.setSales(storeProductQueryVo.getSales() + storeProductQueryVo.getFicti());
         productDTO.setStoreInfo(storeProductQueryVo);
         productDTO.setProductAttr((List<YxStoreProductAttrQueryVo>) returnMap.get("productAttr"));
         productDTO.setProductValue((Map<String, YxStoreProductAttrValue>) returnMap.get("productValue"));
@@ -260,19 +263,6 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
     @Override
     public List<YxStoreProductQueryVo> getGoodsList(YxStoreProductQueryParam productQueryParam) {
         List<YxStoreProductQueryVo> list = new ArrayList<YxStoreProductQueryVo>();
-        //查找店铺状态为上架的
-        QueryWrapper<YxStoreInfo> infoQueryWrapper = new QueryWrapper<>();
-        infoQueryWrapper.eq("del_flag", CommonEnum.DEL_STATUS_0.getValue()).eq("status", 0);
-        if (ObjectUtils.isNotEmpty(productQueryParam.getStoreId())) {
-            infoQueryWrapper.eq("id", productQueryParam.getStoreId());
-        }
-        List<YxStoreInfo> storeInfos = storeInfoMapper.selectList(infoQueryWrapper);
-        List<Integer> storeIds = new ArrayList<>();
-        if (CollectionUtils.isNotEmpty(storeInfos)) {
-            for (YxStoreInfo storeInfo : storeInfos) {
-                storeIds.add(storeInfo.getId());
-            }
-        }
         QueryWrapper<YxStoreProduct> wrapper = new QueryWrapper<>();
         wrapper.eq("is_del", CommonEnum.DEL_STATUS_0.getValue()).eq("is_show", CommonEnum.SHOW_STATUS_1.getValue());
 
@@ -312,23 +302,19 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
         }
 
         //根据店铺id查询
-        /*if(ObjectUtils.isNotEmpty(productQueryParam.getStoreId())){
-            wrapper.eq("store_id",productQueryParam.getStoreId());
+        if (null != productQueryParam.getStoreId()) {
+            wrapper.eq("store_id", productQueryParam.getStoreId());
         }
-*/
-        wrapper.in("store_id", storeIds);
-        if (CollectionUtils.isEmpty(storeIds)) {
-            return list;
-        }
+
         wrapper.orderByAsc("sort");
         Page<YxStoreProduct> pageModel = new Page<>(productQueryParam.getPage(),
                 productQueryParam.getLimit());
 
-        IPage<YxStoreProduct> pageList = yxStoreProductMapper.selectPage(pageModel, wrapper);
+        IPage<YxStoreProduct> pageList = yxStoreProductMapper.selectPageAllProduct(pageModel, wrapper);
 
         list = storeProductMap.toDto(pageList.getRecords());
-        if(CollectionUtils.isNotEmpty(list)){
-            for(YxStoreProductQueryVo productQueryVo:list){
+        if (CollectionUtils.isNotEmpty(list)) {
+            for (YxStoreProductQueryVo productQueryVo : list) {
                 productQueryVo.setSales(productQueryVo.getSales() + productQueryVo.getFicti());
             }
         }
@@ -375,7 +361,7 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
 //        if(null == list){
 //            return new ArrayList<>();
 //        }
-        for(YxStoreProduct product:pageList.getRecords()){
+        for (YxStoreProduct product : pageList.getRecords()) {
             product.setSales(product.getSales() + product.getFicti());
         }
 
@@ -417,20 +403,21 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
 
     /**
      * 验证产品
+     *
      * @param cartId
      * @return
      */
     @Override
-    public String getProductArrtValueByCartId (String cartId) {
+    public String getProductArrtValueByCartId(String cartId) {
         //
-        String [] cartIds = cartId.split(",");
+        String[] cartIds = cartId.split(",");
         List<String> listCarts = java.util.Arrays.asList(cartIds);
         QueryWrapper<YxStoreCart> wrapper = new QueryWrapper<YxStoreCart>();
-        wrapper.in("id",listCarts);
+        wrapper.in("id", listCarts);
         List<YxStoreCart> yxStoreCartList = yxStoreCartService.list(wrapper);
 //        YxStoreCart yxStoreCart = yxStoreCartService.getById(cartId);
-        if(CollectionUtils.isNotEmpty(yxStoreCartList)){
-            for(YxStoreCart yxStoreCart:yxStoreCartList){
+        if (CollectionUtils.isNotEmpty(yxStoreCartList)) {
+            for (YxStoreCart yxStoreCart : yxStoreCartList) {
                 if (StringUtils.isNotBlank(yxStoreCart.getProductAttrUnique())) {
                     //规格属性不为空
                     YxStoreProductAttrValue attrValue = storeProductAttrValueMapper.getProductArrtValueByCartId(yxStoreCart.getId().intValue());
@@ -439,7 +426,7 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
                     }
                 }
                 YxStoreProduct product = this.getProductInfo(yxStoreCart.getProductId());
-                if (product.getIsShow().equals(0)||product.getIsDel().equals(1)) {
+                if (product.getIsShow().equals(0) || product.getIsDel().equals(1)) {
                     return "产品已下架或已删除，请重新选择后下单！";
                 }
             }
@@ -460,6 +447,7 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
 
     /**
      * 所有商品数量
+     *
      * @return
      */
     @Override
@@ -469,6 +457,7 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
 
     /**
      * 本地生活商品数量
+     *
      * @return
      */
     @Override
