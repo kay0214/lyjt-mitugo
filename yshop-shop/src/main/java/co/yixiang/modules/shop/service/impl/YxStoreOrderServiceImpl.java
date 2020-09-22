@@ -351,7 +351,7 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<StoreOrderMapper, Y
             map.put("优惠券金额", yxStoreOrder.getCouponPrice());
             map.put("支付状态", yxStoreOrder.getPaid());
 //            map.put("支付时间", yxStoreOrder.getPayTime());
-            map.put("创建时间", DateUtils.timestampToStr10(yxStoreOrder.getPayTime(), DateUtils.YYYY_MM_DD_HH_MM_SS));
+            map.put("支付时间", DateUtils.timestampToStr10(yxStoreOrder.getPayTime(), DateUtils.YYYY_MM_DD_HH_MM_SS));
 
             map.put("支付方式", yxStoreOrder.getPayType());
 //            map.put("创建时间", yxStoreOrder.getAddTime());
@@ -381,7 +381,7 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<StoreOrderMapper, Y
             map.put("退款图片", yxStoreOrder.getRefundReasonWapImg());
             map.put("退款用户说明", yxStoreOrder.getRefundReasonWapExplain());
 //            map.put("退款时间", yxStoreOrder.getRefundReasonTime());
-            map.put("创建时间", DateUtils.timestampToStr10(yxStoreOrder.getRefundReasonTime(), DateUtils.YYYY_MM_DD_HH_MM_SS));
+            map.put("退款时间", DateUtils.timestampToStr10(yxStoreOrder.getRefundReasonTime(), DateUtils.YYYY_MM_DD_HH_MM_SS));
             map.put("前台退款原因", yxStoreOrder.getRefundReasonWap());
             map.put("不退款的理由", yxStoreOrder.getRefundReason());
             map.put("退款金额", yxStoreOrder.getRefundPrice());
@@ -400,7 +400,7 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<StoreOrderMapper, Y
 //            map.put(" isMerCheck", yxStoreOrder.getIsMerCheck());
 //            map.put("拼团产品id0一般产品", yxStoreOrder.getCombinationId());
 //            map.put("拼团id 0没有拼团", yxStoreOrder.getPinkId());
-            map.put("成本价", yxStoreOrder.getCost());
+//            map.put("成本价", yxStoreOrder.getCost());
 //            map.put("秒杀产品ID", yxStoreOrder.getSeckillId());
 //            map.put("砍价id", yxStoreOrder.getBargainId());
             map.put("核销码", yxStoreOrder.getVerifyCode());
