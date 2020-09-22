@@ -279,7 +279,8 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<StoreProductMappe
             productFormatDTO.setCost(yxStoreProductDTO.getCost().doubleValue());
             productFormatDTO.setPrice(yxStoreProductDTO.getPrice().doubleValue());
             productFormatDTO.setPic(yxStoreProductDTO.getImage());
-            productFormatDTO.setCommission(yxStoreProductDTO.getCommission().doubleValue());
+            double doubCommis = yxStoreProductDTO.getPrice().subtract(yxStoreProductDTO.getCost()).doubleValue();
+            productFormatDTO.setCommission(doubCommis);
 
             productFormatDTO.setCheck(false);
             newList.add(productFormatDTO);
