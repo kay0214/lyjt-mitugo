@@ -78,17 +78,17 @@ public class CreatShareProductServiceImpl implements CreatShareProductService {
                 tempCharLenb = getCharLen(tempChar, g);
                 tempLineLenb += tempCharLenb;
                 if (tempLineLenb >= (back.getWidth() + 220)) {
-                    g.drawString(sbb.toString(), tempXb, tempYb + 24);
+                    g.drawString(sbb.toString(), tempXb, tempYb + 32);
                     //清空内容,重新追加
                     sbb.delete(0, sbb.length());
                     //每行文字间距50
-                    tempYb += 24;
+                    tempYb += 32;
                     tempLineLenb = 0;
                 }
                 //追加字符
                 sbb.append(tempChar);
             }
-            g.drawString(sbb.toString(), tempXb, tempYb + 24);
+            g.drawString(sbb.toString(), tempXb, tempYb + 32);
 
             //------------------------------------------------文案-----------------------
 
@@ -103,8 +103,13 @@ public class CreatShareProductServiceImpl implements CreatShareProductService {
             //单行字符总长度临时计算
             int tempLineLen = 0;
             StringBuffer sb = new StringBuffer();
-            for (int i = 0; i < productInfo.getStoreInfo().length(); i++) {
-                char tempChar = productInfo.getStoreInfo().charAt(i);
+            String info = productInfo.getStoreInfo();
+            if(info.length()>100){
+                info = info.substring(0,100);
+                info = info+"...";
+            }
+            for (int i = 0; i < info.length(); i++) {
+                char tempChar = info.charAt(i);
                 tempCharLen = getCharLen(tempChar, g);
                 tempLineLen += tempCharLen;
                 if (tempLineLen >= (back.getWidth() + 180)) {

@@ -1,6 +1,9 @@
 package co.yixiang.modules.shop.service.impl;
 
 import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.StrUtil;
+import cn.hutool.extra.qrcode.QrCodeUtil;
+import cn.hutool.extra.qrcode.QrConfig;
 import co.yixiang.common.api.ApiResult;
 import co.yixiang.common.constant.CommonConstant;
 import co.yixiang.common.service.impl.BaseServiceImpl;
@@ -8,6 +11,8 @@ import co.yixiang.common.util.DistanceMeterUtil;
 import co.yixiang.common.web.vo.Paging;
 import co.yixiang.constant.LocalLiveConstants;
 import co.yixiang.constant.ShopConstants;
+import co.yixiang.constant.SystemConfigConstants;
+import co.yixiang.enums.AppFromEnum;
 import co.yixiang.enums.CommonEnum;
 import co.yixiang.exception.ErrorRequestException;
 import co.yixiang.modules.coupons.service.YxCouponsService;
@@ -27,14 +32,18 @@ import co.yixiang.modules.shop.entity.YxStoreInfo;
 import co.yixiang.modules.shop.mapper.YxStoreCouponIssueMapper;
 import co.yixiang.modules.shop.mapper.YxStoreInfoMapper;
 import co.yixiang.modules.shop.mapping.YxStoreInfoMap;
-import co.yixiang.modules.shop.service.YxStoreAttributeService;
-import co.yixiang.modules.shop.service.YxStoreInfoService;
-import co.yixiang.modules.shop.service.YxStoreProductService;
+import co.yixiang.modules.shop.service.*;
 import co.yixiang.modules.shop.web.param.YxStoreInfoQueryParam;
 import co.yixiang.modules.shop.web.vo.YxStoreCouponIssueQueryVo;
 import co.yixiang.modules.shop.web.vo.YxStoreInfoDetailQueryVo;
 import co.yixiang.modules.shop.web.vo.YxStoreInfoQueryVo;
+import co.yixiang.modules.user.entity.YxSystemAttachment;
+import co.yixiang.modules.user.service.YxSystemAttachmentService;
+import co.yixiang.modules.user.service.YxUserService;
+import co.yixiang.modules.user.web.vo.YxUserQueryVo;
+import co.yixiang.tools.service.QiniuContentService;
 import co.yixiang.utils.DateUtils;
+import co.yixiang.utils.SecurityUtils;
 import co.yixiang.utils.StringUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -43,10 +52,15 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
 import org.gavaghan.geodesy.GlobalCoordinates;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -84,6 +98,28 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
     private YxImageInfoMapper yxImageInfoMapper;
     @Autowired
     private YxStoreCouponIssueMapper couponIssueMapper;
+
+
+    @Autowired
+    private YxStoreInfoService yxStoreInfoService;
+    @Autowired
+    private YxSystemConfigService systemConfigService;
+    @Autowired
+    private YxSystemAttachmentService systemAttachmentService;
+    @Autowired
+    private CreatShareStoreService creatShareStoreService;
+    @Autowired
+    private YxUserService yxUserService;
+
+    @Autowired
+    QiniuContentService qiniuContentService;
+    @Value("${file.path}")
+    private String path;
+
+    @Value("${file.localUrl}")
+    private String localUrl;
+
+
 
     @Override
     public YxStoreInfoQueryVo getYxStoreInfoById(Serializable id) {
@@ -312,5 +348,66 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
         yxStoreInfoQueryVo.setStoreImage(yxImageInfoService.selectImgByParam(yxStoreInfoQueryVo.getId(), CommonConstant.IMG_TYPE_STORE, CommonConstant.IMG_CATEGORY_PIC));
 
         return yxStoreInfoQueryVo;
+    }
+
+    @Override
+    public ApiResult productPoster(Integer id) throws IOException, FontFormatException {
+        int uid = SecurityUtils.getUserId().intValue();
+        // 海报
+        String siteUrl = systemConfigService.getData(SystemConfigConstants.SITE_URL);
+        if (StrUtil.isEmpty(siteUrl)) {
+            return ApiResult.fail("未配置h5地址");
+        }
+        String apiUrl = systemConfigService.getData(SystemConfigConstants.API_URL);
+        if (StrUtil.isEmpty(apiUrl)) {
+            return ApiResult.fail("未配置api地址");
+        }
+        YxUserQueryVo userInfo = yxUserService.getYxUserById(uid);
+        String userType = userInfo.getUserType();
+        if (!userType.equals(AppFromEnum.ROUNTINE.getValue())) {
+            userType = AppFromEnum.H5.getValue();
+        }
+        String name = uid + "_" + id + "_store_" + userType + "_product_detail_wap.jpg";
+        YxSystemAttachment attachment = systemAttachmentService.getInfo(name);
+        String fileDir = path + "qrcode" + File.separator;
+        String qrcodeUrl = "";
+        BufferedImage qrcode;
+        QrConfig config = new QrConfig(122, 122);
+        config.setMargin(0);
+        //如果类型是小程序
+        if (userType.equals(AppFromEnum.ROUNTINE.getValue())) {
+            //小程序地址
+            siteUrl = siteUrl + "/shop/";
+            //生成二维码
+            qrcode = QrCodeUtil.generate(siteUrl + "?productId=" + id + "&spread=" + uid + "&codeType=" + AppFromEnum.ROUNTINE.getValue(), config);
+        } else if (userType.equals(AppFromEnum.APP.getValue())) {
+            //h5地址
+            siteUrl = siteUrl + "/shop/";
+            //生成二维码
+            qrcode = QrCodeUtil.generate(siteUrl + "?productId=" + id + "&spread=" + uid + "&codeType=" + AppFromEnum.APP.getValue(), config);
+        } else {//如果类型是h5
+            //生成二维码
+            qrcode = QrCodeUtil.generate(siteUrl + "/detail/" + id + "?spread=" + uid, config);
+        }
+        String spreadPicName = uid + "_" + id + "_store_" + userType + "_product_user_spread.jpg";
+        if (StrUtil.isNotEmpty(localUrl)) {
+            if (ObjectUtil.isNull(attachment)) {
+                String spreadPicPath = fileDir + spreadPicName;
+                creatShareStoreService.creatProductPic(id, qrcodeUrl, spreadPicName, spreadPicPath, apiUrl);
+
+        }else{
+            /*if(qiniuContentService.getOne(new QueryWrapper<QiniuContent>().eq("name", co.yixiang.utils.FileUtil.getFileNameNoEx(key))) != null) {
+                key = QiNiuUtil.getKey(key);
+            }*/
+        }
+
+
+
+      /*  String rr = creatShareStoreService.creatProductPic(id, qrcodeUrl,
+                spreadPicName, spreadPicPath, apiUrl);
+        return ApiResult.ok(rr);*/
+
+    }
+        return ApiResult.ok();
     }
 }
