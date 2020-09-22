@@ -423,7 +423,7 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
                 ImageIO.write(qrCode, "jpg", file);
                 if (StrUtil.isEmpty(localUrl)) {
                     QiniuContent qiniuContent = qiNiuService.uploadPic(file,qiNiuService.find());
-                    systemAttachmentService.attachmentAdd(name, String.valueOf(FileUtil.size(file)),
+                    systemAttachmentService.attachmentAdd(name, String.valueOf(qiniuContent.getSize()),
                             qiniuContent.getUrl(), qiniuContent.getUrl(),2);
                     qrCodeUrl = qiniuContent.getUrl();
                 }else {
