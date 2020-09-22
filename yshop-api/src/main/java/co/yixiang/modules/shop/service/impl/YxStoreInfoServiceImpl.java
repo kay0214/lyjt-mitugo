@@ -101,8 +101,6 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
     private YxStoreAttributeService yxStoreAttributeService;
     @Autowired
     private YxCouponsService yxCouponsService;
-    @Autowired
-    private YxStoreProductService yxStoreProductService;
 
     @Autowired
     private YxImageInfoMapper yxImageInfoMapper;
@@ -110,14 +108,12 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
     private YxStoreCouponIssueMapper couponIssueMapper;
 
 
-    @Autowired
-    private YxStoreInfoService yxStoreInfoService;
+
     @Autowired
     private YxSystemConfigService systemConfigService;
     @Autowired
     private YxSystemAttachmentService systemAttachmentService;
-    @Autowired
-    private CreatShareStoreService creatShareStoreService;
+
     @Autowired
     private YxUserService yxUserService;
 

@@ -3,26 +3,17 @@
  */
 package co.yixiang.modules.shop.web.controller;
 
-import cn.hutool.core.io.FileUtil;
-import cn.hutool.core.util.ObjectUtil;
-import cn.hutool.core.util.StrUtil;
-import cn.hutool.extra.qrcode.QrCodeUtil;
-import cn.hutool.extra.qrcode.QrConfig;
 import co.yixiang.annotation.AnonymousAccess;
 import co.yixiang.common.api.ApiResult;
 import co.yixiang.common.constant.CommonConstant;
 import co.yixiang.common.web.controller.BaseController;
-import co.yixiang.constant.SystemConfigConstants;
-import co.yixiang.enums.AppFromEnum;
 import co.yixiang.enums.ProductEnum;
 import co.yixiang.logging.aop.log.Log;
-import co.yixiang.modules.coupons.entity.YxCoupons;
-import co.yixiang.modules.coupons.service.YxCouponsService;
-import co.yixiang.modules.image.entity.YxImageInfo;
 import co.yixiang.modules.image.service.YxImageInfoService;
-import co.yixiang.modules.shop.entity.ProductInfo;
-import co.yixiang.modules.shop.entity.YxStoreProduct;
-import co.yixiang.modules.shop.service.*;
+import co.yixiang.modules.shop.service.YxStoreInfoService;
+import co.yixiang.modules.shop.service.YxStoreProductRelationService;
+import co.yixiang.modules.shop.service.YxStoreProductReplyService;
+import co.yixiang.modules.shop.service.YxStoreProductService;
 import co.yixiang.modules.shop.web.dto.ProductDTO;
 import co.yixiang.modules.shop.web.dto.ReplyCountDTO;
 import co.yixiang.modules.shop.web.param.YxStoreInfoQueryParam;
@@ -32,10 +23,6 @@ import co.yixiang.modules.shop.web.vo.YxStoreInfoQueryVo;
 import co.yixiang.modules.shop.web.vo.YxStoreProductAndStoreQueryVo;
 import co.yixiang.modules.shop.web.vo.YxStoreProductQueryVo;
 import co.yixiang.modules.shop.web.vo.YxStoreProductReplyQueryVo;
-import co.yixiang.modules.user.entity.YxSystemAttachment;
-import co.yixiang.modules.user.service.YxSystemAttachmentService;
-import co.yixiang.modules.user.service.YxUserService;
-import co.yixiang.modules.user.web.vo.YxUserQueryVo;
 import co.yixiang.utils.SecurityUtils;
 import co.yixiang.utils.StringUtils;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -43,15 +30,12 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.CollectionUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.awt.*;
-import java.io.File;
 import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -74,15 +58,9 @@ public class StoreProductController extends BaseController {
     private final YxStoreProductService storeProductService;
     private final YxStoreProductRelationService productRelationService;
     private final YxStoreProductReplyService replyService;
-    private final YxSystemConfigService systemConfigService;
-    private final YxSystemAttachmentService systemAttachmentService;
-    private final YxUserService yxUserService;
-    private final CreatShareProductService creatShareProductService;
+
     private final YxStoreInfoService yxStoreInfoService;
-    private final YxCouponsService yxCouponsService;
     private final YxImageInfoService yxImageInfoService;
-    @Value("${file.path}")
-    private String path;
 
 
     /**
@@ -141,86 +119,6 @@ public class StoreProductController extends BaseController {
         ApiResult result =storeProductService.productPoster(pageType,id);
         return result;
     }
-    /**
-     * 商品详情海报
-     */
-    @GetMapping("/product/poster1/{pageType}/{id}")
-    @ApiOperation(value = "商品详情海报", notes = "商品详情海报")
-    public ApiResult<String> prodoctPoster(@PathVariable String pageType, @PathVariable Integer id) throws IOException, FontFormatException {
-        int uid = SecurityUtils.getUserId().intValue();
-
-
-        // 海报
-        String siteUrl = systemConfigService.getData(SystemConfigConstants.SITE_URL);
-        if (StrUtil.isEmpty(siteUrl)) {
-            return ApiResult.fail("未配置h5地址");
-        }
-        String apiUrl = systemConfigService.getData(SystemConfigConstants.API_URL);
-        if (StrUtil.isEmpty(apiUrl)) {
-            return ApiResult.fail("未配置api地址");
-        }
-        YxUserQueryVo userInfo = yxUserService.getYxUserById(uid);
-        String userType = userInfo.getUserType();
-        if (!userType.equals(AppFromEnum.ROUNTINE.getValue())) {
-            userType = AppFromEnum.H5.getValue();
-        }
-        String name = uid + "_" + id + "_" + pageType + "_" + userType + "_product_detail_wap.jpg";
-        YxSystemAttachment attachment = systemAttachmentService.getInfo(name);
-        String fileDir = path + "qrcode" + File.separator;
-        String qrcodeUrl = "";
-        if (ObjectUtil.isNull(attachment)) {
-            File file = FileUtil.mkdir(new File(fileDir));
-            QrConfig config = new QrConfig(122, 122);
-            config.setMargin(0);
-            //如果类型是小程序
-            if (userType.equals(AppFromEnum.ROUNTINE.getValue())) {
-                //小程序地址
-                siteUrl = siteUrl + "/" + pageType + "/";
-                //生成二维码
-                QrCodeUtil.generate(siteUrl + "?productId=" + id + "&spread=" + uid + "&codeType=" + AppFromEnum.ROUNTINE.getValue(), config,
-                        FileUtil.file(fileDir + name));
-            } else if (userType.equals(AppFromEnum.APP.getValue())) {
-                //h5地址
-                siteUrl = siteUrl + "/" + pageType + "/";
-                //生成二维码
-                QrCodeUtil.generate(siteUrl + "?productId=" + id + "&spread=" + uid + "&codeType=" + AppFromEnum.APP.getValue(), config,
-                        FileUtil.file(fileDir + name));
-            } else {//如果类型是h5
-                //生成二维码
-                QrCodeUtil.generate(siteUrl + "/detail/" + id + "?spread=" + uid, config,
-                        FileUtil.file(fileDir + name));
-            }
-            systemAttachmentService.attachmentAdd(name, String.valueOf(FileUtil.size(file)),
-                    fileDir + name, "qrcode/" + name);
-
-            qrcodeUrl = apiUrl + "/file/qrcode/" + name;
-        } else {
-            qrcodeUrl = apiUrl + "/file/" + attachment.getSattDir();
-        }
-        String spreadPicName = uid + "_" + id + "_" + pageType + "_" + userType + "_product_user_spread.jpg";
-        String spreadPicPath = fileDir + spreadPicName;
-        ProductInfo productInfo = new ProductInfo();
-        if (pageType.equals("good")) {
-            YxStoreProduct storeProduct = storeProductService.getProductInfo(id);
-            BeanUtils.copyProperties(storeProduct, productInfo);
-        } else {
-            YxCoupons yxCoupons = yxCouponsService.getCouponsById(id);
-            YxImageInfo yxImageInfo = yxImageInfoService.selectOneImg(id, CommonConstant.IMG_TYPE_CARD, CommonConstant.IMG_CATEGORY_PIC);
-            if (null == yxImageInfo) {
-                return ApiResult.fail("卡券图片为空");
-            }
-            productInfo.setImage(yxImageInfo.getImgUrl());
-            productInfo.setOtPrice(yxCoupons.getOriginalPrice());
-            productInfo.setStoreName(yxCoupons.getCouponName());
-            productInfo.setPrice(yxCoupons.getSellingPrice());
-            productInfo.setStoreInfo(yxCoupons.getCouponInfo());
-        }
-
-        String rr = creatShareProductService.creatProductPic(productInfo, qrcodeUrl,
-                spreadPicName, spreadPicPath, apiUrl);
-        return ApiResult.ok(rr);
-    }
-
 
     /**
      * 普通商品详情
