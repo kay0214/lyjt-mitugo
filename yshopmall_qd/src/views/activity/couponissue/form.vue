@@ -144,7 +144,7 @@ export default {
       add(this.form).then(res => {
         this.resetForm()
         this.$notify({
-          title: '添加成功',
+          title: '发布成功',
           type: 'success',
           duration: 2500
         })
