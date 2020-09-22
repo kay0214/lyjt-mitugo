@@ -37,6 +37,8 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.binarywang.wxpay.exception.WxPayException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -85,6 +87,8 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<StoreOrderMapper, Y
     private YxStoreCouponUserMapper yxStoreCouponUserMapper;
     private StoreProductAttrValueMapper storeProductAttrValueMapper;
     private UserService sysUserService;
+    @Autowired
+    private UserSysMapper userSysMapper;
 
     @Override
     public OrderCountDto getOrderCount() {
@@ -203,9 +207,17 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<StoreOrderMapper, Y
             queryWrapper.lambda().like(YxStoreOrder::getRealName, criteria.getRealName());
         }
         //商户id
-        if (null!=criteria.getMerUserId()) {
-            queryWrapper.lambda().eq(YxStoreOrder::getMerId, criteria.getMerUserId());
+        if(StringUtils.isNotBlank(criteria.getMerUsername())){
+            User user = this.userSysMapper.selectOne(new QueryWrapper<User>().lambda().eq(User::getUsername, criteria.getMerUsername()));
+            if (null == user) {
+                Map<String, Object> map = new LinkedHashMap<>(2);
+                map.put("content", new ArrayList<>());
+                map.put("totalElements", 0);
+                return map;
+            }
+            queryWrapper.lambda().eq(YxStoreOrder::getMerId, user.getId());
         }
+
         if (!CollectionUtils.isEmpty(criteria.getAddTime())) {
             List<String> listAddTime = criteria.getAddTime();
             Integer addTimeStart = 0;
