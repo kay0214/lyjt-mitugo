@@ -136,6 +136,19 @@ public class YxStoreInfoController extends BaseController {
         return ApiResult.ok(yxStoreInfoQueryVo);
     }
 
+
+    /**
+     * 商品详情海报
+     */
+    @GetMapping("/store/poster1/{id}")
+    @ApiOperation(value = "商铺详情海报", notes = "商铺详情海报")
+    public ApiResult<String> productPoster(@PathVariable Integer id) throws IOException, FontFormatException {
+
+        ApiResult rr = yxStoreInfoService.productPoster(id);
+
+        return rr;
+    }
+
     /**
      * 商品详情海报
      */

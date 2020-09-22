@@ -1,20 +1,21 @@
 package co.yixiang.modules.shop.service;
 
 import co.yixiang.common.api.ApiResult;
+import co.yixiang.common.service.BaseService;
+import co.yixiang.common.web.vo.Paging;
 import co.yixiang.modules.coupons.web.param.LocalLiveQueryParam;
 import co.yixiang.modules.coupons.web.param.YxCouponsQueryParam;
 import co.yixiang.modules.coupons.web.vo.LocalLiveListVo;
 import co.yixiang.modules.coupons.web.vo.YxCouponsQueryVo;
 import co.yixiang.modules.shop.entity.YxStoreInfo;
-import co.yixiang.common.service.BaseService;
 import co.yixiang.modules.shop.web.param.YxStoreInfoQueryParam;
 import co.yixiang.modules.shop.web.vo.YxStoreInfoDetailQueryVo;
 import co.yixiang.modules.shop.web.vo.YxStoreInfoQueryVo;
-import co.yixiang.common.web.vo.Paging;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 
+import java.awt.*;
+import java.io.IOException;
 import java.io.Serializable;
-import java.util.List;
 
 /**
  * <p>
@@ -70,4 +71,6 @@ public interface YxStoreInfoService extends BaseService<YxStoreInfo> {
      * @return
      */
     YxStoreInfoQueryVo getYxStoreInfoByNid(String storeNid);
+
+    ApiResult productPoster(Integer id) throws IOException, FontFormatException;
 }
