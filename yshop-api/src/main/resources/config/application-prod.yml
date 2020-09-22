@@ -112,6 +112,7 @@ yshop:
   # 订单号生成配置  数据中心的id 每一个jar包都需要不同
   snowflake:
     datacenterId: ${spring.datacenterId}
+  isProd: true
   #通知相关配置
   notify:
     # 短消息模版通知配置

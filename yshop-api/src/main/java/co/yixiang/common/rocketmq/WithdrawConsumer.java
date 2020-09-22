@@ -1,6 +1,5 @@
 package co.yixiang.common.rocketmq;
 
-import co.yixiang.common.rocketmq.service.CommissionService;
 import co.yixiang.common.rocketmq.service.WithdrawService;
 import co.yixiang.constant.MQConstant;
 import co.yixiang.utils.StringUtils;
@@ -13,6 +12,7 @@ import org.apache.rocketmq.spring.annotation.RocketMQMessageListener;
 import org.apache.rocketmq.spring.core.RocketMQListener;
 import org.apache.rocketmq.spring.core.RocketMQPushConsumerLifecycleListener;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 /**
@@ -25,6 +25,9 @@ public class WithdrawConsumer implements RocketMQListener<String>, RocketMQPushC
 
     private static int MAX_RECONSUME_TIME = 3;
 
+    @Value("${yshop.isProd}")
+    private boolean isProd;
+
     @Autowired
     WithdrawService withdrawService;
 
@@ -32,14 +35,17 @@ public class WithdrawConsumer implements RocketMQListener<String>, RocketMQPushC
     public void onMessage(String message) {
         JSONObject callBackResult = JSONObject.parseObject(message);
         String id = callBackResult.getString("id");
+        if (!isProd) {
+            log.info("测试环境提现MITU_WITHDRAW_TAG不执行" + id);
+            return;
+        }
         log.info("提现id：{}", id);
-        if(StringUtils.isBlank(id)){
+        if (StringUtils.isBlank(id)) {
             log.info("提现id为空：{}");
             return;
         }
         withdrawService.updateWithdraw(id);
     }
-
 
 
     @Override
