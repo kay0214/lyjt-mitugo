@@ -7,8 +7,8 @@ const user = {
     user: {},
     roles: [],
     // 第一次加载菜单时用到
-    loadMenus: false
-    // examineStatus: -1 // 商户认证状态 -1非商户 99未认证, 已认证: 1
+    loadMenus: false,
+    examineStatus: -1 // 商户认证状态 -1非商户 99未认证, 已认证: 1
   },
 
   mutations: {
@@ -23,10 +23,10 @@ const user = {
     },
     SET_LOAD_MENUS: (state, loadMenus) => {
       state.loadMenus = loadMenus
+    },
+    SET_ROLE_EXAMINE_STATUS: (state, examineStatus) => {
+      state.examineStatus = examineStatus
     }
-    // SET_ROLE_EXAMINE_STATUS: (state, examineStatus) => {
-    //   state.examineStatus = examineStatus
-    // }
   },
 
   actions: {
@@ -39,7 +39,7 @@ const user = {
           commit('SET_TOKEN', res.token)
           setUserInfo(res.user, commit)
           // 商户身份设置商户认证状态  TODO: auth/info 接口不完善暂时注释
-          // commit('SET_ROLE_EXAMINE_STATUS', res.examineStatus)
+          commit('SET_ROLE_EXAMINE_STATUS', res.examineStatus)
           // 第一次加载菜单时用到， 具体见 src 目录下的 permission.js
           commit('SET_LOAD_MENUS', true)
           resolve()
@@ -55,7 +55,7 @@ const user = {
         getInfo().then(res => {
           setUserInfo(res, commit)
           // TODO: auth/info 接口不完善暂时注释
-          // commit('SET_ROLE_EXAMINE_STATUS', res.examineStatus)
+          commit('SET_ROLE_EXAMINE_STATUS', res.examineStatus)
           resolve(res)
         }).catch(error => {
           reject(error)

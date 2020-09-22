@@ -54,8 +54,17 @@ export default {
   },
   computed: {
     ...mapGetters([
-      'roles'
+      'user',
+      'roles',
+      'examineStatus',
     ])
+  },
+  mounted(){
+    
+    // 验证商户是否认证, 未认证跳转认证   userRole 2 商户身份 ， examineStatus 1 已经认证  3 审核中
+    if (this.user.userRole === 2 && this.examineStatus !== 1 && this.examineStatus !== 3) {
+      this.$router.replace({ path: '/member/yxMerchantsDetail?dialog=1' })
+    } 
   }
 }
 </script>

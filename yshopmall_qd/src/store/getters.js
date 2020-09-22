@@ -8,6 +8,7 @@ const getters = {
   visitedViews: state => state.tagsView.visitedViews,
   cachedViews: state => state.tagsView.cachedViews,
   roles: state => state.user.roles,
+  examineStatus: state => state.user.examineStatus,
   user: state => state.user.user,
   loadMenus: state => state.user.loadMenus,
   permission_routers: state => state.permission.routers,
