@@ -309,7 +309,7 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<StoreProductMappe
             attrGroup.add(yxStoreProductAttr);
         }
         // 平台结算
-        BigDecimal bigDecimalSellt  = yxStoreProductParam.getSettlement();
+//        BigDecimal bigDecimalSellt  = yxStoreProductParam.getSettlement();
         delRedis(id,ShopConstants.SHOP_PRODUCT_STOCK+id+":");
         List<YxStoreProductAttrValue> valueGroup = new ArrayList<>();
         for (ProductFormatDto productFormatDTO : valueList) {
@@ -329,8 +329,8 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<StoreProductMappe
             yxStoreProductAttrValue.setStock(productFormatDTO.getSales());
             yxStoreProductAttrValue.setUnique(IdUtil.simpleUUID());
             yxStoreProductAttrValue.setImage(productFormatDTO.getPic());
-            //佣金 = 商品金额-平台结算
-           double bigComm = productFormatDTO.getPrice() - bigDecimalSellt.doubleValue() ;
+            //佣金 = 商品金额-平台结算(cost:为平台结算价)
+           double bigComm = productFormatDTO.getPrice() - productFormatDTO.getCost();
             DecimalFormat df1 = new DecimalFormat("0.00");
             yxStoreProductAttrValue.setCommission(new BigDecimal(df1.format(bigComm).toString()));
 
