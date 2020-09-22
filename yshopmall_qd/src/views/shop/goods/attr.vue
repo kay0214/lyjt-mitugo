@@ -73,7 +73,7 @@
               <el-col :span="4">                
                 <el-form-item :prop='`price${index}`' :class="attr.check ? 'check':''" label="金额:" 
                 :rules="rules.price">
-                  <el-input v-model="form2['price'+index]" style="width: 100%" placeholder="金额" @input="(val)=>{attr.price=val}" @change="priceChange($event,index)"
+                  <el-input v-model="form2['price'+index]" style="width: 100%" placeholder="金额" @input="(val)=>{attr.price=val}"
                   ></el-input>
                 </el-form-item>
               </el-col>
@@ -85,9 +85,9 @@
                 </el-form-item>
               </el-col>
               <el-col :span="4">           
-                <el-form-item :prop='`cost${index}`' :class="attr.check ? 'check':''" label="成本价:" 
+                <el-form-item :prop='`cost${index}`' :class="attr.check ? 'check':''" label="平台结算价:" 
                 :rules='rules.cost'>
-                  <el-input v-model="form2['cost'+index]" placeholder="成本价" style="width: 100%" @input="(val)=>{attr.cost=val}"
+                  <el-input v-model="form2['cost'+index]" placeholder="平台结算价" style="width: 100%" @input="(val)=>{attr.cost=val}"
                   ></el-input>
                 </el-form-item>
               </el-col>
@@ -187,16 +187,13 @@ export default {
           },
           { validator: validateNum, trigger: 'blur'},
           { validator: (rule, value, callback)=>{
-            if(isNaN(this.form.settlement)){
-              callback(new Error("平台结算价格获取失败，请刷新重试"));
-            }else{
-              if(value<this.form.settlement){
-                let msg=`平台结算价格：`+this.form.settlement+` ,金额应大于等于平台结算价格`
-                callback(new Error(msg));
-              }else{
+            let index=rule.field.replace('price','')
+            if(value<this.form2['cost'+index]){
+                callback(new Error('金额应大于等于平台结算价格'));
+              }else{              
+                this.form2['commission'+index]= sub(value,this.form2['cost'+index])
                 callback()
               }
-            }
           }, trigger: 'blur'},          
         ],
         sales: [
@@ -216,6 +213,15 @@ export default {
             trigger: 'blur'
           },
           { validator: validateNum, trigger: 'blur'},
+          { validator: (rule, value, callback)=>{
+            let index=rule.field.replace('cost','')
+            if(value>this.form2['price'+index]){
+                callback(new Error('平台结算价格应小于等于金额'));
+              }else{
+                this.form2['commission'+index]= sub(this.form2['price'+index],value)
+                callback()
+              }
+          }, trigger: 'blur'},     
         ],
         commission: [
           {required:true,message:'必填项',trigger:'blur'},
@@ -502,15 +508,6 @@ export default {
         })
         .catch(() => { })
     },
-    priceChange(val,index){
-      if(!isNaN(val) && !isNaN(this.form.settlement)) {
-        if(!(val<this.form.settlement)){
-          this.form2['commission'+index]= sub(val,this.form.settlement)
-        }
-      }else{
-        this.form2['commission'+index]=0
-      }
-    }
   }
 }
 </script>
