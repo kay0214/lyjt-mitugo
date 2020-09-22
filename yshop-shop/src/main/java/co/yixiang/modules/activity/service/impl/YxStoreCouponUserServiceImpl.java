@@ -83,9 +83,19 @@ public class YxStoreCouponUserServiceImpl extends BaseServiceImpl<YxStoreCouponU
         map.put("totalElements", ipage.getTotal());*/
 
         YxStoreCouponQueryParam queryParam = new YxStoreCouponQueryParam();
+        List<Long> storeIds =null;
+        if (0 != criteria.getUserRole()) {
+            if (null == criteria.getChildStoreId() || criteria.getChildStoreId().size() <= 0) {
+                Map<String, Object> map = new LinkedHashMap<>(2);
+                map.put("content", new ArrayList<>());
+                map.put("totalElements", 0);
+                return map;
+            }
+            storeIds =  new ArrayList<>();
+            storeIds = criteria.getChildStoreId();
+        }
         BeanUtils.copyProperties(criteria,queryParam);
         Page<YxStoreCouponUserDto> pageParam = new Page<YxStoreCouponUserDto>(pageable.getPageNumber()+1,pageable.getPageSize());
-        List<Long> storeIds = criteria.getChildStoreId();
         int countSize = storeCouponUserMapper.countCouponUserPage(queryParam,storeIds);
         List<YxStoreCouponUserDto> storeCouponUserDtoList = storeCouponUserMapper.selectCouponUserPage(pageParam,queryParam,storeIds);
 
