@@ -7,7 +7,7 @@ export function add(arg1, arg2) {
   var r1 = deal(arg1)
   var r2 = deal(arg2)
   var m = Math.pow(10, Math.max(r1, r2))
-  return (arg1 * m + arg2 * m) / m
+  return (parseInt(arg1 * m) + parseInt(arg2 * m)) / m
 }
 
 /**
@@ -19,7 +19,7 @@ export function sub(arg1, arg2) {
   var r1 = deal(arg1)
   var r2 = deal(arg2)
   var m = Math.pow(10, Math.max(r1, r2))
-  return (arg1 * m - arg2 * m) / m
+  return (parseInt(arg1 * m) - parseInt(arg2 * m)) / m
 }
 
 /**
