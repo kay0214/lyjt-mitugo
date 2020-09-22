@@ -70,7 +70,7 @@ public class StoreCartController extends BaseController {
         }
         String shareUserId = "";
         int spreadId = 0;
-        log.info("加入购物车，推荐人id：{}",jsonObject.get("spread"));
+//        log.info("加入购物车，推荐人id：{}",jsonObject.get("spread"));
         if (ObjectUtil.isNotNull(jsonObject.get("spread"))) {
             //分享人id
             shareUserId = jsonObject.getString("spread");
