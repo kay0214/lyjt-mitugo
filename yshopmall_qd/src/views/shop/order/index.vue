@@ -98,7 +98,7 @@
             <span>{{ scope.row.userDTO.nickname }}</span>
           </template>
         </el-table-column>
-        <el-table-column prop="merUsername" label="商户用户名" />
+        <!-- <el-table-column prop="merUsername" label="商户用户名" /> -->
         <el-table-column prop="cartInfoList" width="300" label="商品信息">
           <template slot-scope="scope">
             <div v-for="(item,index) in scope.row.cartInfoList" v-if="item.cartInfoMap.productInfo.attrInfo">
