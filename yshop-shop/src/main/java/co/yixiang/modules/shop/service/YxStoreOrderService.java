@@ -70,4 +70,5 @@ public interface YxStoreOrderService  extends BaseService<YxStoreOrder>{
      */
     void cancelOrder();
 
+    Integer getUserIdListByName(String userName);
 }
