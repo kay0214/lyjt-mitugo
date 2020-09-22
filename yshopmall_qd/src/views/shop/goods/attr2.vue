@@ -134,6 +134,7 @@ import mulpicUpload from '@/components/mul-pic-upload'
 import Treeselect from '@riophae/vue-treeselect'
 import '@riophae/vue-treeselect/dist/vue-treeselect.css'
 import { Message } from 'element-ui'
+import { sub } from '@/utils/math'
 export default {
   components: { editor, picUploadTwo, mulpicUpload, Treeselect },
   props: {
@@ -185,6 +186,18 @@ export default {
             trigger: 'blur'
           },
           { validator: validateNum, trigger: 'blur'},
+          { validator: (rule, value, callback)=>{
+            if(isNaN(this.form.settlement)){
+              callback(new Error("平台结算价格获取失败，请刷新重试"));
+            }else{
+              if(value<this.form.settlement){
+                let msg=`平台结算价格：`+this.form.settlement+` ,金额应大于等于平台结算价格`
+                callback(new Error(msg));
+              }else{
+                callback()
+              }
+            }
+          }, trigger: 'blur'},          
         ],
         sales: [
           {required:true,message:'必填项',trigger:'blur'},
@@ -206,11 +219,6 @@ export default {
         ],
         commission: [
           {required:true,message:'必填项',trigger:'blur'},
-          {
-            pattern: /^[0-9]+([.]{1}[0-9]+){0,1}$/,  
-            message: '请输入数字',
-            trigger: 'blur'
-          },
           { validator: validateNum, trigger: 'blur'},
         ],
       },
@@ -495,7 +503,13 @@ export default {
         .catch(() => { })
     },
     priceChange(val,index){
-      this.form2['commission'+index]=val-this.form.settlement
+      if(!isNaN(val) && !isNaN(this.form.settlement)) {
+        if(!(val<this.form.settlement)){
+          this.form2['commission'+index]= sub(val,this.form.settlement)
+        }
+      }else{
+        this.form2['commission'+index]=0
+      }
     }
   }
 }
