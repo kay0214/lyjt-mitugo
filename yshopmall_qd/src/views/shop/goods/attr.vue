@@ -1,96 +1,102 @@
+<!--商品属性页面-->
 <template>
   <el-dialog :append-to-body="true" :close-on-click-modal="false" :before-close="cancel" :visible.sync="dialog" :title="title" width="900px">
-    <el-form v-show="hidden == false" ref="form" :model="form" :inline="true" label-width="80px">
-      <el-form-item label="规则名称">
-        <el-row :gutter="10">
-          <el-col :span="10"><el-button type="primary" @click="hiddenBool">添加新规则</el-button></el-col>
-        </el-row>
-      </el-form-item>
-    </el-form>
-    <el-form v-show="hidden == true" ref="form" :model="form" :rules="rules" label-width="80px">
-      <el-form-item label="规则名称">
-        <el-row :gutter="10">
-          <el-col
-            v-for="(item, index) in items"
-            :key="index"
-            :span="5"
-            style="position: relative;margin-right: 6px"
-          >
-            <el-input v-model="item.value" style="width: 150px;" placeholder="设置名称" maxlength="10" />
-            <el-button v-show="item.attrHidden == true" type="text" style="position: absolute;top:-6px;right:17px;margin-top:1px;border: none;font-size: 14px;font-weight:bold;line-height: 1.8" icon="el-icon-close" @click="handleRemove(index)" />
-            <el-button v-show="item.attrHidden == false" type="text" style="position: absolute;top:-6px;right:17px;margin-top:1px;border: none;font-size: 14px;font-weight:bold;line-height: 1.8" icon="el-icon-check" @click="attrHiddenBool(item)" />
-          </el-col>
-          <el-col :span="5"><el-button type="primary" @click="handleAdd">添加新规则</el-button></el-col>
-        </el-row>
-      </el-form-item>
-      <el-form-item
+     <!--规则编辑--> 
+    <div style='border:1px solid #e4e7ec;border-radius:5px;padding:20px 20px 2px 20px'>
+      <el-form ref="form" :model="form" :inline="true">
+        <div>
+          <el-row :gutter="10">
+            <el-col style='width:80px'><span>规则名称</span></el-col>
+            <el-col
+              v-for="(item, index) in items"
+              :key="index"
+              style="position: relative;margin-right: 6px;width:auto"
+            >
+              <el-form-item :prop='`itemValue${index}`' :rules="rules.itemValue">
+                <el-input
+                  placeholder="设置名称" maxlength="10"
+                  v-model="form['itemValue'+index]" style=""
+                   @input="(val)=>{item.value=val}">
+                  <i slot="suffix" v-if='!item.attrHidden && item.value && item.value !== ""' class="el-input__icon el-icon-check" @click='attrHiddenBool(item,index)'></i>
+                  <i slot="suffix" class="el-input__icon el-icon-close" @click='handleRemove(index)'></i>
+                </el-input>
+              </el-form-item>
+            </el-col>
+            <el-col :span="5"><el-button type="primary" @click="handleAdd">添加新规则</el-button></el-col>
+          </el-row>
+        </div>
+        <div
         v-for="(item, index) in items"
         v-show="item.attrHidden == true"
         :key="index"
-        :label="''+item.value+':'"
       >
         <el-row :gutter="13">
+          <el-col style='width:80px'><span>{{''+item.value+':'}}</span></el-col>
           <el-col
             v-for="(attr,k) in item.detail"
             :key="attr"
-            :span="3"
+            style='width:auto'
             :name="attr"
           >
             <el-tag closable @close="attrRemove(item,k)">{{ attr }}</el-tag>
           </el-col>
-          <el-col :span="5">
-            <el-input v-model="item.detailValue" style="width: 150px;" placeholder="设置属性" maxlength="10" />
+          <el-col style='width:auto'>
+            <el-form-item>
+              <el-input v-model="item.detailValue" style="" placeholder="设置属性" maxlength="10" />
+            </el-form-item>
           </el-col>
           <el-col :span="5">
             <el-button type="primary" @click="attrAdd(item)">添加</el-button>
           </el-col>
         </el-row>
-      </el-form-item>
-      <el-form-item v-show="hidden == true">
+      </div>
+      <el-form-item v-show="1" style="margin-top:20px">
         <el-row :gutter="24">
           <el-col :span="24"><el-button :loading="loading" type="primary" @click="addGoods(true)">生成</el-button></el-col>
         </el-row>
       </el-form-item>
-
-      <template v-if="items[0].value!='' && items[0].detail.length>0 && attrs.length">
+      </el-form>
+    </div>
+    <!--规则下产品属性设置-->
+      <el-form ref='form2'  :model='form2' :inline='true' v-if="items[0].value!='' && items[0].detail.length>0 && attrs.length">
+    <div style='border:1px solid #e4e7ec;border-radius:5px;padding:20px;margin-top:20px;'>
         <template v-for="(attr,index) in attrs">
-          <div>
-            <el-form ref='attrform{{index}}' :model='attr' :inline='true'>
+          <div :key='index' style='border-bottom:1px dashed #eee;margin-bottom:10px;'>
             <el-row :gutter="24">
-              <template v-for="(item,index) in attr.detail">
-                <el-col :span="3" style="lineHeight:32px;">
-                  {{ index }}:{{ item }}
-                </el-col>
+              <el-col :span="3">
+              <template v-for="(val,key,idx) in attr.detail">
+                <p :key='idx' style="margin:0 0 8px;font-size:12px;">
+                  {{ key }}:{{ val }}
+                </p>
               </template>
+              </el-col>
               <el-col :span="4">                
-                <el-form-item prop='price' :class="attr.check ? 'check':''" label="金额:" 
+                <el-form-item :prop='`price${index}`' :class="attr.check ? 'check':''" label="金额:" 
                 :rules="rules.price">
-<el-input v-model="attr.price" style="width: 100%" placeholder="金额" 
-></el-input>
+                  <el-input v-model="form2['price'+index]" style="width: 100%" placeholder="金额" @input="(val)=>{attr.price=val}" @change="priceChange($event,index)"
+                  ></el-input>
                 </el-form-item>
               </el-col>
               <el-col :span="4">             
-                <el-form-item prop='sales' :class="attr.check ? 'check':''" label="库存:" 
+                <el-form-item :prop='`sales${index}`' :class="attr.check ? 'check':''" label="库存:" 
                 :rules='rules.sales'>
-<el-input v-model="attr.sales" placeholder="库存" style="width: 100%"
-></el-input>
+                  <el-input v-model="form2['sales'+index]" placeholder="库存" style="width: 100%" @input="(val)=>{attr.sales=val}"
+                  ></el-input>
                 </el-form-item>
               </el-col>
               <el-col :span="4">           
-                <el-form-item prop='cost' :class="attr.check ? 'check':''" label="成本价:" 
+                <el-form-item :prop='`cost${index}`' :class="attr.check ? 'check':''" label="成本价:" 
                 :rules='rules.cost'>
-<el-input v-model="attr.cost" placeholder="成本价" style="width: 100%"
-></el-input>
+                  <el-input v-model="form2['cost'+index]" placeholder="成本价" style="width: 100%" @input="(val)=>{attr.cost=val}"
+                  ></el-input>
                 </el-form-item>
               </el-col>
               <el-col :span="3">
-                <el-form-item prop='commission' :class="attr.check ? 'check':''" label="佣金:" 
+                <el-form-item :prop='`commission${index}`' :class="attr.check ? 'check':''" label="佣金:" 
                 :rules='rules.commission'>
-<el-input v-model="attr.commission" placeholder="佣金" style="width: 100%"
-></el-input>
-                </el-form-item>
-                <!-- <span :class="attr.check ? 'check':''">佣金:</span>&nbsp; -->
-                <!-- <el-input-number v-model="attr.commission" style="width: 60%" placeholder="佣金" :precision="2" :step="0" maxlength="12" :controls='false'></el-input-number> -->
+                  <el-input readonly v-model="form2['commission'+index]" placeholder="佣金" style="width: 100%" @input="(val)=>{attr.commission=val}"
+                  ></el-input>
+                </el-form-item>                
               </el-col>
               <el-col :span="3" style="margin-right: 2px">
                 <div class="demo-upload">
@@ -102,24 +108,21 @@
                 <el-button type="primary" @click="removeGoods(index)">删除</el-button>
               </el-col>
             </el-row>
-            </el-form>
           </div>
         </template>
-        <el-form-item>
-          <el-row :gutter="24">
+        <div>
+          <el-row :gutter="10">
             <el-col :span="2">
               <el-button type="primary" :loading="loading" @click="submit">提交</el-button>
             </el-col>
-            <el-col :span="2">
+            <el-col :span="6">
               <el-button type="error" @click="clear">清空所有属性</el-button>
             </el-col>
           </el-row>
-        </el-form-item>
-      </template>
-
-    </el-form>
+        </div>
+    </div>
+      </el-form>
   </el-dialog>
-
 </template>
 
 <script>
@@ -131,6 +134,7 @@ import mulpicUpload from '@/components/mul-pic-upload'
 import Treeselect from '@riophae/vue-treeselect'
 import '@riophae/vue-treeselect/dist/vue-treeselect.css'
 import { Message } from 'element-ui'
+import { sub } from '@/utils/math'
 export default {
   components: { editor, picUploadTwo, mulpicUpload, Treeselect },
   props: {
@@ -140,6 +144,13 @@ export default {
     }
   },
   data() {
+  // const validateRequire=(r,value,callback)=>{    
+  //     if(!value){
+  //       callback(new Error("必填项"));
+  //     }else{
+  //       callback()
+  //     }
+  //   };
     //浮点数上限校验
     const validateNum=(r,value,callback)=>{
       if(parseFloat(value)>999999.99){
@@ -161,45 +172,12 @@ export default {
     };
     return {
       loading: false, dialog: false, cates: [], title: '规则属性',
-      form: {
-        id: '',
-        merId: '',
-        image: '',
-        sliderImage: '',
-        storeName: '',
-        storeInfo: '',
-        keyword: '',
-        barCode: '',
-        cateId: 1,
-        price: '',
-        vipPrice: '',
-        otPrice: '',
-        postage: '',
-        unitName: '',
-        sort: '',
-        sales: '',
-        stock: '',
-        isShow: '',
-        isHot: '',
-        isBenefit: '',
-        isBest: '',
-        isNew: '',
-        description: '',
-        addTime: '',
-        isPostage: '',
-        isDel: '',
-        merUse: '',
-        giveIntegral: '',
-        cost: '',
-        isSeckill: '',
-        isBargain: '',
-        isGood: '',
-        ficti: '',
-        browse: '',
-        codePath: '',
-        soureLink: ''
-      },
+      form: {},
+      form2:{},
       rules: {
+        itemValue:[
+          {required:true,message:'必填项',trigger:'blur'},
+        ],
         price: [
           {required:true,message:'必填项',trigger:'blur'},
           {
@@ -208,6 +186,18 @@ export default {
             trigger: 'blur'
           },
           { validator: validateNum, trigger: 'blur'},
+          { validator: (rule, value, callback)=>{
+            if(isNaN(this.form.settlement)){
+              callback(new Error("平台结算价格获取失败，请刷新重试"));
+            }else{
+              if(value<this.form.settlement){
+                let msg=`平台结算价格：`+this.form.settlement+` ,金额应大于等于平台结算价格`
+                callback(new Error(msg));
+              }else{
+                callback()
+              }
+            }
+          }, trigger: 'blur'},          
         ],
         sales: [
           {required:true,message:'必填项',trigger:'blur'},
@@ -229,11 +219,6 @@ export default {
         ],
         commission: [
           {required:true,message:'必填项',trigger:'blur'},
-          {
-            pattern: /^[0-9]+([.]{1}[0-9]+){0,1}$/,  
-            message: '请输入数字',
-            trigger: 'blur'
-          },
           { validator: validateNum, trigger: 'blur'},
         ],
       },
@@ -261,12 +246,23 @@ export default {
   methods: {
     getAttrs(id) {
       getAttr(id).then(res => {
-        console.log('res' + res)
-        // this.items = JSON.parse(res.attr)
         if (res) {
           this.hidden = true
           this.items = res.attr
           this.attrs = res.value
+          if(res.attr.length){
+            for(let i in res.attr){
+              this.$set(this.form,['itemValue'+i],res.attr[i].value)
+            }
+          }
+          if(res.value.length){
+            for(let i in res.value){
+              this.$set(this.form2,['price'+i],res.value[i].price)
+              this.$set(this.form2,['sales'+i],res.value[i].sales)
+              this.$set(this.form2,['cost'+i],res.value[i].cost)
+              this.$set(this.form2,['commission'+i],res.value[i].commission)
+            }
+          }
         } else {
           this.hidden = false
           this.items = [{
@@ -276,6 +272,7 @@ export default {
             detail: []
           }]
           this.attrs = []
+          this.$set(this.form,['itemValue'+0],'')
         }
       })
     },
@@ -357,13 +354,15 @@ export default {
         ficti: '',
         browse: '',
         codePath: '',
-        soureLink: ''
+        soureLink: '',
+        settlement:''
       }
     },
     setAttrPic(index, pic) {
       this.$set(this.attrs[index], 'pic', pic)
     },
-    attrHiddenBool(item) {
+    attrHiddenBool(item,index) {
+      item.value=this.form['itemValue'+index]
       if (item.value == '') {
         Message({ message: '请填写规则名称', type: 'error' })
       } else {
@@ -397,7 +396,7 @@ export default {
       return bool
     },
     attrAdd(item) {
-      if (!item.detailValue) return false
+      if (!item.detailValue.trim()) return false
       item.detail.push(item.detailValue)
       item.detailValue = ''
     },
@@ -433,36 +432,60 @@ export default {
       return bool
     },
     addGoods(type) {
-      if (this.attrs.length) {
-        if (!this.checkGoods()) return
-      }
-      var that = this
-      isFormatAttr(this.form.id, { items: this.items, attrs: this.attrs }).then(res => {
-        this.attrs = res
-      }).catch(err => {
-        this.loading = false
-        console.log(err.response.data.message)
+      this.$refs.form.validate(ret=>{
+        console.log(ret)
+        if(!ret){
+          Message({ message: '请查看必填项是否填充正确', type: 'error' })
+        }else{
+          if (this.attrs.length) {
+            if (!this.checkGoods()) return
+          }
+          var that = this
+          isFormatAttr(this.form.id, { items: this.items, attrs: this.attrs }).then(res => {
+            this.attrs = res
+            if(res.length){
+              for(let i in res){
+                this.$set(this.form2,['price'+i],res[i].price)
+                this.$set(this.form2,['sales'+i],res[i].sales)
+                this.$set(this.form2,['cost'+i],res[i].cost)
+                this.$set(this.form2,['commission'+i],res[i].commission)
+              }
+            }
+          }).catch(err => {
+            this.loading = false
+            Message({ message: err, type: 'error' })
+            console.log(err)
+          })
+        }
       })
     },
     submit() {
-      var that = this
-      that.submiting = true
-      if (!this.checkAttr() || !this.checkGoods()) return
-      for (const attr in that.attrs) {
-        that.attrs[attr].check = false
-      }
+      this.$refs.form2.validate(ret=>{
+        if(!ret){
+          Message({ message: '请查看必填项是否填充正确', type: 'error' })
+          return
+        }else{
+          var that = this
+          that.submiting = true
+          if (!this.checkAttr() || !this.checkGoods()) return
+          for (const attr in that.attrs) {
+            that.attrs[attr].check = false
+          }
 
-      // console.log({items:this.items,attrs:this.attrs})
-      this.loading = false
-      setAttr(this.form.id, { items: this.items, attrs: this.attrs }).then(res => {
-        this.attrs = res
-        Message({ message: '操作成功', type: 'success' })
-        this.$parent.init()
-      }).catch(err => {
-        this.loading = false
-        console.log(err.response.data.message)
+          // console.log({items:this.items,attrs:this.attrs})
+          this.loading = false
+          setAttr(this.form.id, { items: this.items, attrs: this.attrs }).then(res => {
+            this.attrs = res
+            Message({ message: '操作成功', type: 'success' })
+            this.$parent.init()
+          }).catch(err => {
+            this.loading = false
+            this.$refs.form2.resetFields()
+            console.log(err.response.data.message)
+          })
+          this.dialog = false
+        }
       })
-      this.dialog = false
     },
     clear() {
       this.$confirm(`确定要清空属性数据操作?`, '提示', {
@@ -478,6 +501,15 @@ export default {
           })
         })
         .catch(() => { })
+    },
+    priceChange(val,index){
+      if(!isNaN(val) && !isNaN(this.form.settlement)) {
+        if(!(val<this.form.settlement)){
+          this.form2['commission'+index]= sub(val,this.form.settlement)
+        }
+      }else{
+        this.form2['commission'+index]=0
+      }
     }
   }
 }
