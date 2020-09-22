@@ -44,8 +44,10 @@ public class StoreCouponUserController {
             criteria.setChildUser(currUser.getChildUser());
             criteria.setChildStoreId(this.yxStoreInfoService.getStoreIdByMerId(currUser.getChildUser()));
         }
-        if(criteria.getChildStoreId()==null || criteria.getChildStoreId().size()==0){
-            return new ResponseEntity(null, HttpStatus.OK);
+        if(0!=criteria.getUserRole()) {
+            if (criteria.getChildStoreId() == null || criteria.getChildStoreId().size() == 0) {
+                return new ResponseEntity(null, HttpStatus.OK);
+            }
         }
         return new ResponseEntity(yxStoreCouponUserService.queryAll(criteria, pageable), HttpStatus.OK);
     }
