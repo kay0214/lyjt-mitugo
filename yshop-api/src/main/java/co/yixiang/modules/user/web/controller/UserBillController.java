@@ -358,16 +358,13 @@ public class UserBillController extends BaseController {
                 if (userType.equals(AppFromEnum.ROUNTINE.getValue())) {
                     siteUrl = siteUrl + "/distribution/";
                 }
-                BufferedImage qrCode;
                 QrConfig config = new QrConfig(122, 122);
                 config.setMargin(0);
-                qrCode = QrCodeUtil.generate(siteUrl + "?spread=" + uid, config);
-
                 File file = new File(fileDir + name);
-                ImageIO.write(qrCode, "jpg", file);
+                QrCodeUtil.generate(siteUrl + "?spread=" + uid, config,file);
                 if (StrUtil.isEmpty(localUrl)) {
                     QiniuContent qiniuContent = qiNiuService.uploadPic(file,qiNiuService.find());
-                    systemAttachmentService.attachmentAdd(name, String.valueOf(FileUtil.size(file)),
+                    systemAttachmentService.attachmentAdd(name, String.valueOf(qiniuContent.getSize()),
                             qiniuContent.getUrl(), qiniuContent.getUrl(),2);
                     qrCodeUrl = qiniuContent.getUrl();
                 }else {

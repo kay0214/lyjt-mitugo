@@ -404,26 +404,25 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
                 config.setMargin(0);
                 BufferedImage qrCode;
                 //如果类型是小程序
+                File file = new File(fileDir + name);
                 if (userType.equals(AppFromEnum.ROUNTINE.getValue())) {
                     //小程序地址
                     siteUrl = siteUrl + "/shop/";
                     //生成二维码
-                    qrCode = QrCodeUtil.generate(siteUrl + "?productId=" + id + "&spread=" + uid + "&codeType=" + AppFromEnum.ROUNTINE.getValue(), config);
+                    QrCodeUtil.generate(siteUrl + "?productId=" + id + "&spread=" + uid + "&codeType=" + AppFromEnum.ROUNTINE.getValue(), config,file);
                 } else if (userType.equals(AppFromEnum.APP.getValue())) {
                     //h5地址
                     siteUrl = siteUrl + "/shop/";
                     //生成二维码
-                    qrCode = QrCodeUtil.generate(siteUrl + "?productId=" + id + "&spread=" + uid + "&codeType=" + AppFromEnum.APP.getValue(), config);
+                    QrCodeUtil.generate(siteUrl + "?productId=" + id + "&spread=" + uid + "&codeType=" + AppFromEnum.APP.getValue(), config,file);
                 } else {//如果类型是h5
                     //生成二维码
-                    qrCode = QrCodeUtil.generate(siteUrl + "/detail/" + id + "?spread=" + uid, config);
+                    QrCodeUtil.generate(siteUrl + "/detail/" + id + "?spread=" + uid, config,file);
                 }
 
-                File file = new File(fileDir + name);
-                ImageIO.write(qrCode, "jpg", file);
                 if (StrUtil.isEmpty(localUrl)) {
                     QiniuContent qiniuContent = qiNiuService.uploadPic(file,qiNiuService.find());
-                    systemAttachmentService.attachmentAdd(name, String.valueOf(FileUtil.size(file)),
+                    systemAttachmentService.attachmentAdd(name, String.valueOf(qiniuContent.getSize()),
                             qiniuContent.getUrl(), qiniuContent.getUrl(),2);
                     qrCodeUrl = qiniuContent.getUrl();
                 }else {
