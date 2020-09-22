@@ -33,6 +33,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -243,5 +244,44 @@ public class QiNiuServiceImpl implements QiNiuService {
             list.add(map);
         }
         FileUtil.downloadExcel(list, response);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public QiniuContent uploadPic(File file, QiniuConfig qiniuConfig) {
+        if(qiniuConfig.getId() == null){
+            throw new BadRequestException("请先添加相应配置，再操作");
+        }
+        // 构造一个带指定Zone对象的配置类
+        Configuration cfg = new Configuration(QiNiuUtil.getRegion(qiniuConfig.getZone()));
+        UploadManager uploadManager = new UploadManager(cfg);
+        Auth auth = Auth.create(qiniuConfig.getAccessKey(), qiniuConfig.getSecretKey());
+        String upToken = auth.uploadToken(qiniuConfig.getBucket());
+        try {
+            String key = file.getName();
+            if(qiniuContentService.getOne(new QueryWrapper<QiniuContent>().eq("name", FileUtil.getFileNameNoEx(key)).eq("suffix",FileUtil.getExtensionName(key))) != null) {
+                key = QiNiuUtil.getKey(key);
+            }
+            Response response = uploadManager.put(file, key, upToken);
+            //解析上传成功的结果
+
+            DefaultPutRet putRet = JSON.parseObject(response.bodyString(), DefaultPutRet.class);
+
+            QiniuContent content = qiniuContentService.getOne(new QueryWrapper<QiniuContent>().eq("name",FileUtil.getFileNameNoEx(putRet.key)).eq("suffix",FileUtil.getExtensionName(key)));
+            if (content == null) {
+                //存入数据库
+                QiniuContent qiniuContent = new QiniuContent();
+                qiniuContent.setSuffix(FileUtil.getExtensionName(putRet.key));
+                qiniuContent.setBucket(qiniuConfig.getBucket());
+                qiniuContent.setType(qiniuConfig.getType());
+                qiniuContent.setName(FileUtil.getFileNameNoEx(putRet.key));
+                qiniuContent.setUrl(qiniuConfig.getHost()+"/"+putRet.key);
+                qiniuContent.setSize(FileUtil.getSize(Integer.parseInt(file.length()+"")));
+                qiniuContentService.save(qiniuContent);
+                return qiniuContent;
+            }
+            return content;
+        } catch (Exception e) {
+            throw new BadRequestException(e.getMessage());
+        }
     }
 }
