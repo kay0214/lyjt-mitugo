@@ -41,7 +41,7 @@ public class WithdrawServiceImpl implements WithdrawService {
     /**
      * 旅游集团服务器ip
      */
-    final static String payUrl = "http://127.0.0.1:88888888";
+    final static String payUrl = "http://127.0.0.1:8099/lyjt/transfer";
 
 
     @Autowired
