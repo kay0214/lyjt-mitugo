@@ -133,10 +133,6 @@ public class StoreOrderController {
         if (null != currUser.getChildUser()) {
             criteria.setChildUser(currUser.getChildUser());
         }
-        if(0==criteria.getUserRole()&&StrUtil.isNotEmpty(criteria.getMerUsername())){
-            //商户名
-            criteria.setMerUserId(yxStoreOrderService.getUserIdListByName(criteria.getMerUsername()));
-        }
 
         //默认查询所有快递订单
         criteria.setShippingType(1);

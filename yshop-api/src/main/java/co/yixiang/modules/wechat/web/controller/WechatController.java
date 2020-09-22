@@ -449,7 +449,9 @@ public class WechatController extends BaseController {
         try {
             WxPayService wxPayService = WxPayConfiguration.getPayService();
             WxPayRefundNotifyResult result = wxPayService.parseRefundNotifyResult(xmlData);
-            String orderId = result.getReqInfo().getOutTradeNo();
+            log.info("退款回调返回 ： " + JSONObject.toJSONString(result));
+//            String orderId = result.getReqInfo().getOutTradeNo();
+            String orderId = result.getReqInfo().getOutRefundNo();
             BigDecimal refundFee = BigNum.div(result.getReqInfo().getRefundFee(), 100);
             YxStoreOrderQueryVo orderInfo = orderService.getOrderInfo(orderId, 0);
             log.info("退款回调通知处理 ： " + JSONObject.toJSONString(orderInfo));
