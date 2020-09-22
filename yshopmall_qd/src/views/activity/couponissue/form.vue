@@ -28,9 +28,9 @@
       <el-form-item label="发布数量" prop='totalCount' :rules="totalCountRules()">
         <el-input v-model="form.totalCount" style="width: 300px;" maxlength='9' />
       </el-form-item>
-      <el-form-item label="是否不限量" prop='isPermanent'>
-        <el-radio v-model="form.isPermanent" :label="1">不限量</el-radio>
-        <el-radio v-model="form.isPermanent" :label="0">限量</el-radio>
+      <el-form-item label="是否不限量" prop='isPermanent' style='display:none'>
+        <el-radio v-model="form.isPermanent" :label="1" disabled >不限量</el-radio>
+        <el-radio v-model="form.isPermanent" :label="0" disabled >限量</el-radio>
       </el-form-item>
       <el-form-item label="状态" prop='status'>
         <el-radio v-model="form.status" :label="1">开启</el-radio>
@@ -96,9 +96,9 @@ export default {
         endTimeDate:[
           {required:true,message:'必填项',trigger:'blur'},
         ],
-        isPermanent:[
-          {required:true,message:'必填项',trigger:'blur'},
-        ],
+        // isPermanent:[
+        //   {required:true,message:'必填项',trigger:'blur'},
+        // ],
         status:[
           {required:true,message:'必填项',trigger:'blur'},
         ],
@@ -106,9 +106,9 @@ export default {
     }
   }, 
   watch: {
-    "form.isPermanent": function(newValue, old) {
-      this.isPermanentStatus = newValue == 1 ? false : true
-    }
+    // "form.isPermanent": function(newValue, old) {
+    //   this.isPermanentStatus = newValue == 1 ? false : true
+    // }
   },
   methods: {
     cancel() {
@@ -127,10 +127,6 @@ export default {
             trigger: 'blur'
           },
         ]
-    },
-    changePermanent() {
-      console.log(this.form.isPermanent)
-      // this.isPermanentStatus = this.form.isPermanent == 1 ? false : true
     },
     doSubmit() {
       this.$refs.form.validate(ret=>{
@@ -184,7 +180,7 @@ export default {
         endTime: '',
         totalCount: '',
         remainCount: '',
-        isPermanent: '',
+        isPermanent: 0,
         status: '',
         isDel: '',
         addTime: ''
