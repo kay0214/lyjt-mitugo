@@ -98,17 +98,17 @@ public class CreatShareStoreServiceImpl implements CreatShareStoreService {
                 tempLineLenb += tempCharLenb;
                 if (tempLineLenb >= (back.getWidth() + 220)) {
                     //长度已经满一行,进行文字叠加
-                    g.drawString(sbb.toString(), tempXb, tempYb + 32);
+                    g.drawString(sbb.toString(), tempXb, tempYb + 38);
                     //清空内容,重新追加
                     sbb.delete(0, sbb.length());
-                    //每行文字间距50
-                    tempYb += 32;
+                    //每行文字间距38
+                    tempYb += 38;
                     tempLineLenb = 0;
                 }
                 //追加字符
                 sbb.append(tempChar);
             }
-            g.drawString(sbb.toString(), tempXb, tempYb + 32);
+            g.drawString(sbb.toString(), tempXb, tempYb + 38);
 
             //------------------------------------------------文案-----------------------
             //文案
