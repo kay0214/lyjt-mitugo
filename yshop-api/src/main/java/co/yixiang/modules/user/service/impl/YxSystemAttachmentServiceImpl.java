@@ -69,6 +69,21 @@ public class YxSystemAttachmentServiceImpl extends BaseServiceImpl<YxSystemAttac
     }
 
     @Override
+    public void attachmentAdd(String name, String attSize, String attDir,String sattDir,Integer imageType) {
+        YxSystemAttachment attachment = new YxSystemAttachment();
+        attachment.setName(name);
+        attachment.setAttSize(attSize);
+        attachment.setAttDir(attDir);
+        attachment.setAttType("image/jpeg");
+        attachment.setSattDir(sattDir);
+        attachment.setTime(OrderUtil.getSecondTimestampTwo());
+        attachment.setImageType(imageType);
+        attachment.setModuleType(2);
+        attachment.setPid(1);
+        yxSystemAttachmentMapper.insert(attachment);
+    }
+
+    @Override
     public void newAttachmentAdd(String name, String attSize, String attDir, String sattDir, int uid, String code) {
         YxSystemAttachment attachment = new YxSystemAttachment();
         attachment.setName(name);

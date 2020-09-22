@@ -140,19 +140,19 @@ public class YxStoreInfoController extends BaseController {
     /**
      * 商品详情海报
      */
-    @GetMapping("/store/poster1/{id}")
+    @GetMapping("/store/poster/{id}")
     @ApiOperation(value = "商铺详情海报", notes = "商铺详情海报")
     public ApiResult<String> productPoster(@PathVariable Integer id) throws IOException, FontFormatException {
 
-        ApiResult rr = yxStoreInfoService.productPoster(id);
+        ApiResult result = yxStoreInfoService.productPoster(id);
 
-        return rr;
+        return result;
     }
 
     /**
      * 商品详情海报
      */
-    @GetMapping("/store/poster/{id}")
+    @GetMapping("/store/poster1/{id}")
     @ApiOperation(value = "商铺详情海报", notes = "商铺详情海报")
     public ApiResult<String> prodoctPoster(@PathVariable Integer id) throws IOException, FontFormatException {
         int uid = SecurityUtils.getUserId().intValue();
