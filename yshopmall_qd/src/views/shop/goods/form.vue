@@ -11,12 +11,12 @@
       <!-- <el-form-item label="关键字" prop='keyword'>
         <el-input v-model="form.keyword" style="width: 500px;" />
       </el-form-item> -->
-      <el-form-item label="单位名" prop='unitName'>
+      <el-form-item label="商品单位" prop='unitName'>
         <el-input v-model="form.unitName" style="width: 320px;" maxlength="3" />
       </el-form-item>
-      <el-form-item label="产品条码" prop='barCode'>
+      <!-- <el-form-item label="产品条码" prop='barCode'>
         <el-input v-model="form.barCode" style="width: 320px;" maxlength="30" />
-      </el-form-item>
+      </el-form-item> -->
       <el-form-item label="商品图片" prop='imageArr'>
         <MaterialList v-model="form.imageArr" style="width: 500px" type="image" :num="1" :width="150" :height="150" @setValue='(val)=>{form.imageArr=val;$refs.form.validateField("imageArr")}'/>
       </el-form-item>
@@ -24,7 +24,7 @@
         <MaterialList v-model="form.sliderImageArr" style="width: 500px" type="image" :num="8" :width="150" :height="150" @setValue='(val)=>{form.sliderImageArr=val;$refs.form.validateField("sliderImageArr")}'/>
       </el-form-item>
       <el-form-item label="商品简介" prop='storeInfo'>
-        <el-input v-model="form.storeInfo" style="width: 500px;" rows="5" type="textarea" maxlength="200" />
+        <el-input v-model="form.storeInfo" style="width: 500px;" rows="5" type="textarea" maxlength="88" />
       </el-form-item>
       <el-form-item label="产品描述" prop='description'>
         <editor v-model="form.description" @change="descriptionChange"/>
