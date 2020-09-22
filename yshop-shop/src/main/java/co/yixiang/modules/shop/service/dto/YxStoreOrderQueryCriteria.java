@@ -69,4 +69,10 @@ public class YxStoreOrderQueryCriteria extends BaseCriteria{
 
     @Query
     private Integer storeId;
+
+    @Query
+    private String merUsername;
+
+    private Integer merUserId;
+
 }

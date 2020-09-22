@@ -84,6 +84,7 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<StoreOrderMapper, Y
     private YxStoreOrderCartInfoService orderCartInfoService;
     private YxStoreCouponUserMapper yxStoreCouponUserMapper;
     private StoreProductAttrValueMapper storeProductAttrValueMapper;
+    private UserService sysUserService;
 
     @Override
     public OrderCountDto getOrderCount() {
@@ -200,6 +201,10 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<StoreOrderMapper, Y
         //
         if (null != criteria.getRealName()) {
             queryWrapper.lambda().like(YxStoreOrder::getRealName, criteria.getRealName());
+        }
+        //商户id
+        if (null!=criteria.getMerUserId()) {
+            queryWrapper.lambda().eq(YxStoreOrder::getMerId, criteria.getMerUserId());
         }
         if (!CollectionUtils.isEmpty(criteria.getAddTime())) {
             List<String> listAddTime = criteria.getAddTime();
@@ -737,5 +742,20 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<StoreOrderMapper, Y
         } else {
             yxStoreProductMapper.incStockDecSales(num, productId);
         }
+    }
+
+    @Override
+    public Integer getUserIdListByName(String userName){
+        List<Integer> listIds = new ArrayList<>();
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+//        queryWrapper.likeRight("username",userName);
+        queryWrapper.likeRight("username",userName);
+        //商户
+//        queryWrapper.eq("user_role",2);
+//        List<User> userList = sysUserService.list(queryWrapper);
+        User userList = sysUserService.getOne(queryWrapper);
+
+        return userList.getId().intValue();
+
     }
 }
