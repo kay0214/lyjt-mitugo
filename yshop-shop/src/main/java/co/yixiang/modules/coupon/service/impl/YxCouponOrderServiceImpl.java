@@ -21,10 +21,12 @@ import co.yixiang.modules.coupon.service.dto.YxCouponOrderDto;
 import co.yixiang.modules.coupon.service.dto.YxCouponOrderQueryCriteria;
 import co.yixiang.modules.coupon.service.dto.YxCouponsDto;
 import co.yixiang.modules.coupon.service.mapper.YxCouponOrderMapper;
+import co.yixiang.modules.shop.domain.User;
 import co.yixiang.modules.shop.domain.YxImageInfo;
 import co.yixiang.modules.shop.domain.YxStoreInfo;
 import co.yixiang.modules.shop.service.YxImageInfoService;
 import co.yixiang.modules.shop.service.YxStoreInfoService;
+import co.yixiang.modules.shop.service.mapper.UserSysMapper;
 import co.yixiang.mp.service.YxMiniPayService;
 import co.yixiang.utils.FileUtil;
 import co.yixiang.utils.OrderUtil;
@@ -75,6 +77,8 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
     private MqProducer mqProducer;
     @Autowired
     private YxMiniPayService miniPayService;
+    @Autowired
+    private UserSysMapper userSysMapper;
 
     @Override
     //@Cacheable
@@ -113,6 +117,16 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
             }
             if ("userPhone".equals(criteria.getOrderType())) {
                 queryWrapper.lambda().like(YxCouponOrder::getUserPhone, criteria.getValue());
+            }
+            if ("merUsername".equals(criteria.getOrderType())) {
+                User user = this.userSysMapper.selectOne(new QueryWrapper<User>().lambda().eq(User::getUsername, criteria.getValue()));
+                if (null == user) {
+                    Map<String, Object> map = new LinkedHashMap<>(2);
+                    map.put("content", new ArrayList<>());
+                    map.put("totalElements", 0);
+                    return map;
+                }
+                queryWrapper.lambda().eq(YxCouponOrder::getMerId, user.getId());
             }
         }
 
