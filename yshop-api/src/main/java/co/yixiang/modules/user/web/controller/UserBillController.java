@@ -24,13 +24,14 @@ import co.yixiang.modules.user.service.YxUserService;
 import co.yixiang.modules.user.web.param.PromParam;
 import co.yixiang.modules.user.web.param.YxUserBillQueryParam;
 import co.yixiang.modules.user.web.vo.YxUserQueryVo;
+import co.yixiang.tools.domain.QiniuContent;
+import co.yixiang.tools.service.QiNiuService;
 import co.yixiang.utils.OrderUtil;
 import co.yixiang.utils.SecurityUtils;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,18 +59,30 @@ import java.util.Map;
  **/
 @Slf4j
 @RestController
-@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 @Api(value = "用户分销", tags = "用户:用户分销", description = "用户分销")
 public class UserBillController extends BaseController {
 
-    private final YxUserBillService userBillService;
-    private final YxUserExtractService extractService;
-    private final YxSystemConfigService systemConfigService;
-    private final YxUserService yxUserService;
-    private final YxSystemAttachmentService systemAttachmentService;
+    @Autowired
+    YxUserBillService userBillService;
+    @Autowired
+    YxUserExtractService extractService;
+    @Autowired
+    YxSystemConfigService systemConfigService;
+    @Autowired
+    YxUserService yxUserService;
+    @Autowired
+    YxSystemAttachmentService systemAttachmentService;
 
+    @Autowired
+    QiNiuService qiNiuService;
+    
     @Value("${file.path}")
     private String path;
+
+
+    @Value("${file.localUrl}")
+    private String localUrl;
+
 
     /**
      * 推广数据    昨天的佣金   累计提现金额  当前佣金
@@ -309,58 +322,65 @@ public class UserBillController extends BaseController {
      */
     @GetMapping("/spread/banner")
     @ApiOperation(value = "分销二维码海报生成", notes = "分销二维码海报生成")
-    public ApiResult<Object> spreadBanner(@RequestParam(value = "", required = false) String form) {
+    public ApiResult<Object> spreadBanner(@RequestParam(value = "", required = false) String form) throws IOException, FontFormatException {
         int uid = SecurityUtils.getUserId().intValue();
         YxUserQueryVo userInfo = yxUserService.getYxUserById(uid);
-        String siteUrl = systemConfigService.getData(SystemConfigConstants.SITE_URL);
-        if (StrUtil.isEmpty(siteUrl)) {
-            return ApiResult.fail("未配置h5地址");
-        }
+
         String apiUrl = systemConfigService.getData(SystemConfigConstants.API_URL);
         if (StrUtil.isEmpty(apiUrl)) {
             return ApiResult.fail("未配置api地址");
         }
 
-        String spreadUrl = "";
+        String spreadUrl;
 
-            String userType = userInfo.getUserType();
-            if (!userType.equals(AppFromEnum.ROUNTINE.getValue())) {
-                userType = AppFromEnum.H5.getValue();
-            }
+        String userType = userInfo.getUserType();
+        if (!userType.equals(AppFromEnum.ROUNTINE.getValue())) {
+            userType = AppFromEnum.H5.getValue();
+        }
+        String spreadPicName = uid + "_" + userType + "_user_spread.jpg";
+        YxSystemAttachment attachmentT = systemAttachmentService.getInfo(spreadPicName);
 
+        if (ObjectUtil.isNotNull(attachmentT)) {
+            spreadUrl = attachmentT.getImageType().equals(2)? attachmentT.getSattDir() : apiUrl + "/file/" + attachmentT.getSattDir();
+        }else{
             String name = uid + "_" + userType + "_user_wap.jpg";
-
             YxSystemAttachment attachment = systemAttachmentService.getInfo(name);
+
             String fileDir = path + "qrcode" + File.separator;
-            String qrcodeUrl = "";
+            String qrCodeUrl;
             if (ObjectUtil.isNull(attachment)) {
+                String siteUrl = systemConfigService.getData(SystemConfigConstants.SITE_URL);
+                if (StrUtil.isEmpty(siteUrl)) {
+                    return ApiResult.fail("未配置h5地址");
+                }
                 //生成二维码
                 //判断用户是否小程序,注意小程序二维码生成路径要与H5不一样 不然会导致都跳转到小程序问题
                 if (userType.equals(AppFromEnum.ROUNTINE.getValue())) {
                     siteUrl = siteUrl + "/distribution/";
                 }
-                File file = FileUtil.mkdir(new File(fileDir));
+                BufferedImage qrCode;
                 QrConfig config = new QrConfig(122, 122);
                 config.setMargin(0);
-                QrCodeUtil.generate(siteUrl + "?spread=" + uid, config,
-                        FileUtil.file(fileDir + name));
+                qrCode = QrCodeUtil.generate(siteUrl + "?spread=" + uid, config);
 
-                systemAttachmentService.attachmentAdd(name, String.valueOf(FileUtil.size(file)),
-                        fileDir + name, "qrcode/" + name);
+                File file = new File(fileDir + name);
+                ImageIO.write(qrCode, "jpg", file);
+                if (StrUtil.isEmpty(localUrl)) {
+                    QiniuContent qiniuContent = qiNiuService.uploadPic(file,qiNiuService.find());
+                    systemAttachmentService.attachmentAdd(name, String.valueOf(FileUtil.size(file)),
+                            qiniuContent.getUrl(), qiniuContent.getUrl(),2);
+                    qrCodeUrl = qiniuContent.getUrl();
+                }else {
+                    systemAttachmentService.attachmentAdd(name, String.valueOf(FileUtil.size(file)),
+                            fileDir + name, "qrcode/" + name);
+                    qrCodeUrl = apiUrl + "/file/qrcode/" + name;
+                }
 
-                qrcodeUrl = apiUrl + "/file/qrcode/" + name;
             } else {
-                qrcodeUrl = apiUrl + "/file/" + attachment.getSattDir();
+                qrCodeUrl = attachment.getImageType().equals(2)?attachment.getSattDir():apiUrl + "/file/" + attachment.getSattDir();
             }
 
-            String spreadPicName = uid + "_" + userType + "_user_spread.jpg";
             String spreadPicPath = fileDir + spreadPicName;
-
-            YxSystemAttachment attachmentT = systemAttachmentService.getInfo(spreadPicName);
-
-
-            if (ObjectUtil.isNull(attachmentT)) {
-                try {
 
                     //创建图片
                     BufferedImage img = new BufferedImage(750, 1624, BufferedImage.TYPE_INT_RGB);
@@ -390,7 +410,7 @@ public class UserBillController extends BaseController {
                     //读取二维码图片
                     BufferedImage qrCode = null;
                     try {
-                        qrCode = ImageIO.read(new URL(qrcodeUrl));
+                        qrCode = ImageIO.read(new URL(qrCodeUrl));
                     } catch (IOException e) {
                         log.error("二维码图片读取失败", e);
                         e.printStackTrace();
@@ -419,18 +439,19 @@ public class UserBillController extends BaseController {
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                    systemAttachmentService.attachmentAdd(spreadPicName,
-                            String.valueOf(FileUtil.size(new File(spreadPicPath))),
-                            spreadPicPath, "qrcode/" + spreadPicName);
-                    spreadUrl = apiUrl + "/file/qrcode/" + spreadPicName;
-                    //保存到本地 生成文件名字
 
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            } else {
-                spreadUrl = apiUrl + "/file/" + attachmentT.getSattDir();
-            }
+                    if (StrUtil.isEmpty(localUrl)) {
+                        QiniuContent qiniuContent = qiNiuService.uploadPic(file,qiNiuService.find());
+                        systemAttachmentService.attachmentAdd(spreadPicName,String.valueOf(qiniuContent.getSize()),
+                                qiniuContent.getUrl(), qiniuContent.getUrl(),2);
+                        spreadUrl = qiniuContent.getUrl();
+                    }else {
+                        systemAttachmentService.attachmentAdd(spreadPicName,String.valueOf(FileUtil.size(new File(spreadPicPath))),
+                                spreadPicPath, "qrcode/" + spreadPicName);
+                        spreadUrl = apiUrl + "/file/qrcode/" + spreadPicName;
+                    }
+
+        }
 
         java.util.List<Map<String, Object>> list = new ArrayList<>();
 

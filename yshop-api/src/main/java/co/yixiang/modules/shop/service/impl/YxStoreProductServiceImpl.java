@@ -513,12 +513,13 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
         String spreadUrl;
         if(ObjectUtil.isNotNull(attachment)){
             spreadUrl = attachment.getImageType().equals(2)? attachment.getSattDir() : apiUrl + "/file/" + attachment.getSattDir();
-        }else {
-            // 海报
-            String siteUrl = systemConfigService.getData(SystemConfigConstants.SITE_URL);
-            if (StrUtil.isEmpty(siteUrl)) {
-                return ApiResult.fail("未配置h5地址");
-            }
+            return ApiResult.ok(spreadUrl);
+        }
+        // 海报
+        String siteUrl = systemConfigService.getData(SystemConfigConstants.SITE_URL);
+        if (StrUtil.isEmpty(siteUrl)) {
+            return ApiResult.fail("未配置h5地址");
+        }
 
             String fileDir = path + "qrcode" + File.separator;
             String spreadPicPath = fileDir + spreadPicName;
@@ -741,8 +742,6 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
                         spreadPicPath, "qrcode/" + spreadPicName,1);
                 spreadUrl = apiUrl + "/file/qrcode/" + spreadPicName;
             }
-        }
-
         return ApiResult.ok(spreadUrl);
     }
 

@@ -385,7 +385,8 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
         String spreadUrl;
         if(ObjectUtil.isNotNull(attachmentT)){
             spreadUrl = attachmentT.getImageType().equals(2)? attachmentT.getSattDir() : apiUrl + "/file/" + attachmentT.getSattDir();
-        }else {
+            return ApiResult.ok(spreadUrl);
+        }
             // 海报
             String siteUrl = systemConfigService.getData(SystemConfigConstants.SITE_URL);
             if (StrUtil.isEmpty(siteUrl)) {
@@ -567,7 +568,6 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
                         spreadPicPath, "qrcode/" + spreadPicName);
                 spreadUrl = apiUrl + "/file/qrcode/" + spreadPicName;
             }
-        }
         return ApiResult.ok(spreadUrl);
     }
 
