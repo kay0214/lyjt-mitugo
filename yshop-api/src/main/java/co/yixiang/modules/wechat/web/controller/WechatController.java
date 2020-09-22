@@ -526,7 +526,6 @@ public class WechatController extends BaseController {
 //            merBill.setMark("小程序购买商品订单退款");
 //            this.yxUserBillService.save(merBill);
 
-            log.info("退款回调通知处理 ，更新 ： " + JSONObject.toJSONString(orderInfo));
             return WxPayNotifyResponse.success("处理成功!");
         } catch (WxPayException | IllegalAccessException e) {
             log.error(e.getMessage());

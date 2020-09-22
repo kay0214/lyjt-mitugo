@@ -569,7 +569,8 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<StoreOrderMapper, Y
             yxStoreOrderStatusService.save(storeOrderStatus);
         } else {
             BigDecimal bigDecimal = new BigDecimal("100");
-            BigDecimal bigSumPrice = new BigDecimal(Double.toString(yxStoreOrderMapper.sumPayPrice(order.getPaymentNo())));
+//            BigDecimal bigSumPrice = new BigDecimal(Double.toString(yxStoreOrderMapper.sumPayPrice(order.getPaymentNo())));
+            BigDecimal bigSumPrice = resources.getPayPrice();
             try {
                 if (OrderInfoEnum.PAY_CHANNEL_1.getValue().equals(resources.getIsChannel())) {
                     //修改->多个订单，同一个付款单号，orderId为退款单号
