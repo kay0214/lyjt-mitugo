@@ -29,9 +29,9 @@
         </template>
       </el-table-column>
       <el-table-column prop="sort" label="排序" width="100" />
-      <el-table-column label="状态" width="100" align="center">
+      <el-table-column label="状态" width="100" align="center">        
         <template slot-scope="scope">
-          <div>
+          <div @click="onStatus(scope.row)">
             <el-tag v-if="scope.row.status === 1" style="cursor: pointer" :type="''">开启</el-tag>
             <el-tag v-else :type=" 'info' ">关闭</el-tag>
           </div>
@@ -99,10 +99,11 @@
 <script>
 import checkPermission from '@/utils/permission'
 import initData from '@/mixins/crud'
-import { del } from '@/api/yxStoreCoupon'
+import { del,edit } from '@/api/yxStoreCoupon'
 import eForm from './form'
 import eIForm from '../couponissue/form'
 import { formatTime } from '@/utils/index'
+
 export default {
   components: { eForm, eIForm },
   mixins: [initData],
@@ -177,7 +178,33 @@ export default {
         isDel: 0
       }
       _this.dialog = true
-    }
+    },    
+    onStatus(form) {
+      let ret=checkPermission(['admin','YXSTORECOUPON_EDIT'])
+      if(!ret){
+        return ret
+      }
+
+      this.$confirm(`确定进行[${form.status ? '关闭' : '开启'}]操作?`, '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      })
+        .then(() => {
+          form.status=form.status?0:1
+          edit(form).then(({ data }) => {
+            this.$message({
+              message: '操作成功',
+              type: 'success',
+              duration: 1000,
+              onClose: () => {
+                this.toQuery()
+              }
+            })
+          })
+        })
+        .catch(() => { })
+    },
   }
 }
 </script>
