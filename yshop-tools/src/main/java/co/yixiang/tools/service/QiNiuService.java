@@ -12,6 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
@@ -105,4 +106,13 @@ public interface QiNiuService {
      * @throws IOException /
      */
     void downloadList(List<QiniuContent> queryAll, HttpServletResponse response) throws IOException;
+
+
+    /**
+     * 海报上传
+     * @param file
+     * @param qiniuConfig
+     * @return
+     */
+    QiniuContent uploadPic(File file, QiniuConfig qiniuConfig);
 }

@@ -131,10 +131,20 @@ public class StoreProductController extends BaseController {
                 queryParam.getLimit().intValue(), 1).getRecords());
     }
 
+
     /**
      * 商品详情海报
      */
     @GetMapping("/product/poster/{pageType}/{id}")
+    @ApiOperation(value = "商品详情海报", notes = "商品详情海报")
+    public ApiResult<String> productPoster(@PathVariable String pageType, @PathVariable Integer id) throws IOException, FontFormatException {
+        ApiResult result =storeProductService.productPoster(pageType,id);
+        return result;
+    }
+    /**
+     * 商品详情海报
+     */
+    @GetMapping("/product/poster1/{pageType}/{id}")
     @ApiOperation(value = "商品详情海报", notes = "商品详情海报")
     public ApiResult<String> prodoctPoster(@PathVariable String pageType, @PathVariable Integer id) throws IOException, FontFormatException {
         int uid = SecurityUtils.getUserId().intValue();

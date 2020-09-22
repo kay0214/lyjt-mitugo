@@ -27,6 +27,8 @@ public interface YxSystemAttachmentService extends BaseService<YxSystemAttachmen
 
     void attachmentAdd(String name,String attSize,String attDir,String sattDir);
 
+    void attachmentAdd(String name, String attSize, String attDir,String sattDir,Integer imageType);
+
     void newAttachmentAdd(String name,String attSize,String attDir,String sattDir,int uid,String code);
 
     /**

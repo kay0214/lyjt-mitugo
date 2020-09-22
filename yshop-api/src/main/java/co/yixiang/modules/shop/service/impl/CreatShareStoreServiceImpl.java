@@ -13,9 +13,11 @@ import co.yixiang.modules.shop.mapper.YxStoreInfoMapper;
 import co.yixiang.modules.shop.service.CreatShareStoreService;
 import co.yixiang.modules.user.entity.YxSystemAttachment;
 import co.yixiang.modules.user.service.YxSystemAttachmentService;
+import co.yixiang.tools.service.QiNiuService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.imageio.ImageIO;
@@ -44,6 +46,13 @@ public class CreatShareStoreServiceImpl implements CreatShareStoreService {
 
     @Autowired
     YxImageInfoService yxImageInfoService;
+
+
+    @Value("${file.localUrl}")
+    private String localUrl;
+
+    @Autowired
+    QiNiuService qiNiuService;
 
     @Override
     public String creatProductPic(Integer id, String shareCode, String spreadPicName, String spreadPicPath, String apiUrl) throws IOException, FontFormatException {

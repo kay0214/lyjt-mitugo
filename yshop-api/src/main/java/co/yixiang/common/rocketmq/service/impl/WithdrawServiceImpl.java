@@ -18,10 +18,7 @@ import co.yixiang.modules.user.mapper.YxUserBillMapper;
 import co.yixiang.modules.user.service.YxUserBillService;
 import co.yixiang.modules.user.service.YxUserExtractService;
 import co.yixiang.modules.user.service.YxUserService;
-import co.yixiang.utils.DateUtils;
-import co.yixiang.utils.OrderUtil;
-import co.yixiang.utils.RedisUtil;
-import co.yixiang.utils.SnowflakeUtil;
+import co.yixiang.utils.*;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import lombok.extern.slf4j.Slf4j;
@@ -70,7 +67,7 @@ public class WithdrawServiceImpl implements WithdrawService {
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void updateWithdraw(String id) {
         String value = RedisUtil.get(ShopConstants.WITHDRAW_USER + id);
-        if (null != value) {
+        if (StringUtils.isNotBlank(value)) {
             log.info("重复提现，id：{}", id);
             return;
         }

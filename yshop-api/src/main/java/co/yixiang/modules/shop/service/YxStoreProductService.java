@@ -1,5 +1,6 @@
 package co.yixiang.modules.shop.service;
 
+import co.yixiang.common.api.ApiResult;
 import co.yixiang.modules.shop.entity.YxStoreProduct;
 import co.yixiang.common.service.BaseService;
 import co.yixiang.modules.shop.web.dto.ProductDTO;
@@ -8,6 +9,8 @@ import co.yixiang.modules.shop.web.vo.YxStoreProductNoAttrQueryVo;
 import co.yixiang.modules.shop.web.vo.YxStoreProductQueryVo;
 import co.yixiang.common.web.vo.Paging;
 
+import java.awt.*;
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.List;
 
@@ -84,4 +87,12 @@ public interface YxStoreProductService extends BaseService<YxStoreProduct> {
      * @return
      */
     public String getProductArrtValueByCartId (String cartId);
+
+    /**
+     * 商品海报
+     * @param pageType
+     * @param id
+     * @return
+     */
+    ApiResult productPoster(String pageType, Integer id) throws IOException, FontFormatException;
 }
