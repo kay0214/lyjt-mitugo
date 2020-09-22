@@ -67,6 +67,7 @@
           <el-table-column type="selection" width="55" />
           <el-table-column v-if="columns.visible('orderId')" prop="orderId" label="订单号" />
           <el-table-column v-if="columns.visible('realName')" prop="realName" label="用户昵称" />
+          <el-table-column v-if="columns.visible('merUsername')" prop="merUsername" label="商户用户名" />
           <el-table-column v-if="columns.visible('couponPrice')" prop="couponPrice" label="商品信息" >
              <template slot-scope="scope">
                <img :src='scope.row.image' :width='30'/>
@@ -178,7 +179,8 @@ export default {
       queryTypeOptions: [
         { key: 'orderId', display_name: '订单号' },
         { key: 'realName', display_name: '用户姓名' },
-        { key: 'userPhone', display_name: '用户电话' }
+        { key: 'userPhone', display_name: '用户电话' },
+        { key: 'merUsername', display_name: '商户用户名' }
       ],
       createTime: '',
     }

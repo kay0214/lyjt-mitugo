@@ -98,6 +98,7 @@
             <span>{{ scope.row.userDTO.nickname }}</span>
           </template>
         </el-table-column>
+        <el-table-column prop="merUsername" label="商户用户名" />
         <el-table-column prop="cartInfoList" width="300" label="商品信息">
           <template slot-scope="scope">
             <div v-for="(item,index) in scope.row.cartInfoList" v-if="item.cartInfoMap.productInfo.attrInfo">
@@ -260,7 +261,8 @@
         queryTypeOptions: [
           { key: 'orderId', display_name: '订单号' },
           { key: 'realName', display_name: '用户姓名' },
-          { key: 'userPhone', display_name: '用户电话' }
+          { key: 'userPhone', display_name: '用户电话' },
+          { key: 'merUsername', display_name: '商户用户名' }
         ],
         statusOptions: [
           { value: '0', label: '未支付' },
