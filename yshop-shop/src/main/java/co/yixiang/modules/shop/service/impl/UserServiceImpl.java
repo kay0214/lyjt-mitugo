@@ -120,7 +120,7 @@ public class UserServiceImpl extends BaseServiceImpl<UserSysMapper, User> implem
      * @return
      */
     @Override
-    public boolean updateUserWithdraw(Integer uid, Integer userType, BigDecimal extractPrice) {
+    public Integer updateUserWithdraw(Integer uid, Integer userType, BigDecimal extractPrice) {
         if (extractPrice.compareTo(new BigDecimal(50)) <= 0) {
             throw new BadRequestException("提现金额必须大于50");
         }
@@ -152,7 +152,7 @@ public class UserServiceImpl extends BaseServiceImpl<UserSysMapper, User> implem
         yxUserExtract.setBankMobile(user.getPhone());
         yxUserExtract.setCnapsCode(yxMerchantsDetail.getBankCode());
         this.yxUserExtractMapper.insert(yxUserExtract);
-        return true;
+        return yxUserExtract.getId();
     }
 
     public static void main(String[] args) {
