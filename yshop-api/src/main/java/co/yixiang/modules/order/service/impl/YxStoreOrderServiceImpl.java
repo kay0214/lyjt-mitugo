@@ -1617,6 +1617,20 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
     }
 
     @Override
+    public YxStoreOrder getOrderInfoByParam(String unique) {
+        QueryWrapper<YxStoreOrder> wrapper = new QueryWrapper<>();
+        wrapper.eq("is_del", 0).and(
+                i -> i.eq("order_id", unique).or().eq("`unique`", unique).or()
+                        .eq("extend_order_id", unique).or().eq("`payment_no`", unique));
+        List<YxStoreOrder> yxStoreOrderList = yxStoreOrderMapper.selectList(wrapper);
+        if (CollectionUtils.isNotEmpty(yxStoreOrderList)) {
+            YxStoreOrder order = yxStoreOrderList.get(0);
+            return order;
+        }
+        return null;
+    }
+
+    @Override
     public CacheDTO getCacheOrderInfo(int uid, String key) {
 
         return (CacheDTO) redisService.getObj("user_order_" + uid + key);
