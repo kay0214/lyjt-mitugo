@@ -524,11 +524,10 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
             String fileDir = path + "qrcode" + File.separator;
             String spreadPicPath = fileDir + spreadPicName;
 
-            String name = uid + "_" + id + "_store_" + userType + "_product_detail_wap.jpg";
+            String name = uid + "_" + id + "_"+pageType+"_" + userType + "_product_detail_wap.jpg";
             YxSystemAttachment attachmentWap = systemAttachmentService.getInfo(name);
             String qrCodeUrl;
             if(attachmentWap == null){
-                BufferedImage qrCode;
                 QrConfig config = new QrConfig(122, 122);
                 config.setMargin(0);
                 //如果类型是小程序
