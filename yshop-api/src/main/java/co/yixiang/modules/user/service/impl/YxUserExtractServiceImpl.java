@@ -173,6 +173,8 @@ public class YxUserExtractServiceImpl extends BaseServiceImpl<YxUserExtractMappe
         queryWrapper.eq("id", param.getId())
                 .eq("seq_no", param.getSeqNo())
                 .eq("true_price", param.getTotalAmount())
+                .or()
+                .eq("extract_price",param.getTotalAmount())
                 .eq("bank_code", param.getPayeeNo())
                 .eq("real_name", param.getPayeeName())
                 .eq("status", 0)
