@@ -689,6 +689,7 @@ export default {
             title: '审核成功'
           })
           this.examineEdit=0;
+          this.$router.replace({ query: { ...this.$route.query, dialog: '' } })
           this.crud.toQuery()
         }else{
           this.examineEdit=1;
