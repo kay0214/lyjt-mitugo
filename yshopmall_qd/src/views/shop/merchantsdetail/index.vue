@@ -551,6 +551,10 @@ export default {
       }
       return true
     },
+    [CRUD.HOOK.afterSubmit]() {
+      this.$router.replace({ query: { ...this.$route.query, dialog: '' } })
+      return true
+    },
     // 新增与编辑前做的操作
     [CRUD.HOOK.afterToCU](crud,form) {
       // 个人认证
@@ -689,7 +693,6 @@ export default {
             title: '审核成功'
           })
           this.examineEdit=0;
-          this.$router.replace({ query: { ...this.$route.query, dialog: '' } })
           this.crud.toQuery()
         }else{
           this.examineEdit=1;
