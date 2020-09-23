@@ -558,7 +558,7 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
                     qrCodeUrl = apiUrl + "/file/qrcode/" + name;
                 }
             }else {
-                qrCodeUrl = attachmentWap.getImageType().equals(2)?attachmentWap.getSattDir():apiUrl + "/file/" + attachment.getSattDir();
+                qrCodeUrl = attachmentWap.getImageType().equals(2)?attachmentWap.getSattDir():apiUrl + "/file/" + attachmentWap.getSattDir();
             }
 
             ProductInfo productInfo = new ProductInfo();
