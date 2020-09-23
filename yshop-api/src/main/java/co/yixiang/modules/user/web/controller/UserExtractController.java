@@ -4,8 +4,10 @@
 package co.yixiang.modules.user.web.controller;
 
 import co.yixiang.common.api.ApiResult;
+import co.yixiang.common.rocketmq.MqProducer;
 import co.yixiang.common.web.controller.BaseController;
 import co.yixiang.common.web.vo.Paging;
+import co.yixiang.constant.MQConstant;
 import co.yixiang.constant.SystemConfigConstants;
 import co.yixiang.modules.shop.service.YxSystemConfigService;
 import co.yixiang.modules.user.service.YxUserExtractService;
@@ -16,6 +18,8 @@ import co.yixiang.modules.user.web.vo.YxUserExtractQueryVo;
 import co.yixiang.modules.user.web.vo.YxUserQueryVo;
 import co.yixiang.utils.SecurityUtils;
 import co.yixiang.utils.StringUtils;
+import com.alibaba.fastjson.JSONObject;
+import com.hyjf.framework.starter.recketmq.MessageContent;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +34,7 @@ import javax.validation.Valid;
 import java.math.BigDecimal;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * <p>
@@ -53,6 +58,9 @@ public class UserExtractController extends BaseController {
     private YxSystemConfigService systemConfigService;
     @Autowired
     private YxUserExtractService yxUserExtractService;
+
+    @Autowired
+    private MqProducer mqProducer;
 
     /**
      * 提现参数
@@ -80,8 +88,14 @@ public class UserExtractController extends BaseController {
     @ApiOperation(value = "用户提现", notes = "用户提现")
     public ApiResult<String> addYxUserExtract(@Valid @RequestBody UserExtParam param) throws Exception {
         int uid = SecurityUtils.getUserId().intValue();
-        userExtractService.updateUserExtract(uid, param);
+        Integer id= userExtractService.updateUserExtract(uid, param);
 
+        if(id!=null && id.intValue()>0){
+            // 插入一条提现是申请记录后发送mq
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("id", id + "");
+            mqProducer.messageSendDelay(new MessageContent(MQConstant.MITU_TOPIC, MQConstant.MITU_WITHDRAW_TAG, UUID.randomUUID().toString(), jsonObject),2);
+        }
         ApiResult result = ApiResult.ok();
         result.setMsg("申请提现成功，请等待审核");
         return result;
