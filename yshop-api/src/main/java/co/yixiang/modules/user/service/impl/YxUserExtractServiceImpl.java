@@ -4,10 +4,8 @@
 package co.yixiang.modules.user.service.impl;
 
 import cn.hutool.core.util.StrUtil;
-import co.yixiang.common.rocketmq.MqProducer;
 import co.yixiang.common.service.impl.BaseServiceImpl;
 import co.yixiang.common.web.vo.Paging;
-import co.yixiang.constant.MQConstant;
 import co.yixiang.exception.ErrorRequestException;
 import co.yixiang.modules.pay.param.PaySeachParam;
 import co.yixiang.modules.user.entity.YxUser;
@@ -21,11 +19,9 @@ import co.yixiang.modules.user.web.vo.YxUserExtractQueryVo;
 import co.yixiang.modules.user.web.vo.YxUserQueryVo;
 import co.yixiang.utils.OrderUtil;
 import co.yixiang.utils.StringUtils;
-import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.hyjf.framework.starter.recketmq.MessageContent;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -33,7 +29,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.util.UUID;
 
 
 /**
@@ -53,8 +48,7 @@ public class YxUserExtractServiceImpl extends BaseServiceImpl<YxUserExtractMappe
     YxUserExtractMapper yxUserExtractMapper;
     @Autowired
     YxUserService userService;
-    @Autowired
-    private MqProducer mqProducer;
+
 
     /**
      * 开始提现
@@ -63,7 +57,7 @@ public class YxUserExtractServiceImpl extends BaseServiceImpl<YxUserExtractMappe
      * @param param
      */
     @Override
-    public void updateUserExtract(int uid, UserExtParam param) {
+    public Integer updateUserExtract(int uid, UserExtParam param) {
         YxUserQueryVo userInfo = userService.getYxUserById(uid);
         BigDecimal extractPrice = userInfo.getNowMoney();
         if (extractPrice.compareTo(BigDecimal.ZERO) <= 0) {
@@ -134,10 +128,7 @@ public class YxUserExtractServiceImpl extends BaseServiceImpl<YxUserExtractMappe
         yxUser.setCnapsCode(param.getCnapsCode());
         this.userService.updateById(yxUser);
 
-        // 插入一条提现是申请记录后发送mq
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.put("id", userExtract.getId() + "");
-        mqProducer.messageSend2(new MessageContent(MQConstant.MITU_TOPIC, MQConstant.MITU_WITHDRAW_TAG, UUID.randomUUID().toString(), jsonObject));
+       return userExtract.getId();
     }
 
     @Override
