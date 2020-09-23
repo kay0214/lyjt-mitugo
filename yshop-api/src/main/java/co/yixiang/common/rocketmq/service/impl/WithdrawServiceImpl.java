@@ -270,7 +270,7 @@ public class WithdrawServiceImpl implements WithdrawService {
      */
     private void updateUserInfo(YxUserExtract yxUserExtract, YxUser user) {
 
-        String username = user.getUsername();
+        String username = user.getNickname();
 
         // 商户提现扣减手续费
         saveBill(yxUserExtract, username);
