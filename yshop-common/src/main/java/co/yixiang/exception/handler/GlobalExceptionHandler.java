@@ -50,7 +50,6 @@ public class GlobalExceptionHandler {
         // 打印堆栈信息
         String message = "坏的凭证".equals(e.getMessage()) ? "用户名或密码不正确" : e.getMessage();
         log.info(message);
-        log.info("这里增加个日志测试下登陆用户名密码错误的场景");
         return buildResponseEntity(ApiError.error(message));
     }
 
