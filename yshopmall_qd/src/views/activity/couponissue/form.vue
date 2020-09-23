@@ -11,6 +11,7 @@
         <template>
           <el-date-picker
             v-model="form.startTimeDate"
+            :picker-options="expireStartTimeOption"
             type="datetime"
             placeholder="选择日期时间"
           />
@@ -20,8 +21,9 @@
         <template>
           <el-date-picker
             v-model="form.endTimeDate"
+            :picker-options="expireTimeOption"
             type="datetime"
-            placeholder="选择日期时间"
+            placeholder="选择日期时间"            
           />
         </template>
       </el-form-item>
@@ -102,13 +104,12 @@ export default {
         status:[
           {required:true,message:'必填项',trigger:'blur'},
         ],
-      }
+      },
+      expireStartTimeOption: this.expireStartTimeOptionFun(),
+      expireTimeOption: this.expireTimeOptionFun(),
     }
   }, 
   watch: {
-    // "form.isPermanent": function(newValue, old) {
-    //   this.isPermanentStatus = newValue == 1 ? false : true
-    // }
   },
   methods: {
     cancel() {
@@ -176,14 +177,30 @@ export default {
       this.form = {
         id: '',
         cid: '',
-        startTime: '',
-        endTime: '',
+        startTimeDate: '',
+        endTimeDate: '',
         totalCount: '',
         remainCount: '',
         isPermanent: 0,
         status: '',
         isDel: '',
         addTime: ''
+      }
+    },
+    expireTimeOptionFun(){
+      let that=this
+      return{
+        disabledDate : function(date) {
+          return date.getTime() < new Date(that.form.startTimeDate).getTime()
+        }                    
+      }
+    },
+    expireStartTimeOptionFun(){
+      let that=this
+      return{
+        disabledDate : function(date) {
+          return date.getTime() > new Date(that.form.endTimeDate).getTime()
+        }                    
       }
     }
   }
