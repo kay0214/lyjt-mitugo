@@ -443,7 +443,7 @@ public class YxStoreCartServiceImpl extends BaseServiceImpl<YxStoreCartMapper, Y
                     storeCartQueryVo.setProductInfo(storeProduct);
                     cartQueryVoListInvalid.add(storeCartQueryVo);
                 } else {
-                    if (StrUtil.isNotEmpty(storeCart.getProductAttrUnique())) {
+                    if (StringUtils.isNotBlank(storeCart.getProductAttrUnique())) {
                        /* YxStoreProductAttrValue productAttrValue = productAttrService
                                 .uniqueByAttrInfo(storeCart.getProductAttrUnique());*/
                         //产品规格属性
