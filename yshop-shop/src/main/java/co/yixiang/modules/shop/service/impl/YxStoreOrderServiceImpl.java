@@ -94,7 +94,7 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<StoreOrderMapper, Y
     public OrderCountDto getOrderCount() {
         //获取所有订单转态为已支付的
         List<CountDto> nameList = storeCartService.findCateName();
-        log.info("nameList:" + nameList);
+
         List<OrderCountDto.OrderCountData> list = new ArrayList<>();
         List<String> columns = new ArrayList<>();
         nameList.forEach(data -> {

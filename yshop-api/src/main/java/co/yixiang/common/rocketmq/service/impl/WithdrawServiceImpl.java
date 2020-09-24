@@ -58,11 +58,6 @@ public class WithdrawServiceImpl implements WithdrawService {
     // 提现手续费
     private final BigDecimal EXTRACT_RATE = new BigDecimal(0.006);
 
-
-    @Value("${yshop.snowflake.datacenterId}")
-    private Integer datacenterId;
-
-
     @Override
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void updateWithdraw(String id) {
@@ -306,13 +301,10 @@ public class WithdrawServiceImpl implements WithdrawService {
      */
     private WithdrawInfo setCommonParam(YxUserExtract userExtract ) {
         WithdrawInfo info = new WithdrawInfo();
-        // 生成订单号
-        String uuid = SnowflakeUtil.getOrderId(datacenterId);
-        userExtract.setSeqNo(uuid);
 
         info.setId(userExtract.getId());
         info.setAddTime(userExtract.getAddTime()+"");
-        info.setSeqNo(uuid);
+        info.setSeqNo(userExtract.getSeqNo());
         info.setPayeeMobile(userExtract.getBankMobile());
         // 银行卡
         info.setPayeeNo(userExtract.getBankCode());
