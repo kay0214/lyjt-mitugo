@@ -472,6 +472,8 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
             int tempLineLenb = 0;
             StringBuffer sbb = new StringBuffer();
             //g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_HRGB);
+            g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,RenderingHints.VALUE_ANTIALIAS_ON);
+            g.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL,RenderingHints.VALUE_STROKE_DEFAULT);
             for (int i = 0; i < yxStoreInfo.getStoreName().length(); i++) {
                 char tempChar = yxStoreInfo.getStoreName().charAt(i);
                 tempCharLenb = getCharLen(tempChar, g);
