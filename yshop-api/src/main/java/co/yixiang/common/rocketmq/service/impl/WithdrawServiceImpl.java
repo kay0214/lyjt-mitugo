@@ -128,10 +128,8 @@ public class WithdrawServiceImpl implements WithdrawService {
             //  对公账号
             // 1普通账户；2对公账户
             info.setPayerAccttype(2);
-            // 联行号
-            info.setBankCode(yxMerchantsDetail.getOpenAccountBank());
             // 开户行
-            info.setBankName(yxMerchantsDetail.getOpenAccountSubbranch());
+            info.setBankName(yxMerchantsDetail.getOpenAccountBank());
         }
 
         String result = sendPayRequest(info);
