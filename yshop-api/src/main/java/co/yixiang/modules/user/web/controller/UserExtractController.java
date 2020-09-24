@@ -8,6 +8,7 @@ import co.yixiang.common.rocketmq.MqProducer;
 import co.yixiang.common.web.controller.BaseController;
 import co.yixiang.common.web.vo.Paging;
 import co.yixiang.constant.MQConstant;
+import co.yixiang.constant.ShopConstants;
 import co.yixiang.constant.SystemConfigConstants;
 import co.yixiang.modules.shop.service.YxSystemConfigService;
 import co.yixiang.modules.user.service.YxUserExtractService;
@@ -16,6 +17,7 @@ import co.yixiang.modules.user.web.param.UserExtParam;
 import co.yixiang.modules.user.web.param.YxUserExtractQueryParam;
 import co.yixiang.modules.user.web.vo.YxUserExtractQueryVo;
 import co.yixiang.modules.user.web.vo.YxUserQueryVo;
+import co.yixiang.utils.RedisUtil;
 import co.yixiang.utils.SecurityUtils;
 import co.yixiang.utils.StringUtils;
 import com.alibaba.fastjson.JSONObject;
@@ -88,7 +90,23 @@ public class UserExtractController extends BaseController {
     @ApiOperation(value = "用户提现", notes = "用户提现")
     public ApiResult<String> addYxUserExtract(@Valid @RequestBody UserExtParam param) throws Exception {
         int uid = SecurityUtils.getUserId().intValue();
-        Integer id= userExtractService.updateUserExtract(uid, param);
+        // 同一时间 用户只能提现一次
+        String value = RedisUtil.get(ShopConstants.WITHDRAW_USER_SUBMIT + uid);
+        if (StringUtils.isNotBlank(value)) {
+            log.info("提现 操作过快，请稍候，id：{}", uid);
+            return ApiResult.fail("操作过快，请稍候");
+        }
+
+        RedisUtil.set(ShopConstants.WITHDRAW_USER_SUBMIT + uid, 1, 5);
+        Integer id= 0;
+        try{
+            id= userExtractService.updateUserExtract(uid, param);
+        }catch (Exception e){
+            log.error("提现 出错，id：{}", uid,e);
+            return ApiResult.fail("提现失败，请重试");
+        }finally {
+            RedisUtil.del(ShopConstants.WITHDRAW_USER_SUBMIT + uid);
+        }
 
         if(id!=null && id.intValue()>0){
             // 插入一条提现是申请记录后发送mq
