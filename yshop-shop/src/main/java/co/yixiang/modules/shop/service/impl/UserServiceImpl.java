@@ -23,10 +23,12 @@ import co.yixiang.modules.shop.service.mapper.UserSysMapper;
 import co.yixiang.modules.shop.service.mapper.YxMerchantsDetailMapper;
 import co.yixiang.utils.FileUtil;
 import co.yixiang.utils.OrderUtil;
+import co.yixiang.utils.SnowflakeUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.github.pagehelper.PageInfo;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -63,6 +65,10 @@ public class UserServiceImpl extends BaseServiceImpl<UserSysMapper, User> implem
     private YxUserExtractMapper yxUserExtractMapper;
     @Autowired
     private UserSysMapper userSysMapper;
+
+    @Value("${yshop.snowflake.datacenterId}")
+    private Integer datacenterId;
+
 
     // 提现手续费
     private final BigDecimal EXTRACT_RATE = new BigDecimal(0.01);
@@ -155,6 +161,9 @@ public class UserServiceImpl extends BaseServiceImpl<UserSysMapper, User> implem
         yxUserExtract.setBankMobile(user.getPhone());
         yxUserExtract.setCnapsCode(yxMerchantsDetail.getBankCode());
         yxUserExtract.setTruePrice(extractPrice.subtract(extractPrice.multiply(EXTRACT_RATE)));
+        // 生成订单号
+        String uuid = SnowflakeUtil.getOrderId(datacenterId);
+        yxUserExtract.setSeqNo(uuid);
         this.yxUserExtractMapper.insert(yxUserExtract);
         return yxUserExtract.getId();
     }

@@ -18,12 +18,14 @@ import co.yixiang.modules.user.web.param.YxUserExtractQueryParam;
 import co.yixiang.modules.user.web.vo.YxUserExtractQueryVo;
 import co.yixiang.modules.user.web.vo.YxUserQueryVo;
 import co.yixiang.utils.OrderUtil;
+import co.yixiang.utils.SnowflakeUtil;
 import co.yixiang.utils.StringUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -49,6 +51,8 @@ public class YxUserExtractServiceImpl extends BaseServiceImpl<YxUserExtractMappe
     @Autowired
     YxUserService userService;
 
+    @Value("${yshop.snowflake.datacenterId}")
+    private Integer datacenterId;
 
     /**
      * 开始提现
@@ -114,6 +118,9 @@ public class YxUserExtractServiceImpl extends BaseServiceImpl<YxUserExtractMappe
 //            }
             mark = "使用微信提现" + param.getMoney() + "元";
         }
+        // 生成订单号
+        String uuid = SnowflakeUtil.getOrderId(datacenterId);
+        userExtract.setSeqNo(uuid);
 
         yxUserExtractMapper.insert(userExtract);
 
