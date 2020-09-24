@@ -396,7 +396,7 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
             YxSystemAttachment attachmentWap = systemAttachmentService.getInfo(name);
             String qrCodeUrl;
             if(attachmentWap == null){
-                QrConfig config = new QrConfig(122, 122);
+                QrConfig config = new QrConfig(150, 150);
                 config.setMargin(0);
                 BufferedImage qrCode;
                 //如果类型是小程序
@@ -538,13 +538,13 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
                 e.printStackTrace();
             }
             // 绘制缩小后的图
-            g.drawImage(qrCode.getScaledInstance(122, 122, Image.SCALE_DEFAULT), 54, 1334, null);
+            g.drawImage(qrCode.getScaledInstance(150, 150, Image.SCALE_DEFAULT), 54, 1334, null);
 
             //二维码字体
             g.setFont(font.deriveFont(Font.PLAIN, 25));
             g.setColor(new Color(171, 171, 171));
             //绘制文字
-            g.drawString("扫描或长按小程序码", 210, 1395);
+            g.drawString("扫描或长按小程序码", 238, 1409);
 
             g.dispose();
             //先将画好的海报写到本地
