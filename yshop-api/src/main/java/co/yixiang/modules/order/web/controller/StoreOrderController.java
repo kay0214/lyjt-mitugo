@@ -842,7 +842,7 @@ public class StoreOrderController extends BaseController {
     public ApiResult<ConfirmNewOrderDTO> confirmNew(@RequestBody String jsonStr) {
         JSONObject jsonObject = JSON.parseObject(jsonStr);
         String cartId = jsonObject.getString("cartId");
-        if (StrUtil.isEmpty(cartId)) {
+        if (StringUtils.isBlank(cartId)) {
             return ApiResult.fail("请提交购买的商品");
         }
         int uid = SecurityUtils.getUserId().intValue();
