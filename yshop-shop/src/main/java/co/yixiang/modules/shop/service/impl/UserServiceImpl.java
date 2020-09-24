@@ -52,12 +52,13 @@ import java.util.Map;
  * @date 2020-08-15
  */
 @Service
-@AllArgsConstructor
+//@AllArgsConstructor
 //@CacheConfig(cacheNames = "user")
 @Transactional(propagation = Propagation.SUPPORTS, readOnly = true, rollbackFor = Exception.class)
 public class UserServiceImpl extends BaseServiceImpl<UserSysMapper, User> implements UserService {
 
-    private final IGenerator generator;
+    @Autowired
+    private IGenerator generator;
 
     @Autowired
     private YxMerchantsDetailMapper yxMerchantsDetailMapper;
