@@ -396,7 +396,7 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
             YxSystemAttachment attachmentWap = systemAttachmentService.getInfo(name);
             String qrCodeUrl;
             if(attachmentWap == null){
-                QrConfig config = new QrConfig(122, 122);
+                QrConfig config = new QrConfig(150, 150);
                 config.setMargin(0);
                 BufferedImage qrCode;
                 //如果类型是小程序
@@ -433,7 +433,8 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
             //创建图片
             BufferedImage img = new BufferedImage(750, 1624, BufferedImage.TYPE_INT_RGB);
             //开启画图
-            Graphics g = img.getGraphics();
+            Graphics2D g = img.createGraphics();
+            //Graphics g = img.getGraphics();
             //背景 -- 读取互联网图片
             InputStream stream = getClass().getClassLoader().getResourceAsStream("background.png");
             ImageInputStream background = ImageIO.createImageInputStream(stream);
@@ -470,6 +471,7 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
             //单行字符总长度临时计算
             int tempLineLenb = 0;
             StringBuffer sbb = new StringBuffer();
+            g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_HRGB);
             for (int i = 0; i < yxStoreInfo.getStoreName().length(); i++) {
                 char tempChar = yxStoreInfo.getStoreName().charAt(i);
                 tempCharLenb = getCharLen(tempChar, g);
@@ -536,13 +538,13 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
                 e.printStackTrace();
             }
             // 绘制缩小后的图
-            g.drawImage(qrCode.getScaledInstance(122, 122, Image.SCALE_DEFAULT), 54, 1334, null);
+            g.drawImage(qrCode.getScaledInstance(150, 150, Image.SCALE_DEFAULT), 54, 1334, null);
 
             //二维码字体
             g.setFont(font.deriveFont(Font.PLAIN, 25));
             g.setColor(new Color(171, 171, 171));
             //绘制文字
-            g.drawString("扫描或长按小程序码", 210, 1395);
+            g.drawString("扫描或长按小程序码", 238, 1409);
 
             g.dispose();
             //先将画好的海报写到本地

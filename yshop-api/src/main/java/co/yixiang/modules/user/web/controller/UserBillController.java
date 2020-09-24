@@ -170,7 +170,7 @@ public class UserBillController extends BaseController {
                 if (userType.equals(AppFromEnum.ROUNTINE.getValue())) {
                     siteUrl = siteUrl + "/distribution/";
                 }
-                QrConfig config = new QrConfig(122, 122);
+                QrConfig config = new QrConfig(150, 150);
                 config.setMargin(0);
                 File file = new File(fileDir + name);
                 QrCodeUtil.generate(siteUrl + "?spread=" + uid, config,file);
@@ -194,7 +194,8 @@ public class UserBillController extends BaseController {
                     //创建图片
                     BufferedImage img = new BufferedImage(750, 1624, BufferedImage.TYPE_INT_RGB);
                     //开启画图
-                    Graphics g = img.getGraphics();
+                    Graphics2D g = img.createGraphics();
+                    g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_HRGB);
                     //背景 -- 读取互联网图片
                     InputStream stream = getClass().getClassLoader().getResourceAsStream("background.png");
                     ImageInputStream background = ImageIO.createImageInputStream(stream);
@@ -225,20 +226,20 @@ public class UserBillController extends BaseController {
                         e.printStackTrace();
                     }
                     // 绘制缩小后的图
-                    g.drawImage(qrCode.getScaledInstance(122, 122, Image.SCALE_DEFAULT), 40, 1320, null);
+                    g.drawImage(qrCode.getScaledInstance(150, 150, Image.SCALE_DEFAULT), 40, 1320, null);
 
 
                     //二维码字体
                     g.setFont(font.deriveFont(Font.PLAIN, 25));
                     g.setColor(new Color(171, 171, 171));
                     //绘制文字
-                    g.drawString(userInfo.getNickname() + "邀您加入", 210, 1365);
+                    g.drawString(userInfo.getNickname() + "邀您加入", 238, 1379);
 
                     //二维码字体
                     g.setFont(font.deriveFont(Font.PLAIN, 25));
                     g.setColor(new Color(171, 171, 171));
                     //绘制文字
-                    g.drawString("扫描或长按小程序码", 210, 1400);
+                    g.drawString("扫描或长按小程序码", 210, 1414);
 
                     g.dispose();
                     //先将画好的海报写到本地

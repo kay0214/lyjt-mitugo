@@ -2,6 +2,7 @@ package co.yixiang.modules.shop.rest;
 
 import co.yixiang.common.rocketmq.MqProducer;
 import co.yixiang.constant.MQConstant;
+import co.yixiang.constant.ShopConstants;
 import co.yixiang.enums.BillDetailEnum;
 import co.yixiang.logging.aop.log.Log;
 import co.yixiang.modules.activity.domain.YxUserExtract;
@@ -10,12 +11,15 @@ import co.yixiang.modules.shop.service.YxUserBillService;
 import co.yixiang.modules.shop.service.dto.WithdrawReviewQueryCriteria;
 import co.yixiang.modules.shop.service.dto.YxUserBillQueryCriteria;
 import co.yixiang.utils.CurrUser;
+import co.yixiang.utils.RedisUtil;
 import co.yixiang.utils.SecurityUtils;
+import co.yixiang.utils.StringUtils;
 import com.alibaba.fastjson.JSONObject;
 import com.hyjf.framework.starter.recketmq.MQException;
 import com.hyjf.framework.starter.recketmq.MessageContent;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -30,6 +34,7 @@ import java.util.*;
  * @date 2019-11-06
  */
 @Api(tags = "商城:用户账单表(资金明细)")
+@Slf4j
 @RestController
 @RequestMapping("api")
 public class UserBillController {
@@ -129,12 +134,30 @@ public class UserBillController {
     @PreAuthorize("hasAnyRole('admin','YXUSERBILL_ALL','YXUSERBILL_WITHDRAW')")
     public ResponseEntity<Object> withdraw(@RequestBody YxUserExtract request) throws MQException {
         int uid = SecurityUtils.getUserId().intValue();
-        // 0->平台运营,1->合伙人,2->商户 userType 1商户;2合伙人;3用户
-        int userType = 1;
-        if (1 == SecurityUtils.getCurrUser().getUserRole()) {
-            userType = 2;
+
+        // 同一时间 用户只能提现一次
+        String value = RedisUtil.get(ShopConstants.WITHDRAW_USER_SUBMIT_ADMIN + uid);
+        if (StringUtils.isNotBlank(value)) {
+            log.info("提现 操作过快，请稍候，id：{}", uid);
+            return new ResponseEntity<>(false, HttpStatus.OK);
         }
-        Integer id = this.userService.updateUserWithdraw(uid, userType, request.getExtractPrice());
+        RedisUtil.set(ShopConstants.WITHDRAW_USER_SUBMIT_ADMIN + uid, 1, 5);
+        Integer id = 0;
+        try{
+            // 0->平台运营,1->合伙人,2->商户 userType 1商户;2合伙人;3用户
+            int userType = 1;
+            if (1 == SecurityUtils.getCurrUser().getUserRole()) {
+                userType = 2;
+            }
+            id = this.userService.updateUserWithdraw(uid, userType, request.getExtractPrice());
+        }catch (Exception e){
+            log.error("提现 出错，id：{}", uid,e);
+            return new ResponseEntity<>(false, HttpStatus.OK);
+        }finally {
+            RedisUtil.del(ShopConstants.WITHDRAW_USER_SUBMIT_ADMIN + uid);
+        }
+
+
         if (id != null && id > 0) {
             // 插入一条提现是申请记录后发送mq
             JSONObject jsonObject = new JSONObject();
