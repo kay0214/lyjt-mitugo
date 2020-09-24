@@ -38,54 +38,68 @@
           </el-form-item>
           <el-form-item label="店铺电话" prop="storeMobile">
             <el-input v-model="form.storeMobile" style="width: 700px;" />
-          </el-form-item>          
+          </el-form-item>
           <el-form-item label="营业时间" prop="openTime" :style='zIndex=1'>
-            <el-button @click="addOpenTimeSub" plain>添加营业时间</el-button>
-          </el-form-item>  
-          <div>
+            <el-button @click="addOpenTime = !addOpenTime" plain>添加营业时间</el-button>
+          </el-form-item>
+          <div v-if="addOpenTime" style="margin-bottom:20px;">
+            <el-row style="marginLeft:120px;marginBottom:10px;marginTop:-5px">
+              <el-col :span='8'>
+            <el-select v-model="form.BusinessDayBegin" style='width:100px' placeholder="请选择">
+              <el-option
+                v-for="item in selections.week"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value">
+              </el-option>
+            </el-select>
+            至
+            <el-select v-model="form.BusinessDayEnd" style='width:100px' placeholder="请选择">
+              <el-option
+                v-for="item in selections.week"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value">
+              </el-option>
+            </el-select>
+            </el-col>
+            <el-col :span='12'>
+              <el-time-picker
+                is-range
+                v-model="BusinessTime"
+                range-separator="-"
+                start-placeholder="开始时间"
+                end-placeholder="结束时间"
+                placeholder="选择时间范围"
+                format="HH:mm"
+                value-format='HH:mm'>
+              </el-time-picker>
+            </el-col>
+            <el-col :span='4'>
+              <el-button :loading="crud.cu === 2" type="primary" @click="addOpenTimeSub">添加</el-button>
+            </el-col>
+          </el-row>
+          </div>
+          <!-- 营业时间显示区域 -->
+          <div style="margin-top:10px">
             <el-table :data="formOpenTime" empty-text=" "
                       :row-style="{marginBottom:'20px'}"
                       :cell-style="{borderBottomWidth:'0'}" :show-header="false"
                       :style="{width:'700px',marginLeft:'110px',paddingBottom:'10px'}"
                       >
-              <el-table-column label="营业日" :min-width='100'>
+              <el-table-column :width="150" label="营业日">
                 <template slot-scope="scope">
-                  <el-form-item label-width='0' :prop='`openDays${scope.$index}`' :rules='rules.openDays' :style='zIndex=1'>
-                    <el-select v-model="form['BusinessDayBegin'+scope.$index]" style='width:100px' placeholder="请选择" @change="BusinessDayBeginChange($event,scope.$index)">
-                      <el-option
-                        v-for="item in selections.week"
-                        :key="item.value"
-                        :label="item.label"
-                        :value="item.value">
-                      </el-option>
-                    </el-select>
-                    至
-                    <el-select v-model="form['BusinessDayEnd'+scope.$index]" style='width:100px' placeholder="请选择" @change="BusinessDayEndChange($event,scope.$index)">
-                      <el-option
-                        v-for="item in selections.week"
-                        :key="item.value"
-                        :label="item.label"
-                        :value="item.value">
-                      </el-option>
-                    </el-select>
-                  </el-form-item>
+                  <div :style="{padding:'5px 10px',borderRadius:'5px',borderStyle:'solid',borderWidth:'1px',borderColor:'#DCDFE6'}">
+                    {{scope.row.openDay}}
+                  </div>
                 </template>
 
               </el-table-column>
-              <el-table-column label="营业时间" :min-width='150'>
+              <el-table-column :width="300" label="营业时间">
                 <template slot-scope="scope">
-                  <el-form-item label-width='0' :prop='`openTime${scope.$index}`' :rules='rules.openDays' :style='zIndex=1'>
-                    <el-time-picker
-                      is-range
-                      v-model="form['openTime'+scope.$index]"
-                      range-separator="-"
-                      start-placeholder="开始时间"
-                      end-placeholder="结束时间"
-                      placeholder="选择时间范围"
-                      format="HH:mm"
-                      value-format='HH:mm'>
-                    </el-time-picker>
-                  </el-form-item>
+                  <div :style="{padding:'5px 10px',borderRadius:'5px',borderStyle:'solid',borderWidth:'1px',borderColor:'#DCDFE6'}">
+                    {{scope.row.openTime}}
+                  </div>
                 </template>
               </el-table-column>
               <el-table-column :width="50">
@@ -94,19 +108,19 @@
                 </template>
               </el-table-column>
             </el-table>
-          </div>  
+          </div>
           <el-form-item label="人均消费" prop="perCapita">
             <el-input v-model="form.perCapita" style="width: 700px;" οnkeyup="if(isNaN(value))execCommand('undo')" onafterpaste="if(isNaN(value))execCommand('undo')"/>
           </el-form-item>
-          <el-form-item label="行业类别" style='display:none'>
-            <!-- <el-select v-model="form.industryCategory" placeholder="请选择">
+          <el-form-item label="行业类别" prop="industryCategory">
+            <el-select v-model="form.industryCategory" placeholder="请选择">
                   <el-option
                     v-for="item in dict.industry_category"
                     :key="item.value"
                     :label="item.label"
-                    :value="item.value">
+                    :value="parseInt(item.value)">
                   </el-option>
-                </el-select> -->
+                </el-select>
           </el-form-item>
           <el-form-item label="店铺服务" prop="storeService">
             <el-checkbox-group v-model="form.storeService">
@@ -162,11 +176,12 @@
         <el-table-column v-if="columns.visible('storeNid')" prop="storeNid" label="店铺编号" />
         <el-table-column v-if="columns.visible('storeName')" prop="storeName" label="店铺名称" />
         <el-table-column v-if="columns.visible('manageUserName')" prop="manageUserName" label="管理人用户名" />
-        <!-- <el-table-column v-if="columns.visible('industryCategory')" label="行业类别">
+        <el-table-column v-if="columns.visible('industryCategory')" label="行业类别">
           <template slot-scope="scope">
+            <!-- {{scope.row.industryCategory}} -->
             <span style="margin-left: 10px">{{ dict.label.industry_category[scope.row.industryCategory]}}</span>
           </template>
-      </el-table-column> -->
+      </el-table-column>
         <el-table-column v-if="columns.visible('manageMobile')" prop="manageMobile" label="管理人电话" />
         <el-table-column v-if="columns.visible('storeMobile')" prop="storeMobile" label="店铺电话" />
         <!--        <el-table-column v-if="columns.visible('status')" prop="status" label="状态：0：上架，1：下架" />-->
@@ -219,11 +234,7 @@
       del: false,
       download: false
     }, crudMethod: { ...crudYxStoreInfo }})
-  const defaultForm = { id: null, storeNid: null, storeName: null, manageUserName: null, merId: null, 
-  partnerId: null, manageMobile: null, storeMobile: null, status: null, perCapita: null, industryCategory: 0, 
-  storeProvince: null, storeAddress: null, delFlag: null, createUserId: null, updateUserId: null, createTime: null, 
-  updateTime: null, introduction: null, coordinateX: null, coordinateY: null,storeService: [],
-  imageArr: null, sliderImageArr: null }
+  const defaultForm = { id: null, storeNid: null, storeName: null, manageUserName: null, merId: null, partnerId: null, manageMobile: null, storeMobile: null, status: null, perCapita: null, industryCategory: null, storeProvince: null, storeAddress: null, delFlag: null, createUserId: null, updateUserId: null, createTime: null, updateTime: null, introduction: null, coordinateX: null, coordinateY: null,storeService: [],imageArr: null, sliderImageArr: null }
   export default {
     name: 'YxStoreInfo',
     // components: { pagination, crudOperation, rrOperation, udOperation ,MaterialList},
@@ -324,10 +335,6 @@
           ],
           storeAddress: [
             { required: true, message: '店铺详细地址不能为空', trigger: 'blur' }
-          ]
-          ,
-          openDays: [
-            { required: true, message: '必选项', trigger: 'change' }
           ]
           ,
           openTime: [
@@ -466,27 +473,6 @@
           getStoreInfo(form.id).then(res=>{
             crud.resetForm(JSON.parse(JSON.stringify(res)))
             this.formOpenTime=form.openTime
-            this.formOpenTime.forEach((item,index)=>{
-              this.form['openDays'+index]=item.openDay
-              let days=item.openDay.split('至')
-              if(days.length>1){
-                let begin=this.selections.week[this.selections.week.findIndex(item=>{
-                return item.label===days[0]
-                })].value
-                let end=this.selections.week[this.selections.week.findIndex(item=>{
-                return item.label===days[1]
-                })].value
-                this.form['BusinessDayBegin'+index]=parseInt(begin)
-                this.form['BusinessDayEnd'+index]=parseInt(end)
-              }else{
-                let begin=this.selections.week[this.selections.week.findIndex(item=>{
-                return item.label===days[0]
-                })].value
-                this.form['BusinessDayBegin'+index]=parseInt(begin)
-                this.form['BusinessDayEnd'+index]=parseInt(begin)                  
-              }
-              this.form['openTime'+index]=item.openTime.split('~')          
-        })
             if(form.imageArr!=""){
               this.picArr = form.imageArr.split(',')
             }
@@ -495,17 +481,6 @@
             }
           })
         })
-      },
-      [CRUD.HOOK.beforeSubmit]() {
-        this.form.openTime=[]
-        this.formOpenTime.forEach((item,index)=>{
-          this.form.openTime.push({
-            openDay:this.form['openDays'+index],
-            openTime:this.form['openTime'+index].join('~'),
-          })
-        })
-        this.form.openDays=this.form.openTime
-        return true
       },
       onSale(id, status) {
         let ret=checkPermission(this.permission.edit)
@@ -531,37 +506,27 @@
           })
           .catch(() => { })
       },
-      BusinessDayBeginChange(val,index){
-        if(!isNaN(this.form['BusinessDayEnd'+index])){
-          if(val===this.form['BusinessDayEnd'+index]){
-            this.form['openDays'+index]=this.selections.week[val].label
-          }else{
-            this.form['openDays'+index]=this.selections.week[val].label+"至"+this.selections.week[this.form['BusinessDayEnd'+index]].label
-          }       
-        }else{
-          this.form['openDays'+index]=''
-        }
-      },
-      BusinessDayEndChange(val,index){
-        if(!isNaN(this.form['BusinessDayBegin'+index])){
-          if(val===this.form['BusinessDayBegin'+index]){
-            this.form['openDays'+index]=this.selections.week[val].label
-          }else{
-            this.form['openDays'+index]=this.selections.week[this.form['BusinessDayBegin'+index]].label+"至"+this.selections.week[val].label
-          } 
-        }
-      },
       addOpenTimeSub(){//添加营业时间
-        this.formOpenTime.push({
-          openDay:{
-            BusinessDayBegin:'',
-            BusinessDayEnd:''
-          },
-          openTime:[],
+        let openDay="",openTime=[]
+        if(this.form.BusinessDayBegin == this.form.BusinessDayEnd){
+          openDay=this.selections.week[this.form.BusinessDayBegin].label
+        }else{
+          openDay=this.selections.week[this.form.BusinessDayBegin].label+"至"+this.selections.week[this.form.BusinessDayEnd].label
+        }
+        this.BusinessTime.map(item=>{
+          openTime.push(item)
         })
+        this.formOpenTime.push({
+          openDay,
+          openTime:openTime.join('~'),
+        })
+        this.form.openTime=this.formOpenTime
+        this.form.openDays=this.formOpenTime
       },
       deleteOpenTime(index){//刪除营业时间
         this.formOpenTime.splice(index,1)
+        this.form.openTime=this.formOpenTime
+        this.form.openDays=this.formOpenTime
       },
       //修改包邮金额
       updateFreePostage(){
