@@ -1,5 +1,5 @@
 <template>
-  <el-dialog :append-to-body="true" :close-on-click-modal="false" :before-close="cancel" :visible.sync="dialog" :title="isAdd ? '新增' : '发布优惠券'" width="500px">
+  <el-dialog :append-to-body="true" :close-on-click-modal="false" :before-close="cancel" :visible.sync="dialog" :title="isAdd ? '发布' : '编辑'" width="500px">
     <el-form ref="form" :model="form" :rules="rules" size="small" label-width="110px">
       <el-form-item label="优惠券ID" prop='cid'>
         <el-input v-model="form.cid" style="width: 300px;" :disabled="true" />
