@@ -51,6 +51,7 @@ import me.chanjar.weixin.mp.api.WxMpService;
 import me.chanjar.weixin.mp.bean.message.WxMpXmlMessage;
 import me.chanjar.weixin.mp.bean.message.WxMpXmlOutMessage;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -464,9 +465,13 @@ public class WechatController extends BaseController {
                 return WxPayNotifyResponse.success("处理失败!");
             }
 
-            YxStoreOrder storeOrder = new YxStoreOrder();
+//            YxStoreOrder storeOrder = new YxStoreOrder();
             //修改状态
-            storeOrder.setId(orderInfo.getId());
+            YxStoreOrder storeOrder =orderService.getOrderInfoByParam(orderId);
+            if(ObjectUtils.isEmpty(storeOrder)){
+                log.info("订单号：" + orderId + "不存在");
+                return WxPayNotifyResponse.success("处理失败!");
+            }
             storeOrder.setRefundStatus(2);
             storeOrder.setRefundPrice(refundFee);
             orderService.updateById(storeOrder);
