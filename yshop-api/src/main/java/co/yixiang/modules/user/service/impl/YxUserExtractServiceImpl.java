@@ -77,6 +77,7 @@ public class YxUserExtractServiceImpl extends BaseServiceImpl<YxUserExtractMappe
         userExtract.setUid(uid);
         userExtract.setExtractType(StringUtils.isNotBlank(param.getExtractType()) ? param.getExtractType() : "bank");
         userExtract.setExtractPrice(new BigDecimal(param.getMoney()));
+        userExtract.setTruePrice(new BigDecimal(param.getMoney()));
         userExtract.setAddTime(OrderUtil.getSecondTimestampTwo());
         userExtract.setBalance(balance);
         userExtract.setStatus(0);
@@ -128,7 +129,7 @@ public class YxUserExtractServiceImpl extends BaseServiceImpl<YxUserExtractMappe
         yxUser.setCnapsCode(param.getCnapsCode());
         this.userService.updateById(yxUser);
 
-       return userExtract.getId();
+        return userExtract.getId();
     }
 
     @Override
@@ -165,7 +166,7 @@ public class YxUserExtractServiceImpl extends BaseServiceImpl<YxUserExtractMappe
                 .eq("seq_no", param.getSeqNo())
                 .eq("true_price", param.getTotalAmount())
                 .or()
-                .eq("extract_price",param.getTotalAmount())
+                .eq("extract_price", param.getTotalAmount())
                 .eq("bank_code", param.getPayeeNo())
                 .eq("real_name", param.getPayeeName())
                 .eq("status", 0)

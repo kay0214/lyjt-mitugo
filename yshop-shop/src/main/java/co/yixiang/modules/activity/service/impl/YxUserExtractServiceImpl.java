@@ -153,8 +153,6 @@ public class YxUserExtractServiceImpl extends BaseServiceImpl<YxUserExtractMappe
         // 审核记录里的status
         Integer examineStatus = 0;
         String mark = "";
-        // 实际到账金额
-        BigDecimal truePrice = BigDecimal.ZERO;
         //  0:预留 1商户;2合伙人;3用户
         if (3 == yxUserExtract.getUserType()) {
             yxUser = this.yxUserService.getOne(new QueryWrapper<YxUser>().lambda().eq(YxUser::getUid, yxUserExtract.getUid()));
@@ -162,15 +160,12 @@ public class YxUserExtractServiceImpl extends BaseServiceImpl<YxUserExtractMappe
                 throw new BadRequestException("查询用户信息失败");
             }
             username = yxUser.getNickname();
-            truePrice = yxUserExtract.getExtractPrice();
         } else {
             user = this.userService.getById(resources.getUid());
             if (null == user) {
                 throw new BadRequestException("查询用户信息失败");
             }
             username = user.getNickName();
-            // 商户提现扣减手续费
-            truePrice = yxUserExtract.getTruePrice();
         }
 
         // 梗库用
@@ -221,8 +216,6 @@ public class YxUserExtractServiceImpl extends BaseServiceImpl<YxUserExtractMappe
             updateExtract.setId(yxUserExtract.getId());
             updateExtract.setStatus(1);
             updateExtract.setMark(mark);
-            // 记录实际到账个金额
-            updateExtract.setTruePrice(truePrice);
         }
         this.updateById(updateExtract);
         // 记录提现审核记录
