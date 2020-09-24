@@ -2567,6 +2567,8 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
                             // 抛出异常
                             throw new ErrorRequestException("存在库存不足的商品！");
                         }
+                        // 扣减redis失败释放商品锁
+                        RedisUtil.releaseLock(salesLock, requestId);
                         break;
                     }
                 }
