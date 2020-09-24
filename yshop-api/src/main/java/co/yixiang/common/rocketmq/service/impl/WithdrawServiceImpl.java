@@ -55,8 +55,6 @@ public class WithdrawServiceImpl implements WithdrawService {
 
     @Autowired
     YxMerchantsDetailService yxMerchantsDetailService;
-    // 提现手续费
-    private final BigDecimal EXTRACT_RATE = new BigDecimal(0.006);
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
@@ -154,7 +152,7 @@ public class WithdrawServiceImpl implements WithdrawService {
         String username = user.getNickName();
 
         // 商户提现扣减手续费
-        BigDecimal truePrice = yxUserExtract.getExtractPrice().subtract(yxUserExtract.getExtractPrice().multiply(EXTRACT_RATE));
+        BigDecimal truePrice = yxUserExtract.getTruePrice();
         saveBill(yxUserExtract, username);
 
         // 更新审核记录
