@@ -240,7 +240,7 @@ public class UserBillController extends BaseController {
             g.setFont(font.deriveFont(Font.PLAIN, 25));
             g.setColor(new Color(171, 171, 171));
             //绘制文字
-            g.drawString("扫描或长按小程序码", 210, 1414);
+            g.drawString("扫描或长按小程序码", 238, 1414);
 
             g.dispose();
             //先将画好的海报写到本地
