@@ -93,10 +93,10 @@ public class YxUserExtractServiceImpl extends BaseServiceImpl<YxUserExtractMappe
         // 前台用户提现
         userExtract.setUserType(3);
 
-        if (StringUtils.isNotBlank(param.getName())) {
-            userExtract.setRealName(param.getName());
+        if (StringUtils.isNotBlank(param.getRealName())) {
+            userExtract.setRealName(param.getRealName());
         } else {
-            userExtract.setRealName(userInfo.getNickname());
+            userExtract.setRealName(userInfo.getRealName());
         }
 
         if (StringUtils.isNotBlank(param.getWeixin())) {
