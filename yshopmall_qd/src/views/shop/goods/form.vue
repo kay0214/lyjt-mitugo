@@ -59,6 +59,9 @@
         <el-radio v-model="form.isPostage" :label="1">是</el-radio>
         <el-radio v-model="form.isPostage" :label="0" style="width: 200px;">否</el-radio>
       </el-form-item>
+      <el-form-item label="虚拟销量" prop='ficti'>
+        <el-input v-model="form.ficti" maxlength="12"/>
+      </el-form-item>
       <el-form-item v-if='!form.isPostage' prop='postage' :rules="form.isPostage?[{required:false}]:rules.postage" label="邮费">
         <el-input v-model="form.postage" maxlength="12"/>
       </el-form-item>
@@ -69,9 +72,6 @@
       <!--<el-form-item label="获得积分">
         <el-input v-model="form.giveIntegral" />
       </el-form-item>-->
-      <el-form-item label="虚拟销量" prop='ficti'>
-        <el-input v-model="form.ficti" maxlength="12"/>
-      </el-form-item>
     </el-form>
     <div slot="footer" class="dialog-footer">
       <el-button type="text" @click="cancel">取消</el-button>
@@ -154,7 +154,7 @@ export default {
         storeCategory: {id:null},
         vipPrice: 0,
         unitName: '',
-        sales: 0,
+        // sales: 0,
         isShow: 1,
         isHot: 0,
         isBenefit: 0,
@@ -377,7 +377,7 @@ export default {
         storeCategoryId:null,
         vipPrice: 0,
         unitName: '',
-        sales: 0,
+        // sales: 0,
         isShow: 1,
         isHot: 0,
         isBenefit: 0,
