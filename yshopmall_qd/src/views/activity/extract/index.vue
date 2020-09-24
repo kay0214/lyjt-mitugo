@@ -26,6 +26,7 @@
       <el-table-column prop="userTrueName" label="真实姓名" />
       <el-table-column prop="bankCode" label="银行卡号" />
       <el-table-column prop="extractPrice" label="提现金额" />
+      <el-table-column prop="seqNo" label="订单号" />
       <el-table-column prop="userType" label="用户类型" >
         <template slot-scope="scope">
           <div>{{userTypeOptions[scope.row.userType]}}</div>
