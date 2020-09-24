@@ -893,7 +893,6 @@ public class StoreOrderController extends BaseController {
     @ApiOperation(value = "订单创建（多个订单）", notes = "（多个订单）")
     public ApiResult<Map<String, Object>> createOrderList(@Valid @RequestBody OrderNewParam param,
                                                           @PathVariable String key, HttpServletRequest request) {
-        log.info("开始处理订单" + key + "第1次打印：" + System.currentTimeMillis());
         Map<String, Object> map = new LinkedHashMap<>();
         int uid = SecurityUtils.getUserId().intValue();
         if (StrUtil.isEmpty(key)) return ApiResult.fail("参数错误");
@@ -924,11 +923,8 @@ public class StoreOrderController extends BaseController {
         // 批量扣减redis余量
         Map<String, Integer> redisMap = new HashMap<>();
         try {
-            log.info("开始处理订单" + key + "第2次打印：" + System.currentTimeMillis());
             this.storeOrderService.updateRedisRemainAmount(uid, key, redisMap);
-            log.info("开始处理订单" + key + "第3次打印：" + System.currentTimeMillis());
             orderCreateList = storeOrderService.createOrderNew(uid, key, param);
-            log.info("开始处理订单" + key + "第4次打印：" + System.currentTimeMillis());
         } catch (ErrorRequestException e) {
             throw e;
         } catch (Exception e) {
@@ -944,7 +940,6 @@ public class StoreOrderController extends BaseController {
             }
         }
 
-        log.info("开始处理订单" + key + "第5次打印：" + System.currentTimeMillis());
         if (CollectionUtils.isEmpty(orderCreateList)) throw new ErrorRequestException("订单生成失败");
 
         BigDecimal bigDecimalPrice = new BigDecimal(0);
@@ -971,7 +966,6 @@ public class StoreOrderController extends BaseController {
             return ApiResult.ok(map, "支付成功");
         }
 
-        log.info("开始处理订单" + key + "第6次打印：" + System.currentTimeMillis());
         switch (PayTypeEnum.toType(param.getPayType())) {
             case WEIXIN:
                 try {
@@ -997,7 +991,6 @@ public class StoreOrderController extends BaseController {
                 storeOrderService.yuePayOrderList(orderIdList, uid);
                 return ApiResult.ok(map, "余额支付成功");
         }
-        log.info("开始处理订单" + key + "第7次打印：" + System.currentTimeMillis());
         return ApiResult.fail("订单生成失败");
     }
 
