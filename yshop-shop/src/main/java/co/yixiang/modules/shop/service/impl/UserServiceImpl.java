@@ -64,6 +64,9 @@ public class UserServiceImpl extends BaseServiceImpl<UserSysMapper, User> implem
     @Autowired
     private UserSysMapper userSysMapper;
 
+    // 提现手续费
+    private final BigDecimal EXTRACT_RATE = new BigDecimal(0.01);
+
     @Override
     //@Cacheable
     public Map<String, Object> queryAll(UserQueryCriteria criteria, Pageable pageable) {
@@ -151,6 +154,7 @@ public class UserServiceImpl extends BaseServiceImpl<UserSysMapper, User> implem
         yxUserExtract.setUserType(userType);
         yxUserExtract.setBankMobile(user.getPhone());
         yxUserExtract.setCnapsCode(yxMerchantsDetail.getBankCode());
+        yxUserExtract.setTruePrice(extractPrice.subtract(extractPrice.multiply(EXTRACT_RATE)));
         this.yxUserExtractMapper.insert(yxUserExtract);
         return yxUserExtract.getId();
     }
