@@ -581,7 +581,6 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
             BufferedImage img = new BufferedImage(750, 1624, BufferedImage.TYPE_INT_RGB);
             //开启画图
             Graphics2D g = img.createGraphics();
-            //Graphics g = img.getGraphics();
             //背景 -- 读取互联网图片
             InputStream stream = getClass().getClassLoader().getResourceAsStream("background.png");
             ImageInputStream background = ImageIO.createImageInputStream(stream);
@@ -606,7 +605,8 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
             FileUtils.copyInputStreamToFile(streamT, newFileT);
             Font font = Font.createFont(Font.TRUETYPE_FONT, newFileT);
             //文案标题
-            g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_HRGB);
+            g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,RenderingHints.VALUE_ANTIALIAS_ON);
+            g.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL,RenderingHints.VALUE_STROKE_DEFAULT);
             g.setFont(font.deriveFont(Font.BOLD, 32));
             g.setColor(new Color(29, 29, 29));
             //文字叠加,自动换行叠加
