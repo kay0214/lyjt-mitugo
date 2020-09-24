@@ -458,7 +458,8 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
                     .getResourceAsStream("Alibaba-PuHuiTi-Regular.otf");
             File newFileT = new File("Alibaba-PuHuiTi-Regular.otf");
             FileUtils.copyInputStreamToFile(streamT, newFileT);
-            Font font = Font.createFont(Font.TRUETYPE_FONT, newFileT);
+            Font font = new Font("微软雅黑", Font.BOLD, 32);
+            //Font font = Font.createFont(Font.TRUETYPE_FONT, newFileT);
             //文案标题
             g.setFont(font.deriveFont(Font.BOLD, 32));
             g.setColor(new Color(29, 29, 29));
