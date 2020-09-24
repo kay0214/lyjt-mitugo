@@ -70,9 +70,6 @@ public class YxUserExtractServiceImpl extends BaseServiceImpl<YxUserExtractMappe
     @Autowired
     private YxExamineLogService yxExamineLogService;
 
-    // 提现手续费
-    private final BigDecimal EXTRACT_RATE = new BigDecimal(0.006);
-
     @Override
     //@Cacheable
     public Map<String, Object> queryAll(YxUserExtractQueryCriteria criteria, Pageable pageable) {
@@ -173,7 +170,7 @@ public class YxUserExtractServiceImpl extends BaseServiceImpl<YxUserExtractMappe
             }
             username = user.getNickName();
             // 商户提现扣减手续费
-            truePrice = yxUserExtract.getExtractPrice().subtract(yxUserExtract.getExtractPrice().multiply(EXTRACT_RATE));
+            truePrice = yxUserExtract.getTruePrice();
         }
 
         // 梗库用
