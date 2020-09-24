@@ -129,7 +129,7 @@ public class YxUserExtractServiceImpl extends BaseServiceImpl<YxUserExtractMappe
         yxUser.setCnapsCode(param.getCnapsCode());
         this.userService.updateById(yxUser);
 
-        return userExtract.getId();
+       return userExtract.getId();
     }
 
     @Override
@@ -161,6 +161,7 @@ public class YxUserExtractServiceImpl extends BaseServiceImpl<YxUserExtractMappe
      */
     @Override
     public YxUserExtract getConfirmOrder(PaySeachParam param) {
+       log.info("提现信息查询：{}",getById(param.getId()));
         QueryWrapper<YxUserExtract> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("id", param.getId())
                 .eq("seq_no", param.getSeqNo())
