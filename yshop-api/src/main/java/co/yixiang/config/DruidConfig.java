@@ -22,7 +22,7 @@ public class DruidConfig {
         FilterRegistrationBean bean = new FilterRegistrationBean();
         bean.setFilter(new WebStatFilter());
         Map<String, String> initParams = new HashMap<>();
-        initParams.put("exclusions", "/static/*,*.js,*.gif,*.jpg,*.png,*.css,*.ico,/druid/*,/upload/,/css/,/context/,/plug-in/,/attached/,.jsp");// 过滤掉需要监控的文件
+        initParams.put("exclusions", "/static/*,*.js,*.gif,*.jpg,*.png,*.css,*.ico,/druid/*,/upload/,/css/,/context/,/plug-in/,/attached/,.jsp,.js,.css,/druid");// 过滤掉需要监控的文件
 
         bean.setInitParameters(initParams);
         bean.setUrlPatterns(Arrays.asList("/*"));
