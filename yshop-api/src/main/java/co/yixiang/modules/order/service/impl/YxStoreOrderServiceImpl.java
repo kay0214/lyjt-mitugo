@@ -2475,6 +2475,7 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
         List<String> listCartIds = Arrays.asList(storeOrderQueryVo.getCartId().split(","));
         QueryWrapper<YxStoreOrderCartInfo> wrapper = new QueryWrapper<YxStoreOrderCartInfo>();
         wrapper.in("cart_id", listCartIds);
+        wrapper.eq("oid",storeOrderQueryVo.getId());
         List<YxStoreOrderCartInfo> cartList = orderCartInfoService.list(wrapper);
         if (CollectionUtils.isEmpty(cartList)) {
             return ApiResult.fail("评价产品信息不存在");
