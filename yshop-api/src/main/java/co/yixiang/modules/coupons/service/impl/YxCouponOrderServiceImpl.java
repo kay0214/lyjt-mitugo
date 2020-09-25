@@ -74,7 +74,6 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 
 
 /**
@@ -358,11 +357,11 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         //mqProducer.sendMsg("yshop-topic",storeOrder.getId().toString());
         //log.info("投递延时订单id： [{}]：", storeOrder.getId());
 
-        //加入redis，30分钟自动取消
-        String redisKey = String.valueOf(StrUtil.format("{}{}",
-                LocalLiveConstants.REDIS_COUPON_ORDER_OUTTIME_UNPAY, couponOrder.getId()));
-        redisTemplate.opsForValue().set(redisKey, couponOrder.getOrderId(),
-                LocalLiveConstants.ORDER_OUTTIME_UNPAY, TimeUnit.MINUTES);
+        //加入redis，30分钟自动取消 订单取消放到batch扫描
+//        String redisKey = String.valueOf(StrUtil.format("{}{}",
+//                LocalLiveConstants.REDIS_COUPON_ORDER_OUTTIME_UNPAY, couponOrder.getId()));
+//        redisTemplate.opsForValue().set(redisKey, couponOrder.getOrderId(),
+//                LocalLiveConstants.ORDER_OUTTIME_UNPAY, TimeUnit.MINUTES);
 
         return couponOrder;
     }
