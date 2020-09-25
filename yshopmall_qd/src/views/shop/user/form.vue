@@ -13,8 +13,8 @@
       <el-form-item label="手机号码" prop='phone'>
         <el-input v-model="form.phone" style="width: 370px;" />
       </el-form-item>
-      <el-form-item label="分销客">
-        <el-radio v-model="form.userRole" :label="1">分销客</el-radio>
+      <el-form-item label="分享达人">
+        <el-radio v-model="form.userRole" :label="1">分享达人</el-radio>
         <el-radio v-model="form.userRole" :label="0">普通会员</el-radio>
       </el-form-item>
       <el-form-item label="银行卡号">
