@@ -2146,7 +2146,7 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
     public WxPayMpOrderResult wxAppPayList(List<String> orderIdList, String payNo, String ip) throws WxPayException {
         List<YxStoreOrderQueryVo> orderInfo = getOrderList(orderIdList, 0);
         if(CollectionUtils.isEmpty(orderInfo)){
-            log.info("小程序支付时查找订单信息失败！");
+            log.info("小程序支付时查找订单信息失败！订单号为："+JSONObject.toJSONString(orderIdList));
             throw new ErrorRequestException("查找订单信息失败！");
         }
         BigDecimal bigPayPrice = new BigDecimal(0);
