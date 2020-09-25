@@ -901,9 +901,9 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         wrapper4.in("refund_status", 1, 2);
         countVO.setRefundCount(this.count(wrapper4));
 
-        // 累计订单数量
+        // 累计订单数量 已支付 未退款的数量
         QueryWrapper<YxCouponOrder> wrapper5 = new QueryWrapper<>();
-        wrapper5.eq("uid", uid);
+        wrapper5.eq("uid", uid).eq("refund_status", 0).eq("pay_staus", 1);
         countVO.setTotalCount(this.count(wrapper5));
 
         // 总消费
