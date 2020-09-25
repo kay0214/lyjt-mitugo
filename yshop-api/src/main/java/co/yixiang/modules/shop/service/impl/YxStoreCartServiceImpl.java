@@ -37,6 +37,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -57,6 +58,7 @@ import java.util.*;
 @Slf4j
 @Service
 @Builder
+@Lazy
 @Transactional(rollbackFor = Exception.class)
 public class YxStoreCartServiceImpl extends BaseServiceImpl<YxStoreCartMapper, YxStoreCart> implements YxStoreCartService {
 
@@ -371,7 +373,7 @@ public class YxStoreCartServiceImpl extends BaseServiceImpl<YxStoreCartMapper, Y
             if (ObjectUtil.isNull(productQueryVo)) {
                 throw new ErrorRequestException("该产品已下架或删除");
             }
-            if(0==productQueryVo.getIsShow()||1==productQueryVo.getIsDel()){
+            if (0 == productQueryVo.getIsShow() || 1 == productQueryVo.getIsDel()) {
                 //下架
                 throw new ErrorRequestException("该产品已下架或删除");
             }
@@ -448,7 +450,7 @@ public class YxStoreCartServiceImpl extends BaseServiceImpl<YxStoreCartMapper, Y
                                 .uniqueByAttrInfo(storeCart.getProductAttrUnique());*/
                         //产品规格属性
                         QueryWrapper<YxStoreProductAttrValue> queryWrapper = new QueryWrapper<>();
-                        queryWrapper.eq("product_id",storeCart.getProductId()).eq("`unique`",storeCart.getProductAttrUnique());
+                        queryWrapper.eq("product_id", storeCart.getProductId()).eq("`unique`", storeCart.getProductAttrUnique());
                         YxStoreProductAttrValue productAttrValue = productAttrValueService.getOne(queryWrapper);
                         if (ObjectUtil.isNull(productAttrValue) || productAttrValue.getStock() == 0) {
                             storeCartQueryVo.setProductInfo(storeProduct);
