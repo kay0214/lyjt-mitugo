@@ -847,31 +847,13 @@ public class StoreOrderController extends BaseController {
             log.info("接口未传参cartId" + jsonStr);
             return ApiResult.fail("请提交购买的商品");
         }
-        // -----------------测试日志
-        YxStoreCart y1 = this.cartService.getById(cartId);
-        if (null != y1) {
-            log.info("测试日志1{}", y1);
-        }
-        // -----------------测试日志
         int uid = SecurityUtils.getUserId().intValue();
 //        int uid = 28;
         YxStoreStoreCartVo cartGroup = cartService.getUserStoreCartList(uid, cartId, 1);
         if (ObjectUtil.isNotEmpty(cartGroup.getInvalid())) {
-            // -----------------测试日志
-            YxStoreCart y3 = this.cartService.getById(cartId);
-            if (null != y1) {
-                log.info("测试日志3{}", y3);
-            }
-            // -----------------测试日志
             return ApiResult.fail("有失效的商品请重新提交");
         }
         if (ObjectUtil.isEmpty(cartGroup.getValid())) {
-            // -----------------测试日志
-            YxStoreCart y2 = this.cartService.getById(cartId);
-            if (null != y2) {
-                log.info("测试日志2{}", y2);
-            }
-            // -----------------测试日志
             return ApiResult.fail("请提交购买的商品");
         }
         List<YxStoreStoreCartQueryVo> cartStoreInfo = (List<YxStoreStoreCartQueryVo>) cartGroup.getValid();
