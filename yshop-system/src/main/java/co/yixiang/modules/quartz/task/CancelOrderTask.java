@@ -16,7 +16,7 @@ public class CancelOrderTask {
     @Autowired
     private YxStoreOrderService orderService;
         public void run() {
-            log.info("---------------------订单取消定时任务开始---------------------");
+//            log.info("---------------------订单取消定时任务开始---------------------");
             orderService.cancelOrder();
         }
 }

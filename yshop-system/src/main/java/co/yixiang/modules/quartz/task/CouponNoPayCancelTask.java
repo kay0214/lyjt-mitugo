@@ -28,7 +28,7 @@ public class CouponNoPayCancelTask {
     private YxCouponOrderService yxCouponOrderService;
 
     public void run() {
-        log.info("---------------------支付超时订单取消开始---------------------");
+//        log.info("---------------------支付超时订单取消开始---------------------");
         // 待支付的订单创建时间小于当前时间减30分钟
         List<YxCouponOrder> list = this.yxCouponOrderService.list(new QueryWrapper<YxCouponOrder>().lambda().eq(YxCouponOrder::getStatus, 0).le(YxCouponOrder::getCreateTime, DateUtils.minusMinutes(LocalDateTime.now(), 30L)));
         for (YxCouponOrder item : list) {
@@ -37,6 +37,6 @@ public class CouponNoPayCancelTask {
                 log.info("订单：" + item.getOrderId() + "支付超时取消失败");
             }
         }
-        log.info("---------------------支付超时订单取消结束---------------------");
+//        log.info("---------------------支付超时订单取消结束---------------------");
     }
 }
