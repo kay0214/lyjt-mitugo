@@ -85,16 +85,19 @@ public class CommissionServiceImpl implements CommissionService {
             return;
         }
         RedisUtil.set(ShopConstants.COMMISSION_ORDER + orderType + orderId, 1, 5);
-        if (orderType.equals("0")) {
-            //商品购买
-            updateOrderInfo(orderId);
+        switch (orderType){
+            case "0":
+                //商品购买
+                updateOrderInfo(orderId);
+                break;
+            case "1":
+                //本地生活
+                updateCouponInfo(orderId);
+                break;
+            default:
+                log.info("订单类型错误，类型为：{}", orderType);
+                break;
 
-        } else if (orderType.equals("1")) {
-            //本地生活
-            updateCouponInfo(orderId);
-        } else {
-            log.info("订单类型错误，类型为：{}", orderType);
-            return;
         }
         RedisUtil.del(ShopConstants.COMMISSION_ORDER + orderType + orderId);
     }
