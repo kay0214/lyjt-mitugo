@@ -843,6 +843,7 @@ public class StoreOrderController extends BaseController {
         JSONObject jsonObject = JSON.parseObject(jsonStr);
         String cartId = jsonObject.getString("cartId");
         if (StringUtils.isBlank(cartId)) {
+            log.info("接口未传参cartId" + jsonStr);
             return ApiResult.fail("请提交购买的商品");
         }
         int uid = SecurityUtils.getUserId().intValue();
