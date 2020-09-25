@@ -170,7 +170,7 @@ public class UserBillController extends BaseController {
                 if (userType.equals(AppFromEnum.ROUNTINE.getValue())) {
                     siteUrl = siteUrl + "/distribution/";
                 }
-                QrConfig config = new QrConfig(122, 122);
+                QrConfig config = new QrConfig(150, 150);
                 config.setMargin(0);
                 File file = new File(fileDir + name);
                 QrCodeUtil.generate(siteUrl + "?spread=" + uid, config,file);
@@ -191,74 +191,76 @@ public class UserBillController extends BaseController {
 
             String spreadPicPath = fileDir + spreadPicName;
 
-                    //创建图片
-                    BufferedImage img = new BufferedImage(750, 1624, BufferedImage.TYPE_INT_RGB);
-                    //开启画图
-                    Graphics g = img.getGraphics();
-                    //背景 -- 读取互联网图片
-                    InputStream stream = getClass().getClassLoader().getResourceAsStream("background.png");
-                    ImageInputStream background = ImageIO.createImageInputStream(stream);
-                    BufferedImage back = ImageIO.read(background);
+            //创建图片
+            BufferedImage img = new BufferedImage(750, 1624, BufferedImage.TYPE_INT_RGB);
+            //开启画图
+            Graphics2D g = img.createGraphics();
+            g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,RenderingHints.VALUE_ANTIALIAS_ON);
+            g.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL,RenderingHints.VALUE_STROKE_DEFAULT);
+            //背景 -- 读取互联网图片
+            InputStream stream = getClass().getClassLoader().getResourceAsStream("background.png");
+            ImageInputStream background = ImageIO.createImageInputStream(stream);
+            BufferedImage back = ImageIO.read(background);
 
-                    g.drawImage(back.getScaledInstance(750, 1624, Image.SCALE_DEFAULT), 0, 0, null); // 绘制缩小后的图
+            g.drawImage(back.getScaledInstance(750, 1624, Image.SCALE_DEFAULT), 0, 0, null); // 绘制缩小后的图
 
-                    BufferedImage head = ImageIO.read(getClass().getClassLoader().getResourceAsStream("head.png"));
-                    g.drawImage(head.getScaledInstance(750, 280, Image.SCALE_DEFAULT), 0, 0, null);
+            BufferedImage head = ImageIO.read(getClass().getClassLoader().getResourceAsStream("head.png"));
+            g.drawImage(head.getScaledInstance(750, 280, Image.SCALE_DEFAULT), 0, 0, null);
 
-                    //商品  banner图
-                    //读取互联网图片
-                    BufferedImage fx = ImageIO.read(getClass().getClassLoader().getResourceAsStream("fx.jpg"));
-                    g.drawImage(fx.getScaledInstance(670, 1000, Image.SCALE_DEFAULT), 40, 280, null);
+            //商品  banner图
+            //读取互联网图片
+            BufferedImage fx = ImageIO.read(getClass().getClassLoader().getResourceAsStream("fx.jpg"));
+            g.drawImage(fx.getScaledInstance(670, 1000, Image.SCALE_DEFAULT), 40, 280, null);
 
-                    InputStream streamT = getClass().getClassLoader()
-                            .getResourceAsStream("Alibaba-PuHuiTi-Regular.otf");
-                    File newFileT = new File("Alibaba-PuHuiTi-Regular.otf");
-                    FileUtils.copyInputStreamToFile(streamT, newFileT);
-                    Font font = Font.createFont(Font.TRUETYPE_FONT, newFileT);
+            InputStream streamT = getClass().getClassLoader()
+                    .getResourceAsStream("Alibaba-PuHuiTi-Regular.otf");
+            File newFileT = new File("Alibaba-PuHuiTi-Regular.otf");
+            FileUtils.copyInputStreamToFile(streamT, newFileT);
+            Font font = Font.createFont(Font.TRUETYPE_FONT, newFileT);
 
-                    //读取二维码图片
-                    BufferedImage qrCode = null;
-                    try {
-                        qrCode = ImageIO.read(new URL(qrCodeUrl));
-                    } catch (IOException e) {
-                        log.error("二维码图片读取失败", e);
-                        e.printStackTrace();
-                    }
-                    // 绘制缩小后的图
-                    g.drawImage(qrCode.getScaledInstance(122, 122, Image.SCALE_DEFAULT), 40, 1320, null);
+            //读取二维码图片
+            BufferedImage qrCode = null;
+            try {
+                qrCode = ImageIO.read(new URL(qrCodeUrl));
+            } catch (IOException e) {
+                log.error("二维码图片读取失败", e);
+                e.printStackTrace();
+            }
+            // 绘制缩小后的图
+            g.drawImage(qrCode.getScaledInstance(150, 150, Image.SCALE_DEFAULT), 40, 1320, null);
 
 
-                    //二维码字体
-                    g.setFont(font.deriveFont(Font.PLAIN, 25));
-                    g.setColor(new Color(171, 171, 171));
-                    //绘制文字
-                    g.drawString(userInfo.getNickname() + "邀您加入", 210, 1365);
+            //二维码字体
+            g.setFont(font.deriveFont(Font.PLAIN, 25));
+            g.setColor(new Color(171, 171, 171));
+            //绘制文字
+            g.drawString(userInfo.getNickname() + "邀您加入", 238, 1379);
 
-                    //二维码字体
-                    g.setFont(font.deriveFont(Font.PLAIN, 25));
-                    g.setColor(new Color(171, 171, 171));
-                    //绘制文字
-                    g.drawString("扫描或长按小程序码", 210, 1400);
+            //二维码字体
+            g.setFont(font.deriveFont(Font.PLAIN, 25));
+            g.setColor(new Color(171, 171, 171));
+            //绘制文字
+            g.drawString("扫描或长按小程序码", 238, 1414);
 
-                    g.dispose();
-                    //先将画好的海报写到本地
-                    File file = new File(spreadPicPath);
-                    try {
-                        ImageIO.write(img, "jpg", file);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+            g.dispose();
+            //先将画好的海报写到本地
+            File file = new File(spreadPicPath);
+            try {
+                ImageIO.write(img, "jpg", file);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
 
-                    if (StrUtil.isEmpty(localUrl)) {
-                        QiniuContent qiniuContent = qiNiuService.uploadPic(file,qiNiuService.find());
-                        systemAttachmentService.attachmentAdd(spreadPicName,String.valueOf(qiniuContent.getSize()),
-                                qiniuContent.getUrl(), qiniuContent.getUrl(),2);
-                        spreadUrl = qiniuContent.getUrl();
-                    }else {
-                        systemAttachmentService.attachmentAdd(spreadPicName,String.valueOf(FileUtil.size(new File(spreadPicPath))),
-                                spreadPicPath, "qrcode/" + spreadPicName);
-                        spreadUrl = apiUrl + "/file/qrcode/" + spreadPicName;
-                    }
+            if (StrUtil.isEmpty(localUrl)) {
+                QiniuContent qiniuContent = qiNiuService.uploadPic(file,qiNiuService.find());
+                systemAttachmentService.attachmentAdd(spreadPicName,String.valueOf(qiniuContent.getSize()),
+                        qiniuContent.getUrl(), qiniuContent.getUrl(),2);
+                spreadUrl = qiniuContent.getUrl();
+            }else {
+                systemAttachmentService.attachmentAdd(spreadPicName,String.valueOf(FileUtil.size(new File(spreadPicPath))),
+                        spreadPicPath, "qrcode/" + spreadPicName);
+                spreadUrl = apiUrl + "/file/qrcode/" + spreadPicName;
+            }
 
         }
 

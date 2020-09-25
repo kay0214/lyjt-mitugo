@@ -3,7 +3,7 @@
     <!--工具栏-->
     <div class="head-container">
       <!-- 搜索 -->
-      <el-input v-model="username" clearable placeholder="输入用户昵称" style="width: 200px;" class="filter-item" @keyup.enter.native="toQuery" />
+      <el-input v-model="username" clearable placeholder="输入用户昵称" style="width: 200px;" class="filter-item" @keyup.enter.native="pageRefesh" />
       <el-select v-model="category" clearable placeholder="明细种类" class="filter-item" style="width: 130px">
         <el-option
           v-for="item in categoryOptions"
@@ -41,14 +41,14 @@
           style="verticalAlign:top;marginRight:20px;"
           >
         </el-date-picker>
-      <el-button class="filter-item" size="mini" type="success" icon="el-icon-search" @click="toQuery">搜索</el-button>
+      <el-button class="filter-item" size="mini" type="success" icon="el-icon-search" @click="pageRefesh">搜索</el-button>
       <!-- 新增 -->
       <el-button
         type="danger"
         class="filter-item"
         size="mini"
         icon="el-icon-refresh"
-        @click="toQuery"
+        @click="pageRefesh"
       >刷新</el-button>
 
       <el-row :gutter='6' style="margin:20px;">
@@ -364,7 +364,13 @@ export default {
           })
         }
       })
-
+    },
+    pageRefesh(){
+      this.init().then(res=>{
+        res.remainPrice?this.remainPrice=res.remainPrice:{}
+        res.totalPrice?this.totalPrice=res.totalPrice:{}
+        res.expenditurePrice?this.expenditurePrice=res.expenditurePrice:{}
+      })
     }
   }
 }

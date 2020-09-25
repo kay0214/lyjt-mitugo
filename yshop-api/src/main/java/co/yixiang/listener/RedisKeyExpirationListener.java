@@ -58,7 +58,6 @@ public class RedisKeyExpirationListener implements MessageListener {
 				YxStoreOrder order = storeOrderService.getOne(new QueryWrapper<YxStoreOrder>()
 						.eq("id", orderId).eq("is_del",0).eq("paid",0));
 				//只有待支付的订单能取消
-				log.info("---------过期监听，order={}"+order);
 				if(order != null){
 					storeOrderService.cancelOrderByTask(Integer.valueOf(orderId));
 

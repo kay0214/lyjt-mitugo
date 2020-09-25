@@ -208,6 +208,16 @@ public interface ShopConstants {
 	String WITHDRAW_USER="WITHDRAW_USER:";
 
 	/**
+	 * 提现申请
+	 */
+	String WITHDRAW_USER_SUBMIT="WITHDRAW_USER_SUBMIT:";
+
+	/**
+	 * 提现申请
+	 */
+	String WITHDRAW_USER_SUBMIT_ADMIN="WITHDRAW_USER_SUBMIT_ADMIN:";
+
+	/**
 	 * 实时数据统计
 	 */
 	String DATA_STATISTICS="DATA_STATISTICS";

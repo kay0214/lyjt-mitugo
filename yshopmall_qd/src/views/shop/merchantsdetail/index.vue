@@ -6,7 +6,7 @@
       <crudOperation :permission="permission" />
       <!--表单组件-->
       <el-dialog append-to-body :close-on-click-modal="false" :before-close="dialogBeforeCancel" :visible.sync="crud.status.cu>0 || dialogVisible"
-        :title="crud.status.title" width="570px">
+        :title="crud.status.edit?'开店申请':crud.status.title" width="570px">
         <el-form ref="form" :inline="true" :model="form" :rules="rules" size="small" label-width="120px" :disabled='formDisabled'>
             <!-- 以下是新增展示字段 -->
             <div v-if="crud.status.add">
@@ -170,7 +170,7 @@
               <el-form-item label="门店照及经营场所" prop="storeImg">
                 <MaterialList v-model="storeImg" type="image" :num="1" :width="150" :height="150" :readonly='Boolean(formDisabled)'/>
               </el-form-item>
-              <el-form-item label="医疗机构许可证" prop="licenceImg">
+              <el-form-item label="许可证" prop="licenceImg">
                 <MaterialList v-model="licenceImg" type="image" :num="1" :width="150" :height="150" :readonly='Boolean(formDisabled)'/>
               </el-form-item>
             </div>
@@ -551,6 +551,10 @@ export default {
       }
       return true
     },
+    [CRUD.HOOK.afterSubmit]() {
+      this.$router.replace({ query: { ...this.$route.query, dialog: '' } })
+      return true
+    },
     // 新增与编辑前做的操作
     [CRUD.HOOK.afterToCU](crud,form) {
       // 个人认证
@@ -779,8 +783,6 @@ export default {
       this.$refs.formWithdraw.validate(function(ret,obj){
         if(ret){
           withdrawEdit(Object.assign(formData,{uid})).then(res=>{
-            console.log('xxxxxx')
-            console.log(res)
             if(res){
               Notification.success({
               title: '提交成功'

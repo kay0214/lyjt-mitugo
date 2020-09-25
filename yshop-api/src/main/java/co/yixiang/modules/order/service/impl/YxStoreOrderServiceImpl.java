@@ -1617,6 +1617,20 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
     }
 
     @Override
+    public YxStoreOrder getOrderInfoByParam(String unique) {
+        QueryWrapper<YxStoreOrder> wrapper = new QueryWrapper<>();
+        wrapper.eq("is_del", 0).and(
+                i -> i.eq("order_id", unique).or().eq("`unique`", unique).or()
+                        .eq("extend_order_id", unique).or().eq("`payment_no`", unique));
+        List<YxStoreOrder> yxStoreOrderList = yxStoreOrderMapper.selectList(wrapper);
+        if (CollectionUtils.isNotEmpty(yxStoreOrderList)) {
+            YxStoreOrder order = yxStoreOrderList.get(0);
+            return order;
+        }
+        return null;
+    }
+
+    @Override
     public CacheDTO getCacheOrderInfo(int uid, String key) {
 
         return (CacheDTO) redisService.getObj("user_order_" + uid + key);
@@ -1922,8 +1936,8 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
                 payPostage = 0d;
             }
 
-            int useIntegral = param.getUseIntegral().intValue();
-
+//            int useIntegral = param.getUseIntegral().intValue();
+            int useIntegral = 0;
             boolean deduction = false;//拼团等
             //拼团等不参与抵扣
             if (combinationId > 0 || seckillId > 0 || bargainId > 0) deduction = true;
@@ -2412,6 +2426,7 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
         List<String> listCartIds = Arrays.asList(storeOrderQueryVo.getCartId().split(","));
         QueryWrapper<YxStoreOrderCartInfo> wrapper = new QueryWrapper<YxStoreOrderCartInfo>();
         wrapper.in("cart_id", listCartIds);
+        wrapper.eq("oid",storeOrderQueryVo.getId());
         List<YxStoreOrderCartInfo> cartList = orderCartInfoService.list(wrapper);
         if (CollectionUtils.isEmpty(cartList)) {
             return null;
@@ -2460,6 +2475,7 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
         List<String> listCartIds = Arrays.asList(storeOrderQueryVo.getCartId().split(","));
         QueryWrapper<YxStoreOrderCartInfo> wrapper = new QueryWrapper<YxStoreOrderCartInfo>();
         wrapper.in("cart_id", listCartIds);
+        wrapper.eq("oid",storeOrderQueryVo.getId());
         List<YxStoreOrderCartInfo> cartList = orderCartInfoService.list(wrapper);
         if (CollectionUtils.isEmpty(cartList)) {
             return ApiResult.fail("评价产品信息不存在");
@@ -2553,6 +2569,8 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
                             // 抛出异常
                             throw new ErrorRequestException("存在库存不足的商品！");
                         }
+                        // 扣减redis失败释放商品锁
+                        RedisUtil.releaseLock(salesLock, requestId);
                         break;
                     }
                 }

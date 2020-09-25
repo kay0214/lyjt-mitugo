@@ -524,12 +524,11 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
             String fileDir = path + "qrcode" + File.separator;
             String spreadPicPath = fileDir + spreadPicName;
 
-            String name = uid + "_" + id + "_store_" + userType + "_product_detail_wap.jpg";
+            String name = uid + "_" + id + "_"+pageType+"_" + userType + "_product_detail_wap.jpg";
             YxSystemAttachment attachmentWap = systemAttachmentService.getInfo(name);
             String qrCodeUrl;
             if(attachmentWap == null){
-                BufferedImage qrCode;
-                QrConfig config = new QrConfig(122, 122);
+                QrConfig config = new QrConfig(150, 150);
                 config.setMargin(0);
                 //如果类型是小程序
                 File file = new File(fileDir + name);
@@ -559,7 +558,7 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
                     qrCodeUrl = apiUrl + "/file/qrcode/" + name;
                 }
             }else {
-                qrCodeUrl = attachmentWap.getImageType().equals(2)?attachmentWap.getSattDir():apiUrl + "/file/" + attachment.getSattDir();
+                qrCodeUrl = attachmentWap.getImageType().equals(2)?attachmentWap.getSattDir():apiUrl + "/file/" + attachmentWap.getSattDir();
             }
 
             ProductInfo productInfo = new ProductInfo();
@@ -581,7 +580,7 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
             //创建图片
             BufferedImage img = new BufferedImage(750, 1624, BufferedImage.TYPE_INT_RGB);
             //开启画图
-            Graphics g = img.getGraphics();
+            Graphics2D g = img.createGraphics();
             //背景 -- 读取互联网图片
             InputStream stream = getClass().getClassLoader().getResourceAsStream("background.png");
             ImageInputStream background = ImageIO.createImageInputStream(stream);
@@ -606,6 +605,8 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
             FileUtils.copyInputStreamToFile(streamT, newFileT);
             Font font = Font.createFont(Font.TRUETYPE_FONT, newFileT);
             //文案标题
+            g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,RenderingHints.VALUE_ANTIALIAS_ON);
+            g.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL,RenderingHints.VALUE_STROKE_DEFAULT);
             g.setFont(font.deriveFont(Font.BOLD, 32));
             g.setColor(new Color(29, 29, 29));
             //文字叠加,自动换行叠加
@@ -710,17 +711,17 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
                 e.printStackTrace();
             }
             // 绘制缩小后的图
-            g.drawImage(qrCode.getScaledInstance(122, 122, Image.SCALE_DEFAULT), 54, 1334, null);
+            g.drawImage(qrCode.getScaledInstance(150, 150, Image.SCALE_DEFAULT), 54, 1334, null);
 
             //二维码字体
             g.setFont(font.deriveFont(Font.PLAIN, 20));
             g.setColor(new Color(171, 171, 171));
             //绘制文字
-            g.drawString("扫描或长按小程序码", 210, 1374);
+            g.drawString("扫描或长按小程序码", 238, 1388);
 
             g.setFont(font.deriveFont(Font.PLAIN, 20));
             g.setColor(new Color(171, 171, 171));
-            g.drawString("查看商品详情", 210, 1414);
+            g.drawString("查看商品详情", 238, 1428);
 
             g.dispose();
             //先将画好的海报写到本地

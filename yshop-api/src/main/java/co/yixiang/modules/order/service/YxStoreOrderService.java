@@ -188,4 +188,6 @@ public interface YxStoreOrderService extends BaseService<YxStoreOrder> {
      * @param redisMap
      */
     void updateRedisRemainAmount(Integer uid, String key, Map<String,Integer> redisMap);
+
+    public YxStoreOrder getOrderInfoByParam(String unique);
 }

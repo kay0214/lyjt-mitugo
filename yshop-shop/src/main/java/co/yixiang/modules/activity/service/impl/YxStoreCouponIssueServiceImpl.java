@@ -56,6 +56,7 @@ public class YxStoreCouponIssueServiceImpl extends BaseServiceImpl<YxStoreCoupon
 //        PageInfo<YxStoreCouponIssue> page = new PageInfo<>(queryAll(criteria));
 
         QueryWrapper<YxStoreCouponIssue> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().eq(YxStoreCouponIssue::getIsDel, 0);
         queryWrapper.lambda().orderByDesc(YxStoreCouponIssue::getAddTime);
         if (0 != criteria.getUserRole()) {
             if (null == criteria.getChildStoreId() || criteria.getChildStoreId().size() <= 0) {
@@ -77,7 +78,7 @@ public class YxStoreCouponIssueServiceImpl extends BaseServiceImpl<YxStoreCoupon
 
 
     public List<YxStoreCouponIssue> getConponInfo(List<YxStoreCouponIssue> storeCouponIssueList) {
-        if(!CollectionUtils.isEmpty(storeCouponIssueList)) {
+        if (!CollectionUtils.isEmpty(storeCouponIssueList)) {
             storeCouponIssueList.forEach(yxStoreCouponIssue -> {
                 yxStoreCouponIssue.setStoreCoupon(yxStoreCouponService.getById(yxStoreCouponIssue.getCid()));
             });

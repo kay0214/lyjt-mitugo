@@ -38,7 +38,7 @@ public class WithdrawServiceImpl implements WithdrawService {
     /**
      * 旅游集团服务器ip
      */
-    final static String payUrl = "http://127.0.0.1:8099/lyjt/transfer";
+    final static String payUrl = "http://223.99.57.253:8099/lyjt/transfer";
 
 
     @Autowired
@@ -55,13 +55,6 @@ public class WithdrawServiceImpl implements WithdrawService {
 
     @Autowired
     YxMerchantsDetailService yxMerchantsDetailService;
-    // 提现手续费
-    private final BigDecimal EXTRACT_RATE = new BigDecimal(0.006);
-
-
-    @Value("${yshop.snowflake.datacenterId}")
-    private Integer datacenterId;
-
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
@@ -133,10 +126,8 @@ public class WithdrawServiceImpl implements WithdrawService {
             //  对公账号
             // 1普通账户；2对公账户
             info.setPayerAccttype(2);
-            // 联行号
-            info.setBankCode(yxMerchantsDetail.getOpenAccountBank());
             // 开户行
-            info.setBankName(yxMerchantsDetail.getOpenAccountSubbranch());
+            info.setBankName(yxMerchantsDetail.getOpenAccountBank());
         }
 
         String result = sendPayRequest(info);
@@ -161,7 +152,7 @@ public class WithdrawServiceImpl implements WithdrawService {
         String username = user.getNickName();
 
         // 商户提现扣减手续费
-        BigDecimal truePrice = yxUserExtract.getExtractPrice().subtract(yxUserExtract.getExtractPrice().multiply(EXTRACT_RATE));
+        BigDecimal truePrice = yxUserExtract.getTruePrice();
         saveBill(yxUserExtract, username);
 
         // 更新审核记录
@@ -270,7 +261,7 @@ public class WithdrawServiceImpl implements WithdrawService {
      */
     private void updateUserInfo(YxUserExtract yxUserExtract, YxUser user) {
 
-        String username = user.getUsername();
+        String username = user.getNickname();
 
         // 商户提现扣减手续费
         saveBill(yxUserExtract, username);
@@ -306,13 +297,10 @@ public class WithdrawServiceImpl implements WithdrawService {
      */
     private WithdrawInfo setCommonParam(YxUserExtract userExtract ) {
         WithdrawInfo info = new WithdrawInfo();
-        // 生成订单号
-        String uuid = SnowflakeUtil.getOrderId(datacenterId);
-        userExtract.setSeqNo(uuid);
 
         info.setId(userExtract.getId());
         info.setAddTime(userExtract.getAddTime()+"");
-        info.setSeqNo(uuid);
+        info.setSeqNo(userExtract.getSeqNo());
         info.setPayeeMobile(userExtract.getBankMobile());
         // 银行卡
         info.setPayeeNo(userExtract.getBankCode());
