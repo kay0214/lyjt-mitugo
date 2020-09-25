@@ -109,7 +109,7 @@
   placement="left"
   width="260"
 trigger="click">
-  <el-form ref='formWithdraw' :model="formWithdraw" :rules="rules" style='padding:10px 20px;'>
+  <el-form :ref='`formWithdraw${scope.$index}`' :model="formWithdraw" :rules="rules" style='padding:10px 20px;'>
   <p>佣金调整</p>
     <el-form-item label="类型" prop='ptype'>
       <el-radio v-model="formWithdraw.ptype" :label="1" style='margin-left:20px;'>增</el-radio>
@@ -119,7 +119,7 @@ trigger="click">
       <el-input v-model="formWithdraw.money " placeholder="金额" :maxlength='12'/>
     </el-form-item>
   <div style="text-align: right; margin: 0">
-    <el-button type="primary" size="mini" @click="modiyfUserCommission($event,formWithdraw,scope.row.uid)">提交</el-button>
+    <el-button type="primary" size="mini" @click="modiyfUserCommission($event,scope.$index,scope.row.uid)">提交</el-button>
   </div>
   </el-form>
   <el-button v-permission="['admin','YXUSER_MODIFY']" size="small" type="primary" icon="el-icon-edit" slot="reference" style='marginTop:10px' plain>修改金额</el-button>
@@ -291,12 +291,11 @@ export default {
       }
       _this.dialog = true
     },
-    modiyfUserCommission(btn,formData,uid){
-      this.$refs.formWithdraw.validate(function(ret,obj){
+    modiyfUserCommission(btn,index,uid){      
+      let that=this
+      this.$refs['formWithdraw'+index].validate(function(ret,obj){
         if(ret){
-          modiyfUserCommission(Object.assign(formData,{uid})).then(res=>{
-            console.log('xxxxxx')
-            console.log(res)
+          modiyfUserCommission(Object.assign(that.formWithdraw,{uid})).then(res=>{
             if(res){
               Notification.success({
               title: '提交成功'
