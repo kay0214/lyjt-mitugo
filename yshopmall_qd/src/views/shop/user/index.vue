@@ -299,7 +299,8 @@ export default {
             if(res){
               Notification.success({
               title: '提交成功'
-              })
+              })          
+              that.init()    
             }else{
               Notification.error({
               title: '提交失败'
