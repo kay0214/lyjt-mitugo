@@ -44,7 +44,7 @@
       <el-table-column label="用户角色" align="center">
         <template slot-scope="scope">
           <div>
-            <el-tag v-if="scope.row.userRole == 1">分销客</el-tag>
+            <el-tag v-if="scope.row.userRole == 1">分享达人</el-tag>
             <el-tag v-else-if="scope.row.userRole == 0">普通会员</el-tag>
             <el-tag v-else></el-tag>
           </div>
