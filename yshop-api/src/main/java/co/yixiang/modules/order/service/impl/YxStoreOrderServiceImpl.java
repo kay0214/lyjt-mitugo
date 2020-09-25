@@ -1936,8 +1936,8 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
                 payPostage = 0d;
             }
 
-            int useIntegral = param.getUseIntegral().intValue();
-
+//            int useIntegral = param.getUseIntegral().intValue();
+            int useIntegral = 0;
             boolean deduction = false;//拼团等
             //拼团等不参与抵扣
             if (combinationId > 0 || seckillId > 0 || bargainId > 0) deduction = true;
@@ -2426,6 +2426,7 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
         List<String> listCartIds = Arrays.asList(storeOrderQueryVo.getCartId().split(","));
         QueryWrapper<YxStoreOrderCartInfo> wrapper = new QueryWrapper<YxStoreOrderCartInfo>();
         wrapper.in("cart_id", listCartIds);
+        wrapper.eq("oid",storeOrderQueryVo.getId());
         List<YxStoreOrderCartInfo> cartList = orderCartInfoService.list(wrapper);
         if (CollectionUtils.isEmpty(cartList)) {
             return null;
