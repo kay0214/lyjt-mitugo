@@ -69,6 +69,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -784,6 +785,9 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         BeanUtils.copyBeanProp(item, yxCouponOrder);
         // 获取卡券list
         List<YxCouponOrderDetail> detailList = this.yxCouponOrderDetailService.list(new QueryWrapper<YxCouponOrderDetail>().lambda().eq(YxCouponOrderDetail::getOrderId, item.getOrderId()));
+        if(CollectionUtils.isEmpty(detailList)){
+            throw new BadRequestException("根据订单号:"+item.getOrderId()+" 未查询到卡券订单信息");
+        }
         // 获取该订单购买的优惠券id
         Integer couponId = detailList.get(0).getCouponId();
 
