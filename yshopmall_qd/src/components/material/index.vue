@@ -271,6 +271,7 @@ export default {
       if (this.readonly) {
         return
       }
+      this.urls = this.value
       this.listDialogVisible = true
       if (this.tableData.length <= 0) {
         this.materialgroupPage()
