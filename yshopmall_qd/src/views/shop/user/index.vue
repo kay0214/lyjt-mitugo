@@ -303,6 +303,7 @@ export default {
               })          
               that.init()   
               that.$refs['popover'+index].doClose() 
+              that.$refs['formWithdraw'+index].resetFields()
             }else{
               Notification.error({
               title: '提交失败'
