@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -50,6 +51,16 @@ public class GlobalExceptionHandler {
         String message = "坏的凭证".equals(e.getMessage()) ? "用户名或密码不正确" : e.getMessage();
         log.info(message);
         return buildResponseEntity(ApiError.error(message));
+    }
+
+    /**
+     * 处理自定义异常
+     */
+    @ExceptionHandler(value = InternalAuthenticationServiceException.class)
+    public ResponseEntity<ApiError> internalAuthenticationServiceException(InternalAuthenticationServiceException e) {
+        // 打印堆栈信息
+        log.info(e.getMessage());
+        return buildResponseEntity(ApiError.error(e.getMessage()));
     }
 
     /**

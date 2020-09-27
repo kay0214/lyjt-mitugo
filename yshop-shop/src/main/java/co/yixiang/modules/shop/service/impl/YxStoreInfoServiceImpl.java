@@ -266,9 +266,6 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
             if (null == attributeList || attributeList.size() <= 0) {
                 throw new BadRequestException("请先设置营业时间");
             }
-            if (null == yxStoreInfo.getIndustryCategory()) {
-                throw new BadRequestException("请先设置行业类别");
-            }
             // 店铺图片和轮播图
             String pic = yxImageInfoService.selectImgByParam(id, ShopConstants.IMG_TYPE_STORE, ShopConstants.IMG_CATEGORY_PIC);
             if (StringUtils.isBlank(pic)) {

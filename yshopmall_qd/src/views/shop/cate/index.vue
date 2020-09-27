@@ -11,11 +11,11 @@
     </div>
     <!--表单组件-->
     <el-dialog append-to-body :close-on-click-modal="false" :before-close="crud.cancelCU" :visible.sync="crud.status.cu > 0" :title="crud.status.title" width="500px">
-      <el-form ref="form" :model="form" :rules="rules" size="small" label-width="80px">
+      <el-form ref="form" :model="form" :rules="rules" size="small" label-width="140px">
         <el-form-item label="分类名称" required>
-          <el-input v-model="form.cateName" style="width: 370px;" maxlength="20" />
+          <el-input v-model="form.cateName" style="width: 100%;" maxlength="20" />
         </el-form-item>
-        <el-form-item label="分类图片">
+        <el-form-item label="分类图片(128*128)">
           <MaterialList v-model="picArr" type="image" :num="1" :width="150" :height="150" />
         </el-form-item>
         <el-form-item label="状态">
@@ -25,10 +25,10 @@
           </el-radio-group>
         </el-form-item>
         <el-form-item label="排序" prop="sort">
-          <el-input v-model="form.sort" style="width: 370px;" maxlength="3" />
+          <el-input v-model="form.sort" style="width: 100%;" maxlength="3" />
         </el-form-item>
         <el-form-item style="margin-bottom: 0;" label="上级分类" prop="pid">
-          <treeselect v-model="form.pid" :options="depts" style="width: 370px;" placeholder="选择上级分类" />
+          <treeselect v-model="form.pid" :options="depts" style="width: 100%;" placeholder="选择上级分类" />
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
