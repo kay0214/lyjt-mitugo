@@ -10,11 +10,11 @@
       <crudOperation :permission="permission" />
       <!--表单组件-->
       <el-dialog :close-on-click-modal="false" :before-close="crud.cancelCU" :visible.sync="crud.status.cu > 0" :title="crud.status.title" width="500px">
-        <el-form ref="form" :model="form" :rules="rules" size="small" label-width="80px">
+        <el-form ref="form" :model="form" :rules="rules" size="small" label-width="140px">
           <el-form-item label="分类名称" prop="cateName">
-            <el-input v-model="form.cateName" style="width: 370px;" />
+            <el-input v-model="form.cateName" style="width: 100%;" />
           </el-form-item>
-          <el-form-item label="分类图片" prop="path">
+          <el-form-item label="分类图片(128*128)" prop="path">
             <MaterialList v-model="pathArr" style="width: 100%" type="image" :num="1" :width="150" :height="150" />
           </el-form-item>
           <el-form-item label="是否显示" prop="isShow">
@@ -24,7 +24,7 @@
             </el-radio-group>
           </el-form-item>
           <el-form-item label="排序" prop="sort">
-            <el-input v-model="form.sort" style="width: 370px;" maxlength="3" />
+            <el-input v-model="form.sort" style="width: 100%;" maxlength="3" />
           </el-form-item>
         </el-form>
         <div slot="footer" class="dialog-footer">
