@@ -39,8 +39,8 @@
       </el-table-column>
       <el-table-column prop="phone" label="手机号码" />
       <el-table-column prop="realName" label="真实姓名" />
-      <el-table-column prop="nowMoney" label="用户余额" />
-      <el-table-column prop="brokeragePrice" label="佣金金额" />
+      <el-table-column prop="nowMoney" label="用户余额(元)" />
+      <el-table-column prop="brokeragePrice" label="佣金金额(元)" />
       <el-table-column label="用户角色" align="center">
         <template slot-scope="scope">
           <div>
@@ -108,14 +108,15 @@
           <el-popover
   placement="left"
   width="260"
-trigger="click">
+trigger="click"
+:ref='`popover${scope.$index}`'>
   <el-form :ref='`formWithdraw${scope.$index}`' :model="formWithdraw" :rules="rules" style='padding:10px 20px;'>
   <p>佣金调整</p>
     <el-form-item label="类型" prop='ptype'>
       <el-radio v-model="formWithdraw.ptype" :label="1" style='margin-left:20px;'>增</el-radio>
       <el-radio v-model="formWithdraw.ptype" :label="0">减</el-radio>
     </el-form-item>
-    <el-form-item label="金额" prop='money'>
+    <el-form-item label="金额(元)" prop='money'>
       <el-input v-model="formWithdraw.money " placeholder="金额" :maxlength='12'/>
     </el-form-item>
   <div style="text-align: right; margin: 0">
@@ -300,7 +301,8 @@ export default {
               Notification.success({
               title: '提交成功'
               })          
-              that.init()    
+              that.init()   
+              that.$refs['popover'+index].doClose() 
             }else{
               Notification.error({
               title: '提交失败'
