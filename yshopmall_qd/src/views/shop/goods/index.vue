@@ -52,7 +52,7 @@
           <template slot-scope="scope">
             <div @click="changeHotStatus(scope.row.id,scope.row.isBest,hotType.best)">
               <el-tag v-if="scope.row.isBest == 1">是</el-tag>
-              <el-tag v-else-if="scope.row.isBest == 0">否</el-tag>
+              <el-tag v-else-if="scope.row.isBest == 0" :type=" 'info' ">否</el-tag>
               <el-tag v-else></el-tag>
             </div>
           </template>
@@ -61,7 +61,7 @@
           <template slot-scope="scope">
             <div @click="changeHotStatus(scope.row.id,scope.row.isHot,hotType.hot)">
               <el-tag v-if="scope.row.isHot == 1">是</el-tag>
-              <el-tag v-else-if="scope.row.isHot == 0">否</el-tag>
+              <el-tag v-else-if="scope.row.isHot == 0" :type=" 'info' ">否</el-tag>
               <el-tag v-else></el-tag>
             </div>
           </template>
