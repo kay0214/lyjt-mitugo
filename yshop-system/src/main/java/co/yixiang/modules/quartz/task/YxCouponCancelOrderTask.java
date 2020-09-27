@@ -37,13 +37,13 @@ public class YxCouponCancelOrderTask {
     private YxCouponOrderDetailService yxCouponOrderDetailService;
 
     public void run() {
-        log.info("---------------------优惠券过期取消订单开始---------------------");
+//        log.info("---------------------优惠券过期取消订单开始---------------------");
         List<YxCoupons> list = this.yxCouponsService.list(new QueryWrapper<YxCoupons>().lambda().le(YxCoupons::getExpireDateEnd, LocalDateTime.now()).eq(YxCoupons::getIsShow, 1));
         if (null == list || list.size() <= 0) {
             return;
         }
         for (YxCoupons item : list) {
-            log.info("卡券id：" + item.getId() + "卡券名称：" + item.getCouponName() + "开始处理过期订单...");
+//            log.info("卡券id：" + item.getId() + "卡券名称：" + item.getCouponName() + "开始处理过期订单...");
             // 先判断下卡券是否支持过期退和随时退、支持的话把所有未使用的订单退款
             if (0 == item.getAwaysRefund() || 0 == item.getOuttimeRefund()) {
                 // 支持过期退和随时退的、未使用的订单全额退款
@@ -76,8 +76,8 @@ public class YxCouponCancelOrderTask {
             yxCoupons.setIsShow(0);
             yxCoupons.setId(item.getId());
             this.yxCouponsService.updateById(yxCoupons);
-            log.info("卡券id：" + item.getId() + "卡券名称：" + item.getCouponName() + "过期订单处理结束...");
+//            log.info("卡券id：" + item.getId() + "卡券名称：" + item.getCouponName() + "过期订单处理结束...");
         }
-        log.info("---------------------优惠券过期取消订单结束---------------------");
+//        log.info("---------------------优惠券过期取消订单结束---------------------");
     }
 }

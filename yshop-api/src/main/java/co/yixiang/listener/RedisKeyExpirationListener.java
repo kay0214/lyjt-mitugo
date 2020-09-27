@@ -44,7 +44,6 @@ public class RedisKeyExpirationListener implements MessageListener {
 	}
 	@Override
 	public void onMessage(Message message, byte[] bytes) {
-		log.info("------redis 过期监听---------");
 		RedisSerializer<?> serializer = redisTemplate.getValueSerializer();
 		String channel = String.valueOf(serializer.deserialize(message.getChannel()));
 		String body = String.valueOf(serializer.deserialize(message.getBody()));
@@ -53,7 +52,6 @@ public class RedisKeyExpirationListener implements MessageListener {
 			//订单自动取消
 			if(body.contains(ShopConstants.REDIS_ORDER_OUTTIME_UNPAY)) {
 				body = body.replace(ShopConstants.REDIS_ORDER_OUTTIME_UNPAY, "");
-				log.info("body:{}",body);
 				String orderId = body;
 				YxStoreOrder order = storeOrderService.getOne(new QueryWrapper<YxStoreOrder>()
 						.eq("id", orderId).eq("is_del",0).eq("paid",0));

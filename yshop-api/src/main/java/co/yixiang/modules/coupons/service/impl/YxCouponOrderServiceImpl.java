@@ -69,12 +69,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 
 
 /**
@@ -358,11 +358,11 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         //mqProducer.sendMsg("yshop-topic",storeOrder.getId().toString());
         //log.info("投递延时订单id： [{}]：", storeOrder.getId());
 
-        //加入redis，30分钟自动取消
-        String redisKey = String.valueOf(StrUtil.format("{}{}",
-                LocalLiveConstants.REDIS_COUPON_ORDER_OUTTIME_UNPAY, couponOrder.getId()));
-        redisTemplate.opsForValue().set(redisKey, couponOrder.getOrderId(),
-                LocalLiveConstants.ORDER_OUTTIME_UNPAY, TimeUnit.MINUTES);
+        //加入redis，30分钟自动取消 订单取消放到batch扫描
+//        String redisKey = String.valueOf(StrUtil.format("{}{}",
+//                LocalLiveConstants.REDIS_COUPON_ORDER_OUTTIME_UNPAY, couponOrder.getId()));
+//        redisTemplate.opsForValue().set(redisKey, couponOrder.getOrderId(),
+//                LocalLiveConstants.ORDER_OUTTIME_UNPAY, TimeUnit.MINUTES);
 
         return couponOrder;
     }
@@ -785,6 +785,9 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         BeanUtils.copyBeanProp(item, yxCouponOrder);
         // 获取卡券list
         List<YxCouponOrderDetail> detailList = this.yxCouponOrderDetailService.list(new QueryWrapper<YxCouponOrderDetail>().lambda().eq(YxCouponOrderDetail::getOrderId, item.getOrderId()));
+        if(CollectionUtils.isEmpty(detailList)){
+            throw new BadRequestException("根据订单号:"+item.getOrderId()+" 未查询到卡券订单信息");
+        }
         // 获取该订单购买的优惠券id
         Integer couponId = detailList.get(0).getCouponId();
 
@@ -902,9 +905,9 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         wrapper4.in("refund_status", 1, 2);
         countVO.setRefundCount(this.count(wrapper4));
 
-        // 累计订单数量
+        // 累计订单数量 已支付 未退款的数量
         QueryWrapper<YxCouponOrder> wrapper5 = new QueryWrapper<>();
-        wrapper5.eq("uid", uid);
+        wrapper5.eq("uid", uid).eq("refund_status", 0).eq("pay_staus", 1);
         countVO.setTotalCount(this.count(wrapper5));
 
         // 总消费
