@@ -6,7 +6,7 @@ spring:
     druid:
       type: com.alibaba.druid.pool.DruidDataSource
       driverClassName: net.sf.log4jdbc.sql.jdbcapi.DriverSpy
-      url: jdbc:log4jdbc:mysql://39.98.139.163:33306/mitu?serverTimezone=Asia/Shanghai&characterEncoding=utf8&useSSL=false&zeroDateTimeBehavior=convertToNull
+      url: jdbc:log4jdbc:mysql://192.168.1.115:33306/mitu_test?serverTimezone=Asia/Shanghai&characterEncoding=utf8&useSSL=false&zeroDateTimeBehavior=convertToNull
       username: dbwrite
       password: aAR!Q23AUP!ogk$J
 
