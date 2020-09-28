@@ -165,20 +165,16 @@ public class LocaLifeIndexController {
         JSONArray jsa = new JSONArray();
         JSONObject jso = new JSONObject();
         jso.put("id",1);
-        jso.put("img","http://qgsikxkyn.hn-bkt.clouddn.com/fenxiaoke.png");
+        jso.put("img","https://mtcdn.metoogo.cn/config/fxdr-thumb.png");
 
-        jso.put("url","https://baijiahao.baidu.com/s?id=1677893142703276561&wfr=spider&for=pc");
+        jso.put("url","/pages/distributor/index");
 
-        JSONObject jso1 = new JSONObject();
-        jso1.put("id",2);
-        jso1.put("img","http://qgsikxkyn.hn-bkt.clouddn.com/tuangou.png");
-        jso1.put("url","https://news.online.sh.cn/news/gb/content/2020-09/16/content_9642092_2.htm");
+
 
         jsa.add(jso);
-        jsa.add(jso1);
 
         JSONObject result = new JSONObject();
-        result.put("total",2);
+        result.put("total",1);
         result.put("records",jsa);
         return result;
     }
