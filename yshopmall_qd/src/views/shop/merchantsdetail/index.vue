@@ -255,7 +255,7 @@
           <template v-if="!crud.loading" slot-scope="scope">
             <el-button v-if="scope.row.examineStatus===3" v-permission="permission.examine" size="mini" type="primary" icon="el-icon-s-check" @click="examineOpt(scope.row)" plain></el-button>
             <el-button v-permission="permission.editByManage" size="mini" type="primary" 
-            icon="el-icon-edit" @click="crud.toEdit(scope.row)"></el-button>
+            icon="el-icon-edit" @click="crud.toEdit(scope.row)" plain></el-button>
             <el-button v-if="scope.row.examineStatus===2 || scope.row.examineStatus===0" v-permission="permission.edit" size="mini" 
             type="primary" icon="el-icon-edit" @click="crud.toEdit(scope.row)" ></el-button>
 
