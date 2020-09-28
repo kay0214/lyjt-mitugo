@@ -103,8 +103,20 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<StoreProductMappe
         if (null != criteria.getIsShow()) {
             queryWrapper.lambda().eq(YxStoreProduct::getIsShow, criteria.getIsShow());
         }
-        if (StringUtils.isNotBlank(criteria.getStoreName())) {
-            queryWrapper.lambda().like(YxStoreProduct::getStoreName, criteria.getStoreName());
+        if (StringUtils.isNotBlank(criteria.getType()) && StringUtils.isNotBlank(criteria.getValue())) {
+            if ("storeName".equals(criteria.getType())) {
+                queryWrapper.lambda().like(YxStoreProduct::getStoreName, criteria.getValue());
+            }
+            if ("merUsername".equals(criteria.getType())) {
+                User user = this.userService.getOne(new QueryWrapper<User>().lambda().eq(User::getUsername, criteria.getValue()));
+                if (null == user) {
+                    Map<String, Object> map = new LinkedHashMap<>(2);
+                    map.put("content", new ArrayList<>());
+                    map.put("totalElements", 0);
+                    return map;
+                }
+                queryWrapper.lambda().eq(YxStoreProduct::getMerId, user.getId());
+            }
         }
         IPage<YxStoreProduct> ipage = this.page(new Page<>(pageable.getPageNumber() + 1, pageable.getPageSize()), queryWrapper);
         List<YxStoreProduct> productList = getStoreName(ipage.getRecords());
@@ -151,8 +163,8 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<StoreProductMappe
             }
             yxStoreProduct.setStore(yxStoreInfoDto);
             yxStoreProduct.setCateFlg(0);
-            if(ObjectUtil.isNotEmpty(yxStoreProduct.getStoreCategory())){
-                yxStoreProduct.setCateFlg(yxStoreProduct.getStoreCategory().getIsShow()==1?1:0);
+            if (ObjectUtil.isNotEmpty(yxStoreProduct.getStoreCategory())) {
+                yxStoreProduct.setCateFlg(yxStoreProduct.getStoreCategory().getIsShow() == 1 ? 1 : 0);
             }
         });
         return storeProductList;
@@ -214,8 +226,8 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<StoreProductMappe
         storeProduct.setCateId(storeProduct.getStoreCategory().getId().toString());
         this.save(storeProduct);
         //存入redis
-        String redisKey = ShopConstants.SHOP_PRODUCT_STOCK+storeProduct.getId();
-        redisUtils.set(redisKey,storeProduct.getStock());
+        String redisKey = ShopConstants.SHOP_PRODUCT_STOCK + storeProduct.getId();
+        redisUtils.set(redisKey, storeProduct.getStock());
 
         return storeProduct;
     }
@@ -311,7 +323,7 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<StoreProductMappe
         }
         // 平台结算
 //        BigDecimal bigDecimalSellt  = yxStoreProductParam.getSettlement();
-        delRedis(id,ShopConstants.SHOP_PRODUCT_STOCK+id+":");
+        delRedis(id, ShopConstants.SHOP_PRODUCT_STOCK + id + ":");
         List<YxStoreProductAttrValue> valueGroup = new ArrayList<>();
         for (ProductFormatDto productFormatDTO : valueList) {
             YxStoreProductAttrValue yxStoreProductAttrValue = new YxStoreProductAttrValue();
@@ -322,7 +334,7 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<StoreProductMappe
             Collections.sort(stringList);
             yxStoreProductAttrValue.setSuk(StrUtil.
                     join(",", stringList));
-            if(null==productFormatDTO.getPrice()||null==productFormatDTO.getCost()||null==productFormatDTO.getCommission()){
+            if (null == productFormatDTO.getPrice() || null == productFormatDTO.getCost() || null == productFormatDTO.getCommission()) {
                 throw new BadRequestException("价格不能为空！!");
             }
             yxStoreProductAttrValue.setPrice(BigDecimal.valueOf(productFormatDTO.getPrice()));
@@ -331,7 +343,7 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<StoreProductMappe
             yxStoreProductAttrValue.setUnique(IdUtil.simpleUUID());
             yxStoreProductAttrValue.setImage(productFormatDTO.getPic());
             //佣金 = 商品金额-平台结算(cost:为平台结算价)
-           double bigComm = productFormatDTO.getPrice() - productFormatDTO.getCost();
+            double bigComm = productFormatDTO.getPrice() - productFormatDTO.getCost();
             DecimalFormat df1 = new DecimalFormat("0.00");
             yxStoreProductAttrValue.setCommission(new BigDecimal(df1.format(bigComm).toString()));
 
@@ -340,8 +352,8 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<StoreProductMappe
 
             valueGroup.add(yxStoreProductAttrValue);
             //库存存入redis
-            String redisKey = ShopConstants.SHOP_PRODUCT_STOCK+id+":"+yxStoreProductAttrValue.getUnique();
-            redisUtils.set(redisKey,yxStoreProductAttrValue.getStock());
+            String redisKey = ShopConstants.SHOP_PRODUCT_STOCK + id + ":" + yxStoreProductAttrValue.getUnique();
+            redisUtils.set(redisKey, yxStoreProductAttrValue.getStock());
         }
 
         if (attrGroup.isEmpty() || valueGroup.isEmpty()) {
@@ -394,13 +406,13 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<StoreProductMappe
         setResult(map, id);
     }
 
-    private  void  delRedis(int productId,String redisKey){
-        List<YxStoreProductAttrValue> resultList= yxStoreProductAttrValueService.list(new QueryWrapper<YxStoreProductAttrValue>().eq("product_id", productId));
-        if(CollectionUtils.isEmpty(resultList)){
+    private void delRedis(int productId, String redisKey) {
+        List<YxStoreProductAttrValue> resultList = yxStoreProductAttrValueService.list(new QueryWrapper<YxStoreProductAttrValue>().eq("product_id", productId));
+        if (CollectionUtils.isEmpty(resultList)) {
             return;
         }
-        for(YxStoreProductAttrValue value:resultList){
-            String delRed = redisKey+value.getUnique();
+        for (YxStoreProductAttrValue value : resultList) {
+            String delRed = redisKey + value.getUnique();
             redisUtils.del(delRed);
         }
     }
@@ -442,12 +454,12 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<StoreProductMappe
         resources.setCommission(resources.getPrice().subtract(resources.getSettlement()));
         //删除详情图片
         QueryWrapper<YxSystemAttachment> queryWrapperAtt = new QueryWrapper();
-        queryWrapperAtt.like("name",resources.getId()+"_%").like("name","%good%");
+        queryWrapperAtt.like("name", resources.getId() + "_%").like("name", "%good%");
         yxSystemAttachmentMapper.delete(queryWrapperAtt);
 
         //修改redis
-        String redisKey = ShopConstants.SHOP_PRODUCT_STOCK+resources.getId();
-        redisUtils.set(redisKey,resources.getStock());
+        String redisKey = ShopConstants.SHOP_PRODUCT_STOCK + resources.getId();
+        redisUtils.set(redisKey, resources.getStock());
 
         this.saveOrUpdate(resources);
     }
@@ -472,6 +484,7 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<StoreProductMappe
 
     /**
      * 组合规则属性算法
+     *
      * @param jsonStr
      * @return
      */
@@ -544,7 +557,6 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<StoreProductMappe
     }
 
     /**
-     *
      * @param request
      */
     @Override

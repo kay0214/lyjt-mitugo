@@ -25,4 +25,10 @@ public class YxStoreProductQueryCriteria extends BaseCriteria{
 
     @Query
     private Integer isShow;
+
+    @Query(type = Query.Type.EQUAL)
+    private String type;
+
+    @Query(type = Query.Type.EQUAL)
+    private String value;
 }
