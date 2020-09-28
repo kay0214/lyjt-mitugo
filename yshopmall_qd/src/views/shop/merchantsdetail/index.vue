@@ -254,7 +254,10 @@
         <el-table-column v-permission="['admin','yxMerchantsDetail:edit','yxMerchantsDetail:examine','yxMerchantsDetail:del']" label="操作" width="250px" align="center">
           <template v-if="!crud.loading" slot-scope="scope">
             <el-button v-if="scope.row.examineStatus===3" v-permission="permission.examine" size="mini" type="primary" icon="el-icon-s-check" @click="examineOpt(scope.row)" plain></el-button>
-            <el-button v-if="scope.row.examineStatus===2 || scope.row.examineStatus===0" v-permission="permission.edit" size="mini" type="primary" icon="el-icon-edit" @click="crud.toEdit(scope.row)" ></el-button>
+            <el-button v-permission="permission.editByManage" size="mini" type="primary" 
+            icon="el-icon-s-check" @click="crud.toEdit(scope.row)"></el-button>
+            <el-button v-if="scope.row.examineStatus===2 || scope.row.examineStatus===0" v-permission="permission.edit" size="mini" 
+            type="primary" icon="el-icon-edit" @click="crud.toEdit(scope.row)" ></el-button>
 
             <el-button size="mini" type="success" icon="el-icon-reading" @click="toRead(scope.row)" plain ></el-button>
 
@@ -291,7 +294,7 @@ trigger="click">
 </template>
 
 <script>
-import crudYxMerchantsDetail,{examine as examineSubmit,update,modiyfMerWithdrawal as withdrawEdit } from '@/api/yxMerchantsDetail'
+import crudYxMerchantsDetail,{examine as examineSubmit,update,modiyfMerWithdrawal as withdrawEdit ,editByManage} from '@/api/yxMerchantsDetail'
 import { isvalidPhone ,amountValid} from '@/utils/validate'
 import CRUD, { presenter, header, form, crud } from '@crud/crud'
 import rrOperation from '@crud/RR.operation'
@@ -342,7 +345,8 @@ export default {
         edit: ['admin', 'yxMerchantsDetail:edit'],
         examine: ['admin', 'yxMerchantsDetail:examine'],
         del: ['admin', 'yxMerchantsDetail:del'],
-        modify:['admin','yxMerchantsDetail:modify']
+        modify:['admin','yxMerchantsDetail:modify'],
+        editByManage:['admin','yxMerchantsDetail:editByManage'],
       },
       rules: {
         username: [
@@ -549,6 +553,14 @@ export default {
       const {dialog} = this.$route.query
       if(dialog == '1' && this.crud.data && this.crud.data.length === 1){
         this.crud.toEdit(this.crud.data[0])
+      }
+      return true
+    },
+    [CRUD.HOOK.beforeSubmit](crud) {
+      if(crud.status.edit && checkPermission(this.permission.editByManage)){
+        crud.crudMethod.edit=function(form){
+          return editByManage(form)
+        }
       }
       return true
     },

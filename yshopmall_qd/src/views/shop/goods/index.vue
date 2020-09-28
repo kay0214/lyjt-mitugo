@@ -187,7 +187,8 @@ export default {
       },
       showFlg:0,//精品热销显示状态
       queryTypeOptions: [
-        { key: 'storeName', display_name: '商品名称' }
+        { key: 'storeName', display_name: '商品名称' },
+        { key: 'merUsername', display_name: '商户用户名' }
       ],
       isAttr: false
     }

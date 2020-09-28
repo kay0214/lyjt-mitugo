@@ -24,6 +24,14 @@ export function edit(data) {
   })
 }
 
+export function editByManage(data) {
+  return request({
+    url: '/api/yxMerchantsDetail/updateByManage',
+    method: 'post',
+    data
+  })
+}
+
 export function examine(data) {
   return request({
     url: '/api/yxMerchantsDetail/examine',
