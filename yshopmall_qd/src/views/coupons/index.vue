@@ -11,7 +11,7 @@
         </el-select>
         <el-select v-model="query.couponCategory" clearable placeholder="卡券分类" class="filter-item" style="width: 130px">
           <el-option v-for="item in selections.couponCategory" :key="item.value" :label="item.label" :value="item.value" />
-        </el-select>        
+        </el-select>
         <el-select v-model="query.isShow" clearable placeholder="上架状态" class="filter-item" style="width: 130px">
           <el-option
             v-for="item in [
@@ -34,10 +34,7 @@
             :value="item.key"
           />
         </el-select>
-        <br/>
-        <div style='text-align:right'>
-          <rrOperation :crud="crud" />
-        </div>
+        <rrOperation :crud="crud" />
       </div>
       <!--如果想在工具栏加入更多按钮，可以使用插槽方式， slot = 'left' or 'right'-->
       <crudOperation :permission="permission" />
@@ -94,7 +91,7 @@
           <el-form-item label="销售价格" prop="sellingPrice">
             <el-input v-model="form.sellingPrice" style="width: 650px;" @change="setCommission" maxlength="12" />
           </el-form-item>
-          
+
           <el-form-item label="平台结算价" prop="settlementPrice">
             <el-input v-model="form.settlementPrice" style="width: 650px;" @change="setCommission" maxlength="12" />
           </el-form-item>
@@ -329,9 +326,9 @@
         <el-table-column label="服务支持">
           <!--  0:不支持 1支持 -->
           <template slot-scope="scope">
-            <el-tag v-if="scope.row.outtimeRefund === 1">过期退</el-tag> 
-            <el-tag v-if="scope.row.needOrder === 1">免预约</el-tag> 
-            <el-tag v-if="scope.row.awaysRefund === 1">随时退</el-tag> 
+            <el-tag v-if="scope.row.outtimeRefund === 1">过期退</el-tag>
+            <el-tag v-if="scope.row.needOrder === 1">免预约</el-tag>
+            <el-tag v-if="scope.row.awaysRefund === 1">随时退</el-tag>
             <span v-if="scope.row.outtimeRefund !== 1 && scope.row.needOrder !== 1 && scope.row.awaysRefund !== 1"> - </span>
           </template>
         </el-table-column>
@@ -420,14 +417,14 @@ const defaultCrud = CRUD({ title: '卡券', url: 'api/yxCoupons', sort: 'id,desc
       del: true,
       download: false
     }})
-const defaultForm = { 
-  id: null, couponNum: null, couponName: null, couponType: null, couponCategory: null, 
-  denomination: null, discount: null, threshold: null, discountAmount: null, sellingPrice: null, 
-  originalPrice: null, settlementPrice: null, commission: null, quantityLimit: null, 
-  inventory: null, sales: null, ficti: null, writeOff: null, expireDateStart: null, 
-  expireDateEnd: null, isHot: 0, isShow: 0, outtimeRefund: null, needOrder: null, 
-  awaysRefund: null, useCondition: null, availableTimeStart: null, availableTimeEnd: null, 
-  delFlag: null, createUserId: null, updateUserId: null, createTime: null, updateTime: null, 
+const defaultForm = {
+  id: null, couponNum: null, couponName: null, couponType: null, couponCategory: null,
+  denomination: null, discount: null, threshold: null, discountAmount: null, sellingPrice: null,
+  originalPrice: null, settlementPrice: null, commission: null, quantityLimit: null,
+  inventory: null, sales: null, ficti: null, writeOff: null, expireDateStart: null,
+  expireDateEnd: null, isHot: 0, isShow: 0, outtimeRefund: null, needOrder: null,
+  awaysRefund: null, useCondition: null, availableTimeStart: null, availableTimeEnd: null,
+  delFlag: null, createUserId: null, updateUserId: null, createTime: null, updateTime: null,
   content: null, expireDate: null, image: null, sliderImage: null,sort:null, couponInfo:null,}
 const imageArr = []
 if (defaultForm.image) { imageArr[0] = defaultForm.image }
@@ -472,7 +469,7 @@ export default {
             //   if (this.form.couponType === 1 && (!value || value === '')) {
             //     return callback(new Error('代金券面额不能为空'))
             //   } else { callback() }
-            // }, 
+            // },
             required: true,
             message: '销售价格不能为空',
             trigger: 'blur'
@@ -735,7 +732,7 @@ export default {
       this.expireDate=null
       this.availableTime=[parseTime((new Date(2020, 9, 10, 9, 0)),'{h}:{i}'),parseTime((new Date(2020, 9, 10, 22, 0)),'{h}:{i}')]
     },
-    expireDateChange(newValue) {      
+    expireDateChange(newValue) {
         this.expireDate=newValue
       if(newValue){
         this.form.expireDateStart = this.expireDate[0]
