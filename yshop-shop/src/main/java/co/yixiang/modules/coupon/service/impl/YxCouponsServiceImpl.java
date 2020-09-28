@@ -17,8 +17,12 @@ import co.yixiang.modules.coupon.service.YxCouponsService;
 import co.yixiang.modules.coupon.service.dto.YxCouponsDto;
 import co.yixiang.modules.coupon.service.dto.YxCouponsQueryCriteria;
 import co.yixiang.modules.coupon.service.mapper.YxCouponsMapper;
+import co.yixiang.modules.shop.domain.User;
 import co.yixiang.modules.shop.domain.YxImageInfo;
+import co.yixiang.modules.shop.domain.YxStoreInfo;
 import co.yixiang.modules.shop.service.YxImageInfoService;
+import co.yixiang.modules.shop.service.mapper.UserSysMapper;
+import co.yixiang.modules.shop.service.mapper.YxStoreInfoMapper;
 import co.yixiang.utils.FileUtil;
 import co.yixiang.utils.StringUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -58,13 +62,16 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
 
     @Autowired
     private YxImageInfoService yxImageInfoService;
-
     @Autowired
     private YxCouponsCategoryService yxCouponsCategoryService;
     @Autowired
     private YxCouponOrderDetailService yxCouponOrderDetailService;
     @Autowired
     private YxCouponsMapper yxCouponsMapper;
+    @Autowired
+    private UserSysMapper userSysMapper;
+    @Autowired
+    private YxStoreInfoMapper yxStoreInfoMapper;
 
     @Override
     //@Cacheable
@@ -97,6 +104,23 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
         }
         if (null != criteria.getCouponCategory()) {
             queryWrapper.lambda().eq(YxCoupons::getCouponCategory, criteria.getCouponCategory());
+        }
+        if (StringUtils.isNotBlank(criteria.getMerUsername())) {
+            User user = this.userSysMapper.selectOne(new QueryWrapper<User>().lambda().eq(User::getUsername, criteria.getMerUsername()));
+            if (null == user) {
+                Map<String, Object> map = new LinkedHashMap<>(2);
+                map.put("content", new ArrayList<>());
+                map.put("totalElements", 0);
+                return map;
+            }
+            YxStoreInfo yxStoreInfo = this.yxStoreInfoMapper.selectOne(new QueryWrapper<YxStoreInfo>().lambda().eq(YxStoreInfo::getMerId, user.getId()));
+            if (null == yxStoreInfo) {
+                Map<String, Object> map = new LinkedHashMap<>(2);
+                map.put("content", new ArrayList<>());
+                map.put("totalElements", 0);
+                return map;
+            }
+            queryWrapper.lambda().eq(YxCoupons::getStoreId, yxStoreInfo.getId());
         }
         IPage<YxCoupons> ipage = this.page(new Page<>(pageable.getPageNumber() + 1, pageable.getPageSize()), queryWrapper);
 

@@ -37,4 +37,8 @@ public class YxCouponsQueryCriteria extends BaseCriteria {
     /** 查找是否热销 */
     @Query(type = Query.Type.EQUAL)
     private Integer isHot;
+
+    /** 根据商户用户名查询 */
+    @Query(type = Query.Type.EQUAL)
+    private String merUsername;
 }
