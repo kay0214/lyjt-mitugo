@@ -99,6 +99,18 @@ public class YxMerchantsDetailController {
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
+    @PostMapping(value = "/updateByManage")
+    @Log("平台管理修改用户信息")
+    @ApiOperation("平台管理修改用户信息")
+    @PreAuthorize("@el.check('admin','yxMerchantsDetail:editByManage')")
+    public ResponseEntity<Object> updateByManage(@Validated @RequestBody YxMerchantsDetailDto resources) {
+        // 获取登陆用户的id
+        int uid = SecurityUtils.getUserId().intValue();
+        resources.setUpdateUserId(uid);
+        boolean result = yxMerchantsDetailService.updateByManage(resources);
+        return new ResponseEntity<>(result, HttpStatus.OK);
+    }
+
     @PostMapping(value = "/examine")
     @Log("审核接口")
     @ApiOperation("审核接口")

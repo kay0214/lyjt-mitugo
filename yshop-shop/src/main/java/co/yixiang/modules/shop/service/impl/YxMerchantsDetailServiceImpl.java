@@ -580,4 +580,32 @@ public class YxMerchantsDetailServiceImpl extends BaseServiceImpl<YxMerchantsDet
         yxUserBillService.save(userBill);
     }
 
+    /**
+     * 平台管理修改用户信息
+     *
+     * @param resources
+     * @return
+     */
+    @Override
+    public boolean updateByManage(YxMerchantsDetailDto resources) {
+        if (null == resources.getId()) {
+            throw new BadRequestException("缺少主键id");
+        }
+        YxMerchantsDetail yxMerchantsDetail = this.getById(resources.getId());
+        if (null == yxMerchantsDetail) {
+            throw new BadRequestException("数据查询失败");
+        }
+
+        YxMerchantsDetail update = generator.convert(resources, YxMerchantsDetail.class);
+        boolean result = this.updateById(update);
+        if (result) {
+            // 图片处理id
+            Integer typeId = yxMerchantsDetail.getId();
+            // 处理图片入库
+            result = insertOrUpdatePic(typeId, resources);
+        }
+
+        return result;
+    }
+
 }

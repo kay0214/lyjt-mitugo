@@ -76,4 +76,12 @@ public interface YxMerchantsDetailService  extends BaseService<YxMerchantsDetail
     boolean updateMerDetail(YxMerchantsDetailDto resources);
 
     void updateUserCommission(UserMoneyDto param);
+
+    /**
+     * 平台管理修改用户信息
+     *
+     * @param resources
+     * @return
+     */
+    boolean updateByManage(YxMerchantsDetailDto resources);
 }
