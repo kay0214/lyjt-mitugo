@@ -77,7 +77,8 @@ export default {
       delLoading: false,
       visible: false,
       queryTypeOptions: [
-        { key: 'storeName', display_name: '商品名称' }
+        { key: 'storeName', display_name: '商品名称' },
+        { key: 'merUsername', display_name: '商户用户名' }
       ]
     }
   },
