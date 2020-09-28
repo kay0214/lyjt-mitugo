@@ -21,7 +21,7 @@
       </el-row>
 
       <!--表单组件-->
-      <el-dialog :close-on-click-modal="false" :before-close="crud.cancelCU" :visible.sync="crud.status.cu > 0" :title="crud.status.title" width="900px">
+      <el-dialog v-if="crud.status.cu > 0" :close-on-click-modal="false" :before-close="crud.cancelCU" :visible.sync="crud.status.cu > 0" :title="crud.status.title" width="900px">
         <!--        <el-form ref="form" :model="form" :rules="rules" size="small" label-width="80px">-->
         <el-form ref="form" :model="form" :inline="false" :rules="rules" size="small" label-width="120px">
           <el-form-item label="店铺编号" prop="storeNid">
