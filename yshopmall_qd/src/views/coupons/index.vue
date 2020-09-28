@@ -4,13 +4,14 @@
     <div class="head-container">
       <div v-if="crud.props.searchToggle">
         <!-- 搜索 -->
+        <el-input v-model="query.merUsername" clearable placeholder="商户用户名" style="width: 130px;" class="filter-item" maxlength="42" />
         <el-input v-model="query.couponName" clearable placeholder="卡券名称" style="width: 130px;" class="filter-item" maxlength="42" />
         <el-select v-model="query.couponType" clearable placeholder="卡券类型" class="filter-item" style="width: 130px">
           <el-option v-for="item in selections.couponType" :key="item.value" :label="item.label" :value="item.value" />
         </el-select>
         <el-select v-model="query.couponCategory" clearable placeholder="卡券分类" class="filter-item" style="width: 130px">
           <el-option v-for="item in selections.couponCategory" :key="item.value" :label="item.label" :value="item.value" />
-        </el-select>
+        </el-select>        
         <el-select v-model="query.isShow" clearable placeholder="上架状态" class="filter-item" style="width: 130px">
           <el-option
             v-for="item in [
@@ -33,7 +34,10 @@
             :value="item.key"
           />
         </el-select>
-        <rrOperation :crud="crud" />
+        <br/>
+        <div style='text-align:right'>
+          <rrOperation :crud="crud" />
+        </div>
       </div>
       <!--如果想在工具栏加入更多按钮，可以使用插槽方式， slot = 'left' or 'right'-->
       <crudOperation :permission="permission" />
