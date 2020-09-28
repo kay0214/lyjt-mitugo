@@ -167,7 +167,7 @@ public class LocaLifeIndexController {
         jso.put("id",1);
         jso.put("img","https://mtcdn.metoogo.cn/config/fxdr-thumb.png");
 
-        jso.put("url","https://testmituh5.hyjf.com/jumpMinapp?url=/pages/distributor/index");
+        jso.put("url","https://mth5.metoogo.cn/jumpMinapp?url=/pages/distributor/index");
 
 
 
