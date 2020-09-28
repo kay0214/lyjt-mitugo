@@ -5,6 +5,7 @@ package co.yixiang.modules.shop.rest;
 
 import co.yixiang.constant.ShopConstants;
 import co.yixiang.dozer.service.IGenerator;
+import co.yixiang.exception.BadRequestException;
 import co.yixiang.logging.aop.log.Log;
 import co.yixiang.modules.shop.domain.YxMerchantsDetail;
 import co.yixiang.modules.shop.domain.YxStoreInfo;
@@ -104,6 +105,10 @@ public class YxMerchantsDetailController {
     @ApiOperation("平台管理修改用户信息")
     @PreAuthorize("@el.check('admin','yxMerchantsDetail:editByManage')")
     public ResponseEntity<Object> updateByManage(@Validated @RequestBody YxMerchantsDetailDto resources) {
+        CurrUser currUser = SecurityUtils.getCurrUser();
+        if (0 != currUser.getUserRole()) {
+            throw new BadRequestException("用户权限不足");
+        }
         // 获取登陆用户的id
         int uid = SecurityUtils.getUserId().intValue();
         resources.setUpdateUserId(uid);
@@ -174,6 +179,6 @@ public class YxMerchantsDetailController {
     @PreAuthorize("@el.check('admin','yxMerchantsDetail:modify')")
     public ResponseEntity<Object> modiyfUserCommission(@Validated @RequestBody UserMoneyDto param) {
         yxMerchantsDetailService.updateUserCommission(param);
-        return new ResponseEntity(true,HttpStatus.OK);
+        return new ResponseEntity(true, HttpStatus.OK);
     }
 }
