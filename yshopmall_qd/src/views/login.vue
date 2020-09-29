@@ -53,7 +53,7 @@ export default {
       codeUrl: '',
       cookiePass: '',
       loginForm: {
-        username: 'admin',
+        username: '',
         password: '',
         rememberMe: false,
         code: '',
@@ -124,9 +124,14 @@ export default {
             Cookies.remove('password')
             Cookies.remove('rememberMe')
           }
-          this.$store.dispatch('Login', user).then(() => {
+          this.$store.dispatch('Login', user).then((res) => {
             this.loading = false
-            this.$router.push({ path: this.redirect || '/' })
+    //         if (res.user.userRole === 2 && res.examineStatus !== 1 && res.examineStatus !== 3) {
+    //   this.$router.push({ path: '/member/yxMerchantsDetail?dialog=1' })
+    // } else{
+    //         this.$router.push({ path: this.redirect || '/' })
+    // }
+    this.$router.push({ path: this.redirect || '/' })
           }).catch(() => {
             this.loading = false
             this.getCode()
