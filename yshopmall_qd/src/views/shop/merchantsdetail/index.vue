@@ -7,7 +7,7 @@
       <!--表单组件-->
       <el-dialog append-to-body :close-on-click-modal="false" :before-close="dialogBeforeCancel" :visible.sync="crud.status.cu>0 || dialogVisible"
         :title="crud.status.edit?'开店申请':crud.status.title" width="570px" v-if="crud.status.cu>0 || dialogVisible">
-        <el-form ref="form" :inline="true" :model="form" :rules="rules" size="small" label-width="120px" :disabled='formDisabled'>
+        <el-form ref="form" :inline="true" :model="form" :rules="rules" size="small" label-width="140px" :disabled='formDisabled'>
             <!-- 以下是新增展示字段 -->
             <div v-if="crud.status.add">
               <el-form-item label="商户名称" prop="nickName">
