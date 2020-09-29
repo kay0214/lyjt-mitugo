@@ -732,12 +732,14 @@ export default {
         if(this.examineEdit){
           this.examineEdit=0;
           this.dialogVisible=Boolean(this.crud.status.cu);
+          this.crud.resetForm()
           this.formDisabled=false
         }
         if(this.readStatus){
           this.readStatus=0
           this.formDisabled=false
           this.dialogVisible=Boolean(this.crud.status.cu);
+          this.crud.resetForm()
         }
     },
     //启禁用商户状态
