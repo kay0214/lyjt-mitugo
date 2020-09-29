@@ -652,14 +652,14 @@ export default {
         this.perIdCardBack = []
       }
       // 企业和个体户
-      if(form.companyProvince){
-      this.selectedOptions=form.companyProvince.split(',')
+      if(this.form.companyProvince){
+      this.selectedOptions=this.form.companyProvince.split(',')
+      }      
+      if(this.form.province){
+      this.selectedMOptions=this.form.province.split(',')
       }
-      if(form.province){
-      this.selectedMOptions=form.province.split(',')
-      }
-      if(form.openAccountProvince){
-      this.selectedOPOptions=form.openAccountProvince.split(',')
+      if(this.form.openAccountProvince){
+      this.selectedOPOptions=this.form.openAccountProvince.split(',')
       }
       if (this.form.businessLicenseImg) {
         this.businessLicenseImg = this.form.businessLicenseImg.split(',')
