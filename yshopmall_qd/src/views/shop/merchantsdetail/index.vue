@@ -99,15 +99,15 @@
             <div v-if="!crud.status.add && form.merchantsType == 0">
               <el-form-item label="手持证件照" prop="personIdCard">
                 <MaterialList v-model="perIdCard" type="image" :num="1" :width="150" :height="150" :readonly='formDisabled' 
-                @setValue='(val)=>{perIdCard=val;form.personIdCard=val;$refs.form.validateField("personIdCard")}'/>
+                @setValue='(val)=>{perIdCard=val;form.personIdCard=val.join(",");$refs.form.validateField("personIdCard")}'/>
               </el-form-item>
               <el-form-item label="证件照人像面" prop="personIdCardFace">
                 <MaterialList v-model="perIdCardFace" type="image" :num="1" :width="150" :height="150" :readonly='formDisabled' 
-                @setValue='(val)=>{perIdCardFace=val;form.personIdCardFace=val;$refs.form.validateField("personIdCardFace")}'/>
+                @setValue='(val)=>{perIdCardFace=val;form.personIdCardFace=val.join(",");$refs.form.validateField("personIdCardFace")}'/>
               </el-form-item>
               <el-form-item label="证件照国徽面" prop="personIdCardBack">
                 <MaterialList v-model="perIdCardBack" type="image" :num="1" :width="150" :height="150" :readonly='formDisabled'
-                @setValue='(val)=>{perIdCardBack=val;form.personIdCardBack=val;$refs.form.validateField("personIdCardBack")}'/>
+                @setValue='(val)=>{perIdCardBack=val;form.personIdCardBack=val.join(",");$refs.form.validateField("personIdCardBack")}'/>
               </el-form-item>
             </div>
             <!-- 以下是企业 -->
@@ -160,27 +160,27 @@
               </el-form-item>
               <el-form-item label="营业执照" prop="businessLicenseImg">
                 <MaterialList v-model="businessLicenseImg" type="image" :num="1" :width="150" :height="150" :readonly='Boolean(formDisabled)'
-                @setValue='(val)=>{businessLicenseImg=val;form.businessLicenseImg=val;$refs.form.validateField("businessLicenseImg")}'/>
+                @setValue='(val)=>{businessLicenseImg=val;form.businessLicenseImg=val.join(",");$refs.form.validateField("businessLicenseImg")}'/>
               </el-form-item>
               <el-form-item label="银行开户证明" prop="bankOpenProveImg">
                 <MaterialList v-model="bankOpenProveImg" type="image" :num="1" :width="150" :height="150" :readonly='Boolean(formDisabled)'
-                @setValue='(val)=>{bankOpenProveImg=val;form.bankOpenProveImg=val;$refs.form.validateField("bankOpenProveImg")}'/>
+                @setValue='(val)=>{bankOpenProveImg=val;form.bankOpenProveImg=val.join(",");$refs.form.validateField("bankOpenProveImg")}'/>
               </el-form-item>
               <el-form-item label="法人身份证头像面" prop="legalIdCardFace">
                 <MaterialList v-model="legalIdCardFace" type="image" :num="1" :width="150" :height="150" :readonly='Boolean(formDisabled)'
-                @setValue='(val)=>{legalIdCardFace=val;form.legalIdCardFace=val;$refs.form.validateField("legalIdCardFace")}'/>
+                @setValue='(val)=>{legalIdCardFace=val;form.legalIdCardFace=val.join(",");$refs.form.validateField("legalIdCardFace")}'/>
               </el-form-item>
               <el-form-item label="法人身份证国徽面" prop="legalIdCardBack">
                 <MaterialList v-model="legalIdCardBack" type="image" :num="1" :width="150" :height="150" :readonly='Boolean(formDisabled)'
-                @setValue='(val)=>{legalIdCardBack=val;form.legalIdCardBack=val;$refs.form.validateField("legalIdCardBack")}'/>
+                @setValue='(val)=>{legalIdCardBack=val;form.legalIdCardBack=val.join(",");$refs.form.validateField("legalIdCardBack")}'/>
               </el-form-item>
               <el-form-item label="门店照及经营场所" prop="storeImg">
                 <MaterialList v-model="storeImg" type="image" :num="1" :width="150" :height="150" :readonly='Boolean(formDisabled)'
-                @setValue='(val)=>{storeImg=val;form.storeImg=val;$refs.form.validateField("storeImg")}'/>
+                @setValue='(val)=>{storeImg=val;form.storeImg=val.join(",");$refs.form.validateField("storeImg")}'/>
               </el-form-item>
               <el-form-item label="许可证" prop="licenceImg">
                 <MaterialList v-model="licenceImg" type="image" :num="1" :width="150" :height="150" :readonly='Boolean(formDisabled)'
-                @setValue='(val)=>{licenceImg=val;form.licenceImg=val;$refs.form.validateField("licenceImg")}'/>
+                @setValue='(val)=>{licenceImg=val;form.licenceImg=val.join(",");$refs.form.validateField("licenceImg")}'/>
               </el-form-item>
             </div>
             <el-form-item v-if='crud.status.edit' label=" " prop="checkbox">
