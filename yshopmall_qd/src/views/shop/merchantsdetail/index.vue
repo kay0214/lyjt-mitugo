@@ -497,40 +497,40 @@ export default {
     // 个人认证
     perIdCard: function(val) {
       this.form.personIdCard = val.join(',')
-      if (this.form.personIdCard != '') this.$refs.form.validateField('personIdCard')
+      if (this.form.personIdCard != '' && !this.formDisabled) this.$refs.form.validateField('personIdCard')
     },
     perIdCardFace: function(val) {
       this.form.personIdCardFace = val.join(',')
-      if (this.form.personIdCardFace != '') this.$refs.form.validateField('personIdCardFace')
+      if (this.form.personIdCardFace != '' && !this.formDisabled) this.$refs.form.validateField('personIdCardFace')
     },
     perIdCardBack: function(val) {
       this.form.personIdCardBack = val.join(',')
-      if (this.form.personIdCardBack != '') this.$refs.form.validateField('personIdCardBack')
+      if (this.form.personIdCardBack != '' && !this.formDisabled) this.$refs.form.validateField('personIdCardBack')
     },
     // 企业和个体户
     businessLicenseImg: function(val) {
       this.form.businessLicenseImg = val.join(',')
-      if (this.form.businessLicenseImg != '') this.$refs.form.validateField('businessLicenseImg')
+      if (this.form.businessLicenseImg != '' && !this.formDisabled) this.$refs.form.validateField('businessLicenseImg')
     },
     bankOpenProveImg: function(val) {
       this.form.bankOpenProveImg = val.join(',')
-      if (this.form.bankOpenProveImg != '') this.$refs.form.validateField('bankOpenProveImg')
+      if (this.form.bankOpenProveImg != '' && !this.formDisabled) this.$refs.form.validateField('bankOpenProveImg')
     },
     legalIdCardFace: function(val) {
       this.form.legalIdCardFace = val.join(',')
-      if (this.form.legalIdCardFace != '') this.$refs.form.validateField('legalIdCardFace')
+      if (this.form.legalIdCardFace != '' && !this.formDisabled) this.$refs.form.validateField('legalIdCardFace')
     },
     legalIdCardBack: function(val) {
       this.form.legalIdCardBack = val.join(',')
-      if (this.form.legalIdCardBack != '') this.$refs.form.validateField('legalIdCardBack')
+      if (this.form.legalIdCardBack != '' && !this.formDisabled) this.$refs.form.validateField('legalIdCardBack')
     },
     storeImg: function(val) {
       this.form.storeImg = val.join(',')
-      if (this.form.storeImg != '') this.$refs.form.validateField('storeImg')
+      if (this.form.storeImg != '' && !this.formDisabled) this.$refs.form.validateField('storeImg')
     },
     licenceImg: function(val) {
       this.form.licenceImg = val.join(',')
-      if (this.form.licenceImg != '') this.$refs.form.validateField('licenceImg')
+      if (this.form.licenceImg != '' && !this.formDisabled) this.$refs.form.validateField('licenceImg')
     },
     "form.bankType": function(newValue, old) {
       this.bankType = newValue == 1
