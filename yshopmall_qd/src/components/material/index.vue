@@ -265,6 +265,14 @@ export default {
       }).then(function() {
         that.value.splice(index, 1)
         that.urls = []
+        if (that.$listeners['setValue']) {
+          // 如果提供执行
+          that.$emit('setValue', that.value)
+        } else {
+          that.value.forEach(item => {
+            that.$set(that.value, that.value.length, item)
+          })
+        }
       })
     },
     toSeleteMaterial() {

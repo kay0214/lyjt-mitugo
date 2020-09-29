@@ -6,8 +6,8 @@
       <crudOperation :permission="permission" />
       <!--表单组件-->
       <el-dialog append-to-body :close-on-click-modal="false" :before-close="dialogBeforeCancel" :visible.sync="crud.status.cu>0 || dialogVisible"
-        :title="crud.status.edit?'开店申请':crud.status.title" width="570px">
-        <el-form ref="form" :inline="true" :model="form" :rules="rules" size="small" label-width="120px" :disabled='formDisabled'>
+        :title="crud.status.edit?'开店申请':crud.status.title" width="570px" v-if="crud.status.cu>0 || dialogVisible">
+        <el-form ref="form" :inline="true" :model="form" :rules="rules" size="small" label-width="140px" :disabled='formDisabled'>
             <!-- 以下是新增展示字段 -->
             <div v-if="crud.status.add">
               <el-form-item label="商户名称" prop="nickName">
@@ -25,7 +25,7 @@
             </div>
 
             <!-- 以下是编辑页面展示字段 -->
-            <div v-if="crud.status.edit || examineEdit">
+            <div v-if="crud.status.edit || examineEdit || readStatus">
               <el-form-item label="商户名称" prop="merchantsName">
                 <el-input v-model="form.merchantsName" :maxlength='20' style="width: 370px;"/>
               </el-form-item>
@@ -98,13 +98,16 @@
             <!-- 以下是个人认证 -->
             <div v-if="!crud.status.add && form.merchantsType == 0">
               <el-form-item label="手持证件照" prop="personIdCard">
-                <MaterialList v-model="perIdCard" type="image" :num="1" :width="150" :height="150" :readonly='formDisabled' />
+                <MaterialList v-model="perIdCard" type="image" :num="1" :width="150" :height="150" :readonly='formDisabled' 
+                @setValue='(val)=>{perIdCard=val;form.personIdCard=val.join(",");$refs.form.validateField("personIdCard")}'/>
               </el-form-item>
               <el-form-item label="证件照人像面" prop="personIdCardFace">
-                <MaterialList v-model="perIdCardFace" type="image" :num="1" :width="150" :height="150" :readonly='formDisabled' />
+                <MaterialList v-model="perIdCardFace" type="image" :num="1" :width="150" :height="150" :readonly='formDisabled' 
+                @setValue='(val)=>{perIdCardFace=val;form.personIdCardFace=val.join(",");$refs.form.validateField("personIdCardFace")}'/>
               </el-form-item>
               <el-form-item label="证件照国徽面" prop="personIdCardBack">
-                <MaterialList v-model="perIdCardBack" type="image" :num="1" :width="150" :height="150" :readonly='formDisabled'/>
+                <MaterialList v-model="perIdCardBack" type="image" :num="1" :width="150" :height="150" :readonly='formDisabled'
+                @setValue='(val)=>{perIdCardBack=val;form.personIdCardBack=val.join(",");$refs.form.validateField("personIdCardBack")}'/>
               </el-form-item>
             </div>
             <!-- 以下是企业 -->
@@ -156,22 +159,28 @@
                 </el-select>
               </el-form-item>
               <el-form-item label="营业执照" prop="businessLicenseImg">
-                <MaterialList v-model="businessLicenseImg" type="image" :num="1" :width="150" :height="150" :readonly='Boolean(formDisabled)'/>
+                <MaterialList v-model="businessLicenseImg" type="image" :num="1" :width="150" :height="150" :readonly='Boolean(formDisabled)'
+                @setValue='(val)=>{businessLicenseImg=val;form.businessLicenseImg=val.join(",");$refs.form.validateField("businessLicenseImg")}'/>
               </el-form-item>
               <el-form-item label="银行开户证明" prop="bankOpenProveImg">
-                <MaterialList v-model="bankOpenProveImg" type="image" :num="1" :width="150" :height="150" :readonly='Boolean(formDisabled)'/>
+                <MaterialList v-model="bankOpenProveImg" type="image" :num="1" :width="150" :height="150" :readonly='Boolean(formDisabled)'
+                @setValue='(val)=>{bankOpenProveImg=val;form.bankOpenProveImg=val.join(",");$refs.form.validateField("bankOpenProveImg")}'/>
               </el-form-item>
               <el-form-item label="法人身份证头像面" prop="legalIdCardFace">
-                <MaterialList v-model="legalIdCardFace" type="image" :num="1" :width="150" :height="150" :readonly='Boolean(formDisabled)'/>
+                <MaterialList v-model="legalIdCardFace" type="image" :num="1" :width="150" :height="150" :readonly='Boolean(formDisabled)'
+                @setValue='(val)=>{legalIdCardFace=val;form.legalIdCardFace=val.join(",");$refs.form.validateField("legalIdCardFace")}'/>
               </el-form-item>
               <el-form-item label="法人身份证国徽面" prop="legalIdCardBack">
-                <MaterialList v-model="legalIdCardBack" type="image" :num="1" :width="150" :height="150" :readonly='Boolean(formDisabled)'/>
+                <MaterialList v-model="legalIdCardBack" type="image" :num="1" :width="150" :height="150" :readonly='Boolean(formDisabled)'
+                @setValue='(val)=>{legalIdCardBack=val;form.legalIdCardBack=val.join(",");$refs.form.validateField("legalIdCardBack")}'/>
               </el-form-item>
               <el-form-item label="门店照及经营场所" prop="storeImg">
-                <MaterialList v-model="storeImg" type="image" :num="1" :width="150" :height="150" :readonly='Boolean(formDisabled)'/>
+                <MaterialList v-model="storeImg" type="image" :num="1" :width="150" :height="150" :readonly='Boolean(formDisabled)'
+                @setValue='(val)=>{storeImg=val;form.storeImg=val.join(",");$refs.form.validateField("storeImg")}'/>
               </el-form-item>
               <el-form-item label="许可证" prop="licenceImg">
-                <MaterialList v-model="licenceImg" type="image" :num="1" :width="150" :height="150" :readonly='Boolean(formDisabled)'/>
+                <MaterialList v-model="licenceImg" type="image" :num="1" :width="150" :height="150" :readonly='Boolean(formDisabled)'
+                @setValue='(val)=>{licenceImg=val;form.licenceImg=val.join(",");$refs.form.validateField("licenceImg")}'/>
               </el-form-item>
             </div>
             <el-form-item v-if='crud.status.edit' label=" " prop="checkbox">
@@ -494,44 +503,6 @@ export default {
    }
   },
   watch: {
-    // 个人认证
-    perIdCard: function(val) {
-      this.form.personIdCard = val.join(',')
-      if (this.form.personIdCard != '') this.$refs.form.validateField('personIdCard')
-    },
-    perIdCardFace: function(val) {
-      this.form.personIdCardFace = val.join(',')
-      if (this.form.personIdCardFace != '') this.$refs.form.validateField('personIdCardFace')
-    },
-    perIdCardBack: function(val) {
-      this.form.personIdCardBack = val.join(',')
-      if (this.form.personIdCardBack != '') this.$refs.form.validateField('personIdCardBack')
-    },
-    // 企业和个体户
-    businessLicenseImg: function(val) {
-      this.form.businessLicenseImg = val.join(',')
-      if (this.form.businessLicenseImg != '') this.$refs.form.validateField('businessLicenseImg')
-    },
-    bankOpenProveImg: function(val) {
-      this.form.bankOpenProveImg = val.join(',')
-      if (this.form.bankOpenProveImg != '') this.$refs.form.validateField('bankOpenProveImg')
-    },
-    legalIdCardFace: function(val) {
-      this.form.legalIdCardFace = val.join(',')
-      if (this.form.legalIdCardFace != '') this.$refs.form.validateField('legalIdCardFace')
-    },
-    legalIdCardBack: function(val) {
-      this.form.legalIdCardBack = val.join(',')
-      if (this.form.legalIdCardBack != '') this.$refs.form.validateField('legalIdCardBack')
-    },
-    storeImg: function(val) {
-      this.form.storeImg = val.join(',')
-      if (this.form.storeImg != '') this.$refs.form.validateField('storeImg')
-    },
-    licenceImg: function(val) {
-      this.form.licenceImg = val.join(',')
-      if (this.form.licenceImg != '') this.$refs.form.validateField('licenceImg')
-    },
     "form.bankType": function(newValue, old) {
       this.bankType = newValue == 1
     },
@@ -589,12 +560,18 @@ export default {
       // 企业和个体户
       if(form.companyProvince){
       this.selectedOptions=form.companyProvince.split(',')
+      }else{
+        this.selectedOptions = []
       }
       if(form.province){
       this.selectedMOptions=form.province.split(',')
+      }else{
+        this.selectedMOptions = []
       }
       if(form.openAccountProvince){
       this.selectedOPOptions=form.openAccountProvince.split(',')
+      }else{
+        this.selectedOPOptions = []
       }
       if (form.businessLicenseImg) {
         this.businessLicenseImg = form.businessLicenseImg.split(',')
@@ -652,14 +629,20 @@ export default {
         this.perIdCardBack = []
       }
       // 企业和个体户
-      if(form.companyProvince){
-      this.selectedOptions=form.companyProvince.split(',')
+      if(this.form.companyProvince){
+      this.selectedOptions=this.form.companyProvince.split(',')
+      }else{
+        this.selectedOptions = []
+      }      
+      if(this.form.province){
+      this.selectedMOptions=this.form.province.split(',')
+      }else{
+        this.selectedMOptions = []
       }
-      if(form.province){
-      this.selectedMOptions=form.province.split(',')
-      }
-      if(form.openAccountProvince){
-      this.selectedOPOptions=form.openAccountProvince.split(',')
+      if(this.form.openAccountProvince){
+      this.selectedOPOptions=this.form.openAccountProvince.split(',')
+      }else{
+        this.selectedOPOptions = []
       }
       if (this.form.businessLicenseImg) {
         this.businessLicenseImg = this.form.businessLicenseImg.split(',')
@@ -739,6 +722,7 @@ export default {
         }
         this.formDisabled=false
         this.dialogVisible=Boolean(this.crud.status.cu);
+        this.crud.resetForm()
       })
     },
     //新增、编辑、审核弹出框关闭
@@ -749,12 +733,14 @@ export default {
         if(this.examineEdit){
           this.examineEdit=0;
           this.dialogVisible=Boolean(this.crud.status.cu);
+          this.crud.resetForm()
           this.formDisabled=false
         }
         if(this.readStatus){
           this.readStatus=0
           this.formDisabled=false
           this.dialogVisible=Boolean(this.crud.status.cu);
+          this.crud.resetForm()
         }
     },
     //启禁用商户状态
@@ -791,6 +777,7 @@ export default {
       this.readStatus=0
       this.formDisabled=false
       this.dialogVisible=Boolean(this.crud.status.cu);
+      this.crud.resetForm()
     },
     withdrawEdit(btn,index,uid){ 
       let that=this

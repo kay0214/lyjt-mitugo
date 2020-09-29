@@ -57,7 +57,7 @@ export default {
         fundsRate: [
           { required: true, message: '必填项', trigger: 'blur' },
           {
-            pattern: /^\d\.([1-9]{1,2}|[0-9][1-9])$|^[1-9]\d{0,1}(\.\d{1,2}){0,1}$|^100(\.0{1,2}){0,1}$/,  //正则
+            pattern: /^(100)$|^((\d|[1-9]\d)(\.\d{1,2})?)$/,  //正则
             message: '请输入0~100的数字，最多两位小数',
             trigger: 'blur'
           },
@@ -65,7 +65,7 @@ export default {
         shareRate: [
           { required: true, message: '必填项', trigger: 'blur' },
           {
-            pattern: /^\d\.([1-9]{1,2}|[0-9][1-9])$|^[1-9]\d{0,1}(\.\d{1,2}){0,1}$|^100(\.0{1,2}){0,1}$/,  //正则
+            pattern: /^(100)$|^((\d|[1-9]\d)(\.\d{1,2})?)$/,  //正则
             message: '请输入0~100的数字，最多两位小数',
             trigger: 'blur'
           },
@@ -73,7 +73,7 @@ export default {
         shareParentRate: [
           { required: true, message: '必填项', trigger: 'blur' },
           {
-            pattern: /^\d\.([1-9]{1,2}|[0-9][1-9])$|^[1-9]\d{0,1}(\.\d{1,2}){0,1}$|^100(\.0{1,2}){0,1}$/,  //正则
+            pattern: /^(100)$|^((\d|[1-9]\d)(\.\d{1,2})?)$/,  //正则
             message: '请输入0~100的数字，最多两位小数',
             trigger: 'blur'
           },
@@ -81,7 +81,7 @@ export default {
         parentRate: [
           { required: true, message: '必填项', trigger: 'blur' },
           {
-            pattern: /^\d\.([1-9]{1,2}|[0-9][1-9])$|^[1-9]\d{0,1}(\.\d{1,2}){0,1}$|^100(\.0{1,2}){0,1}$/,  //正则
+            pattern: /^(100)$|^((\d|[1-9]\d)(\.\d{1,2})?)$/,  //正则
             message: '请输入0~100的数字，最多两位小数',
             trigger: 'blur'
           },
@@ -89,7 +89,7 @@ export default {
         merRate: [
           { required: true, message: '必填项', trigger: 'blur' },
           {
-            pattern: /^\d\.([1-9]{1,2}|[0-9][1-9])$|^[1-9]\d{0,1}(\.\d{1,2}){0,1}$|^100(\.0{1,2}){0,1}$/,  //正则
+            pattern: /^(100)$|^((\d|[1-9]\d)(\.\d{1,2})?)$/,  //正则
             message: '请输入0~100的数字，最多两位小数',
             trigger: 'blur'
           },
@@ -97,7 +97,7 @@ export default {
         partnerRate: [
           { required: true, message: '必填项', trigger: 'blur' },
           {
-            pattern: /^\d\.([1-9]{1,2}|[0-9][1-9])$|^[1-9]\d{0,1}(\.\d{1,2}){0,1}$|^100(\.0{1,2}){0,1}$/,  //正则
+            pattern: /^(100)$|^((\d|[1-9]\d)(\.\d{1,2})?)$/,  //正则
             message: '请输入0~100的数字，最多两位小数',
             trigger: 'blur'
           },
@@ -105,7 +105,7 @@ export default {
         referenceRate: [
           { required: true, message: '必填项', trigger: 'blur' },
           {
-            pattern: /^\d\.([1-9]{1,2}|[0-9][1-9])$|^[1-9]\d{0,1}(\.\d{1,2}){0,1}$|^100(\.0{1,2}){0,1}$/,  //正则
+            pattern: /^(100)$|^((\d|[1-9]\d)(\.\d{1,2})?)$/,  //正则
             message: '请输入0~100的数字，最多两位小数',
             trigger: 'blur'
           },
@@ -187,4 +187,9 @@ export default {
     position: absolute;
     right:-50px;
   }
+</style>
+<style>
+.el-form-item__error{
+  z-index: 2;
+}
 </style>

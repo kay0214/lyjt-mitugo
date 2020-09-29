@@ -123,8 +123,8 @@ logging:
 dingding:
   log:
     enabled: true
-    accessToken: f6b51497a6fa18dd05526c41533cedb5e4445e77de37733c68a0e0de01dd4b43
-    secret: SECac2971ad758c4d5d20908a4aa01e5e286248f93abd854e2199632560fd5f95e0
+    accessToken: bce8bc0f43212f35f4a034cee7e37ea95be8f4b29cf948d258654a67d8490edd
+    secret: SEC4b88816fe673dd30fdac073708690cff2e4c389ab97b1fbec914ac2e4fe5473f
 
 #spring rocket mq
 rocketmq:

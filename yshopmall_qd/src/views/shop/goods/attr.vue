@@ -324,6 +324,7 @@ export default {
     resetForm() {
       this.dialog = false
       this.$refs['form'].resetFields()
+      this.$refs['form2'].resetFields()
       this.form = {
         id: '',
         merId: '',
