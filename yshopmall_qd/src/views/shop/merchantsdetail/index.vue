@@ -6,7 +6,7 @@
       <crudOperation :permission="permission" />
       <!--表单组件-->
       <el-dialog append-to-body :close-on-click-modal="false" :before-close="dialogBeforeCancel" :visible.sync="crud.status.cu>0 || dialogVisible"
-        :title="crud.status.edit?'开店申请':crud.status.title" width="570px">
+        :title="crud.status.edit?'开店申请':crud.status.title" width="570px" v-if="crud.status.cu>0 || dialogVisible">
         <el-form ref="form" :inline="true" :model="form" :rules="rules" size="small" label-width="120px" :disabled='formDisabled'>
             <!-- 以下是新增展示字段 -->
             <div v-if="crud.status.add">
@@ -589,12 +589,18 @@ export default {
       // 企业和个体户
       if(form.companyProvince){
       this.selectedOptions=form.companyProvince.split(',')
+      }else{
+        this.selectedOptions = []
       }
       if(form.province){
       this.selectedMOptions=form.province.split(',')
+      }else{
+        this.selectedMOptions = []
       }
       if(form.openAccountProvince){
       this.selectedOPOptions=form.openAccountProvince.split(',')
+      }else{
+        this.selectedOPOptions = []
       }
       if (form.businessLicenseImg) {
         this.businessLicenseImg = form.businessLicenseImg.split(',')
@@ -654,12 +660,18 @@ export default {
       // 企业和个体户
       if(this.form.companyProvince){
       this.selectedOptions=this.form.companyProvince.split(',')
+      }else{
+        this.selectedOptions = []
       }      
       if(this.form.province){
       this.selectedMOptions=this.form.province.split(',')
+      }else{
+        this.selectedMOptions = []
       }
       if(this.form.openAccountProvince){
       this.selectedOPOptions=this.form.openAccountProvince.split(',')
+      }else{
+        this.selectedOPOptions = []
       }
       if (this.form.businessLicenseImg) {
         this.businessLicenseImg = this.form.businessLicenseImg.split(',')
