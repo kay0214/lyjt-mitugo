@@ -17,44 +17,12 @@
       <!-- <el-form-item label="产品条码" prop='barCode'>
         <el-input v-model="form.barCode" style="width: 320px;" maxlength="30" />
       </el-form-item> -->
-      <el-form-item label="原价" prop='otPrice'>
-        <el-input v-model="form.otPrice" οnkeyup="if(isNaN(value))execCommand('undo')" onafterpaste="if(isNaN(value))execCommand('undo')" maxlength="12"  style="width:650px"/>
-      </el-form-item>
-      <el-form-item label="销售价" prop='price'>
-        <el-input v-model="form.price" οnkeyup="if(isNaN(value))execCommand('undo')" onafterpaste="if(isNaN(value))execCommand('undo')" maxlength="12"  style="width:650px"/>
-      </el-form-item>
      <!-- <el-form-item label="成本价">
         <el-input v-model="form.cost" />
       </el-form-item>-->
-      <el-form-item label="平台结算价" prop='settlement'>
-        <el-input v-model="form.settlement" οnkeyup="if(isNaN(value))execCommand('undo')" onafterpaste="if(isNaN(value))execCommand('undo')" maxlength="12"  style="width:650px"/>
-      </el-form-item>
-      <el-form-item label="佣金" prop='commission'>
-        <el-input v-model="commission" readonly  style="width:650px"/>
-      </el-form-item>
-      
      <!-- <el-form-item label="销量">
         <el-input v-model="form.sales" />
       </el-form-item>-->
-      <el-form-item label="库存" prop='stock'>
-        <el-input v-model="form.stock" οnkeyup="this.value=this.value.replace(//D/g,'')" onafterpaste="this.value=this.value.replace(//D/g,'')" maxlength="12"  style="width:650px"/>
-      </el-form-item>
-       <el-form-item label="虚拟销量" prop='ficti'>
-        <el-input v-model="form.ficti" maxlength="12"  style="width:650px"/>
-      </el-form-item>
-      
-      
-      <el-form-item label="是否包邮" prop='isPostage'>
-        <el-radio v-model="form.isPostage" :label="1">是</el-radio>
-        <el-radio v-model="form.isPostage" :label="0">否</el-radio>
-      </el-form-item>
-     
-      <el-form-item v-if='!form.isPostage' prop='postage' :rules="form.isPostage?[{required:false}]:rules.postage" label="邮费">
-        <el-input v-model="form.postage" maxlength="12"  style="width:650px"/>
-      </el-form-item>
-      <el-form-item label="排序" prop='sort'>
-        <el-input v-model="form.sort"  style="width:650px"/>
-      </el-form-item>
       <el-form-item label="商品简介" prop='storeInfo'>
         <el-input v-model="form.storeInfo" style="width: 650px;" rows="5" type="textarea" maxlength="88" />
       </el-form-item>
@@ -68,6 +36,42 @@
         <editor v-model="form.description" @change="descriptionChange" />
       </el-form-item>
       
+      <el-row>
+        <el-col :span='8'>
+          <el-form-item label="销售价" prop='price'>
+            <el-input v-model="form.price" οnkeyup="if(isNaN(value))execCommand('undo')" onafterpaste="if(isNaN(value))execCommand('undo')" maxlength="12" />
+          </el-form-item>
+          <el-form-item label="原价" prop='otPrice'>
+            <el-input v-model="form.otPrice" οnkeyup="if(isNaN(value))execCommand('undo')" onafterpaste="if(isNaN(value))execCommand('undo')" maxlength="12" />
+          </el-form-item>
+          <el-form-item label="虚拟销量" prop='ficti'>
+            <el-input v-model="form.ficti" maxlength="12" />
+          </el-form-item>
+        </el-col>
+        <el-col :span='8'>
+          <el-form-item label="平台结算价" prop='settlement'>
+            <el-input v-model="form.settlement" οnkeyup="if(isNaN(value))execCommand('undo')" onafterpaste="if(isNaN(value))execCommand('undo')" maxlength="12" />
+          </el-form-item>
+          <el-form-item label="库存" prop='stock'>
+            <el-input v-model="form.stock" οnkeyup="this.value=this.value.replace(//D/g,'')" onafterpaste="this.value=this.value.replace(//D/g,'')" maxlength="12" />
+          </el-form-item>
+          <el-form-item label="是否包邮" prop='isPostage'>
+            <el-radio v-model="form.isPostage" :label="1">是</el-radio>
+            <el-radio v-model="form.isPostage" :label="0">否</el-radio>
+          </el-form-item>
+        </el-col>
+        <el-col :span='8'>
+          <el-form-item label="佣金" prop='commission'>
+            <el-input v-model="commission" readonly />
+          </el-form-item>
+          <el-form-item label="排序" prop='sort'>
+            <el-input v-model="form.sort" />
+          </el-form-item>
+          <el-form-item v-if='!form.isPostage' prop='postage' :rules="form.isPostage?[{required:false}]:rules.postage" label="邮费">
+            <el-input v-model="form.postage" maxlength="12" />
+          </el-form-item>
+        </el-col>
+      </el-row>
      <!-- <el-form-item label="优品推荐">
         <el-radio v-model="form.isGood" :label="1">是</el-radio>
         <el-radio v-model="form.isGood" :label="0" style="width: 200px;">否</el-radio>
