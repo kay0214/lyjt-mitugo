@@ -188,3 +188,8 @@ export default {
     right:-50px;
   }
 </style>
+<style>
+.el-form-item__error{
+  z-index: 2;
+}
+</style>
