@@ -722,6 +722,7 @@ export default {
         }
         this.formDisabled=false
         this.dialogVisible=Boolean(this.crud.status.cu);
+        this.crud.resetForm()
       })
     },
     //新增、编辑、审核弹出框关闭
@@ -776,6 +777,7 @@ export default {
       this.readStatus=0
       this.formDisabled=false
       this.dialogVisible=Boolean(this.crud.status.cu);
+      this.crud.resetForm()
     },
     withdrawEdit(btn,index,uid){ 
       let that=this
