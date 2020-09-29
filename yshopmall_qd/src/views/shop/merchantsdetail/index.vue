@@ -25,7 +25,7 @@
             </div>
 
             <!-- 以下是编辑页面展示字段 -->
-            <div v-if="crud.status.edit || examineEdit">
+            <div v-if="crud.status.edit || examineEdit || readStatus">
               <el-form-item label="商户名称" prop="merchantsName">
                 <el-input v-model="form.merchantsName" :maxlength='20' style="width: 370px;"/>
               </el-form-item>
