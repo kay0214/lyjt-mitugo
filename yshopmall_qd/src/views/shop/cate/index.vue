@@ -43,7 +43,7 @@
       <el-table-column v-if="columns.visible('cateName')" label="名称" prop="cateName" />
       <el-table-column v-if="columns.visible('isShow')" label="状态" align="center" prop="isShow">
         <template slot-scope="scope">
-          <div @click="isShow(scope.row)">
+          <div @click="isShow(scope.row)" :class="{'pointer':editPermission}">
             <el-tag v-if="scope.row.isShow === 1" :type="''">显示</el-tag>
             <el-tag v-else :type=" 'info' ">隐藏</el-tag>
           </div>
@@ -92,6 +92,7 @@ export default {
     return {
       picArr: [],
       depts: [],
+      editPermission:checkPermission(['admin', 'YXSTORECATEGORY_EDIT']),
       rules: {
         cateName: [
           { required: true, message: '请输入名称', trigger: 'blur' }
@@ -146,8 +147,7 @@ export default {
     },
     // 显示隐藏
     isShow(data) {
-      let per=checkPermission(['admin','YXSTORECATEGORY_EDIT'])
-      if(!per){
+      if(!this.editPermission){
         return;
       }
       let that=this
