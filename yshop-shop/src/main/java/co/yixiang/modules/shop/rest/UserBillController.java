@@ -151,7 +151,7 @@ public class UserBillController {
         // 同一时间 用户只能提现一次
         String value = RedisUtil.get(ShopConstants.WITHDRAW_USER_SUBMIT_ADMIN + uid);
         if (StringUtils.isNotBlank(value)) {
-            log.info("提现 操作过快，请稍候，id：{}", uid);
+            log.info("提现  操作过快，请稍候，id：{}", uid);
             return new ResponseEntity<>(false, HttpStatus.OK);
         }
         RedisUtil.set(ShopConstants.WITHDRAW_USER_SUBMIT_ADMIN + uid, 1, 5);
