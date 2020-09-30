@@ -8,6 +8,7 @@ import cn.hutool.core.io.resource.ClassPathResource;
 import cn.hutool.core.util.StrUtil;
 import co.yixiang.annotation.AnonymousAccess;
 import co.yixiang.common.api.ApiResult;
+import co.yixiang.constant.CacheConstant;
 import co.yixiang.constant.ShopConstants;
 import co.yixiang.modules.shop.service.YxStoreProductService;
 import co.yixiang.modules.shop.service.YxSystemGroupDataService;
@@ -19,6 +20,9 @@ import co.yixiang.utils.FileUtil;
 import co.yixiang.utils.RedisUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.alicp.jetcache.anno.CacheRefresh;
+import com.alicp.jetcache.anno.CacheType;
+import com.alicp.jetcache.anno.Cached;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
@@ -52,6 +56,8 @@ public class IndexController {
 
     @AnonymousAccess
 //    @Cacheable(cacheNames = ShopConstants.YSHOP_REDIS_INDEX_KEY)
+    @Cached(name="getShoppIndex-", expire = CacheConstant.DEFAULT_EXPIRE_TIME, cacheType = CacheType.REMOTE)
+    @CacheRefresh(refresh = CacheConstant.DEFAULT_REFRESH_TIME, stopRefreshAfterLastAccess = CacheConstant.DEFAULT_STOP_REFRESH_TIME)
     @GetMapping("/index")
     @ApiOperation(value = "首页数据",notes = "首页数据")
     public ApiResult<Map<String,Object>> index(){
@@ -104,6 +110,8 @@ public class IndexController {
 
     @AnonymousAccess
     @GetMapping("/citys")
+    @Cached(name="getShoppcitys-", expire = CacheConstant.DEFAULT_EXPIRE_TIME, cacheType = CacheType.REMOTE)
+    @CacheRefresh(refresh = CacheConstant.DEFAULT_REFRESH_TIME, stopRefreshAfterLastAccess = CacheConstant.DEFAULT_STOP_REFRESH_TIME)
     @ApiOperation(value = "获取城市json",notes = "获取城市json")
     public ApiResult<JSONObject> cityJson(){
         String path = "city.json";

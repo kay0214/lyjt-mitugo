@@ -58,7 +58,7 @@ public class LocaLifeIndexController {
      */
     @AnonymousAccess
     @GetMapping("/getLocalLifeIndex")
-    @Cached(name="cachedLocalLifeIndex-", expire = CacheConstant.DEFAULT_EXPIRE_TIME, cacheType = CacheType.REMOTE)
+    @Cached(name="getLocalLifeIndex-", expire = CacheConstant.DEFAULT_EXPIRE_TIME, cacheType = CacheType.REMOTE)
     @CacheRefresh(refresh = CacheConstant.DEFAULT_REFRESH_TIME, stopRefreshAfterLastAccess = CacheConstant.DEFAULT_STOP_REFRESH_TIME)
     @ApiOperation(value = "本地生活首页幻灯片",notes = "本地生活首页幻灯片",response = ApiResult.class)
     public ApiResult<LocalLiveIndexVo> getLocalLifeNav() throws Exception {
