@@ -17,7 +17,6 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -50,14 +49,14 @@ public class PlatformController extends BaseController {
     @CacheRefresh(refresh = CacheConstant.DEFAULT_REFRESH_TIME, stopRefreshAfterLastAccess = CacheConstant.DEFAULT_STOP_REFRESH_TIME)
     @GetMapping(value = "/getTodayData")
     @ApiOperation("今日数据统计")
-    public ResponseEntity<Map<String, Object>> getTodayData() {
+    public Map<String, Object> getTodayData() {
         Map<String, Object> map = new HashMap<>();
 
         PlatformDto platform = platformService.getTodayData();
         map.put("status", "1");
         map.put("statusDesc", "成功");
         map.put("data", platform);
-        return ResponseEntity.ok(map);
+        return map;
     }
 
 }
