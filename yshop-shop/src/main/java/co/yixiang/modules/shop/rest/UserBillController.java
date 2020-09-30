@@ -3,10 +3,14 @@ package co.yixiang.modules.shop.rest;
 import co.yixiang.common.rocketmq.MqProducer;
 import co.yixiang.constant.MQConstant;
 import co.yixiang.constant.ShopConstants;
+import co.yixiang.constant.SystemConfigConstants;
 import co.yixiang.enums.BillDetailEnum;
+import co.yixiang.exception.BadRequestException;
 import co.yixiang.logging.aop.log.Log;
 import co.yixiang.modules.activity.domain.YxUserExtract;
+import co.yixiang.modules.shop.domain.YxSystemConfig;
 import co.yixiang.modules.shop.service.UserService;
+import co.yixiang.modules.shop.service.YxSystemConfigService;
 import co.yixiang.modules.shop.service.YxUserBillService;
 import co.yixiang.modules.shop.service.dto.WithdrawReviewQueryCriteria;
 import co.yixiang.modules.shop.service.dto.YxUserBillQueryCriteria;
@@ -15,6 +19,7 @@ import co.yixiang.utils.RedisUtil;
 import co.yixiang.utils.SecurityUtils;
 import co.yixiang.utils.StringUtils;
 import com.alibaba.fastjson.JSONObject;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.hyjf.framework.starter.recketmq.MQException;
 import com.hyjf.framework.starter.recketmq.MessageContent;
 import io.swagger.annotations.Api;
@@ -45,6 +50,8 @@ public class UserBillController {
     private UserService userService;
     @Autowired
     private MqProducer mqProducer;
+    @Autowired
+    private YxSystemConfigService yxSystemConfigService;
 
     @ApiOperation(value = "资金明细")
     @GetMapping(value = "/yxUserBill")
@@ -135,6 +142,12 @@ public class UserBillController {
     public ResponseEntity<Object> withdraw(@RequestBody YxUserExtract request) throws MQException {
         int uid = SecurityUtils.getUserId().intValue();
 
+        // 是否可提现校验
+        YxSystemConfig yxSystemConfig = this.yxSystemConfigService.getOne(new QueryWrapper<YxSystemConfig>().lambda().eq(YxSystemConfig::getMenuName, SystemConfigConstants.STORE_EXTRACT_SWITCH));
+        if (null == yxSystemConfig || "1".equals(yxSystemConfig.getValue())) {
+            throw new BadRequestException("未到提现开放时间");
+        }
+
         // 同一时间 用户只能提现一次
         String value = RedisUtil.get(ShopConstants.WITHDRAW_USER_SUBMIT_ADMIN + uid);
         if (StringUtils.isNotBlank(value)) {
@@ -143,17 +156,17 @@ public class UserBillController {
         }
         RedisUtil.set(ShopConstants.WITHDRAW_USER_SUBMIT_ADMIN + uid, 1, 5);
         Integer id = 0;
-        try{
+        try {
             // 0->平台运营,1->合伙人,2->商户 userType 1商户;2合伙人;3用户
             int userType = 1;
             if (1 == SecurityUtils.getCurrUser().getUserRole()) {
                 userType = 2;
             }
             id = this.userService.updateUserWithdraw(uid, userType, request.getExtractPrice());
-        }catch (Exception e){
-            log.error("提现 出错，id：{}", uid,e);
+        } catch (Exception e) {
+            log.error("提现 出错，id：{}", uid, e);
             return new ResponseEntity<>(false, HttpStatus.OK);
-        }finally {
+        } finally {
             RedisUtil.del(ShopConstants.WITHDRAW_USER_SUBMIT_ADMIN + uid);
         }
 
