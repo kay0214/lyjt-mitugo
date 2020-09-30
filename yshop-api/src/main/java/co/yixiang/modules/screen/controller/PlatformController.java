@@ -46,7 +46,7 @@ public class PlatformController extends BaseController {
 
 
     @AnonymousAccess
-    @Cached(name="cachedGetTodayData-", expire = CacheConstant.DEFAULT_EXPIRE_TIME, cacheType = CacheType.BOTH)
+    @Cached(name="cachedGetTodayData-", expire = CacheConstant.DEFAULT_EXPIRE_TIME, cacheType = CacheType.REMOTE)
     @CacheRefresh(refresh = CacheConstant.DEFAULT_REFRESH_TIME, stopRefreshAfterLastAccess = CacheConstant.DEFAULT_STOP_REFRESH_TIME)
     @GetMapping(value = "/getTodayData")
     @ApiOperation("今日数据统计")
