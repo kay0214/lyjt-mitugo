@@ -43,7 +43,7 @@
       <el-table-column v-if="columns.visible('cateName')" label="名称" prop="cateName" />
       <el-table-column v-if="columns.visible('isShow')" label="状态" align="center" prop="isShow">
         <template slot-scope="scope">
-          <div>
+          <div @click="isShow(scope.row)">
             <el-tag v-if="scope.row.isShow === 1" :type="''">显示</el-tag>
             <el-tag v-else :type=" 'info' ">隐藏</el-tag>
           </div>
@@ -74,6 +74,7 @@ import crudOperation from '@crud/CRUD.operation'
 import udOperation from '@crud/UD.operation'
 import picUpload from '@/components/pic-upload'
 import MaterialList from '@/components/material'
+import checkPermission from '@/utils/permission'
 
 // crud交由presenter持有
 const defaultCrud = CRUD({ title: '分类', url: 'api/yxStoreCategory', sort: 'sort,desc', crudMethod: { ...crudDept },optShow: {
@@ -142,6 +143,25 @@ export default {
     },
     checkboxT(row, rowIndex) {
       return row.id !== 1
+    },
+    // 显示隐藏
+    isShow(data) {
+      let per=checkPermission(['admin','YXSTORECATEGORY_EDIT'])
+      if(!per){
+        return;
+      }
+      let that=this
+      defaultCrud.resetForm(data)
+      this.$confirm(`确定进行[${data.isShow ? '隐藏' : '显示'}]操作?`, '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      })
+        .then(() => {
+          that.form.isShow=data.isShow?0:1          
+          defaultCrud.doEdit()
+        })
+        .catch(() => { })
     }
   }
 }
