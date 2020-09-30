@@ -123,7 +123,7 @@ public class YxCouponsController extends BaseController {
      */
     @AnonymousAccess
     @PostMapping("/getCouponsHotList")
-    @Cached(name = "cachedCouponsHotList-", expire = CacheConstant.DEFAULT_EXPIRE_TIME, cacheType = CacheType.BOTH)
+    @Cached(name = "cachedCouponsHotList-", expire = CacheConstant.DEFAULT_EXPIRE_TIME, cacheType = CacheType.REMOTE)
     @CacheRefresh(refresh = CacheConstant.DEFAULT_REFRESH_TIME, stopRefreshAfterLastAccess = CacheConstant.DEFAULT_STOP_REFRESH_TIME)
     @ApiOperation(value = "本地生活卡券,热销榜单", notes = "本地生活卡券,热销榜单")
     public ApiResult<Paging<YxCouponsQueryVo>> getCouponsHotList(@Valid @RequestBody(required = false) YxCouponsQueryParam yxCouponsQueryParam) throws Exception {

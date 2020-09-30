@@ -379,7 +379,7 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
      * @return
      */
     @Override
-    @Cached(name = "cachedGoodList-", expire = CacheConstant.DEFAULT_EXPIRE_TIME, cacheType = CacheType.BOTH)
+    @Cached(name = "cachedGoodList-", expire = CacheConstant.DEFAULT_EXPIRE_TIME, cacheType = CacheType.REMOTE)
     @CacheRefresh(refresh = CacheConstant.DEFAULT_REFRESH_TIME, stopRefreshAfterLastAccess = CacheConstant.DEFAULT_STOP_REFRESH_TIME)
     public Paging<YxStoreProductQueryVo> getList(int page, int limit, int order) {
 
