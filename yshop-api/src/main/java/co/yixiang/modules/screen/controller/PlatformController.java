@@ -50,7 +50,7 @@ public class PlatformController extends BaseController {
     @CacheRefresh(refresh = CacheConstant.DEFAULT_REFRESH_TIME, stopRefreshAfterLastAccess = CacheConstant.DEFAULT_STOP_REFRESH_TIME)
     @GetMapping(value = "/getTodayData")
     @ApiOperation("今日数据统计")
-    public ResponseEntity<Object> getTodayData() {
+    public ResponseEntity<Map<String, Object>> getTodayData() {
         Map<String, Object> map = new HashMap<>();
 
         PlatformDto platform = platformService.getTodayData();
