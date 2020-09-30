@@ -10,7 +10,7 @@
         </el-input>
       </el-form-item>
       <el-form-item prop="password">
-        <el-input v-model="loginForm.password" type="password" auto-complete="off" placeholder="密码" @keyup.enter.native="handleLogin">
+        <el-input v-model="loginForm.password" type="password" auto-complete="off" placeholder="密码" @keyup.enter.native="handleLogin" :maxlength='20'>
           <svg-icon slot="prefix" icon-class="password" class="el-input__icon input-icon" />
         </el-input>
       </el-form-item>
@@ -126,12 +126,11 @@ export default {
           }
           this.$store.dispatch('Login', user).then((res) => {
             this.loading = false
-    //         if (res.user.userRole === 2 && res.examineStatus !== 1 && res.examineStatus !== 3) {
-    //   this.$router.push({ path: '/member/yxMerchantsDetail?dialog=1' })
-    // } else{
-    //         this.$router.push({ path: this.redirect || '/' })
-    // }
-    this.$router.push({ path: this.redirect || '/' })
+            if (res.user.userRole === 2 && res.examineStatus !== 1 && res.examineStatus !== 3) {
+              this.$router.replace({ path: '/member/yxMerchantsDetail?dialog=1' })
+            } else{
+              this.$router.push({ path: this.redirect || '/' })
+            }
           }).catch(() => {
             this.loading = false
             this.getCode()

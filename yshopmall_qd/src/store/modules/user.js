@@ -42,7 +42,7 @@ const user = {
           commit('SET_ROLE_EXAMINE_STATUS', res.examineStatus)
           // 第一次加载菜单时用到， 具体见 src 目录下的 permission.js
           commit('SET_LOAD_MENUS', true)
-          resolve()
+          resolve(res)
         }).catch(error => {
           reject(error)
         })
