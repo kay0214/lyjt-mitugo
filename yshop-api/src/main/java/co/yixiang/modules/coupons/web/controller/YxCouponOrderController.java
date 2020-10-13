@@ -133,8 +133,13 @@ public class YxCouponOrderController extends BaseController {
         if (yxCoupons == null) {
             return ApiResult.fail("请传入正确的卡券ID!");
         }
-        if (yxCoupons.getInventory() < Integer.valueOf(quantity)) {
-            return ApiResult.fail("卡券库存不足,无法购买!");
+        try {
+            if (yxCoupons.getInventory() < Integer.valueOf(quantity)) {
+                return ApiResult.fail("卡券库存不足,无法购买!");
+            }
+        } catch (NumberFormatException e) {
+            log.info("卡券订单确认接口传值：" + jsonStr);
+            throw new BadRequestException("系统异常，请稍后重试");
         }
 
         // 购买卡券信息
