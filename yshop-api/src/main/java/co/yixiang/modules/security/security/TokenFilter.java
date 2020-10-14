@@ -11,6 +11,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.GenericFilterBean;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -64,7 +65,12 @@ public class TokenFilter extends GenericFilterBean {
       } else {
          log.debug("no valid JWT token found, uri: {}", requestRri);
       }
-      filterChain.doFilter(servletRequest, servletResponse);
+      try {
+         filterChain.doFilter(servletRequest, servletResponse);
+      } catch (MethodArgumentTypeMismatchException e) {
+         log.info("undefined问题定位打印日志：" + httpServletRequest.getRequestURI());
+         throw e;
+      }
    }
 
    private String resolveToken(HttpServletRequest request) {
