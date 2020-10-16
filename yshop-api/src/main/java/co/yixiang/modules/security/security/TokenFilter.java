@@ -67,7 +67,7 @@ public class TokenFilter extends GenericFilterBean {
       }
       try {
          filterChain.doFilter(servletRequest, servletResponse);
-      } catch (MethodArgumentTypeMismatchException e) {
+      } catch (Throwable e) {
          log.info("undefined问题定位打印日志：" + httpServletRequest.getRequestURI());
          throw e;
       }
