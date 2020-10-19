@@ -1,5 +1,6 @@
 package co.yixiang.modules.coupons.web.controller;
 
+import cn.hutool.core.util.ObjectUtil;
 import co.yixiang.annotation.AnonymousAccess;
 import co.yixiang.common.api.ApiResult;
 import co.yixiang.common.web.controller.BaseController;
@@ -8,6 +9,8 @@ import co.yixiang.common.web.vo.Paging;
 import co.yixiang.constant.CacheConstant;
 import co.yixiang.constant.LocalLiveConstants;
 import co.yixiang.constant.ShopConstants;
+import co.yixiang.modules.commission.entity.YxCommissionRate;
+import co.yixiang.modules.commission.service.YxCommissionRateService;
 import co.yixiang.modules.coupons.service.YxCouponsService;
 import co.yixiang.modules.coupons.web.param.YxCouponsQueryParam;
 import co.yixiang.modules.coupons.web.vo.YxCouponsQueryVo;
@@ -28,6 +31,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -50,6 +54,8 @@ public class YxCouponsController extends BaseController {
 
     @Autowired
     private YxImageInfoService yxImageInfoService;
+    @Autowired
+    private YxCommissionRateService commissionRateService;
 
     /**
      * 获取本地生活, 卡券详情
@@ -86,6 +92,16 @@ public class YxCouponsController extends BaseController {
         String expireDate = DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD, yxCouponsQueryVo.getExpireDateStart()) + " ~ " + DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD, yxCouponsQueryVo.getExpireDateEnd());
         yxCouponsQueryVo.setExpireDate(expireDate);
         yxCouponsQueryVo.setAvailableTime(yxCouponsQueryVo.getAvailableTimeStart() + " ~ " + yxCouponsQueryVo.getAvailableTimeEnd());
+        // 佣金按比例计算
+        YxCommissionRate commissionRate = commissionRateService.getOne(new QueryWrapper<YxCommissionRate>().eq("del_flag", 0));
+        BigDecimal bigCommission = yxCouponsQueryVo.getCommission();
+
+        if (ObjectUtil.isNotNull(commissionRate)) {
+            //佣金= 佣金*分享
+            bigCommission = bigCommission.multiply(commissionRate.getShareRate());
+        }
+        yxCouponsQueryVo.setCommission(bigCommission);
+
         return ApiResult.ok(yxCouponsQueryVo);
     }
 
