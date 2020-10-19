@@ -22,7 +22,7 @@
     <springProfile name="dev">
         <logger name="org.springframework.web" level="INFO"/>
         <logger name="org.springboot.sample" level="INFO"/>
-        <logger name="com.monster" level="DEBUG"/>
+        <logger name="co.yixiang" level="DEBUG"/>
 
         <root level="INFO">
             <appender-ref ref="AsyncLogback" />
@@ -34,7 +34,7 @@
     <springProfile name="test">
         <logger name="org.springframework.web" level="INFO"/>
         <logger name="org.springboot.sample" level="INFO"/>
-        <logger name="com.monster" level="INFO"/>
+        <logger name="co.yixiang" level="INFO"/>
 
         <root level="INFO">
             <appender-ref ref="AsyncLogback" />
@@ -46,7 +46,7 @@
     <springProfile name="uat">
         <logger name="org.springframework.web" level="INFO"/>
         <logger name="org.springboot.sample" level="INFO"/>
-        <logger name="com.monster" level="INFO"/>
+        <logger name="co.yixiang" level="INFO"/>
 
         <root level="INFO">
             <appender-ref ref="AsyncLogback" />
@@ -56,7 +56,7 @@
     <springProfile name="prod">
         <logger name="org.springframework.web" level="ERROR"/>
         <logger name="org.springboot.sample" level="ERROR"/>
-        <logger name="com.monster" level="INFO"/>
+        <logger name="co.yixiang" level="INFO"/>
 
         <root level="INFO">
             <appender-ref ref="AsyncLogback" />

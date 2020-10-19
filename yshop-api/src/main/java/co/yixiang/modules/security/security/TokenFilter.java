@@ -66,9 +66,10 @@ public class TokenFilter extends GenericFilterBean {
          log.debug("no valid JWT token found, uri: {}", requestRri);
       }
       try {
+         log.info("定位打印日志：" + httpServletRequest.getRequestURI());
          filterChain.doFilter(servletRequest, servletResponse);
       } catch (Throwable e) {
-         log.info("undefined问题定位打印日志：" + httpServletRequest.getRequestURI());
+         log.error("undefined问题定位打印日志：" + httpServletRequest.getRequestURI());
          throw e;
       }
    }
