@@ -275,7 +275,6 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
                 .isProductRelation(id, "product", uid, "collect"));
         //销量= 销量+虚拟销量
         storeProductQueryVo.setSales(storeProductQueryVo.getSales() + storeProductQueryVo.getFicti());
-        productDTO.setStoreInfo(storeProductQueryVo);
         productDTO.setProductAttr((List<YxStoreProductAttrQueryVo>) returnMap.get("productAttr"));
         productDTO.setProductValue((Map<String, YxStoreProductAttrValue>) returnMap.get("productValue"));
 
@@ -292,13 +291,14 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
         productDTO.setMapKey(RedisUtil.get(ShopKeyUtils.getTengXunMapKey()));
         //佣金
         YxCommissionRate commissionRate = commissionRateService.getOne(new QueryWrapper<YxCommissionRate>().eq("del_flag", 0));
-        BigDecimal bigCommission = storeProduct.getCommission();
+        BigDecimal bigCommission = storeProductQueryVo.getCommission();
 
         if (ObjectUtil.isNotNull(commissionRate)) {
             //佣金= 佣金*分享
             bigCommission = bigCommission.multiply(commissionRate.getShareRate());
         }
-        storeProduct.setCommission(bigCommission);
+        storeProductQueryVo.setCommission(bigCommission);
+        productDTO.setStoreInfo(storeProductQueryVo);
 
         return productDTO;
     }
