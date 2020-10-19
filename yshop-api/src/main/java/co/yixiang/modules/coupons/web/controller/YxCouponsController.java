@@ -9,6 +9,7 @@ import co.yixiang.common.web.vo.Paging;
 import co.yixiang.constant.CacheConstant;
 import co.yixiang.constant.LocalLiveConstants;
 import co.yixiang.constant.ShopConstants;
+import co.yixiang.exception.BadRequestException;
 import co.yixiang.modules.commission.entity.YxCommissionRate;
 import co.yixiang.modules.commission.service.YxCommissionRateService;
 import co.yixiang.modules.coupons.service.YxCouponsService;
@@ -66,10 +67,11 @@ public class YxCouponsController extends BaseController {
     public ApiResult<YxCouponsQueryVo> getYxCoupons(@Valid @RequestBody IdParam idParam) throws Exception {
         YxCouponsQueryVo yxCouponsQueryVo = yxCouponsService.getYxCouponsById(idParam.getId());
 
-        if (yxCouponsQueryVo != null) {
-            // 总销量
-            yxCouponsQueryVo.setTotalSales(yxCouponsQueryVo.getSales() + yxCouponsQueryVo.getFicti());
+        if (null == yxCouponsQueryVo) {
+            throw new BadRequestException("未查询到卡券详情");
         }
+        // 总销量
+        yxCouponsQueryVo.setTotalSales(yxCouponsQueryVo.getSales() + yxCouponsQueryVo.getFicti());
         // 卡券缩略图
         YxImageInfo thumbnail = yxImageInfoService.getOne(new QueryWrapper<YxImageInfo>().eq("type_id", idParam.getId()).eq("img_type", LocalLiveConstants.IMG_TYPE_COUPONS)
                 .eq("img_category", ShopConstants.IMG_CATEGORY_PIC).eq("del_flag", 0));
