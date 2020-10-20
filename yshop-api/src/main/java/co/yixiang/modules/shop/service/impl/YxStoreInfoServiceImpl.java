@@ -495,7 +495,8 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
             //文案
             g.setFont(font.deriveFont(Font.PLAIN, 24));
             g.setColor(new Color(47, 47, 47));
-            String storeInfo = yxStoreInfo.getStoreProvince() + yxStoreInfo.getStoreAddress();
+//            String storeInfo = yxStoreInfo.getStoreProvince() + yxStoreInfo.getStoreAddress();
+            String storeInfo = yxStoreInfo.getStoreAddress();
 
             //文字叠加,自动换行叠加
             int tempX = 40;
