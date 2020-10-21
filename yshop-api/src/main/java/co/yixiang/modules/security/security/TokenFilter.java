@@ -38,6 +38,7 @@ public class TokenFilter extends GenericFilterBean {
    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
       throws IOException, ServletException {
       HttpServletRequest httpServletRequest = (HttpServletRequest) servletRequest;
+      log.info("定位打印日志：" + httpServletRequest.getRequestURI());
       String token = resolveToken(httpServletRequest);
       String requestRri = httpServletRequest.getRequestURI();
       // 验证 token 是否存在
