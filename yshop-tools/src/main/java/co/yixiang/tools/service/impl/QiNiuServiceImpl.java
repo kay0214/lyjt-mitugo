@@ -113,6 +113,7 @@ public class QiNiuServiceImpl implements QiNiuService {
             if(qiniuContentService.getOne(new QueryWrapper<QiniuContent>().eq("name", FileUtil.getFileNameNoEx(key)).eq("suffix",FileUtil.getExtensionName(key))) != null) {
                 key = QiNiuUtil.getKey(key);
             }
+            key = key.replaceAll(" ","");
             Response response = uploadManager.put(file.getBytes(), key, upToken);
             //解析上传成功的结果
 
