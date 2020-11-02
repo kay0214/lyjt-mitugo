@@ -105,12 +105,13 @@
                         fit="contain"
                         :preview-src-list="[item.url]"
                         :z-index="999"
+                        @load="loadImage($event,item,index)"
                       />
                       <div>
                         <el-checkbox class="material-name" :label="item.url">
                           选择
-                          <p>{{ item.witdh }}</p>
                         </el-checkbox>
+                        <p v-if="item.width && item.height" style="font-size:12px;text-align:center;margin:0;color:#94b0e8;">{{ item.width }}*{{ item.height }}</p>
                         <el-row>
                           <el-col :span="24" class="col-do">
                             <el-button type="text" size="medium" @click="materialDel(item)">删除</el-button>
@@ -229,17 +230,6 @@ export default {
     ])
   },
   methods: {
-    load(event, item) {
-      console.log(event)
-      if (event && event.path && event.path[0]) {
-      //   item.width=event.path[0].naturalWidth
-        const width = event.path[0].naturalWidth
-        const height = event.path[0].naturalHeight
-        if (event.path.length > 3) {
-          event.path[2].innerHTML = '<div style="text-align:center;font-size:12px;margin:0">' + width + '*' + height + '</div>' + event.path[2].innerHTML
-        }
-      }
-    },
     moveMaterial(index, type) {
       if (type === 'up') {
         const tempOption = this.value[index - 1]
@@ -500,6 +490,10 @@ export default {
         })
       }
       this.listDialogVisible = false
+    },
+    loadImage(e, item, index) {
+      this.$set(item, 'width', e.path[0].naturalWidth)
+      this.$set(item, 'height', e.path[0].naturalHeight)
     }
   }
 }
