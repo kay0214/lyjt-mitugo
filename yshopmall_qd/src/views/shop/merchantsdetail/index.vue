@@ -98,11 +98,11 @@
             <!-- 以下是个人认证 -->
             <div v-if="!crud.status.add && form.merchantsType == 0">
               <el-form-item label="手持证件照" prop="personIdCard">
-                <MaterialList v-model="perIdCard" type="image" :num="1" :width="150" :height="150" :readonly='formDisabled' 
+                <MaterialList v-model="perIdCard" type="image" :num="1" :width="150" :height="150" :readonly='formDisabled'
                 @setValue='(val)=>{perIdCard=val;form.personIdCard=val.join(",");$refs.form.validateField("personIdCard")}'/>
               </el-form-item>
               <el-form-item label="证件照人像面" prop="personIdCardFace">
-                <MaterialList v-model="perIdCardFace" type="image" :num="1" :width="150" :height="150" :readonly='formDisabled' 
+                <MaterialList v-model="perIdCardFace" type="image" :num="1" :width="150" :height="150" :readonly='formDisabled'
                 @setValue='(val)=>{perIdCardFace=val;form.personIdCardFace=val.join(",");$refs.form.validateField("personIdCardFace")}'/>
               </el-form-item>
               <el-form-item label="证件照国徽面" prop="personIdCardBack">
@@ -187,14 +187,14 @@
                 <el-row type='flex'>
                   <el-checkbox v-model="form.checkbox" name='checkbox' ></el-checkbox>
                   <span style='margin:0 10px'>我已阅读并同意</span>
-                  <span style='margin:0 10px'><router-link to="/pdfs/openPlatformService.pdf" style='text-decoration:underline' target="_blank">“蜜兔GO”开放平台服务协议 </router-link></span>
+                  <span style='margin:0 10px'><router-link to="/pdfs/openPlatformService.pdf" style='text-decoration:underline' target="_blank">“奥帆LIFE”开放平台服务协议 </router-link></span>
                 </el-row>
             </el-form-item>
             <el-form-item v-else-if='!crud.status.add' label=" ">
               <el-row type='flex'>
                     <el-checkbox v-model="form.checkbox" name='checkbox' checked readonly></el-checkbox>
                     <span style='margin:0 10px'>我已阅读并同意</span>
-                    <span style='margin:0 10px'><router-link to="/pdfs/openPlatformService.pdf" style='text-decoration:underline' target="_blank">“蜜兔GO”开放平台服务协议 </router-link></span>
+                    <span style='margin:0 10px'><router-link to="/pdfs/openPlatformService.pdf" style='text-decoration:underline' target="_blank">“奥帆LIFE”开放平台服务协议 </router-link></span>
                 </el-row>
             </el-form-item>
         </el-form>
@@ -234,12 +234,12 @@
         <el-table-column v-if="columns.visible('username')" prop="username" label="商户用户名" />
         <el-table-column v-if="columns.visible('merchantsName')" prop="merchantsName" label="商户名称" />
         <el-table-column v-if="columns.visible('contacts')" prop="contacts" label="商户联系人" />
-        <el-table-column v-if="columns.visible('contactMobile')" prop="contactMobile" label="联系人电话" />        
+        <el-table-column v-if="columns.visible('contactMobile')" prop="contactMobile" label="联系人电话" />
         <el-table-column v-if="columns.visible('qrcode')" prop="qrcode" label="推荐码" >
           <template slot-scope="scope" v-if='scope.row.qrcode'>
-            <el-image 
+            <el-image
               class="el-avatar"
-              :src="scope.row.qrcode" 
+              :src="scope.row.qrcode"
               :preview-src-list="scope.row.qrcode.split(',')">
             </el-image>
             <!-- <img :src="scope.row.qrcode" alt="" > -->
@@ -263,9 +263,9 @@
         <el-table-column v-permission="['admin','yxMerchantsDetail:edit','yxMerchantsDetail:examine','yxMerchantsDetail:del']" label="操作" width="250px" align="center">
           <template v-if="!crud.loading" slot-scope="scope">
             <el-button v-if="scope.row.examineStatus===3" v-permission="permission.examine" size="mini" type="primary" icon="el-icon-s-check" @click="examineOpt(scope.row)" plain></el-button>
-            <el-button v-if='checkPermission(permission.editByManage)' v-permission="permission.editByManage" size="mini" type="danger" 
+            <el-button v-if='checkPermission(permission.editByManage)' v-permission="permission.editByManage" size="mini" type="danger"
             icon="el-icon-edit" @click="crud.toEdit(scope.row)" plain></el-button>
-            <el-button v-else-if="scope.row.examineStatus===2 || scope.row.examineStatus===0" v-permission="permission.edit" size="mini" 
+            <el-button v-else-if="scope.row.examineStatus===2 || scope.row.examineStatus===0" v-permission="permission.edit" size="mini"
             type="primary" icon="el-icon-edit" @click="crud.toEdit(scope.row)" ></el-button>
 
             <el-button size="mini" type="success" icon="el-icon-reading" @click="toRead(scope.row)" plain ></el-button>
@@ -323,12 +323,12 @@ const defaultCrud = CRUD({ title: '商户详情', url: 'api/yxMerchantsDetail/ge
       del: false,
       download: false
     }})
-const defaultForm = { id: null, uid: null, nickName:null, merchantsContact:null, phone:null, 
-username:null, examineStatus: null, address: null, contacts: null, contactMobile: null, mailbox: null, 
-merchantsType: null, bankNo: null, openAccountProvince: null, bankType: null, openAccountName: null, 
-openAccountBank: null, openAccountSubbranch: null,province: null, companyProvince: null, 
-companyAddress: null, companyName: null, companyLegalPerson: null, companyPhone: null, businessCategory: null, 
-qualificationsType: null, delFlag: null, createUserId: null, updateUserId: null, createTime: null, 
+const defaultForm = { id: null, uid: null, nickName:null, merchantsContact:null, phone:null,
+username:null, examineStatus: null, address: null, contacts: null, contactMobile: null, mailbox: null,
+merchantsType: null, bankNo: null, openAccountProvince: null, bankType: null, openAccountName: null,
+openAccountBank: null, openAccountSubbranch: null,province: null, companyProvince: null,
+companyAddress: null, companyName: null, companyLegalPerson: null, companyPhone: null, businessCategory: null,
+qualificationsType: null, delFlag: null, createUserId: null, updateUserId: null, createTime: null,
 updateTime: null, merchantsName: null,bankCode: null,withdrawalAmount: null }
 export default {
   name: 'YxMerchantsDetail',
@@ -633,7 +633,7 @@ export default {
       this.selectedOptions=this.form.companyProvince.split(',')
       }else{
         this.selectedOptions = []
-      }      
+      }
       if(this.form.province){
       this.selectedMOptions=this.form.province.split(',')
       }else{
@@ -779,7 +779,7 @@ export default {
       this.dialogVisible=Boolean(this.crud.status.cu);
       this.crud.resetForm()
     },
-    withdrawEdit(btn,index,uid){ 
+    withdrawEdit(btn,index,uid){
       let that=this
       this.$refs['formWithdraw'+index].validate(function(ret,obj){
         if(ret){
@@ -789,7 +789,7 @@ export default {
               title: '提交成功'
               })
               that.crud.toQuery()
-              that.$refs['popover'+index].doClose() 
+              that.$refs['popover'+index].doClose()
               that.$refs['formWithdraw'+index].resetFields()
             }else{
               // Notification.error({

@@ -34,7 +34,7 @@
               </li>
               <li>
                 <span style='margin:0 10px 5px 0'><el-checkbox v-model="form.checkbox" name='checkbox' checked disabled></el-checkbox></span>
-                <span><router-link to="/pdfs/openPlatformService.pdf" style='text-decoration:underline' target="_blank">“蜜兔GO”开放平台服务协议 </router-link></span>
+                <span><router-link to="/pdfs/openPlatformService.pdf" style='text-decoration:underline' target="_blank">“奥帆LIFE”开放平台服务协议 </router-link></span>
               </li>
             </ul>
           </div>
