@@ -1,46 +1,54 @@
 /**
-* Copyright (C) 2018-2020
-* All rights reserved, Designed By www.yixiang.co
-* 注意：
-* 本软件为www.yixiang.co开发研制，未经购买不得使用
-* 购买后可获得全部源代码（禁止转卖、分享、上传到码云、github等开源平台）
-* 一经发现盗用、分享等行为，将追究法律责任，后果自负
-*/
+ * Copyright (C) 2018-2020
+ * All rights reserved, Designed By www.yixiang.co
+ * 注意：
+ * 本软件为www.yixiang.co开发研制，未经购买不得使用
+ * 购买后可获得全部源代码（禁止转卖、分享、上传到码云、github等开源平台）
+ * 一经发现盗用、分享等行为，将追究法律责任，后果自负
+ */
 package co.yixiang.modules.coupon.service.impl;
 
-import co.yixiang.modules.coupon.domain.YxCouponsPriceConfig;
+import cn.hutool.json.JSONObject;
+import cn.hutool.json.JSONUtil;
 import co.yixiang.common.service.impl.BaseServiceImpl;
-import lombok.AllArgsConstructor;
-import co.yixiang.dozer.service.IGenerator;
-import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
 import co.yixiang.common.utils.QueryHelpPlus;
-import co.yixiang.utils.ValidationUtil;
-import co.yixiang.utils.FileUtil;
+import co.yixiang.dozer.service.IGenerator;
+import co.yixiang.exception.BadRequestException;
+import co.yixiang.modules.coupon.domain.YxCouponsPriceConfig;
 import co.yixiang.modules.coupon.service.YxCouponsPriceConfigService;
 import co.yixiang.modules.coupon.service.dto.YxCouponsPriceConfigDto;
 import co.yixiang.modules.coupon.service.dto.YxCouponsPriceConfigQueryCriteria;
 import co.yixiang.modules.coupon.service.mapper.YxCouponsPriceConfigMapper;
+import co.yixiang.utils.BeanUtils;
+import co.yixiang.utils.FileUtil;
+import com.alibaba.fastjson.JSON;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.github.pagehelper.PageInfo;
+import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
+
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
 // 默认不使用缓存
 //import org.springframework.cache.annotation.CacheConfig;
 //import org.springframework.cache.annotation.CacheEvict;
 //import org.springframework.cache.annotation.Cacheable;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import java.util.List;
-import java.util.Map;
-import java.io.IOException;
-import javax.servlet.http.HttpServletResponse;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 
 /**
-* @author nxl
-* @date 2020-11-04
-*/
+ * @author nxl
+ * @date 2020-11-04
+ */
 @Service
 @AllArgsConstructor
 //@CacheConfig(cacheNames = "yxCouponsPriceConfig")
@@ -48,6 +56,8 @@ import java.util.LinkedHashMap;
 public class YxCouponsPriceConfigServiceImpl extends BaseServiceImpl<YxCouponsPriceConfigMapper, YxCouponsPriceConfig> implements YxCouponsPriceConfigService {
 
     private final IGenerator generator;
+    @Autowired
+    private YxCouponsPriceConfigMapper couponsPriceConfigMapper;
 
     @Override
     //@Cacheable
@@ -63,7 +73,7 @@ public class YxCouponsPriceConfigServiceImpl extends BaseServiceImpl<YxCouponsPr
 
     @Override
     //@Cacheable
-    public List<YxCouponsPriceConfig> queryAll(YxCouponsPriceConfigQueryCriteria criteria){
+    public List<YxCouponsPriceConfig> queryAll(YxCouponsPriceConfigQueryCriteria criteria) {
         return baseMapper.selectList(QueryHelpPlus.getPredicate(YxCouponsPriceConfig.class, criteria));
     }
 
@@ -72,7 +82,7 @@ public class YxCouponsPriceConfigServiceImpl extends BaseServiceImpl<YxCouponsPr
     public void download(List<YxCouponsPriceConfigDto> all, HttpServletResponse response) throws IOException {
         List<Map<String, Object>> list = new ArrayList<>();
         for (YxCouponsPriceConfigDto yxCouponsPriceConfig : all) {
-            Map<String,Object> map = new LinkedHashMap<>();
+            Map<String, Object> map = new LinkedHashMap<>();
             map.put("卡券id", yxCouponsPriceConfig.getCouponId());
             map.put("开始日期(YYYYMMDD)", yxCouponsPriceConfig.getStartDate());
             map.put("结束日期(YYYYMMDD)", yxCouponsPriceConfig.getEndDate());
@@ -88,5 +98,34 @@ public class YxCouponsPriceConfigServiceImpl extends BaseServiceImpl<YxCouponsPr
             list.add(map);
         }
         FileUtil.downloadExcel(list, response);
+    }
+
+    @Override
+    public void setPriceConfig(String priceJson, Integer currUserId) {
+        JSONObject jsonObject = JSONUtil.parseObj(priceJson);
+        String couponIdStr = jsonObject.get("couponId").toString();
+        if (StringUtils.isEmpty(couponIdStr)) {
+            throw new BadRequestException("卡券id不能为空 ！");
+        }
+        int couponId = Integer.parseInt(couponIdStr);
+        //先删除
+        QueryWrapper<YxCouponsPriceConfig> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().eq(YxCouponsPriceConfig::getCouponId, couponId);
+        couponsPriceConfigMapper.delete(queryWrapper);
+        //后添加
+        List<YxCouponsPriceConfig> configList = JSON.parseArray(jsonObject.get("data").toString(), YxCouponsPriceConfig.class);
+        if (!CollectionUtils.isEmpty(configList)) {
+            List<YxCouponsPriceConfig> couponsPriceConfigList = new ArrayList<YxCouponsPriceConfig>();
+            for (YxCouponsPriceConfig param : configList) {
+                YxCouponsPriceConfig priceConfig = new YxCouponsPriceConfig();
+                BeanUtils.copyProperties(param, priceConfig);
+                priceConfig.setCouponId(couponId);
+                priceConfig.setCreateUserId(currUserId);
+                priceConfig.setUpdateUserId(currUserId);
+                priceConfig.setDelFlag(0);
+                couponsPriceConfigList.add(priceConfig);
+            }
+            this.saveBatch(couponsPriceConfigList);
+        }
     }
 }
