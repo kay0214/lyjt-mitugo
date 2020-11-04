@@ -295,4 +295,8 @@ public class YxCouponOrderDto implements Serializable {
     private String image;
 
     List<YxCouponOrderDetailDto> detailList;
+
+    /** 在线发票（0：不支持，1：支持） */
+    private Integer onlineInvoice;
+
 }

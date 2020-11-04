@@ -7,13 +7,13 @@
 * 一经发现盗用、分享等行为，将追究法律责任，后果自负
 */
 package co.yixiang.modules.coupon.domain;
-import lombok.Data;
-import com.baomidou.mybatisplus.annotation.*;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.bean.copier.CopyOptions;
-import javax.validation.constraints.*;
-import java.sql.Timestamp;
+import com.baomidou.mybatisplus.annotation.*;
+import lombok.Data;
+
 import java.io.Serializable;
+import java.sql.Timestamp;
 
 /**
 * @author liusy
@@ -82,6 +82,9 @@ public class YxCouponOrderDetail implements Serializable {
     /** 更新时间 */
     @TableField(fill= FieldFill.INSERT_UPDATE)
     private Timestamp updateTime;
+
+    /** 核销状态 0：不可用 1：可用 */
+    private Integer userStatus;
 
 
     public void copy(YxCouponOrderDetail source){
