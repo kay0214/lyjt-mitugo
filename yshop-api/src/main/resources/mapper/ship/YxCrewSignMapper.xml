@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="co.yixiang.modules.ship.mapper.YxCrewSignMapper">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, uid, username, user_phone, temperature, del_flag, create_user_id, update_user_id, create_time, update_time
+    </sql>
+
+    <select id="getYxCrewSignById" resultType="co.yixiang.modules.ship.web.vo.YxCrewSignQueryVo">
+        select <include refid="Base_Column_List"/> from yx_crew_sign where id = #{id}
+    </select>
+
+    <select id="getYxCrewSignPageList" resultType="co.yixiang.modules.ship.web.vo.YxCrewSignQueryVo">
+        select <include refid="Base_Column_List"/> from yx_crew_sign
+    </select>
+
+</mapper>

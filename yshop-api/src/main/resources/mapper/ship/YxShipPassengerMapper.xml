@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="co.yixiang.modules.ship.mapper.YxShipPassengerMapper">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, coupon_order_id, batch_no, ship_id, passenger_name, id_card, phone, is_adult, del_flag, create_user_id, update_user_id, create_time, update_time
+    </sql>
+
+    <select id="getYxShipPassengerById" resultType="co.yixiang.modules.ship.web.vo.YxShipPassengerQueryVo">
+        select <include refid="Base_Column_List"/> from yx_ship_passenger where id = #{id}
+    </select>
+
+    <select id="getYxShipPassengerPageList" resultType="co.yixiang.modules.ship.web.vo.YxShipPassengerQueryVo">
+        select <include refid="Base_Column_List"/> from yx_ship_passenger
+    </select>
+
+</mapper>
