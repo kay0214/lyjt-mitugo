@@ -119,6 +119,24 @@ public class User implements Serializable {
     /** 推荐用二维码地址 */
     private String qrCodeUrl;
 
+    /** 所属店铺id */
+    @NotNull
+    private Integer storeId;
+
+
+    /** 是否允许提现（0：允许，1：拒绝） */
+    @NotNull
+    private Integer withdrawalFlg;
+
+
+    /** 启用收款码（0：启用，1：禁用） */
+    @NotNull
+    private Integer useCodeFlg;
+
+
+    /** 是否是船只用户（0：是，1：否） */
+    @NotNull
+    private Integer shipUser;
 
     public void copy(User source) {
         BeanUtil.copyProperties(source, this, CopyOptions.create().setIgnoreNullValue(true));

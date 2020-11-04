@@ -192,6 +192,9 @@ public class YxCouponOrder implements Serializable {
     @TableField(fill= FieldFill.INSERT_UPDATE)
     private Timestamp updateTime;
 
+    /** 评价状态：0未评价 1已评价 */
+    @NotNull
+    private Integer evaluate;
 
     public void copy(YxCouponOrder source){
         BeanUtil.copyProperties(source,this, CopyOptions.create().setIgnoreNullValue(true));

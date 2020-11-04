@@ -8,11 +8,11 @@
 */
 package co.yixiang.modules.coupon.service.dto;
 
-import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-import java.sql.Timestamp;
-import java.math.BigDecimal;
+
 import java.io.Serializable;
+import java.math.BigDecimal;
+import java.sql.Timestamp;
 import java.util.List;
 
 /**
@@ -225,4 +225,51 @@ public class YxCouponsDto implements Serializable {
     /** 排序 */
     private Integer sort;
 
+
+    /** 船只系列id */
+    private Integer seriesId;
+
+
+    /** 船只id */
+    private Integer shipId;
+
+
+    /** 合同模板id */
+    private Integer tempId;
+
+
+    /** 乘客人数 */
+    private Integer passengersNum;
+
+
+    /** 合同规则（0：无需保险，1：必须购买，2：非必须） */
+    private Integer insuranceRole;
+
+
+    /** 有效期（0：不限，1：其他） */
+    private Integer validity;
+
+
+    /** 有效天数（有效期=1时） */
+    private Integer validityDays;
+
+
+    /** 在线发票（0：不支持，1：支持） */
+    private Integer onlineInvoice;
+
+
+    /** 景区推广价格 */
+    private BigDecimal scenicPrice;
+
+
+    /** 旅行社价格 */
+    private BigDecimal travelPrice;
+
+
+    /** 健康确认(逗号分隔) */
+    private String confirmation;
+
+
+    /** 分佣模式（0：按平台，1：不分佣，2：自定义分佣） */
+    private Integer customizeType;
 }
