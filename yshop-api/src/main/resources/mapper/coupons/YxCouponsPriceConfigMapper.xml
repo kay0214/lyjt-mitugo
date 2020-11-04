@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="co.yixiang.modules.coupons.mapper.YxCouponsPriceConfigMapper">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, coupon_id, start_date, end_date, selling_price, commission, scenic_price, travel_price, del_flag, create_user_id, update_user_id, create_time, update_time
+    </sql>
+
+    <select id="getYxCouponsPriceConfigById" resultType="co.yixiang.modules.coupons.web.vo.YxCouponsPriceConfigQueryVo">
+        select <include refid="Base_Column_List"/> from yx_coupons_price_config where id = #{id}
+    </select>
+
+    <select id="getYxCouponsPriceConfigPageList" resultType="co.yixiang.modules.coupons.web.vo.YxCouponsPriceConfigQueryVo">
+        select <include refid="Base_Column_List"/> from yx_coupons_price_config
+    </select>
+
+</mapper>

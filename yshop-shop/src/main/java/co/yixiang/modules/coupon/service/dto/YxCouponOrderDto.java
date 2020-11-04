@@ -282,6 +282,9 @@ public class YxCouponOrderDto implements Serializable {
 
     private Integer rebateStatus;
 
+    /** 评价状态：0未评价 1已评价 */
+    private Integer evaluate;
+
     /**
      * 卡券核销记录
      */

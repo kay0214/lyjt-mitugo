@@ -136,4 +136,8 @@ public class YxStoreProductDto implements Serializable {
     private BigDecimal commission;
 
     private Integer cateFlg;
+
+    /** 分佣模式（0：按平台，1：不分佣，2：自定义分佣） */
+    private Integer customizeType;
+
 }

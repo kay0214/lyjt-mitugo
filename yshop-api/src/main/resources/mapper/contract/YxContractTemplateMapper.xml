@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="co.yixiang.modules.contract.mapper.YxContractTemplateMapper">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, temp_name, file_path, del_flag, create_user_id, update_user_id, create_time, update_time
+    </sql>
+
+    <select id="getYxContractTemplateById" resultType="co.yixiang.modules.contract.web.vo.YxContractTemplateQueryVo">
+        select <include refid="Base_Column_List"/> from yx_contract_template where id = #{id}
+    </select>
+
+    <select id="getYxContractTemplatePageList" resultType="co.yixiang.modules.contract.web.vo.YxContractTemplateQueryVo">
+        select <include refid="Base_Column_List"/> from yx_contract_template
+    </select>
+
+</mapper>
