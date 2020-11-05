@@ -8,34 +8,46 @@
 */
 package co.yixiang.modules.shipManage.service.impl;
 
-import co.yixiang.modules.shipManage.domain.YxShipInfo;
+import cn.hutool.core.date.DateTime;
 import co.yixiang.common.service.impl.BaseServiceImpl;
-import lombok.AllArgsConstructor;
-import co.yixiang.dozer.service.IGenerator;
-import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
 import co.yixiang.common.utils.QueryHelpPlus;
-import co.yixiang.utils.ValidationUtil;
-import co.yixiang.utils.FileUtil;
+import co.yixiang.dozer.service.IGenerator;
+import co.yixiang.exception.BadRequestException;
+import co.yixiang.modules.shipManage.domain.YxShipInfo;
+import co.yixiang.modules.shipManage.domain.YxShipInfoRequest;
+import co.yixiang.modules.shipManage.domain.YxShipSeries;
 import co.yixiang.modules.shipManage.service.YxShipInfoService;
 import co.yixiang.modules.shipManage.service.dto.YxShipInfoDto;
 import co.yixiang.modules.shipManage.service.dto.YxShipInfoQueryCriteria;
 import co.yixiang.modules.shipManage.service.mapper.YxShipInfoMapper;
+import co.yixiang.modules.shipManage.service.mapper.YxShipSeriesMapper;
+import co.yixiang.modules.shop.domain.User;
+import co.yixiang.modules.shop.domain.YxStoreInfo;
+import co.yixiang.modules.shop.service.mapper.UserSysMapper;
+import co.yixiang.modules.shop.service.mapper.YxStoreInfoMapper;
+import co.yixiang.utils.BeanUtils;
+import co.yixiang.utils.FileUtil;
+import co.yixiang.utils.SecurityUtils;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.github.pagehelper.PageInfo;
+import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
 // 默认不使用缓存
 //import org.springframework.cache.annotation.CacheConfig;
 //import org.springframework.cache.annotation.CacheEvict;
 //import org.springframework.cache.annotation.Cacheable;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import java.util.List;
-import java.util.Map;
-import java.io.IOException;
-import javax.servlet.http.HttpServletResponse;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 
 /**
 * @author nxl
@@ -48,6 +60,12 @@ import java.util.LinkedHashMap;
 public class YxShipInfoServiceImpl extends BaseServiceImpl<YxShipInfoMapper, YxShipInfo> implements YxShipInfoService {
 
     private final IGenerator generator;
+    @Autowired
+    private YxShipSeriesMapper shipSeriesMapper;
+    @Autowired
+    private UserSysMapper userSysMapper;
+    @Autowired
+    private YxStoreInfoMapper yxStoreInfoMapper;
 
     @Override
     //@Cacheable
@@ -92,5 +110,69 @@ public class YxShipInfoServiceImpl extends BaseServiceImpl<YxShipInfoMapper, YxS
             list.add(map);
         }
         FileUtil.downloadExcel(list, response);
+    }
+
+    /**
+     * 获取状态为启用的船只系列
+     * @return
+     */
+    @Override
+    public List<YxShipSeries> getShipSeriseList(){
+        QueryWrapper<YxShipSeries> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().eq(YxShipSeries::getStatus, 0).eq(YxShipSeries::getDelFlag,0);
+        return shipSeriesMapper.selectList(queryWrapper);
+    }
+
+    /**
+     * 根据船只系列，以及商户id获取船只信息
+     * @param seriseId
+     * @param merId
+     * @return
+     */
+    @Override
+    public List<YxShipInfo> getShipInfoList(int seriseId,int merId) {
+        QueryWrapper<YxShipInfo> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().eq(YxShipInfo::getSeriesId, seriseId).eq(YxShipInfo::getMerId, merId).eq(YxShipInfo::getShipStatus, 0).eq(YxShipInfo::getDelFlag, 0);
+        return this.list(queryWrapper);
+    }
+
+    /**
+     * 保存船只信息
+     * @param resources
+     */
+    @Override
+    public boolean saveOrUpdShipInfoByParam(YxShipInfoRequest resources) {
+        int loginUserId = SecurityUtils.getUserId().intValue();
+        //判断 输入的所属商户是否存在
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().eq(User::getMerchantsContact, resources.getMerName()).eq(User::getUserRole, 2);
+        User userMer = userSysMapper.selectOne(queryWrapper);
+        if (null == userMer) {
+            throw new BadRequestException("所属商户不存在！商户名：" + resources.getMerName());
+        }
+        QueryWrapper<YxStoreInfo> queryWrapperStore = new QueryWrapper<>();
+        queryWrapperStore.lambda().eq(YxStoreInfo::getMerId, userMer.getId());
+        YxStoreInfo yxStoreInfo = yxStoreInfoMapper.selectOne(queryWrapperStore);
+        if (null == yxStoreInfo) {
+            throw new BadRequestException("商户id：" + userMer.getId() + "店铺查找失败！");
+        }
+        YxShipInfo yxShipInfo  = new YxShipInfo();
+        BeanUtils.copyProperties(resources,yxShipInfo);
+        yxShipInfo.setMerId(userMer.getId().intValue());
+        yxShipInfo.setStoreId(yxStoreInfo.getId());
+        yxShipInfo.setUpdateUserId(loginUserId);
+        yxShipInfo.setUpdateTime(DateTime.now().toTimestamp());
+        if (null == resources.getId()) {
+            //添加
+            //默认在港
+            yxShipInfo.setCurrentStatus(0);
+            yxShipInfo.setDelFlag(0);
+            yxShipInfo.setCreateUserId(loginUserId);
+            yxShipInfo.setCreateTime(DateTime.now().toTimestamp());
+            return this.save(yxShipInfo);
+        } else {
+            //修改
+            return this.updateById(yxShipInfo);
+        }
     }
 }

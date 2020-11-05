@@ -7,23 +7,29 @@
 * 一经发现盗用、分享等行为，将追究法律责任，后果自负
 */
 package co.yixiang.modules.shipManage.rest;
-import java.util.Arrays;
+import co.yixiang.annotation.AnonymousAccess;
 import co.yixiang.dozer.service.IGenerator;
-import lombok.AllArgsConstructor;
 import co.yixiang.logging.aop.log.Log;
 import co.yixiang.modules.shipManage.domain.YxContractTemplate;
 import co.yixiang.modules.shipManage.service.YxContractTemplateService;
-import co.yixiang.modules.shipManage.service.dto.YxContractTemplateQueryCriteria;
 import co.yixiang.modules.shipManage.service.dto.YxContractTemplateDto;
+import co.yixiang.modules.shipManage.service.dto.YxContractTemplateQueryCriteria;
+import co.yixiang.utils.CommonsUtils;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import io.swagger.annotations.*;
-import java.io.IOException;
+
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 
 /**
 * @author nxl
@@ -81,5 +87,16 @@ public class YxContractTemplateController {
             yxContractTemplateService.removeById(id);
         });
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @AnonymousAccess
+    @ApiOperation(value = "获取合同模板列表")
+    @GetMapping(value = "/getContractTemp")
+    public ResponseEntity getContractTemp() {
+        QueryWrapper<YxContractTemplate> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().eq(YxContractTemplate::getDelFlag, 0);
+        List<YxContractTemplate> contractTemplateList =  yxContractTemplateService.list(queryWrapper);
+        List<YxContractTemplateDto> shipInfoDtoList = CommonsUtils.convertBeanList(contractTemplateList, YxContractTemplateDto.class);
+        return new ResponseEntity(shipInfoDtoList, HttpStatus.OK);
     }
 }

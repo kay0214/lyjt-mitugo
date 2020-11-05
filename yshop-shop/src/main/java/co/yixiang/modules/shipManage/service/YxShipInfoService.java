@@ -7,15 +7,19 @@
 * 一经发现盗用、分享等行为，将追究法律责任，后果自负
 */
 package co.yixiang.modules.shipManage.service;
+
 import co.yixiang.common.service.BaseService;
 import co.yixiang.modules.shipManage.domain.YxShipInfo;
+import co.yixiang.modules.shipManage.domain.YxShipInfoRequest;
+import co.yixiang.modules.shipManage.domain.YxShipSeries;
 import co.yixiang.modules.shipManage.service.dto.YxShipInfoDto;
 import co.yixiang.modules.shipManage.service.dto.YxShipInfoQueryCriteria;
 import org.springframework.data.domain.Pageable;
-import java.util.Map;
-import java.util.List;
-import java.io.IOException;
+
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 
 /**
 * @author nxl
@@ -45,4 +49,24 @@ public interface YxShipInfoService  extends BaseService<YxShipInfo>{
     * @throws IOException /
     */
     void download(List<YxShipInfoDto> all, HttpServletResponse response) throws IOException;
+
+    /**
+     * 获取状态为启用的船只系列
+     * @return
+     */
+    public List<YxShipSeries> getShipSeriseList();
+
+    /**
+     * 根据船只系列，以及商户id获取船只信息
+     * @param seriseId
+     * @param merId
+     * @return
+     */
+    public List<YxShipInfo> getShipInfoList(int seriseId,int merId);
+
+    /**
+     * 保存船只信息
+     * @param resources
+     */
+    boolean saveOrUpdShipInfoByParam(YxShipInfoRequest resources);
 }

@@ -9,8 +9,6 @@
 package co.yixiang.modules.shipManage.service.dto;
 
 import lombok.Data;
-import java.util.List;
-import co.yixiang.annotation.Query;
 
 /**
 * @author nxl
@@ -18,4 +16,19 @@ import co.yixiang.annotation.Query;
 */
 @Data
 public class YxShipInfoQueryCriteria{
+    /** 船只名称 */
+
+    private String shipName;
+
+    /** 船只系列id */
+
+    private Integer seriesId;
+
+    /** 船只当前状态：0：在港，1：离港。2：维修中 */
+
+    private Integer currentStatus;
+
+    private Integer delFlag = 0;
+
+
 }

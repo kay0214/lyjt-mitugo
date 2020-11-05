@@ -298,6 +298,11 @@ public class SysUserServiceImpl extends BaseServiceImpl<SysUserMapper, User> imp
         resources.setDeptId(1L);
         resources.setJobId(13L);
         resources.setUserpassword(PassWordUtil.getUserPassWord("123456", resources.getUserRole(), resources.getUsername()));
+        // 新增商户无船员角色、默认拒绝提现和生成商户二维码
+        resources.setStoreId(0);
+        resources.setWithdrawalFlg(1);
+        resources.setUseCodeFlg(1);
+        resources.setShipUser(1);
         boolean result = this.save(resources);
 
         usersRoles.setUserId(resources.getId());
@@ -370,6 +375,10 @@ public class SysUserServiceImpl extends BaseServiceImpl<SysUserMapper, User> imp
         user.setPhone(resources.getPhone());
         user.setNickName(resources.getNickName());
         user.setSex(resources.getSex());
+        user.setStoreId(resources.getStoreId());
+        user.setWithdrawalFlg(resources.getWithdrawalFlg());
+        user.setUseCodeFlg(resources.getUseCodeFlg());
+        user.setShipUser(resources.getShipUser());
         boolean result = this.saveOrUpdate(user);
         usersRolesService.lambdaUpdate().eq(UsersRoles::getUserId, resources.getId()).remove();
         UsersRoles usersRoles = new UsersRoles();

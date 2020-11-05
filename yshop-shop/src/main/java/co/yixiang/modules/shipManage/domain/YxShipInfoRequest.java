@@ -7,12 +7,12 @@
 * 一经发现盗用、分享等行为，将追究法律责任，后果自负
 */
 package co.yixiang.modules.shipManage.domain;
-import lombok.Data;
-import com.baomidou.mybatisplus.annotation.*;
+
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.bean.copier.CopyOptions;
-import javax.validation.constraints.*;
-import java.sql.Timestamp;
+import lombok.Data;
+
+import javax.validation.constraints.NotBlank;
 import java.io.Serializable;
 
 /**
@@ -20,31 +20,24 @@ import java.io.Serializable;
 * @date 2020-11-04
 */
 @Data
-@TableName("yx_ship_info")
-public class YxShipInfo implements Serializable {
+public class YxShipInfoRequest implements Serializable {
 
-    /** 船只id */
-    @TableId(value = "id", type = IdType.AUTO)
+
     private Integer id;
-
-
     /** 船只名称 */
     @NotBlank
     private String shipName;
 
 
     /** 船只系列id */
-    @NotNull
     private Integer seriesId;
 
 
     /** 商户id */
-    @NotNull
     private Integer merId;
 
 
     /** 所属商铺 */
-    @NotNull
     private Integer storeId;
 
 
@@ -64,12 +57,10 @@ public class YxShipInfo implements Serializable {
 
 
     /** 船只状态：0：启用，1：禁用 */
-    @NotNull
     private Integer shipStatus;
 
 
     /** 船只当前状态：0：在港，1：离港。2：维修中 */
-    @NotNull
     private Integer currentStatus;
 
 
@@ -81,34 +72,7 @@ public class YxShipInfo implements Serializable {
     private Integer lastReturnTime;
 
 
-    /** 是否删除（0：未删除，1：已删除） */
-    @NotNull
-    @TableLogic
-    @TableField(fill=FieldFill.INSERT_UPDATE)
-    private Integer delFlag;
-
-
-    /** 创建人 */
-    private Integer createUserId;
-
-
-    /** 修改人 */
-    private Integer updateUserId;
-
-
-    /** 创建时间 */
-    @NotNull
-    @TableField(fill= FieldFill.INSERT)
-    private Timestamp createTime;
-
-
-    /** 更新时间 */
-    @NotNull
-    @TableField(fill= FieldFill.INSERT_UPDATE)
-    private Timestamp updateTime;
-
-
-    public void copy(YxShipInfo source){
+    public void copy(YxShipInfoRequest source){
         BeanUtil.copyProperties(source,this, CopyOptions.create().setIgnoreNullValue(true));
     }
 }

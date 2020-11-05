@@ -9,8 +9,6 @@
 package co.yixiang.modules.coupon.service.dto;
 
 import lombok.Data;
-import java.util.List;
-import co.yixiang.annotation.Query;
 
 /**
 * @author nxl
@@ -18,4 +16,5 @@ import co.yixiang.annotation.Query;
 */
 @Data
 public class YxCouponsPriceConfigQueryCriteria{
+    private Integer delFlag = 0;
 }

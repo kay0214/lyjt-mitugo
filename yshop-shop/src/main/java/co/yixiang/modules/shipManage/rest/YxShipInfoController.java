@@ -7,15 +7,26 @@
 * 一经发现盗用、分享等行为，将追究法律责任，后果自负
 */
 package co.yixiang.modules.shipManage.rest;
+
+import co.yixiang.annotation.AnonymousAccess;
 import co.yixiang.dozer.service.IGenerator;
 import co.yixiang.logging.aop.log.Log;
 import co.yixiang.modules.shipManage.domain.YxShipInfo;
+import co.yixiang.modules.shipManage.domain.YxShipInfoRequest;
+import co.yixiang.modules.shipManage.domain.YxShipSeries;
 import co.yixiang.modules.shipManage.service.YxShipInfoService;
+import co.yixiang.modules.shipManage.service.YxShipSeriesService;
 import co.yixiang.modules.shipManage.service.dto.YxShipInfoDto;
 import co.yixiang.modules.shipManage.service.dto.YxShipInfoQueryCriteria;
+import co.yixiang.modules.shipManage.service.dto.YxShipSeriesDto;
+import co.yixiang.modules.shop.service.UserService;
+import co.yixiang.utils.CommonsUtils;
+import co.yixiang.utils.CurrUser;
+import co.yixiang.utils.SecurityUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,6 +37,9 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
 * @author nxl
@@ -37,8 +51,14 @@ import java.util.Arrays;
 @RequestMapping("/api/yxShipInfo")
 public class YxShipInfoController {
 
-    private final YxShipInfoService yxShipInfoService;
-    private final IGenerator generator;
+    @Autowired
+    private YxShipInfoService yxShipInfoService;
+    @Autowired
+    private YxShipSeriesService yxShipSeriesService;
+    @Autowired
+    private IGenerator generator;
+    @Autowired
+    private UserService userService;
 
 
     @Log("导出数据")
@@ -61,16 +81,17 @@ public class YxShipInfoController {
     @Log("新增船只管理")
     @ApiOperation("新增船只管理")
     @PreAuthorize("@el.check('admin','yxShipInfo:add')")
-    public ResponseEntity<Object> create(@Validated @RequestBody YxShipInfo resources){
-        return new ResponseEntity<>(yxShipInfoService.save(resources),HttpStatus.CREATED);
+    public ResponseEntity<Object> create(@Validated @RequestBody YxShipInfoRequest resources){
+        return new ResponseEntity<>(yxShipInfoService.saveOrUpdShipInfoByParam(resources),HttpStatus.CREATED);
     }
 
     @PutMapping
     @Log("修改船只管理")
     @ApiOperation("修改船只管理")
     @PreAuthorize("@el.check('admin','yxShipInfo:edit')")
-    public ResponseEntity<Object> update(@Validated @RequestBody YxShipInfo resources){
-        yxShipInfoService.updateById(resources);
+    public ResponseEntity<Object> update(@Validated @RequestBody YxShipInfoRequest resources){
+//        yxShipInfoService.updateById(resources);
+        yxShipInfoService.saveOrUpdShipInfoByParam(resources);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
@@ -84,4 +105,29 @@ public class YxShipInfoController {
         });
         return new ResponseEntity<>(HttpStatus.OK);
     }
+
+    @AnonymousAccess
+    @ApiOperation(value = "查询船只系列")
+    @GetMapping(value = "/getShipSeriseList")
+    public ResponseEntity getShipSeriseList() {
+        List<YxShipSeries> shipSeriesList = yxShipInfoService.getShipSeriseList();
+        List<YxShipSeriesDto> categoryDtoLists = CommonsUtils.convertBeanList(shipSeriesList, YxShipSeriesDto.class);
+        return new ResponseEntity(categoryDtoLists, HttpStatus.OK);
+    }
+
+    @AnonymousAccess
+    @ApiOperation(value = "根据船只系列获取船只")
+    @GetMapping(value = "/getShipInfoBySeriesId/{seriesId}")
+    public ResponseEntity getShipInfoBySeriesId(@PathVariable Integer seriesId) {
+        CurrUser currUser = SecurityUtils.getCurrUser();
+        Map<String,Object> mapRetrun = new HashMap<String,Object>();
+        YxShipSeries yxShipSeries = yxShipSeriesService.getById(seriesId);
+        mapRetrun.put("rideLimit",yxShipSeries.getRideLimit());
+        List<YxShipInfo> shipInfoList = yxShipInfoService.getShipInfoList(seriesId,currUser.getId().intValue());
+        List<YxShipInfoDto> shipInfoDtoList = CommonsUtils.convertBeanList(shipInfoList, YxShipInfoDto.class);
+        mapRetrun.put("shipInfoList",shipInfoDtoList);
+        return new ResponseEntity(mapRetrun, HttpStatus.OK);
+//        return new ResponseEntity(shipInfoDtoList, HttpStatus.OK);
+    }
+
 }

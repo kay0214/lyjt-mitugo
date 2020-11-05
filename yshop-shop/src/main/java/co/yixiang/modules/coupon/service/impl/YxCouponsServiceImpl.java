@@ -3,27 +3,30 @@
  */
 package co.yixiang.modules.coupon.service.impl;
 
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.date.DateTime;
 import co.yixiang.common.service.impl.BaseServiceImpl;
 import co.yixiang.common.utils.QueryHelpPlus;
 import co.yixiang.constant.LocalLiveConstants;
 import co.yixiang.constant.ShopConstants;
 import co.yixiang.dozer.service.IGenerator;
-import co.yixiang.modules.coupon.domain.YxCouponOrderDetail;
-import co.yixiang.modules.coupon.domain.YxCoupons;
-import co.yixiang.modules.coupon.domain.YxCouponsCategory;
+import co.yixiang.exception.BadRequestException;
+import co.yixiang.modules.coupon.domain.*;
 import co.yixiang.modules.coupon.service.YxCouponOrderDetailService;
 import co.yixiang.modules.coupon.service.YxCouponsCategoryService;
 import co.yixiang.modules.coupon.service.YxCouponsService;
 import co.yixiang.modules.coupon.service.dto.YxCouponsDto;
 import co.yixiang.modules.coupon.service.dto.YxCouponsQueryCriteria;
 import co.yixiang.modules.coupon.service.mapper.YxCouponsMapper;
-import co.yixiang.modules.shop.domain.User;
-import co.yixiang.modules.shop.domain.YxImageInfo;
-import co.yixiang.modules.shop.domain.YxStoreInfo;
+import co.yixiang.modules.shop.domain.*;
+import co.yixiang.modules.shop.service.YxCustomizeRateService;
 import co.yixiang.modules.shop.service.YxImageInfoService;
+import co.yixiang.modules.shop.service.YxSystemAttachmentService;
 import co.yixiang.modules.shop.service.mapper.UserSysMapper;
 import co.yixiang.modules.shop.service.mapper.YxStoreInfoMapper;
+import co.yixiang.utils.DateUtils;
 import co.yixiang.utils.FileUtil;
+import co.yixiang.utils.OrderUtil;
 import co.yixiang.utils.StringUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -72,6 +75,10 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
     private UserSysMapper userSysMapper;
     @Autowired
     private YxStoreInfoMapper yxStoreInfoMapper;
+    @Autowired
+    private YxCustomizeRateService yxCustomizeRateService;
+    @Autowired
+    private YxSystemAttachmentService yxSystemAttachmentService;
 
     @Override
     //@Cacheable
@@ -164,6 +171,16 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
                         sliderList.add(sliderImage.getImgUrl());
                     }
                     yxCouponsDto.setSliderImage(sliderList);
+                }
+                // 自定义分佣模式（0：按平台，1：不分佣，2：自定义分佣）
+                if (2 == yxCouponsDto.getCustomizeType()) {
+                    YxCustomizeRate yxCustomizeRate = this.yxCustomizeRateService.getOne(new QueryWrapper<YxCustomizeRate>().lambda()
+                            .eq(YxCustomizeRate::getRateType, 1)
+                            .eq(YxCustomizeRate::getLinkId, yxCouponsDto.getId())
+                            .eq(YxCustomizeRate::getDelFlag, 0));
+                    if (null != yxCustomizeRate) {
+                        yxCouponsDto.setYxCustomizeRate(yxCustomizeRate);
+                    }
                 }
             }
         }
@@ -330,5 +347,258 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
         // 恢复销量
         int count = this.yxCouponsMapper.updateMinusSales(couponId, totalNum);
         return count > 0;
+    }
+
+    /**
+     * 新增卡券处理
+     *
+     * @param request
+     * @return
+     */
+    @Override
+    public boolean createCoupons(CouponAddRequest request) {
+        QueryWrapper<YxCouponsCategory> couponsCategoryQueryWrapper = new QueryWrapper<>();
+        couponsCategoryQueryWrapper.lambda()
+                .and(obj1 -> obj1.eq(YxCouponsCategory::getId, request.getCouponCategory()))
+                .and(obj2 -> obj2.eq(YxCouponsCategory::getDelFlag, 0));
+        YxCouponsCategory yxCouponsCategory = yxCouponsCategoryService.getOne(couponsCategoryQueryWrapper);
+        if (yxCouponsCategory == null) {
+            throw new BadRequestException("当前选择的卡券分类不存在!");
+        }
+
+        String couponNum = OrderUtil.orderSn();
+
+        QueryWrapper<YxCoupons> yxCouponsQueryWrapper = new QueryWrapper<>();
+        yxCouponsQueryWrapper.lambda()
+                .and(couponNum0bj -> couponNum0bj.eq(YxCoupons::getCouponNum, couponNum))
+                .and(delFlag -> delFlag.eq(YxCoupons::getDelFlag, 0));
+        int countCoupons = count(yxCouponsQueryWrapper);
+        if (countCoupons > 0) {
+            throw new BadRequestException("卡券核销码已存在, 请联系开发人员");
+        }
+
+        YxCoupons yxCoupons = new YxCoupons();
+        BeanUtil.copyProperties(request, yxCoupons);
+        // 添加以后不可修改所属商铺
+        yxCoupons.setCouponNum(couponNum);
+        yxCoupons.setIsShow(0);
+        yxCoupons.setIsHot(0);
+        yxCoupons.setDelFlag(0);
+        yxCoupons.setCreateUserId(request.getCreateUser());
+        yxCoupons.setCreateTime(DateTime.now().toTimestamp());
+        yxCoupons.setUpdateUserId(request.getCreateUser());
+        yxCoupons.setUpdateTime(DateTime.now().toTimestamp());
+        yxCoupons.setExpireDateStart(DateUtils.getDayStart(yxCoupons.getExpireDateStart()));
+        yxCoupons.setExpireDateEnd(DateUtils.getDayEnd(yxCoupons.getExpireDateEnd()));
+        boolean saveStatus = this.save(yxCoupons);
+        if (saveStatus) {
+            couponImg(yxCoupons.getId(), request.getVideo(), request.getImage(), request.getSliderImage(), request.getCreateUser());
+        }
+        // 自定义分佣比例处理
+        // 处理当前分佣比例 0：按平台，1：不分佣，2：自定义分佣
+        if (2 == request.getCustomizeType()) {
+            YxCustomizeRate yxCustomizeRate = request.getYxCustomizeRate();
+            yxCustomizeRate.setLinkId(yxCoupons.getId());
+            // 0：本地生活，1：商城
+            yxCustomizeRate.setRateType(0);
+            // 存入操作人
+            yxCustomizeRate.setCreateUserId(request.getCreateUser());
+            boolean rateResult = yxCustomizeRateService.saveOrUpdateRate(yxCustomizeRate);
+            if (!rateResult) {
+                throw new BadRequestException("请核对分佣比例");
+            }
+        }
+
+        return saveStatus;
+    }
+
+
+    /**
+     * 缩略图操作
+     *
+     * @param typeId
+     * @param video       小视频
+     * @param imgPath     缩略图
+     * @param sliderPath  缩略图
+     * @param loginUserId
+     */
+    @Override
+    public void couponImg(Integer typeId, String video, String imgPath, String sliderPath, Integer loginUserId) {
+        // 处理视频
+        if (StringUtils.isNotBlank(video)) {
+            List<YxImageInfo> videoList = this.yxImageInfoService.list(new QueryWrapper<YxImageInfo>().lambda()
+                    .eq(YxImageInfo::getTypeId, typeId)
+                    .eq(YxImageInfo::getImgCategory, ShopConstants.IMG_CATEGORY_VIDEO)
+                    .eq(YxImageInfo::getImgType, LocalLiveConstants.IMG_TYPE_COUPONS)
+                    .eq(YxImageInfo::getDelFlag, 0));
+            if (null != videoList || videoList.size()>0) {
+                // 存在视频数据的话统一更新删除状态为1、逻辑删除
+                for (YxImageInfo item : videoList) {
+                    item.setDelFlag(1);
+                    item.setUpdateUserId(loginUserId);
+                    item.setUpdateTime(DateTime.now().toTimestamp());
+                    yxImageInfoService.updateById(item);
+                }
+            }
+            // 新上传视频存储
+            YxImageInfo insertVideo = new YxImageInfo();
+            insertVideo.setTypeId(typeId);
+            insertVideo.setImgCategory(ShopConstants.IMG_CATEGORY_VIDEO);
+            insertVideo.setImgType(LocalLiveConstants.IMG_TYPE_COUPONS);
+            insertVideo.setImgUrl(video);
+            insertVideo.setCreateUserId(loginUserId);
+            insertVideo.setCreateTime(DateTime.now().toTimestamp());
+            insertVideo.setUpdateUserId(loginUserId);
+            insertVideo.setUpdateTime(DateTime.now().toTimestamp());
+            this.yxImageInfoService.save(insertVideo);
+        }
+
+        if (StringUtils.isNotBlank(imgPath)) {
+            // 查询缩略图图片是否存在(已存在则删除)
+            QueryWrapper<YxImageInfo> imageInfoQueryWrapper = new QueryWrapper<>();
+            imageInfoQueryWrapper.lambda()
+                    .and(type -> type.eq(YxImageInfo::getTypeId, typeId))
+                    .and(imgCate -> imgCate.eq(YxImageInfo::getImgCategory, ShopConstants.IMG_CATEGORY_PIC))
+                    .and(imgType -> imgType.eq(YxImageInfo::getImgType, LocalLiveConstants.IMG_TYPE_COUPONS))
+                    .and(del -> del.eq(YxImageInfo::getDelFlag, false));
+
+            List<YxImageInfo> imageInfoList = yxImageInfoService.list(imageInfoQueryWrapper);
+
+            if (imageInfoList.size() > 0) {
+                // 删除已存在的图片
+                for (YxImageInfo imageInfo : imageInfoList) {
+                    YxImageInfo delImageInfo = new YxImageInfo();
+                    delImageInfo.setId(imageInfo.getId());
+                    delImageInfo.setDelFlag(1);
+                    delImageInfo.setUpdateUserId(loginUserId);
+                    delImageInfo.setUpdateTime(DateTime.now().toTimestamp());
+                    yxImageInfoService.updateById(delImageInfo);
+                }
+            }
+
+            // 写入分类对应的图片关联表
+            YxImageInfo imageInfo = new YxImageInfo();
+            imageInfo.setTypeId(typeId);
+            // 卡券分类 img_type 为 5
+            imageInfo.setImgType(LocalLiveConstants.IMG_TYPE_COUPONS);
+            imageInfo.setImgCategory(ShopConstants.IMG_CATEGORY_PIC);
+            imageInfo.setImgUrl(imgPath);
+            imageInfo.setDelFlag(0);
+            imageInfo.setCreateUserId(loginUserId);
+            imageInfo.setUpdateUserId(loginUserId);
+            imageInfo.setCreateTime(DateTime.now().toTimestamp());
+            imageInfo.setUpdateTime(DateTime.now().toTimestamp());
+            yxImageInfoService.save(imageInfo);
+        }
+
+        if (StringUtils.isNotBlank(sliderPath)) {
+            // 幻灯片
+            QueryWrapper<YxImageInfo> sliderImageInfoQueryWrapper = new QueryWrapper<>();
+            sliderImageInfoQueryWrapper.lambda()
+                    .and(type -> type.eq(YxImageInfo::getTypeId, typeId))
+                    .and(imgCate -> imgCate.eq(YxImageInfo::getImgCategory, ShopConstants.IMG_CATEGORY_ROTATION1))
+                    .and(imgType -> imgType.eq(YxImageInfo::getImgType, LocalLiveConstants.IMG_TYPE_COUPONS))
+                    .and(del -> del.eq(YxImageInfo::getDelFlag, false));
+
+            List<YxImageInfo> sliderImageInfoList = yxImageInfoService.list(sliderImageInfoQueryWrapper);
+
+            List<YxImageInfo> delSliderImageInfoList = new ArrayList<YxImageInfo>();
+            if (sliderImageInfoList.size() > 0) {
+                // 删除已存在的图片
+                for (YxImageInfo imageInfo : sliderImageInfoList) {
+                    YxImageInfo delImageInfo = new YxImageInfo();
+                    delImageInfo.setId(imageInfo.getId());
+                    delImageInfo.setDelFlag(1);
+                    delImageInfo.setUpdateUserId(loginUserId);
+                    delImageInfo.setUpdateTime(DateTime.now().toTimestamp());
+                    delSliderImageInfoList.add(delImageInfo);
+                }
+                yxImageInfoService.updateBatchById(delSliderImageInfoList, delSliderImageInfoList.size());
+            }
+
+            List<YxImageInfo> yxImageInfoList = new ArrayList<YxImageInfo>();
+            String[] images = sliderPath.split(",");
+            if (images.length > 0) {
+                for (int i = 0; i < images.length; i++) {
+                    YxImageInfo yxImageInfos = new YxImageInfo();
+                    yxImageInfos.setTypeId(typeId);
+                    yxImageInfos.setImgType(LocalLiveConstants.IMG_TYPE_COUPONS);
+                    yxImageInfos.setImgCategory(ShopConstants.IMG_CATEGORY_ROTATION1);
+                    yxImageInfos.setImgUrl(images[i]);
+                    yxImageInfos.setDelFlag(0);
+                    yxImageInfos.setUpdateUserId(loginUserId);
+                    yxImageInfos.setCreateUserId(loginUserId);
+                    yxImageInfoList.add(yxImageInfos);
+                }
+                yxImageInfoService.saveBatch(yxImageInfoList, yxImageInfoList.size());
+            }
+        }
+    }
+
+    /**
+     * 更新卡券
+     *
+     * @param request
+     * @return
+     */
+    @Override
+    public boolean updateCoupons(CouponModifyRequest request) {
+
+        QueryWrapper<YxCouponsCategory> couponsCategoryQueryWrapper = new QueryWrapper<>();
+        couponsCategoryQueryWrapper.lambda().eq(YxCouponsCategory::getId, request.getCouponCategory()).eq(YxCouponsCategory::getDelFlag, 0).eq(YxCouponsCategory::getIsShow, 1);
+        YxCouponsCategory yxCouponsCategory = yxCouponsCategoryService.getOne(couponsCategoryQueryWrapper);
+        if (yxCouponsCategory == null) {
+            throw new BadRequestException("当前选择的卡券分类不存在!");
+        }
+
+        YxCoupons yxCoupons = new YxCoupons();
+        BeanUtil.copyProperties(request, yxCoupons);
+        yxCoupons.setUpdateUserId(request.getCreateUser());
+        yxCoupons.setUpdateTime(DateTime.now().toTimestamp());
+        yxCoupons.setExpireDateStart(DateUtils.getDayStart(yxCoupons.getExpireDateStart()));
+        yxCoupons.setExpireDateEnd(DateUtils.getDayEnd(yxCoupons.getExpireDateEnd()));
+        if (null == yxCoupons.getFicti()) {
+            yxCoupons.setFicti(0);
+        }
+        // 虚拟销量设为null不更新数据库
+        yxCoupons.setSales(null);
+        boolean updateStatus = updateById(yxCoupons);
+        if (updateStatus) {
+            // 存储相关图片
+            couponImg(yxCoupons.getId(), request.getVideo(), request.getImage(), request.getSliderImage(), request.getCreateUser());
+
+            // 卡券信息发生变更, 删除卡券海报
+            String logo = String.valueOf(yxCoupons.getId()) + "_" + String.valueOf(request.getCreateUser()) + "_";
+            String couponWapImage = logo + "coupon_routine_product_detail_wap.jpg";
+            String couponSpreadImage = logo + "coupon_routine_product_user_spread.jpg";
+            List<YxSystemAttachment> systemAttachmentWapImageList = yxSystemAttachmentService.list(new QueryWrapper<YxSystemAttachment>().lambda().eq(YxSystemAttachment::getName, couponWapImage));
+            if (systemAttachmentWapImageList != null && systemAttachmentWapImageList.size() > 0) {
+                systemAttachmentWapImageList.forEach(item -> {
+                    yxSystemAttachmentService.removeById(item.getAttId());
+                });
+            }
+            List<YxSystemAttachment> systemAttachmentSpreadImageList = yxSystemAttachmentService.list(new QueryWrapper<YxSystemAttachment>().lambda().eq(YxSystemAttachment::getName, couponSpreadImage));
+            if (systemAttachmentSpreadImageList != null && systemAttachmentSpreadImageList.size() > 0) {
+                systemAttachmentSpreadImageList.forEach(items -> {
+                    yxSystemAttachmentService.removeById(items.getAttId());
+                });
+            }
+
+            // 自定义分佣比例处理
+            // 处理当前分佣比例 0：按平台，1：不分佣，2：自定义分佣
+            if (2 == request.getCustomizeType()) {
+                YxCustomizeRate yxCustomizeRate = request.getYxCustomizeRate();
+                yxCustomizeRate.setLinkId(yxCoupons.getId());
+                // 0：本地生活，1：商城
+                yxCustomizeRate.setRateType(0);
+                // 存入操作人
+                yxCustomizeRate.setCreateUserId(request.getCreateUser());
+                boolean rateResult = yxCustomizeRateService.saveOrUpdateRate(yxCustomizeRate);
+                if (!rateResult) {
+                    throw new BadRequestException("请核对分佣比例");
+                }
+            }
+        }
+        return updateStatus;
     }
 }

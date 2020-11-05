@@ -1,5 +1,6 @@
 package co.yixiang.modules.coupon.domain;
 
+import co.yixiang.modules.shop.domain.YxCustomizeRate;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
@@ -14,6 +15,9 @@ import java.sql.Timestamp;
  */
 @Data
 public class CouponAddRequest implements Serializable {
+
+    /** 卡券所属商铺 */
+    private Integer storeId;
 
     /** 卡券名称 */
     @NotBlank(message = "卡券名称不可为空")
@@ -144,9 +148,67 @@ public class CouponAddRequest implements Serializable {
     @NotBlank(message = "请上传卡券轮播图")
     private String sliderImage;
 
+    /** 卡券视频说明 */
+    private String video;
+
     /** 卡券简介 */
     private String couponInfo;
 
     /** 排序 */
     private Integer sort;
+
+    /** 船只系列id */
+    @NotBlank(message = "请选择船只系列")
+    private Integer seriesId;
+
+
+    /** 船只id */
+    private Integer shipId;
+
+
+    /** 合同模板id */
+    @NotBlank(message = "合同模板")
+    private Integer tempId;
+
+
+    /** 乘客人数 */
+    @NotBlank(message = "乘客人数")
+    private Integer passengersNum;
+
+
+    /** 合同规则（0：无需保险，1：必须购买，2：非必须） */
+    private Integer insuranceRole;
+
+
+    /** 有效期（0：不限，1：其他） */
+    private Integer validity;
+
+
+    /** 有效天数（有效期=1时） */
+    private Integer validityDays;
+
+
+    /** 在线发票（0：不支持，1：支持） */
+    private Integer onlineInvoice;
+
+
+    /** 景区推广价格 */
+    private BigDecimal scenicPrice;
+
+
+    /** 旅行社价格 */
+    private BigDecimal travelPrice;
+
+
+    /** 健康确认(逗号分隔) */
+    private String confirmation;
+
+
+    /** 分佣模式（0：按平台，1：不分佣，2：自定义分佣） */
+    private Integer customizeType;
+
+    // 自定义分佣比例
+    private YxCustomizeRate yxCustomizeRate;
+
+    private Integer createUser;
 }

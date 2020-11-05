@@ -18,6 +18,9 @@ public class YxMaterialQueryCriteria extends BaseCriteria{
     @Query
     private String groupId;
 
+    @Query
+    private Integer type;
+
     /** 所属租户 */
     @Query(type = Query.Type.EQUAL)
     private String createId;

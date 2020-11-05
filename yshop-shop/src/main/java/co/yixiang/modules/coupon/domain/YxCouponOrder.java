@@ -196,6 +196,10 @@ public class YxCouponOrder implements Serializable {
     @NotNull
     private Integer evaluate;
 
+    /** 在线发票（0：不支持，1：支持） */
+    @NotNull
+    private Integer onlineInvoice;
+
     public void copy(YxCouponOrder source){
         BeanUtil.copyProperties(source,this, CopyOptions.create().setIgnoreNullValue(true));
     }

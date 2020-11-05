@@ -45,4 +45,12 @@ public interface YxCustomizeRateService  extends BaseService<YxCustomizeRate>{
     * @throws IOException /
     */
     void download(List<YxCustomizeRateDto> all, HttpServletResponse response) throws IOException;
+
+    /**
+     * 保存自定义分佣比例
+     *
+     * @param yxCustomizeRate
+     * @return
+     */
+    boolean saveOrUpdateRate(YxCustomizeRate yxCustomizeRate);
 }

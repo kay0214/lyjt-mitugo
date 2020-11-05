@@ -30,6 +30,9 @@ public class YxUsedContacts extends BaseEntity {
 @TableId(value = "id", type = IdType.AUTO)
 private Integer id;
 
+@ApiModelProperty(value = "所属用户id")
+private Integer userId;
+
 @ApiModelProperty(value = "姓名")
 private String userName;
 

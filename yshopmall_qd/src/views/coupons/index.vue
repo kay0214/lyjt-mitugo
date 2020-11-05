@@ -443,7 +443,7 @@ export default {
       imageArr: imageArr,
       sliderImageArr: defaultForm.sliderImage || [],
       selections: {
-        couponType: [{ label: '代金券', value: 1 }, { label: '折扣券', value: 2 }, { label: '满减券', value: 3 }], // 卡券类型
+        couponType: [{ label: '代金券', value: 1 }, { label: '折扣券', value: 2 }, { label: '满减券', value: 3 },{label: '船票券', value: 4}], // 卡券类型
         couponCategory: [] // 卡券分类
       },
       permission: {
