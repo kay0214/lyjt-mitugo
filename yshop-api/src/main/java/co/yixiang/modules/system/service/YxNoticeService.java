@@ -1,5 +1,6 @@
 package co.yixiang.modules.system.service;
 
+import co.yixiang.modules.coupons.web.vo.NoticeVO;
 import co.yixiang.modules.system.entity.YxNotice;
 import co.yixiang.common.service.BaseService;
 import co.yixiang.modules.system.web.param.YxNoticeQueryParam;
@@ -32,4 +33,9 @@ public interface YxNoticeService extends BaseService<YxNotice> {
      */
     Paging<YxNoticeQueryVo> getYxNoticePageList(YxNoticeQueryParam yxNoticeQueryParam) throws Exception;
 
+    /**
+     * 获得首页的通知公告
+     * @return
+     */
+    NoticeVO getIndexNotice() ;
 }
