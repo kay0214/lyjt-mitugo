@@ -16,6 +16,7 @@ import co.yixiang.modules.coupon.service.dto.YxCouponsPriceConfigDto;
 import co.yixiang.modules.coupon.service.dto.YxCouponsPriceConfigQueryCriteria;
 import co.yixiang.utils.CommonsUtils;
 import co.yixiang.utils.CurrUser;
+import co.yixiang.utils.DateUtils;
 import co.yixiang.utils.SecurityUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import io.swagger.annotations.Api;
@@ -25,6 +26,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.util.CollectionUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -115,6 +117,15 @@ public class YxCouponsPriceConfigController {
         queryWrapper.lambda().eq(YxCouponsPriceConfig::getCouponId, couponId).eq(YxCouponsPriceConfig::getDelFlag, 0);
         List<YxCouponsPriceConfig> priceConfigList = yxCouponsPriceConfigService.list(queryWrapper);
         List<YxCouponsPriceConfigDto> priceConfigDtoList = CommonsUtils.convertBeanList(priceConfigList, YxCouponsPriceConfigDto.class);
+        //格式日期
+        if(!CollectionUtils.isEmpty(priceConfigDtoList)){
+            for(YxCouponsPriceConfigDto configDto:priceConfigDtoList){
+                String startDate = DateUtils.timestampToStr10(configDto.getStartDate(),"yyyy-MM-dd");
+                configDto.setStartDateStr(startDate);
+                String endDate = DateUtils.timestampToStr10(configDto.getEndDate(),"yyyy-MM-dd");
+                configDto.setEndDateStr(endDate);
+            }
+        }
         return new ResponseEntity(priceConfigDtoList, HttpStatus.OK);
     }
 

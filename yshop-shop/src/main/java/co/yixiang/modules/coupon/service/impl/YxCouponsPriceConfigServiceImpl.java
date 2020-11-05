@@ -14,10 +14,13 @@ import co.yixiang.common.service.impl.BaseServiceImpl;
 import co.yixiang.common.utils.QueryHelpPlus;
 import co.yixiang.dozer.service.IGenerator;
 import co.yixiang.exception.BadRequestException;
+import co.yixiang.modules.coupon.domain.YxCoupons;
 import co.yixiang.modules.coupon.domain.YxCouponsPriceConfig;
+import co.yixiang.modules.coupon.domain.YxCouponsPriceConfigRequest;
 import co.yixiang.modules.coupon.service.YxCouponsPriceConfigService;
 import co.yixiang.modules.coupon.service.dto.YxCouponsPriceConfigDto;
 import co.yixiang.modules.coupon.service.dto.YxCouponsPriceConfigQueryCriteria;
+import co.yixiang.modules.coupon.service.mapper.YxCouponsMapper;
 import co.yixiang.modules.coupon.service.mapper.YxCouponsPriceConfigMapper;
 import co.yixiang.utils.BeanUtils;
 import co.yixiang.utils.FileUtil;
@@ -35,6 +38,9 @@ import org.springframework.util.StringUtils;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -58,6 +64,8 @@ public class YxCouponsPriceConfigServiceImpl extends BaseServiceImpl<YxCouponsPr
     private final IGenerator generator;
     @Autowired
     private YxCouponsPriceConfigMapper couponsPriceConfigMapper;
+    @Autowired
+    private YxCouponsMapper yxCouponsMapper;
 
     @Override
     //@Cacheable
@@ -108,24 +116,50 @@ public class YxCouponsPriceConfigServiceImpl extends BaseServiceImpl<YxCouponsPr
             throw new BadRequestException("卡券id不能为空 ！");
         }
         int couponId = Integer.parseInt(couponIdStr);
+        //查询
+        YxCoupons yxCoupons = yxCouponsMapper.selectById(couponId);
+        if(null == yxCoupons){
+            throw new BadRequestException("根据卡券id："+couponId+" 获取卡券信息失败！");
+        }
         //先删除
         QueryWrapper<YxCouponsPriceConfig> queryWrapper = new QueryWrapper<>();
         queryWrapper.lambda().eq(YxCouponsPriceConfig::getCouponId, couponId);
         couponsPriceConfigMapper.delete(queryWrapper);
         //后添加
-        List<YxCouponsPriceConfig> configList = JSON.parseArray(jsonObject.get("data").toString(), YxCouponsPriceConfig.class);
+        List<YxCouponsPriceConfigRequest> configList = JSON.parseArray(jsonObject.get("data").toString(), YxCouponsPriceConfigRequest.class);
         if (!CollectionUtils.isEmpty(configList)) {
             List<YxCouponsPriceConfig> couponsPriceConfigList = new ArrayList<YxCouponsPriceConfig>();
-            for (YxCouponsPriceConfig param : configList) {
+            for (YxCouponsPriceConfigRequest param : configList) {
                 YxCouponsPriceConfig priceConfig = new YxCouponsPriceConfig();
                 BeanUtils.copyProperties(param, priceConfig);
+                /*priceConfig.setStartDate(DateUtils.stringToTimestamp(param.getStartDateStr()));
+                priceConfig.setEndDate(DateUtils.stringToTimestamp(param.getEndDateStr()));*/
+                int intStart = stringToTimestampDate(param.getStartDateStr()).intValue();
+                priceConfig.setStartDate(intStart);
+                priceConfig.setEndDate(stringToTimestampDate(param.getEndDateStr()).intValue());
                 priceConfig.setCouponId(couponId);
                 priceConfig.setCreateUserId(currUserId);
                 priceConfig.setUpdateUserId(currUserId);
                 priceConfig.setDelFlag(0);
+                int intCommFlg = priceConfig.getSellingPrice().subtract(yxCoupons.getSettlementPrice()).compareTo(BigDecimal.ZERO);
+                if (intCommFlg < 0) {
+                    throw new BadRequestException("佣金不正确!");
+                }
+                BigDecimal bigComm = priceConfig.getSellingPrice() .subtract(yxCoupons.getSettlementPrice());
+                priceConfig.setCommission(bigComm);
                 couponsPriceConfigList.add(priceConfig);
             }
             this.saveBatch(couponsPriceConfigList);
         }
+    }
+    private Long stringToTimestampDate(String strDate){
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        Long dateTimeLong = 0l;
+        try {
+            dateTimeLong = sdf.parse(strDate).getTime()/ 1000;
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return dateTimeLong;
     }
 }

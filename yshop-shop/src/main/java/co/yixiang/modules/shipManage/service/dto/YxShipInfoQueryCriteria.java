@@ -28,4 +28,7 @@ public class YxShipInfoQueryCriteria{
 
     private Integer currentStatus;
 
+    private Integer delFlag = 0;
+
+
 }

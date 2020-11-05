@@ -18,4 +18,5 @@ import lombok.Data;
 public class YxShipSeriesQueryCriteria{
     // 系列名称
     private String seriesName;
+    private Integer delFlag = 0;
 }

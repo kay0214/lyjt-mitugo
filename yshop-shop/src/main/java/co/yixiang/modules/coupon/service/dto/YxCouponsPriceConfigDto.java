@@ -84,4 +84,8 @@ public class YxCouponsPriceConfigDto implements Serializable {
 
     private Timestamp updateTime;
 
+    private String startDateStr;
+
+    private String endDateStr;
+
 }
