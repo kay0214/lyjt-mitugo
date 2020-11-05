@@ -179,7 +179,7 @@ export default {
     getPrices(id) {
       this.loading=true
       get(id).then(res => {
-        if (res) {
+        if (Array.isArray(res)) {
           if(res.length){
             for(let i in res){
               this.$set(this.form,['sellingPrice'+i],res[i].sellingPrice)
