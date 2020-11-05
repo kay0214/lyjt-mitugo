@@ -2,8 +2,6 @@ package co.yixiang.modules.coupon.rest;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.date.DateTime;
-import co.yixiang.constant.LocalLiveConstants;
-import co.yixiang.constant.ShopConstants;
 import co.yixiang.exception.BadRequestException;
 import co.yixiang.logging.aop.log.Log;
 import co.yixiang.modules.coupon.domain.CouponAddRequest;
@@ -14,14 +12,16 @@ import co.yixiang.modules.coupon.service.YxCouponsCategoryService;
 import co.yixiang.modules.coupon.service.YxCouponsService;
 import co.yixiang.modules.coupon.service.dto.YxCouponsQueryCriteria;
 import co.yixiang.modules.shop.domain.User;
-import co.yixiang.modules.shop.domain.YxImageInfo;
 import co.yixiang.modules.shop.domain.YxStoreInfo;
 import co.yixiang.modules.shop.domain.YxSystemAttachment;
 import co.yixiang.modules.shop.service.UserService;
 import co.yixiang.modules.shop.service.YxImageInfoService;
 import co.yixiang.modules.shop.service.YxStoreInfoService;
 import co.yixiang.modules.shop.service.YxSystemAttachmentService;
-import co.yixiang.utils.*;
+import co.yixiang.utils.Base64Utils;
+import co.yixiang.utils.CurrUser;
+import co.yixiang.utils.DateUtils;
+import co.yixiang.utils.SecurityUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -36,7 +36,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -53,18 +52,10 @@ public class YxCouponsController {
     private final YxCouponsService yxCouponsService;
 
     private final YxCouponsCategoryService yxCouponsCategoryService;
-
     @Autowired
     private UserService userService;
-
     @Autowired
     private YxStoreInfoService yxStoreInfoService;
-
-    @Autowired
-    private YxImageInfoService yxImageInfoService;
-
-    @Autowired
-    private YxSystemAttachmentService yxSystemAttachmentService;
 
     @GetMapping
     @ApiOperation("查询卡券表")
@@ -87,6 +78,7 @@ public class YxCouponsController {
 
         // 当前登录用户ID
         int loginUserId = SecurityUtils.getUserId().intValue();
+        request.setCreateUser(loginUserId);
 
         User getOneUser = userService.getOne(new QueryWrapper<User>().eq("id", loginUserId).eq("merchants_status", 0));
         if (getOneUser == null) {
@@ -100,6 +92,7 @@ public class YxCouponsController {
         if (findStoreInfo == null) {
             throw new BadRequestException("当前商户未绑定商铺!");
         }
+        request.setStoreId(findStoreInfo.getId());
 
         if (request.getCouponName().length() > 42) {
             throw new BadRequestException("代金券名称长度不正确!");
@@ -119,6 +112,22 @@ public class YxCouponsController {
                 throw new BadRequestException("请输入满减金额!");
             }
         }
+        // 自定义分佣比例校验总分成是否是100
+        if (2 == request.getCustomizeType()) {
+            BigDecimal fundsRate = request.getYxCustomizeRate().getFundsRate();
+            BigDecimal shareRate = request.getYxCustomizeRate().getShareRate();
+            BigDecimal shareParentRate = request.getYxCustomizeRate().getShareParentRate();
+            BigDecimal parentRate = request.getYxCustomizeRate().getParentRate();
+            BigDecimal partnerRate = request.getYxCustomizeRate().getPartnerRate();
+            BigDecimal referenceRate = request.getYxCustomizeRate().getReferenceRate();
+            BigDecimal merRate = request.getYxCustomizeRate().getMerRate();
+            // 分佣总和应等于100
+            BigDecimal count = fundsRate.add(shareRate).add(shareParentRate).add(parentRate).add(partnerRate).add(referenceRate).add(merRate);
+            // 分佣比例总和应等于100
+            if (count.compareTo(new BigDecimal("100")) != 0) {
+                throw new BadRequestException("分佣比例配置不正确!");
+            }
+        }
 
         // 校验佣金是否正确, 防止出现负值
         int commission = request.getSellingPrice().subtract(request.getSettlementPrice()).compareTo(BigDecimal.ZERO);
@@ -126,45 +135,8 @@ public class YxCouponsController {
             throw new BadRequestException("佣金不正确!");
         }
 
-        QueryWrapper<YxCouponsCategory> couponsCategoryQueryWrapper = new QueryWrapper<>();
-        couponsCategoryQueryWrapper.lambda()
-                .and(obj1 -> obj1.eq(YxCouponsCategory::getId, request.getCouponCategory()))
-                .and(obj2 -> obj2.eq(YxCouponsCategory::getDelFlag, 0));
-        YxCouponsCategory yxCouponsCategory = yxCouponsCategoryService.getOne(couponsCategoryQueryWrapper);
-        if (yxCouponsCategory == null) {
-            throw new BadRequestException("当前选择的卡券分类不存在!");
-        }
+        boolean saveStatus = this.yxCouponsService.createCoupons(request);
 
-        String couponNum = OrderUtil.orderSn();
-
-        QueryWrapper<YxCoupons> yxCouponsQueryWrapper = new QueryWrapper<>();
-        yxCouponsQueryWrapper.lambda()
-                .and(couponNum0bj -> couponNum0bj.eq(YxCoupons::getCouponNum, couponNum))
-                .and(delFlag -> delFlag.eq(YxCoupons::getDelFlag, 0));
-        int countCoupons = yxCouponsService.count(yxCouponsQueryWrapper);
-        if (countCoupons > 0) {
-            log.error("卡券核销码[" + couponNum + "]已存在!");
-            throw new BadRequestException("卡券核销码已存在, 请联系开发人员");
-        }
-
-        YxCoupons yxCoupons = new YxCoupons();
-        BeanUtil.copyProperties(request, yxCoupons);
-        // 添加以后不可修改所属商铺
-        yxCoupons.setStoreId(findStoreInfo.getId());
-        yxCoupons.setCouponNum(couponNum);
-        yxCoupons.setIsShow(0);
-        yxCoupons.setIsHot(0);
-        yxCoupons.setDelFlag(0);
-        yxCoupons.setCreateUserId(loginUserId);
-        yxCoupons.setCreateTime(DateTime.now().toTimestamp());
-        yxCoupons.setUpdateUserId(loginUserId);
-        yxCoupons.setUpdateTime(DateTime.now().toTimestamp());
-        yxCoupons.setExpireDateStart(DateUtils.getDayStart(yxCoupons.getExpireDateStart()));
-        yxCoupons.setExpireDateEnd(DateUtils.getDayEnd(yxCoupons.getExpireDateEnd()));
-        boolean saveStatus = yxCouponsService.save(yxCoupons);
-        if (saveStatus) {
-            couponImg(yxCoupons.getId(), request.getImage(), request.getSliderImage(), loginUserId);
-        }
         return new ResponseEntity<>(saveStatus, HttpStatus.CREATED);
     }
 
@@ -174,6 +146,10 @@ public class YxCouponsController {
     @PreAuthorize("@el.check('admin','yxCoupons:edit')")
     public ResponseEntity<Object> update(@Validated @RequestBody CouponModifyRequest request) {
 
+        // 当前登录用户ID
+        int loginUserId = SecurityUtils.getUserId().intValue();
+        request.setCreateUser(loginUserId);
+
         if (request.getCouponName().length() > 42) {
             throw new BadRequestException("代金券名称长度不正确!");
         }
@@ -198,54 +174,8 @@ public class YxCouponsController {
         if (commission < 0) {
             throw new BadRequestException("佣金不正确!");
         }
-
-        QueryWrapper<YxCouponsCategory> couponsCategoryQueryWrapper = new QueryWrapper<>();
-        couponsCategoryQueryWrapper.lambda().eq(YxCouponsCategory::getId, request.getCouponCategory()).eq(YxCouponsCategory::getDelFlag, 0).eq(YxCouponsCategory::getIsShow, 1);
-        YxCouponsCategory yxCouponsCategory = yxCouponsCategoryService.getOne(couponsCategoryQueryWrapper);
-        if (yxCouponsCategory == null) {
-            throw new BadRequestException("当前选择的卡券分类不存在!");
-        }
-
-        // 当前登录用户ID
-        int loginUserId = SecurityUtils.getUserId().intValue();
-        YxCoupons yxCoupons = new YxCoupons();
-        BeanUtil.copyProperties(request, yxCoupons);
-        yxCoupons.setUpdateUserId(loginUserId);
-        yxCoupons.setUpdateTime(DateTime.now().toTimestamp());
-        yxCoupons.setExpireDateStart(DateUtils.getDayStart(yxCoupons.getExpireDateStart()));
-        yxCoupons.setExpireDateEnd(DateUtils.getDayEnd(yxCoupons.getExpireDateEnd()));
-        if (null == yxCoupons.getFicti()) {
-            yxCoupons.setFicti(0);
-        }
-        // 虚拟销量设为null不更新数据库
-        yxCoupons.setSales(null);
-        boolean updateStatus = yxCouponsService.updateById(yxCoupons);
-        if (updateStatus) {
-            if (updateStatus) {
-                // 存储相关图片
-                couponImg(yxCoupons.getId(), request.getImage(), request.getSliderImage(), loginUserId);
-
-                // 卡券信息发生变更, 删除卡券海报
-                String logo = String.valueOf(yxCoupons.getId()) + "_" + String.valueOf(loginUserId) + "_";
-                String couponWapImage = logo + "coupon_routine_product_detail_wap.jpg";
-                String couponSpreadImage = logo + "coupon_routine_product_user_spread.jpg";
-                List<YxSystemAttachment> systemAttachmentWapImageList = yxSystemAttachmentService.list(new QueryWrapper<YxSystemAttachment>().lambda().eq(YxSystemAttachment::getName, couponWapImage));
-                if (systemAttachmentWapImageList != null && systemAttachmentWapImageList.size() > 0) {
-                    systemAttachmentWapImageList.forEach(item -> {
-                        yxSystemAttachmentService.removeById(item.getAttId());
-                    });
-                }
-                List<YxSystemAttachment> systemAttachmentSpreadImageList = yxSystemAttachmentService.list(new QueryWrapper<YxSystemAttachment>().lambda().eq(YxSystemAttachment::getName, couponSpreadImage));
-                if (systemAttachmentSpreadImageList != null && systemAttachmentSpreadImageList.size() > 0) {
-                    systemAttachmentSpreadImageList.forEach(items -> {
-                        yxSystemAttachmentService.removeById(items.getAttId());
-                    });
-                }
-            }
-            return new ResponseEntity<>(updateStatus, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(updateStatus, HttpStatus.NO_CONTENT);
-        }
+        boolean updateStatus = this.yxCouponsService.updateCoupons(request);
+        return new ResponseEntity<>(updateStatus, HttpStatus.OK);
     }
 
     @Log("删除卡券表")
@@ -310,98 +240,6 @@ public class YxCouponsController {
         updateCoupon.setIsHot(yxCoupons.getIsHot() == 1 ? 0 : 1);
         boolean updateStatus = yxCouponsService.updateById(updateCoupon);
         return new ResponseEntity<>(updateStatus, HttpStatus.OK);
-    }
-
-    /**
-     * 缩略图操作
-     *
-     * @param typeId
-     * @param imgPath     缩略图
-     * @param sliderPath  缩略图
-     * @param loginUserId
-     */
-    private void couponImg(Integer typeId, String imgPath, String sliderPath, Integer loginUserId) {
-
-        if (StringUtils.isNotBlank(imgPath)) {
-            // 查询缩略图图片是否存在(已存在则删除)
-            QueryWrapper<YxImageInfo> imageInfoQueryWrapper = new QueryWrapper<>();
-            imageInfoQueryWrapper.lambda()
-                    .and(type -> type.eq(YxImageInfo::getTypeId, typeId))
-                    .and(imgCate -> imgCate.eq(YxImageInfo::getImgCategory, ShopConstants.IMG_CATEGORY_PIC))
-                    .and(imgType -> imgType.eq(YxImageInfo::getImgType, LocalLiveConstants.IMG_TYPE_COUPONS))
-                    .and(del -> del.eq(YxImageInfo::getDelFlag, false));
-
-            List<YxImageInfo> imageInfoList = yxImageInfoService.list(imageInfoQueryWrapper);
-
-            if (imageInfoList.size() > 0) {
-                // 删除已存在的图片
-                for (YxImageInfo imageInfo : imageInfoList) {
-                    YxImageInfo delImageInfo = new YxImageInfo();
-                    delImageInfo.setId(imageInfo.getId());
-                    delImageInfo.setDelFlag(1);
-                    delImageInfo.setUpdateUserId(loginUserId);
-                    delImageInfo.setUpdateTime(DateTime.now().toTimestamp());
-                    yxImageInfoService.updateById(delImageInfo);
-                }
-            }
-
-            // 写入分类对应的图片关联表
-            YxImageInfo imageInfo = new YxImageInfo();
-            imageInfo.setTypeId(typeId);
-            // 卡券分类 img_type 为 5
-            imageInfo.setImgType(LocalLiveConstants.IMG_TYPE_COUPONS);
-            imageInfo.setImgCategory(ShopConstants.IMG_CATEGORY_PIC);
-            imageInfo.setImgUrl(imgPath);
-            imageInfo.setDelFlag(0);
-            imageInfo.setCreateUserId(loginUserId);
-            imageInfo.setUpdateUserId(loginUserId);
-            imageInfo.setCreateTime(DateTime.now().toTimestamp());
-            imageInfo.setUpdateTime(DateTime.now().toTimestamp());
-            yxImageInfoService.save(imageInfo);
-        }
-
-        if (StringUtils.isNotBlank(sliderPath)) {
-            // 幻灯片
-            QueryWrapper<YxImageInfo> sliderImageInfoQueryWrapper = new QueryWrapper<>();
-            sliderImageInfoQueryWrapper.lambda()
-                    .and(type -> type.eq(YxImageInfo::getTypeId, typeId))
-                    .and(imgCate -> imgCate.eq(YxImageInfo::getImgCategory, ShopConstants.IMG_CATEGORY_ROTATION1))
-                    .and(imgType -> imgType.eq(YxImageInfo::getImgType, LocalLiveConstants.IMG_TYPE_COUPONS))
-                    .and(del -> del.eq(YxImageInfo::getDelFlag, false));
-
-            List<YxImageInfo> sliderImageInfoList = yxImageInfoService.list(sliderImageInfoQueryWrapper);
-
-            List<YxImageInfo> delSliderImageInfoList = new ArrayList<YxImageInfo>();
-            if (sliderImageInfoList.size() > 0) {
-                // 删除已存在的图片
-                for (YxImageInfo imageInfo : sliderImageInfoList) {
-                    YxImageInfo delImageInfo = new YxImageInfo();
-                    delImageInfo.setId(imageInfo.getId());
-                    delImageInfo.setDelFlag(1);
-                    delImageInfo.setUpdateUserId(loginUserId);
-                    delImageInfo.setUpdateTime(DateTime.now().toTimestamp());
-                    delSliderImageInfoList.add(delImageInfo);
-                }
-                yxImageInfoService.updateBatchById(delSliderImageInfoList, delSliderImageInfoList.size());
-            }
-
-            List<YxImageInfo> yxImageInfoList = new ArrayList<YxImageInfo>();
-            String[] images = sliderPath.split(",");
-            if (images.length > 0) {
-                for (int i = 0; i < images.length; i++) {
-                    YxImageInfo yxImageInfos = new YxImageInfo();
-                    yxImageInfos.setTypeId(typeId);
-                    yxImageInfos.setImgType(LocalLiveConstants.IMG_TYPE_COUPONS);
-                    yxImageInfos.setImgCategory(ShopConstants.IMG_CATEGORY_ROTATION1);
-                    yxImageInfos.setImgUrl(images[i]);
-                    yxImageInfos.setDelFlag(0);
-                    yxImageInfos.setUpdateUserId(loginUserId);
-                    yxImageInfos.setCreateUserId(loginUserId);
-                    yxImageInfoList.add(yxImageInfos);
-                }
-                yxImageInfoService.saveBatch(yxImageInfoList, yxImageInfoList.size());
-            }
-        }
     }
 
     @ApiOperation("B端：根据核销码查询卡券信息")

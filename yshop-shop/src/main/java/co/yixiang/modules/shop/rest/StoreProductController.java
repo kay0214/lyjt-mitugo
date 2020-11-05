@@ -14,6 +14,7 @@ import co.yixiang.modules.shop.domain.YxStoreProduct;
 import co.yixiang.modules.shop.domain.YxStoreProductChange;
 import co.yixiang.modules.shop.service.YxStoreInfoService;
 import co.yixiang.modules.shop.service.YxStoreProductService;
+import co.yixiang.modules.shop.service.dto.YxStoreProductDto;
 import co.yixiang.modules.shop.service.dto.YxStoreProductQueryCriteria;
 import co.yixiang.utils.CurrUser;
 import co.yixiang.utils.OrderUtil;
@@ -69,13 +70,13 @@ public class StoreProductController {
     @CacheEvict(cacheNames = ShopConstants.YSHOP_REDIS_INDEX_KEY, allEntries = true)
     @PostMapping(value = "/yxStoreProduct")
     @PreAuthorize("hasAnyRole('admin','YXSTOREPRODUCT_ALL','YXSTOREPRODUCT_CREATE')")
-    public ResponseEntity create(@Validated @RequestBody YxStoreProduct resources) {
+    public ResponseEntity create(@Validated @RequestBody YxStoreProductDto resources) {
         //if(StrUtil.isNotEmpty("22")) throw new BadRequestException("演示环境禁止操作");
         //
         int sysUserId = SecurityUtils.getUserId().intValue();
         YxStoreInfo store = yxStoreInfoService.getOne(new QueryWrapper<YxStoreInfo>().eq("mer_id", sysUserId));
-        if(ObjectUtil.isNull(store)){
-            throw new BadRequestException("商户id："+sysUserId+"，未找到对应店铺信息！");
+        if (ObjectUtil.isNull(store)) {
+            throw new BadRequestException("商户id：" + sysUserId + "，未找到对应店铺信息！");
         }
         resources.setStoreId(store.getId());
         resources.setMerId(store.getMerId());
@@ -83,6 +84,22 @@ public class StoreProductController {
         if (ObjectUtil.isEmpty(resources.getGiveIntegral())) resources.setGiveIntegral(BigDecimal.ZERO);
         if (ObjectUtil.isEmpty(resources.getCost())) resources.setCost(BigDecimal.ZERO);
         resources.setCommission(resources.getPrice().subtract(resources.getSettlement()));
+        // 自定义分佣比例校验总分成是否是100
+        if (2 == resources.getCustomizeType()) {
+            BigDecimal fundsRate = resources.getYxCustomizeRate().getFundsRate();
+            BigDecimal shareRate = resources.getYxCustomizeRate().getShareRate();
+            BigDecimal shareParentRate = resources.getYxCustomizeRate().getShareParentRate();
+            BigDecimal parentRate = resources.getYxCustomizeRate().getParentRate();
+            BigDecimal partnerRate = resources.getYxCustomizeRate().getPartnerRate();
+            BigDecimal referenceRate = resources.getYxCustomizeRate().getReferenceRate();
+            BigDecimal merRate = resources.getYxCustomizeRate().getMerRate();
+            // 分佣总和应等于100
+            BigDecimal count = fundsRate.add(shareRate).add(shareParentRate).add(parentRate).add(partnerRate).add(referenceRate).add(merRate);
+            // 分佣比例总和应等于100
+            if (count.compareTo(new BigDecimal("100")) != 0) {
+                throw new BadRequestException("分佣比例配置不正确!");
+            }
+        }
         return new ResponseEntity(yxStoreProductService.saveProduct(resources), HttpStatus.CREATED);
     }
 
@@ -91,7 +108,7 @@ public class StoreProductController {
     @CacheEvict(cacheNames = ShopConstants.YSHOP_REDIS_INDEX_KEY, allEntries = true)
     @PutMapping(value = "/yxStoreProduct")
     @PreAuthorize("hasAnyRole('admin','YXSTOREPRODUCT_ALL','YXSTOREPRODUCT_EDIT')")
-    public ResponseEntity update(@Validated @RequestBody YxStoreProduct resources) {
+    public ResponseEntity update(@Validated @RequestBody YxStoreProductDto resources) {
         //if(StrUtil.isNotEmpty("22")) throw new BadRequestException("演示环境禁止操作");
         yxStoreProductService.updateProduct(resources);
         return new ResponseEntity(HttpStatus.NO_CONTENT);

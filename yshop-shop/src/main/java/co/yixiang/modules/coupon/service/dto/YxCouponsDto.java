@@ -8,6 +8,7 @@
 */
 package co.yixiang.modules.coupon.service.dto;
 
+import co.yixiang.modules.shop.domain.YxCustomizeRate;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -272,4 +273,6 @@ public class YxCouponsDto implements Serializable {
 
     /** 分佣模式（0：按平台，1：不分佣，2：自定义分佣） */
     private Integer customizeType;
+
+    private YxCustomizeRate yxCustomizeRate;
 }

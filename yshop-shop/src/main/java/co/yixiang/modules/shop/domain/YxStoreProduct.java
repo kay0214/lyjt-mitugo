@@ -224,6 +224,9 @@ public class YxStoreProduct implements Serializable {
     @NotNull
     private Integer customizeType;
 
+    // 商品短视频url
+    private String video;
+
     public void copy(YxStoreProduct source){
         BeanUtil.copyProperties(source,this, CopyOptions.create().setIgnoreNullValue(true));
     }

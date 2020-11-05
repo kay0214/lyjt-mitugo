@@ -160,6 +160,11 @@ public interface ShopConstants {
 	 * 图片类别-轮播图
 	 */
 	int IMG_CATEGORY_ROTATION1 = 2;
+
+	/**
+	 * 小视频
+	 */
+	int IMG_CATEGORY_VIDEO = 3;
 	/**
 	 * 图片类别-手持证件照
 	 */
