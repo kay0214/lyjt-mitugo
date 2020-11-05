@@ -7,8 +7,10 @@
 * 一经发现盗用、分享等行为，将追究法律责任，后果自负
 */
 package co.yixiang.modules.shipManage.service;
+
 import co.yixiang.common.service.BaseService;
 import co.yixiang.modules.shipManage.domain.YxShipInfo;
+import co.yixiang.modules.shipManage.domain.YxShipInfoRequest;
 import co.yixiang.modules.shipManage.domain.YxShipSeries;
 import co.yixiang.modules.shipManage.service.dto.YxShipInfoDto;
 import co.yixiang.modules.shipManage.service.dto.YxShipInfoQueryCriteria;
@@ -61,4 +63,10 @@ public interface YxShipInfoService  extends BaseService<YxShipInfo>{
      * @return
      */
     public List<YxShipInfo> getShipInfoList(int seriseId,int merId);
+
+    /**
+     * 保存船只信息
+     * @param resources
+     */
+    boolean saveOrUpdShipInfoByParam(YxShipInfoRequest resources);
 }

@@ -7,23 +7,27 @@
 * 一经发现盗用、分享等行为，将追究法律责任，后果自负
 */
 package co.yixiang.modules.shipManage.rest;
-import java.util.Arrays;
+import cn.hutool.core.date.DateTime;
 import co.yixiang.dozer.service.IGenerator;
-import lombok.AllArgsConstructor;
 import co.yixiang.logging.aop.log.Log;
 import co.yixiang.modules.shipManage.domain.YxShipSeries;
 import co.yixiang.modules.shipManage.service.YxShipSeriesService;
-import co.yixiang.modules.shipManage.service.dto.YxShipSeriesQueryCriteria;
 import co.yixiang.modules.shipManage.service.dto.YxShipSeriesDto;
+import co.yixiang.modules.shipManage.service.dto.YxShipSeriesQueryCriteria;
+import co.yixiang.utils.SecurityUtils;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import io.swagger.annotations.*;
-import java.io.IOException;
+
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.Arrays;
 
 /**
 * @author nxl
@@ -60,6 +64,12 @@ public class YxShipSeriesController {
     @ApiOperation("新增船只系列")
     @PreAuthorize("@el.check('admin','yxShipSeries:add')")
     public ResponseEntity<Object> create(@Validated @RequestBody YxShipSeries resources){
+        int loginUserId = SecurityUtils.getUserId().intValue();
+        resources.setDelFlag(0);
+        resources.setCreateUserId(loginUserId);
+        resources.setCreateTime(DateTime.now().toTimestamp());
+        resources.setUpdateUserId(loginUserId);
+        resources.setUpdateTime(DateTime.now().toTimestamp());
         return new ResponseEntity<>(yxShipSeriesService.save(resources),HttpStatus.CREATED);
     }
 
@@ -68,6 +78,8 @@ public class YxShipSeriesController {
     @ApiOperation("修改船只系列")
     @PreAuthorize("@el.check('admin','yxShipSeries:edit')")
     public ResponseEntity<Object> update(@Validated @RequestBody YxShipSeries resources){
+        resources.setUpdateUserId(SecurityUtils.getUserId().intValue());
+        resources.setUpdateTime(DateTime.now().toTimestamp());
         yxShipSeriesService.updateById(resources);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
@@ -82,4 +94,14 @@ public class YxShipSeriesController {
         });
         return new ResponseEntity<>(HttpStatus.OK);
     }
+    @PostMapping(value = "/changeStatus/{id}")
+    @Log("修改船只系列状态")
+    @ApiOperation("修改船只系列状态")
+    @PreAuthorize("@el.check('admin','yxShipSeries:edit')")
+    public ResponseEntity<Object> changeStatus(@PathVariable Integer id) {
+        yxShipSeriesService.changeStatus(id);
+
+        return new ResponseEntity(HttpStatus.OK);
+    }
+
 }

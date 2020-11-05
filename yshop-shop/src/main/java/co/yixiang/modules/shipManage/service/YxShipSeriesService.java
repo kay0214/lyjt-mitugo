@@ -12,10 +12,11 @@ import co.yixiang.modules.shipManage.domain.YxShipSeries;
 import co.yixiang.modules.shipManage.service.dto.YxShipSeriesDto;
 import co.yixiang.modules.shipManage.service.dto.YxShipSeriesQueryCriteria;
 import org.springframework.data.domain.Pageable;
-import java.util.Map;
-import java.util.List;
-import java.io.IOException;
+
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 
 /**
 * @author nxl
@@ -45,4 +46,10 @@ public interface YxShipSeriesService  extends BaseService<YxShipSeries>{
     * @throws IOException /
     */
     void download(List<YxShipSeriesDto> all, HttpServletResponse response) throws IOException;
+
+    /**
+     * 根据id修改船只系列状态
+     * @param id
+     */
+    void changeStatus(int id);
 }

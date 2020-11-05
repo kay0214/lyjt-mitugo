@@ -7,18 +7,18 @@
       <!--表单组件-->
       <el-dialog :close-on-click-modal="false" :before-close="crud.cancelCU" :visible.sync="crud.status.cu > 0" :title="crud.status.title" width="500px">
         <el-form ref="form" :model="form" :rules="rules" size="small" label-width="80px">
-          <el-form-item label="船只id">
+         <!-- <el-form-item label="船只id">
             <el-input v-model="form.id" style="width: 370px;" />
-          </el-form-item>
+          </el-form-item>-->
           <el-form-item label="船只名称" prop="shipName">
             <el-input v-model="form.shipName" style="width: 370px;" />
           </el-form-item>
           <el-form-item label="船只系列id" prop="seriesId">
             <el-input v-model="form.seriesId" style="width: 370px;" />
           </el-form-item>
-          <el-form-item label="商户id" prop="merId">
+          <!--<el-form-item label="商户id" prop="merId">
             <el-input v-model="form.merId" style="width: 370px;" />
-          </el-form-item>
+          </el-form-item>-->
           <el-form-item label="所属商铺" prop="storeId">
             <el-input v-model="form.storeId" style="width: 370px;" />
           </el-form-item>
@@ -34,10 +34,10 @@
           <el-form-item label="船只状态：0：启用，1：禁用" prop="shipStatus">
             <el-input v-model="form.shipStatus" style="width: 370px;" />
           </el-form-item>
-          <el-form-item label="船只当前状态：0：在港，1：离港。2：维修中" prop="currentStatus">
+          <!--<el-form-item label="船只当前状态：0：在港，1：离港。2：维修中" prop="currentStatus">
             <el-input v-model="form.currentStatus" style="width: 370px;" />
           </el-form-item>
-          <el-form-item label="最近一次出港时间" prop="lastLeaveTime">
+          <!--<el-form-item label="最近一次出港时间" prop="lastLeaveTime">
             <el-input v-model="form.lastLeaveTime" style="width: 370px;" />
           </el-form-item>
           <el-form-item label="最近一次返港时间" prop="lastReturnTime">
@@ -57,7 +57,7 @@
           </el-form-item>
           <el-form-item label="更新时间" prop="updateTime">
             <el-input v-model="form.updateTime" style="width: 370px;" />
-          </el-form-item>
+          </el-form-item>-->
         </el-form>
         <div slot="footer" class="dialog-footer">
           <el-button type="text" @click="crud.cancelCU">取消</el-button>
@@ -125,7 +125,7 @@ export default {
   mixins: [presenter(defaultCrud), header(), form(defaultForm), crud()],
   data() {
     return {
-      
+
       permission: {
         add: ['admin', 'yxShipInfo:add'],
         edit: ['admin', 'yxShipInfo:edit'],

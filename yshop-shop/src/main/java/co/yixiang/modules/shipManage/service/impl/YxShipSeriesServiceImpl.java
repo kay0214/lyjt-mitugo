@@ -8,17 +8,21 @@
 */
 package co.yixiang.modules.shipManage.service.impl;
 
+import cn.hutool.core.date.DateTime;
 import co.yixiang.common.service.impl.BaseServiceImpl;
 import co.yixiang.common.utils.QueryHelpPlus;
 import co.yixiang.dozer.service.IGenerator;
+import co.yixiang.exception.BadRequestException;
 import co.yixiang.modules.shipManage.domain.YxShipSeries;
 import co.yixiang.modules.shipManage.service.YxShipSeriesService;
 import co.yixiang.modules.shipManage.service.dto.YxShipSeriesDto;
 import co.yixiang.modules.shipManage.service.dto.YxShipSeriesQueryCriteria;
 import co.yixiang.modules.shipManage.service.mapper.YxShipSeriesMapper;
 import co.yixiang.utils.FileUtil;
+import co.yixiang.utils.SecurityUtils;
 import com.github.pagehelper.PageInfo;
 import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -46,6 +50,8 @@ import java.util.Map;
 @Transactional(propagation = Propagation.SUPPORTS, readOnly = true, rollbackFor = Exception.class)
 public class YxShipSeriesServiceImpl extends BaseServiceImpl<YxShipSeriesMapper, YxShipSeries> implements YxShipSeriesService {
 
+    @Autowired
+    private YxShipSeriesMapper yxShipSeriesMapper;
     private final IGenerator generator;
 
     @Override
@@ -90,5 +96,26 @@ public class YxShipSeriesServiceImpl extends BaseServiceImpl<YxShipSeriesMapper,
             list.add(map);
         }
         FileUtil.downloadExcel(list, response);
+    }
+
+
+    /**
+     * 根据id修改船只系列状态
+     * @param id
+     */
+    @Override
+    public void changeStatus(int id){
+        YxShipSeries yxShipSeries = this.getById(id);
+        if(null==yxShipSeries){
+            throw new BadRequestException("根据船只系列id："+id+" 获取数据错误！");
+        }
+        int statusSeries = 0;
+        if(yxShipSeries.getStatus()==0){
+            statusSeries = 1;
+        }
+        yxShipSeries.setStatus(statusSeries);
+        yxShipSeries.setUpdateUserId(SecurityUtils.getUserId().intValue());
+        yxShipSeries.setUpdateTime(DateTime.now().toTimestamp());
+        this.updateById(yxShipSeries);
     }
 }

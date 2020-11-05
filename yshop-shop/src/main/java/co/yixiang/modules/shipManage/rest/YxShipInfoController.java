@@ -12,11 +12,14 @@ import co.yixiang.annotation.AnonymousAccess;
 import co.yixiang.dozer.service.IGenerator;
 import co.yixiang.logging.aop.log.Log;
 import co.yixiang.modules.shipManage.domain.YxShipInfo;
+import co.yixiang.modules.shipManage.domain.YxShipInfoRequest;
 import co.yixiang.modules.shipManage.domain.YxShipSeries;
 import co.yixiang.modules.shipManage.service.YxShipInfoService;
+import co.yixiang.modules.shipManage.service.YxShipSeriesService;
 import co.yixiang.modules.shipManage.service.dto.YxShipInfoDto;
 import co.yixiang.modules.shipManage.service.dto.YxShipInfoQueryCriteria;
 import co.yixiang.modules.shipManage.service.dto.YxShipSeriesDto;
+import co.yixiang.modules.shop.service.UserService;
 import co.yixiang.utils.CommonsUtils;
 import co.yixiang.utils.CurrUser;
 import co.yixiang.utils.SecurityUtils;
@@ -34,7 +37,9 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
 * @author nxl
@@ -49,7 +54,11 @@ public class YxShipInfoController {
     @Autowired
     private YxShipInfoService yxShipInfoService;
     @Autowired
+    private YxShipSeriesService yxShipSeriesService;
+    @Autowired
     private IGenerator generator;
+    @Autowired
+    private UserService userService;
 
 
     @Log("导出数据")
@@ -72,16 +81,17 @@ public class YxShipInfoController {
     @Log("新增船只管理")
     @ApiOperation("新增船只管理")
     @PreAuthorize("@el.check('admin','yxShipInfo:add')")
-    public ResponseEntity<Object> create(@Validated @RequestBody YxShipInfo resources){
-        return new ResponseEntity<>(yxShipInfoService.save(resources),HttpStatus.CREATED);
+    public ResponseEntity<Object> create(@Validated @RequestBody YxShipInfoRequest resources){
+        return new ResponseEntity<>(yxShipInfoService.saveOrUpdShipInfoByParam(resources),HttpStatus.CREATED);
     }
 
     @PutMapping
     @Log("修改船只管理")
     @ApiOperation("修改船只管理")
     @PreAuthorize("@el.check('admin','yxShipInfo:edit')")
-    public ResponseEntity<Object> update(@Validated @RequestBody YxShipInfo resources){
-        yxShipInfoService.updateById(resources);
+    public ResponseEntity<Object> update(@Validated @RequestBody YxShipInfoRequest resources){
+//        yxShipInfoService.updateById(resources);
+        yxShipInfoService.saveOrUpdShipInfoByParam(resources);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
@@ -110,9 +120,14 @@ public class YxShipInfoController {
     @GetMapping(value = "/getShipInfoBySeriesId/{seriesId}")
     public ResponseEntity getShipInfoBySeriesId(@PathVariable Integer seriesId) {
         CurrUser currUser = SecurityUtils.getCurrUser();
+        Map<String,Object> mapRetrun = new HashMap<String,Object>();
+        YxShipSeries yxShipSeries = yxShipSeriesService.getById(seriesId);
+        mapRetrun.put("rideLimit",yxShipSeries.getRideLimit());
         List<YxShipInfo> shipInfoList = yxShipInfoService.getShipInfoList(seriesId,currUser.getId().intValue());
         List<YxShipInfoDto> shipInfoDtoList = CommonsUtils.convertBeanList(shipInfoList, YxShipInfoDto.class);
-        return new ResponseEntity(shipInfoDtoList, HttpStatus.OK);
+        mapRetrun.put("shipInfoList",shipInfoDtoList);
+        return new ResponseEntity(mapRetrun, HttpStatus.OK);
+//        return new ResponseEntity(shipInfoDtoList, HttpStatus.OK);
     }
 
 }

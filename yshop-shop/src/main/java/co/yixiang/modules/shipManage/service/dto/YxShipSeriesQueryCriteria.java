@@ -9,8 +9,6 @@
 package co.yixiang.modules.shipManage.service.dto;
 
 import lombok.Data;
-import java.util.List;
-import co.yixiang.annotation.Query;
 
 /**
 * @author nxl
@@ -18,4 +16,6 @@ import co.yixiang.annotation.Query;
 */
 @Data
 public class YxShipSeriesQueryCriteria{
+    // 系列名称
+    private String seriesName;
 }
