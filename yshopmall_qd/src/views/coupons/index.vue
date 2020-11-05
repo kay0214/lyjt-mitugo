@@ -385,13 +385,15 @@
               :data="scope.row"
               :permission="permission"
             />
-
+            <el-button v-permission="permission.edit" slot="reference" plain @click="price(scope.row)" style="margin-top:5px">价格配置</el-button>
+<!--            <el-button v-permission="permission.edit" slot="reference" type="danger" size="mini" @click="attr(scope.row)">渠道配置</el-button>-->
           </template>
         </el-table-column>
       </el-table>
       <!--分页组件-->
       <pagination />
     </div>
+    <priceDialog ref="price"/>
   </div>
 </template>
 
@@ -410,6 +412,8 @@ import { parseTime } from '@/utils/index'
 import { Message } from 'element-ui'
 import checkPermission from '@/utils/permission'
 import { sub } from "@/utils/math"
+import priceDialog from './operation/price'
+
 // crud交由presenter持有
 const defaultCrud = CRUD({ title: '卡券', url: 'api/yxCoupons', sort: 'id,desc', crudMethod: { ...crudYxCoupons },optShow: {
       add: true,
@@ -430,7 +434,7 @@ const imageArr = []
 if (defaultForm.image) { imageArr[0] = defaultForm.image }
 export default {
   name: 'YxCoupons',
-  components: { pagination, crudOperation, rrOperation, udOperation, MaterialList, picUploadTwo, mulpicUpload, editor },
+  components: { pagination, crudOperation, rrOperation, udOperation, MaterialList, picUploadTwo, mulpicUpload, editor, priceDialog },
   mixins: [presenter(defaultCrud), header(), form(defaultForm), crud()],
   data() {
     return {
@@ -799,6 +803,17 @@ export default {
           })
         })
         .catch(() => { })
+    },
+    price(data) {
+      this.isAttr = false
+      const _this = this.$refs.price
+      _this.form = {
+        id: data.id,
+        sellingPrice:data.sellingPrice,
+        settlementPrice:data.settlementPrice
+      }
+      _this.dialog = true
+      this.$refs.price.getPrices(data.id)
     }
   }
 }
