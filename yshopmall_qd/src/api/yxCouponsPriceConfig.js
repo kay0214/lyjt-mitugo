@@ -24,4 +24,25 @@ export function edit(data) {
   })
 }
 
+export function setPriceConfig(data) {
+  return request({
+    url: 'api/yxCouponsPriceConfig/setPriceConfig/',
+    method: 'post',
+    data
+  })
+}
+
+export function getPriceConfigList(id) {
+  return request({
+    url: 'api/yxCouponsPriceConfig/getPriceConfigList/' + id,
+    method: 'get'
+  })
+}
+
+export function delAllPriceConfig(id) {
+  return request({
+    url: 'api/yxCouponsPriceConfig/delAllPriceConfig/' + id,
+    method: 'get'
+  })
+}
 export default { add, edit, del }

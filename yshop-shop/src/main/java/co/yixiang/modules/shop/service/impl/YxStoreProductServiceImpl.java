@@ -25,6 +25,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -48,6 +49,7 @@ import java.util.stream.Collectors;
  * @author hupeng
  * @date 2020-05-12
  */
+@Slf4j
 @Service
 @AllArgsConstructor
 //@CacheConfig(cacheNames = "yxStoreProduct")
@@ -77,6 +79,8 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<StoreProductMappe
     private YxSystemAttachmentService yxSystemAttachmentService;
     @Autowired
     private YxSystemAttachmentMapper yxSystemAttachmentMapper;
+    @Autowired
+    private YxCustomizeRateService yxCustomizeRateService;
     @Autowired
     private RedisUtils redisUtils;
 
@@ -119,10 +123,11 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<StoreProductMappe
             }
         }
         IPage<YxStoreProduct> ipage = this.page(new Page<>(pageable.getPageNumber() + 1, pageable.getPageSize()), queryWrapper);
-        List<YxStoreProduct> productList = getStoreName(ipage.getRecords());
+        // 这个地方对列表的数据逐条做了处理
+        List<YxStoreProductDto> productList = getStoreName(generator.convert(ipage.getRecords(), YxStoreProductDto.class));
         Map<String, Object> map = new LinkedHashMap<>(2);
 
-        map.put("content", generator.convert(productList, YxStoreProductDto.class));
+        map.put("content", productList);
         map.put("totalElements", ipage.getTotal());
 //        int sysUserId = SecurityUtils.getUserId().intValue();
 //        User userSys = userService.getById(sysUserId);
@@ -153,7 +158,7 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<StoreProductMappe
         return yxStoreProductList;
     }
 
-    public List<YxStoreProduct> getStoreName(List<YxStoreProduct> storeProductList) {
+    public List<YxStoreProductDto> getStoreName(List<YxStoreProductDto> storeProductList) {
         storeProductList.forEach(yxStoreProduct -> {
             yxStoreProduct.setStoreCategory(yxStoreCategoryService.getById(yxStoreProduct.getCateId()));
             YxStoreInfoDto yxStoreInfoDto = new YxStoreInfoDto();
@@ -165,6 +170,16 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<StoreProductMappe
             yxStoreProduct.setCateFlg(0);
             if (ObjectUtil.isNotEmpty(yxStoreProduct.getStoreCategory())) {
                 yxStoreProduct.setCateFlg(yxStoreProduct.getStoreCategory().getIsShow() == 1 ? 1 : 0);
+            }
+            // 自定义分佣模式（0：按平台，1：不分佣，2：自定义分佣）
+            if (2 == yxStoreProduct.getCustomizeType()) {
+                YxCustomizeRate yxCustomizeRate = this.yxCustomizeRateService.getOne(new QueryWrapper<YxCustomizeRate>().lambda()
+                        .eq(YxCustomizeRate::getRateType, 1)
+                        .eq(YxCustomizeRate::getLinkId, yxStoreProduct.getId())
+                        .eq(YxCustomizeRate::getDelFlag, 0));
+                if (null != yxCustomizeRate) {
+                    yxStoreProduct.setYxCustomizeRate(yxCustomizeRate);
+                }
             }
         });
         return storeProductList;
@@ -216,7 +231,7 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<StoreProductMappe
     }
 
     @Override
-    public YxStoreProduct saveProduct(YxStoreProduct storeProduct) {
+    public YxStoreProductDto saveProduct(YxStoreProductDto storeProduct) {
         if (storeProduct.getStoreCategory().getId() == null) {
             throw new BadRequestException("分类名称不能为空");
         }
@@ -224,7 +239,23 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<StoreProductMappe
                 .checkProductCategory(storeProduct.getStoreCategory().getId());
         if (!check) throw new BadRequestException("商品分类必选选择二级");
         storeProduct.setCateId(storeProduct.getStoreCategory().getId().toString());
-        this.save(storeProduct);
+        YxStoreProduct insertProduct = generator.convert(storeProduct, YxStoreProduct.class);
+        this.save(insertProduct);
+        log.info("加个打印日志判断下商品入库是否返回了主键id:" + insertProduct.getId());
+        // 处理当前分佣比例 0：按平台，1：不分佣，2：自定义分佣
+        if (2 == storeProduct.getCustomizeType()) {
+            YxCustomizeRate yxCustomizeRate = storeProduct.getYxCustomizeRate();
+            yxCustomizeRate.setLinkId(insertProduct.getId());
+            // 0：本地生活，1：商城
+            yxCustomizeRate.setRateType(1);
+            // 存入操作人
+            yxCustomizeRate.setCreateUserId(storeProduct.getMerId());
+            boolean rateResult = yxCustomizeRateService.saveOrUpdateRate(yxCustomizeRate);
+            if (!rateResult) {
+                throw new BadRequestException("请核对分佣比例");
+            }
+        }
+
         //存入redis
         String redisKey = ShopConstants.SHOP_PRODUCT_STOCK + storeProduct.getId();
         redisUtils.set(redisKey, storeProduct.getStock());
@@ -439,7 +470,7 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<StoreProductMappe
     }
 
     @Override
-    public void updateProduct(YxStoreProduct resources) {
+    public void updateProduct(YxStoreProductDto resources) {
         int sumStock = storeProductAttrMapper.getStocketByProductId(resources.getId());
         if (resources.getStock() < sumStock) {
             throw new BadRequestException("库存数不能小于规格库存总数！");
@@ -461,7 +492,21 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<StoreProductMappe
         String redisKey = ShopConstants.SHOP_PRODUCT_STOCK + resources.getId();
         redisUtils.set(redisKey, resources.getStock());
 
-        this.saveOrUpdate(resources);
+        YxStoreProduct updateProduct = generator.convert(resources, YxStoreProduct.class);
+        // 处理当前分佣比例 0：按平台，1：不分佣，2：自定义分佣
+        if (2 == resources.getCustomizeType()) {
+            YxCustomizeRate yxCustomizeRate = resources.getYxCustomizeRate();
+            yxCustomizeRate.setLinkId(resources.getId());
+            // 0：本地生活，1：商城
+            yxCustomizeRate.setRateType(1);
+            // 存入操作人
+            yxCustomizeRate.setCreateUserId(resources.getMerId());
+            boolean rateResult = yxCustomizeRateService.saveOrUpdateRate(yxCustomizeRate);
+            if (!rateResult) {
+                throw new BadRequestException("请核对分佣比例");
+            }
+        }
+        this.saveOrUpdate(updateProduct);
     }
 
     @Override

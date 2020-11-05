@@ -1,5 +1,6 @@
 package co.yixiang.modules.coupon.domain;
 
+import co.yixiang.modules.shop.domain.YxCustomizeRate;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
@@ -14,6 +15,9 @@ import java.sql.Timestamp;
  */
 @Data
 public class CouponAddRequest implements Serializable {
+
+    /** 卡券所属商铺 */
+    private Integer storeId;
 
     /** 卡券名称 */
     @NotBlank(message = "卡券名称不可为空")
@@ -144,6 +148,9 @@ public class CouponAddRequest implements Serializable {
     @NotBlank(message = "请上传卡券轮播图")
     private String sliderImage;
 
+    /** 卡券视频说明 */
+    private String video;
+
     /** 卡券简介 */
     private String couponInfo;
 
@@ -199,4 +206,9 @@ public class CouponAddRequest implements Serializable {
 
     /** 分佣模式（0：按平台，1：不分佣，2：自定义分佣） */
     private Integer customizeType;
+
+    // 自定义分佣比例
+    private YxCustomizeRate yxCustomizeRate;
+
+    private Integer createUser;
 }

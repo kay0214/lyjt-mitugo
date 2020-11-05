@@ -8,6 +8,8 @@
 */
 package co.yixiang.modules.coupon.service;
 import co.yixiang.common.service.BaseService;
+import co.yixiang.modules.coupon.domain.CouponAddRequest;
+import co.yixiang.modules.coupon.domain.CouponModifyRequest;
 import co.yixiang.modules.coupon.domain.YxCoupons;
 import co.yixiang.modules.coupon.service.dto.YxCouponsDto;
 import co.yixiang.modules.coupon.service.dto.YxCouponsQueryCriteria;
@@ -63,4 +65,31 @@ public interface YxCouponsService  extends BaseService<YxCoupons>{
      * @return
      */
     boolean updateCancelNoPayOrder(Integer couponId, Integer totalNum);
+
+    /**
+     * 新增卡券处理
+     *
+     * @param request
+     * @return
+     */
+    boolean createCoupons(CouponAddRequest request);
+
+    /**
+     * 缩略图操作
+     *
+     * @param typeId
+     * @param video
+     * @param imgPath
+     * @param sliderPath
+     * @param loginUserId
+     */
+    void couponImg(Integer typeId,String video, String imgPath, String sliderPath, Integer loginUserId);
+
+    /**
+     * 更新卡券
+     *
+     * @param request
+     * @return
+     */
+    boolean updateCoupons(CouponModifyRequest request);
 }

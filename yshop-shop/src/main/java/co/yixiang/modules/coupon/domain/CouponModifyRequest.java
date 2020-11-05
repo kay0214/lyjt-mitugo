@@ -1,5 +1,6 @@
 package co.yixiang.modules.coupon.domain;
 
+import co.yixiang.modules.shop.domain.YxCustomizeRate;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
@@ -142,6 +143,9 @@ public class CouponModifyRequest {
     @NotBlank(message = "请上传卡券图片")
     private String image;
 
+    /** 卡券视频说明 */
+    private String video;
+
     /** 轮播图 */
     @NotBlank(message = "请上传卡券轮播图")
     private String sliderImage;
@@ -151,4 +155,12 @@ public class CouponModifyRequest {
 
     /** 排序 */
     private Integer sort;
+
+    /** 分佣模式（0：按平台，1：不分佣，2：自定义分佣） */
+    private Integer customizeType;
+
+    // 自定义分佣比例
+    private YxCustomizeRate yxCustomizeRate;
+
+    private Integer createUser;
 }
