@@ -120,10 +120,10 @@ public class YxHotConfigController {
             throw new BadRequestException("当前数据不存在");
         }
         updateConfig.setId(id);
-        updateConfig.setStatus(1);
+        updateConfig.setDelFlag(1);
         updateConfig.setUpdateUserId(sysUserId);
         updateConfig.setUpdateTime(DateTime.now().toTimestamp());
-        yxHotConfigService.removeById(id);
+        yxHotConfigService.updateById(updateConfig);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 }

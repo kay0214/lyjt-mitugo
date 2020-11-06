@@ -23,5 +23,5 @@ public class YxHotConfigQueryCriteria {
     private String title;
 
     @Query(type = Query.Type.EQUAL)
-    private Integer status = 0;
+    private Integer delFlag = 0;
 }

@@ -19,6 +19,7 @@
     </div>
     <!--表单组件-->
     <eForm ref="form" :is-add="isAdd" />
+    <commission ref="form6"/>
     <!--表格渲染-->
     <el-table v-loading="loading" :data="data" size="small" style="width: 100%;">
       <el-table-column prop="id" label="商品id" />
@@ -57,6 +58,7 @@
             </div>
             <el-button slot="reference" type="danger" icon="el-icon-delete" size="mini" />
           </el-popover>
+          <el-button v-permission="['admin', 'YXSTOREPRODUCT_RATE']" plain type="primary"  @click="commission(scope.row)" style="margin-top:5px">分佣配置</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -77,8 +79,9 @@ import checkPermission from '@/utils/permission'
 import initData from '@/mixins/crud'
 import { del, onsale } from '@/api/yxStoreProduct'
 import eForm from './form'
+import commission from './commission'
 export default {
-  components: { eForm },
+  components: { eForm, commission },
   mixins: [initData],
   data() {
     return {
@@ -197,6 +200,20 @@ export default {
         commission: data.commission,
         settlement: data.settlement
       }
+      _this.dialog = true
+    },
+    commission(data) {
+      const _this = this.$refs.form6
+      _this.form = {
+        id: data.id,
+        customizeType:data.customizeType,
+        yxCustomizeRate:data.yxCustomizeRate?data.yxCustomizeRate:{}
+      }
+      if(data.customizeType===2){
+        Object.assign(_this.form2,data.yxCustomizeRate)
+      }
+      console.log('**********')
+      console.log(_this.form)
       _this.dialog = true
     }
   }

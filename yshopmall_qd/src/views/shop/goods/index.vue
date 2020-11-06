@@ -33,6 +33,7 @@
     <comForm ref="form3" :is-add="isAdd" />
     <killForm ref="form4" :is-add="isAdd" />
     <bargainForm ref="form5" :is-add="isAdd" />
+    <commission ref="form6"/>
     <!--表格渲染-->
     <el-table v-loading="loading" :data="data" size="small" style="width: 100%;">
       <el-table-column prop="id" label="商品id" />
@@ -46,8 +47,8 @@
       <el-table-column prop="storeCategory.cateName" label="分类名称" />
       <el-table-column prop="price" label="商品价格" />
       <el-table-column prop="sales" label="销量" />
-      <el-table-column prop="stock" label="库存" />   
-      <el-table-column prop="commission" label="佣金" />    
+      <el-table-column prop="stock" label="库存" />
+      <el-table-column prop="commission" label="佣金" />
       <el-table-column prop="isBest" label="精品推荐" >
           <template slot-scope="scope">
             <div @click="changeHotStatus(scope.row.id,scope.row.isBest,hotType.best)">
@@ -75,7 +76,7 @@
         </template>
       </el-table-column>
       <el-table-column label="操作" width="205px" align="center">
-        <template slot-scope="scope">         
+        <template slot-scope="scope">
           <el-button v-permission="permission.edit" slot="reference" type="danger" size="mini" @click="attr(scope.row)">规格属性</el-button>
           <el-dropdown v-permission="permission.edit" size="mini" split-button type="primary" trigger="click">
             操作
@@ -132,6 +133,7 @@
               </el-dropdown-item>-->
             </el-dropdown-menu>
           </el-dropdown>
+          <el-button v-permission="permission.commission"plain type="primary"  @click="commission(scope.row)" style="margin-top:5px">分佣配置</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -153,17 +155,20 @@ import initData from '@/mixins/crud'
 import { del, onsale, changeStatus } from '@/api/yxStoreProduct'
 import eForm from './form'
 import eAttr from './attr'
+import commission from './commission'
 import comForm from '@/views/activity/combination/form'
 import killForm from '@/views/activity/seckill/form'
 import bargainForm from '@/views/activity/bargain/form'
+import yxCustomizeRate from '../../../api/yxCustomizeRate'
 export default {
-  components: { eForm, eAttr, comForm, killForm, bargainForm },
+  components: { eForm, eAttr, comForm, killForm, bargainForm, commission },
   mixins: [initData],
   data() {
     return {
       permission: {
         edit: ['admin', 'YXSTOREPRODUCT_EDIT'],
         change: ['admin', 'YXSTOREPRODUCT_CHANGE'],
+        commission: ['admin', 'YXSTOREPRODUCT_RATE'],
       },
       delLoading: false,
       visible: false,
@@ -471,8 +476,8 @@ export default {
           changeStatus({
             id,
             changeStatus:status?0:1,
-            changeType:type.value}).then(res => { 
-              if(res){  
+            changeType:type.value}).then(res => {
+              if(res){
                 this.init()
                 this.$notify({
                   title: '设置成功',
@@ -496,6 +501,20 @@ export default {
           })
         })
         .catch(() => { })
+    },
+    commission(data) {
+      const _this = this.$refs.form6
+      _this.form = {
+        id: data.id,
+        customizeType:data.customizeType,
+        yxCustomizeRate:data.yxCustomizeRate?data.yxCustomizeRate:{}
+      }
+      if(data.customizeType===2){
+        Object.assign(_this.form2,data.yxCustomizeRate)
+      }
+      console.log('**********')
+      console.log(_this.form)
+      _this.dialog = true
     }
   }
 }
