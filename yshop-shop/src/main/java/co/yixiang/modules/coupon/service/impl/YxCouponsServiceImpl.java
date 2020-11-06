@@ -394,21 +394,6 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
         if (saveStatus) {
             couponImg(yxCoupons.getId(), request.getVideo(), request.getImage(), request.getSliderImage(), request.getCreateUser());
         }
-        // 自定义分佣比例处理
-        // 处理当前分佣比例 0：按平台，1：不分佣，2：自定义分佣
-        if (2 == request.getCustomizeType()) {
-            YxCustomizeRate yxCustomizeRate = request.getYxCustomizeRate();
-            yxCustomizeRate.setLinkId(yxCoupons.getId());
-            // 0：本地生活，1：商城
-            yxCustomizeRate.setRateType(0);
-            // 存入操作人
-            yxCustomizeRate.setCreateUserId(request.getCreateUser());
-            boolean rateResult = yxCustomizeRateService.saveOrUpdateRate(yxCustomizeRate);
-            if (!rateResult) {
-                throw new BadRequestException("请核对分佣比例");
-            }
-        }
-
         return saveStatus;
     }
 
@@ -583,22 +568,31 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
                     yxSystemAttachmentService.removeById(items.getAttId());
                 });
             }
-
-            // 自定义分佣比例处理
-            // 处理当前分佣比例 0：按平台，1：不分佣，2：自定义分佣
-            if (2 == request.getCustomizeType()) {
-                YxCustomizeRate yxCustomizeRate = request.getYxCustomizeRate();
-                yxCustomizeRate.setLinkId(yxCoupons.getId());
-                // 0：本地生活，1：商城
-                yxCustomizeRate.setRateType(0);
-                // 存入操作人
-                yxCustomizeRate.setCreateUserId(request.getCreateUser());
-                boolean rateResult = yxCustomizeRateService.saveOrUpdateRate(yxCustomizeRate);
-                if (!rateResult) {
-                    throw new BadRequestException("请核对分佣比例");
-                }
-            }
         }
         return updateStatus;
+    }
+
+    /**
+     * 修改分佣比例
+     *
+     * @param request
+     */
+    @Override
+    public void updateRate(CouponModifyRequest request) {
+        YxCoupons yxCoupons = new YxCoupons();
+        yxCoupons.setId(request.getId());
+        yxCoupons.setCustomizeType(request.getCustomizeType());
+        if(2 == request.getCustomizeType()) {
+            YxCustomizeRate yxCustomizeRate = request.getYxCustomizeRate();
+            yxCustomizeRate.setLinkId(request.getId());
+            // 0：本地生活，1：商城
+            yxCustomizeRate.setRateType(0);
+            // 存入操作人
+            yxCustomizeRate.setCreateUserId(request.getCreateUser());
+            boolean rateResult = yxCustomizeRateService.saveOrUpdateRate(yxCustomizeRate);
+            if (!rateResult) {
+                throw new BadRequestException("请核对分佣比例");
+            }
+        }
     }
 }

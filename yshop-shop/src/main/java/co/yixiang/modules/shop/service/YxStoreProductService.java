@@ -72,4 +72,11 @@ public interface YxStoreProductService  extends BaseService<YxStoreProduct>{
      * @param request
      */
     void changeStatus(YxStoreProductChange request);
+
+    /**
+     * 修改商品分佣比例
+     *
+     * @param resources
+     */
+    void updateRate(YxStoreProductDto resources);
 }
