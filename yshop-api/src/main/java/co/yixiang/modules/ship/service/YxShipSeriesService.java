@@ -1,5 +1,6 @@
 package co.yixiang.modules.ship.service;
 
+import co.yixiang.modules.couponUse.dto.AllShipsVO;
 import co.yixiang.modules.ship.entity.YxShipSeries;
 import co.yixiang.common.service.BaseService;
 import co.yixiang.modules.ship.web.param.YxShipSeriesQueryParam;
@@ -7,6 +8,7 @@ import co.yixiang.modules.ship.web.vo.YxShipSeriesQueryVo;
 import co.yixiang.common.web.vo.Paging;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * <p>
@@ -32,4 +34,5 @@ public interface YxShipSeriesService extends BaseService<YxShipSeries> {
      */
     Paging<YxShipSeriesQueryVo> getYxShipSeriesPageList(YxShipSeriesQueryParam yxShipSeriesQueryParam) throws Exception;
 
+    List<AllShipsVO> getAllShipByStoreId(int storeId);
 }

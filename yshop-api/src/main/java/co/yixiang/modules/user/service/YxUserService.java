@@ -2,6 +2,7 @@ package co.yixiang.modules.user.service;
 
 import co.yixiang.common.service.BaseService;
 import co.yixiang.common.web.vo.Paging;
+import co.yixiang.modules.couponUse.dto.ShipUserVO;
 import co.yixiang.modules.manage.entity.SystemUser;
 import co.yixiang.modules.order.web.vo.YxStoreOrderQueryVo;
 import co.yixiang.modules.security.rest.param.LoginParam;
@@ -128,4 +129,11 @@ public interface YxUserService extends BaseService<YxUser> {
      * @return
      */
     Integer getAllFxUser();
+
+    /**
+     * 获取本商户所有船长
+     * @param storeId
+     * @return
+     */
+    List<ShipUserVO> getAllShipUserByStoreId(int storeId);
 }

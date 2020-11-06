@@ -13,7 +13,7 @@ import java.util.Date;
  * </p>
  *
  * @author lsy
- * @date 2020-11-04
+ * @date 2020-11-06
  */
 @Data
 @ApiModel(value="YxShipSeriesQueryVo对象", description="船只系列表查询参数")
@@ -25,6 +25,12 @@ private Integer id;
 
 @ApiModelProperty(value = "系列名称")
 private String seriesName;
+
+@ApiModelProperty(value = "所属商铺")
+private Integer storeId;
+
+@ApiModelProperty(value = "商户id")
+private Integer merId;
 
 @ApiModelProperty(value = "船只类别")
 private Integer shipCategory;

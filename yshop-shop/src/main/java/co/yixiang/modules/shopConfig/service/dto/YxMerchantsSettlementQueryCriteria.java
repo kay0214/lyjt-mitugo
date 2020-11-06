@@ -12,10 +12,31 @@ import lombok.Data;
 import java.util.List;
 import co.yixiang.annotation.Query;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+
 /**
 * @author nxl
 * @date 2020-11-04
 */
 @Data
 public class YxMerchantsSettlementQueryCriteria{
+
+    /** 公司名 */
+    @Query(type = Query.Type.INNER_LIKE)
+    private String companyName;
+
+
+    /** 联系人 */
+    @Query(type = Query.Type.INNER_LIKE)
+    private String contactsName;
+
+
+    /** 联系电话 */
+    @Query(type = Query.Type.EQUAL)
+    private String phone;
+
+    /** 状态：0：待联系，1：有意向，2：已拒绝 */
+    @Query(type = Query.Type.EQUAL)
+    private Integer status;
 }

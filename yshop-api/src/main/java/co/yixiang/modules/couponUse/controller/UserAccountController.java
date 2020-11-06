@@ -76,22 +76,4 @@ public class UserAccountController extends BaseController {
         Paging<UserBillVo> result = billService.getUserProductAccountList(param, user.getId());
         return ResponseEntity.ok(result);
     }
-
-
-    /**
-     * 从redis里面获取用户
-     *
-     * @param token
-     * @return
-     */
-    private SystemUser getRedisUser(String token) {
-        if (StringUtils.isBlank(token)) {
-            return null;
-        }
-        if (redisUtils.hasKey(token)) {
-            return (SystemUser) redisUtils.get(token);
-        }
-        return null;
-    }
-
 }

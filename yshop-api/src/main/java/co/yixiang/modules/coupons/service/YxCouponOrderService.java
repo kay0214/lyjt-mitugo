@@ -191,4 +191,12 @@ public interface YxCouponOrderService extends BaseService<YxCouponOrder> {
      * @return
      */
     Integer getBuyCount(int uid, Integer couponId);
+
+    /**
+     * 船票核销操作
+     * @param decodeVerifyCode
+     * @param uid
+     * @return
+     */
+    Map<String, String> updateShipCouponOrder(String decodeVerifyCode, int uid);
 }

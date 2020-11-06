@@ -14,6 +14,7 @@ import co.yixiang.constant.SystemConfigConstants;
 import co.yixiang.enums.AppFromEnum;
 import co.yixiang.exception.BadRequestException;
 import co.yixiang.exception.ErrorRequestException;
+import co.yixiang.modules.couponUse.dto.ShipUserVO;
 import co.yixiang.modules.manage.entity.SystemUser;
 import co.yixiang.modules.manage.mapper.SystemUserMapper;
 import co.yixiang.modules.order.service.YxStoreOrderService;
@@ -34,6 +35,7 @@ import co.yixiang.modules.user.web.param.YxUserQueryParam;
 import co.yixiang.modules.user.web.vo.YxUserQueryVo;
 import co.yixiang.mp.config.ShopKeyUtils;
 import co.yixiang.mp.config.WxMpConfiguration;
+import co.yixiang.utils.CommonsUtils;
 import co.yixiang.utils.OrderUtil;
 import co.yixiang.utils.RedisUtil;
 import co.yixiang.utils.StringUtils;
@@ -916,5 +918,19 @@ public class YxUserServiceImpl extends BaseServiceImpl<YxUserMapper, YxUser> imp
     @Override
     public Integer getAllFxUser() {
         return yxUserMapper.getAllFxUser();
+    }
+
+    /**
+     * 获取本商户所有船长
+     *
+     * @return
+     */
+    @Override
+    public List<ShipUserVO> getAllShipUserByStoreId(int storeId) {
+        QueryWrapper<SystemUser> wrapper = new QueryWrapper<>();
+        wrapper.eq("user_role", SystemConfigConstants.ROLE_CAPTAIN)
+                .eq("enabled", 1);
+        List<SystemUser> list =  systemUserMapper.selectList(wrapper);
+        return CommonsUtils.convertBeanList(list, ShipUserVO.class);
     }
 }
