@@ -50,7 +50,7 @@
 </template>
 
 <script>
-import { updateRate } from '@/api/yxCommissionRate'
+import { updateRate } from '@/api/yxCoupons'
 export default {
   name: 'YxCommissionRate',
   data() {
@@ -164,7 +164,7 @@ export default {
                   duration: 2500
                 })
                 this.dialog=false
-                this.$parent.toQuery()
+                this.$parent.crud.toQuery()
               }).catch(err => {
                 this.sublLoading = false
                 this.$notify({
@@ -193,7 +193,7 @@ export default {
             duration: 2500
           })
           this.dialog=false
-          this.$parent.toQuery()
+          this.$parent.crud.toQuery()
         }).catch(err => {
           this.sublLoading = false
           this.$notify({

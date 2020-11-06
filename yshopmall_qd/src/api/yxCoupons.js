@@ -51,4 +51,12 @@ export function categoryTree() {
   })
 }
 
+// 设为热销
+export function updateRate(data) {
+  return request({
+    url: 'api/yxCoupons/updateRate',
+    method: 'post',
+    data
+  })
+}
 export default { add, edit, del, popular, pufOff, categoryTree }
