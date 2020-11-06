@@ -29,6 +29,9 @@ private String seriesName;
 @ApiModelProperty(value = "所属商铺")
 private Integer storeId;
 
+@ApiModelProperty(value = "商户id")
+private Integer merId;
+
 @ApiModelProperty(value = "船只类别")
 private Integer shipCategory;
 
@@ -70,8 +73,5 @@ private Date createTime;
 
 @ApiModelProperty(value = "更新时间")
 private Date updateTime;
-
-@ApiModelProperty(value = "商户id")
-private Integer merId;
 
 }
