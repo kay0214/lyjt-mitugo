@@ -29,13 +29,17 @@
       <el-form-item label="商品图片(750*672)" prop='imageArr'>
         <MaterialList v-model="form.imageArr" style="width: 650px" type="image" :num="1" :width="150" :height="150" @setValue='(val)=>{form.imageArr=val;$refs.form.validateField("imageArr")}'/>
       </el-form-item>
+      <el-form-item label="视频" >
+        <MaterialList v-model="form.sliderVideo" style="width: 650px" type="video" :num="1" :width="150" :height="150"
+                      @setValue='(val)=>{form.sliderVideo=val;form.video=val.join(",")}'/>
+      </el-form-item>
       <el-form-item label="轮播图(750 * 660)" prop='sliderImageArr'>
         <MaterialList v-model="form.sliderImageArr" style="width: 650px" type="image" :num="8" :width="150" :height="150" @setValue='(val)=>{form.sliderImageArr=val;$refs.form.validateField("sliderImageArr")}'/>
       </el-form-item>
       <el-form-item label="产品描述" prop='description'>
         <editor v-model="form.description" @change="descriptionChange" />
       </el-form-item>
-      
+
       <el-row>
         <el-col :span='8'>
           <el-form-item label="销售价" prop='price'>
@@ -153,6 +157,8 @@ export default {
         sliderImage: '',
         imageArr: [],
         sliderImageArr: [],
+        sliderVideo:[],
+        video:'',
         storeName: '',
         storeInfo: '',
         keyword: '',
@@ -299,6 +305,14 @@ export default {
     'form.sliderImageArr': function(val) {
       if (val) {
         this.form.sliderImage = val.join(',')
+      }
+      // this.$nextTick(()=>{
+      //   this.$refs['form'].validateField('sliderImageArr')
+      // })
+    },
+    'form.sliderVideo': function(val) {
+      if (val) {
+        this.form.video = val.join(',')
       }
       // this.$nextTick(()=>{
       //   this.$refs['form'].validateField('sliderImageArr')
