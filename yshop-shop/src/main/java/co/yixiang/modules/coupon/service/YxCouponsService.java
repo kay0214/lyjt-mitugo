@@ -9,6 +9,7 @@
 package co.yixiang.modules.coupon.service;
 import co.yixiang.common.service.BaseService;
 import co.yixiang.modules.coupon.domain.CouponAddRequest;
+import co.yixiang.modules.coupon.domain.CouponModifyRateRequest;
 import co.yixiang.modules.coupon.domain.CouponModifyRequest;
 import co.yixiang.modules.coupon.domain.YxCoupons;
 import co.yixiang.modules.coupon.service.dto.YxCouponsDto;
@@ -98,5 +99,5 @@ public interface YxCouponsService  extends BaseService<YxCoupons>{
      *
      * @param request
      */
-    void updateRate(CouponModifyRequest request);
+    void updateRate(CouponModifyRateRequest request);
 }

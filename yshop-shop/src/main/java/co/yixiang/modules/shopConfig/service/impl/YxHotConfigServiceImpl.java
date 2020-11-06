@@ -111,7 +111,10 @@ public class YxHotConfigServiceImpl extends BaseServiceImpl<YxHotConfigMapper, Y
      */
     @Override
     public YxHotConfig selectById(Integer id) {
-        YxHotConfig yxHotConfig = this.getOne(new QueryWrapper<YxHotConfig>().lambda().eq(YxHotConfig::getId, id).eq(YxHotConfig::getStatus, 0));
+        YxHotConfig yxHotConfig = this.getOne(new QueryWrapper<YxHotConfig>().lambda().eq(YxHotConfig::getId, id).eq(YxHotConfig::getDelFlag, 0));
+        if (null == yxHotConfig) {
+            return null;
+        }
         return yxHotConfig;
     }
 }
