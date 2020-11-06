@@ -14,11 +14,11 @@ import lombok.Data;
 import java.io.Serializable;
 
 /**
- * 所有船长
+ * 所有船只
  * @author sss
  */
 @Data
-public class ShipUserVO implements Serializable {
+public class AllShipsVO implements Serializable {
 
     @ApiModelProperty(value = "ID")
     private Long id;

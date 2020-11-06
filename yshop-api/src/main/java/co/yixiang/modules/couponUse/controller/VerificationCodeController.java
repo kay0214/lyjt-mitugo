@@ -7,9 +7,11 @@ import co.yixiang.annotation.AnonymousAccess;
 import co.yixiang.common.web.controller.BaseController;
 import co.yixiang.exception.BadRequestException;
 import co.yixiang.logging.aop.log.Log;
+import co.yixiang.modules.couponUse.dto.AllShipsVO;
 import co.yixiang.modules.couponUse.dto.ShipUserVO;
 import co.yixiang.modules.coupons.service.YxCouponOrderService;
 import co.yixiang.modules.manage.entity.SystemUser;
+import co.yixiang.modules.ship.service.YxShipSeriesService;
 import co.yixiang.modules.user.service.YxUserService;
 import co.yixiang.utils.Base64Utils;
 import io.swagger.annotations.Api;
@@ -35,6 +37,9 @@ public class VerificationCodeController extends BaseController {
 
     @Autowired
     private YxUserService yxUserService;
+    @Autowired
+    private YxShipSeriesService yxShipSeriesService;
+
 
 
 
@@ -95,9 +100,9 @@ public class VerificationCodeController extends BaseController {
             map.put("statusDesc", "请先登录");
             return ResponseEntity.ok(map);
         }
-        int uid = user.getId().intValue();
+        int storeId = user.getStoreId();
+        List<AllShipsVO> list = yxShipSeriesService.getAllShipByStoreId(storeId);
 
-        Map<String, String> result = this.yxCouponOrderService.updateShipCouponOrder(decodeVerifyCode, uid);
-        return ResponseEntity.ok(result);
+        return ResponseEntity.ok(null);
     }
 }
