@@ -48,4 +48,24 @@ public class SystemConfigConstants {
     public final static String WXPAY_MCHKEY="wxpay_mchKey";
     public final static String WX_NATIVE_APP_APPID="wx_native_app_appId";
 
+    // ----------admin角色相关-----------------------------------------
+    // 超级管理员
+    public final static int  ROLE_ADMIN = 1;
+    // 合伙人
+    public final static int  ROLE_PARTNER = 4;
+    // 商户
+    public final static int  ROLE_MER = 5;
+    // 平台管理员
+    public final static int  ROLE_MANAGE = 6;
+    // 核销人员
+    public final static int  ROLE_VERIFICATION = 7;
+    // 船只核销人员
+    public final static int  ROLE_SHIPVER = 8;
+    // 船长
+    public final static int  ROLE_CAPTAIN = 9;
+    // 景区推广
+    public final static int  ROLE_SPREAD = 10;
+    // 海岸支队
+    public final static int  ROLE_POLICE = 11;
+    // ----------admin角色相关-----------------------------------------
 }
