@@ -1,15 +1,14 @@
 package co.yixiang.modules.shop.entity;
 
-import java.math.BigDecimal;
-import com.baomidou.mybatisplus.annotation.IdType;
 import co.yixiang.common.entity.BaseEntity;
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import java.util.Date;
+import java.math.BigDecimal;
 
 /**
  * <p>
@@ -144,4 +143,6 @@ private Integer storeId;
 @ApiModelProperty(value = "平台结算")
 private BigDecimal settlement;
 
+    @ApiModelProperty(value = "分佣模式（0：按平台，1：不分佣，2：自定义分佣）")
+    private Integer customizeType;
 }

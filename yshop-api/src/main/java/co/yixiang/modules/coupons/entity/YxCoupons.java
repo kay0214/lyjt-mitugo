@@ -137,4 +137,9 @@ private String content;
 
 @ApiModelProperty(value = "排序")
 private Integer sort;
+
+@ApiModelProperty(value = "分佣模式（0：按平台，1：不分佣，2：自定义分佣）")
+private Integer customizeType;
+
+
 }
