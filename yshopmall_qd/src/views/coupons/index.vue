@@ -805,7 +805,6 @@ export default {
         .catch(() => { })
     },
     price(data) {
-      this.isAttr = false
       const _this = this.$refs.price
       _this.form = {
         id: data.id,

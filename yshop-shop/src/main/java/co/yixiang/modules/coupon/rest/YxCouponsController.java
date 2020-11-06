@@ -1,26 +1,21 @@
 package co.yixiang.modules.coupon.rest;
 
-import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.date.DateTime;
+import co.yixiang.constant.ShopConstants;
 import co.yixiang.exception.BadRequestException;
 import co.yixiang.logging.aop.log.Log;
 import co.yixiang.modules.coupon.domain.CouponAddRequest;
 import co.yixiang.modules.coupon.domain.CouponModifyRequest;
 import co.yixiang.modules.coupon.domain.YxCoupons;
-import co.yixiang.modules.coupon.domain.YxCouponsCategory;
 import co.yixiang.modules.coupon.service.YxCouponsCategoryService;
 import co.yixiang.modules.coupon.service.YxCouponsService;
 import co.yixiang.modules.coupon.service.dto.YxCouponsQueryCriteria;
 import co.yixiang.modules.shop.domain.User;
 import co.yixiang.modules.shop.domain.YxStoreInfo;
-import co.yixiang.modules.shop.domain.YxSystemAttachment;
 import co.yixiang.modules.shop.service.UserService;
-import co.yixiang.modules.shop.service.YxImageInfoService;
 import co.yixiang.modules.shop.service.YxStoreInfoService;
-import co.yixiang.modules.shop.service.YxSystemAttachmentService;
 import co.yixiang.utils.Base64Utils;
 import co.yixiang.utils.CurrUser;
-import co.yixiang.utils.DateUtils;
 import co.yixiang.utils.SecurityUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import io.swagger.annotations.Api;
@@ -28,6 +23,7 @@ import io.swagger.annotations.ApiOperation;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -36,7 +32,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
-import java.util.List;
 
 /**
  * @author liusy
@@ -112,22 +107,6 @@ public class YxCouponsController {
                 throw new BadRequestException("请输入满减金额!");
             }
         }
-        // 自定义分佣比例校验总分成是否是100
-        if (2 == request.getCustomizeType()) {
-            BigDecimal fundsRate = request.getYxCustomizeRate().getFundsRate();
-            BigDecimal shareRate = request.getYxCustomizeRate().getShareRate();
-            BigDecimal shareParentRate = request.getYxCustomizeRate().getShareParentRate();
-            BigDecimal parentRate = request.getYxCustomizeRate().getParentRate();
-            BigDecimal partnerRate = request.getYxCustomizeRate().getPartnerRate();
-            BigDecimal referenceRate = request.getYxCustomizeRate().getReferenceRate();
-            BigDecimal merRate = request.getYxCustomizeRate().getMerRate();
-            // 分佣总和应等于100
-            BigDecimal count = fundsRate.add(shareRate).add(shareParentRate).add(parentRate).add(partnerRate).add(referenceRate).add(merRate);
-            // 分佣比例总和应等于100
-            if (count.compareTo(new BigDecimal("100")) != 0) {
-                throw new BadRequestException("分佣比例配置不正确!");
-            }
-        }
 
         // 校验佣金是否正确, 防止出现负值
         int commission = request.getSellingPrice().subtract(request.getSettlementPrice()).compareTo(BigDecimal.ZERO);
@@ -176,6 +155,39 @@ public class YxCouponsController {
         }
         boolean updateStatus = this.yxCouponsService.updateCoupons(request);
         return new ResponseEntity<>(updateStatus, HttpStatus.OK);
+    }
+
+    @Log("修改分佣比例")
+    @ApiOperation(value = "修改分佣比例")
+    @PostMapping(value = "/updateRate")
+    @PreAuthorize("@el.check('admin','yxCoupons:rate')")
+    public ResponseEntity updateRate(@Validated @RequestBody CouponModifyRequest request) {
+        int sysUserId = SecurityUtils.getUserId().intValue();
+        if (null == request.getId()) {
+            throw new BadRequestException("主键不能为空");
+        }
+        if (null == request.getCustomizeType()) {
+            throw new BadRequestException("请选择分佣类型");
+        }
+        // 自定义分佣比例校验总分成是否是100
+        if (2 == request.getCustomizeType()) {
+            BigDecimal fundsRate = request.getYxCustomizeRate().getFundsRate();
+            BigDecimal shareRate = request.getYxCustomizeRate().getShareRate();
+            BigDecimal shareParentRate = request.getYxCustomizeRate().getShareParentRate();
+            BigDecimal parentRate = request.getYxCustomizeRate().getParentRate();
+            BigDecimal partnerRate = request.getYxCustomizeRate().getPartnerRate();
+            BigDecimal referenceRate = request.getYxCustomizeRate().getReferenceRate();
+            BigDecimal merRate = request.getYxCustomizeRate().getMerRate();
+            // 分佣总和应等于100
+            BigDecimal count = fundsRate.add(shareRate).add(shareParentRate).add(parentRate).add(partnerRate).add(referenceRate).add(merRate);
+            // 分佣比例总和应等于100
+            if (count.compareTo(new BigDecimal("100")) != 0) {
+                throw new BadRequestException("分佣比例配置不正确!");
+            }
+        }
+        request.setCreateUser(sysUserId);
+        this.yxCouponsService.updateRate(request);
+        return new ResponseEntity(HttpStatus.OK);
     }
 
     @Log("删除卡券表")
