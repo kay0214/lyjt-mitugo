@@ -92,4 +92,11 @@ public interface YxCouponsService  extends BaseService<YxCoupons>{
      * @return
      */
     boolean updateCoupons(CouponModifyRequest request);
+
+    /**
+     * 修改分佣比例
+     *
+     * @param request
+     */
+    void updateRate(CouponModifyRequest request);
 }

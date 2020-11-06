@@ -63,6 +63,10 @@ public class YxHotConfigDto implements Serializable {
 
     private Integer updateUserId;
 
+    /** 修改人名称 */
+
+    private String updateUsername;
+
 
     /** 创建时间 */
 
