@@ -389,16 +389,4 @@ public class StringUtils {
         }
         return null;
     }
-
-    /**
-     * 手机号码前三后四脱敏
-     * @param mobile
-     * @return
-     */
-    public static String mobileEncrypt(String mobile) {
-        if (com.bay.core.common.util.StringUtils.isEmpty(mobile) || (mobile.length() != 11)) {
-            return mobile;
-        }
-        return mobile.replaceAll("(\\d{3})\\d{4}(\\d{4})", "$1****$2");
-    }
 }
