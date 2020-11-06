@@ -5,6 +5,7 @@ import co.yixiang.constant.ShopConstants;
 import co.yixiang.exception.BadRequestException;
 import co.yixiang.logging.aop.log.Log;
 import co.yixiang.modules.coupon.domain.CouponAddRequest;
+import co.yixiang.modules.coupon.domain.CouponModifyRateRequest;
 import co.yixiang.modules.coupon.domain.CouponModifyRequest;
 import co.yixiang.modules.coupon.domain.YxCoupons;
 import co.yixiang.modules.coupon.service.YxCouponsCategoryService;
@@ -161,7 +162,7 @@ public class YxCouponsController {
     @ApiOperation(value = "修改分佣比例")
     @PostMapping(value = "/updateRate")
     @PreAuthorize("@el.check('admin','yxCoupons:rate')")
-    public ResponseEntity updateRate(@Validated @RequestBody CouponModifyRequest request) {
+    public ResponseEntity updateRate(@Validated @RequestBody CouponModifyRateRequest request) {
         int sysUserId = SecurityUtils.getUserId().intValue();
         if (null == request.getId()) {
             throw new BadRequestException("主键不能为空");

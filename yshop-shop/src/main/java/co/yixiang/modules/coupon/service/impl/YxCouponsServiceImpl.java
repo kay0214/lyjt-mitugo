@@ -586,7 +586,7 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
      * @param request
      */
     @Override
-    public void updateRate(CouponModifyRequest request) {
+    public void updateRate(CouponModifyRateRequest request) {
         YxCoupons yxCoupons = new YxCoupons();
         yxCoupons.setId(request.getId());
         yxCoupons.setCustomizeType(request.getCustomizeType());
