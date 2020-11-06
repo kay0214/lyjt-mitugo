@@ -103,6 +103,6 @@ public class VerificationCodeController extends BaseController {
         int storeId = user.getStoreId();
         List<AllShipsVO> list = yxShipSeriesService.getAllShipByStoreId(storeId);
 
-        return ResponseEntity.ok(null);
+        return ResponseEntity.ok(list);
     }
 }

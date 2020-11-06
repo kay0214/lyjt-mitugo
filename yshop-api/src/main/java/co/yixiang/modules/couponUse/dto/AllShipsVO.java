@@ -8,7 +8,6 @@
  */
 package co.yixiang.modules.couponUse.dto;
 
-import co.yixiang.modules.ship.entity.YxShipInfo;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import io.swagger.annotations.ApiModelProperty;
@@ -18,7 +17,7 @@ import java.io.Serializable;
 import java.util.List;
 
 /**
- * 所有船只
+ * 所有船只和系列
  * @author sss
  */
 @Data
@@ -39,5 +38,6 @@ public class AllShipsVO implements Serializable {
 
     @ApiModelProperty(value = "状态：0：启用，1：禁用")
     private Integer status;
-    private List<YxShipInfo> shipInfos;
+    @ApiModelProperty(value = "船只")
+    private List<ShipInfoVO> shipInfos;
 }

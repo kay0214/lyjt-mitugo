@@ -34,5 +34,10 @@ public interface YxShipSeriesService extends BaseService<YxShipSeries> {
      */
     Paging<YxShipSeriesQueryVo> getYxShipSeriesPageList(YxShipSeriesQueryParam yxShipSeriesQueryParam) throws Exception;
 
+    /**
+     * 获取本商户所有船只系列和船只
+     * @param storeId
+     * @return
+     */
     List<AllShipsVO> getAllShipByStoreId(int storeId);
 }
