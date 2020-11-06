@@ -18,4 +18,11 @@ import co.yixiang.annotation.Query;
 */
 @Data
 public class YxRefundReasonQueryCriteria{
+
+    /** 类型：0：本地生活，1：商城 */
+    @Query(type = Query.Type.EQUAL)
+    private Integer reasonType;
+
+    @Query(type = Query.Type.EQUAL)
+    private Integer delFlag = 0;
 }

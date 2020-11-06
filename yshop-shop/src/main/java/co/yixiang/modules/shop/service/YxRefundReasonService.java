@@ -45,4 +45,12 @@ public interface YxRefundReasonService  extends BaseService<YxRefundReason>{
     * @throws IOException /
     */
     void download(List<YxRefundReasonDto> all, HttpServletResponse response) throws IOException;
+
+    /**
+     * 根据主键查询未删除的数据
+     *
+     * @param id
+     * @return
+     */
+    YxRefundReason selectById(Integer id);
 }
