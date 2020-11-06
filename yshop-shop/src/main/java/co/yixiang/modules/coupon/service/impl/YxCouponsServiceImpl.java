@@ -176,7 +176,7 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
                 // 自定义分佣模式（0：按平台，1：不分佣，2：自定义分佣）
                 if (2 == yxCouponsDto.getCustomizeType()) {
                     YxCustomizeRate yxCustomizeRate = this.yxCustomizeRateService.getOne(new QueryWrapper<YxCustomizeRate>().lambda()
-                            .eq(YxCustomizeRate::getRateType, 1)
+                            .eq(YxCustomizeRate::getRateType, 0)
                             .eq(YxCustomizeRate::getLinkId, yxCouponsDto.getId())
                             .eq(YxCustomizeRate::getDelFlag, 0));
                     if (null != yxCustomizeRate) {
