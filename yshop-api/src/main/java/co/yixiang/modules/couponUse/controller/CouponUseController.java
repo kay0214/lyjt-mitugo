@@ -198,7 +198,9 @@ public class CouponUseController extends BaseController {
     @Log("根据核销码查询卡券信息")
     @ApiOperation("B端：根据核销码查询卡券信息")
     @GetMapping(value = "/getCouponDetail")
-    public ResponseEntity<Object> getCouponDetail(@RequestHeader(value = "token") String token, @RequestParam(value = "verifyCode") String verifyCode) {
+    public ResponseEntity<Object> getCouponDetail(@RequestHeader(value = "token") String token, @RequestParam(value = "verifyCode") String verifyCode,
+                                                  @RequestParam(value = "verifyAll",required = false) Integer verifyAll) {
+        // verifyAll 是否一键核销  1全部  0单个
         // 获取登陆用户的id
         Map<String, String> map = new HashMap<>();
         SystemUser user = getRedisUser(token);
@@ -300,19 +302,5 @@ public class CouponUseController extends BaseController {
         return ResponseEntity.ok(this.yxCouponsService.getCouponByOrderId(orderId, uid));
     }
 
-    /**
-     * 从redis里面获取用户
-     *
-     * @param token
-     * @return
-     */
-    private SystemUser getRedisUser(String token) {
-        if (StringUtils.isBlank(token)) {
-            return null;
-        }
-        if (redisUtils.hasKey(token)) {
-            return (SystemUser) redisUtils.get(token);
-        }
-        return null;
-    }
+
 }
