@@ -916,6 +916,16 @@ public class YxUserServiceImpl extends BaseServiceImpl<YxUserMapper, YxUser> imp
      * @return
      */
     @Override
+    public Integer getAllFxUser() {
+        return yxUserMapper.getAllFxUser();
+    }
+
+    /**
+     * 获取本商户所有船长
+     *
+     * @return
+     */
+    @Override
     public List<ShipUserVO> getAllShipUserByStoreId(int storeId) {
         QueryWrapper<SystemUser> wrapper = new QueryWrapper<>();
         wrapper.eq("user_role", SystemConfigConstants.ROLE_CAPTAIN)

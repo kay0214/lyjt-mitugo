@@ -1,5 +1,6 @@
 package co.yixiang.modules.ship.service.impl;
 
+import co.yixiang.modules.couponUse.dto.AllShipsVO;
 import co.yixiang.modules.ship.entity.YxShipSeries;
 import co.yixiang.modules.ship.mapper.YxShipSeriesMapper;
 import co.yixiang.modules.ship.service.YxShipSeriesService;
@@ -16,6 +17,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.metadata.OrderItem;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import java.io.Serializable;
+import java.util.List;
 
 
 /**
@@ -44,6 +46,11 @@ public class YxShipSeriesServiceImpl extends BaseServiceImpl<YxShipSeriesMapper,
         Page page = setPageParam(yxShipSeriesQueryParam,OrderItem.desc("create_time"));
         IPage<YxShipSeriesQueryVo> iPage = yxShipSeriesMapper.getYxShipSeriesPageList(page,yxShipSeriesQueryParam);
         return new Paging(iPage);
+    }
+
+    @Override
+    public List<AllShipsVO> getAllShipByStoreId(int storeId) {
+        return null;
     }
 
 }

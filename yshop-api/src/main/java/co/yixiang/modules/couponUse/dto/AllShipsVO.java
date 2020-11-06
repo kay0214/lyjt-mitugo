@@ -8,10 +8,14 @@
  */
 package co.yixiang.modules.couponUse.dto;
 
+import co.yixiang.modules.ship.entity.YxShipInfo;
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * 所有船只
@@ -20,14 +24,20 @@ import java.io.Serializable;
 @Data
 public class AllShipsVO implements Serializable {
 
-    @ApiModelProperty(value = "ID")
-    private Long id;
-    @ApiModelProperty(value = "用户名")
-    private String username;
-    @ApiModelProperty(value = "手机号码")
-    private String phone;
-    @ApiModelProperty(value = "姓名")
-    private String nickName;
+    @ApiModelProperty(value = "系列id")
+    @TableId(value = "id", type = IdType.AUTO)
+    private Integer id;
 
-    private String sex;
+    @ApiModelProperty(value = "系列名称")
+    private String seriesName;
+
+    @ApiModelProperty(value = "所属商铺")
+    private Integer storeId;
+
+    @ApiModelProperty(value = "商户id")
+    private Integer merId;
+
+    @ApiModelProperty(value = "状态：0：启用，1：禁用")
+    private Integer status;
+    private List<YxShipInfo> shipInfos;
 }
