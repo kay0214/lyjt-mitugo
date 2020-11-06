@@ -40,6 +40,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -179,6 +180,13 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
                             .eq(YxCustomizeRate::getLinkId, yxCouponsDto.getId())
                             .eq(YxCustomizeRate::getDelFlag, 0));
                     if (null != yxCustomizeRate) {
+                        yxCustomizeRate.setFundsRate(yxCustomizeRate.getFundsRate().multiply(new BigDecimal("100")));
+                        yxCustomizeRate.setShareRate(yxCustomizeRate.getShareRate().multiply(new BigDecimal("100")));
+                        yxCustomizeRate.setShareParentRate(yxCustomizeRate.getShareParentRate().multiply(new BigDecimal("100")));
+                        yxCustomizeRate.setParentRate(yxCustomizeRate.getParentRate().multiply(new BigDecimal("100")));
+                        yxCustomizeRate.setPartnerRate(yxCustomizeRate.getPartnerRate().multiply(new BigDecimal("100")));
+                        yxCustomizeRate.setReferenceRate(yxCustomizeRate.getReferenceRate().multiply(new BigDecimal("100")));
+                        yxCustomizeRate.setMerRate(yxCustomizeRate.getMerRate().multiply(new BigDecimal("100")));
                         yxCouponsDto.setYxCustomizeRate(yxCustomizeRate);
                     }
                 }
@@ -416,7 +424,7 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
                     .eq(YxImageInfo::getImgCategory, ShopConstants.IMG_CATEGORY_VIDEO)
                     .eq(YxImageInfo::getImgType, LocalLiveConstants.IMG_TYPE_COUPONS)
                     .eq(YxImageInfo::getDelFlag, 0));
-            if (null != videoList || videoList.size()>0) {
+            if (null != videoList || videoList.size() > 0) {
                 // 存在视频数据的话统一更新删除状态为1、逻辑删除
                 for (YxImageInfo item : videoList) {
                     item.setDelFlag(1);
@@ -582,7 +590,9 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
         YxCoupons yxCoupons = new YxCoupons();
         yxCoupons.setId(request.getId());
         yxCoupons.setCustomizeType(request.getCustomizeType());
-        if(2 == request.getCustomizeType()) {
+        yxCoupons.setUpdateUserId(request.getCreateUser());
+        yxCoupons.setUpdateTime(DateTime.now().toTimestamp());
+        if (2 == request.getCustomizeType()) {
             YxCustomizeRate yxCustomizeRate = request.getYxCustomizeRate();
             yxCustomizeRate.setLinkId(request.getId());
             // 0：本地生活，1：商城
@@ -594,5 +604,6 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
                 throw new BadRequestException("请核对分佣比例");
             }
         }
+        this.updateById(yxCoupons);
     }
 }

@@ -28,7 +28,7 @@ public class YxHotConfig implements Serializable {
     private Integer id;
 
 
-    /** 公司名 */
+    /** 标题 */
     @NotBlank
     private String title;
 

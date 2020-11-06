@@ -171,6 +171,23 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<StoreProductMappe
             if (ObjectUtil.isNotEmpty(yxStoreProduct.getStoreCategory())) {
                 yxStoreProduct.setCateFlg(yxStoreProduct.getStoreCategory().getIsShow() == 1 ? 1 : 0);
             }
+            // 分佣模式（0：按平台，1：不分佣，2：自定义分佣）
+            if(2 == yxStoreProduct.getCustomizeType()) {
+                YxCustomizeRate yxCustomizeRate = this.yxCustomizeRateService.getOne(new QueryWrapper<YxCustomizeRate>().lambda()
+                        .eq(YxCustomizeRate::getRateType, 1)
+                        .eq(YxCustomizeRate::getLinkId, yxStoreProduct.getId())
+                        .eq(YxCustomizeRate::getDelFlag, 0));
+                if(null != yxCustomizeRate) {
+                    yxCustomizeRate.setFundsRate(yxCustomizeRate.getFundsRate().multiply(new BigDecimal("100")));
+                    yxCustomizeRate.setShareRate(yxCustomizeRate.getShareRate().multiply(new BigDecimal("100")));
+                    yxCustomizeRate.setShareParentRate(yxCustomizeRate.getShareParentRate().multiply(new BigDecimal("100")));
+                    yxCustomizeRate.setParentRate(yxCustomizeRate.getParentRate().multiply(new BigDecimal("100")));
+                    yxCustomizeRate.setPartnerRate(yxCustomizeRate.getPartnerRate().multiply(new BigDecimal("100")));
+                    yxCustomizeRate.setReferenceRate(yxCustomizeRate.getReferenceRate().multiply(new BigDecimal("100")));
+                    yxCustomizeRate.setMerRate(yxCustomizeRate.getMerRate().multiply(new BigDecimal("100")));
+                    yxStoreProduct.setYxCustomizeRate(yxCustomizeRate);
+                }
+            }
         });
         return storeProductList;
     }
@@ -598,7 +615,7 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<StoreProductMappe
         YxStoreProduct yxStoreProduct = new YxStoreProduct();
         yxStoreProduct.setId(resources.getId());
         yxStoreProduct.setCustomizeType(resources.getCustomizeType());
-        if(2 == resources.getCustomizeType()) {
+        if (2 == resources.getCustomizeType()) {
             YxCustomizeRate yxCustomizeRate = resources.getYxCustomizeRate();
             yxCustomizeRate.setLinkId(resources.getId());
             // 0：本地生活，1：商城
@@ -610,6 +627,7 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<StoreProductMappe
                 throw new BadRequestException("请核对分佣比例");
             }
         }
+        this.updateById(yxStoreProduct);
     }
 
   /*  @Override

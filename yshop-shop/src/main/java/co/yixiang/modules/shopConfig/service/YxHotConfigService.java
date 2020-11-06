@@ -45,4 +45,12 @@ public interface YxHotConfigService  extends BaseService<YxHotConfig>{
     * @throws IOException /
     */
     void download(List<YxHotConfigDto> all, HttpServletResponse response) throws IOException;
+
+    /**
+     * 根据主键查询未删除的数据
+     *
+     * @param id
+     * @return
+     */
+    YxHotConfig selectById(Integer id);
 }
