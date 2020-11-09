@@ -39,6 +39,8 @@
       <!--如果想在工具栏加入更多按钮，可以使用插槽方式， slot = 'left' or 'right'-->
       <crudOperation :permission="permission" />
       <!--表单组件-->
+      <priceDialog ref="price"/>
+      <commission ref="form6"/>
       <el-dialog :close-on-click-modal="false" :before-close="crud.cancelCU" :visible.sync="crud.status.cu > 0" :title="crud.status.title" width="900px">
         <el-form ref="form" :model="form" :rules="rules" size="small" label-width="140px" v-if="crud.status.cu > 0">
           <el-form-item v-show="crud.status.edit === 1" label="卡券id">
@@ -385,7 +387,8 @@
               :data="scope.row"
               :permission="permission"
             />
-            <el-button v-permission="permission.edit" slot="reference" plain @click="price(scope.row)" style="margin-top:5px">价格配置</el-button>
+            <el-button v-permission="permission.commission" plain type="primary"  @click="commission(scope.row)" style="margin-top:5px">分佣配置</el-button>
+            <el-button v-permission="permission.edit" plain @click="price(scope.row)" style="margin-top:5px;margin-left: 0">价格配置</el-button>
 <!--            <el-button v-permission="permission.edit" slot="reference" type="danger" size="mini" @click="attr(scope.row)">渠道配置</el-button>-->
           </template>
         </el-table-column>
@@ -393,7 +396,6 @@
       <!--分页组件-->
       <pagination />
     </div>
-    <priceDialog ref="price"/>
   </div>
 </template>
 
@@ -413,6 +415,7 @@ import { Message } from 'element-ui'
 import checkPermission from '@/utils/permission'
 import { sub } from "@/utils/math"
 import priceDialog from './operation/price'
+import commission from './operation/commission'
 
 // crud交由presenter持有
 const defaultCrud = CRUD({ title: '卡券', url: 'api/yxCoupons', sort: 'id,desc', crudMethod: { ...crudYxCoupons },optShow: {
@@ -434,7 +437,8 @@ const imageArr = []
 if (defaultForm.image) { imageArr[0] = defaultForm.image }
 export default {
   name: 'YxCoupons',
-  components: { pagination, crudOperation, rrOperation, udOperation, MaterialList, picUploadTwo, mulpicUpload, editor, priceDialog },
+  components: { pagination, crudOperation, rrOperation, udOperation, MaterialList,
+    picUploadTwo, mulpicUpload, editor, priceDialog, commission },
   mixins: [presenter(defaultCrud), header(), form(defaultForm), crud()],
   data() {
     return {
@@ -449,7 +453,8 @@ export default {
       permission: {
         add: ['admin', 'yxCoupons:add'],
         edit: ['admin', 'yxCoupons:edit'],
-        del: ['admin', 'yxCoupons:del']
+        del: ['admin', 'yxCoupons:del'],
+        commission: ['admin', ' yxCoupons:rate']
       },
       rules: {
         // couponNum: [
@@ -805,7 +810,6 @@ export default {
         .catch(() => { })
     },
     price(data) {
-      this.isAttr = false
       const _this = this.$refs.price
       _this.form = {
         id: data.id,
@@ -814,6 +818,18 @@ export default {
       }
       _this.dialog = true
       this.$refs.price.getPrices(data.id)
+    },
+    commission(data) {
+      const _this = this.$refs.form6
+      _this.form = {
+        id: data.id,
+        customizeType:data.customizeType,
+        yxCustomizeRate:data.yxCustomizeRate?data.yxCustomizeRate:{}
+      }
+      if(data.customizeType===2){
+        Object.assign(_this.form2,data.yxCustomizeRate)
+      }
+      _this.dialog = true
     }
   }
 }

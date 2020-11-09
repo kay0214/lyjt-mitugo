@@ -48,6 +48,10 @@ public class YxRefundReasonDto implements Serializable {
 
     private Integer updateUserId;
 
+    /** 修改人 */
+
+    private String updateUsername;
+
 
     /** 创建时间 */
 

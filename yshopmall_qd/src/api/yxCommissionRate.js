@@ -31,4 +31,12 @@ export function get() {
   })
 }
 
+export function updateRate(data) {
+  return request({
+    url: 'api/updateRate',
+    method: 'post',
+    data
+  })
+}
+
 export default { add, edit, del }

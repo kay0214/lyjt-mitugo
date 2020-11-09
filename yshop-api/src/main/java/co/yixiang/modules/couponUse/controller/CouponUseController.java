@@ -5,6 +5,7 @@ package co.yixiang.modules.couponUse.controller;
 
 import cn.hutool.core.util.IdUtil;
 import co.yixiang.annotation.AnonymousAccess;
+import co.yixiang.aspectj.annotation.NeedLogin;
 import co.yixiang.common.constant.CommonConstant;
 import co.yixiang.common.web.controller.BaseController;
 import co.yixiang.constant.ShopConstants;
@@ -152,7 +153,7 @@ public class CouponUseController extends BaseController {
         return ResponseEntity.ok(map);
     }
 
-    @AnonymousAccess
+    @NeedLogin
     @GetMapping(value = "/getMerchantsDetailByUid")
     @ApiOperation("B端：获取商户及门店信息")
     public ResponseEntity<Object> getMerchantsDetailByUid(@RequestHeader(value = "token") String token) {
@@ -160,11 +161,7 @@ public class CouponUseController extends BaseController {
         Map<String, Object> map = new HashMap<>();
         // 获取登陆用户的id
         SystemUser user = getRedisUser(token);
-        if (null == user) {
-            map.put("status", "999");
-            map.put("statusDesc", "请先登录");
-            return ResponseEntity.ok(map);
-        }
+
         int uid = user.getId().intValue();
         // 判断当前登陆用户是否是商户
         YxStoreInfo yxStoreInfo = this.yxStoreInfoService.getOne(new QueryWrapper<YxStoreInfo>().eq("mer_id", uid));
@@ -194,19 +191,17 @@ public class CouponUseController extends BaseController {
         return ResponseEntity.ok(map);
     }
 
-    @AnonymousAccess
+    @NeedLogin
     @Log("根据核销码查询卡券信息")
     @ApiOperation("B端：根据核销码查询卡券信息")
     @GetMapping(value = "/getCouponDetail")
-    public ResponseEntity<Object> getCouponDetail(@RequestHeader(value = "token") String token, @RequestParam(value = "verifyCode") String verifyCode) {
+    public ResponseEntity<Object> getCouponDetail(@RequestHeader(value = "token") String token, @RequestParam(value = "verifyCode") String verifyCode,
+                                                  @RequestParam(value = "verifyAll",required = false) Integer verifyAll) {
+        // verifyAll 是否一键核销  1全部  0单个
         // 获取登陆用户的id
         Map<String, String> map = new HashMap<>();
         SystemUser user = getRedisUser(token);
-        if (null == user) {
-            map.put("status", "999");
-            map.put("statusDesc", "请先登录");
-            return ResponseEntity.ok(map);
-        }
+
         int uid = user.getId().intValue();
         String decodeVerifyCode = "";
         try {
@@ -218,24 +213,20 @@ public class CouponUseController extends BaseController {
     }
 
 
-    @AnonymousAccess
+    @NeedLogin
     @ApiOperation("B端：查询核销记录")
     @PostMapping("/getOrderUseList")
     public ResponseEntity<Object> getOrderUseList(@RequestHeader(value = "token") String token, @RequestBody YxCouponOrderUseQueryCriteria criteria) {
         // 获取登陆用户的id
         Map<String, String> map = new HashMap<>();
         SystemUser user = getRedisUser(token);
-        if (null == user) {
-            map.put("status", "999");
-            map.put("statusDesc", "请先登录");
-            return ResponseEntity.ok(map);
-        }
+
         int uid = user.getId().intValue();
         criteria.setCreateUserId(uid);
         return ResponseEntity.ok(yxCouponOrderUseService.queryAll(criteria));
     }
 
-    @AnonymousAccess
+    @NeedLogin
     @Log("扫码核销卡券")
     @ApiOperation("B端：扫码核销卡券")
     @GetMapping(value = "/useCoupon")
@@ -243,11 +234,7 @@ public class CouponUseController extends BaseController {
         // 获取登陆用户的id
         Map<String, String> map = new HashMap<>();
         SystemUser user = getRedisUser(token);
-        if (null == user) {
-            map.put("status", "999");
-            map.put("statusDesc", "请先登录");
-            return ResponseEntity.ok(map);
-        }
+
         int uid = user.getId().intValue();
         String decodeVerifyCode = "";
         try {
@@ -259,7 +246,7 @@ public class CouponUseController extends BaseController {
         return ResponseEntity.ok(result);
     }
 
-    @AnonymousAccess
+    @NeedLogin
     @Log("手动核销卡券")
     @ApiOperation("B端：手动核销卡券（废）")
     @GetMapping(value = "/useCouponInput")
@@ -267,11 +254,7 @@ public class CouponUseController extends BaseController {
         // 获取登陆用户的id
         Map<String, String> map = new HashMap<>();
         SystemUser user = getRedisUser(token);
-        if (null == user) {
-            map.put("status", "999");
-            map.put("statusDesc", "请先登录");
-            return ResponseEntity.ok(map);
-        }
+
         int uid = user.getId().intValue();
         boolean result = this.yxCouponOrderService.updateCouponOrderInput(orderId, uid);
         if (result) {
@@ -284,35 +267,17 @@ public class CouponUseController extends BaseController {
         return ResponseEntity.ok(map);
     }
 
-    @AnonymousAccess
+    @NeedLogin
     @ApiOperation("B端：手动核销查询卡券")
     @GetMapping(value = "/getUseCouponInput")
     public ResponseEntity<Object> getUseCouponInput(@RequestHeader(value = "token") String token, @RequestParam(value = "orderId") String orderId) {
         // 获取登陆用户的id
         Map<String, String> map = new HashMap<>();
         SystemUser user = getRedisUser(token);
-        if (null == user) {
-            map.put("status", "999");
-            map.put("statusDesc", "请先登录");
-            return ResponseEntity.ok(map);
-        }
+
         int uid = user.getId().intValue();
         return ResponseEntity.ok(this.yxCouponsService.getCouponByOrderId(orderId, uid));
     }
 
-    /**
-     * 从redis里面获取用户
-     *
-     * @param token
-     * @return
-     */
-    private SystemUser getRedisUser(String token) {
-        if (StringUtils.isBlank(token)) {
-            return null;
-        }
-        if (redisUtils.hasKey(token)) {
-            return (SystemUser) redisUtils.get(token);
-        }
-        return null;
-    }
+
 }

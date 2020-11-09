@@ -17,7 +17,7 @@ import java.util.Date;
  * </p>
  *
  * @author lsy
- * @since 2020-11-04
+ * @since 2020-11-06
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -32,6 +32,12 @@ private Integer id;
 
 @ApiModelProperty(value = "系列名称")
 private String seriesName;
+
+@ApiModelProperty(value = "所属商铺")
+private Integer storeId;
+
+@ApiModelProperty(value = "商户id")
+private Integer merId;
 
 @ApiModelProperty(value = "船只类别")
 private Integer shipCategory;

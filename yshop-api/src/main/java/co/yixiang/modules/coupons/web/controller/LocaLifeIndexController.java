@@ -6,14 +6,12 @@ import co.yixiang.common.web.vo.Paging;
 import co.yixiang.constant.CacheConstant;
 import co.yixiang.constant.LocalLiveConstants;
 import co.yixiang.modules.coupons.web.param.LocalLiveQueryParam;
-import co.yixiang.modules.coupons.web.vo.LocalLifeSliderVo;
-import co.yixiang.modules.coupons.web.vo.LocalLiveIndexVo;
-import co.yixiang.modules.coupons.web.vo.LocalLiveListVo;
-import co.yixiang.modules.coupons.web.vo.YxCouponOrderQueryVo;
+import co.yixiang.modules.coupons.web.vo.*;
 import co.yixiang.modules.shop.entity.SystemGroupDataValue;
 import co.yixiang.modules.shop.entity.YxSystemGroupData;
 import co.yixiang.modules.shop.service.YxStoreInfoService;
 import co.yixiang.modules.shop.service.YxSystemGroupDataService;
+import co.yixiang.modules.system.service.YxNoticeService;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -50,6 +48,9 @@ public class LocaLifeIndexController {
 
     @Autowired
     private YxStoreInfoService yxStoreInfoService;
+
+    @Autowired
+    private YxNoticeService noticeService;
 
     /**
      * Banner 上下方导航
@@ -110,6 +111,9 @@ public class LocaLifeIndexController {
             }
         }
 
+        // 首页通知公告
+        NoticeVO noticeVO = noticeService.getIndexNotice();
+        localLiveIndexVo.setNotice(noticeVO);
         localLiveIndexVo.setLocalLiveMenu(menusList);
         localLiveIndexVo.setLocalLiveLink(linksList);
         localLiveIndexVo.setSliderList(sliderVos);

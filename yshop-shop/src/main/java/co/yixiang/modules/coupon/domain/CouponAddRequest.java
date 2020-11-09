@@ -207,8 +207,5 @@ public class CouponAddRequest implements Serializable {
     /** 分佣模式（0：按平台，1：不分佣，2：自定义分佣） */
     private Integer customizeType;
 
-    // 自定义分佣比例
-    private YxCustomizeRate yxCustomizeRate;
-
     private Integer createUser;
 }

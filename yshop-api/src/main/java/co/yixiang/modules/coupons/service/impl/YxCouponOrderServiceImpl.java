@@ -88,7 +88,8 @@ import java.util.*;
 @Slf4j
 @Service
 @Transactional(rollbackFor = Exception.class)
-public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMapper, YxCouponOrder> implements YxCouponOrderService {
+public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMapper, YxCouponOrder> implements YxCouponOrderService
+{
 
     @Autowired
     private YxCouponOrderMapper yxCouponOrderMapper;
@@ -1273,5 +1274,17 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
             count = count + item.getTotalNum();
         }
         return count;
+    }
+
+    /**
+     * 船票核销操作
+     * @param decodeVerifyCode
+     * @param uid
+     * @return
+     */
+    @Override
+    public Map<String, String> updateShipCouponOrder(String decodeVerifyCode, int uid) {
+        // TODO: 2020/11/6  
+        return null;
     }
 }

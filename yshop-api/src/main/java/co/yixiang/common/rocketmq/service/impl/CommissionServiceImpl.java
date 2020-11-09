@@ -8,9 +8,13 @@ import co.yixiang.common.rocketmq.service.CommissionService;
 import co.yixiang.constant.ShopConstants;
 import co.yixiang.enums.BillDetailEnum;
 import co.yixiang.modules.commission.entity.YxCommissionRate;
+import co.yixiang.modules.commission.entity.YxNowRate;
 import co.yixiang.modules.commission.mapper.YxCommissionRateMapper;
+import co.yixiang.modules.commission.mapper.YxNowRateMapper;
 import co.yixiang.modules.coupons.entity.YxCouponOrder;
+import co.yixiang.modules.coupons.entity.YxCoupons;
 import co.yixiang.modules.coupons.mapper.YxCouponOrderMapper;
+import co.yixiang.modules.coupons.mapper.YxCouponsMapper;
 import co.yixiang.modules.funds.entity.YxFundsAccount;
 import co.yixiang.modules.funds.mapper.YxFundsAccountMapper;
 import co.yixiang.modules.manage.entity.SystemUser;
@@ -18,7 +22,9 @@ import co.yixiang.modules.manage.mapper.SystemUserMapper;
 import co.yixiang.modules.order.entity.YxStoreOrder;
 import co.yixiang.modules.order.mapper.YxStoreOrderMapper;
 import co.yixiang.modules.shop.entity.YxStoreCart;
+import co.yixiang.modules.shop.entity.YxStoreProduct;
 import co.yixiang.modules.shop.mapper.YxStoreCartMapper;
+import co.yixiang.modules.shop.mapper.YxStoreProductMapper;
 import co.yixiang.modules.user.entity.YxPointDetail;
 import co.yixiang.modules.user.entity.YxUser;
 import co.yixiang.modules.user.entity.YxUserBill;
@@ -48,7 +54,6 @@ import java.util.List;
 @Service
 public class CommissionServiceImpl implements CommissionService {
 
-
     @Autowired
     YxStoreOrderMapper yxStoreOrderMapper;
 
@@ -75,6 +80,15 @@ public class CommissionServiceImpl implements CommissionService {
 
     @Autowired
     YxStoreCartMapper yxStoreCartMapper;
+
+    @Autowired
+    YxStoreProductMapper yxStoreProductMapper;
+
+    @Autowired
+    YxNowRateMapper yxNowRateMapper;
+
+    @Autowired
+    YxCouponsMapper yxCouponsMapper;
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
@@ -125,6 +139,7 @@ public class CommissionServiceImpl implements CommissionService {
         OrderInfo orderInfo = new OrderInfo();
         YxUser yxUser = yxUserMapper.selectById(yxStoreOrder.getUid());
         List<String> cartIdList = Arrays.asList(cartIds.split(","));
+
         //购物车列表
         for (String cartId : cartIdList) {
             YxStoreCart yxStoreCart = yxStoreCartMapper.selectById(Integer.parseInt(cartId));
@@ -138,7 +153,13 @@ public class CommissionServiceImpl implements CommissionService {
             orderInfo.setCartId(cartId);
             orderInfo.setUsername(yxUser.getNickname());
             orderInfo.setCommission(yxStoreCart.getCommission());
-            updateAccount(orderInfo);
+            //获取分佣比例
+            YxCommissionRate yxCommissionRate = getProductRate(orderId,Integer.parseInt(cartId),yxStoreCart.getProductId());
+            if (null == yxCommissionRate){
+                log.info("该商品不分佣,订单号：{}，购物车Id:{}", orderId,cartId);
+                continue;
+            }
+            updateAccount(orderInfo,yxCommissionRate);
         }
     }
 
@@ -167,7 +188,13 @@ public class CommissionServiceImpl implements CommissionService {
         orderInfo.setPayPrice(yxCouponOrder.getCouponPrice());
         orderInfo.setUsername(yxUser.getNickname());
         orderInfo.setCommission(yxCouponOrder.getCommission());
-        updateAccount(orderInfo);
+        YxCommissionRate yxCommissionRate = getCouponRate(orderId,yxCouponOrder.getCouponId());
+        if (null == yxCommissionRate){
+            log.info("该商品不分佣,订单号：{}", orderId);
+        }else {
+            updateAccount(orderInfo,yxCommissionRate);
+        }
+
     }
 
     /**
@@ -175,10 +202,8 @@ public class CommissionServiceImpl implements CommissionService {
      *
      * @param orderInfo
      */
-    public void updateAccount(OrderInfo orderInfo) {
+    public void updateAccount(OrderInfo orderInfo,YxCommissionRate yxCommissionRate) {
         YxFundsAccount yxFundsAccount = yxFundsAccountMapper.selectById(1);
-        //查询分佣比例
-        YxCommissionRate yxCommissionRate = yxCommissionRateMapper.selectOne(new QueryWrapper<>());
         //平台抽成
         BigDecimal allBonus = new BigDecimal("0");
 
@@ -353,5 +378,52 @@ public class CommissionServiceImpl implements CommissionService {
         yxUserBill.setStatus(1);
         yxUserBill.setUserType(userType);
         yxUserBillMapper.insert(yxUserBill);
+    }
+
+    /**
+     * 获取商品分佣比例
+     * @param orderId
+     * @param productId
+     */
+    public YxCommissionRate getProductRate(String orderId,Integer cartId,Integer productId){
+        YxCommissionRate yxCommissionRate = new YxCommissionRate();
+        YxStoreProduct yxStoreProduct = yxStoreProductMapper.selectById(productId);
+        if(null == yxStoreProduct){
+            log.info("分佣失败，该商品不存在，订单号：{}", orderId);
+            return null;
+        }
+        //分佣模式（0：按平台，1：不分佣，2：自定义分佣）
+        if(yxStoreProduct.getCustomizeType() == 0){
+            yxCommissionRate = yxCommissionRateMapper.selectOne(new QueryWrapper<>());
+        }else if (yxStoreProduct.getCustomizeType() == 2){
+            YxNowRate yxNowRate = yxNowRateMapper.selectOne(new QueryWrapper<YxNowRate>().lambda().eq(YxNowRate::getOrderId, orderId).eq(YxNowRate::getCartId, cartId).eq(YxNowRate::getProductId, productId));
+            if(null == yxNowRate){
+                log.info("分佣失败，该商品分佣比例配置不存在，订单号：{}", orderId);
+                return null;
+            }
+            BeanUtils.copyProperties(yxNowRate,yxCommissionRate);
+        }
+      return yxCommissionRate;
+    }
+
+    /**
+     * 获取卡券分佣比例
+     * @param orderId
+     * @param couponId
+     */
+    public YxCommissionRate getCouponRate(String orderId,Integer couponId){
+        YxCommissionRate yxCommissionRate = new YxCommissionRate();
+        YxCoupons yxCoupons = yxCouponsMapper.selectById(couponId);
+        if(0 == yxCoupons.getCustomizeType()){
+            yxCommissionRate = yxCommissionRateMapper.selectOne(new QueryWrapper<>());
+        }else if (2 == yxCoupons.getCustomizeType()){
+            YxNowRate yxNowRate = yxNowRateMapper.selectOne(new QueryWrapper<YxNowRate>().lambda().eq(YxNowRate::getOrderId, orderId));
+            if(null == yxNowRate){
+                log.info("分佣失败，该商品分佣比例配置不存在，订单号：{}", orderId);
+                return null;
+            }
+            BeanUtils.copyProperties(yxNowRate,yxCommissionRate);
+        }
+        return yxCommissionRate;
     }
 }

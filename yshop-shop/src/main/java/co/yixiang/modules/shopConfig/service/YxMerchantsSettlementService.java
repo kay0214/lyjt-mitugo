@@ -45,4 +45,12 @@ public interface YxMerchantsSettlementService  extends BaseService<YxMerchantsSe
     * @throws IOException /
     */
     void download(List<YxMerchantsSettlementDto> all, HttpServletResponse response) throws IOException;
+
+    /**
+     * 根据主键查询未删除的数据
+     *
+     * @param id
+     * @return
+     */
+    YxMerchantsSettlement selectById(Integer id);
 }
