@@ -53,7 +53,6 @@ public class VerificationCodeController extends BaseController {
             , @RequestParam(value = "shipId") Integer shipId
             , @RequestParam(value = "shipUserId") Integer shipUserId) {
         // 获取登陆用户的id
-        Map<String, String> map = new HashMap<>();
         SystemUser user = getRedisUser(token);
         int uid = user.getId().intValue();
         String decodeVerifyCode = "";

@@ -173,7 +173,7 @@ public interface YxCouponOrderService extends BaseService<YxCouponOrder> {
      * @param uid
      * @return
      */
-    Map<String, String> updateCouponOrder(String decodeVerifyCode, int uid);
+    Map<String, Object> updateCouponOrder(String decodeVerifyCode, int uid,boolean isAll);
 
     /**
      * 手动核销卡券
