@@ -995,162 +995,35 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
      * @return
      */
     @Override
-    public Map<String, String> updateCouponOrder(String decodeVerifyCode, int uid) {
-        Map<String, String> map = new HashMap<>();
-        String[] decode = decodeVerifyCode.split(",");
-        if (decode.length != 2) {
-            map.put("status", "99");
-            map.put("statusDesc", "无效核销码");
+    public Map<String, Object> updateCouponOrder(String decodeVerifyCode, int uid,boolean isAll) {
+        // 校验优惠券信息
+        Map<String, Object> map = this.couponCheck(decodeVerifyCode,uid,null,null);
+        if(map.containsKey("status")){
             return map;
         }
-        // 获取核销码
-        String verifyCode = decode[0];
-        // 获取核销用户的id
-        String useUid = decode[1];
-        YxCouponOrderDetail yxCouponOrderDetail = this.yxCouponOrderDetailService.getOne(new QueryWrapper<YxCouponOrderDetail>().eq("verify_code", verifyCode));
-        if (null == yxCouponOrderDetail) {
-            map.put("status", "99");
-            map.put("statusDesc", "无卡券订单详情信息");
-            return map;
-        }
-        YxCouponOrder yxCouponOrder = this.getOne(new QueryWrapper<YxCouponOrder>().eq("order_id", yxCouponOrderDetail.getOrderId()));
-        if (null == yxCouponOrder) {
-            map.put("status", "99");
-            map.put("statusDesc", "无卡券订单信息");
-            return map;
-        }
-        // 判断订单状态
-        if (4 != yxCouponOrder.getStatus() && 5 != yxCouponOrder.getStatus()) {
-            map.put("status", "99");
-            map.put("statusDesc", "当前卡券不可用");
-            return map;
-        }
-        if (1 == yxCouponOrder.getRefundStatus()) {
-            map.put("status", "99");
-            map.put("statusDesc", "卡券退款中不可用");
-            return map;
-        }
-        if (!useUid.equals(yxCouponOrder.getUid() + "")) {
-            map.put("status", "99");
-            map.put("statusDesc", "卡券所属验证失败");
-            return map;
-        }
-        // 查询优惠券信息
-        YxCoupons yxCoupons = this.couponsService.getById(yxCouponOrderDetail.getCouponId());
-        if (null == yxCoupons) {
-            map.put("status", "99");
-            map.put("statusDesc", "卡券不存在");
-            return map;
-        }
-        YxStoreInfo yxStoreInfo = this.storeInfoService.getOne(new QueryWrapper<YxStoreInfo>().eq("mer_id", uid));
-        if (null == yxStoreInfo) {
-            map.put("status", "99");
-            map.put("statusDesc", "卡券店铺异常");
-            return map;
-        }
-        // 判断是否本商铺发放的卡券
-        if (!yxCoupons.getCreateUserId().equals(uid)) {
-            map.put("status", "99");
-            map.put("statusDesc", "非本商户卡券不可用");
-            return map;
-        }
-        // 可核销次数已核销次数
-        if (yxCouponOrderDetail.getUsedCount() >= yxCouponOrderDetail.getUseCount()) {
-            map.put("status", "99");
-            map.put("statusDesc", "当前卡券已达核销上限");
-            return map;
-        }
-        // 判断有效期
-        LocalDateTime expireDateStart = DateUtils.dateToLocalDate(yxCoupons.getExpireDateStart());
-        LocalDateTime expireDateEnd = DateUtils.dateToLocalDate(yxCoupons.getExpireDateEnd());
-        if (expireDateStart.isAfter(LocalDateTime.now())) {
-            map.put("status", "99");
-            map.put("statusDesc", "当前卡券未到使用时间");
-            return map;
-        }
-        if (expireDateEnd.isBefore(LocalDateTime.now())) {
-            map.put("status", "99");
-            map.put("statusDesc", "卡券已过期");
-            return map;
-        }
-        // 判断卡券状态
-        if (4 != yxCouponOrderDetail.getStatus() && 5 != yxCouponOrderDetail.getStatus()) {
-            map.put("status", "99");
-            map.put("statusDesc", "当前卡券不可用");
-            return map;
-        }
+        YxStoreInfo yxStoreInfo = (YxStoreInfo)map.get("yxStoreInfo");
+        YxCouponOrder yxCouponOrder = (YxCouponOrder)map.get("yxCouponOrder");
+        YxCouponOrderDetail yxCouponOrderDetail = (YxCouponOrderDetail)map.get("yxCouponOrderDetail");
+
+
         // 第一次核销发送分佣mq
         boolean isFirst = false;
         if (0 == yxCouponOrder.getUsedCount() && 0 == yxCouponOrder.getRebateStatus()) {
             isFirst = true;
         }
-        // 处理订单表数据
-        yxCouponOrder.setUsedCount(yxCouponOrder.getUsedCount() + 1);
-        if (yxCouponOrder.getUsedCount().equals(yxCouponOrder.getUseCount())) {
-            // 次数全部使用完成的状态更新为已核销
-            yxCouponOrder.setStatus(6);
-        } else {
-            yxCouponOrder.setStatus(5);
-        }
-        // 处理订单详情表数据
-        yxCouponOrderDetail.setUsedCount(yxCouponOrderDetail.getUsedCount() + 1);
-        if (yxCouponOrderDetail.getUsedCount().equals(yxCouponOrderDetail.getUseCount())) {
-            // 次数全部使用完成的状态更新为已核销
-            yxCouponOrderDetail.setStatus(6);
-        } else {
-            yxCouponOrderDetail.setStatus(5);
-        }
-        // 处理店铺核销数据
-        YxCouponOrderUse yxCouponOrderUse = new YxCouponOrderUse();
-        yxCouponOrderUse.setCouponId(yxCouponOrderDetail.getCouponId());
-        yxCouponOrderUse.setOrderId(yxCouponOrder.getOrderId());
-        yxCouponOrderUse.setStoreId(yxStoreInfo.getId());
-        yxCouponOrderUse.setStoreName(yxStoreInfo.getStoreName());
-        yxCouponOrderUse.setUsedCount(yxCouponOrderDetail.getUsedCount());
-        yxCouponOrderUse.setDelFlag(0);
-        yxCouponOrderUse.setCreateUserId(uid);
 
-        // 数据入库
-        this.updateById(yxCouponOrder);
-        this.yxCouponOrderDetailService.updateById(yxCouponOrderDetail);
-        this.yxCouponOrderUseService.save(yxCouponOrderUse);
+        // 处理订单表数据
+        int usedCount = updateCouponOrder(isAll,yxCouponOrder,yxCouponOrderDetail);
+        // 处理店铺核销数据
+        updateOrderUse(uid, yxStoreInfo, yxCouponOrder, yxCouponOrderDetail, usedCount);
+
+        if (isFirst) {
+            updateMerInfo(yxCouponOrder);
+        }
 
         if (isFirst) {
             // 更新商户余额
-            SystemUser systemUser = this.systemUserService.getById(yxCouponOrder.getMerId());
-            if (null != systemUser) {
-                // 该笔资金实际到账
-                SystemUser updateSystemUser = new SystemUser();
-                BigDecimal truePrice = yxCouponOrder.getTotalPrice().subtract(yxCouponOrder.getCommission());
-                updateSystemUser.setId(systemUser.getId());
-                updateSystemUser.setTotalAmount(truePrice);
-                updateSystemUser.setWithdrawalAmount(truePrice);
-                this.systemUserService.updateUserTotal(updateSystemUser);
-
-                // 插入商户资金明细
-                YxUserBill merBill = new YxUserBill();
-                merBill.setUid(yxCouponOrder.getMerId());
-                merBill.setLinkId(yxCouponOrder.getOrderId());
-                merBill.setPm(1);
-                merBill.setTitle("本地生活返现");
-                merBill.setCategory(BillDetailEnum.CATEGORY_1.getValue());
-                merBill.setType(BillDetailEnum.TYPE_8.getValue());
-                merBill.setNumber(truePrice);
-                // 目前只支持微信付款、没有余额
-                merBill.setBalance(systemUser.getWithdrawalAmount().add(truePrice));
-                merBill.setAddTime(DateUtils.getNowTime());
-                merBill.setStatus(1);
-                merBill.setMerId(yxCouponOrder.getMerId());
-                merBill.setUserType(1);
-                merBill.setUsername(systemUser.getNickName());
-                this.yxUserBillService.save(merBill);
-            }
-
-            // 分佣mq发送
-            JSONObject jsonObject = new JSONObject();
-            jsonObject.put("orderId", yxCouponOrder.getOrderId());
-            jsonObject.put("orderType", "1");
-            mqProducer.messageSend2(new MessageContent(MQConstant.MITU_TOPIC, MQConstant.MITU_COMMISSION_TAG, UUID.randomUUID().toString(), jsonObject));
+            updateMerInfo(yxCouponOrder);
         }
         map.put("status", "1");
         map.put("statusDesc", "核销成功");
@@ -1324,78 +1197,117 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
             isFirst = true;
         }
         // 处理订单表数据
-        yxCouponOrder.setUsedCount(yxCouponOrder.getUsedCount() + 1);
-        if (yxCouponOrder.getUsedCount().equals(yxCouponOrder.getUseCount())) {
-            // 次数全部使用完成的状态更新为已核销
-            yxCouponOrder.setStatus(6);
-        } else {
-            yxCouponOrder.setStatus(5);
-        }
-        // 处理订单详情表数据
-        yxCouponOrderDetail.setUsedCount(yxCouponOrderDetail.getUsedCount() + 1);
-        if (yxCouponOrderDetail.getUsedCount().equals(yxCouponOrderDetail.getUseCount())) {
-            // 次数全部使用完成的状态更新为已核销
-            yxCouponOrderDetail.setStatus(6);
-        } else {
-            yxCouponOrderDetail.setStatus(5);
-        }
+        int usedCount = updateCouponOrder(true,yxCouponOrder,yxCouponOrderDetail);
         // 处理店铺核销数据
-        YxCouponOrderUse yxCouponOrderUse = new YxCouponOrderUse();
-        yxCouponOrderUse.setCouponId(yxCouponOrderDetail.getCouponId());
-        yxCouponOrderUse.setOrderId(yxCouponOrder.getOrderId());
-        yxCouponOrderUse.setStoreId(yxStoreInfo.getId());
-        yxCouponOrderUse.setStoreName(yxStoreInfo.getStoreName());
-        yxCouponOrderUse.setUsedCount(yxCouponOrderDetail.getUsedCount());
-        yxCouponOrderUse.setDelFlag(0);
-        yxCouponOrderUse.setCreateUserId(uid);
-
-        // 数据入库
-        this.updateById(yxCouponOrder);
-        this.yxCouponOrderDetailService.updateById(yxCouponOrderDetail);
-        this.yxCouponOrderUseService.save(yxCouponOrderUse);
+        updateOrderUse(uid, yxStoreInfo, yxCouponOrder, yxCouponOrderDetail, usedCount);
 
         if (isFirst) {
-            // 更新商户余额
-            SystemUser systemUser = this.systemUserService.getById(yxCouponOrder.getMerId());
-            if (null != systemUser) {
-                // 该笔资金实际到账
-                SystemUser updateSystemUser = new SystemUser();
-                BigDecimal truePrice = yxCouponOrder.getTotalPrice().subtract(yxCouponOrder.getCommission());
-                updateSystemUser.setId(systemUser.getId());
-                updateSystemUser.setTotalAmount(truePrice);
-                updateSystemUser.setWithdrawalAmount(truePrice);
-                this.systemUserService.updateUserTotal(updateSystemUser);
-
-                // 插入商户资金明细
-                YxUserBill merBill = new YxUserBill();
-                merBill.setUid(yxCouponOrder.getMerId());
-                merBill.setLinkId(yxCouponOrder.getOrderId());
-                merBill.setPm(1);
-                merBill.setTitle("本地生活返现");
-                merBill.setCategory(BillDetailEnum.CATEGORY_1.getValue());
-                merBill.setType(BillDetailEnum.TYPE_8.getValue());
-                merBill.setNumber(truePrice);
-                // 目前只支持微信付款、没有余额
-                merBill.setBalance(systemUser.getWithdrawalAmount().add(truePrice));
-                merBill.setAddTime(DateUtils.getNowTime());
-                merBill.setStatus(1);
-                merBill.setMerId(yxCouponOrder.getMerId());
-                merBill.setUserType(1);
-                merBill.setUsername(systemUser.getNickName());
-                this.yxUserBillService.save(merBill);
-            }
-
-            // 分佣mq发送
-            JSONObject jsonObject = new JSONObject();
-            jsonObject.put("orderId", yxCouponOrder.getOrderId());
-            jsonObject.put("orderType", "1");
-            mqProducer.messageSend2(new MessageContent(MQConstant.MITU_TOPIC, MQConstant.MITU_COMMISSION_TAG, UUID.randomUUID().toString(), jsonObject));
+            updateMerInfo(yxCouponOrder);
         }
 
         map.put("status", "1");
         map.put("statusDesc", "核销成功");
         return map;
 
+    }
+
+    // 处理店铺核销数据
+    private void updateOrderUse(int uid, YxStoreInfo yxStoreInfo, YxCouponOrder yxCouponOrder, YxCouponOrderDetail yxCouponOrderDetail, int usedCount) {
+        // 处理店铺核销数据
+        YxCouponOrderUse yxCouponOrderUse = new YxCouponOrderUse();
+        yxCouponOrderUse.setCouponId(yxCouponOrderDetail.getCouponId());
+        yxCouponOrderUse.setOrderId(yxCouponOrder.getOrderId());
+        yxCouponOrderUse.setStoreId(yxStoreInfo.getId());
+        yxCouponOrderUse.setStoreName(yxStoreInfo.getStoreName());
+        yxCouponOrderUse.setUsedCount(usedCount);
+        yxCouponOrderUse.setDelFlag(0);
+        yxCouponOrderUse.setCreateUserId(uid);
+
+        // 数据入库
+        this.yxCouponOrderUseService.save(yxCouponOrderUse);
+    }
+
+    private void updateMerInfo(YxCouponOrder yxCouponOrder) {
+        // 更新商户余额
+        SystemUser systemUser = this.systemUserService.getById(yxCouponOrder.getMerId());
+        if (null != systemUser) {
+            // 该笔资金实际到账
+            SystemUser updateSystemUser = new SystemUser();
+            BigDecimal truePrice = yxCouponOrder.getTotalPrice().subtract(yxCouponOrder.getCommission());
+            updateSystemUser.setId(systemUser.getId());
+            updateSystemUser.setTotalAmount(truePrice);
+            updateSystemUser.setWithdrawalAmount(truePrice);
+            this.systemUserService.updateUserTotal(updateSystemUser);
+
+            // 插入商户资金明细
+            YxUserBill merBill = new YxUserBill();
+            merBill.setUid(yxCouponOrder.getMerId());
+            merBill.setLinkId(yxCouponOrder.getOrderId());
+            merBill.setPm(1);
+            merBill.setTitle("本地生活返现");
+            merBill.setCategory(BillDetailEnum.CATEGORY_1.getValue());
+            merBill.setType(BillDetailEnum.TYPE_8.getValue());
+            merBill.setNumber(truePrice);
+            // 目前只支持微信付款、没有余额
+            merBill.setBalance(systemUser.getWithdrawalAmount().add(truePrice));
+            merBill.setAddTime(DateUtils.getNowTime());
+            merBill.setStatus(1);
+            merBill.setMerId(yxCouponOrder.getMerId());
+            merBill.setUserType(1);
+            merBill.setUsername(systemUser.getNickName());
+            this.yxUserBillService.save(merBill);
+        }
+
+        // 分佣mq发送
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("orderId", yxCouponOrder.getOrderId());
+        jsonObject.put("orderType", "1");
+        mqProducer.messageSend2(new MessageContent(MQConstant.MITU_TOPIC, MQConstant.MITU_COMMISSION_TAG, UUID.randomUUID().toString(), jsonObject));
+    }
+
+    // 修改订单状态
+    private int updateCouponOrder(boolean isAll, YxCouponOrder yxCouponOrder,YxCouponOrderDetail yxCouponOrderDetail) {
+        int usedCount = 1;
+        List<YxCouponOrderDetail> yxCouponOrderDetails = new ArrayList<>();
+        if(isAll){
+            usedCount = 0;
+            // 全部核销 查询所有已经能用的详情  user_status 核销状态 0：不可用 1：可用
+            this.yxCouponOrderDetailService.list(new QueryWrapper<YxCouponOrderDetail>().eq("order_id", yxCouponOrder.getOrderId()).eq("user_status", 1));
+            for (YxCouponOrderDetail item : yxCouponOrderDetails){
+                usedCount += item.getUseCount();
+            }
+        }else {
+            yxCouponOrderDetails.add(yxCouponOrderDetail);
+        }
+        yxCouponOrder.setUsedCount(yxCouponOrder.getUsedCount() + usedCount);
+        if (yxCouponOrder.getUsedCount().equals(yxCouponOrder.getUseCount())) {
+            // 次数全部使用完成的状态更新为已核销
+            yxCouponOrder.setStatus(6);
+        } else {
+            yxCouponOrder.setStatus(5);
+        }
+        // 数据入库
+        this.updateById(yxCouponOrder);
+        // 处理订单详情表数据
+        for (YxCouponOrderDetail item : yxCouponOrderDetails){
+            if(isAll){
+                // 全部核销
+                item.setUsedCount(item.getUseCount() );
+            }else {
+                // 单个核销
+                item.setUsedCount(item.getUsedCount() + 1);
+            }
+
+            if (item.getUsedCount().equals(item.getUseCount())) {
+                // 次数全部使用完成的状态更新为已核销
+                item.setStatus(6);
+            } else {
+                item.setStatus(5);
+            }
+            // 数据入库
+            this.yxCouponOrderDetailService.updateById(yxCouponOrderDetail);
+        }
+        return usedCount;
     }
 
     // 处理船只操作
