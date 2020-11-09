@@ -3,57 +3,62 @@
     <!--工具栏-->
     <div class="head-container">
       <!--如果想在工具栏加入更多按钮，可以使用插槽方式， slot = 'left' or 'right'-->
+      <el-input v-model="query.seriesName" clearable size="small" placeholder="请输入系列名称" style="width: 200px;" class="filter-item" @keyup.enter.native="crud.toQuery" />
+      <el-button class="filter-item" size="mini" type="success" icon="el-icon-search" @click="crud.toQuery">搜索</el-button>
       <crudOperation :permission="permission" />
       <!--表单组件-->
       <el-dialog :close-on-click-modal="false" :before-close="crud.cancelCU" :visible.sync="crud.status.cu > 0" :title="crud.status.title" width="500px">
         <el-form ref="form" :model="form" :rules="rules" size="small" label-width="80px">
-          <el-form-item label="系列id">
-            <el-input v-model="form.id" style="width: 370px;" />
-          </el-form-item>
           <el-form-item label="系列名称" prop="seriesName">
-            <el-input v-model="form.seriesName" style="width: 370px;" />
+            <el-input v-model="form.seriesName" style="width: 370px;" maxlength="15"/>
           </el-form-item>
           <el-form-item label="船只类别" prop="shipCategory">
-            <el-input v-model="form.shipCategory" style="width: 370px;" />
+           <el-select v-model="form.shipCategory" placeholder="请选择" style="width: 370px;">
+                <el-option
+                  v-for="item in dict.ship_category"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value">
+                </el-option>
+              </el-select>
           </el-form-item>
           <el-form-item label="限乘人数" prop="rideLimit">
-            <el-input v-model="form.rideLimit" style="width: 370px;" />
+            <el-input v-model.number="form.rideLimit" style="width: 370px;" type="number" :max="1000"/>
           </el-form-item>
           <el-form-item label="尺寸" prop="shipSize">
-            <el-input v-model="form.shipSize" style="width: 370px;" />
-          </el-form-item>
-          <el-form-item label="状态：0：启用，1：禁用" prop="status">
-            <el-input v-model="form.status" style="width: 370px;" />
+            <el-input v-model="form.shipSize" style="width: 370px;" maxlength="15"/>
           </el-form-item>
           <el-form-item label="乘船省市区" prop="shipProvince">
-            <el-input v-model="form.shipProvince" style="width: 370px;" />
+<!--            <el-input v-model="form.shipProvince" style="width: 370px;" />-->
+            <el-cascader
+              :options="options"
+              v-model="selectedOptions"
+              @change='selectedProvince' style="width: 370px;" >
+            </el-cascader>
           </el-form-item>
           <el-form-item label="乘船地址" prop="shipAddress">
-            <el-input v-model="form.shipAddress" style="width: 370px;" />
+            <el-input v-model="form.shipAddress" style="width: 370px;" maxlength="50"/>
           </el-form-item>
-          <el-form-item label="地图坐标">
-            <el-input v-model="form.coordinate" style="width: 370px;" />
+          <el-form-item label=" ">
+            <div id="mapContainer" style="width:700px;height:300px;"></div>
           </el-form-item>
-          <el-form-item label="地图坐标经度">
-            <el-input v-model="form.coordinateX" style="width: 370px;" />
+          <el-form-item label="帆船状态" prop="status">
+            <el-radio-group v-model="form.status">
+              <el-radio :label="0">启用</el-radio>
+              <el-radio :label="1">禁用</el-radio>
+            </el-radio-group>
           </el-form-item>
-          <el-form-item label="地图坐标纬度">
-            <el-input v-model="form.coordinateY" style="width: 370px;" />
+          <el-form-item label="地图坐标经度" v-show="false">
+            <el-input v-model="form.coordinateX"/>
           </el-form-item>
-          <el-form-item label="是否删除（0：未删除，1：已删除）" prop="delFlag">
-            <el-input v-model="form.delFlag" style="width: 370px;" />
+          <el-form-item label="地图坐标纬度" v-show="false">
+            <el-input v-model="form.coordinateY"/>
           </el-form-item>
-          <el-form-item label="创建人">
-            <el-input v-model="form.createUserId" style="width: 370px;" />
+          <el-form-item label=" " v-show="false">
+            <el-input v-model="form.merId"/>
           </el-form-item>
-          <el-form-item label="修改人">
-            <el-input v-model="form.updateUserId" style="width: 370px;" />
-          </el-form-item>
-          <el-form-item label="创建时间" prop="createTime">
-            <el-input v-model="form.createTime" style="width: 370px;" />
-          </el-form-item>
-          <el-form-item label="更新时间" prop="updateTime">
-            <el-input v-model="form.updateTime" style="width: 370px;" />
+          <el-form-item label=" " v-show="false">
+            <el-input v-model="form.storeId"/>
           </el-form-item>
         </el-form>
         <div slot="footer" class="dialog-footer">
@@ -64,36 +69,22 @@
       <!--表格渲染-->
       <el-table ref="table" v-loading="crud.loading" :data="crud.data" size="small" style="width: 100%;" @selection-change="crud.selectionChangeHandler">
         <el-table-column type="selection" width="55" />
-        <el-table-column v-if="columns.visible('id')" prop="id" label="系列id" />
         <el-table-column v-if="columns.visible('seriesName')" prop="seriesName" label="系列名称" />
-        <el-table-column v-if="columns.visible('shipCategory')" prop="shipCategory" label="船只类别" />
-        <el-table-column v-if="columns.visible('rideLimit')" prop="rideLimit" label="限乘人数" />
-        <el-table-column v-if="columns.visible('shipSize')" prop="shipSize" label="尺寸" />
-        <el-table-column v-if="columns.visible('status')" prop="status" label="状态：0：启用，1：禁用" />
-        <el-table-column v-if="columns.visible('shipProvince')" prop="shipProvince" label="乘船省市区" />
-        <el-table-column v-if="columns.visible('shipAddress')" prop="shipAddress" label="乘船地址" />
-        <el-table-column v-if="columns.visible('coordinate')" prop="coordinate" label="地图坐标" />
-        <el-table-column v-if="columns.visible('coordinateX')" prop="coordinateX" label="地图坐标经度" />
-        <el-table-column v-if="columns.visible('coordinateY')" prop="coordinateY" label="地图坐标纬度" />
-        <el-table-column v-if="columns.visible('delFlag')" prop="delFlag" label="是否删除（0：未删除，1：已删除）" />
-        <el-table-column v-if="columns.visible('createUserId')" prop="createUserId" label="创建人" />
-        <el-table-column v-if="columns.visible('updateUserId')" prop="updateUserId" label="修改人" />
-        <el-table-column v-if="columns.visible('createTime')" prop="createTime" label="创建时间">
+        <el-table-column v-if="columns.visible('status')" prop="status" label="状态" >
           <template slot-scope="scope">
-            <span>{{ parseTime(scope.row.createTime) }}</span>
+            <span>{{ scope.row.status?'禁用':'启用' }}</span>
           </template>
         </el-table-column>
-        <el-table-column v-if="columns.visible('updateTime')" prop="updateTime" label="更新时间">
+        <el-table-column v-permission="permission.edit" label="操作" width="150px" align="center">
           <template slot-scope="scope">
-            <span>{{ parseTime(scope.row.updateTime) }}</span>
-          </template>
-        </el-table-column>
-        <el-table-column v-permission="['admin','yxShipSeries:edit','yxShipSeries:del']" label="操作" width="150px" align="center">
-          <template slot-scope="scope">
-            <udOperation
-              :data="scope.row"
-              :permission="permission"
-            />
+            <el-button size="mini" type="text" icon="el-icon-edit"
+                       @click="crud.toEdit(scope.row)" >修改</el-button>
+            <el-divider direction="vertical"></el-divider>
+            <el-button size="mini" type="text" icon="el-icon-edit"
+                       @click="editStatus(scope.row)" >{{ scope.row.status?'启用':'禁用' }}</el-button>
+            <el-divider direction="vertical"></el-divider>
+            <el-button size="mini" type="text" icon="el-icon-edit"
+                       @click="crud.toEdit(data)" >船只管理</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -104,24 +95,36 @@
 </template>
 
 <script>
-import crudYxShipSeries from '@/api/yxShipSeries'
+import crudYxShipSeries, { changeStatus } from '@/api/yxShipSeries'
 import CRUD, { presenter, header, form, crud } from '@crud/crud'
 import rrOperation from '@crud/RR.operation'
 import crudOperation from '@crud/CRUD.operation'
 import udOperation from '@crud/UD.operation'
 import pagination from '@crud/Pagination'
 import MaterialList from "@/components/material";
+import storeMark from "@/assets/images/store_mark.png"
+import {  regionData,   CodeToText } from 'element-china-area-data'
+import { Notification } from 'element-ui'
 
 // crud交由presenter持有
-const defaultCrud = CRUD({ title: '船只系列', url: 'api/yxShipSeries', sort: 'id,desc', crudMethod: { ...crudYxShipSeries }})
-const defaultForm = { id: null, seriesName: null, shipCategory: null, rideLimit: null, shipSize: null, status: null, shipProvince: null, shipAddress: null, coordinate: null, coordinateX: null, coordinateY: null, delFlag: null, createUserId: null, updateUserId: null, createTime: null, updateTime: null }
+const defaultCrud = CRUD({ title: '船只系列', url: 'api/yxShipSeries', sort: 'id,desc',
+  crudMethod: { ...crudYxShipSeries },optShow:{
+    add: true,
+    edit: false,
+    del: false,
+    download: false
+  }})
+const defaultForm = { id: null, seriesName: null, shipCategory: null, rideLimit: null, shipSize: null,
+  status: 1, shipProvince: null, shipAddress: null,  coordinateX: 39, coordinateY: 116, delFlag: null,
+  createUserId: null, updateUserId: null, createTime: null, updateTime: null, merId:null, storeId:null }
 export default {
   name: 'YxShipSeries',
   components: { pagination, crudOperation, rrOperation, udOperation ,MaterialList},
   mixins: [presenter(defaultCrud), header(), form(defaultForm), crud()],
+  dicts:['ship_category'],
   data() {
     return {
-      
+      map:null,
       permission: {
         add: ['admin', 'yxShipSeries:add'],
         edit: ['admin', 'yxShipSeries:edit'],
@@ -135,40 +138,128 @@ export default {
           { required: true, message: '船只类别不能为空', trigger: 'blur' }
         ],
         rideLimit: [
-          { required: true, message: '限乘人数不能为空', trigger: 'blur' }
+          { required: true,type: 'number', message: '限乘人数不能为空', trigger: 'blur' },
+          // { max: '1000', message: '限乘人数小于等于1000', trigger: 'blur' }
         ],
         shipSize: [
           { required: true, message: '尺寸不能为空', trigger: 'blur' }
         ],
         status: [
-          { required: true, message: '状态：0：启用，1：禁用不能为空', trigger: 'blur' }
+          { required: true, message: '状态不能为空', trigger: 'blur' }
         ],
         shipProvince: [
-          { required: true, message: '乘船省市区不能为空', trigger: 'blur' }
+          { required: true, message: '乘船省市区不能为空', trigger: 'change' }
         ],
         shipAddress: [
           { required: true, message: '乘船地址不能为空', trigger: 'blur' }
         ],
-        delFlag: [
-          { required: true, message: '是否删除（0：未删除，1：已删除）不能为空', trigger: 'blur' }
-        ],
-        createTime: [
-          { required: true, message: '创建时间不能为空', trigger: 'blur' }
-        ],
-        updateTime: [
-          { required: true, message: '更新时间不能为空', trigger: 'blur' }
-        ]
-      }    }
+      },
+      options: regionData,
+      selectedOptions: [],
+      shipProvinceTest:''
+    }
   },
   watch: {
   },
   methods: {
+    // 初始化地图
+    initMap() {
+      const that = this;
+      // 设置一个基础中心点
+      const lat = that.form.coordinateY ||116.397128;
+      const lng = that.form.coordinateX|| 39.916527;
+      const center = new qq.maps.LatLng(lng,lat);
+      const map = new qq.maps.Map(document.getElementById('mapContainer'),{
+        center: center,
+        zoom: 15,
+        // 关闭控制选项和功能
+        draggable: true,
+        scrollwheel: false,
+        disableDoubleClickZoom: false,
+        keyboardShortcuts:false,
+        mapTypeControl: false,
+        panControl: false,
+        zoomControl: false,
+      });
+      // 保存地图
+      that.map = map;
+      var middleControl = document.createElement("div");
+      middleControl.className = "store-mark";
+      middleControl.innerHTML ='<img src="'+storeMark+'" />';
+      document.getElementById("mapContainer").appendChild(middleControl);
+      let timer = null;
+      qq.maps.event.addListener(that.map, 'center_changed', function() {
+        const center = map.getCenter();
+        if(timer){
+          clearTimeout(timer);
+        }
+        timer = setTimeout(()=>{
+          that.form.coordinateY = center.lat;
+          that.form.coordinateX = center.lng;
+          console.log(that.form)
+        },200)
+
+      });
+      //调用地址解析类
+      that.geocoder = new qq.maps.Geocoder({
+        complete : result=>{
+          console.log(result)
+          const { location } = result.detail;
+          that.map.setCenter(location);
+          // 设置经纬度
+          that.form.coordinateY = location.lat;
+          that.form.coordinateX = location.lng;
+        }
+      });
+      // 有经纬度跳到地址
+      if(that.form.coordinateY){
+        map.panTo(new qq.maps.LatLng(that.form.coordinateY, that.form.coordinateX))
+      }else{
+        // 无经纬度跳到地址的经纬度
+        that.codeAddress();
+      }
+
+    },
+    codeAddress() {
+      const that = this;
+      //通过getLocation();方法获取位置信息值
+      if(that.geocoder){
+        that.geocoder.getLocation(this.shipProvinceTest + this.form.shipAddress);
+      }
+
+    },
     // 获取数据前设置好接口地址
     [CRUD.HOOK.beforeRefresh]() {
       return true
     }, // 新增与编辑前做的操作
     [CRUD.HOOK.afterToCU](crud, form) {
+      if(form.shipProvince){
+        this.selectedOptions=form.shipProvince.split(',')
+      }
+      this.$nextTick(()=>{
+        document.getElementById('mapContainer').innerHTML = "";
+        this.initMap()
+      })
     },
+    selectedProvince(val){
+      let pcr=[],pcrt=[]
+      val.forEach(item=>{
+        pcr.push(item)
+        pcrt.push(CodeToText[item])
+      })
+      this.form.shipProvince=pcr.join(',')
+      this.shipProvinceTest=pcrt.join('')
+    },
+    editStatus(row){
+      let that=this
+      changeStatus(row.id).then(res=>{
+        let t='已'+ (row.status?'启用':'禁用')
+        Notification.success({
+          title: t
+        })
+        that.crud.refresh()
+      })
+    }
   }
 }
 
