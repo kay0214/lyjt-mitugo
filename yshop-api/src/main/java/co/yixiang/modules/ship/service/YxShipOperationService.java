@@ -7,6 +7,7 @@ import co.yixiang.modules.ship.web.vo.YxShipOperationQueryVo;
 import co.yixiang.common.web.vo.Paging;
 
 import java.io.Serializable;
+import java.util.Map;
 
 /**
  * <p>
@@ -32,4 +33,18 @@ public interface YxShipOperationService extends BaseService<YxShipOperation> {
      */
     Paging<YxShipOperationQueryVo> getYxShipOperationPageList(YxShipOperationQueryParam yxShipOperationQueryParam) throws Exception;
 
+    /**
+     * 查看船只是否已经被分配了
+     * @param shipId
+     * @param shipUserId
+     * @return
+     */
+    YxShipOperation getShipOperationBySidUid(Integer shipId, Integer shipUserId);
+
+    /**
+     * 插入信息
+     * @param map
+     * @return
+     */
+    YxShipOperation insertYxShipOperation(Map<String, Object> map);
 }

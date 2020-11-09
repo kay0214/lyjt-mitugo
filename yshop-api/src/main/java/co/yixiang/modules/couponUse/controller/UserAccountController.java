@@ -64,7 +64,6 @@ public class UserAccountController extends BaseController {
     @GetMapping(value = "/getUserProductAccountList")
     public ResponseEntity<Object> getUserProductAccountList(@RequestHeader(value = "token") String token, UserAccountQueryParam param) {
         // 获取登陆用户的id
-        Map<String, Object> map = new HashMap<>();
         SystemUser user = getRedisUser(token);
 
         Paging<UserBillVo> result = billService.getUserProductAccountList(param, user.getId());
