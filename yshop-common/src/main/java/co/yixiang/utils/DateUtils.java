@@ -206,7 +206,7 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
         if (timestamp == null || timestamp == 0) {
             return "";
         }
-        Long time = Long.valueOf(timestamp);
+        Long time = Long.valueOf(timestamp) * 1000;
         DateTime now = new DateTime(time);
         return now.toString(YYYY_MM_DD_HH_MM_SS);
     }
