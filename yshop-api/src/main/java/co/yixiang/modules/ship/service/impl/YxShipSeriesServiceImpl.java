@@ -71,7 +71,7 @@ public class YxShipSeriesServiceImpl extends BaseServiceImpl<YxShipSeriesMapper,
         for (YxShipSeries item : shipSeries) {
             AllShipsVO ship = CommonsUtils.convertBean(item,AllShipsVO.class);
             QueryWrapper<YxShipInfo> wrapperInfo = new QueryWrapper<>();
-            wrapperInfo.eq("del_flag",0).eq("status",0).eq("store_id",storeId).eq("series_id",item.getId());
+            wrapperInfo.lambda().eq(YxShipInfo::getDelFlag,0).eq(YxShipInfo::getShipStatus,0).eq(YxShipInfo::getStoreId,storeId).eq(YxShipInfo::getSeriesId,item.getId());
             List<YxShipInfo> shipInfos = yxShipInfoMapper.selectList(wrapperInfo);
             ship.setShipInfos(CommonsUtils.convertBeanList(shipInfos, ShipInfoVO.class));
             result.add(ship);
