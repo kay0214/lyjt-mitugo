@@ -9,17 +9,13 @@
 package co.yixiang.modules.shipManage.service.dto;
 
 import lombok.Data;
+import java.util.List;
+import co.yixiang.annotation.Query;
 
 /**
 * @author nxl
-* @date 2020-11-04
+* @date 2020-11-05
 */
 @Data
-public class YxShipSeriesQueryCriteria{
-    // 系列名称
-    private String seriesName;
-    private Integer delFlag = 0;
-    //商户id
-    private Integer merId;
-
+public class YxShipOperationDetailQueryCriteria{
 }

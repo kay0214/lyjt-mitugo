@@ -7,6 +7,7 @@ import co.yixiang.modules.ship.web.vo.YxShipOperationDetailQueryVo;
 import co.yixiang.common.web.vo.Paging;
 
 import java.io.Serializable;
+import java.util.Map;
 
 /**
  * <p>
@@ -32,4 +33,9 @@ public interface YxShipOperationDetailService extends BaseService<YxShipOperatio
      */
     Paging<YxShipOperationDetailQueryVo> getYxShipOperationDetailPageList(YxShipOperationDetailQueryParam yxShipOperationDetailQueryParam) throws Exception;
 
+    /**
+     * 保存乘客详情
+     * @param map
+     */
+    YxShipOperationDetail saveShipOperationDetail(Map<String, Object> map);
 }

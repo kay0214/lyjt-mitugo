@@ -14,7 +14,7 @@ import co.yixiang.common.utils.QueryHelpPlus;
 import co.yixiang.dozer.service.IGenerator;
 import co.yixiang.exception.BadRequestException;
 import co.yixiang.modules.shipManage.domain.YxShipInfo;
-import co.yixiang.modules.shipManage.domain.YxShipInfoRequest;
+import co.yixiang.modules.shipManage.param.YxShipInfoRequest;
 import co.yixiang.modules.shipManage.domain.YxShipSeries;
 import co.yixiang.modules.shipManage.service.YxShipInfoService;
 import co.yixiang.modules.shipManage.service.dto.YxShipInfoDto;

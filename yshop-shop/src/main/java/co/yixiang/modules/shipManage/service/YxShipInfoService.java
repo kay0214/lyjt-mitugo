@@ -10,7 +10,7 @@ package co.yixiang.modules.shipManage.service;
 
 import co.yixiang.common.service.BaseService;
 import co.yixiang.modules.shipManage.domain.YxShipInfo;
-import co.yixiang.modules.shipManage.domain.YxShipInfoRequest;
+import co.yixiang.modules.shipManage.param.YxShipInfoRequest;
 import co.yixiang.modules.shipManage.domain.YxShipSeries;
 import co.yixiang.modules.shipManage.service.dto.YxShipInfoDto;
 import co.yixiang.modules.shipManage.service.dto.YxShipInfoQueryCriteria;

@@ -68,4 +68,15 @@ public class SystemConfigConstants {
     // 海岸支队
     public final static int  ROLE_POLICE = 11;
     // ----------admin角色相关-----------------------------------------
+
+    // ----------卡券类型 -----------------------------------------
+    // 代金券
+    public final static int  COUPON_TYPE_DJ = 1;
+    // 折扣券
+    public final static int  COUPON_TYPE_ZK = 2;
+    // 满减券
+    public final static int  COUPON_TYPE_MJ = 3;
+    // 船票券
+    public final static int  COUPON_TYPE_CP = 4;
+    // ----------admin角色相关-----------------------------------------
 }

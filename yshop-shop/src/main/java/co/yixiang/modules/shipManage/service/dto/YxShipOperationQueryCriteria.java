@@ -12,14 +12,9 @@ import lombok.Data;
 
 /**
 * @author nxl
-* @date 2020-11-04
+* @date 2020-11-05
 */
 @Data
-public class YxShipSeriesQueryCriteria{
-    // 系列名称
-    private String seriesName;
+public class YxShipOperationQueryCriteria{
     private Integer delFlag = 0;
-    //商户id
-    private Integer merId;
-
 }
