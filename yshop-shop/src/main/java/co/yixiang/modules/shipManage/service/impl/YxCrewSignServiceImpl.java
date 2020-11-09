@@ -95,8 +95,8 @@ public class YxCrewSignServiceImpl extends BaseServiceImpl<YxCrewSignMapper, YxC
 
     @Override
     public Map<String, Object> queryAllNew(YxCrewSignQueryCriteria criteria, Pageable pageable) {
-        getPage(pageable);
-        PageInfo<YxCrewSign> page = new PageInfo<>(queryAll(criteria));
+//        getPage(pageable);
+//        PageInfo<YxCrewSign> page = new PageInfo<>(queryAll(criteria));
         Map<String, Object> map = new LinkedHashMap<>(2);
         QueryWrapper<YxCrewSign> queryWrapper = new QueryWrapper<>();
         queryWrapper.lambda().eq(YxCrewSign::getDelFlag ,0);
@@ -109,6 +109,7 @@ public class YxCrewSignServiceImpl extends BaseServiceImpl<YxCrewSignMapper, YxC
         if(StringUtils.isNotBlank(criteria.getUsername())){
             queryWrapper.lambda().like(YxCrewSign::getUsername,criteria.getUsername());
         }
+        queryWrapper.orderByDesc("create_time");
         IPage<YxCrewSign> ipage = this.page(new Page<>(pageable.getPageNumber() + 1, pageable.getPageSize()), queryWrapper);
         if (ipage.getTotal() <= 0) {
             map.put("content", new ArrayList<>());
@@ -116,7 +117,7 @@ public class YxCrewSignServiceImpl extends BaseServiceImpl<YxCrewSignMapper, YxC
             return map;
         }
         map.put("content", generator.convert(ipage.getRecords(), YxCrewSignDto.class));
-        map.put("totalElements", page.getTotal());
+        map.put("totalElements", ipage.getTotal());
         return map;
     }
 }

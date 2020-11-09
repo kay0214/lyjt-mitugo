@@ -9,6 +9,8 @@
 package co.yixiang.modules.shipManage.service.mapper;
 
 import co.yixiang.common.mapper.CoreMapper;
+import co.yixiang.modules.mybatis.GeoBaseInsertMapper;
+import co.yixiang.modules.mybatis.GeoBaseUpdateMapper;
 import co.yixiang.modules.shipManage.domain.YxShipSeries;
 import org.apache.ibatis.annotations.Mapper;
 import org.springframework.stereotype.Repository;
@@ -19,6 +21,6 @@ import org.springframework.stereotype.Repository;
 */
 @Repository
 @Mapper
-public interface YxShipSeriesMapper extends CoreMapper<YxShipSeries> {
+public interface YxShipSeriesMapper extends GeoBaseInsertMapper<YxShipSeries>, GeoBaseUpdateMapper<YxShipSeries>,CoreMapper<YxShipSeries> {
 
 }

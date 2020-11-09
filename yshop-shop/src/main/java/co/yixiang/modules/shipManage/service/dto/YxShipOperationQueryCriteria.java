@@ -8,6 +8,7 @@
 */
 package co.yixiang.modules.shipManage.service.dto;
 
+import co.yixiang.annotation.Query;
 import lombok.Data;
 
 /**
@@ -16,5 +17,19 @@ import lombok.Data;
 */
 @Data
 public class YxShipOperationQueryCriteria{
+    @Query
     private Integer delFlag = 0;
+    /** 船只id */
+    @Query
+    private Integer shipId;
+    /** 船长姓名 */
+    @Query
+    private String captainName;
+
+    /** 开始时间 */
+    @Query
+    private String startDate;
+    /** 结束时间 */
+    @Query
+    private String endDate;
 }

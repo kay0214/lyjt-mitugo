@@ -118,4 +118,25 @@ public class YxShipSeriesServiceImpl extends BaseServiceImpl<YxShipSeriesMapper,
         yxShipSeries.setUpdateTime(DateTime.now().toTimestamp());
         this.updateById(yxShipSeries);
     }
+
+    /**
+     * 插入信息
+     * @param shipSeries
+     * @return
+     */
+    @Override
+    public int insert(YxShipSeries shipSeries){
+        return yxShipSeriesMapper.insert(shipSeries);
+    }
+
+    /**
+     * 修改
+     * @param shipSeries
+     * @return
+     */
+    @Override
+    public int updateByPrimaryKey(YxShipSeries shipSeries){
+        return yxShipSeriesMapper.updateByPrimaryKey(shipSeries);
+    }
+
 }

@@ -52,4 +52,18 @@ public interface YxShipSeriesService  extends BaseService<YxShipSeries>{
      * @param id
      */
     void changeStatus(int id);
+
+    /**
+     * 插入信息
+     * @param shipSeries
+     * @return
+     */
+    int insert(YxShipSeries shipSeries);
+
+    /**
+     * 修改
+     * @param shipSeries
+     * @return
+     */
+    int updateByPrimaryKey(YxShipSeries shipSeries);
 }

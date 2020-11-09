@@ -13,11 +13,13 @@ import co.yixiang.dozer.service.IGenerator;
 import co.yixiang.logging.aop.log.Log;
 import co.yixiang.modules.mybatis.GeoPoint;
 import co.yixiang.modules.shipManage.domain.YxShipSeries;
+import co.yixiang.modules.shipManage.param.YxShipSeriesRequest;
 import co.yixiang.modules.shipManage.service.YxShipSeriesService;
 import co.yixiang.modules.shipManage.service.dto.YxShipSeriesDto;
 import co.yixiang.modules.shipManage.service.dto.YxShipSeriesQueryCriteria;
 import co.yixiang.modules.shop.domain.YxStoreInfo;
 import co.yixiang.modules.shop.service.YxStoreInfoService;
+import co.yixiang.utils.BeanUtils;
 import co.yixiang.utils.SecurityUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -75,7 +77,7 @@ public class YxShipSeriesController {
     @Log("新增船只系列")
     @ApiOperation("新增船只系列")
     @PreAuthorize("@el.check('admin','yxShipSeries:add')")
-    public ResponseEntity<Object> create(@Validated @RequestBody YxShipSeries resources) {
+    public ResponseEntity<Object> create(@Validated @RequestBody YxShipSeriesRequest resources) {
         int loginUserId = SecurityUtils.getUserId().intValue();
         YxStoreInfo storeInfo = yxStoreInfoService.getStoreInfoByMerId(loginUserId);
         if (null == storeInfo) {
@@ -90,15 +92,19 @@ public class YxShipSeriesController {
         //获取店铺信息
         resources.setStoreId(storeInfo.getId());
         GeoPoint geoPoint = new GeoPoint(new BigDecimal(resources.getCoordinateX()), new BigDecimal(resources.getCoordinateY()));
-        resources.setCoordinate(geoPoint);
-        return new ResponseEntity<>(yxShipSeriesService.save(resources), HttpStatus.CREATED);
+//        resources.setCoordinate(geoPoint);
+        YxShipSeries shipSeries = new YxShipSeries();
+        BeanUtils.copyProperties(resources,shipSeries);
+        shipSeries.setCoordinate(geoPoint);
+        int isSave = yxShipSeriesService.insert(shipSeries);
+        return new ResponseEntity<>(isSave, HttpStatus.CREATED);
     }
 
     @PutMapping
     @Log("修改船只系列")
     @ApiOperation("修改船只系列")
     @PreAuthorize("@el.check('admin','yxShipSeries:edit')")
-    public ResponseEntity<Object> update(@Validated @RequestBody YxShipSeries resources) {
+    public ResponseEntity<Object> update(@Validated @RequestBody YxShipSeriesRequest resources) {
         int loginUserId = SecurityUtils.getUserId().intValue();
         YxStoreInfo storeInfo = yxStoreInfoService.getStoreInfoByMerId(loginUserId);
         if (null == storeInfo) {
@@ -107,8 +113,10 @@ public class YxShipSeriesController {
         resources.setUpdateUserId(loginUserId);
         resources.setUpdateTime(DateTime.now().toTimestamp());
         GeoPoint geoPoint = new GeoPoint(new BigDecimal(resources.getCoordinateX()), new BigDecimal(resources.getCoordinateY()));
-        resources.setCoordinate(geoPoint);
-        yxShipSeriesService.updateById(resources);
+        YxShipSeries shipSeries = new YxShipSeries();
+        BeanUtils.copyProperties(resources,shipSeries);
+        shipSeries.setCoordinate(geoPoint);
+        yxShipSeriesService.updateByPrimaryKey(shipSeries);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
