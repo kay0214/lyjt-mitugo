@@ -310,14 +310,6 @@ export default {
       //   this.$refs['form'].validateField('sliderImageArr')
       // })
     },
-    'form.sliderVideo': function(val) {
-      if (val) {
-        this.form.video = val.join(',')
-      }
-      // this.$nextTick(()=>{
-      //   this.$refs['form'].validateField('sliderImageArr')
-      // })
-    }
   },
   methods: {
     descriptionChange(val){
