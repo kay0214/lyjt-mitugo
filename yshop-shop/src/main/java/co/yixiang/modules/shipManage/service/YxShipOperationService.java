@@ -9,13 +9,15 @@
 package co.yixiang.modules.shipManage.service;
 import co.yixiang.common.service.BaseService;
 import co.yixiang.modules.shipManage.domain.YxShipOperation;
+import co.yixiang.modules.shipManage.param.YxShipOperationResponse;
 import co.yixiang.modules.shipManage.service.dto.YxShipOperationDto;
 import co.yixiang.modules.shipManage.service.dto.YxShipOperationQueryCriteria;
 import org.springframework.data.domain.Pageable;
-import java.util.Map;
-import java.util.List;
-import java.io.IOException;
+
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 
 /**
 * @author nxl
@@ -45,4 +47,10 @@ public interface YxShipOperationService  extends BaseService<YxShipOperation>{
     * @throws IOException /
     */
     void download(List<YxShipOperationDto> all, HttpServletResponse response) throws IOException;
+
+    /**
+     * 海岸支队大屏（船只出海记录列表）
+     * @return
+     */
+    List<YxShipOperationResponse> findOperationList(YxShipOperationQueryCriteria criteria,Pageable pageable);
 }

@@ -8,34 +8,43 @@
 */
 package co.yixiang.modules.shipManage.service.impl;
 
-import co.yixiang.modules.shipManage.domain.YxShipOperation;
 import co.yixiang.common.service.impl.BaseServiceImpl;
-import lombok.AllArgsConstructor;
-import co.yixiang.dozer.service.IGenerator;
-import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
 import co.yixiang.common.utils.QueryHelpPlus;
-import co.yixiang.utils.ValidationUtil;
-import co.yixiang.utils.FileUtil;
+import co.yixiang.dozer.service.IGenerator;
+import co.yixiang.modules.shipManage.domain.YxShipOperation;
+import co.yixiang.modules.shipManage.domain.YxShipPassenger;
+import co.yixiang.modules.shipManage.param.YxShipOperationResponse;
+import co.yixiang.modules.shipManage.param.YxShipPassengerResponse;
 import co.yixiang.modules.shipManage.service.YxShipOperationService;
 import co.yixiang.modules.shipManage.service.dto.YxShipOperationDto;
 import co.yixiang.modules.shipManage.service.dto.YxShipOperationQueryCriteria;
 import co.yixiang.modules.shipManage.service.mapper.YxShipOperationMapper;
+import co.yixiang.modules.shipManage.service.mapper.YxShipPassengerMapper;
+import co.yixiang.utils.CommonsUtils;
+import co.yixiang.utils.DateUtils;
+import co.yixiang.utils.FileUtil;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.github.pagehelper.PageInfo;
+import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
+
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
 // 默认不使用缓存
 //import org.springframework.cache.annotation.CacheConfig;
 //import org.springframework.cache.annotation.CacheEvict;
 //import org.springframework.cache.annotation.Cacheable;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import java.util.List;
-import java.util.Map;
-import java.io.IOException;
-import javax.servlet.http.HttpServletResponse;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 
 /**
 * @author nxl
@@ -48,6 +57,10 @@ import java.util.LinkedHashMap;
 public class YxShipOperationServiceImpl extends BaseServiceImpl<YxShipOperationMapper, YxShipOperation> implements YxShipOperationService {
 
     private final IGenerator generator;
+    @Autowired
+    private YxShipOperationMapper yxShipOperationMapper;
+    @Autowired
+    private YxShipPassengerMapper yxShipPassengerMapper;
 
     @Override
     //@Cacheable
@@ -92,5 +105,53 @@ public class YxShipOperationServiceImpl extends BaseServiceImpl<YxShipOperationM
             list.add(map);
         }
         FileUtil.downloadExcel(list, response);
+    }
+
+    /**
+     * 海岸支队大屏（船只出海记录列表）
+     * @return
+     */
+    @Override
+    public List<YxShipOperationResponse> findOperationList(YxShipOperationQueryCriteria criteria,Pageable pageable){
+        //
+        List<YxShipOperationResponse> shipOperationResponseList = new ArrayList<>();
+        //查询运营记录信息
+        getPage(pageable);
+        PageInfo<YxShipOperation> page = new PageInfo<>(queryAll(criteria));
+        List<YxShipOperation> shipOperationList = page.getList();
+        if(CollectionUtils.isEmpty(shipOperationList)){
+            return shipOperationResponseList;
+        }
+        shipOperationResponseList = CommonsUtils.convertBeanList(shipOperationList,YxShipOperationResponse.class);
+        for(YxShipOperationResponse response:shipOperationResponseList){
+            //价格
+            BigDecimal totlePrice = yxShipOperationMapper.getBatchTotlePrice(response.getBatchNo());
+            response.setTotlePricet(totlePrice);
+            //船只状态
+            String strStatus ="";
+            switch (response.getStatus()){
+                case 0:
+                    strStatus = "待出港";break;
+                case 1:
+                    strStatus="出港"; break;
+                case 2:
+                    strStatus="回港";break;
+            }
+            response.setStatusValue(strStatus);
+            //离港时间
+            response.setLeaveForTime(DateUtils.timestampToStr10(response.getLeaveTime()));
+            //返港时间
+            response.setReturnForTime(DateUtils.timestampToStr10(response.getReturnTime()));
+            //乘客信息
+            QueryWrapper<YxShipPassenger> queryWrapper = new QueryWrapper<>();
+            queryWrapper.lambda().eq(YxShipPassenger::getDelFlag, 0).eq(YxShipPassenger::getBatchNo,response.getBatchNo());
+            List<YxShipPassenger> shipPassengerList = yxShipPassengerMapper.selectList(queryWrapper);
+            if(!CollectionUtils.isEmpty(shipPassengerList)){
+                List<YxShipPassengerResponse> passengerResponseList = CommonsUtils.convertBeanList(shipPassengerList,YxShipPassengerResponse.class);
+                response.setListPassenger(passengerResponseList);
+            }
+        }
+
+        return  shipOperationResponseList;
     }
 }

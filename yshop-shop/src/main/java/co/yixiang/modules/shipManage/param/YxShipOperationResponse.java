@@ -6,41 +6,34 @@
 * 购买后可获得全部源代码（禁止转卖、分享、上传到码云、github等开源平台）
 * 一经发现盗用、分享等行为，将追究法律责任，后果自负
 */
-package co.yixiang.modules.shipManage.domain;
-import lombok.Data;
-import com.baomidou.mybatisplus.annotation.*;
+package co.yixiang.modules.shipManage.param;
+
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.bean.copier.CopyOptions;
-import javax.validation.constraints.*;
-import java.sql.Timestamp;
+import lombok.Data;
+
 import java.io.Serializable;
+import java.math.BigDecimal;
+import java.sql.Timestamp;
+import java.util.List;
 
 /**
 * @author nxl
 * @date 2020-11-05
 */
 @Data
-@TableName("yx_ship_operation_detail")
-public class YxShipOperationDetail implements Serializable {
+public class YxShipOperationResponse implements Serializable {
 
     /** id */
-    @TableId(value = "id", type = IdType.AUTO)
     private Integer id;
 
 
-    /** 卡券订单id */
-    @NotBlank
-    private Integer couponOrderId;
+    /** 船只出港批次号 */
+    private String batchNo;
 
 
     /** 船只id */
-    @NotNull
     private Integer shipId;
-
-
-    /** 船只出港批次号 */
-    @NotBlank
-    private String batchNo;
 
 
     /** 船只名称 */
@@ -48,25 +41,11 @@ public class YxShipOperationDetail implements Serializable {
 
 
     /** 船长id */
-    @NotNull
     private Integer captainId;
 
 
     /** 船长姓名 */
     private String captainName;
-
-
-    /** 核销人id */
-    @NotNull
-    private Integer useId;
-
-
-    /** 核销人姓名 */
-    private String useName;
-
-
-    /** 乘客身体状况 */
-    private String healthStatus;
 
 
     /** 承载人数 */
@@ -81,10 +60,19 @@ public class YxShipOperationDetail implements Serializable {
     private Integer underagePassenger;
 
 
+    /** 出港时间 */
+    private Integer leaveTime;
+
+
+    /** 回港时间 */
+    private Integer returnTime;
+
+
+    /** 船只状态 0:待出港 1：出港 2：回港 */
+    private Integer status;
+
+
     /** 是否删除（0：未删除，1：已删除） */
-    @NotNull
-    @TableLogic
-    @TableField(fill=FieldFill.INSERT_UPDATE)
     private Integer delFlag;
 
 
@@ -97,18 +85,24 @@ public class YxShipOperationDetail implements Serializable {
 
 
     /** 创建时间 */
-    @NotNull
-    @TableField(fill= FieldFill.INSERT)
     private Timestamp createTime;
 
 
     /** 更新时间 */
-    @NotNull
-    @TableField(fill= FieldFill.INSERT_UPDATE)
     private Timestamp updateTime;
 
+    /** 价格 显示 */
+    private BigDecimal totlePricet;
+    /** 离港时间 显示 */
+    private String leaveForTime;
+    /** 返港时间 显示 */
+    private String returnForTime;
+    /** 船只状态 显示 */
+    private String statusValue;
+    /** 乘客信息 显示 */
+    List<YxShipPassengerResponse> listPassenger;
 
-    public void copy(YxShipOperationDetail source){
+    public void copy(YxShipOperationResponse source){
         BeanUtil.copyProperties(source,this, CopyOptions.create().setIgnoreNullValue(true));
     }
 }

@@ -6,7 +6,7 @@
 * 购买后可获得全部源代码（禁止转卖、分享、上传到码云、github等开源平台）
 * 一经发现盗用、分享等行为，将追究法律责任，后果自负
 */
-package co.yixiang.modules.shipManage.domain;
+package co.yixiang.modules.shipManage.param;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.bean.copier.CopyOptions;

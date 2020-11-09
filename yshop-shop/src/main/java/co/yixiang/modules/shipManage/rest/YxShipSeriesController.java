@@ -10,6 +10,7 @@ package co.yixiang.modules.shipManage.rest;
 import cn.hutool.core.date.DateTime;
 import co.yixiang.dozer.service.IGenerator;
 import co.yixiang.logging.aop.log.Log;
+import co.yixiang.modules.mybatis.GeoPoint;
 import co.yixiang.modules.shipManage.domain.YxShipSeries;
 import co.yixiang.modules.shipManage.service.YxShipSeriesService;
 import co.yixiang.modules.shipManage.service.dto.YxShipSeriesDto;
@@ -27,6 +28,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.Arrays;
 
 /**
@@ -70,6 +72,9 @@ public class YxShipSeriesController {
         resources.setCreateTime(DateTime.now().toTimestamp());
         resources.setUpdateUserId(loginUserId);
         resources.setUpdateTime(DateTime.now().toTimestamp());
+//        resources.setMerId(loginUserId);
+        GeoPoint geoPoint = new GeoPoint(new BigDecimal(resources.getCoordinateX()), new BigDecimal(resources.getCoordinateY()));
+        resources.setCoordinate(geoPoint);
         return new ResponseEntity<>(yxShipSeriesService.save(resources),HttpStatus.CREATED);
     }
 
@@ -80,6 +85,8 @@ public class YxShipSeriesController {
     public ResponseEntity<Object> update(@Validated @RequestBody YxShipSeries resources){
         resources.setUpdateUserId(SecurityUtils.getUserId().intValue());
         resources.setUpdateTime(DateTime.now().toTimestamp());
+        GeoPoint geoPoint = new GeoPoint(new BigDecimal(resources.getCoordinateX()), new BigDecimal(resources.getCoordinateY()));
+        resources.setCoordinate(geoPoint);
         yxShipSeriesService.updateById(resources);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
