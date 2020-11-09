@@ -3,60 +3,68 @@
     <!--工具栏-->
     <div class="head-container">
       <!--如果想在工具栏加入更多按钮，可以使用插槽方式， slot = 'left' or 'right'-->
+      <el-input v-model="query.seriesName" clearable size="small" placeholder="请输入系列名称" style="width: 200px;" class="filter-item" @keyup.enter.native="crud.toQuery" />
+      <el-select v-model="form.seriesId" placeholder="请选择船只系列" style="width: 200px;">
+        <el-option
+          v-for="item in shipSeries"
+          :key="item.id"
+          :label="item.seriesName"
+          :value="item.id">
+        </el-option>
+      </el-select>
+      <el-select v-model="form.seriesId" placeholder="请选择船只当前状态" style="width: 200px;">
+        <el-option
+          v-for="item in curStatus"
+          :key="item.value"
+          :label="item.label"
+          :value="item.value">
+        </el-option>
+      </el-select>
+      <el-button class="filter-item" size="mini" type="success" icon="el-icon-search" @click="crud.toQuery">搜索</el-button>
       <crudOperation :permission="permission" />
       <!--表单组件-->
-      <el-dialog :close-on-click-modal="false" :before-close="crud.cancelCU" :visible.sync="crud.status.cu > 0" :title="crud.status.title" width="500px">
-        <el-form ref="form" :model="form" :rules="rules" size="small" label-width="80px">
+      <el-dialog :close-on-click-modal="false" :before-close="crud.cancelCU" :visible.sync="crud.status.cu > 0" :title="crud.status.title" width="560px">
+        <el-form ref="form" :model="form" :rules="rules" size="small" label-width="120px">
          <!-- <el-form-item label="船只id">
             <el-input v-model="form.id" style="width: 370px;" />
           </el-form-item>-->
+          <el-form-item label="船只系列" prop="seriesId">
+            <!--            <el-input v-model="form.seriesId" style="width: 370px;" />-->
+            <el-select v-model="form.seriesId" placeholder="请选择" style="width: 370px;">
+              <el-option
+                v-for="item in shipSeries"
+                :key="item.id"
+                :label="item.seriesName"
+                :value="item.id">
+              </el-option>
+            </el-select>
+          </el-form-item>
           <el-form-item label="船只名称" prop="shipName">
             <el-input v-model="form.shipName" style="width: 370px;" />
-          </el-form-item>
-          <el-form-item label="船只系列id" prop="seriesId">
-            <el-input v-model="form.seriesId" style="width: 370px;" />
           </el-form-item>
           <!--<el-form-item label="商户id" prop="merId">
             <el-input v-model="form.merId" style="width: 370px;" />
           </el-form-item>-->
-          <el-form-item label="所属商铺" prop="storeId">
-            <el-input v-model="form.storeId" style="width: 370px;" />
-          </el-form-item>
-          <el-form-item label="帆船所属商户名" prop="merName">
+<!--          <el-form-item label="所属商铺" prop="storeId">-->
+<!--            <el-input v-model="form.storeId" style="width: 370px;" />-->
+<!--          </el-form-item>-->
+          <el-form-item label="船只所属商户名" prop="merName">
             <el-input v-model="form.merName" style="width: 370px;" />
           </el-form-item>
-          <el-form-item label="帆船负责人" prop="managerName">
+          <el-form-item label="船只负责人" prop="managerName">
             <el-input v-model="form.managerName" style="width: 370px;" />
           </el-form-item>
           <el-form-item label="负责人电话" prop="managerPhone">
             <el-input v-model="form.managerPhone" style="width: 370px;" />
           </el-form-item>
-          <el-form-item label="船只状态：0：启用，1：禁用" prop="shipStatus">
-            <el-input v-model="form.shipStatus" style="width: 370px;" />
+          <el-form-item label="船只状态" prop="shipStatus">
+            <el-radio-group v-model="form.shipStatus">
+              <el-radio :label="0">启用</el-radio>
+              <el-radio :label="1">禁用</el-radio>
+            </el-radio-group>
           </el-form-item>
           <!--<el-form-item label="船只当前状态：0：在港，1：离港。2：维修中" prop="currentStatus">
             <el-input v-model="form.currentStatus" style="width: 370px;" />
-          </el-form-item>
-          <!--<el-form-item label="最近一次出港时间" prop="lastLeaveTime">
-            <el-input v-model="form.lastLeaveTime" style="width: 370px;" />
-          </el-form-item>
-          <el-form-item label="最近一次返港时间" prop="lastReturnTime">
-            <el-input v-model="form.lastReturnTime" style="width: 370px;" />
-          </el-form-item>
-          <el-form-item label="是否删除（0：未删除，1：已删除）" prop="delFlag">
-            <el-input v-model="form.delFlag" style="width: 370px;" />
-          </el-form-item>
-          <el-form-item label="创建人">
-            <el-input v-model="form.createUserId" style="width: 370px;" />
-          </el-form-item>
-          <el-form-item label="修改人">
-            <el-input v-model="form.updateUserId" style="width: 370px;" />
-          </el-form-item>
-          <el-form-item label="创建时间" prop="createTime">
-            <el-input v-model="form.createTime" style="width: 370px;" />
-          </el-form-item>
-          <el-form-item label="更新时间" prop="updateTime">
-            <el-input v-model="form.updateTime" style="width: 370px;" />
           </el-form-item>-->
         </el-form>
         <div slot="footer" class="dialog-footer">
@@ -67,31 +75,30 @@
       <!--表格渲染-->
       <el-table ref="table" v-loading="crud.loading" :data="crud.data" size="small" style="width: 100%;" @selection-change="crud.selectionChangeHandler">
         <el-table-column type="selection" width="55" />
-        <el-table-column v-if="columns.visible('id')" prop="id" label="船只id" />
+        <el-table-column v-if="columns.visible('seriesId')" prop="seriesId" label="船只系列" >
+          <template slot-scope="scope">
+            {{
+            seriesLabel(scope.row.seriesId)
+            }}
+          </template>
+        </el-table-column>
         <el-table-column v-if="columns.visible('shipName')" prop="shipName" label="船只名称" />
-        <el-table-column v-if="columns.visible('seriesId')" prop="seriesId" label="船只系列id" />
-        <el-table-column v-if="columns.visible('merId')" prop="merId" label="商户id" />
-        <el-table-column v-if="columns.visible('storeId')" prop="storeId" label="所属商铺" />
-        <el-table-column v-if="columns.visible('merName')" prop="merName" label="帆船所属商户名" />
-        <el-table-column v-if="columns.visible('managerName')" prop="managerName" label="帆船负责人" />
+        <el-table-column v-if="columns.visible('merName')" prop="merName" label="船只所属商户" />
+        <el-table-column v-if="columns.visible('managerName')" prop="managerName" label="船只负责人" />
         <el-table-column v-if="columns.visible('managerPhone')" prop="managerPhone" label="负责人电话" />
-        <el-table-column v-if="columns.visible('shipStatus')" prop="shipStatus" label="船只状态：0：启用，1：禁用" />
-        <el-table-column v-if="columns.visible('currentStatus')" prop="currentStatus" label="船只当前状态：0：在港，1：离港。2：维修中" />
-        <el-table-column v-if="columns.visible('lastLeaveTime')" prop="lastLeaveTime" label="最近一次出港时间" />
-        <el-table-column v-if="columns.visible('lastReturnTime')" prop="lastReturnTime" label="最近一次返港时间" />
-        <el-table-column v-if="columns.visible('delFlag')" prop="delFlag" label="是否删除（0：未删除，1：已删除）" />
-        <el-table-column v-if="columns.visible('createUserId')" prop="createUserId" label="创建人" />
-        <el-table-column v-if="columns.visible('updateUserId')" prop="updateUserId" label="修改人" />
-        <el-table-column v-if="columns.visible('createTime')" prop="createTime" label="创建时间">
+        <el-table-column v-if="columns.visible('shipStatus')" prop="shipStatus" label="船只状态" >
           <template slot-scope="scope">
-            <span>{{ parseTime(scope.row.createTime) }}</span>
+            <span>{{ scope.row.shipStatus?'禁用':'启用' }}</span>
           </template>
         </el-table-column>
-        <el-table-column v-if="columns.visible('updateTime')" prop="updateTime" label="更新时间">
+        <el-table-column v-if="columns.visible('currentStatus')" prop="currentStatus" label="船只当前状态" >
           <template slot-scope="scope">
-            <span>{{ parseTime(scope.row.updateTime) }}</span>
+            {{
+            curStatusLabel(scope.row.currentStatus)
+            }}
           </template>
         </el-table-column>
+
         <el-table-column v-permission="['admin','yxShipInfo:edit','yxShipInfo:del']" label="操作" width="150px" align="center">
           <template slot-scope="scope">
             <udOperation
@@ -109,23 +116,33 @@
 
 <script>
 import crudYxShipInfo from '@/api/yxShipInfo'
+// import yxShipSeries from '@/api/yxShipSeries'
 import CRUD, { presenter, header, form, crud } from '@crud/crud'
 import rrOperation from '@crud/RR.operation'
 import crudOperation from '@crud/CRUD.operation'
 import udOperation from '@crud/UD.operation'
 import pagination from '@crud/Pagination'
 import MaterialList from "@/components/material";
+import { initData } from '@/api/data'
 
 // crud交由presenter持有
-const defaultCrud = CRUD({ title: '船只管理', url: 'api/yxShipInfo', sort: 'id,desc', crudMethod: { ...crudYxShipInfo }})
-const defaultForm = { id: null, shipName: null, seriesId: null, merId: null, storeId: null, merName: null, managerName: null, managerPhone: null, shipStatus: null, currentStatus: null, lastLeaveTime: null, lastReturnTime: null, delFlag: null, createUserId: null, updateUserId: null, createTime: null, updateTime: null }
+const defaultCrud = CRUD({ title: '船只管理', url: 'api/yxShipInfo', sort: 'id,desc',
+  crudMethod: { ...crudYxShipInfo },optShow:{
+    add: true,
+    edit: false,
+    del: false,
+    download: false
+  }})
+const defaultForm = { id: null, shipName: null, seriesId: null, merId: null,
+  storeId: null, merName: null, managerName: null, managerPhone: null, shipStatus: 1,
+  currentStatus: null, lastLeaveTime: null, lastReturnTime: null, delFlag: null,
+  createUserId: null, updateUserId: null, createTime: null, updateTime: null }
 export default {
   name: 'YxShipInfo',
   components: { pagination, crudOperation, rrOperation, udOperation ,MaterialList},
   mixins: [presenter(defaultCrud), header(), form(defaultForm), crud()],
   data() {
     return {
-
       permission: {
         add: ['admin', 'yxShipInfo:add'],
         edit: ['admin', 'yxShipInfo:edit'],
@@ -174,9 +191,53 @@ export default {
         updateTime: [
           { required: true, message: '更新时间不能为空', trigger: 'blur' }
         ]
-      }    }
+      },
+      shipSeries: [],
+      curStatus:[
+        {value:'0',label:'在港'},
+        {value:'1',label:'离港'},
+        {value:'2',label:'维修中'}
+      ]
+    }
   },
   watch: {
+  },
+  computed:{
+    seriesLabel:function(){
+      return function(id){
+        if(this.shipSeries.length){
+          let i= this.shipSeries.filter(function(item){
+            return new RegExp(item.id, 'i').test(id)
+          })
+          if(i.length){
+            return i[0].seriesName
+          }
+        }else{
+          return ""
+        }
+      }
+    },
+    curStatusLabel:function(){
+      return function(value){
+        if(this.curStatus.length){
+          let i= this.curStatus.filter(function(item){
+            return new RegExp(item.value, 'i').test(value)
+          })
+          if(i.length){
+            return i[0].label
+          }
+        }else{
+          return ""
+        }
+      }
+    }
+  },
+  mounted() {
+    this.$nextTick(()=>{
+      initData('api/yxShipSeries').then(res=>{
+        this.shipSeries=res.content
+      })
+    })
   },
   methods: {
     // 获取数据前设置好接口地址
