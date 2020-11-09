@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 @Slf4j
-@RestController
+@RestController(value = "ShipVerificationCodeController")
 @RequestMapping("/work/ship")
 @Api(value = "核销端船只相关操作")
 public class VerificationCodeController extends BaseController {
