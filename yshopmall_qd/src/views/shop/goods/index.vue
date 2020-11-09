@@ -278,6 +278,7 @@ export default {
         sliderImage: data.sliderImage,
         imageArr: data.image.split(','),
         sliderImageArr: data.sliderImage.split(','),
+        sliderVideo:data.video!=''?data.video.split(','):[],
         storeName: data.storeName,
         storeInfo: data.storeInfo,
         keyword: data.keyword,

@@ -172,6 +172,10 @@
             <!-- <pic-upload-two v-model="form.pic" /> -->
             <MaterialList v-model="imageArr" style="width: 650px" type="image" :num="1" :width="150" :height="150" @setValue="(urls)=>{form.image = urls.join(',');imageArr=urls;$refs.form.validateField('image')}"/>
           </el-form-item>
+          <el-form-item label="视频" >
+            <MaterialList v-model="form.sliderVideo" style="width: 650px" type="video" :num="1" :width="150" :height="150"
+                          @setValue='(val)=>{form.sliderVideo=val;form.video=val.join(",")}'/>
+          </el-form-item>
           <el-form-item label="轮播图(750*510)" prop="sliderImage">
             <MaterialList
               v-model="sliderImageArr"
@@ -432,7 +436,8 @@ const defaultForm = {
   expireDateEnd: null, isHot: 0, isShow: 0, outtimeRefund: null, needOrder: null,
   awaysRefund: null, useCondition: null, availableTimeStart: null, availableTimeEnd: null,
   delFlag: null, createUserId: null, updateUserId: null, createTime: null, updateTime: null,
-  content: null, expireDate: null, image: null, sliderImage: null,sort:null, couponInfo:null,}
+  content: null, expireDate: null, image: null, sliderImage: null,
+  sliderVideo:[], video:null,sort:null, couponInfo:null,}
 const imageArr = []
 if (defaultForm.image) { imageArr[0] = defaultForm.image }
 export default {
@@ -709,6 +714,10 @@ export default {
       // 编辑时有效 设置默认 有效期
       this.expireDate=[form.expireDateStart,form.expireDateEnd]
       this.form.expireDate=[form.expireDateStart,form.expireDateEnd]
+        if(form.video){
+          form.sliderVideo=[form.video]
+        }
+
       }
       //  设置默认 可用时段
       this.form.availableTimeEnd = this.availableTime[1]

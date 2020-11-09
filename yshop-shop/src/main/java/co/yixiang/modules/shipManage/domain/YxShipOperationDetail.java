@@ -17,11 +17,11 @@ import java.io.Serializable;
 
 /**
 * @author nxl
-* @date 2020-11-04
+* @date 2020-11-05
 */
 @Data
-@TableName("yx_ship_passenger")
-public class YxShipPassenger implements Serializable {
+@TableName("yx_ship_operation_detail")
+public class YxShipOperationDetail implements Serializable {
 
     /** id */
     @TableId(value = "id", type = IdType.AUTO)
@@ -29,13 +29,8 @@ public class YxShipPassenger implements Serializable {
 
 
     /** 卡券订单id */
-    @NotNull
-    private Integer couponOrderId;
-
-
-    /** 船只出港批次号 */
     @NotBlank
-    private String batchNo;
+    private Integer couponOrderId;
 
 
     /** 船只id */
@@ -43,23 +38,47 @@ public class YxShipPassenger implements Serializable {
     private Integer shipId;
 
 
-    /** 乘客姓名 */
+    /** 船只出港批次号 */
     @NotBlank
-    private String passengerName;
+    private String batchNo;
 
 
-    /** 乘客身份证 */
-    @NotBlank
-    private String idCard;
+    /** 船只名称 */
+    private String shipName;
 
 
-    /** 乘客电话 */
-    @NotBlank
-    private String phone;
+    /** 船长id */
+    @NotNull
+    private Integer captainId;
 
 
-    /** 0:未成年 1:成年人 2：老年人 */
-    private Integer isAdult;
+    /** 船长姓名 */
+    private String captainName;
+
+
+    /** 核销人id */
+    @NotNull
+    private Integer useId;
+
+
+    /** 核销人姓名 */
+    private String useName;
+
+
+    /** 乘客身体状况 */
+    private String healthStatus;
+
+
+    /** 承载人数 */
+    private Integer totalPassenger;
+
+
+    /** 老年人人数 */
+    private Integer oldPassenger;
+
+
+    /** 未成年人数 */
+    private Integer underagePassenger;
 
 
     /** 是否删除（0：未删除，1：已删除） */
@@ -88,10 +107,8 @@ public class YxShipPassenger implements Serializable {
     @TableField(fill= FieldFill.INSERT_UPDATE)
     private Timestamp updateTime;
 
-    /** 是否合同签订人 0:否 1:是 */
-    private Integer signStatus;
 
-    public void copy(YxShipPassenger source){
+    public void copy(YxShipOperationDetail source){
         BeanUtil.copyProperties(source,this, CopyOptions.create().setIgnoreNullValue(true));
     }
 }
