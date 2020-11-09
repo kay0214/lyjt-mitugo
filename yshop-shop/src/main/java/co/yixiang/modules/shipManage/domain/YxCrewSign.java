@@ -74,6 +74,10 @@ public class YxCrewSign implements Serializable {
     @TableField(fill= FieldFill.INSERT_UPDATE)
     private Timestamp updateTime;
 
+    /** 用户名*/
+    @NotNull
+    private String nickName;
+
 
     public void copy(YxCrewSign source){
         BeanUtil.copyProperties(source,this, CopyOptions.create().setIgnoreNullValue(true));

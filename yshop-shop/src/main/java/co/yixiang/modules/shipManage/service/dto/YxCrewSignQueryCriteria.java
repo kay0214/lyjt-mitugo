@@ -17,11 +17,14 @@ import lombok.Data;
 @Data
 public class YxCrewSignQueryCriteria{
     private Integer delFlag = 0;
-    /** 用户名 */
-
+    /** 用户登录名*/
     private String username;
 
+    /** 用户名*/
+    private String nickName;
+
     private String startDate;
+
     private String endDate;
 
 }

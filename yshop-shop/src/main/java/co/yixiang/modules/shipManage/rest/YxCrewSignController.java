@@ -7,23 +7,25 @@
 * 一经发现盗用、分享等行为，将追究法律责任，后果自负
 */
 package co.yixiang.modules.shipManage.rest;
-import java.util.Arrays;
 import co.yixiang.dozer.service.IGenerator;
-import lombok.AllArgsConstructor;
 import co.yixiang.logging.aop.log.Log;
 import co.yixiang.modules.shipManage.domain.YxCrewSign;
 import co.yixiang.modules.shipManage.service.YxCrewSignService;
-import co.yixiang.modules.shipManage.service.dto.YxCrewSignQueryCriteria;
 import co.yixiang.modules.shipManage.service.dto.YxCrewSignDto;
+import co.yixiang.modules.shipManage.service.dto.YxCrewSignQueryCriteria;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import io.swagger.annotations.*;
-import java.io.IOException;
+
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.Arrays;
 
 /**
 * @author nxl
@@ -52,7 +54,8 @@ public class YxCrewSignController {
     @ApiOperation("查询船员签到")
     @PreAuthorize("@el.check('admin','yxCrewSign:list')")
     public ResponseEntity<Object> getYxCrewSigns(YxCrewSignQueryCriteria criteria, Pageable pageable){
-        return new ResponseEntity<>(yxCrewSignService.queryAll(criteria,pageable),HttpStatus.OK);
+//        return new ResponseEntity<>(yxCrewSignService.queryAll(criteria,pageable),HttpStatus.OK);
+        return new ResponseEntity<>(yxCrewSignService.queryAllNew(criteria,pageable),HttpStatus.OK);
     }
 
     @PostMapping
