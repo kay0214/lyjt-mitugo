@@ -8,6 +8,7 @@
 */
 package co.yixiang.modules.shipManage.service.dto;
 
+import co.yixiang.annotation.Query;
 import lombok.Data;
 
 /**
@@ -16,10 +17,15 @@ import lombok.Data;
 */
 @Data
 public class YxCrewSignQueryCriteria{
+    @Query
     private Integer delFlag = 0;
-    /** 用户名 */
-
+    /** 用户登录名*/
+    @Query(type = Query.Type.INNER_LIKE)
     private String username;
+
+    /** 用户名*/
+    @Query(type = Query.Type.INNER_LIKE)
+    private String nickName;
 
     private String startDate;
     private String endDate;

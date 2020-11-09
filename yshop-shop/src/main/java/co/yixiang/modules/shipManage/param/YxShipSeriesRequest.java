@@ -6,15 +6,11 @@
 * 购买后可获得全部源代码（禁止转卖、分享、上传到码云、github等开源平台）
 * 一经发现盗用、分享等行为，将追究法律责任，后果自负
 */
-package co.yixiang.modules.shipManage.domain;
+package co.yixiang.modules.shipManage.param;
 
-import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.core.bean.copier.CopyOptions;
 import co.yixiang.modules.mybatis.GeoPoint;
-import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
 
-import javax.persistence.Id;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
@@ -25,12 +21,8 @@ import java.sql.Timestamp;
 * @date 2020-11-04
 */
 @Data
-@TableName("yx_ship_series")
-public class YxShipSeries implements Serializable {
+public class YxShipSeriesRequest implements Serializable {
 
-    /** 系列id */
-    @Id
-    @TableId(value = "id", type = IdType.AUTO)
     private Integer id;
 
 
@@ -81,9 +73,6 @@ public class YxShipSeries implements Serializable {
 
 
     /** 是否删除（0：未删除，1：已删除） */
-    @NotNull
-    @TableLogic
-    @TableField(fill=FieldFill.INSERT_UPDATE)
     private Integer delFlag;
 
 
@@ -96,22 +85,17 @@ public class YxShipSeries implements Serializable {
 
 
     /** 创建时间 */
-    @NotNull
-    @TableField(fill= FieldFill.INSERT)
     private Timestamp createTime;
 
 
     /** 更新时间 */
-    @NotNull
-    @TableField(fill= FieldFill.INSERT_UPDATE)
     private Timestamp updateTime;
+
     /** 商户id */
-    @NotNull
     private Integer merId;
+
     /** 所属商铺 */
-    @NotNull
     private Integer storeId;
-    public void copy(YxShipSeries source){
-        BeanUtil.copyProperties(source,this, CopyOptions.create().setIgnoreNullValue(true));
-    }
+
+
 }

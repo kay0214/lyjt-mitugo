@@ -8,6 +8,7 @@
 */
 package co.yixiang.modules.shipManage.service.dto;
 
+import co.yixiang.annotation.Query;
 import lombok.Data;
 
 /**
@@ -17,9 +18,12 @@ import lombok.Data;
 @Data
 public class YxShipSeriesQueryCriteria{
     // 系列名称
+    @Query(type = Query.Type.INNER_LIKE)
     private String seriesName;
+    @Query
     private Integer delFlag = 0;
     //商户id
+    @Query
     private Integer merId;
 
 }

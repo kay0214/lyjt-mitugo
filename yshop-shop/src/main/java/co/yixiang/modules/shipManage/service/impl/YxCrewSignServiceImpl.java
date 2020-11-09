@@ -8,34 +8,38 @@
 */
 package co.yixiang.modules.shipManage.service.impl;
 
-import co.yixiang.modules.shipManage.domain.YxCrewSign;
 import co.yixiang.common.service.impl.BaseServiceImpl;
-import lombok.AllArgsConstructor;
-import co.yixiang.dozer.service.IGenerator;
-import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
 import co.yixiang.common.utils.QueryHelpPlus;
-import co.yixiang.utils.ValidationUtil;
-import co.yixiang.utils.FileUtil;
+import co.yixiang.dozer.service.IGenerator;
+import co.yixiang.modules.shipManage.domain.YxCrewSign;
 import co.yixiang.modules.shipManage.service.YxCrewSignService;
 import co.yixiang.modules.shipManage.service.dto.YxCrewSignDto;
 import co.yixiang.modules.shipManage.service.dto.YxCrewSignQueryCriteria;
 import co.yixiang.modules.shipManage.service.mapper.YxCrewSignMapper;
+import co.yixiang.utils.FileUtil;
+import co.yixiang.utils.StringUtils;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.github.pagehelper.PageInfo;
+import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
 // 默认不使用缓存
 //import org.springframework.cache.annotation.CacheConfig;
 //import org.springframework.cache.annotation.CacheEvict;
 //import org.springframework.cache.annotation.Cacheable;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import java.util.List;
-import java.util.Map;
-import java.io.IOException;
-import javax.servlet.http.HttpServletResponse;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 
 /**
 * @author nxl
@@ -48,6 +52,8 @@ import java.util.LinkedHashMap;
 public class YxCrewSignServiceImpl extends BaseServiceImpl<YxCrewSignMapper, YxCrewSign> implements YxCrewSignService {
 
     private final IGenerator generator;
+    @Autowired
+    private YxCrewSignMapper yxCrewSignMapper;
 
     @Override
     //@Cacheable
@@ -85,5 +91,33 @@ public class YxCrewSignServiceImpl extends BaseServiceImpl<YxCrewSignMapper, YxC
             list.add(map);
         }
         FileUtil.downloadExcel(list, response);
+    }
+
+    @Override
+    public Map<String, Object> queryAllNew(YxCrewSignQueryCriteria criteria, Pageable pageable) {
+//        getPage(pageable);
+//        PageInfo<YxCrewSign> page = new PageInfo<>(queryAll(criteria));
+        Map<String, Object> map = new LinkedHashMap<>(2);
+        QueryWrapper<YxCrewSign> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().eq(YxCrewSign::getDelFlag ,0);
+        if(StringUtils.isNotBlank(criteria.getEndDate())&&StringUtils.isNotBlank(criteria.getStartDate())){
+            queryWrapper.lambda().between(YxCrewSign::getCreateTime,criteria.getStartDate()+" 00:00:00",criteria.getEndDate()+" 23:59:59");
+        }
+        if(StringUtils.isNotBlank(criteria.getNickName())){
+            queryWrapper.lambda().like(YxCrewSign::getNickName,criteria.getNickName());
+        }
+        if(StringUtils.isNotBlank(criteria.getUsername())){
+            queryWrapper.lambda().like(YxCrewSign::getUsername,criteria.getUsername());
+        }
+        queryWrapper.orderByDesc("create_time");
+        IPage<YxCrewSign> ipage = this.page(new Page<>(pageable.getPageNumber() + 1, pageable.getPageSize()), queryWrapper);
+        if (ipage.getTotal() <= 0) {
+            map.put("content", new ArrayList<>());
+            map.put("totalElements", 0);
+            return map;
+        }
+        map.put("content", generator.convert(ipage.getRecords(), YxCrewSignDto.class));
+        map.put("totalElements", ipage.getTotal());
+        return map;
     }
 }

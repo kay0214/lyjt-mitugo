@@ -7,18 +7,24 @@
 * 一经发现盗用、分享等行为，将追究法律责任，后果自负
 */
 package co.yixiang.modules.shipManage.rest;
+
 import cn.hutool.core.date.DateTime;
 import co.yixiang.dozer.service.IGenerator;
 import co.yixiang.logging.aop.log.Log;
 import co.yixiang.modules.mybatis.GeoPoint;
 import co.yixiang.modules.shipManage.domain.YxShipSeries;
+import co.yixiang.modules.shipManage.param.YxShipSeriesRequest;
 import co.yixiang.modules.shipManage.service.YxShipSeriesService;
 import co.yixiang.modules.shipManage.service.dto.YxShipSeriesDto;
 import co.yixiang.modules.shipManage.service.dto.YxShipSeriesQueryCriteria;
+import co.yixiang.modules.shop.domain.YxStoreInfo;
+import co.yixiang.modules.shop.service.YxStoreInfoService;
+import co.yixiang.utils.BeanUtils;
 import co.yixiang.utils.SecurityUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -41,8 +47,11 @@ import java.util.Arrays;
 @RequestMapping("/api/yxShipSeries")
 public class YxShipSeriesController {
 
-    private final YxShipSeriesService yxShipSeriesService;
+    @Autowired
+    private  YxShipSeriesService yxShipSeriesService;
     private final IGenerator generator;
+    @Autowired
+    private YxStoreInfoService yxStoreInfoService;
 
 
     @Log("导出数据")
@@ -58,6 +67,9 @@ public class YxShipSeriesController {
     @ApiOperation("查询船只系列")
     @PreAuthorize("@el.check('admin','yxShipSeries:list')")
     public ResponseEntity<Object> getYxShipSeriess(YxShipSeriesQueryCriteria criteria, Pageable pageable){
+        //商户id = 当前登录用户
+        int loginUserId = SecurityUtils.getUserId().intValue();
+        criteria.setMerId(loginUserId);
         return new ResponseEntity<>(yxShipSeriesService.queryAll(criteria,pageable),HttpStatus.OK);
     }
 
@@ -65,29 +77,46 @@ public class YxShipSeriesController {
     @Log("新增船只系列")
     @ApiOperation("新增船只系列")
     @PreAuthorize("@el.check('admin','yxShipSeries:add')")
-    public ResponseEntity<Object> create(@Validated @RequestBody YxShipSeries resources){
+    public ResponseEntity<Object> create(@Validated @RequestBody YxShipSeriesRequest resources) {
         int loginUserId = SecurityUtils.getUserId().intValue();
+        YxStoreInfo storeInfo = yxStoreInfoService.getStoreInfoByMerId(loginUserId);
+        if (null == storeInfo) {
+            throw new RuntimeException("根据商户id ：" + loginUserId + " 获取店铺信息失败！");
+        }
         resources.setDelFlag(0);
         resources.setCreateUserId(loginUserId);
         resources.setCreateTime(DateTime.now().toTimestamp());
         resources.setUpdateUserId(loginUserId);
         resources.setUpdateTime(DateTime.now().toTimestamp());
-//        resources.setMerId(loginUserId);
+        resources.setMerId(loginUserId);
+        //获取店铺信息
+        resources.setStoreId(storeInfo.getId());
         GeoPoint geoPoint = new GeoPoint(new BigDecimal(resources.getCoordinateX()), new BigDecimal(resources.getCoordinateY()));
-        resources.setCoordinate(geoPoint);
-        return new ResponseEntity<>(yxShipSeriesService.save(resources),HttpStatus.CREATED);
+//        resources.setCoordinate(geoPoint);
+        YxShipSeries shipSeries = new YxShipSeries();
+        BeanUtils.copyProperties(resources,shipSeries);
+        shipSeries.setCoordinate(geoPoint);
+        int isSave = yxShipSeriesService.insert(shipSeries);
+        return new ResponseEntity<>(isSave, HttpStatus.CREATED);
     }
 
     @PutMapping
     @Log("修改船只系列")
     @ApiOperation("修改船只系列")
     @PreAuthorize("@el.check('admin','yxShipSeries:edit')")
-    public ResponseEntity<Object> update(@Validated @RequestBody YxShipSeries resources){
-        resources.setUpdateUserId(SecurityUtils.getUserId().intValue());
+    public ResponseEntity<Object> update(@Validated @RequestBody YxShipSeriesRequest resources) {
+        int loginUserId = SecurityUtils.getUserId().intValue();
+        YxStoreInfo storeInfo = yxStoreInfoService.getStoreInfoByMerId(loginUserId);
+        if (null == storeInfo) {
+            throw new RuntimeException("根据商户id ：" + loginUserId + " 获取店铺信息失败！");
+        }
+        resources.setUpdateUserId(loginUserId);
         resources.setUpdateTime(DateTime.now().toTimestamp());
         GeoPoint geoPoint = new GeoPoint(new BigDecimal(resources.getCoordinateX()), new BigDecimal(resources.getCoordinateY()));
-        resources.setCoordinate(geoPoint);
-        yxShipSeriesService.updateById(resources);
+        YxShipSeries shipSeries = new YxShipSeries();
+        BeanUtils.copyProperties(resources,shipSeries);
+        shipSeries.setCoordinate(geoPoint);
+        yxShipSeriesService.updateByPrimaryKey(shipSeries);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 

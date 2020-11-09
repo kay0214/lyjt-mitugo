@@ -24,6 +24,8 @@ import co.yixiang.utils.CommonsUtils;
 import co.yixiang.utils.DateUtils;
 import co.yixiang.utils.FileUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.pagehelper.PageInfo;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,11 +67,15 @@ public class YxShipOperationServiceImpl extends BaseServiceImpl<YxShipOperationM
     @Override
     //@Cacheable
     public Map<String, Object> queryAll(YxShipOperationQueryCriteria criteria, Pageable pageable) {
-        getPage(pageable);
-        PageInfo<YxShipOperation> page = new PageInfo<>(queryAll(criteria));
+       /* getPage(pageable);
+        PageInfo<YxShipOperation> page = new PageInfo<>(queryAll(criteria));*/
+        QueryWrapper<YxShipOperation> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().eq(YxShipOperation::getDelFlag ,0);
+
+        IPage<YxShipOperation> ipage = this.page(new Page<>(pageable.getPageNumber() + 1, pageable.getPageSize()), queryWrapper);
         Map<String, Object> map = new LinkedHashMap<>(2);
-        map.put("content", generator.convert(page.getList(), YxShipOperationDto.class));
-        map.put("totalElements", page.getTotal());
+        map.put("content", generator.convert(ipage.getRecords(), YxShipOperationDto.class));
+        map.put("totalElements", ipage.getTotal());
         return map;
     }
 

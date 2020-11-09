@@ -12,10 +12,11 @@ import co.yixiang.modules.shipManage.domain.YxCrewSign;
 import co.yixiang.modules.shipManage.service.dto.YxCrewSignDto;
 import co.yixiang.modules.shipManage.service.dto.YxCrewSignQueryCriteria;
 import org.springframework.data.domain.Pageable;
-import java.util.Map;
-import java.util.List;
-import java.io.IOException;
+
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 
 /**
 * @author nxl
@@ -45,4 +46,6 @@ public interface YxCrewSignService  extends BaseService<YxCrewSign>{
     * @throws IOException /
     */
     void download(List<YxCrewSignDto> all, HttpServletResponse response) throws IOException;
+
+    Map<String, Object> queryAllNew(YxCrewSignQueryCriteria criteria, Pageable pageable);
 }
