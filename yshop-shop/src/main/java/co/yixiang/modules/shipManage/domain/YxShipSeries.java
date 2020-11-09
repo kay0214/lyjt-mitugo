@@ -101,6 +101,13 @@ public class YxShipSeries implements Serializable {
     @TableField(fill= FieldFill.INSERT_UPDATE)
     private Timestamp updateTime;
 
+    /** 商户id */
+    @NotNull
+    private Integer merId;
+
+    /** 所属商铺 */
+    @NotNull
+    private Integer storeId;
 
     public void copy(YxShipSeries source){
         BeanUtil.copyProperties(source,this, CopyOptions.create().setIgnoreNullValue(true));

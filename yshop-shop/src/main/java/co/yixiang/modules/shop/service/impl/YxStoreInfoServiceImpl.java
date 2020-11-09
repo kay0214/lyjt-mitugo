@@ -388,4 +388,20 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
 
         return result;
     }
+
+    /**
+     * 根据商户id获取店铺信息
+     * @param merId
+     * @return
+     */
+    @Override
+    public  YxStoreInfo getStoreInfoByMerId(int merId){
+        QueryWrapper<YxStoreInfo> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().eq(YxStoreInfo::getMerId,merId);
+        List<YxStoreInfo> storeInfoList = yxStoreInfoMapper.selectList(queryWrapper);
+        if(CollectionUtils.isNotEmpty(storeInfoList)){
+            return storeInfoList.get(0);
+        }
+        return null;
+    }
 }
