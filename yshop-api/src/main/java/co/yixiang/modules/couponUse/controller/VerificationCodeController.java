@@ -41,11 +41,15 @@ public class VerificationCodeController extends BaseController {
     private YxShipSeriesService yxShipSeriesService;
 
 
+    // shipId 船只id   shipUserId  船长id
     @NeedLogin
     @Log("船票核销")
     @ApiOperation("B端：船票核销")
     @PostMapping(value = "/useCoupon")
-    public ResponseEntity<Object> updateCouponOrder(@RequestHeader(value = "token") String token, @RequestParam(value = "verifyCode") String verifyCode) {
+    public ResponseEntity<Object> updateCouponOrder(@RequestHeader(value = "token") String token
+            , @RequestParam(value = "verifyCode") String verifyCode
+            , @RequestParam(value = "shipId") Integer shipId
+            , @RequestParam(value = "shipUserId") Integer shipUserId) {
         // 获取登陆用户的id
         Map<String, String> map = new HashMap<>();
         SystemUser user = getRedisUser(token);
@@ -56,8 +60,28 @@ public class VerificationCodeController extends BaseController {
         } catch (Exception e) {
             throw new BadRequestException("无效卡券");
         }
-        Map<String, String> result = this.yxCouponOrderService.updateShipCouponOrder(decodeVerifyCode, uid);
+        Map<String, Object> result = this.yxCouponOrderService.updateShipCouponOrder(decodeVerifyCode, uid,shipId,shipUserId,user);
         return ResponseEntity.ok(result);
+    }
+
+    @NeedLogin
+    @ApiOperation("B端：扫码获取船票订单信息")
+    @PostMapping(value = "/getUseCouponInfo")
+    public ResponseEntity<Object> getUseCouponInfo(@RequestHeader(value = "token") String token
+            , @RequestParam(value = "verifyCode") String verifyCode) {
+        // 获取登陆用户的id
+        Map<String, String> map = new HashMap<>();
+        SystemUser user = getRedisUser(token);
+        int uid = user.getId().intValue();
+        String decodeVerifyCode = "";
+        try {
+            decodeVerifyCode = Base64Utils.decode(verifyCode);
+        } catch (Exception e) {
+            throw new BadRequestException("无效卡券");
+        }
+
+        // TODO: 2020/11/8
+        return ResponseEntity.ok(null);
     }
 
 

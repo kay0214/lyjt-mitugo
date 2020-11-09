@@ -5,6 +5,7 @@ import co.yixiang.common.web.vo.Paging;
 import co.yixiang.modules.coupons.entity.YxCouponOrder;
 import co.yixiang.modules.coupons.web.param.YxCouponOrderQueryParam;
 import co.yixiang.modules.coupons.web.vo.*;
+import co.yixiang.modules.manage.entity.SystemUser;
 import co.yixiang.modules.order.web.dto.ComputeDTO;
 import co.yixiang.modules.order.web.dto.CouponCacheDTO;
 import co.yixiang.modules.order.web.dto.PriceGroupDTO;
@@ -196,7 +197,9 @@ public interface YxCouponOrderService extends BaseService<YxCouponOrder> {
      * 船票核销操作
      * @param decodeVerifyCode
      * @param uid
+     * @param shipId
+     * @param shipUserId
      * @return
      */
-    Map<String, String> updateShipCouponOrder(String decodeVerifyCode, int uid);
+    Map<String, Object> updateShipCouponOrder(String decodeVerifyCode, int uid, Integer shipId, Integer shipUserId, SystemUser user);
 }
