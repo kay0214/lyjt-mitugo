@@ -155,6 +155,7 @@ public class CouponUseController extends BaseController {
 
     @NeedLogin
     @GetMapping(value = "/getMerchantsDetailByUid")
+    @AnonymousAccess
     @ApiOperation("B端：获取商户及门店信息")
     public ResponseEntity<Object> getMerchantsDetailByUid(@RequestHeader(value = "token") String token) {
 
@@ -193,6 +194,7 @@ public class CouponUseController extends BaseController {
 
     @NeedLogin
     @Log("根据核销码查询卡券信息")
+    @AnonymousAccess
     @ApiOperation("B端：根据核销码查询卡券信息")
     @GetMapping(value = "/getCouponDetail")
     public ResponseEntity<Object> getCouponDetail(@RequestHeader(value = "token") String token, @RequestParam(value = "verifyCode") String verifyCode,
@@ -215,6 +217,7 @@ public class CouponUseController extends BaseController {
 
     @NeedLogin
     @ApiOperation("B端：查询核销记录")
+    @AnonymousAccess
     @PostMapping("/getOrderUseList")
     public ResponseEntity<Object> getOrderUseList(@RequestHeader(value = "token") String token, @RequestBody YxCouponOrderUseQueryCriteria criteria) {
         // 获取登陆用户的id
@@ -228,6 +231,7 @@ public class CouponUseController extends BaseController {
 
     @NeedLogin
     @Log("扫码核销卡券")
+    @AnonymousAccess
     @ApiOperation("B端：扫码核销卡券")
     @GetMapping(value = "/useCoupon")
     public ResponseEntity<Object> updateCouponOrder(@RequestHeader(value = "token") String token, @RequestParam(value = "verifyCode") String verifyCode) {
@@ -248,6 +252,7 @@ public class CouponUseController extends BaseController {
 
     @NeedLogin
     @Log("手动核销卡券")
+    @AnonymousAccess
     @ApiOperation("B端：手动核销卡券（废）")
     @GetMapping(value = "/useCouponInput")
     public ResponseEntity<Object> updateCouponOrderInput(@RequestHeader(value = "token") String token, @RequestParam(value = "orderId") String orderId) {
@@ -269,6 +274,7 @@ public class CouponUseController extends BaseController {
 
     @NeedLogin
     @ApiOperation("B端：手动核销查询卡券")
+    @AnonymousAccess
     @GetMapping(value = "/getUseCouponInput")
     public ResponseEntity<Object> getUseCouponInput(@RequestHeader(value = "token") String token, @RequestParam(value = "orderId") String orderId) {
         // 获取登陆用户的id

@@ -3,6 +3,7 @@
  */
 package co.yixiang.modules.couponUse.controller;
 
+import co.yixiang.annotation.AnonymousAccess;
 import co.yixiang.aspectj.annotation.NeedLogin;
 import co.yixiang.common.web.controller.BaseController;
 import co.yixiang.exception.BadRequestException;
@@ -43,6 +44,7 @@ public class VerificationCodeController extends BaseController {
 
     // shipId 船只id   shipUserId  船长id
     @NeedLogin
+    @AnonymousAccess
     @Log("船票核销")
     @ApiOperation("B端：船票核销")
     @PostMapping(value = "/useCoupon")
@@ -66,6 +68,7 @@ public class VerificationCodeController extends BaseController {
 
     @NeedLogin
     @ApiOperation("B端：扫码获取船票订单信息")
+    @AnonymousAccess
     @PostMapping(value = "/getUseCouponInfo")
     public ResponseEntity<Object> getUseCouponInfo(@RequestHeader(value = "token") String token
             , @RequestParam(value = "verifyCode") String verifyCode) {
@@ -87,6 +90,7 @@ public class VerificationCodeController extends BaseController {
 
     // 获取商户所有的船长
     @NeedLogin
+    @AnonymousAccess
     @ApiOperation("B端：获取本商户所有船长")
     @PostMapping(value = "/getAllShipUser")
     public ResponseEntity<Object> getAllShipUser(@RequestHeader(value = "token") String token) {
@@ -102,6 +106,7 @@ public class VerificationCodeController extends BaseController {
 
     // 获取商户所有的船只系列和船只
     @NeedLogin
+    @AnonymousAccess
     @ApiOperation("B端：获取本商户所有船只系列和船只")
     @PostMapping(value = "/getAllShip")
     public ResponseEntity<Object> getAllShip(@RequestHeader(value = "token") String token) {

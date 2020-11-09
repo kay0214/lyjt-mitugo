@@ -3,6 +3,7 @@
  */
 package co.yixiang.modules.couponUse.controller;
 
+import co.yixiang.annotation.AnonymousAccess;
 import co.yixiang.aspectj.annotation.NeedLogin;
 import co.yixiang.common.web.controller.BaseController;
 import co.yixiang.common.web.vo.Paging;
@@ -49,6 +50,7 @@ public class UserAccountController extends BaseController {
 
 
     @NeedLogin
+    @AnonymousAccess
     @ApiOperation("B端：线下交易流水列表")
     @GetMapping(value = "/getUserAccountList")
     public ResponseEntity<Object> getUserAccountList(@RequestHeader(value = "token") String token, UserAccountQueryParam param) {
@@ -60,6 +62,7 @@ public class UserAccountController extends BaseController {
     }
 
     @NeedLogin
+    @AnonymousAccess
     @ApiOperation("B端：线上交易流水列表")
     @GetMapping(value = "/getUserProductAccountList")
     public ResponseEntity<Object> getUserProductAccountList(@RequestHeader(value = "token") String token, UserAccountQueryParam param) {
