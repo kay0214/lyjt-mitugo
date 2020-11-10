@@ -76,8 +76,8 @@
         <el-table-column v-if="columns.visible('totalPassenger')" prop="totalPassenger" label="承载人数" />
         <el-table-column v-if="columns.visible('oldPassenger')" prop="oldPassenger" label="老年人人数" />
         <el-table-column v-if="columns.visible('underagePassenger')" prop="underagePassenger" label="未成年人数" />
-        <el-table-column v-if="columns.visible('leaveTime')" prop="leaveTime" label="出港时间" />
-        <el-table-column v-if="columns.visible('returnTime')" prop="returnTime" label="回港时间" />
+        <el-table-column v-if="columns.visible('leaveFortmatTime')" prop="leaveFortmatTime" label="出港时间" />
+        <el-table-column v-if="columns.visible('returnFormatTime')" prop="returnFormatTime" label="回港时间" />
         <el-table-column v-if="columns.visible('status')" prop="status" label="船只状态 0:待出港 1：出港 2：回港" />
         <el-table-column v-if="columns.visible('delFlag')" prop="delFlag" label="是否删除（0：未删除，1：已删除）" />
         <el-table-column v-if="columns.visible('createUserId')" prop="createUserId" label="创建人" />
@@ -125,7 +125,7 @@ export default {
   mixins: [presenter(defaultCrud), header(), form(defaultForm), crud()],
   data() {
     return {
-      
+
       permission: {
         add: ['admin', 'yxShipOperation:add'],
         edit: ['admin', 'yxShipOperation:edit'],

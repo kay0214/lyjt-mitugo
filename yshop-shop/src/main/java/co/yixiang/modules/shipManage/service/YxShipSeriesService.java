@@ -58,7 +58,7 @@ public interface YxShipSeriesService  extends BaseService<YxShipSeries>{
      * @param shipSeries
      * @return
      */
-    int insert(YxShipSeries shipSeries);
+    int insertSelective(YxShipSeries shipSeries);
 
     /**
      * 修改

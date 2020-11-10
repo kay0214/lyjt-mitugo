@@ -49,17 +49,14 @@ public class YxShipInfo implements Serializable {
 
 
     /** 帆船所属商户名 */
-    @NotBlank
     private String merName;
 
 
     /** 帆船负责人 */
-    @NotBlank
     private String managerName;
 
 
     /** 负责人电话 */
-    @NotBlank
     private String managerPhone;
 
 

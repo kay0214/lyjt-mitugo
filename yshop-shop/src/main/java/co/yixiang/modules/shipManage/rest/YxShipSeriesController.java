@@ -1,11 +1,11 @@
 /**
-* Copyright (C) 2018-2020
-* All rights reserved, Designed By www.yixiang.co
-* 注意：
-* 本软件为www.yixiang.co开发研制，未经购买不得使用
-* 购买后可获得全部源代码（禁止转卖、分享、上传到码云、github等开源平台）
-* 一经发现盗用、分享等行为，将追究法律责任，后果自负
-*/
+ * Copyright (C) 2018-2020
+ * All rights reserved, Designed By www.yixiang.co
+ * 注意：
+ * 本软件为www.yixiang.co开发研制，未经购买不得使用
+ * 购买后可获得全部源代码（禁止转卖、分享、上传到码云、github等开源平台）
+ * 一经发现盗用、分享等行为，将追究法律责任，后果自负
+ */
 package co.yixiang.modules.shipManage.rest;
 
 import cn.hutool.core.date.DateTime;
@@ -38,9 +38,9 @@ import java.math.BigDecimal;
 import java.util.Arrays;
 
 /**
-* @author nxl
-* @date 2020-11-04
-*/
+ * @author nxl
+ * @date 2020-11-04
+ */
 @AllArgsConstructor
 @Api(tags = "船只系列管理")
 @RestController
@@ -48,7 +48,7 @@ import java.util.Arrays;
 public class YxShipSeriesController {
 
     @Autowired
-    private  YxShipSeriesService yxShipSeriesService;
+    private YxShipSeriesService yxShipSeriesService;
     private final IGenerator generator;
     @Autowired
     private YxStoreInfoService yxStoreInfoService;
@@ -66,11 +66,13 @@ public class YxShipSeriesController {
     @Log("查询船只系列")
     @ApiOperation("查询船只系列")
     @PreAuthorize("@el.check('admin','yxShipSeries:list')")
-    public ResponseEntity<Object> getYxShipSeriess(YxShipSeriesQueryCriteria criteria, Pageable pageable){
+    public ResponseEntity<Object> getYxShipSeriess(YxShipSeriesQueryCriteria criteria, Pageable pageable) {
         //商户id = 当前登录用户
         int loginUserId = SecurityUtils.getUserId().intValue();
-        criteria.setMerId(loginUserId);
-        return new ResponseEntity<>(yxShipSeriesService.queryAll(criteria,pageable),HttpStatus.OK);
+        if (2 == SecurityUtils.getCurrUser().getUserRole()) {
+            criteria.setMerId(loginUserId);
+        }
+        return new ResponseEntity<>(yxShipSeriesService.queryAll(criteria, pageable), HttpStatus.OK);
     }
 
     @PostMapping
@@ -94,9 +96,9 @@ public class YxShipSeriesController {
         GeoPoint geoPoint = new GeoPoint(new BigDecimal(resources.getCoordinateX()), new BigDecimal(resources.getCoordinateY()));
 //        resources.setCoordinate(geoPoint);
         YxShipSeries shipSeries = new YxShipSeries();
-        BeanUtils.copyProperties(resources,shipSeries);
+        BeanUtils.copyProperties(resources, shipSeries);
         shipSeries.setCoordinate(geoPoint);
-        int isSave = yxShipSeriesService.insert(shipSeries);
+        int isSave = yxShipSeriesService.insertSelective(shipSeries);
         return new ResponseEntity<>(isSave, HttpStatus.CREATED);
     }
 
@@ -106,15 +108,16 @@ public class YxShipSeriesController {
     @PreAuthorize("@el.check('admin','yxShipSeries:edit')")
     public ResponseEntity<Object> update(@Validated @RequestBody YxShipSeriesRequest resources) {
         int loginUserId = SecurityUtils.getUserId().intValue();
-        YxStoreInfo storeInfo = yxStoreInfoService.getStoreInfoByMerId(loginUserId);
+        /*YxStoreInfo storeInfo = yxStoreInfoService.getStoreInfoByMerId(loginUserId);
         if (null == storeInfo) {
             throw new RuntimeException("根据商户id ：" + loginUserId + " 获取店铺信息失败！");
-        }
+        }*/
         resources.setUpdateUserId(loginUserId);
         resources.setUpdateTime(DateTime.now().toTimestamp());
+//        resources.setMerId(loginUserId);
         GeoPoint geoPoint = new GeoPoint(new BigDecimal(resources.getCoordinateX()), new BigDecimal(resources.getCoordinateY()));
         YxShipSeries shipSeries = new YxShipSeries();
-        BeanUtils.copyProperties(resources,shipSeries);
+        BeanUtils.copyProperties(resources, shipSeries);
         shipSeries.setCoordinate(geoPoint);
         yxShipSeriesService.updateByPrimaryKey(shipSeries);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -125,11 +128,12 @@ public class YxShipSeriesController {
     @PreAuthorize("@el.check('admin','yxShipSeries:del')")
     @DeleteMapping
     public ResponseEntity<Object> deleteAll(@RequestBody Integer[] ids) {
-        Arrays.asList(ids).forEach(id->{
+        Arrays.asList(ids).forEach(id -> {
             yxShipSeriesService.removeById(id);
         });
         return new ResponseEntity<>(HttpStatus.OK);
     }
+
     @PostMapping(value = "/changeStatus/{id}")
     @Log("修改船只系列状态")
     @ApiOperation("修改船只系列状态")

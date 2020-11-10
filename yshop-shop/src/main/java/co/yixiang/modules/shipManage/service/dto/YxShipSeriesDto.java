@@ -94,4 +94,9 @@ public class YxShipSeriesDto implements Serializable {
 
     private Timestamp updateTime;
 
+    /** 商户id */
+    private Integer merId;
+    /** 所属商铺 */
+    private Integer storeId;
+
 }

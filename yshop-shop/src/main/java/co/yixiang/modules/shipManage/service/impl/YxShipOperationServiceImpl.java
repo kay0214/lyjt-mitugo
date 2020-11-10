@@ -11,18 +11,22 @@ package co.yixiang.modules.shipManage.service.impl;
 import co.yixiang.common.service.impl.BaseServiceImpl;
 import co.yixiang.common.utils.QueryHelpPlus;
 import co.yixiang.dozer.service.IGenerator;
+import co.yixiang.exception.BadRequestException;
+import co.yixiang.modules.coupon.domain.YxCouponOrder;
+import co.yixiang.modules.coupon.service.mapper.YxCouponOrderMapper;
 import co.yixiang.modules.shipManage.domain.YxShipOperation;
+import co.yixiang.modules.shipManage.domain.YxShipOperationDetail;
 import co.yixiang.modules.shipManage.domain.YxShipPassenger;
+import co.yixiang.modules.shipManage.param.YxShipOperationInfoResponse;
 import co.yixiang.modules.shipManage.param.YxShipOperationResponse;
 import co.yixiang.modules.shipManage.param.YxShipPassengerResponse;
 import co.yixiang.modules.shipManage.service.YxShipOperationService;
 import co.yixiang.modules.shipManage.service.dto.YxShipOperationDto;
 import co.yixiang.modules.shipManage.service.dto.YxShipOperationQueryCriteria;
+import co.yixiang.modules.shipManage.service.mapper.YxShipOperationDetailMapper;
 import co.yixiang.modules.shipManage.service.mapper.YxShipOperationMapper;
 import co.yixiang.modules.shipManage.service.mapper.YxShipPassengerMapper;
-import co.yixiang.utils.CommonsUtils;
-import co.yixiang.utils.DateUtils;
-import co.yixiang.utils.FileUtil;
+import co.yixiang.utils.*;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -63,6 +67,10 @@ public class YxShipOperationServiceImpl extends BaseServiceImpl<YxShipOperationM
     private YxShipOperationMapper yxShipOperationMapper;
     @Autowired
     private YxShipPassengerMapper yxShipPassengerMapper;
+    @Autowired
+    private YxShipOperationDetailMapper yxShipOperationDetailMapper;
+    @Autowired
+    private YxCouponOrderMapper yxCouponOrderMapper;
 
     @Override
     //@Cacheable
@@ -74,7 +82,12 @@ public class YxShipOperationServiceImpl extends BaseServiceImpl<YxShipOperationM
 
         IPage<YxShipOperation> ipage = this.page(new Page<>(pageable.getPageNumber() + 1, pageable.getPageSize()), queryWrapper);
         Map<String, Object> map = new LinkedHashMap<>(2);
-        map.put("content", generator.convert(ipage.getRecords(), YxShipOperationDto.class));
+        List<YxShipOperationDto>yxShipOperationDtoList = generator.convert(ipage.getRecords(), YxShipOperationDto.class);
+        for(YxShipOperationDto yxShipOperationDto:yxShipOperationDtoList){
+            yxShipOperationDto.setLeaveFortmatTime(DateUtils.timestampToStr10(yxShipOperationDto.getLeaveTime()));
+            yxShipOperationDto.setReturnFormatTime(DateUtils.timestampToStr10(yxShipOperationDto.getReturnTime()));
+        }
+        map.put("content", yxShipOperationDtoList);
         map.put("totalElements", ipage.getTotal());
         return map;
     }
@@ -159,5 +172,52 @@ public class YxShipOperationServiceImpl extends BaseServiceImpl<YxShipOperationM
         }
 
         return  shipOperationResponseList;
+    }
+
+    /**
+     * 获取出行记录详情数据
+     * @param optionId
+     * @return
+     */
+    @Override
+    public YxShipOperationInfoResponse getOperationDetailInfo(Integer optionId) {
+        YxShipOperationInfoResponse response = new YxShipOperationInfoResponse();
+        YxShipOperation operation = this.getById(optionId);
+        if (null == operation) {
+            throw new BadRequestException("根据id：" + optionId + " 获取运营数据错误！");
+        }
+        //获取详情数据
+        QueryWrapper<YxShipOperationDetail> queryWrapperDeatil = new QueryWrapper<>();
+        queryWrapperDeatil.lambda().eq(YxShipOperationDetail::getBatchNo, operation.getBatchNo()).eq(YxShipOperationDetail::getDelFlag, 0);
+
+        List<YxShipOperationDetail> shipOperationDetails = yxShipOperationDetailMapper.selectList(queryWrapperDeatil);
+        if (CollectionUtils.isEmpty(shipOperationDetails)) {
+            throw new BadRequestException("根据批次号：" + operation.getBatchNo() + " 获取运营详情数据错误！");
+        }
+        BeanUtils.copyProperties(operation, response);
+        //离港时间
+        response.setLeaveForTime(DateUtils.timestampToStr10(operation.getLeaveTime()));
+        //返港时间
+        response.setReturnForTime(DateUtils.timestampToStr10(operation.getReturnTime()));
+
+        List<String> orderList = new ArrayList<>();
+        for (YxShipOperationDetail detail : shipOperationDetails) {
+
+            YxCouponOrder couponOrder = yxCouponOrderMapper.selectById(detail.getCouponOrderId());
+            if (null == couponOrder) {
+                throw new BadRequestException("根据id：" + detail.getCouponOrderId() + " 获取卡券订单数据错误！");
+            }
+            orderList.add(couponOrder.getOrderId());
+        }
+        response.setOrderList(orderList);
+        //乘客信息
+        QueryWrapper<YxShipPassenger> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().eq(YxShipPassenger::getDelFlag, 0).eq(YxShipPassenger::getBatchNo, operation.getBatchNo());
+        List<YxShipPassenger> shipPassengerList = yxShipPassengerMapper.selectList(queryWrapper);
+        if (!CollectionUtils.isEmpty(shipPassengerList)) {
+            List<YxShipPassengerResponse> passengerResponseList = CommonsUtils.convertBeanList(shipPassengerList, YxShipPassengerResponse.class);
+            response.setListPassenger(passengerResponseList);
+        }
+        return response;
     }
 }

@@ -1,11 +1,11 @@
 /**
-* Copyright (C) 2018-2020
-* All rights reserved, Designed By www.yixiang.co
-* 注意：
-* 本软件为www.yixiang.co开发研制，未经购买不得使用
-* 购买后可获得全部源代码（禁止转卖、分享、上传到码云、github等开源平台）
-* 一经发现盗用、分享等行为，将追究法律责任，后果自负
-*/
+ * Copyright (C) 2018-2020
+ * All rights reserved, Designed By www.yixiang.co
+ * 注意：
+ * 本软件为www.yixiang.co开发研制，未经购买不得使用
+ * 购买后可获得全部源代码（禁止转卖、分享、上传到码云、github等开源平台）
+ * 一经发现盗用、分享等行为，将追究法律责任，后果自负
+ */
 package co.yixiang.modules.shipManage.service.impl;
 
 import cn.hutool.core.date.DateTime;
@@ -14,14 +14,13 @@ import co.yixiang.common.utils.QueryHelpPlus;
 import co.yixiang.dozer.service.IGenerator;
 import co.yixiang.exception.BadRequestException;
 import co.yixiang.modules.shipManage.domain.YxShipInfo;
-import co.yixiang.modules.shipManage.param.YxShipInfoRequest;
 import co.yixiang.modules.shipManage.domain.YxShipSeries;
+import co.yixiang.modules.shipManage.param.YxShipInfoRequest;
 import co.yixiang.modules.shipManage.service.YxShipInfoService;
 import co.yixiang.modules.shipManage.service.dto.YxShipInfoDto;
 import co.yixiang.modules.shipManage.service.dto.YxShipInfoQueryCriteria;
 import co.yixiang.modules.shipManage.service.mapper.YxShipInfoMapper;
 import co.yixiang.modules.shipManage.service.mapper.YxShipSeriesMapper;
-import co.yixiang.modules.shop.domain.User;
 import co.yixiang.modules.shop.domain.YxStoreInfo;
 import co.yixiang.modules.shop.service.mapper.UserSysMapper;
 import co.yixiang.modules.shop.service.mapper.YxStoreInfoMapper;
@@ -50,9 +49,9 @@ import java.util.Map;
 //import org.springframework.cache.annotation.Cacheable;
 
 /**
-* @author nxl
-* @date 2020-11-04
-*/
+ * @author nxl
+ * @date 2020-11-04
+ */
 @Service
 @AllArgsConstructor
 //@CacheConfig(cacheNames = "yxShipInfo")
@@ -81,7 +80,7 @@ public class YxShipInfoServiceImpl extends BaseServiceImpl<YxShipInfoMapper, YxS
 
     @Override
     //@Cacheable
-    public List<YxShipInfo> queryAll(YxShipInfoQueryCriteria criteria){
+    public List<YxShipInfo> queryAll(YxShipInfoQueryCriteria criteria) {
         return baseMapper.selectList(QueryHelpPlus.getPredicate(YxShipInfo.class, criteria));
     }
 
@@ -90,7 +89,7 @@ public class YxShipInfoServiceImpl extends BaseServiceImpl<YxShipInfoMapper, YxS
     public void download(List<YxShipInfoDto> all, HttpServletResponse response) throws IOException {
         List<Map<String, Object>> list = new ArrayList<>();
         for (YxShipInfoDto yxShipInfo : all) {
-            Map<String,Object> map = new LinkedHashMap<>();
+            Map<String, Object> map = new LinkedHashMap<>();
             map.put("船只名称", yxShipInfo.getShipName());
             map.put("船只系列id", yxShipInfo.getSeriesId());
             map.put("商户id", yxShipInfo.getMerId());
@@ -117,9 +116,9 @@ public class YxShipInfoServiceImpl extends BaseServiceImpl<YxShipInfoMapper, YxS
      * @return
      */
     @Override
-    public List<YxShipSeries> getShipSeriseList(){
+    public List<YxShipSeries> getShipSeriseList() {
         QueryWrapper<YxShipSeries> queryWrapper = new QueryWrapper<>();
-        queryWrapper.lambda().eq(YxShipSeries::getStatus, 0).eq(YxShipSeries::getDelFlag,0);
+        queryWrapper.lambda().eq(YxShipSeries::getStatus, 0).eq(YxShipSeries::getDelFlag, 0);
         return shipSeriesMapper.selectList(queryWrapper);
     }
 
@@ -130,7 +129,7 @@ public class YxShipInfoServiceImpl extends BaseServiceImpl<YxShipInfoMapper, YxS
      * @return
      */
     @Override
-    public List<YxShipInfo> getShipInfoList(int seriseId,int merId) {
+    public List<YxShipInfo> getShipInfoList(int seriseId, int merId) {
         QueryWrapper<YxShipInfo> queryWrapper = new QueryWrapper<>();
         queryWrapper.lambda().eq(YxShipInfo::getSeriesId, seriseId).eq(YxShipInfo::getMerId, merId).eq(YxShipInfo::getShipStatus, 0).eq(YxShipInfo::getDelFlag, 0);
         return this.list(queryWrapper);
@@ -143,22 +142,22 @@ public class YxShipInfoServiceImpl extends BaseServiceImpl<YxShipInfoMapper, YxS
     @Override
     public boolean saveOrUpdShipInfoByParam(YxShipInfoRequest resources) {
         int loginUserId = SecurityUtils.getUserId().intValue();
-        //判断 输入的所属商户是否存在
+        /*//判断 输入的所属商户是否存在
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-        queryWrapper.lambda().eq(User::getMerchantsContact, resources.getMerName()).eq(User::getUserRole, 2);
+        queryWrapper.lambda().eq(User::getUsername, resources.getMerName()).eq(User::getUserRole, 2);
         User userMer = userSysMapper.selectOne(queryWrapper);
         if (null == userMer) {
             throw new BadRequestException("所属商户不存在！商户名：" + resources.getMerName());
-        }
+        }*/
         QueryWrapper<YxStoreInfo> queryWrapperStore = new QueryWrapper<>();
-        queryWrapperStore.lambda().eq(YxStoreInfo::getMerId, userMer.getId());
+        queryWrapperStore.lambda().eq(YxStoreInfo::getMerId, loginUserId);
         YxStoreInfo yxStoreInfo = yxStoreInfoMapper.selectOne(queryWrapperStore);
         if (null == yxStoreInfo) {
-            throw new BadRequestException("商户id：" + userMer.getId() + "店铺查找失败！");
+            throw new BadRequestException("商户id：" + loginUserId + "店铺查找失败！");
         }
-        YxShipInfo yxShipInfo  = new YxShipInfo();
-        BeanUtils.copyProperties(resources,yxShipInfo);
-        yxShipInfo.setMerId(userMer.getId().intValue());
+        YxShipInfo yxShipInfo = new YxShipInfo();
+        BeanUtils.copyProperties(resources, yxShipInfo);
+        yxShipInfo.setMerId(loginUserId);
         yxShipInfo.setStoreId(yxStoreInfo.getId());
         yxShipInfo.setUpdateUserId(loginUserId);
         yxShipInfo.setUpdateTime(DateTime.now().toTimestamp());
@@ -174,5 +173,26 @@ public class YxShipInfoServiceImpl extends BaseServiceImpl<YxShipInfoMapper, YxS
             //修改
             return this.updateById(yxShipInfo);
         }
+    }
+
+
+    /**
+     * 根据id修改船只状态
+     * @param id
+     */
+    @Override
+    public void changeStatus(int id) {
+        YxShipInfo yxShipInfo = this.getById(id);
+        if (null == yxShipInfo) {
+            throw new BadRequestException("根据船只id：" + id + " 获取数据错误！");
+        }
+        int statusShip = 0;
+        if (yxShipInfo.getShipStatus() == 0) {
+            statusShip = 1;
+        }
+        yxShipInfo.setShipStatus(statusShip);
+        yxShipInfo.setUpdateUserId(SecurityUtils.getUserId().intValue());
+        yxShipInfo.setUpdateTime(DateTime.now().toTimestamp());
+        this.updateById(yxShipInfo);
     }
 }

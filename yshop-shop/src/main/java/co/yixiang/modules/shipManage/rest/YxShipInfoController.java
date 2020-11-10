@@ -129,5 +129,12 @@ public class YxShipInfoController {
         return new ResponseEntity(mapRetrun, HttpStatus.OK);
 //        return new ResponseEntity(shipInfoDtoList, HttpStatus.OK);
     }
-
+    @PostMapping(value = "/changeStatus/{id}")
+    @Log("修改船只系列状态")
+    @ApiOperation("修改船只系列状态")
+    @PreAuthorize("@el.check('admin','yxShipSeries:edit')")
+    public ResponseEntity<Object> changeStatus(@PathVariable Integer id) {
+        yxShipInfoService.changeStatus(id);
+        return new ResponseEntity(HttpStatus.OK);
+    }
 }
