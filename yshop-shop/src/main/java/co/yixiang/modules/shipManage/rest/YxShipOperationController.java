@@ -102,5 +102,12 @@ public class YxShipOperationController {
         return new ResponseEntity<>(yxShipOperationService.getOperationDetailInfo(id), HttpStatus.OK);
 
     }
+    @GetMapping(value = "/downLoadZipFiles/{batchNo}")
+    @Log("下载合同")
+    @ApiOperation("下载合同")
+    @PreAuthorize("@el.check('admin','yxShipOperation:list')")
+    public ResponseEntity<Object> downLoadZipFiles(@PathVariable String batchNo,HttpServletResponse response) {
+        return new ResponseEntity<>(yxShipOperationService.downLoadZipFiles(response,batchNo), HttpStatus.OK);
+    }
 
 }

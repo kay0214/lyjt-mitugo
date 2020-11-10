@@ -42,6 +42,9 @@ private Integer status;
 @ApiModelProperty(value = "用户角色：0->平台运营,1->合伙人,2->商户")
 private Integer userRole;
 
+@ApiModelProperty(value = "所属商户id")
+private Integer merId;
+
 @ApiModelProperty(value = "是否删除（0：未删除，1：已删除）")
 private Integer delFlag;
 

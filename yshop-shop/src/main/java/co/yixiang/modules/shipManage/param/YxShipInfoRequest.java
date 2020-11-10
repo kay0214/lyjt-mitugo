@@ -40,7 +40,6 @@ public class YxShipInfoRequest implements Serializable {
 
 
     /** 帆船所属商户名 */
-    @NotBlank
     private String merName;
 
 
@@ -66,5 +65,8 @@ public class YxShipInfoRequest implements Serializable {
 
     /** 最近一次返港时间 */
     private Integer lastReturnTime;
+
+    /** 船只图片 */
+    private String imageUrl;
 
 }

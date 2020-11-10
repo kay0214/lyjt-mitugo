@@ -43,6 +43,8 @@ public class YxCustomerServiceDto implements Serializable {
 
     private Integer userRole;
 
+    /** 所属商户id */
+    private Integer merId;
 
     /** 是否删除（0：未删除，1：已删除） */
 

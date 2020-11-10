@@ -14,6 +14,8 @@ import co.yixiang.dozer.service.IGenerator;
 import co.yixiang.exception.BadRequestException;
 import co.yixiang.modules.coupon.domain.YxCouponOrder;
 import co.yixiang.modules.coupon.service.mapper.YxCouponOrderMapper;
+import co.yixiang.modules.coupon.service.mapper.YxCouponsMapper;
+import co.yixiang.modules.shipManage.domain.YxContractTemplate;
 import co.yixiang.modules.shipManage.domain.YxShipOperation;
 import co.yixiang.modules.shipManage.domain.YxShipOperationDetail;
 import co.yixiang.modules.shipManage.domain.YxShipPassenger;
@@ -23,6 +25,7 @@ import co.yixiang.modules.shipManage.param.YxShipPassengerResponse;
 import co.yixiang.modules.shipManage.service.YxShipOperationService;
 import co.yixiang.modules.shipManage.service.dto.YxShipOperationDto;
 import co.yixiang.modules.shipManage.service.dto.YxShipOperationQueryCriteria;
+import co.yixiang.modules.shipManage.service.mapper.YxContractTemplateMapper;
 import co.yixiang.modules.shipManage.service.mapper.YxShipOperationDetailMapper;
 import co.yixiang.modules.shipManage.service.mapper.YxShipOperationMapper;
 import co.yixiang.modules.shipManage.service.mapper.YxShipPassengerMapper;
@@ -71,6 +74,11 @@ public class YxShipOperationServiceImpl extends BaseServiceImpl<YxShipOperationM
     private YxShipOperationDetailMapper yxShipOperationDetailMapper;
     @Autowired
     private YxCouponOrderMapper yxCouponOrderMapper;
+    @Autowired
+    private YxCouponsMapper yxCouponsMapper;
+
+    @Autowired
+    private YxContractTemplateMapper yxContractTemplateMapper;
 
     @Override
     //@Cacheable
@@ -220,4 +228,35 @@ public class YxShipOperationServiceImpl extends BaseServiceImpl<YxShipOperationM
         }
         return response;
     }
+
+    /**
+     * 打包下载合同
+     * @param response
+     * @param batchNo
+     * @return
+     */
+    @Override
+    public boolean downLoadZipFiles(HttpServletResponse response, String batchNo) {
+        String fileName = "批次号_"+batchNo + "_合同下载.zip";
+        List<String> nameList = new ArrayList<>();
+        QueryWrapper<YxShipOperationDetail> queryWrapperDeatil = new QueryWrapper<>();
+        queryWrapperDeatil.lambda().eq(YxShipOperationDetail::getBatchNo, batchNo).eq(YxShipOperationDetail::getDelFlag, 0);
+
+        List<YxShipOperationDetail> shipOperationDetails = yxShipOperationDetailMapper.selectList(queryWrapperDeatil);
+        if (CollectionUtils.isEmpty(shipOperationDetails)) {
+            throw new BadRequestException("根据批次号：" +batchNo + " 获取运营详情数据错误！");
+        }
+        //
+        int tempId = yxCouponsMapper.getTempIdByOrderId(shipOperationDetails.get(0).getCouponOrderId());
+        if (0 == tempId) {
+            //未配置模板
+            throw new BadRequestException("批次号：" +batchNo + " 未配置模板！");
+        }
+        YxContractTemplate contractTemplate = yxContractTemplateMapper.selectById(tempId);
+        //合同模板地址
+        contractTemplate.getFilePath();
+        FileUtils.downloadZipFiles(response, nameList, fileName);
+        return false;
+    }
+
 }

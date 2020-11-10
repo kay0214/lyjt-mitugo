@@ -148,6 +148,10 @@ public interface ShopConstants {
 	 * 图片类型-商户
 	 */
 	int IMG_TYPE_MERCHANTS=4;
+	/**
+	 * 图片类型-船只
+	 */
+	int IMG_TYPE_SHIPINFO=5;
 
 
 	/*********************图片类别**********************/
