@@ -4,7 +4,7 @@
     <div class="head-container">
       <!--如果想在工具栏加入更多按钮，可以使用插槽方式， slot = 'left' or 'right'-->
       <el-input v-model="query.seriesName" clearable size="small" placeholder="请输入系列名称" style="width: 200px;" class="filter-item" @keyup.enter.native="crud.toQuery" />
-      <el-select v-model="query.seriesId" clearable placeholder="请选择船只系列" style="width: 200px;" class="filter-item">
+      <el-select v-model.number="query.seriesId" clearable @clear="()=>{$route.query.seriesId=''}" placeholder="请选择船只系列" style="width: 200px;" class="filter-item">
         <el-option
           v-for="item in shipSeries"
           :key="item.id"
@@ -138,7 +138,6 @@ import { Notification } from 'element-ui'
 import path from 'path'
 import { isExternal } from '@/utils/validate'
 import AppLink from '@/layout/components/Sidebar/Link'
-
 // crud交由presenter持有
 const defaultCrud = CRUD({ title: '船只管理', url: 'api/yxShipInfo', sort: 'id,desc',
   crudMethod: { ...crudYxShipInfo },optShow:{
@@ -201,22 +200,6 @@ export default {
   watch: {
   },
   computed:{
-    // transferLabel:function(){
-    //   return function(options,key,val){
-    //     if(this.options.length){
-    //       let i= this.options.filter(function(item){
-    //         return new RegExp(item.key, 'i').test(val)
-    //       })
-    //       if(i.length){
-    //         return i
-    //       }else{
-    //         return i
-    //       }
-    //     }else{
-    //       return ""
-    //     }
-    //   }
-    // },
     seriesLabel:function(){
       return function(id){
         if(this.shipSeries.length){
@@ -247,15 +230,18 @@ export default {
     }
   },
   mounted() {
-    this.$nextTick(()=>{
-      initData('api/yxShipSeries').then(res=>{
-        this.shipSeries=res.content
-      })
+    initData('api/yxShipSeries').then(res=>{
+      this.shipSeries=res.content
     })
   },
   methods: {
     // 获取数据前设置好接口地址
     [CRUD.HOOK.beforeRefresh]() {
+      if(Boolean(this.$route.query.seriesId) && !isNaN(this.$route.query.seriesId)){
+        this.query.seriesId=parseInt(this.$route.query.seriesId)
+      }else{
+        this.query.seriesId=''
+      }
       return true
     }, // 新增与编辑前做的操作
     [CRUD.HOOK.afterToCU](crud, form) {
