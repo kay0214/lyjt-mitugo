@@ -113,7 +113,10 @@ const defaultCrud = CRUD({ title: '船只系列', url: 'api/yxShipSeries', sort:
     edit: false,
     del: false,
     download: false
-  }})
+  }, query: {
+    seriesName:''
+  }
+})
 const defaultForm = { id: null, seriesName: null, shipCategory: null, rideLimit: null, shipSize: null,
   status: 1, shipProvince: null, shipAddress: null,  coordinateX: 39, coordinateY: 116, delFlag: null,
   createUserId: null, updateUserId: null, createTime: null, updateTime: null, merId:null, storeId:null }

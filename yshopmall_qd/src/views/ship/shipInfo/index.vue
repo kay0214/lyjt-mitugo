@@ -4,7 +4,7 @@
     <div class="head-container">
       <!--如果想在工具栏加入更多按钮，可以使用插槽方式， slot = 'left' or 'right'-->
       <el-input v-model="query.seriesName" clearable size="small" placeholder="请输入系列名称" style="width: 200px;" class="filter-item" @keyup.enter.native="crud.toQuery" />
-      <el-select v-model="form.seriesId" placeholder="请选择船只系列" style="width: 200px;">
+      <el-select v-model="query.seriesId" clearable placeholder="请选择船只系列" style="width: 200px;" class="filter-item">
         <el-option
           v-for="item in shipSeries"
           :key="item.id"
@@ -12,7 +12,7 @@
           :value="item.id">
         </el-option>
       </el-select>
-      <el-select v-model="form.seriesId" placeholder="请选择船只当前状态" style="width: 200px;">
+      <el-select v-model="query.currentStatus" clearable placeholder="请选择船只当前状态" style="width: 200px;" class="filter-item">
         <el-option
           v-for="item in curStatus"
           :key="item.value"
@@ -40,7 +40,7 @@
             </el-select>
           </el-form-item>
           <el-form-item label="船只名称" prop="shipName">
-            <el-input v-model="form.shipName" style="width: 370px;" />
+            <el-input v-model="form.shipName" style="width: 370px;" maxlength="20"/>
           </el-form-item>
           <!--<el-form-item label="商户id" prop="merId">
             <el-input v-model="form.merId" style="width: 370px;" />
@@ -49,13 +49,13 @@
 <!--            <el-input v-model="form.storeId" style="width: 370px;" />-->
 <!--          </el-form-item>-->
           <el-form-item label="船只所属商户名" prop="merName">
-            <el-input v-model="form.merName" style="width: 370px;" />
+            <el-input v-model="form.merName" style="width: 370px;" maxlength="20" clearable/>
           </el-form-item>
           <el-form-item label="船只负责人" prop="managerName">
-            <el-input v-model="form.managerName" style="width: 370px;" />
+            <el-input v-model="form.managerName" style="width: 370px;" maxlength="20" clearable/>
           </el-form-item>
           <el-form-item label="负责人电话" prop="managerPhone">
-            <el-input v-model="form.managerPhone" style="width: 370px;" />
+            <el-input v-model="form.managerPhone" style="width: 370px;" maxlength="20" clearable/>
           </el-form-item>
           <el-form-item label="船只状态" prop="shipStatus">
             <el-radio-group v-model="form.shipStatus">
@@ -101,10 +101,14 @@
 
         <el-table-column v-permission="['admin','yxShipInfo:edit','yxShipInfo:del']" label="操作" width="150px" align="center">
           <template slot-scope="scope">
-            <udOperation
-              :data="scope.row"
-              :permission="permission"
-            />
+            <el-button size="mini" type="text" icon="el-icon-edit"
+                       @click="crud.toEdit(scope.row)" >修改</el-button>
+            <el-divider direction="vertical"></el-divider>
+            <el-button size="mini" type="text" icon="el-icon-edit"
+                       @click="editStatus(scope.row)" >{{ scope.row.shipStatus?'启用':'禁用' }}</el-button>
+            <el-divider direction="vertical"></el-divider>
+            <el-button size="mini" type="text" icon="el-icon-edit"
+                       @click="crud.toEdit(scope.row)" >出行记录</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -115,7 +119,7 @@
 </template>
 
 <script>
-import crudYxShipInfo from '@/api/yxShipInfo'
+import crudYxShipInfo , { changeStatus } from '@/api/yxShipInfo'
 // import yxShipSeries from '@/api/yxShipSeries'
 import CRUD, { presenter, header, form, crud } from '@crud/crud'
 import rrOperation from '@crud/RR.operation'
@@ -124,6 +128,8 @@ import udOperation from '@crud/UD.operation'
 import pagination from '@crud/Pagination'
 import MaterialList from "@/components/material";
 import { initData } from '@/api/data'
+import { validatePhoneTwo } from '@/utils/validate'
+import { Notification } from 'element-ui'
 
 // crud交由presenter持有
 const defaultCrud = CRUD({ title: '船只管理', url: 'api/yxShipInfo', sort: 'id,desc',
@@ -132,7 +138,13 @@ const defaultCrud = CRUD({ title: '船只管理', url: 'api/yxShipInfo', sort: '
     edit: false,
     del: false,
     download: false
-  }})
+  }
+  , query: {
+    seriesName:'',
+    seriesId:'',
+    currentStatus:''
+  },
+})
 const defaultForm = { id: null, shipName: null, seriesId: null, merId: null,
   storeId: null, merName: null, managerName: null, managerPhone: null, shipStatus: 1,
   currentStatus: null, lastLeaveTime: null, lastReturnTime: null, delFlag: null,
@@ -153,44 +165,18 @@ export default {
           { required: true, message: '船只名称不能为空', trigger: 'blur' }
         ],
         seriesId: [
-          { required: true, message: '船只系列id不能为空', trigger: 'blur' }
-        ],
-        merId: [
-          { required: true, message: '商户id不能为空', trigger: 'blur' }
-        ],
-        storeId: [
-          { required: true, message: '所属商铺不能为空', trigger: 'blur' }
-        ],
-        merName: [
-          { required: true, message: '帆船所属商户名不能为空', trigger: 'blur' }
-        ],
-        managerName: [
-          { required: true, message: '帆船负责人不能为空', trigger: 'blur' }
+          { required: true, message: '船只系列不能为空', trigger: 'blur' }
         ],
         managerPhone: [
-          { required: true, message: '负责人电话不能为空', trigger: 'blur' }
+          // { required: true, message: '负责人电话不能为空', trigger: 'blur' },
+          {validator:validatePhoneTwo,trigger:'blur'}
         ],
         shipStatus: [
-          { required: true, message: '船只状态：0：启用，1：禁用不能为空', trigger: 'blur' }
+          { required: true, message: '船只状态不能为空', trigger: 'blur' }
         ],
         currentStatus: [
-          { required: true, message: '船只当前状态：0：在港，1：离港。2：维修中不能为空', trigger: 'blur' }
+          // { required: true, message: '船只当前状态：0：在港，1：离港。2：维修中不能为空', trigger: 'blur' }
         ],
-        lastLeaveTime: [
-          { required: true, message: '最近一次出港时间不能为空', trigger: 'blur' }
-        ],
-        lastReturnTime: [
-          { required: true, message: '最近一次返港时间不能为空', trigger: 'blur' }
-        ],
-        delFlag: [
-          { required: true, message: '是否删除（0：未删除，1：已删除）不能为空', trigger: 'blur' }
-        ],
-        createTime: [
-          { required: true, message: '创建时间不能为空', trigger: 'blur' }
-        ],
-        updateTime: [
-          { required: true, message: '更新时间不能为空', trigger: 'blur' }
-        ]
       },
       shipSeries: [],
       curStatus:[
@@ -203,6 +189,22 @@ export default {
   watch: {
   },
   computed:{
+    // transferLabel:function(){
+    //   return function(options,key,val){
+    //     if(this.options.length){
+    //       let i= this.options.filter(function(item){
+    //         return new RegExp(item.key, 'i').test(val)
+    //       })
+    //       if(i.length){
+    //         return i
+    //       }else{
+    //         return i
+    //       }
+    //     }else{
+    //       return ""
+    //     }
+    //   }
+    // },
     seriesLabel:function(){
       return function(id){
         if(this.shipSeries.length){
@@ -246,6 +248,16 @@ export default {
     }, // 新增与编辑前做的操作
     [CRUD.HOOK.afterToCU](crud, form) {
     },
+    editStatus(row){
+      let that=this
+      changeStatus(row.id).then(res=>{
+        let t='已'+ (row.currentStatus?'启用':'禁用')
+        Notification.success({
+          title: t
+        })
+        that.crud.refresh()
+      })
+    }
   }
 }
 

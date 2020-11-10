@@ -24,4 +24,11 @@ export function edit(data) {
   })
 }
 
+export function changeStatus(id) {
+  return request({
+    url: 'api/yxShipInfo/changeStatus/' + id,
+    method: 'post'
+  })
+}
+
 export default { add, edit, del }
