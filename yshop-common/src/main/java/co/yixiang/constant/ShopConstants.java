@@ -165,6 +165,12 @@ public interface ShopConstants {
 	 * 小视频
 	 */
 	int IMG_CATEGORY_VIDEO = 3;
+
+	/**
+	 * 小视频
+	 */
+	int IMG_CATEGORY_REPLY = 4;
+
 	/**
 	 * 图片类别-手持证件照
 	 */

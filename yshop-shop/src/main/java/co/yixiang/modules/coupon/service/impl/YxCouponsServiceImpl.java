@@ -144,6 +144,18 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
                     yxCouponsDto.setCouponCategoryName(couponsCategory.getCateName());
                 }
 
+                // 查询小视频是否存在
+                QueryWrapper<YxImageInfo> videoWrapper = new QueryWrapper<>();
+                videoWrapper.lambda()
+                        .and(type -> type.eq(YxImageInfo::getTypeId, yxCouponsDto.getId()))
+                        .and(imgCate -> imgCate.eq(YxImageInfo::getImgCategory, ShopConstants.IMG_CATEGORY_VIDEO))
+                        .and(imgType -> imgType.eq(YxImageInfo::getImgType, LocalLiveConstants.IMG_TYPE_COUPONS))
+                        .and(del -> del.eq(YxImageInfo::getDelFlag, false));
+                YxImageInfo video = yxImageInfoService.getOne(videoWrapper);
+                if (video != null) {
+                    yxCouponsDto.setVideo(video.getImgUrl());
+                }
+
                 // 查询缩略图图片是否存在
                 QueryWrapper<YxImageInfo> imageInfoQueryWrapper = new QueryWrapper<>();
                 imageInfoQueryWrapper.lambda()
@@ -439,6 +451,7 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
             insertVideo.setImgCategory(ShopConstants.IMG_CATEGORY_VIDEO);
             insertVideo.setImgType(LocalLiveConstants.IMG_TYPE_COUPONS);
             insertVideo.setImgUrl(video);
+            insertVideo.setDelFlag(0);
             insertVideo.setCreateUserId(loginUserId);
             insertVideo.setCreateTime(DateTime.now().toTimestamp());
             insertVideo.setUpdateUserId(loginUserId);

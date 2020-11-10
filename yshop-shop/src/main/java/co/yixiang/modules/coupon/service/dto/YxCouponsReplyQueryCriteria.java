@@ -8,14 +8,34 @@
 */
 package co.yixiang.modules.coupon.service.dto;
 
+import co.yixiang.modules.shop.service.dto.BaseCriteria;
 import lombok.Data;
 import java.util.List;
 import co.yixiang.annotation.Query;
+
+import javax.validation.constraints.NotNull;
 
 /**
 * @author nxl
 * @date 2020-11-04
 */
 @Data
-public class YxCouponsReplyQueryCriteria{
+public class YxCouponsReplyQueryCriteria extends BaseCriteria {
+
+    /** 商户id */
+    @Query(type = Query.Type.EQUAL)
+    private Integer merId;
+
+
+    /** 卡券id */
+    @Query(type = Query.Type.EQUAL)
+    private Integer couponId;
+
+    /** 商户昵称 */
+    private String nickName;
+    /** 商户用户名 */
+    private String username;
+    /** 商品名称 */
+    private String couponName;
+
 }
