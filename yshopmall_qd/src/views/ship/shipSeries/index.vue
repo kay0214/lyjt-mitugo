@@ -163,7 +163,8 @@ export default {
       },
       options: regionData,
       selectedOptions: [],
-      shipProvinceTest:''
+      shipProvinceTest:'',
+      basePath:''
     }
   },
   watch: {

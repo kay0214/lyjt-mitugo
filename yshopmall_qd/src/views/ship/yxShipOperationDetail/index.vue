@@ -3,63 +3,30 @@
     <!--工具栏-->
     <div class="head-container">
       <!--如果想在工具栏加入更多按钮，可以使用插槽方式， slot = 'left' or 'right'-->
-      <crudOperation :permission="permission" />
+      <!--      <crudOperation :permission="permission" />-->
       <!--表单组件-->
       <el-dialog :close-on-click-modal="false" :before-close="crud.cancelCU" :visible.sync="crud.status.cu > 0" :title="crud.status.title" width="500px">
-        <el-form ref="form" :model="form" :rules="rules" size="small" label-width="80px">
-          <el-form-item label="id">
-            <el-input v-model="form.id" style="width: 370px;" />
-          </el-form-item>
-          <el-form-item label="卡券订单id" prop="couponOrderId">
-            <el-input v-model="form.couponOrderId" style="width: 370px;" />
-          </el-form-item>
-          <el-form-item label="船只id" prop="shipId">
-            <el-input v-model="form.shipId" style="width: 370px;" />
-          </el-form-item>
-          <el-form-item label="船只出港批次号" prop="batchNo">
-            <el-input v-model="form.batchNo" style="width: 370px;" />
-          </el-form-item>
+        <el-form ref="form" :model="form" :rules="rules" disabled size="small" label-width="80px">
           <el-form-item label="船只名称">
             <el-input v-model="form.shipName" style="width: 370px;" />
-          </el-form-item>
-          <el-form-item label="船长id" prop="captainId">
-            <el-input v-model="form.captainId" style="width: 370px;" />
           </el-form-item>
           <el-form-item label="船长姓名">
             <el-input v-model="form.captainName" style="width: 370px;" />
           </el-form-item>
-          <el-form-item label="核销人id" prop="useId">
-            <el-input v-model="form.useId" style="width: 370px;" />
-          </el-form-item>
-          <el-form-item label="核销人姓名">
-            <el-input v-model="form.useName" style="width: 370px;" />
-          </el-form-item>
-          <el-form-item label="乘客身体状况">
-            <el-input v-model="form.healthStatus" style="width: 370px;" />
-          </el-form-item>
           <el-form-item label="承载人数">
-            <el-input v-model="form.totalPassenger" style="width: 370px;" />
+            <el-input v-model="form.totalPassenger" style="width: 370px;" >
+              <template slot="append">人</template>
+            </el-input>
           </el-form-item>
           <el-form-item label="老年人人数">
-            <el-input v-model="form.oldPassenger" style="width: 370px;" />
+            <el-input v-model="form.oldPassenger" style="width: 370px;" >
+              <template slot="append">人</template>
+            </el-input>
           </el-form-item>
           <el-form-item label="未成年人数">
-            <el-input v-model="form.underagePassenger" style="width: 370px;" />
-          </el-form-item>
-          <el-form-item label="是否删除（0：未删除，1：已删除）" prop="delFlag">
-            <el-input v-model="form.delFlag" style="width: 370px;" />
-          </el-form-item>
-          <el-form-item label="创建人">
-            <el-input v-model="form.createUserId" style="width: 370px;" />
-          </el-form-item>
-          <el-form-item label="修改人">
-            <el-input v-model="form.updateUserId" style="width: 370px;" />
-          </el-form-item>
-          <el-form-item label="创建时间" prop="createTime">
-            <el-input v-model="form.createTime" style="width: 370px;" />
-          </el-form-item>
-          <el-form-item label="更新时间" prop="updateTime">
-            <el-input v-model="form.updateTime" style="width: 370px;" />
+            <el-input v-model="form.underagePassenger" style="width: 370px;" >
+              <template slot="append">人</template>
+            </el-input>
           </el-form-item>
         </el-form>
         <div slot="footer" class="dialog-footer">
@@ -129,7 +96,7 @@ export default {
   mixins: [presenter(defaultCrud), header(), form(defaultForm), crud()],
   data() {
     return {
-      
+
       permission: {
         add: ['admin', 'yxShipOperationDetail:add'],
         edit: ['admin', 'yxShipOperationDetail:edit'],
@@ -167,6 +134,7 @@ export default {
   methods: {
     // 获取数据前设置好接口地址
     [CRUD.HOOK.beforeRefresh]() {
+      this.crud.url='api/yxShipOperation/getOperationDetailInfo/'+this.$route.param.id
       return true
     }, // 新增与编辑前做的操作
     [CRUD.HOOK.afterToCU](crud, form) {

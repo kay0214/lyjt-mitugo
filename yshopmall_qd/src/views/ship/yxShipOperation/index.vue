@@ -3,6 +3,39 @@
     <!--工具栏-->
     <div class="head-container">
       <!--如果想在工具栏加入更多按钮，可以使用插槽方式， slot = 'left' or 'right'-->
+      <el-cascader
+        class="filter-item"
+        v-model="query.shipInfoId"
+        :options="shipSeriesTree"
+        :props="{ expandTrigger: 'hover' }"
+        clearable
+        @clear="()=>{$route.query.shipId=''}"
+        @change="(val)=>{
+          if(val){
+            query.shipId=val[1]
+          }else{
+            query.shipId=''}
+        }"></el-cascader>
+      <el-input v-model="query.captainName" clearable size="small"
+                placeholder="请输入船长姓名" style="width: 200px;" class="filter-item"
+                @keyup.enter.native="crud.toQuery" />
+      <el-date-picker
+        class="filter-item"
+        v-model="query.daterange"
+        type="datetimerange"
+        range-separator="至"
+        start-placeholder="出港时间"
+        end-placeholder="出港时间"
+        @change="(val)=>{
+        if(val) {
+          query.startDate =val[0];query.endDate =val[1]
+        }else{
+          query.startDate='';query.endDate=''
+        }
+      }"
+      >
+      </el-date-picker>
+      <el-button class="filter-item" size="mini" type="success" icon="el-icon-search" @click="crud.toQuery">搜索</el-button>
       <crudOperation :permission="permission" />
       <!--表单组件-->
       <el-dialog :close-on-click-modal="false" :before-close="crud.cancelCU" :visible.sync="crud.status.cu > 0" :title="crud.status.title" width="500px">
@@ -67,37 +100,40 @@
       <!--表格渲染-->
       <el-table ref="table" v-loading="crud.loading" :data="crud.data" size="small" style="width: 100%;" @selection-change="crud.selectionChangeHandler">
         <el-table-column type="selection" width="55" />
-        <el-table-column v-if="columns.visible('id')" prop="id" label="id" />
-        <el-table-column v-if="columns.visible('batchNo')" prop="batchNo" label="船只出港批次号" />
-        <el-table-column v-if="columns.visible('shipId')" prop="shipId" label="船只id" />
         <el-table-column v-if="columns.visible('shipName')" prop="shipName" label="船只名称" />
-        <el-table-column v-if="columns.visible('captainId')" prop="captainId" label="船长id" />
         <el-table-column v-if="columns.visible('captainName')" prop="captainName" label="船长姓名" />
-        <el-table-column v-if="columns.visible('totalPassenger')" prop="totalPassenger" label="承载人数" />
-        <el-table-column v-if="columns.visible('oldPassenger')" prop="oldPassenger" label="老年人人数" />
-        <el-table-column v-if="columns.visible('underagePassenger')" prop="underagePassenger" label="未成年人数" />
-        <el-table-column v-if="columns.visible('leaveFortmatTime')" prop="leaveFortmatTime" label="出港时间" />
-        <el-table-column v-if="columns.visible('returnFormatTime')" prop="returnFormatTime" label="回港时间" />
-        <el-table-column v-if="columns.visible('status')" prop="status" label="船只状态 0:待出港 1：出港 2：回港" />
-        <el-table-column v-if="columns.visible('delFlag')" prop="delFlag" label="是否删除（0：未删除，1：已删除）" />
-        <el-table-column v-if="columns.visible('createUserId')" prop="createUserId" label="创建人" />
-        <el-table-column v-if="columns.visible('updateUserId')" prop="updateUserId" label="修改人" />
-        <el-table-column v-if="columns.visible('createTime')" prop="createTime" label="创建时间">
+        <el-table-column v-if="columns.visible('totalPassenger')" prop="totalPassenger" label="承载人数" >
           <template slot-scope="scope">
-            <span>{{ parseTime(scope.row.createTime) }}</span>
+            <span>{{ scope.row.totalPassenger>0 ? scope.row.totalPassenger+'人':'无' }}</span>
           </template>
         </el-table-column>
-        <el-table-column v-if="columns.visible('updateTime')" prop="updateTime" label="更新时间">
+        <el-table-column v-if="columns.visible('oldPassenger')" prop="oldPassenger" label="老年人人数" >
           <template slot-scope="scope">
-            <span>{{ parseTime(scope.row.updateTime) }}</span>
+            <span>{{ scope.row.oldPassenger>0 ? scope.row.oldPassenger+'人':'无' }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column v-if="columns.visible('underagePassenger')" prop="underagePassenger" label="未成年人数" >
+          <template slot-scope="scope">
+            <span>{{ scope.row.underagePassenger>0 ? scope.row.underagePassenger+'人':'无' }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column v-if="columns.visible('leaveFortmatTime')" prop="leaveFortmatTime" label="出港时间" >
+          <template slot-scope="scope">
+            <span>{{ parseTime(scope.row.leaveFortmatTime) }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column v-if="columns.visible('returnFormatTime')" prop="returnFormatTime" label="回港时间" >
+          <template slot-scope="scope">
+            <span>{{ parseTime(scope.row.returnFormatTime) }}</span>
           </template>
         </el-table-column>
         <el-table-column v-permission="['admin','yxShipOperation:edit','yxShipOperation:del']" label="操作" width="150px" align="center">
           <template slot-scope="scope">
-            <udOperation
-              :data="scope.row"
-              :permission="permission"
-            />
+            <app-link :to="resolvePath(' /api/yxShipOperation/getOperationDetailInfo/#/'+scope.row.id)">
+              <el-button size="mini" type="text" icon="el-icon-edit">详情</el-button>
+            </app-link>
+            <el-divider direction="vertical"></el-divider>
+            <el-button size="mini" type="text" icon="el-icon-edit" >合同下载</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -114,18 +150,32 @@ import rrOperation from '@crud/RR.operation'
 import crudOperation from '@crud/CRUD.operation'
 import udOperation from '@crud/UD.operation'
 import pagination from '@crud/Pagination'
-import MaterialList from "@/components/material";
+import MaterialList from "@/components/material"
+import path from 'path'
+import { isExternal } from '@/utils/validate'
+import AppLink from '@/layout/components/Sidebar/Link'
+import { initData } from '@/api/data'
 
 // crud交由presenter持有
-const defaultCrud = CRUD({ title: '船只运营记录', url: 'api/yxShipOperation', sort: 'id,desc', crudMethod: { ...crudYxShipOperation }})
-const defaultForm = { id: null, batchNo: null, shipId: null, shipName: null, captainId: null, captainName: null, totalPassenger: null, oldPassenger: null, underagePassenger: null, leaveTime: null, returnTime: null, status: null, delFlag: null, createUserId: null, updateUserId: null, createTime: null, updateTime: null }
+const defaultCrud = CRUD({ title: '船只运营记录', url: 'api/yxShipOperation', sort: 'id,desc',
+  optShow:{
+    add: false,
+    edit: false,
+    del: false,
+    download: true
+  },
+  crudMethod: { ...crudYxShipOperation }})
+const defaultForm = { id: null, batchNo: null, shipId: null, shipName: null, captainId: null,
+  captainName: null, totalPassenger: null, oldPassenger: null, underagePassenger: null,
+  leaveTime: null, returnTime: null, status: null, delFlag: null, createUserId: null,
+  updateUserId: null, createTime: null, updateTime: null }
 export default {
   name: 'YxShipOperation',
-  components: { pagination, crudOperation, rrOperation, udOperation ,MaterialList},
+  components: { pagination, crudOperation, rrOperation, udOperation ,MaterialList,AppLink},
   mixins: [presenter(defaultCrud), header(), form(defaultForm), crud()],
   data() {
     return {
-
+      shipSeriesTree:[],
       permission: {
         add: ['admin', 'yxShipOperation:add'],
         edit: ['admin', 'yxShipOperation:edit'],
@@ -153,17 +203,42 @@ export default {
         updateTime: [
           { required: true, message: '更新时间不能为空', trigger: 'blur' }
         ]
-      }    }
+      }    ,
+      basePath:''
+    }
   },
   watch: {
+  },
+  mounted() {
+    initData('api/yxShipInfo/getShipSeriseTree').then(res=>{
+      if(res && res.options){
+        this.shipSeriesTree=res.options
+      }else{
+        this.shipSeriesTree=[]
+      }
+    })
   },
   methods: {
     // 获取数据前设置好接口地址
     [CRUD.HOOK.beforeRefresh]() {
+      if(Boolean(this.$route.query.id) && !isNaN(this.$route.query.id)){
+        this.query.shipId=parseInt(this.$route.query.id)
+      }else{
+        this.query.shipId=''
+      }
       return true
     }, // 新增与编辑前做的操作
     [CRUD.HOOK.afterToCU](crud, form) {
     },
+    resolvePath(routePath) {
+      if (isExternal(routePath)) {
+        return routePath
+      }
+      if (isExternal(this.basePath)) {
+        return this.basePath
+      }
+      return path.resolve(this.basePath, routePath)
+    }
   }
 }
 
