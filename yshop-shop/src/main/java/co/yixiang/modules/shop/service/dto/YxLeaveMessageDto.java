@@ -1,21 +1,22 @@
 /**
-* Copyright (C) 2018-2020
-* All rights reserved, Designed By www.yixiang.co
-* 注意：
-* 本软件为www.yixiang.co开发研制，未经购买不得使用
-* 购买后可获得全部源代码（禁止转卖、分享、上传到码云、github等开源平台）
-* 一经发现盗用、分享等行为，将追究法律责任，后果自负
-*/
+ * Copyright (C) 2018-2020
+ * All rights reserved, Designed By www.yixiang.co
+ * 注意：
+ * 本软件为www.yixiang.co开发研制，未经购买不得使用
+ * 购买后可获得全部源代码（禁止转卖、分享、上传到码云、github等开源平台）
+ * 一经发现盗用、分享等行为，将追究法律责任，后果自负
+ */
 package co.yixiang.modules.shop.service.dto;
 
 import lombok.Data;
-import java.sql.Timestamp;
+
 import java.io.Serializable;
+import java.sql.Timestamp;
 
 /**
-* @author nxl
-* @date 2020-11-04
-*/
+ * @author nxl
+ * @date 2020-11-04
+ */
 @Data
 public class YxLeaveMessageDto implements Serializable {
 
@@ -26,7 +27,7 @@ public class YxLeaveMessageDto implements Serializable {
 
     /** 订单号 */
 
-    private String orderId;
+    private Integer linkId;
 
 
     /** 商户id */
@@ -53,8 +54,13 @@ public class YxLeaveMessageDto implements Serializable {
 
     private Integer status;
 
+    /** 处理时间 */
+    private Integer takeTime;
 
-    /** 留言类型：0 -> 商品，1 -> 商城订单，2 -> 本地生活订单，3 ->商户，4 -> 平台 */
+    /** 处理时间 */
+    private String takeTimeStr;
+
+    /** 留言类型：0 -> 商品，1-> 卡券 2 -> 商城订单，3 -> 本地生活订单，4 ->商户，5 -> 平台 */
 
     private Integer messageType;
 
@@ -88,4 +94,9 @@ public class YxLeaveMessageDto implements Serializable {
 
     private Timestamp updateTime;
 
+    /** 商品名称 */
+    private String goodsName;
+
+    /** 订单号 */
+    private String orderId;
 }

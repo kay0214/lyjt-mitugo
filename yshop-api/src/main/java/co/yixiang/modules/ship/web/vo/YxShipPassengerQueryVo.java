@@ -44,6 +44,9 @@ private String phone;
 @ApiModelProperty(value = "0:未成年 1:成年人 2：老年人")
 private Integer isAdult;
 
+@ApiModelProperty(value = "是否合同签订人 0:否 1:是")
+private Integer signStatus;
+
 @ApiModelProperty(value = "是否删除（0：未删除，1：已删除）")
 private Integer delFlag;
 

@@ -83,7 +83,7 @@ public class YxCouponsReplyServiceImpl extends BaseServiceImpl<YxCouponsReplyMap
                 map.put("totalElements", 0);
                 return map;
             }
-            queryWrapper.lambda().in(YxCouponsReply::getMerId, criteria.getChildStoreId()).eq(YxCouponsReply::getDelFlag, 0);
+            queryWrapper.lambda().in(YxCouponsReply::getMerId, criteria.getChildStoreId());
         }
         // 根据用户昵称查询
         if (StringUtils.isNotBlank(criteria.getNickName())) {

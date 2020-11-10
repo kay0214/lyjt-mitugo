@@ -29,8 +29,7 @@ public class YxLeaveMessage implements Serializable {
 
 
     /** 订单号 */
-    @NotBlank
-    private String orderId;
+    private Integer linkId;
 
 
     /** 商户id */
@@ -56,8 +55,10 @@ public class YxLeaveMessage implements Serializable {
     @NotNull
     private Integer status;
 
+    /** 处理时间 */
+    private Integer takeTime;
 
-    /** 留言类型：0 -> 商品，1 -> 商城订单，2 -> 本地生活订单，3 ->商户，4 -> 平台 */
+    /** 留言类型：0 -> 商品，1-> 卡券 2 -> 商城订单，3 -> 本地生活订单，4 ->商户，5 -> 平台 */
     @NotNull
     private Integer messageType;
 
@@ -91,9 +92,6 @@ public class YxLeaveMessage implements Serializable {
     @NotNull
     @TableField(fill= FieldFill.INSERT_UPDATE)
     private Timestamp updateTime;
-
-    /** 处理时间 */
-    private Integer takeTime;
 
     public void copy(YxLeaveMessage source){
         BeanUtil.copyProperties(source,this, CopyOptions.create().setIgnoreNullValue(true));

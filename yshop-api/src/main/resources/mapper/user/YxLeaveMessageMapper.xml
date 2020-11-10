@@ -4,7 +4,7 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, order_id, mer_id, user_name, user_phone, message, status, message_type, remark, del_flag, create_user_id, update_user_id, create_time, update_time
+        id, link_id, mer_id, user_name, user_phone, message, status, take_time, message_type, remark, del_flag, create_user_id, update_user_id, create_time, update_time
     </sql>
 
     <select id="getYxLeaveMessageById" resultType="co.yixiang.modules.user.web.vo.YxLeaveMessageQueryVo">

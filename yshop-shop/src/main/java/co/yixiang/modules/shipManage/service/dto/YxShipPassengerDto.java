@@ -58,6 +58,8 @@ public class YxShipPassengerDto implements Serializable {
 
     private Integer isAdult;
 
+    /** 是否合同签订人 0:否 1:是 */
+    private Integer signStatus;
 
     /** 是否删除（0：未删除，1：已删除） */
 

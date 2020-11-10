@@ -23,8 +23,8 @@ public class YxLeaveMessageQueryVo implements Serializable{
 @ApiModelProperty(value = "id")
 private Integer id;
 
-@ApiModelProperty(value = "订单号")
-private String orderId;
+@ApiModelProperty(value = "主键关联id")
+private Integer linkId;
 
 @ApiModelProperty(value = "商户id")
 private Integer merId;
@@ -41,7 +41,10 @@ private String message;
 @ApiModelProperty(value = "状态：0 -> 待处理，1 -> 已处理，2 -> 不予处理")
 private Integer status;
 
-@ApiModelProperty(value = "留言类型：0 -> 商品，1 -> 商城订单，2 -> 本地生活订单，3 ->商户，4 -> 平台")
+@ApiModelProperty(value = "处理时间")
+private Integer takeTime;
+
+@ApiModelProperty(value = "留言类型：0 -> 商品，1-> 卡券 2 -> 商城订单，3 -> 本地生活订单，4 ->商户，5 -> 平台")
 private Integer messageType;
 
 @ApiModelProperty(value = "备注")
