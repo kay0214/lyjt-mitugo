@@ -83,8 +83,9 @@
             <el-button size="mini" type="text" icon="el-icon-edit"
                        @click="editStatus(scope.row)" >{{ scope.row.status?'启用':'禁用' }}</el-button>
             <el-divider direction="vertical"></el-divider>
-            <el-button size="mini" type="text" icon="el-icon-edit"
-                       @click="crud.toEdit(data)" >船只管理</el-button>
+            <app-link :to="resolvePath('/ship/shipInfo?seriesId='+scope.row.id)">
+              <el-button size="mini" type="text" icon="el-icon-edit">船只管理</el-button>
+            </app-link>
           </template>
         </el-table-column>
       </el-table>
@@ -105,6 +106,9 @@ import MaterialList from "@/components/material";
 import storeMark from "@/assets/images/store_mark.png"
 import {  regionData,   CodeToText } from 'element-china-area-data'
 import { Notification } from 'element-ui'
+import path from 'path'
+import { isExternal } from '@/utils/validate'
+import AppLink from '@/layout/components/Sidebar/Link'
 
 // crud交由presenter持有
 const defaultCrud = CRUD({ title: '船只系列', url: 'api/yxShipSeries', sort: 'id,desc',
@@ -122,7 +126,7 @@ const defaultForm = { id: null, seriesName: null, shipCategory: null, rideLimit:
   createUserId: null, updateUserId: null, createTime: null, updateTime: null, merId:null, storeId:null }
 export default {
   name: 'YxShipSeries',
-  components: { pagination, crudOperation, rrOperation, udOperation ,MaterialList},
+  components: { pagination, crudOperation, rrOperation, udOperation ,MaterialList, AppLink},
   mixins: [presenter(defaultCrud), header(), form(defaultForm), crud()],
   dicts:['ship_category'],
   data() {
@@ -262,6 +266,15 @@ export default {
         })
         that.crud.refresh()
       })
+    },
+    resolvePath(routePath) {
+      if (isExternal(routePath)) {
+        return routePath
+      }
+      if (isExternal(this.basePath)) {
+        return this.basePath
+      }
+      return path.resolve(this.basePath, routePath)
     }
   }
 }

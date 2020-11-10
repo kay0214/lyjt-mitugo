@@ -63,6 +63,10 @@
               <el-radio :label="1">禁用</el-radio>
             </el-radio-group>
           </el-form-item>
+          <el-form-item label="船只图片(750*672)" prop='imageArr'>
+            <MaterialList v-model="form.imageArr" style="width: 650px" type="image" :num="1" :width="150" :height="150"
+                          @setValue='(val)=>{form.imageArr=val;form.imageUrl = val.join(",");$refs.form.validateField("imageArr")}'/>
+          </el-form-item>
           <!--<el-form-item label="船只当前状态：0：在港，1：离港。2：维修中" prop="currentStatus">
             <el-input v-model="form.currentStatus" style="width: 370px;" />
           </el-form-item>-->
@@ -107,8 +111,9 @@
             <el-button size="mini" type="text" icon="el-icon-edit"
                        @click="editStatus(scope.row)" >{{ scope.row.shipStatus?'启用':'禁用' }}</el-button>
             <el-divider direction="vertical"></el-divider>
-            <el-button size="mini" type="text" icon="el-icon-edit"
-                       @click="crud.toEdit(scope.row)" >出行记录</el-button>
+            <app-link :to="resolvePath('/ship/shipOperation?id='+scope.row.id)">
+              <el-button size="mini" type="text" icon="el-icon-edit">出行记录</el-button>
+            </app-link>
           </template>
         </el-table-column>
       </el-table>
@@ -130,6 +135,9 @@ import MaterialList from "@/components/material";
 import { initData } from '@/api/data'
 import { validatePhoneTwo } from '@/utils/validate'
 import { Notification } from 'element-ui'
+import path from 'path'
+import { isExternal } from '@/utils/validate'
+import AppLink from '@/layout/components/Sidebar/Link'
 
 // crud交由presenter持有
 const defaultCrud = CRUD({ title: '船只管理', url: 'api/yxShipInfo', sort: 'id,desc',
@@ -148,13 +156,14 @@ const defaultCrud = CRUD({ title: '船只管理', url: 'api/yxShipInfo', sort: '
 const defaultForm = { id: null, shipName: null, seriesId: null, merId: null,
   storeId: null, merName: null, managerName: null, managerPhone: null, shipStatus: 1,
   currentStatus: null, lastLeaveTime: null, lastReturnTime: null, delFlag: null,
-  createUserId: null, updateUserId: null, createTime: null, updateTime: null }
+  createUserId: null, updateUserId: null, createTime: null, updateTime: null,imageArr:[] }
 export default {
   name: 'YxShipInfo',
-  components: { pagination, crudOperation, rrOperation, udOperation ,MaterialList},
+  components: { pagination, crudOperation, rrOperation, udOperation ,MaterialList, AppLink},
   mixins: [presenter(defaultCrud), header(), form(defaultForm), crud()],
   data() {
     return {
+      basePath:'',
       permission: {
         add: ['admin', 'yxShipInfo:add'],
         edit: ['admin', 'yxShipInfo:edit'],
@@ -166,6 +175,9 @@ export default {
         ],
         seriesId: [
           { required: true, message: '船只系列不能为空', trigger: 'blur' }
+        ],
+        imageArr:[
+          { required: true,message: '必填项', trigger: 'blur'}
         ],
         managerPhone: [
           // { required: true, message: '负责人电话不能为空', trigger: 'blur' },
@@ -247,6 +259,9 @@ export default {
       return true
     }, // 新增与编辑前做的操作
     [CRUD.HOOK.afterToCU](crud, form) {
+      if(form.imageUrl){
+        form.imageArr=form.imageUrl.split(',')
+      }
     },
     editStatus(row){
       let that=this
@@ -257,6 +272,15 @@ export default {
         })
         that.crud.refresh()
       })
+    },
+    resolvePath(routePath) {
+      if (isExternal(routePath)) {
+        return routePath
+      }
+      if (isExternal(this.basePath)) {
+        return this.basePath
+      }
+      return path.resolve(this.basePath, routePath)
     }
   }
 }
