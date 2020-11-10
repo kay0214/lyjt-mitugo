@@ -62,4 +62,11 @@ public interface YxShipOperationService  extends BaseService<YxShipOperation>{
      */
     YxShipOperationInfoResponse getOperationDetailInfo(Integer optionId);
 
+    /**
+     * 打包下载合同
+     * @param response
+     * @param batchNo
+     * @return
+     */
+    boolean downLoadZipFiles(HttpServletResponse response, String batchNo);
 }

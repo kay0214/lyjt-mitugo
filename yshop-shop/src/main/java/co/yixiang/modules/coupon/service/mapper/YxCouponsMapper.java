@@ -12,6 +12,7 @@ import co.yixiang.common.mapper.CoreMapper;
 import co.yixiang.modules.coupon.domain.YxCoupons;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 import org.springframework.stereotype.Repository;
 
@@ -32,4 +33,13 @@ public interface YxCouponsMapper extends CoreMapper<YxCoupons> {
      */
     @Update("update yx_coupons set `sales` = `sales` - #{totalNum},`inventory` = `inventory` + #{totalNum} where id = #{couponId}")
     int updateMinusSales(@Param("couponId") Integer couponId, @Param("totalNum") Integer totalNum);
+
+    /**
+     * 根据orderid获取合同模板id
+     * @param orderId
+     * @return
+     */
+    @Select("SELECT cou.temp_id FROM yx_coupons cou LEFT JOIN yx_coupon_order couord ON cou.id = couord.coupon_id " +
+            "WHERE couord.id =  #{orderId}")
+    int getTempIdByOrderId(@Param("orderId") Integer orderId);
 }

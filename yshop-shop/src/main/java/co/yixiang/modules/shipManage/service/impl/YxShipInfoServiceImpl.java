@@ -11,6 +11,7 @@ package co.yixiang.modules.shipManage.service.impl;
 import cn.hutool.core.date.DateTime;
 import co.yixiang.common.service.impl.BaseServiceImpl;
 import co.yixiang.common.utils.QueryHelpPlus;
+import co.yixiang.constant.ShopConstants;
 import co.yixiang.dozer.service.IGenerator;
 import co.yixiang.exception.BadRequestException;
 import co.yixiang.modules.shipManage.domain.YxShipInfo;
@@ -21,13 +22,16 @@ import co.yixiang.modules.shipManage.service.dto.YxShipInfoDto;
 import co.yixiang.modules.shipManage.service.dto.YxShipInfoQueryCriteria;
 import co.yixiang.modules.shipManage.service.mapper.YxShipInfoMapper;
 import co.yixiang.modules.shipManage.service.mapper.YxShipSeriesMapper;
+import co.yixiang.modules.shop.domain.YxImageInfo;
 import co.yixiang.modules.shop.domain.YxStoreInfo;
+import co.yixiang.modules.shop.service.YxImageInfoService;
 import co.yixiang.modules.shop.service.mapper.UserSysMapper;
 import co.yixiang.modules.shop.service.mapper.YxStoreInfoMapper;
 import co.yixiang.utils.BeanUtils;
 import co.yixiang.utils.FileUtil;
 import co.yixiang.utils.SecurityUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.github.pagehelper.PageInfo;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,6 +69,8 @@ public class YxShipInfoServiceImpl extends BaseServiceImpl<YxShipInfoMapper, YxS
     private UserSysMapper userSysMapper;
     @Autowired
     private YxStoreInfoMapper yxStoreInfoMapper;
+    @Autowired
+    private YxImageInfoService yxImageInfoService;
 
     @Override
     //@Cacheable
@@ -142,25 +148,24 @@ public class YxShipInfoServiceImpl extends BaseServiceImpl<YxShipInfoMapper, YxS
     @Override
     public boolean saveOrUpdShipInfoByParam(YxShipInfoRequest resources) {
         int loginUserId = SecurityUtils.getUserId().intValue();
-        /*//判断 输入的所属商户是否存在
-        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-        queryWrapper.lambda().eq(User::getUsername, resources.getMerName()).eq(User::getUserRole, 2);
-        User userMer = userSysMapper.selectOne(queryWrapper);
-        if (null == userMer) {
-            throw new BadRequestException("所属商户不存在！商户名：" + resources.getMerName());
-        }*/
-        QueryWrapper<YxStoreInfo> queryWrapperStore = new QueryWrapper<>();
-        queryWrapperStore.lambda().eq(YxStoreInfo::getMerId, loginUserId);
-        YxStoreInfo yxStoreInfo = yxStoreInfoMapper.selectOne(queryWrapperStore);
-        if (null == yxStoreInfo) {
-            throw new BadRequestException("商户id：" + loginUserId + "店铺查找失败！");
-        }
         YxShipInfo yxShipInfo = new YxShipInfo();
-        BeanUtils.copyProperties(resources, yxShipInfo);
-        yxShipInfo.setMerId(loginUserId);
-        yxShipInfo.setStoreId(yxStoreInfo.getId());
+        BeanUtils.copyProperties(resources,yxShipInfo);
+        if(null==resources.getStoreId()){
+            QueryWrapper<YxStoreInfo> queryWrapperStore = new QueryWrapper<>();
+            queryWrapperStore.lambda().eq(YxStoreInfo::getMerId, loginUserId);
+            YxStoreInfo yxStoreInfo = yxStoreInfoMapper.selectOne(queryWrapperStore);
+            if (null == yxStoreInfo) {
+                throw new BadRequestException("商户id：" + loginUserId + "，店铺查找失败！");
+            }
+            yxShipInfo.setStoreId( yxStoreInfo.getId());
+        }
+        if(null==resources.getMerId()){
+            yxShipInfo.setMerId(loginUserId);
+        }
+//        yxShipInfo.setMerId(loginUserId);
         yxShipInfo.setUpdateUserId(loginUserId);
         yxShipInfo.setUpdateTime(DateTime.now().toTimestamp());
+        boolean flg;
         if (null == resources.getId()) {
             //添加
             //默认在港
@@ -168,14 +173,31 @@ public class YxShipInfoServiceImpl extends BaseServiceImpl<YxShipInfoMapper, YxS
             yxShipInfo.setDelFlag(0);
             yxShipInfo.setCreateUserId(loginUserId);
             yxShipInfo.setCreateTime(DateTime.now().toTimestamp());
-            return this.save(yxShipInfo);
+            flg = this.save(yxShipInfo);
         } else {
             //修改
-            return this.updateById(yxShipInfo);
+            flg =  this.updateById(yxShipInfo);
         }
+        saveImgList(yxShipInfo.getId(),resources.getImageUrl());
+        return flg;
     }
 
 
+    private void saveImgList(int id,String imageUrl) {
+        List<YxImageInfo> imageInfoList = yxImageInfoService.list(new QueryWrapper<YxImageInfo>().eq("type_id", id).eq("img_type", ShopConstants.IMG_TYPE_SHIPINFO).eq("del_flag", 0));
+
+        if (CollectionUtils.isNotEmpty(imageInfoList)) {
+            yxImageInfoService.remove(new QueryWrapper<YxImageInfo>().eq("type_id", id).eq("img_type", ShopConstants.IMG_TYPE_SHIPINFO).eq("del_flag", 0));
+        }
+        //图片
+        YxImageInfo yxImageInfo = new YxImageInfo();
+        yxImageInfo.setTypeId(id);
+        yxImageInfo.setImgType(ShopConstants.IMG_TYPE_SHIPINFO);
+        yxImageInfo.setImgCategory(ShopConstants.IMG_CATEGORY_PIC);
+        yxImageInfo.setImgUrl(imageUrl);
+        yxImageInfo.setDelFlag(0);
+        yxImageInfoService.save(yxImageInfo);
+    }
     /**
      * 根据id修改船只状态
      * @param id
