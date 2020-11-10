@@ -1,11 +1,11 @@
 /**
-* Copyright (C) 2018-2020
-* All rights reserved, Designed By www.yixiang.co
-* 注意：
-* 本软件为www.yixiang.co开发研制，未经购买不得使用
-* 购买后可获得全部源代码（禁止转卖、分享、上传到码云、github等开源平台）
-* 一经发现盗用、分享等行为，将追究法律责任，后果自负
-*/
+ * Copyright (C) 2018-2020
+ * All rights reserved, Designed By www.yixiang.co
+ * 注意：
+ * 本软件为www.yixiang.co开发研制，未经购买不得使用
+ * 购买后可获得全部源代码（禁止转卖、分享、上传到码云、github等开源平台）
+ * 一经发现盗用、分享等行为，将追究法律责任，后果自负
+ */
 package co.yixiang.modules.shipManage.service.impl;
 
 import co.yixiang.common.service.impl.BaseServiceImpl;
@@ -42,9 +42,9 @@ import java.util.Map;
 //import org.springframework.cache.annotation.Cacheable;
 
 /**
-* @author nxl
-* @date 2020-11-04
-*/
+ * @author nxl
+ * @date 2020-11-04
+ */
 @Service
 @AllArgsConstructor
 //@CacheConfig(cacheNames = "yxCrewSign")
@@ -69,7 +69,7 @@ public class YxCrewSignServiceImpl extends BaseServiceImpl<YxCrewSignMapper, YxC
 
     @Override
     //@Cacheable
-    public List<YxCrewSign> queryAll(YxCrewSignQueryCriteria criteria){
+    public List<YxCrewSign> queryAll(YxCrewSignQueryCriteria criteria) {
         return baseMapper.selectList(QueryHelpPlus.getPredicate(YxCrewSign.class, criteria));
     }
 
@@ -78,36 +78,52 @@ public class YxCrewSignServiceImpl extends BaseServiceImpl<YxCrewSignMapper, YxC
     public void download(List<YxCrewSignDto> all, HttpServletResponse response) throws IOException {
         List<Map<String, Object>> list = new ArrayList<>();
         for (YxCrewSignDto yxCrewSign : all) {
-            Map<String,Object> map = new LinkedHashMap<>();
-            map.put("用户ID", yxCrewSign.getUid());
+            Map<String, Object> map = new LinkedHashMap<>();
+//            map.put("用户ID", yxCrewSign.getUid());
             map.put("用户名", yxCrewSign.getUsername());
             map.put("联系电话", yxCrewSign.getUserPhone());
             map.put("体温", yxCrewSign.getTemperature());
-            map.put("是否删除（0：未删除，1：已删除）", yxCrewSign.getDelFlag());
+            /*map.put("是否删除（0：未删除，1：已删除）", yxCrewSign.getDelFlag());
             map.put("创建人", yxCrewSign.getCreateUserId());
-            map.put("修改人", yxCrewSign.getUpdateUserId());
-            map.put("创建时间（签到时间）", yxCrewSign.getCreateTime());
-            map.put("更新时间", yxCrewSign.getUpdateTime());
+            map.put("修改人", yxCrewSign.getUpdateUserId());*/
+            map.put("签到时间", yxCrewSign.getCreateTime());
+//            map.put("更新时间", yxCrewSign.getUpdateTime());
             list.add(map);
         }
         FileUtil.downloadExcel(list, response);
     }
 
     @Override
+    public List<YxCrewSign> queryAllNew(YxCrewSignQueryCriteria criteria) {
+        QueryWrapper<YxCrewSign> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().eq(YxCrewSign::getDelFlag, 0);
+        if (StringUtils.isNotBlank(criteria.getEndDate()) && StringUtils.isNotBlank(criteria.getStartDate())) {
+            queryWrapper.lambda().between(YxCrewSign::getCreateTime, criteria.getStartDate() + " 00:00:00", criteria.getEndDate() + " 23:59:59");
+        }
+        if (StringUtils.isNotBlank(criteria.getNickName())) {
+            queryWrapper.lambda().like(YxCrewSign::getNickName, criteria.getNickName());
+        }
+        if (StringUtils.isNotBlank(criteria.getUsername())) {
+            queryWrapper.lambda().like(YxCrewSign::getUsername, criteria.getUsername());
+        }
+        queryWrapper.orderByDesc("create_time");
+        return yxCrewSignMapper.selectList(queryWrapper);
+    }
+
+    @Override
     public Map<String, Object> queryAllNew(YxCrewSignQueryCriteria criteria, Pageable pageable) {
-//        getPage(pageable);
-//        PageInfo<YxCrewSign> page = new PageInfo<>(queryAll(criteria));
+
         Map<String, Object> map = new LinkedHashMap<>(2);
         QueryWrapper<YxCrewSign> queryWrapper = new QueryWrapper<>();
-        queryWrapper.lambda().eq(YxCrewSign::getDelFlag ,0);
-        if(StringUtils.isNotBlank(criteria.getEndDate())&&StringUtils.isNotBlank(criteria.getStartDate())){
-            queryWrapper.lambda().between(YxCrewSign::getCreateTime,criteria.getStartDate()+" 00:00:00",criteria.getEndDate()+" 23:59:59");
+        queryWrapper.lambda().eq(YxCrewSign::getDelFlag, 0);
+        if (StringUtils.isNotBlank(criteria.getEndDate()) && StringUtils.isNotBlank(criteria.getStartDate())) {
+            queryWrapper.lambda().between(YxCrewSign::getCreateTime, criteria.getStartDate() + " 00:00:00", criteria.getEndDate() + " 23:59:59");
         }
-        if(StringUtils.isNotBlank(criteria.getNickName())){
-            queryWrapper.lambda().like(YxCrewSign::getNickName,criteria.getNickName());
+        if (StringUtils.isNotBlank(criteria.getNickName())) {
+            queryWrapper.lambda().like(YxCrewSign::getNickName, criteria.getNickName());
         }
-        if(StringUtils.isNotBlank(criteria.getUsername())){
-            queryWrapper.lambda().like(YxCrewSign::getUsername,criteria.getUsername());
+        if (StringUtils.isNotBlank(criteria.getUsername())) {
+            queryWrapper.lambda().like(YxCrewSign::getUsername, criteria.getUsername());
         }
         queryWrapper.orderByDesc("create_time");
         IPage<YxCrewSign> ipage = this.page(new Page<>(pageable.getPageNumber() + 1, pageable.getPageSize()), queryWrapper);

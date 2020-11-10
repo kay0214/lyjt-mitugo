@@ -92,6 +92,8 @@ public class YxLeaveMessage implements Serializable {
     @TableField(fill= FieldFill.INSERT_UPDATE)
     private Timestamp updateTime;
 
+    /** 处理时间 */
+    private Integer takeTime;
 
     public void copy(YxLeaveMessage source){
         BeanUtil.copyProperties(source,this, CopyOptions.create().setIgnoreNullValue(true));

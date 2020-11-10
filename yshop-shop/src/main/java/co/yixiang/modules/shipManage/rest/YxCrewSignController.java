@@ -1,12 +1,13 @@
 /**
-* Copyright (C) 2018-2020
-* All rights reserved, Designed By www.yixiang.co
-* 注意：
-* 本软件为www.yixiang.co开发研制，未经购买不得使用
-* 购买后可获得全部源代码（禁止转卖、分享、上传到码云、github等开源平台）
-* 一经发现盗用、分享等行为，将追究法律责任，后果自负
-*/
+ * Copyright (C) 2018-2020
+ * All rights reserved, Designed By www.yixiang.co
+ * 注意：
+ * 本软件为www.yixiang.co开发研制，未经购买不得使用
+ * 购买后可获得全部源代码（禁止转卖、分享、上传到码云、github等开源平台）
+ * 一经发现盗用、分享等行为，将追究法律责任，后果自负
+ */
 package co.yixiang.modules.shipManage.rest;
+
 import co.yixiang.dozer.service.IGenerator;
 import co.yixiang.logging.aop.log.Log;
 import co.yixiang.modules.shipManage.domain.YxCrewSign;
@@ -28,9 +29,9 @@ import java.io.IOException;
 import java.util.Arrays;
 
 /**
-* @author nxl
-* @date 2020-11-04
-*/
+ * @author nxl
+ * @date 2020-11-04
+ */
 @AllArgsConstructor
 @Api(tags = "船员签到管理")
 @RestController
@@ -46,31 +47,31 @@ public class YxCrewSignController {
     @GetMapping(value = "/download")
     @PreAuthorize("@el.check('admin','yxCrewSign:list')")
     public void download(HttpServletResponse response, YxCrewSignQueryCriteria criteria) throws IOException {
-        yxCrewSignService.download(generator.convert(yxCrewSignService.queryAll(criteria), YxCrewSignDto.class), response);
+        yxCrewSignService.download(generator.convert(yxCrewSignService.queryAllNew(criteria), YxCrewSignDto.class), response);
     }
 
     @GetMapping
     @Log("查询船员签到")
     @ApiOperation("查询船员签到")
     @PreAuthorize("@el.check('admin','yxCrewSign:list')")
-    public ResponseEntity<Object> getYxCrewSigns(YxCrewSignQueryCriteria criteria, Pageable pageable){
+    public ResponseEntity<Object> getYxCrewSigns(YxCrewSignQueryCriteria criteria, Pageable pageable) {
 //        return new ResponseEntity<>(yxCrewSignService.queryAll(criteria,pageable),HttpStatus.OK);
-        return new ResponseEntity<>(yxCrewSignService.queryAllNew(criteria,pageable),HttpStatus.OK);
+        return new ResponseEntity<>(yxCrewSignService.queryAllNew(criteria, pageable), HttpStatus.OK);
     }
 
     @PostMapping
     @Log("新增船员签到")
     @ApiOperation("新增船员签到")
     @PreAuthorize("@el.check('admin','yxCrewSign:add')")
-    public ResponseEntity<Object> create(@Validated @RequestBody YxCrewSign resources){
-        return new ResponseEntity<>(yxCrewSignService.save(resources),HttpStatus.CREATED);
+    public ResponseEntity<Object> create(@Validated @RequestBody YxCrewSign resources) {
+        return new ResponseEntity<>(yxCrewSignService.save(resources), HttpStatus.CREATED);
     }
 
     @PutMapping
     @Log("修改船员签到")
     @ApiOperation("修改船员签到")
     @PreAuthorize("@el.check('admin','yxCrewSign:edit')")
-    public ResponseEntity<Object> update(@Validated @RequestBody YxCrewSign resources){
+    public ResponseEntity<Object> update(@Validated @RequestBody YxCrewSign resources) {
         yxCrewSignService.updateById(resources);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
@@ -80,7 +81,7 @@ public class YxCrewSignController {
     @PreAuthorize("@el.check('admin','yxCrewSign:del')")
     @DeleteMapping
     public ResponseEntity<Object> deleteAll(@RequestBody Integer[] ids) {
-        Arrays.asList(ids).forEach(id->{
+        Arrays.asList(ids).forEach(id -> {
             yxCrewSignService.removeById(id);
         });
         return new ResponseEntity<>(HttpStatus.OK);

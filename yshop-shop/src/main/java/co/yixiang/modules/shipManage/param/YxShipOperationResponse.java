@@ -8,8 +8,6 @@
 */
 package co.yixiang.modules.shipManage.param;
 
-import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.core.bean.copier.CopyOptions;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -101,8 +99,4 @@ public class YxShipOperationResponse implements Serializable {
     private String statusValue;
     /** 乘客信息 显示 */
     List<YxShipPassengerResponse> listPassenger;
-
-    public void copy(YxShipOperationResponse source){
-        BeanUtil.copyProperties(source,this, CopyOptions.create().setIgnoreNullValue(true));
-    }
 }

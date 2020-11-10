@@ -9,6 +9,7 @@
 package co.yixiang.modules.shipManage.service;
 import co.yixiang.common.service.BaseService;
 import co.yixiang.modules.shipManage.domain.YxShipOperation;
+import co.yixiang.modules.shipManage.param.YxShipOperationInfoResponse;
 import co.yixiang.modules.shipManage.param.YxShipOperationResponse;
 import co.yixiang.modules.shipManage.service.dto.YxShipOperationDto;
 import co.yixiang.modules.shipManage.service.dto.YxShipOperationQueryCriteria;
@@ -53,4 +54,12 @@ public interface YxShipOperationService  extends BaseService<YxShipOperation>{
      * @return
      */
     List<YxShipOperationResponse> findOperationList(YxShipOperationQueryCriteria criteria,Pageable pageable);
+
+    /**
+     * 获取出行记录详情数据
+     * @param optionId
+     * @return
+     */
+    YxShipOperationInfoResponse getOperationDetailInfo(Integer optionId);
+
 }

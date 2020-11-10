@@ -1,11 +1,11 @@
 /**
-* Copyright (C) 2018-2020
-* All rights reserved, Designed By www.yixiang.co
-* 注意：
-* 本软件为www.yixiang.co开发研制，未经购买不得使用
-* 购买后可获得全部源代码（禁止转卖、分享、上传到码云、github等开源平台）
-* 一经发现盗用、分享等行为，将追究法律责任，后果自负
-*/
+ * Copyright (C) 2018-2020
+ * All rights reserved, Designed By www.yixiang.co
+ * 注意：
+ * 本软件为www.yixiang.co开发研制，未经购买不得使用
+ * 购买后可获得全部源代码（禁止转卖、分享、上传到码云、github等开源平台）
+ * 一经发现盗用、分享等行为，将追究法律责任，后果自负
+ */
 package co.yixiang.modules.shipManage.service.impl;
 
 import cn.hutool.core.date.DateTime;
@@ -41,9 +41,9 @@ import java.util.Map;
 //import org.springframework.cache.annotation.Cacheable;
 
 /**
-* @author nxl
-* @date 2020-11-04
-*/
+ * @author nxl
+ * @date 2020-11-04
+ */
 @Service
 @AllArgsConstructor
 //@CacheConfig(cacheNames = "yxShipSeries")
@@ -68,7 +68,7 @@ public class YxShipSeriesServiceImpl extends BaseServiceImpl<YxShipSeriesMapper,
 
     @Override
     //@Cacheable
-    public List<YxShipSeries> queryAll(YxShipSeriesQueryCriteria criteria){
+    public List<YxShipSeries> queryAll(YxShipSeriesQueryCriteria criteria) {
         return baseMapper.selectList(QueryHelpPlus.getPredicate(YxShipSeries.class, criteria));
     }
 
@@ -77,7 +77,7 @@ public class YxShipSeriesServiceImpl extends BaseServiceImpl<YxShipSeriesMapper,
     public void download(List<YxShipSeriesDto> all, HttpServletResponse response) throws IOException {
         List<Map<String, Object>> list = new ArrayList<>();
         for (YxShipSeriesDto yxShipSeries : all) {
-            Map<String,Object> map = new LinkedHashMap<>();
+            Map<String, Object> map = new LinkedHashMap<>();
             map.put("系列名称", yxShipSeries.getSeriesName());
             map.put("船只类别", yxShipSeries.getShipCategory());
             map.put("限乘人数", yxShipSeries.getRideLimit());
@@ -104,13 +104,13 @@ public class YxShipSeriesServiceImpl extends BaseServiceImpl<YxShipSeriesMapper,
      * @param id
      */
     @Override
-    public void changeStatus(int id){
+    public void changeStatus(int id) {
         YxShipSeries yxShipSeries = this.getById(id);
-        if(null==yxShipSeries){
-            throw new BadRequestException("根据船只系列id："+id+" 获取数据错误！");
+        if (null == yxShipSeries) {
+            throw new BadRequestException("根据船只系列id：" + id + " 获取数据错误！");
         }
         int statusSeries = 0;
-        if(yxShipSeries.getStatus()==0){
+        if (yxShipSeries.getStatus() == 0) {
             statusSeries = 1;
         }
         yxShipSeries.setStatus(statusSeries);
@@ -125,8 +125,8 @@ public class YxShipSeriesServiceImpl extends BaseServiceImpl<YxShipSeriesMapper,
      * @return
      */
     @Override
-    public int insert(YxShipSeries shipSeries){
-        return yxShipSeriesMapper.insert(shipSeries);
+    public int insertSelective(YxShipSeries shipSeries) {
+        return yxShipSeriesMapper.insertSelective(shipSeries);
     }
 
     /**
@@ -135,7 +135,7 @@ public class YxShipSeriesServiceImpl extends BaseServiceImpl<YxShipSeriesMapper,
      * @return
      */
     @Override
-    public int updateByPrimaryKey(YxShipSeries shipSeries){
+    public int updateByPrimaryKey(YxShipSeries shipSeries) {
         return yxShipSeriesMapper.updateByPrimaryKey(shipSeries);
     }
 

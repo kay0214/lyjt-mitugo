@@ -1,12 +1,13 @@
 /**
-* Copyright (C) 2018-2020
-* All rights reserved, Designed By www.yixiang.co
-* 注意：
-* 本软件为www.yixiang.co开发研制，未经购买不得使用
-* 购买后可获得全部源代码（禁止转卖、分享、上传到码云、github等开源平台）
-* 一经发现盗用、分享等行为，将追究法律责任，后果自负
-*/
+ * Copyright (C) 2018-2020
+ * All rights reserved, Designed By www.yixiang.co
+ * 注意：
+ * 本软件为www.yixiang.co开发研制，未经购买不得使用
+ * 购买后可获得全部源代码（禁止转卖、分享、上传到码云、github等开源平台）
+ * 一经发现盗用、分享等行为，将追究法律责任，后果自负
+ */
 package co.yixiang.modules.shipManage.rest;
+
 import co.yixiang.dozer.service.IGenerator;
 import co.yixiang.logging.aop.log.Log;
 import co.yixiang.modules.shipManage.domain.YxShipOperation;
@@ -28,9 +29,9 @@ import java.io.IOException;
 import java.util.Arrays;
 
 /**
-* @author nxl
-* @date 2020-11-05
-*/
+ * @author nxl
+ * @date 2020-11-05
+ */
 @AllArgsConstructor
 @Api(tags = "船只运营记录管理")
 @RestController
@@ -53,23 +54,23 @@ public class YxShipOperationController {
     @Log("查询船只运营记录")
     @ApiOperation("查询船只运营记录")
     @PreAuthorize("@el.check('admin','yxShipOperation:list')")
-    public ResponseEntity<Object> getYxShipOperations(YxShipOperationQueryCriteria criteria, Pageable pageable){
-        return new ResponseEntity<>(yxShipOperationService.queryAll(criteria,pageable),HttpStatus.OK);
+    public ResponseEntity<Object> getYxShipOperations(YxShipOperationQueryCriteria criteria, Pageable pageable) {
+        return new ResponseEntity<>(yxShipOperationService.queryAll(criteria, pageable), HttpStatus.OK);
     }
 
     @PostMapping
     @Log("新增船只运营记录")
     @ApiOperation("新增船只运营记录")
     @PreAuthorize("@el.check('admin','yxShipOperation:add')")
-    public ResponseEntity<Object> create(@Validated @RequestBody YxShipOperation resources){
-        return new ResponseEntity<>(yxShipOperationService.save(resources),HttpStatus.CREATED);
+    public ResponseEntity<Object> create(@Validated @RequestBody YxShipOperation resources) {
+        return new ResponseEntity<>(yxShipOperationService.save(resources), HttpStatus.CREATED);
     }
 
     @PutMapping
     @Log("修改船只运营记录")
     @ApiOperation("修改船只运营记录")
     @PreAuthorize("@el.check('admin','yxShipOperation:edit')")
-    public ResponseEntity<Object> update(@Validated @RequestBody YxShipOperation resources){
+    public ResponseEntity<Object> update(@Validated @RequestBody YxShipOperation resources) {
         yxShipOperationService.updateById(resources);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
@@ -79,7 +80,7 @@ public class YxShipOperationController {
     @PreAuthorize("@el.check('admin','yxShipOperation:del')")
     @DeleteMapping
     public ResponseEntity<Object> deleteAll(@RequestBody Integer[] ids) {
-        Arrays.asList(ids).forEach(id->{
+        Arrays.asList(ids).forEach(id -> {
             yxShipOperationService.removeById(id);
         });
         return new ResponseEntity<>(HttpStatus.OK);
@@ -90,6 +91,16 @@ public class YxShipOperationController {
     @PreAuthorize("@el.check('admin','yxShipOperation:list')")
     @PostMapping(value = "/hazdShowList")
     public ResponseEntity<Object> hazdShowList(YxShipOperationQueryCriteria criteria, Pageable pageable) {
-        return new ResponseEntity<>(yxShipOperationService.findOperationList(criteria,pageable),HttpStatus.OK);
+        return new ResponseEntity<>(yxShipOperationService.findOperationList(criteria, pageable), HttpStatus.OK);
     }
+
+    @GetMapping(value = "/getOperationDetailInfo/{id}")
+    @Log("获取运营记录详情")
+    @ApiOperation("获取运营记录详情")
+    @PreAuthorize("@el.check('admin','yxShipOperation:list')")
+    public ResponseEntity<Object> getOperationDetailInfo(@PathVariable Integer id) {
+        return new ResponseEntity<>(yxShipOperationService.getOperationDetailInfo(id), HttpStatus.OK);
+
+    }
+
 }
