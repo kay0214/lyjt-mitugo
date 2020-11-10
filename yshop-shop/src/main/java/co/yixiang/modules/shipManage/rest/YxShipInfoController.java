@@ -31,15 +31,13 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.util.CollectionUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
 * @author nxl
@@ -106,11 +104,15 @@ public class YxShipInfoController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @AnonymousAccess
     @ApiOperation(value = "查询船只系列")
     @GetMapping(value = "/getShipSeriseList")
-    public ResponseEntity getShipSeriseList() {
-        List<YxShipSeries> shipSeriesList = yxShipInfoService.getShipSeriseList();
+    public ResponseEntity<Object> getShipSeriseList() {
+        CurrUser currUser = SecurityUtils.getCurrUser();
+        Integer merId = null;
+        if(2==currUser.getUserRole()){
+            merId = currUser.getId().intValue();
+        }
+        List<YxShipSeries> shipSeriesList = yxShipInfoService.getShipSeriseList(merId);
         List<YxShipSeriesDto> categoryDtoLists = CommonsUtils.convertBeanList(shipSeriesList, YxShipSeriesDto.class);
         return new ResponseEntity(categoryDtoLists, HttpStatus.OK);
     }
@@ -118,7 +120,7 @@ public class YxShipInfoController {
     @AnonymousAccess
     @ApiOperation(value = "根据船只系列获取船只")
     @GetMapping(value = "/getShipInfoBySeriesId/{seriesId}")
-    public ResponseEntity getShipInfoBySeriesId(@PathVariable Integer seriesId) {
+    public ResponseEntity<Object> getShipInfoBySeriesId(@PathVariable Integer seriesId) {
         CurrUser currUser = SecurityUtils.getCurrUser();
         Map<String,Object> mapRetrun = new HashMap<String,Object>();
         YxShipSeries yxShipSeries = yxShipSeriesService.getById(seriesId);
@@ -129,6 +131,46 @@ public class YxShipInfoController {
         return new ResponseEntity(mapRetrun, HttpStatus.OK);
 //        return new ResponseEntity(shipInfoDtoList, HttpStatus.OK);
     }
+
+//    @AnonymousAccess
+    @ApiOperation(value = "查询船只系列联动")
+    @GetMapping(value = "/getShipSeriseTree")
+    public ResponseEntity<Object> getShipSeriseTree() {
+        CurrUser currUser = SecurityUtils.getCurrUser();
+        Integer merId = null;
+        if (2 == currUser.getUserRole()) {
+            merId = currUser.getId().intValue();
+        }
+        List<YxShipSeries> shipSeriesList = yxShipInfoService.getShipSeriseList(merId);
+        Map<String, Object> mapReturn = new HashMap<String, Object>();
+        List<Map<String, Object>> mapParentList = new ArrayList<>();
+        if (CollectionUtils.isEmpty(shipSeriesList)) {
+            mapReturn.put("options", mapParentList);
+        }
+        for (YxShipSeries shipSeries : shipSeriesList) {
+            Map<String, Object> mapParent = new HashMap<String, Object>();
+            List<Map<String, Object>> mapChildList = new ArrayList<>();
+            mapParent.put("value", shipSeries.getId());
+            mapParent.put("label", shipSeries.getSeriesName());
+            List<YxShipInfo> shipInfoList = yxShipInfoService.getShipInfoList(shipSeries.getId(),merId);
+            if(CollectionUtils.isEmpty(shipInfoList)){
+                mapParent.put("children", mapChildList);
+                mapParentList.add(mapParent);
+                continue;
+            }
+            for(YxShipInfo yxShipInfo:shipInfoList){
+                Map<String, Object> mapChild = new HashMap<String, Object>();
+                mapChild.put("value", yxShipInfo.getId());
+                mapChild.put("label", yxShipInfo.getShipName());
+                mapChildList.add(mapChild);
+            }
+            mapParent.put("children", mapChildList);
+            mapParentList.add(mapParent);
+        }
+        mapReturn.put("options", mapParentList);
+        return new ResponseEntity(mapReturn, HttpStatus.OK);
+    }
+
     @PostMapping(value = "/changeStatus/{id}")
     @Log("修改船只系列状态")
     @ApiOperation("修改船只系列状态")

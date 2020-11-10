@@ -87,7 +87,19 @@ public class YxShipOperationServiceImpl extends BaseServiceImpl<YxShipOperationM
         PageInfo<YxShipOperation> page = new PageInfo<>(queryAll(criteria));*/
         QueryWrapper<YxShipOperation> queryWrapper = new QueryWrapper<>();
         queryWrapper.lambda().eq(YxShipOperation::getDelFlag ,0);
-
+        if(null!=criteria.getShipId()){
+            queryWrapper.lambda().eq(YxShipOperation::getShipId ,criteria.getShipId());
+        }
+        if(null!=criteria.getCaptainName()){
+            queryWrapper.lambda().likeRight(YxShipOperation::getCaptainName ,criteria.getCaptainName());
+        }
+        if(null!=criteria.getStartDate()&&null!=criteria.getEndDate()){
+            String startDate = criteria.getStartDate()+" 00:00:00";
+            String endDate  = criteria.getEndDate()+" 23:59:59";
+            int startInt = DateUtils.stringToTimestamp(startDate);
+            int endInt = DateUtils.stringToTimestamp(endDate);
+            queryWrapper.lambda().between(YxShipOperation::getLeaveTime ,startInt,endInt);
+        }
         IPage<YxShipOperation> ipage = this.page(new Page<>(pageable.getPageNumber() + 1, pageable.getPageSize()), queryWrapper);
         Map<String, Object> map = new LinkedHashMap<>(2);
         List<YxShipOperationDto>yxShipOperationDtoList = generator.convert(ipage.getRecords(), YxShipOperationDto.class);
@@ -98,6 +110,33 @@ public class YxShipOperationServiceImpl extends BaseServiceImpl<YxShipOperationM
         map.put("content", yxShipOperationDtoList);
         map.put("totalElements", ipage.getTotal());
         return map;
+    }
+    @Override
+    public List<YxShipOperationDto> queryAllNew(YxShipOperationQueryCriteria criteria) {
+       /* getPage(pageable);
+        PageInfo<YxShipOperation> page = new PageInfo<>(queryAll(criteria));*/
+        QueryWrapper<YxShipOperation> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().eq(YxShipOperation::getDelFlag ,0);
+        if(null!=criteria.getShipId()){
+            queryWrapper.lambda().eq(YxShipOperation::getShipId ,criteria.getShipId());
+        }
+        if(null!=criteria.getCaptainName()){
+            queryWrapper.lambda().likeRight(YxShipOperation::getCaptainName ,criteria.getCaptainName());
+        }
+        if(null!=criteria.getStartDate()&&null!=criteria.getEndDate()){
+            String startDate = criteria.getStartDate()+" 00:00:00";
+            String endDate  = criteria.getEndDate()+" 23:59:59";
+            int startInt = DateUtils.stringToTimestamp(startDate);
+            int endInt = DateUtils.stringToTimestamp(endDate);
+            queryWrapper.lambda().between(YxShipOperation::getLeaveTime ,startInt,endInt);
+        }
+        List<YxShipOperation> shipOperationList = this.list(queryWrapper);
+        List<YxShipOperationDto>yxShipOperationDtoList = generator.convert(shipOperationList, YxShipOperationDto.class);
+        for(YxShipOperationDto yxShipOperationDto:yxShipOperationDtoList){
+            yxShipOperationDto.setLeaveFortmatTime(DateUtils.timestampToStr10(yxShipOperationDto.getLeaveTime()));
+            yxShipOperationDto.setReturnFormatTime(DateUtils.timestampToStr10(yxShipOperationDto.getReturnTime()));
+        }
+        return yxShipOperationDtoList;
     }
 
 
@@ -121,14 +160,23 @@ public class YxShipOperationServiceImpl extends BaseServiceImpl<YxShipOperationM
             map.put("承载人数", yxShipOperation.getTotalPassenger());
             map.put("老年人人数", yxShipOperation.getOldPassenger());
             map.put("未成年人数", yxShipOperation.getUnderagePassenger());
-            map.put("出港时间", yxShipOperation.getLeaveTime());
-            map.put("回港时间", yxShipOperation.getReturnTime());
-            map.put("船只状态 0:待出港 1：出港 2：回港", yxShipOperation.getStatus());
-            map.put("是否删除（0：未删除，1：已删除）", yxShipOperation.getDelFlag());
+            map.put("出港时间", yxShipOperation.getLeaveFortmatTime());
+            map.put("回港时间", yxShipOperation.getReturnFormatTime());
+            String strStatus = "待出港";
+            switch (yxShipOperation.getStatus()){
+                case 1:
+                    strStatus ="出港";
+                    break;
+                case 2:
+                    strStatus="回港";
+                    break;
+            }
+            map.put("船只状态", strStatus);
+           /* map.put("是否删除（0：未删除，1：已删除）", yxShipOperation.getDelFlag());
             map.put("创建人", yxShipOperation.getCreateUserId());
             map.put("修改人", yxShipOperation.getUpdateUserId());
             map.put("创建时间", yxShipOperation.getCreateTime());
-            map.put("更新时间", yxShipOperation.getUpdateTime());
+            map.put("更新时间", yxShipOperation.getUpdateTime());*/
             list.add(map);
         }
         FileUtil.downloadExcel(list, response);

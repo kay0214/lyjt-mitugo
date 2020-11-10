@@ -47,7 +47,8 @@ public class YxShipOperationController {
     @GetMapping(value = "/download")
     @PreAuthorize("@el.check('admin','yxShipOperation:list')")
     public void download(HttpServletResponse response, YxShipOperationQueryCriteria criteria) throws IOException {
-        yxShipOperationService.download(generator.convert(yxShipOperationService.queryAll(criteria), YxShipOperationDto.class), response);
+//        yxShipOperationService.download(generator.convert(yxShipOperationService.queryAll(criteria), YxShipOperationDto.class), response);
+        yxShipOperationService.download(generator.convert(yxShipOperationService.queryAllNew(criteria), YxShipOperationDto.class), response);
     }
 
     @GetMapping

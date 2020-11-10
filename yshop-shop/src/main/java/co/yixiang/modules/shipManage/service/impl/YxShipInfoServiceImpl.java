@@ -122,9 +122,12 @@ public class YxShipInfoServiceImpl extends BaseServiceImpl<YxShipInfoMapper, YxS
      * @return
      */
     @Override
-    public List<YxShipSeries> getShipSeriseList() {
+    public List<YxShipSeries> getShipSeriseList(Integer merId) {
         QueryWrapper<YxShipSeries> queryWrapper = new QueryWrapper<>();
         queryWrapper.lambda().eq(YxShipSeries::getStatus, 0).eq(YxShipSeries::getDelFlag, 0);
+        if(null!=merId){
+            queryWrapper.lambda().eq(YxShipSeries::getMerId,merId);
+        }
         return shipSeriesMapper.selectList(queryWrapper);
     }
 
@@ -135,9 +138,12 @@ public class YxShipInfoServiceImpl extends BaseServiceImpl<YxShipInfoMapper, YxS
      * @return
      */
     @Override
-    public List<YxShipInfo> getShipInfoList(int seriseId, int merId) {
+    public List<YxShipInfo> getShipInfoList(int seriseId, Integer merId) {
         QueryWrapper<YxShipInfo> queryWrapper = new QueryWrapper<>();
-        queryWrapper.lambda().eq(YxShipInfo::getSeriesId, seriseId).eq(YxShipInfo::getMerId, merId).eq(YxShipInfo::getShipStatus, 0).eq(YxShipInfo::getDelFlag, 0);
+        queryWrapper.lambda().eq(YxShipInfo::getSeriesId, seriseId).eq(YxShipInfo::getShipStatus, 0).eq(YxShipInfo::getDelFlag, 0);
+        if(null!=merId){
+            queryWrapper.lambda().eq(YxShipInfo::getMerId, merId);
+        }
         return this.list(queryWrapper);
     }
 

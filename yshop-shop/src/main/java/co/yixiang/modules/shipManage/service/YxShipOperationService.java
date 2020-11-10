@@ -69,4 +69,6 @@ public interface YxShipOperationService  extends BaseService<YxShipOperation>{
      * @return
      */
     boolean downLoadZipFiles(HttpServletResponse response, String batchNo);
+
+    List<YxShipOperationDto> queryAllNew(YxShipOperationQueryCriteria criteria);
 }

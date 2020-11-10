@@ -39,7 +39,7 @@ public class YxCoupons implements Serializable {
     private String couponName;
 
 
-    /** 卡券类型;1:代金券, 2:折扣券, 3:满减券 */
+    /** 卡券类型;1:代金券, 2:折扣券, 3:满减券 ，4：船票券*/
     @NotNull
     private Integer couponType;
 
@@ -246,7 +246,7 @@ public class YxCoupons implements Serializable {
 
 
     /** 分佣模式（0：按平台，1：不分佣，2：自定义分佣） */
-    @NotNull
+//    @NotNull
     private Integer customizeType;
 
     public void copy(YxCoupons source){
