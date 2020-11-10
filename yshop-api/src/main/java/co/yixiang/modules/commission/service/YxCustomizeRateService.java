@@ -32,4 +32,11 @@ public interface YxCustomizeRateService extends BaseService<YxCustomizeRate> {
      */
     Paging<YxCustomizeRateQueryVo> getYxCustomizeRatePageList(YxCustomizeRateQueryParam yxCustomizeRateQueryParam) throws Exception;
 
+    /**
+     * 根据类型以及linkId获取自定义分佣配置
+     * @param type
+     * @param linkId
+     * @return
+     */
+    YxCustomizeRate getCustomizeRateByParam(int type,int linkId);
 }

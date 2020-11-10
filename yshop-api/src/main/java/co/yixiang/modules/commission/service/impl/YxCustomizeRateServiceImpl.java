@@ -1,21 +1,24 @@
 package co.yixiang.modules.commission.service.impl;
 
+import co.yixiang.common.service.impl.BaseServiceImpl;
+import co.yixiang.common.web.vo.Paging;
 import co.yixiang.modules.commission.entity.YxCustomizeRate;
 import co.yixiang.modules.commission.mapper.YxCustomizeRateMapper;
 import co.yixiang.modules.commission.service.YxCustomizeRateService;
 import co.yixiang.modules.commission.web.param.YxCustomizeRateQueryParam;
 import co.yixiang.modules.commission.web.vo.YxCustomizeRateQueryVo;
-import co.yixiang.common.service.impl.BaseServiceImpl;
-import co.yixiang.common.web.vo.Paging;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
-
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.metadata.OrderItem;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
+
 import java.io.Serializable;
+import java.util.List;
 
 
 /**
@@ -46,4 +49,20 @@ public class YxCustomizeRateServiceImpl extends BaseServiceImpl<YxCustomizeRateM
         return new Paging(iPage);
     }
 
+    /**
+     * 根据类型以及linkId获取自定义分佣配置
+     * @param type
+     * @param linkId
+     * @return
+     */
+    @Override
+    public YxCustomizeRate getCustomizeRateByParam(int type,int linkId){
+        QueryWrapper<YxCustomizeRate> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().eq(YxCustomizeRate::getRateType,type).eq(YxCustomizeRate::getLinkId,linkId).eq(YxCustomizeRate::getDelFlag,0);
+        List<YxCustomizeRate> customizeRateList = yxCustomizeRateMapper.selectList(queryWrapper);
+        if(CollectionUtils.isEmpty(customizeRateList)){
+            return null;
+        }
+        return customizeRateList.get(0);
+    }
 }

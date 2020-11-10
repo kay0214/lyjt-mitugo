@@ -11,12 +11,17 @@ import co.yixiang.constant.LocalLiveConstants;
 import co.yixiang.constant.ShopConstants;
 import co.yixiang.exception.BadRequestException;
 import co.yixiang.modules.commission.entity.YxCommissionRate;
+import co.yixiang.modules.commission.entity.YxCustomizeRate;
 import co.yixiang.modules.commission.service.YxCommissionRateService;
+import co.yixiang.modules.commission.service.YxCustomizeRateService;
 import co.yixiang.modules.coupons.service.YxCouponsService;
 import co.yixiang.modules.coupons.web.param.YxCouponsQueryParam;
 import co.yixiang.modules.coupons.web.vo.YxCouponsQueryVo;
 import co.yixiang.modules.image.entity.YxImageInfo;
 import co.yixiang.modules.image.service.YxImageInfoService;
+import co.yixiang.modules.ship.service.YxShipInfoService;
+import co.yixiang.modules.ship.service.YxShipSeriesService;
+import co.yixiang.modules.ship.web.vo.YxShipInfoQueryVo;
 import co.yixiang.utils.DateUtils;
 import com.alicp.jetcache.anno.CacheRefresh;
 import com.alicp.jetcache.anno.CacheType;
@@ -47,7 +52,7 @@ import java.util.List;
 @Slf4j
 @RestController
 @RequestMapping("/yxCoupons")
-@Api(value = "本地生活, 卡券表 API")
+@Api(value = "本地生活, 卡券表 API",tags = "本地生活:卡券")
 public class YxCouponsController extends BaseController {
 
     @Autowired
@@ -57,7 +62,12 @@ public class YxCouponsController extends BaseController {
     private YxImageInfoService yxImageInfoService;
     @Autowired
     private YxCommissionRateService commissionRateService;
-
+    @Autowired
+    private YxShipInfoService yxShipInfoService;
+    @Autowired
+    private YxShipSeriesService yxShipSeriesService;
+    @Autowired
+    private YxCustomizeRateService yxCustomizeRateService;
     /**
      * 获取本地生活, 卡券详情
      */
@@ -95,15 +105,46 @@ public class YxCouponsController extends BaseController {
         yxCouponsQueryVo.setExpireDate(expireDate);
         yxCouponsQueryVo.setAvailableTime(yxCouponsQueryVo.getAvailableTimeStart() + " ~ " + yxCouponsQueryVo.getAvailableTimeEnd());
         // 佣金按比例计算
-        YxCommissionRate commissionRate = commissionRateService.getOne(new QueryWrapper<YxCommissionRate>().eq("del_flag", 0));
-        BigDecimal bigCommission = yxCouponsQueryVo.getCommission();
+        // 分佣类型 0：按平台，1：不分佣，2：自定义分佣
+        int customType = yxCouponsQueryVo.getCustomizeType();
+        BigDecimal bigCommission = new BigDecimal(0);
+        switch (customType) {
+            case 0:
+                //0：按平台
+                YxCommissionRate commissionRate = commissionRateService.getOne(new QueryWrapper<YxCommissionRate>().eq("del_flag", 0));
+                bigCommission = yxCouponsQueryVo.getCommission();
 
-        if (ObjectUtil.isNotNull(commissionRate)) {
-            //佣金= 佣金*分享
-            bigCommission = bigCommission.multiply(commissionRate.getShareRate());
+                if (ObjectUtil.isNotNull(commissionRate)) {
+                    //佣金= 佣金*分享
+                    bigCommission = bigCommission.multiply(commissionRate.getShareRate());
+                }
+                break;
+            case 1:
+                //1：不分佣
+                bigCommission = new BigDecimal(0);
+                break;
+            case 2:
+                //2：自定义分佣
+                YxCustomizeRate yxCustomizeRate = yxCustomizeRateService.getCustomizeRateByParam(0,yxCouponsQueryVo.getId());
+                bigCommission = yxCouponsQueryVo.getCommission();
+
+                if (ObjectUtil.isNotNull(yxCustomizeRate)) {
+                    //佣金= 佣金*分享
+                    bigCommission = bigCommission.multiply(yxCustomizeRate.getShareRate());
+                }
+                break;
         }
         yxCouponsQueryVo.setCommission(bigCommission);
 
+
+        //船只信息
+        if(4==yxCouponsQueryVo.getCouponType()){
+            //船票券
+            YxShipInfoQueryVo shipInfoQueryVo = yxShipInfoService.getYxShipInfoById(yxCouponsQueryVo.getShipId());
+            yxCouponsQueryVo.setShipName(shipInfoQueryVo.getShipName());
+            //船只系列信息
+            yxCouponsQueryVo.setShipSeries(yxShipSeriesService.getYxShipSeriesById(yxCouponsQueryVo.getSeriesId()));
+        }
         return ApiResult.ok(yxCouponsQueryVo);
     }
 
