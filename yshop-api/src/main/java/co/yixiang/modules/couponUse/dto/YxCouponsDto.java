@@ -8,7 +8,6 @@
  */
 package co.yixiang.modules.couponUse.dto;
 
-import co.yixiang.modules.ship.entity.YxShipPassenger;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -247,11 +246,13 @@ public class YxCouponsDto implements Serializable {
     private Integer shipMaxUserCount;
     // 订单人数
     private Integer shipUserCount;
-    // 未成年人数人数
+    // 未成年人数
     private Integer shipUnderageCount;
+    // 老年人人数
+    private Integer oldCount;
     // 健康状况
     private String shipHealthStatus;
     // 乘客
-    private List<YxShipPassenger> shipPassenger;
+    private List<YxShipPassengerVO> shipPassenger;
 
 }

@@ -10,6 +10,7 @@ import co.yixiang.dozer.service.IGenerator;
 import co.yixiang.enums.CommonEnum;
 import co.yixiang.exception.ErrorRequestException;
 import co.yixiang.modules.couponUse.dto.YxCouponsDto;
+import co.yixiang.modules.couponUse.dto.YxShipPassengerVO;
 import co.yixiang.modules.coupons.entity.YxCouponOrder;
 import co.yixiang.modules.coupons.entity.YxCouponOrderDetail;
 import co.yixiang.modules.coupons.entity.YxCoupons;
@@ -23,12 +24,12 @@ import co.yixiang.modules.coupons.web.vo.YxCouponsQueryVo;
 import co.yixiang.modules.image.entity.YxImageInfo;
 import co.yixiang.modules.image.mapper.YxImageInfoMapper;
 import co.yixiang.modules.manage.entity.SystemUser;
+import co.yixiang.modules.ship.entity.YxShipPassenger;
 import co.yixiang.modules.ship.entity.YxShipSeries;
+import co.yixiang.modules.ship.service.YxShipPassengerService;
 import co.yixiang.modules.ship.service.YxShipSeriesService;
 import co.yixiang.modules.shop.mapping.YxCouponsMap;
-import co.yixiang.utils.Base64Utils;
-import co.yixiang.utils.DateUtils;
-import co.yixiang.utils.StringUtils;
+import co.yixiang.utils.*;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.metadata.OrderItem;
@@ -71,6 +72,9 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
     private YxCouponOrderService yxCouponOrderService;
     @Autowired
     private YxShipSeriesService yxShipSeriesService;
+    @Autowired
+    private YxShipPassengerService yxShipPassengerService;
+
 
     private final IGenerator generator;
 
@@ -446,15 +450,34 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
         }
         // 最多乘坐
         yxCouponsDto.setShipMaxUserCount(shipSeries.getRideLimit());
-        // TODO: 2020/11/10
+        List<YxShipPassenger> couponUsers = yxShipPassengerService.list(new QueryWrapper<YxShipPassenger>().eq("coupon_order_id", yxCouponOrder.getId()));
+        if(couponUsers == null || couponUsers.size()==0){
+            yxCouponsDto.setStatus(99);
+            yxCouponsDto.setStatusDesc("未选择乘坐人");
+            return yxCouponsDto;
+        }
+        int underageCount = 0;
+        int oldCount = 0;
+        for (YxShipPassenger item :couponUsers) {
+            if(item.getIsAdult().intValue()==0){
+                underageCount++;
+            }else if(item.getIsAdult().intValue()==2){
+                oldCount ++;
+            }
+            item.setIdCard(CardNumUtil.idEncrypt(item.getIdCard()));
+            item.setPhone(CardNumUtil.mobileEncrypt(item.getPhone()));
+            item.setPassengerName(CardNumUtil.nameEncrypt(item.getPassengerName()));
+        }
         // 订单人数
-        yxCouponsDto.setShipUserCount(0);
-        // 未成年人数人数
-        yxCouponsDto.setShipUnderageCount(0);
+        yxCouponsDto.setShipUserCount(couponUsers.size());
+        // 未成年人数
+        yxCouponsDto.setShipUnderageCount(underageCount);
+        // 老年人人数
+        yxCouponsDto.setOldCount(oldCount);
         // 健康状况
         yxCouponsDto.setShipHealthStatus("");
         // 乘客
-        yxCouponsDto.setShipPassenger(null);
+        yxCouponsDto.setShipPassenger(CommonsUtils.convertBeanList(couponUsers,YxShipPassengerVO.class));
 
         return yxCouponsDto;
     }
