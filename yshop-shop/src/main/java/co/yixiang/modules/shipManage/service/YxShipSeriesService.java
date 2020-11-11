@@ -65,5 +65,5 @@ public interface YxShipSeriesService  extends BaseService<YxShipSeries>{
      * @param shipSeries
      * @return
      */
-    int updateByPrimaryKey(YxShipSeries shipSeries);
+    int updateByPrimaryKeySelective(YxShipSeries shipSeries);
 }

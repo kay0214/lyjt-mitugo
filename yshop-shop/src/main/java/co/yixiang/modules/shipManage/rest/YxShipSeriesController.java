@@ -119,7 +119,7 @@ public class YxShipSeriesController {
         YxShipSeries shipSeries = new YxShipSeries();
         BeanUtils.copyProperties(resources, shipSeries);
         shipSeries.setCoordinate(geoPoint);
-        yxShipSeriesService.updateByPrimaryKey(shipSeries);
+        yxShipSeriesService.updateByPrimaryKeySelective(shipSeries);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 

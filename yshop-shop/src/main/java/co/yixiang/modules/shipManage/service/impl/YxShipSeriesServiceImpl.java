@@ -135,8 +135,8 @@ public class YxShipSeriesServiceImpl extends BaseServiceImpl<YxShipSeriesMapper,
      * @return
      */
     @Override
-    public int updateByPrimaryKey(YxShipSeries shipSeries) {
-        return yxShipSeriesMapper.updateByPrimaryKey(shipSeries);
+    public int updateByPrimaryKeySelective(YxShipSeries shipSeries) {
+        return yxShipSeriesMapper.updateByPrimaryKeySelective(shipSeries);
     }
 
 }
