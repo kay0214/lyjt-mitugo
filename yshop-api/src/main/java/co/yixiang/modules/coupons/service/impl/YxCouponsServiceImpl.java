@@ -14,9 +14,11 @@ import co.yixiang.modules.couponUse.dto.YxShipPassengerVO;
 import co.yixiang.modules.coupons.entity.YxCouponOrder;
 import co.yixiang.modules.coupons.entity.YxCouponOrderDetail;
 import co.yixiang.modules.coupons.entity.YxCoupons;
+import co.yixiang.modules.coupons.entity.YxCouponsPriceConfig;
 import co.yixiang.modules.coupons.mapper.YxCouponsMapper;
 import co.yixiang.modules.coupons.service.YxCouponOrderDetailService;
 import co.yixiang.modules.coupons.service.YxCouponOrderService;
+import co.yixiang.modules.coupons.service.YxCouponsPriceConfigService;
 import co.yixiang.modules.coupons.service.YxCouponsService;
 import co.yixiang.modules.coupons.web.param.YxCouponsQueryParam;
 import co.yixiang.modules.coupons.web.vo.LocalLiveCouponsVo;
@@ -38,6 +40,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -77,6 +80,8 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
 
 
     private final IGenerator generator;
+    @Autowired
+    private YxCouponsPriceConfigService yxCouponsPriceConfigService;
 
     public YxCouponsServiceImpl(IGenerator generator) {
         this.generator = generator;
@@ -492,5 +497,22 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
         yxCouponsDto.setAvailableTimeStr(yxCoupons.getAvailableTimeStart() + " ~ " + yxCoupons.getAvailableTimeEnd());
         yxCouponsDto.setExpireDateStr(DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD, yxCoupons.getExpireDateStart()) + " ~ " + DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD, yxCoupons.getExpireDateEnd()));
         return yxCouponsDto;
+    }
+
+    /**
+     * 获取卡券的价格配置（当前日期符合）
+     * @param couponId
+     * @return
+     */
+    @Override
+    public YxCouponsPriceConfig getPirceConfig(int couponId) {
+        QueryWrapper<YxCouponsPriceConfig> queryWrapper = new QueryWrapper<>();
+        int nowDate = DateUtils.getNowTime();
+        queryWrapper.lambda().eq(YxCouponsPriceConfig::getCouponId, couponId).eq(YxCouponsPriceConfig::getDelFlag, 0).ge(YxCouponsPriceConfig::getStartDate, nowDate).le(YxCouponsPriceConfig::getEndDate, nowDate);
+        List<YxCouponsPriceConfig> couponsPriceConfigList = yxCouponsPriceConfigService.list(queryWrapper);
+        if (!CollectionUtils.isEmpty(couponsPriceConfigList)) {
+            return couponsPriceConfigList.get(0);
+        }
+        return null;
     }
 }

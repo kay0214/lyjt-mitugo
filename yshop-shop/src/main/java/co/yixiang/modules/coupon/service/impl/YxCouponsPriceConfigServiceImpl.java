@@ -23,6 +23,7 @@ import co.yixiang.modules.coupon.service.dto.YxCouponsPriceConfigQueryCriteria;
 import co.yixiang.modules.coupon.service.mapper.YxCouponsMapper;
 import co.yixiang.modules.coupon.service.mapper.YxCouponsPriceConfigMapper;
 import co.yixiang.utils.BeanUtils;
+import co.yixiang.utils.DateUtils;
 import co.yixiang.utils.FileUtil;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -39,8 +40,6 @@ import org.springframework.util.StringUtils;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -134,9 +133,9 @@ public class YxCouponsPriceConfigServiceImpl extends BaseServiceImpl<YxCouponsPr
                 BeanUtils.copyProperties(param, priceConfig);
                 /*priceConfig.setStartDate(DateUtils.stringToTimestamp(param.getStartDateStr()));
                 priceConfig.setEndDate(DateUtils.stringToTimestamp(param.getEndDateStr()));*/
-                int intStart = stringToTimestampDate(param.getStartDateStr()).intValue();
+                int intStart = DateUtils.stringToTimestampDate(param.getStartDateStr());
                 priceConfig.setStartDate(intStart);
-                priceConfig.setEndDate(stringToTimestampDate(param.getEndDateStr()).intValue());
+                priceConfig.setEndDate(DateUtils.stringToTimestampDate(param.getEndDateStr()));
                 priceConfig.setCouponId(couponId);
                 priceConfig.setCreateUserId(currUserId);
                 priceConfig.setUpdateUserId(currUserId);
@@ -152,14 +151,5 @@ public class YxCouponsPriceConfigServiceImpl extends BaseServiceImpl<YxCouponsPr
             this.saveBatch(couponsPriceConfigList);
         }
     }
-    private Long stringToTimestampDate(String strDate){
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        Long dateTimeLong = 0l;
-        try {
-            dateTimeLong = sdf.parse(strDate).getTime()/ 1000;
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        return dateTimeLong;
-    }
+
 }

@@ -14,6 +14,7 @@ import co.yixiang.exception.ErrorRequestException;
 import co.yixiang.logging.aop.log.Log;
 import co.yixiang.modules.coupons.entity.YxCouponOrder;
 import co.yixiang.modules.coupons.entity.YxCoupons;
+import co.yixiang.modules.coupons.entity.YxCouponsPriceConfig;
 import co.yixiang.modules.coupons.service.YxCouponOrderService;
 import co.yixiang.modules.coupons.service.YxCouponsService;
 import co.yixiang.modules.coupons.web.param.YxCouponComfirmRideParam;
@@ -155,6 +156,16 @@ public class YxCouponOrderController extends BaseController {
         List<YxCoupons> couponsList = yxCouponsService.list(new QueryWrapper<YxCoupons>().eq("id", Integer.valueOf(couponId)).eq("del_flag", 0));
         if (couponsList.size() <= 0) {
             return ApiResult.fail("未查询到卡券信息,请确认!");
+        }
+        // 获取价格配置
+        for (YxCoupons coupons : couponsList) {
+            YxCouponsPriceConfig yxCouponsPriceConfig = yxCouponsService.getPirceConfig(coupons.getId());
+            if (null != yxCouponsPriceConfig) {
+                //佣金
+                coupons.setCommission(yxCouponsPriceConfig.getCommission());
+                //销售价格
+                coupons.setSellingPrice(yxCouponsPriceConfig.getSellingPrice());
+            }
         }
         CouponOrderQueryVo couponOrderQueryVo = new CouponOrderQueryVo();
         List<YxCouponsQueryVo> queryVoList = CommonsUtils.convertBeanList(couponsList, YxCouponsQueryVo.class);
@@ -482,6 +493,7 @@ public class YxCouponOrderController extends BaseController {
     /**
      * 获取卡券订单表
      */
+    @AnonymousAccess
     @PostMapping("/getUsedContactsList")
     @ApiOperation(value = "选择乘客", notes = "选择乘客")
     public ApiResult<YxUsedContactsOrderQueryVo> getUsedContactsByUserId(@Valid @RequestBody YxCouponOrderPassengParam yxCouponOrderQueryParam){
@@ -489,9 +501,21 @@ public class YxCouponOrderController extends BaseController {
         return ApiResult.ok(yxUsedContactsOrderQueryVo);
     }
 
+    /**
+     * 确认乘坐
+     * @param param
+     * @return
+     */
     @PostMapping("/confirmRide")
     @ApiOperation(value = "确认乘坐", notes = "确认乘坐")
     public ApiResult<Boolean> confirmRide(@Valid @RequestBody YxCouponComfirmRideParam param){
+        boolean isFlg =yxShipPassengerService.saveComfrieRideInfo(param);
+        return ApiResult.ok(isFlg);
+    }
+
+    @PostMapping("/getBatchPassenger")
+    @ApiOperation(value = "查看乘船人", notes = "查看乘船人")
+    public ApiResult<Boolean> getBatchPassenger(@Valid @RequestBody YxCouponComfirmRideParam param){
         boolean isFlg =yxShipPassengerService.saveComfrieRideInfo(param);
         return ApiResult.ok(isFlg);
     }

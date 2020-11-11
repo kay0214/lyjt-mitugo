@@ -10,7 +10,6 @@ package co.yixiang.modules.shipManage.service;
 import co.yixiang.common.service.BaseService;
 import co.yixiang.modules.shipManage.domain.YxShipOperation;
 import co.yixiang.modules.shipManage.param.YxShipOperationInfoResponse;
-import co.yixiang.modules.shipManage.param.YxShipOperationResponse;
 import co.yixiang.modules.shipManage.service.dto.YxShipOperationDto;
 import co.yixiang.modules.shipManage.service.dto.YxShipOperationQueryCriteria;
 import org.springframework.data.domain.Pageable;
@@ -53,7 +52,7 @@ public interface YxShipOperationService  extends BaseService<YxShipOperation>{
      * 海岸支队大屏（船只出海记录列表）
      * @return
      */
-    List<YxShipOperationResponse> findOperationList(YxShipOperationQueryCriteria criteria,Pageable pageable);
+    Map<String, Object> findOperationList(YxShipOperationQueryCriteria criteria,Pageable pageable);
 
     /**
      * 获取出行记录详情数据
