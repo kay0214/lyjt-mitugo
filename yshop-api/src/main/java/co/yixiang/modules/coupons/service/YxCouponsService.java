@@ -4,6 +4,7 @@ import co.yixiang.common.service.BaseService;
 import co.yixiang.common.web.vo.Paging;
 import co.yixiang.modules.couponUse.dto.YxCouponsDto;
 import co.yixiang.modules.coupons.entity.YxCoupons;
+import co.yixiang.modules.coupons.entity.YxCouponsPriceConfig;
 import co.yixiang.modules.coupons.web.param.YxCouponsQueryParam;
 import co.yixiang.modules.coupons.web.vo.LocalLiveCouponsVo;
 import co.yixiang.modules.coupons.web.vo.YxCouponsQueryVo;
@@ -114,4 +115,11 @@ public interface YxCouponsService extends BaseService<YxCoupons> {
      * @return
      */
     YxCouponsDto getShipCouponInfo(String decodeVerifyCode, SystemUser user);
+
+    /**
+     * 获取卡券的价格配置（当前日期符合）
+     * @param couponId
+     * @return
+     */
+    YxCouponsPriceConfig getPirceConfig(int couponId);
 }

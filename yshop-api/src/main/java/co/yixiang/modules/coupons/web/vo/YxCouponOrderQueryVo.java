@@ -187,12 +187,16 @@ public class YxCouponOrderQueryVo implements Serializable {
 
     @ApiModelProperty(value = "乘船地址")
     private String shipAddress;
+
     @ApiModelProperty(value = "健康确认(数组) ")
     private List<String> confirmationList;
+
     @ApiModelProperty(value = "模板名称")
     private String tempName;
 
     @ApiModelProperty(value = "模板文件地址")
     private String tempFilePath;
 
+    @ApiModelProperty(value = "状态(0：展示立即使用，1：不展示)")
+    private Integer shipOrderStatus;
 }

@@ -25,17 +25,11 @@ import co.yixiang.modules.commission.service.YxCustomizeRateService;
 import co.yixiang.modules.commission.service.YxNowRateService;
 import co.yixiang.modules.contract.mapper.YxContractTemplateMapper;
 import co.yixiang.modules.contract.web.vo.YxContractTemplateQueryVo;
-import co.yixiang.modules.coupons.entity.YxCouponOrder;
-import co.yixiang.modules.coupons.entity.YxCouponOrderDetail;
-import co.yixiang.modules.coupons.entity.YxCouponOrderUse;
-import co.yixiang.modules.coupons.entity.YxCoupons;
+import co.yixiang.modules.coupons.entity.*;
 import co.yixiang.modules.coupons.mapper.CouponOrderMap;
 import co.yixiang.modules.coupons.mapper.YxCouponOrderMapper;
 import co.yixiang.modules.coupons.mapper.YxCouponsMapper;
-import co.yixiang.modules.coupons.service.YxCouponOrderDetailService;
-import co.yixiang.modules.coupons.service.YxCouponOrderService;
-import co.yixiang.modules.coupons.service.YxCouponOrderUseService;
-import co.yixiang.modules.coupons.service.YxCouponsService;
+import co.yixiang.modules.coupons.service.*;
 import co.yixiang.modules.coupons.web.param.YxCouponOrderQueryParam;
 import co.yixiang.modules.coupons.web.vo.*;
 import co.yixiang.modules.image.entity.YxImageInfo;
@@ -861,6 +855,7 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         // 根据优惠券所属获取商户信息
         YxStoreInfo yxStoreInfo = this.storeInfoService.getById(yxCoupons.getStoreId());
         List<YxCouponOrderDetailQueryVo> voList = new ArrayList<>();
+        int shipOrderStatus = 1;
         for (YxCouponOrderDetail yxCouponOrderDetail : detailList) {
             YxCouponOrderDetailQueryVo vo = new YxCouponOrderDetailQueryVo();
             BeanUtils.copyBeanProp(vo, yxCouponOrderDetail);
@@ -879,6 +874,11 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
             // 核销码加密
             vo.setVerifyCode(Base64Utils.encode(vo.getVerifyCode() + "," + vo.getUid()));
             voList.add(vo);
+            //核销状态 0：不可用 ,则有未核销的船只订单
+            if (0 == yxCouponOrderDetail.getUserStatus()) {
+                // 状态(0：展示立即使用，1：不展示)
+                shipOrderStatus = 0;
+            }
         }
 
         // 店铺id
@@ -951,6 +951,8 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
             //合同模板信息
             item.setTempFilePath(yxContractTemplateQueryVo.getFilePath());
             item.setTempName(yxContractTemplateQueryVo.getTempName());
+            //
+            item.setShipOrderStatus(shipOrderStatus);
         }
         return item;
     }

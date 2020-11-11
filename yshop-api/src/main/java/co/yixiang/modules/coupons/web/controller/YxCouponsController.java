@@ -16,6 +16,7 @@ import co.yixiang.modules.commission.service.YxCommissionRateService;
 import co.yixiang.modules.commission.service.YxCustomizeRateService;
 import co.yixiang.modules.contract.service.YxContractTemplateService;
 import co.yixiang.modules.contract.web.vo.YxContractTemplateQueryVo;
+import co.yixiang.modules.coupons.entity.YxCouponsPriceConfig;
 import co.yixiang.modules.coupons.service.YxCouponsService;
 import co.yixiang.modules.coupons.web.param.YxCouponsQueryParam;
 import co.yixiang.modules.coupons.web.vo.YxCouponsQueryVo;
@@ -110,6 +111,14 @@ public class YxCouponsController extends BaseController {
         String expireDate = DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD, yxCouponsQueryVo.getExpireDateStart()) + " ~ " + DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD, yxCouponsQueryVo.getExpireDateEnd());
         yxCouponsQueryVo.setExpireDate(expireDate);
         yxCouponsQueryVo.setAvailableTime(yxCouponsQueryVo.getAvailableTimeStart() + " ~ " + yxCouponsQueryVo.getAvailableTimeEnd());
+        // 获取价格配置
+        YxCouponsPriceConfig yxCouponsPriceConfig = yxCouponsService.getPirceConfig(yxCouponsQueryVo.getId());
+        if (null != yxCouponsPriceConfig) {
+            //佣金
+            yxCouponsQueryVo.setCommission(yxCouponsPriceConfig.getCommission());
+            //销售价格
+            yxCouponsQueryVo.setSellingPrice(yxCouponsPriceConfig.getSellingPrice());
+        }
         // 佣金按比例计算
         // 分佣类型 0：按平台，1：不分佣，2：自定义分佣
         int customType = yxCouponsQueryVo.getCustomizeType();

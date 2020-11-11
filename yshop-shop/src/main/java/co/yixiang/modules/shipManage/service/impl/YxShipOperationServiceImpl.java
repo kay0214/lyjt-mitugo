@@ -189,15 +189,19 @@ public class YxShipOperationServiceImpl extends BaseServiceImpl<YxShipOperationM
      * @return
      */
     @Override
-    public List<YxShipOperationResponse> findOperationList(YxShipOperationQueryCriteria criteria,Pageable pageable){
+    public Map<String, Object> findOperationList(YxShipOperationQueryCriteria criteria,Pageable pageable){
         //
+        Map<String, Object> map = new LinkedHashMap<>(2);
+
         List<YxShipOperationResponse> shipOperationResponseList = new ArrayList<>();
         //查询运营记录信息
         getPage(pageable);
         PageInfo<YxShipOperation> page = new PageInfo<>(queryAll(criteria));
         List<YxShipOperation> shipOperationList = page.getList();
         if(CollectionUtils.isEmpty(shipOperationList)){
-            return shipOperationResponseList;
+            map.put("content", shipOperationResponseList);
+            map.put("totalElements", 0);
+            return map;
         }
         shipOperationResponseList = CommonsUtils.convertBeanList(shipOperationList,YxShipOperationResponse.class);
         for(YxShipOperationResponse response:shipOperationResponseList){
@@ -228,8 +232,9 @@ public class YxShipOperationServiceImpl extends BaseServiceImpl<YxShipOperationM
                 response.setListPassenger(passengerResponseList);
             }
         }
-
-        return  shipOperationResponseList;
+        map.put("content", shipOperationResponseList);
+        map.put("totalElements", page.getTotal());
+        return map;
     }
 
     /**

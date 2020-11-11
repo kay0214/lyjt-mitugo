@@ -314,7 +314,7 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
      * @return
      */
     public static Integer IdCardNoToAge(String idCardNo) {
-
+        Integer age = 0;
         if (co.yixiang.utils.StringUtils.isBlank(idCardNo)) {
             throw new ErrorRequestException("身份证号为空！");
         }
@@ -322,7 +322,6 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
         if (idCardNo.length() != 15 && idCardNo.length() != 18) {
             throw new ErrorRequestException("身份证号长度错误！");
         }
-        Integer age = 0;
         Calendar cal = Calendar.getInstance();
         int yearNow = cal.get(Calendar.YEAR);
         int monthNow = cal.get(Calendar.MONTH) + 1;
@@ -333,11 +332,26 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
         int day = Integer.valueOf(idCardNo.substring(12, 14));
 
         if ((month < monthNow) || (month == monthNow && day <= dayNow)) {
-            age =yearNow - year;
+            age = yearNow - year;
         } else {
             age = yearNow - year - 1;
         }
         return age;
     }
 
+    /**
+     * 获取某个日期的时间戳（yyyy-MM-dd）
+     * @param strDate
+     * @return
+     */
+    public static Integer stringToTimestampDate(String strDate){
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        Long dateTimeLong = 0l;
+        try {
+            dateTimeLong = sdf.parse(strDate).getTime()/ 1000;
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return dateTimeLong.intValue();
+    }
 }
