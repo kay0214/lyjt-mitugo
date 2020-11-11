@@ -203,7 +203,7 @@ wukong:
   cunzheng:
     url: http://smlcunzheng.tsign.cn:8083/
   # 生成合同的存放路径
-  path: /yzdata/pdf/
+  path: /esgin/pdf/
   # 填充模板用个人用户数据
   template:
     user:
