@@ -14,6 +14,7 @@ import co.yixiang.modules.mybatis.GeoPoint;
 import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
 
+import javax.persistence.Column;
 import javax.persistence.Id;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -70,6 +71,7 @@ public class YxShipSeries implements Serializable {
 
 
     /** 地图坐标 */
+    @Column
     private GeoPoint coordinate;
 
     /** 地图坐标经度 */
