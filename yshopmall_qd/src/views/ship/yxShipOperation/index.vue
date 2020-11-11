@@ -9,12 +9,13 @@
         :options="shipSeriesTree"
         :props="{ expandTrigger: 'hover' }"
         clearable
-        @clear="()=>{$route.query.shipId=''}"
         @change="(val)=>{
-          if(val){
+          if(val&&val.length){
             query.shipId=val[1]
           }else{
-            query.shipId=''}
+            query.shipId=''
+            $route.query.id=''
+          }
         }"></el-cascader>
       <el-input v-model="query.captainName" clearable size="small"
                 placeholder="请输入船长姓名" style="width: 200px;" class="filter-item"
@@ -38,6 +39,7 @@
       <el-button class="filter-item" size="mini" type="success" icon="el-icon-search" @click="crud.toQuery">搜索</el-button>
       <crudOperation :permission="permission" />
       <!--表单组件-->
+      <detail ref="detail" />
       <el-dialog :close-on-click-modal="false" :before-close="crud.cancelCU" :visible.sync="crud.status.cu > 0" :title="crud.status.title" width="500px">
         <el-form ref="form" :model="form" :rules="rules" size="small" label-width="80px">
           <el-form-item label="id">
@@ -98,7 +100,8 @@
         </div>
       </el-dialog>
       <!--表格渲染-->
-      <el-table ref="table" v-loading="crud.loading" :data="crud.data" size="small" style="width: 100%;" @selection-change="crud.selectionChangeHandler">
+      <el-table ref="table" v-loading="crud.loading" :data="crud.data" size="small" style="width: 100%;"
+                @selection-change="crud.selectionChangeHandler">
         <el-table-column type="selection" width="55" />
         <el-table-column v-if="columns.visible('shipName')" prop="shipName" label="船只名称" />
         <el-table-column v-if="columns.visible('captainName')" prop="captainName" label="船长姓名" />
@@ -119,19 +122,17 @@
         </el-table-column>
         <el-table-column v-if="columns.visible('leaveFortmatTime')" prop="leaveFortmatTime" label="出港时间" >
           <template slot-scope="scope">
-            <span>{{ parseTime(scope.row.leaveFortmatTime) }}</span>
+            <span>{{ scope.row.leaveFortmatTime }}</span>
           </template>
         </el-table-column>
         <el-table-column v-if="columns.visible('returnFormatTime')" prop="returnFormatTime" label="回港时间" >
           <template slot-scope="scope">
-            <span>{{ parseTime(scope.row.returnFormatTime) }}</span>
+            <span>{{ scope.row.returnFormatTime }}</span>
           </template>
         </el-table-column>
         <el-table-column v-permission="['admin','yxShipOperation:edit','yxShipOperation:del']" label="操作" width="150px" align="center">
           <template slot-scope="scope">
-            <app-link :to="resolvePath(' /api/yxShipOperation/getOperationDetailInfo/#/'+scope.row.id)">
-              <el-button size="mini" type="text" icon="el-icon-edit">详情</el-button>
-            </app-link>
+            <el-button v-permission="permission.edit" type="text" size="mini" @click="detail(scope.row)">详情</el-button>
             <el-divider direction="vertical"></el-divider>
             <el-button size="mini" type="text" icon="el-icon-edit" >合同下载</el-button>
           </template>
@@ -151,10 +152,8 @@ import crudOperation from '@crud/CRUD.operation'
 import udOperation from '@crud/UD.operation'
 import pagination from '@crud/Pagination'
 import MaterialList from "@/components/material"
-import path from 'path'
-import { isExternal } from '@/utils/validate'
-import AppLink from '@/layout/components/Sidebar/Link'
 import { initData } from '@/api/data'
+import detail from '../yxShipOperationDetail/index'
 
 // crud交由presenter持有
 const defaultCrud = CRUD({ title: '船只运营记录', url: 'api/yxShipOperation', sort: 'id,desc',
@@ -171,7 +170,7 @@ const defaultForm = { id: null, batchNo: null, shipId: null, shipName: null, cap
   updateUserId: null, createTime: null, updateTime: null }
 export default {
   name: 'YxShipOperation',
-  components: { pagination, crudOperation, rrOperation, udOperation ,MaterialList,AppLink},
+  components: { pagination, crudOperation, rrOperation, udOperation ,MaterialList,detail},
   mixins: [presenter(defaultCrud), header(), form(defaultForm), crud()],
   data() {
     return {
@@ -209,36 +208,49 @@ export default {
   },
   watch: {
   },
-  mounted() {
-    initData('api/yxShipInfo/getShipSeriseTree').then(res=>{
-      if(res && res.options){
-        this.shipSeriesTree=res.options
-      }else{
-        this.shipSeriesTree=[]
-      }
+  created() {
+    this.$nextTick(()=>{
+      let that=this
+      initData('api/yxShipInfo/getShipSeriseTree').then(res=>{
+        if(res && res.options){
+          this.shipSeriesTree=res.options
+          if(Boolean(that.$route.query.id) && !isNaN(that.$route.query.id)){
+            let i= this.shipSeriesTree.filter(function(series){
+              let j=series.children.filter(function(item){
+                return new RegExp(item.value, 'i').test(that.$route.query.id)
+              })
+              if(j.length){
+                that.query.shipInfoId=[series.value,parseInt(that.$route.query.id)]
+              }
+            })
+          }
+        }else{
+          this.shipSeriesTree=[]
+        }
+      })
     })
   },
   methods: {
     // 获取数据前设置好接口地址
     [CRUD.HOOK.beforeRefresh]() {
-      if(Boolean(this.$route.query.id) && !isNaN(this.$route.query.id)){
-        this.query.shipId=parseInt(this.$route.query.id)
-      }else{
-        this.query.shipId=''
-      }
+        if(Boolean(this.$route.query.id) && !isNaN(this.$route.query.id)){
+          this.query.shipId=parseInt(this.$route.query.id)
+        }else{
+          this.query.shipId=''
+        }
       return true
     }, // 新增与编辑前做的操作
     [CRUD.HOOK.afterToCU](crud, form) {
     },
-    resolvePath(routePath) {
-      if (isExternal(routePath)) {
-        return routePath
+    detail(data) {
+      const _this = this.$refs.detail
+      _this.form = {
+        id: data.id,
       }
-      if (isExternal(this.basePath)) {
-        return this.basePath
-      }
-      return path.resolve(this.basePath, routePath)
-    }
+      _this.dialog = true
+      _this.loading = true
+      this.$refs.detail.init(data.id)
+    },
   }
 }
 

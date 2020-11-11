@@ -5,75 +5,97 @@
       <!--如果想在工具栏加入更多按钮，可以使用插槽方式， slot = 'left' or 'right'-->
       <!--      <crudOperation :permission="permission" />-->
       <!--表单组件-->
-      <el-dialog :close-on-click-modal="false" :before-close="crud.cancelCU" :visible.sync="crud.status.cu > 0" :title="crud.status.title" width="500px">
-        <el-form ref="form" :model="form" :rules="rules" disabled size="small" label-width="80px">
-          <el-form-item label="船只名称">
-            <el-input v-model="form.shipName" style="width: 370px;" />
-          </el-form-item>
-          <el-form-item label="船长姓名">
-            <el-input v-model="form.captainName" style="width: 370px;" />
-          </el-form-item>
-          <el-form-item label="承载人数">
-            <el-input v-model="form.totalPassenger" style="width: 370px;" >
-              <template slot="append">人</template>
-            </el-input>
-          </el-form-item>
-          <el-form-item label="老年人人数">
-            <el-input v-model="form.oldPassenger" style="width: 370px;" >
-              <template slot="append">人</template>
-            </el-input>
-          </el-form-item>
-          <el-form-item label="未成年人数">
-            <el-input v-model="form.underagePassenger" style="width: 370px;" >
-              <template slot="append">人</template>
-            </el-input>
-          </el-form-item>
+      <el-dialog
+                v-loading="loading" :visible.sync="dialog" :title="crud.status.title" width="1000px">
+        <el-form ref="form" :model="form" :rules="rules" disabled size="small" label-width="120px">
+          <el-row :gutter="20">
+            <el-col :span="8">
+              <el-form-item label="船只名称">
+                <el-input v-model="form.shipName" />
+              </el-form-item>
+            </el-col>
+            <el-col :span="8">
+              <el-form-item label="船长姓名">
+                <el-input v-model="form.captainName"  />
+              </el-form-item>
+            </el-col>
+          </el-row>
+          <el-row :gutter="20">
+            <el-col :span="8">
+              <el-form-item label="承载人数">
+                <el-input v-model="form.totalPassenger" >
+                  <template slot="append">人</template>
+                </el-input>
+              </el-form-item>
+            </el-col>
+            <el-col :span="8">
+              <el-form-item label="老年人人数">
+                <el-input v-model="form.oldPassenger"  >
+                  <template slot="append">人</template>
+                </el-input>
+              </el-form-item>
+            </el-col>
+            <el-col :span="7">
+              <el-form-item label="未成年人数">
+                <el-input v-model="form.underagePassenger"  >
+                  <template slot="append">人</template>
+                </el-input>
+              </el-form-item>
+            </el-col>
+          </el-row>
+          <el-row :gutter="20">
+            <el-col :span="8">
+              <el-form-item label="出港时间">
+                <el-input v-model="form.leaveForTime">
+                </el-input>
+              </el-form-item>
+            </el-col>
+            <el-col :span="8">
+              <el-form-item label="回港时间">
+                <el-input v-model="form.returnForTime" >
+                </el-input>
+              </el-form-item>
+            </el-col>
+          </el-row>
+          <el-row :gutter="20">
+            <el-col :span="1" style="width:100px;text-align: right">
+              <p>订单号</p>
+            </el-col>
+            <el-col :span="15" style="padding:16px 0 16px 15px;">
+              <template v-for="(item,ind) in form.orderList">
+                <span>{{item}}</span>
+                <el-divider v-if="ind!=(form.orderList.length-1)" direction="vertical"></el-divider>
+              </template>
+            </el-col>
+          </el-row>
+          <el-row :gutter="20">
+            <el-col :span="1" style="width:100px;text-align: right">
+              <p>乘客</p>
+            </el-col>
+            <el-col :span="15" style="padding:16px 0 16px 15px;">
+              <el-row :gutter="20">
+                <el-col :span="10"v-for="item in form.listPassenger">
+                  <div style="border:1px solid #F2F6FC;border-radius: 5px;margin-bottom: 20px;padding:20px;" >
+                    <p>{{item.passengerName}}</p>
+                    <p v-if="item.isAdult"><!-- /** 0:未成年 1:成年人 2：老年人 */-->
+                      身份证：{{item.idCard}}
+                    </p>
+                    <p v-else>
+                      未成年
+                    </p>
+                    <p>联系电话：{{item.phone}}</p>
+                  </div>
+                </el-col>
+              </el-row>
+            </el-col>
+          </el-row >
         </el-form>
         <div slot="footer" class="dialog-footer">
-          <el-button type="text" @click="crud.cancelCU">取消</el-button>
-          <el-button :loading="crud.cu === 2" type="primary" @click="crud.submitCU">确认</el-button>
+          <el-button type="primary" @click="dialog=false">关闭</el-button>
         </div>
       </el-dialog>
-      <!--表格渲染-->
-      <el-table ref="table" v-loading="crud.loading" :data="crud.data" size="small" style="width: 100%;" @selection-change="crud.selectionChangeHandler">
-        <el-table-column type="selection" width="55" />
-        <el-table-column v-if="columns.visible('id')" prop="id" label="id" />
-        <el-table-column v-if="columns.visible('couponOrderId')" prop="couponOrderId" label="卡券订单id" />
-        <el-table-column v-if="columns.visible('shipId')" prop="shipId" label="船只id" />
-        <el-table-column v-if="columns.visible('batchNo')" prop="batchNo" label="船只出港批次号" />
-        <el-table-column v-if="columns.visible('shipName')" prop="shipName" label="船只名称" />
-        <el-table-column v-if="columns.visible('captainId')" prop="captainId" label="船长id" />
-        <el-table-column v-if="columns.visible('captainName')" prop="captainName" label="船长姓名" />
-        <el-table-column v-if="columns.visible('useId')" prop="useId" label="核销人id" />
-        <el-table-column v-if="columns.visible('useName')" prop="useName" label="核销人姓名" />
-        <el-table-column v-if="columns.visible('healthStatus')" prop="healthStatus" label="乘客身体状况" />
-        <el-table-column v-if="columns.visible('totalPassenger')" prop="totalPassenger" label="承载人数" />
-        <el-table-column v-if="columns.visible('oldPassenger')" prop="oldPassenger" label="老年人人数" />
-        <el-table-column v-if="columns.visible('underagePassenger')" prop="underagePassenger" label="未成年人数" />
-        <el-table-column v-if="columns.visible('delFlag')" prop="delFlag" label="是否删除（0：未删除，1：已删除）" />
-        <el-table-column v-if="columns.visible('createUserId')" prop="createUserId" label="创建人" />
-        <el-table-column v-if="columns.visible('updateUserId')" prop="updateUserId" label="修改人" />
-        <el-table-column v-if="columns.visible('createTime')" prop="createTime" label="创建时间">
-          <template slot-scope="scope">
-            <span>{{ parseTime(scope.row.createTime) }}</span>
-          </template>
-        </el-table-column>
-        <el-table-column v-if="columns.visible('updateTime')" prop="updateTime" label="更新时间">
-          <template slot-scope="scope">
-            <span>{{ parseTime(scope.row.updateTime) }}</span>
-          </template>
-        </el-table-column>
-        <el-table-column v-permission="['admin','yxShipOperationDetail:edit','yxShipOperationDetail:del']" label="操作" width="150px" align="center">
-          <template slot-scope="scope">
-            <udOperation
-              :data="scope.row"
-              :permission="permission"
-            />
-          </template>
-        </el-table-column>
-      </el-table>
       <!--分页组件-->
-      <pagination />
+<!--      <pagination />-->
     </div>
   </div>
 </template>
@@ -81,22 +103,22 @@
 <script>
 import crudYxShipOperationDetail from '@/api/yxShipOperationDetail'
 import CRUD, { presenter, header, form, crud } from '@crud/crud'
-import rrOperation from '@crud/RR.operation'
-import crudOperation from '@crud/CRUD.operation'
-import udOperation from '@crud/UD.operation'
-import pagination from '@crud/Pagination'
 import MaterialList from "@/components/material";
+import { initData, download } from '@/api/data'
 
 // crud交由presenter持有
-const defaultCrud = CRUD({ title: '运营记录详情', url: 'api/yxShipOperationDetail', sort: 'id,desc', crudMethod: { ...crudYxShipOperationDetail }})
-const defaultForm = { id: null, couponOrderId: null, shipId: null, batchNo: null, shipName: null, captainId: null, captainName: null, useId: null, useName: null, healthStatus: null, totalPassenger: null, oldPassenger: null, underagePassenger: null, delFlag: null, createUserId: null, updateUserId: null, createTime: null, updateTime: null }
+const defaultCrud = CRUD({ title: '运营记录详情', url: 'api/yxShipOperationDetail', sort: 'id,desc',
+  crudMethod: { ...crudYxShipOperationDetail }})
+const defaultForm = { id: null, couponOrderId: null, shipId: null, batchNo: null, shipName: null,
+  captainId: null, captainName: null, useId: null, useName: null, healthStatus: null, totalPassenger: null, oldPassenger: null, underagePassenger: null, delFlag: null, createUserId: null, updateUserId: null, createTime: null, updateTime: null }
 export default {
   name: 'YxShipOperationDetail',
-  components: { pagination, crudOperation, rrOperation, udOperation ,MaterialList},
+  components: { MaterialList},
   mixins: [presenter(defaultCrud), header(), form(defaultForm), crud()],
   data() {
     return {
-
+      dialog: false,loading: false,
+      form:{},
       permission: {
         add: ['admin', 'yxShipOperationDetail:add'],
         edit: ['admin', 'yxShipOperationDetail:edit'],
@@ -134,11 +156,20 @@ export default {
   methods: {
     // 获取数据前设置好接口地址
     [CRUD.HOOK.beforeRefresh]() {
-      this.crud.url='api/yxShipOperation/getOperationDetailInfo/'+this.$route.param.id
-      return true
+      return false
     }, // 新增与编辑前做的操作
     [CRUD.HOOK.afterToCU](crud, form) {
     },
+    init(id) {
+      initData('/api/yxShipOperation/getOperationDetailInfo/'+id,{}).then(res=>{
+        if(res){
+          this.form=res
+        }
+        this.loading=false
+      }).catch(err=>{
+        this.loading=false
+      })
+    }
   }
 }
 
