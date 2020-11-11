@@ -197,9 +197,7 @@ public class CouponUseController extends BaseController {
     @AnonymousAccess
     @ApiOperation("B端：根据核销码查询卡券信息")
     @GetMapping(value = "/getCouponDetail")
-    public ResponseEntity<Object> getCouponDetail(@RequestHeader(value = "token") String token, @RequestParam(value = "verifyCode") String verifyCode,
-                                                  @RequestParam(value = "verifyAll",required = false) Integer verifyAll) {
-        // verifyAll 是否一键核销  1全部  0单个
+    public ResponseEntity<Object> getCouponDetail(@RequestHeader(value = "token") String token, @RequestParam(value = "verifyCode") String verifyCode) {
         // 获取登陆用户的id
         Map<String, String> map = new HashMap<>();
         SystemUser user = getRedisUser(token);
@@ -211,7 +209,7 @@ public class CouponUseController extends BaseController {
         } catch (Exception e) {
             throw new BadRequestException("无效卡券");
         }
-        return ResponseEntity.ok(this.yxCouponsService.getCouponByVerifyCode(decodeVerifyCode, uid));
+        return ResponseEntity.ok(this.yxCouponsService.getCouponByVerifyCode(decodeVerifyCode, user));
     }
 
 
@@ -284,7 +282,7 @@ public class CouponUseController extends BaseController {
         SystemUser user = getRedisUser(token);
 
         int uid = user.getId().intValue();
-        return ResponseEntity.ok(this.yxCouponsService.getCouponByOrderId(orderId, uid));
+        return ResponseEntity.ok(this.yxCouponsService.getCouponByOrderId(orderId, user));
     }
 
 

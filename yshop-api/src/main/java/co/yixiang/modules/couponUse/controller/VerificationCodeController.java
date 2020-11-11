@@ -11,6 +11,7 @@ import co.yixiang.logging.aop.log.Log;
 import co.yixiang.modules.couponUse.dto.AllShipsVO;
 import co.yixiang.modules.couponUse.dto.ShipUserVO;
 import co.yixiang.modules.coupons.service.YxCouponOrderService;
+import co.yixiang.modules.coupons.service.YxCouponsService;
 import co.yixiang.modules.manage.entity.SystemUser;
 import co.yixiang.modules.ship.service.YxShipSeriesService;
 import co.yixiang.modules.user.service.YxUserService;
@@ -40,6 +41,8 @@ public class VerificationCodeController extends BaseController {
     private YxUserService yxUserService;
     @Autowired
     private YxShipSeriesService yxShipSeriesService;
+    @Autowired
+    private YxCouponsService yxCouponsService;
 
 
     // shipId 船只id   shipUserId  船长id
@@ -68,8 +71,8 @@ public class VerificationCodeController extends BaseController {
     @NeedLogin
     @ApiOperation("B端：扫码获取船票订单信息")
     @AnonymousAccess
-    @PostMapping(value = "/getUseCouponInfo")
-    public ResponseEntity<Object> getUseCouponInfo(@RequestHeader(value = "token") String token
+    @PostMapping(value = "/getShipCouponInfo")
+    public ResponseEntity<Object> getShipCouponInfo(@RequestHeader(value = "token") String token
             , @RequestParam(value = "verifyCode") String verifyCode) {
         // 获取登陆用户的id
         Map<String, String> map = new HashMap<>();
@@ -83,7 +86,7 @@ public class VerificationCodeController extends BaseController {
         }
 
         // TODO: 2020/11/8
-        return ResponseEntity.ok(null);
+        return ResponseEntity.ok(this.yxCouponsService.getShipCouponInfo(decodeVerifyCode, user));
     }
 
 

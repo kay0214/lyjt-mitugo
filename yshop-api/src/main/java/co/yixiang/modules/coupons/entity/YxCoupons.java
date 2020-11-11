@@ -141,5 +141,9 @@ private Integer sort;
 @ApiModelProperty(value = "分佣模式（0：按平台，1：不分佣，2：自定义分佣）")
 private Integer customizeType;
 
+    @ApiModelProperty(value = "船只系列id")
+    private Integer seriesId;
+    @ApiModelProperty(value = "船只id")
+    private Integer shipId;
 
 }
