@@ -1,10 +1,12 @@
 package co.yixiang.modules.user.service;
 
-import co.yixiang.modules.user.entity.YxUsedContacts;
 import co.yixiang.common.service.BaseService;
-import co.yixiang.modules.user.web.param.YxUsedContactsQueryParam;
-import co.yixiang.modules.user.web.vo.YxUsedContactsQueryVo;
 import co.yixiang.common.web.vo.Paging;
+import co.yixiang.modules.coupons.web.param.YxCouponOrderPassengParam;
+import co.yixiang.modules.user.entity.YxUsedContacts;
+import co.yixiang.modules.user.web.param.YxUsedContactsQueryParam;
+import co.yixiang.modules.user.web.vo.YxUsedContactsOrderQueryVo;
+import co.yixiang.modules.user.web.vo.YxUsedContactsQueryVo;
 
 import java.io.Serializable;
 
@@ -32,4 +34,11 @@ public interface YxUsedContactsService extends BaseService<YxUsedContacts> {
      */
     Paging<YxUsedContactsQueryVo> getYxUsedContactsPageList(YxUsedContactsQueryParam yxUsedContactsQueryParam) throws Exception;
 
+    /**
+     * 小程序端选择乘客
+     * @param orderId
+     * @param userCount
+     * @return
+     */
+    YxUsedContactsOrderQueryVo getUsedContactsByUserId(YxCouponOrderPassengParam yxCouponOrderQueryParam);
 }

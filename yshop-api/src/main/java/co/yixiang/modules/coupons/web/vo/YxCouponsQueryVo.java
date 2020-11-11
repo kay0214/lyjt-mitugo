@@ -1,5 +1,6 @@
 package co.yixiang.modules.coupons.web.vo;
 
+import co.yixiang.modules.contract.web.vo.YxContractTemplateQueryVo;
 import co.yixiang.modules.ship.web.vo.YxShipSeriesQueryVo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -206,10 +207,15 @@ public class YxCouponsQueryVo implements Serializable {
     @ApiModelProperty(value = "健康确认(逗号分隔) ")
     private String confirmation;
 
+    @ApiModelProperty(value = "健康确认(数组) ")
+    private List<String> confirmationList;
+
     @ApiModelProperty(value = "分佣模式（0：按平台，1：不分佣，2：自定义分佣）")
     private Integer customizeType;
 
     @ApiModelProperty(value = "船只系列信息 ")
     private YxShipSeriesQueryVo shipSeries;
 
+    @ApiModelProperty(value = "合同信息 ")
+    private YxContractTemplateQueryVo contractTemplateQueryVo;
 }

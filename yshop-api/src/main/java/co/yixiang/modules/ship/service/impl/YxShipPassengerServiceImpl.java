@@ -1,21 +1,33 @@
 package co.yixiang.modules.ship.service.impl;
 
+import co.yixiang.common.service.impl.BaseServiceImpl;
+import co.yixiang.common.web.vo.Paging;
+import co.yixiang.exception.BadRequestException;
+import co.yixiang.modules.coupons.entity.YxCouponOrder;
+import co.yixiang.modules.coupons.entity.YxCouponOrderDetail;
+import co.yixiang.modules.coupons.mapper.YxCouponOrderMapper;
+import co.yixiang.modules.coupons.service.YxCouponOrderDetailService;
+import co.yixiang.modules.coupons.web.param.YxCouponComfirmRideParam;
+import co.yixiang.modules.coupons.web.param.YxCouponOrderPassDetailParam;
 import co.yixiang.modules.ship.entity.YxShipPassenger;
 import co.yixiang.modules.ship.mapper.YxShipPassengerMapper;
 import co.yixiang.modules.ship.service.YxShipPassengerService;
 import co.yixiang.modules.ship.web.param.YxShipPassengerQueryParam;
 import co.yixiang.modules.ship.web.vo.YxShipPassengerQueryVo;
-import co.yixiang.common.service.impl.BaseServiceImpl;
-import co.yixiang.common.web.vo.Paging;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
-
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.metadata.OrderItem;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
+
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -34,6 +46,11 @@ public class YxShipPassengerServiceImpl extends BaseServiceImpl<YxShipPassengerM
     @Autowired
     private YxShipPassengerMapper yxShipPassengerMapper;
 
+    @Autowired
+    private YxCouponOrderMapper yxCouponOrderMapper;
+    @Autowired
+    private YxCouponOrderDetailService yxCouponOrderDetailService;
+
     @Override
     public YxShipPassengerQueryVo getYxShipPassengerById(Serializable id) throws Exception{
         return yxShipPassengerMapper.getYxShipPassengerById(id);
@@ -46,4 +63,50 @@ public class YxShipPassengerServiceImpl extends BaseServiceImpl<YxShipPassengerM
         return new Paging(iPage);
     }
 
+    //
+
+    /**
+     * 确认乘坐，保存乘客信息
+     * @param couponComfirmRideParam
+     */
+    @Transactional
+    @Override
+    public boolean saveComfrieRideInfo(YxCouponComfirmRideParam couponComfirmRideParam){
+        //
+        List<YxShipPassenger> yxShipPassengerList = new ArrayList<>();
+        List<YxCouponOrderPassDetailParam> passDetailParamList = couponComfirmRideParam.getPassengerList();
+        if(CollectionUtils.isEmpty(passDetailParamList)){
+            throw new BadRequestException("乘客信息错误！");
+        }
+        for(YxCouponOrderPassDetailParam yxCouponOrderPassDetailParam:passDetailParamList){
+            YxShipPassenger yxShipPassenger = new YxShipPassenger();
+            YxShipPassengerQueryVo passengerQueryVo = yxShipPassengerMapper.getYxShipPassengerById(yxCouponOrderPassDetailParam.getContactsId());
+            BeanUtils.copyProperties(passengerQueryVo,yxShipPassenger);
+            yxShipPassenger.setIsAdult(yxCouponOrderPassDetailParam.getIsAdult());
+            yxShipPassenger.setSignStatus(yxCouponOrderPassDetailParam.getSignStatus());
+            yxShipPassengerList.add(yxShipPassenger);
+        }
+        //批量保存乘客信息
+       boolean instFlg = this.saveBatch(yxShipPassengerList);
+
+        couponComfirmRideParam.getOrderId();
+        YxCouponOrder couponOrder = yxCouponOrderMapper.selectById(couponComfirmRideParam.getOrderId());
+        //使用张数
+        QueryWrapper<YxCouponOrderDetail> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().eq(YxCouponOrderDetail::getOrderId,couponOrder.getOrderId()).eq(YxCouponOrderDetail::getDelFlag,0);
+        List<YxCouponOrderDetail> detailList = yxCouponOrderDetailService.list(queryWrapper);
+        if(CollectionUtils.isEmpty(detailList)){
+            throw new BadRequestException("获取卡券订单详情数据错误！订单id："+couponOrder.getOrderId());
+        }
+        for(int i=0;i<couponComfirmRideParam.getUsedNum();i++) {
+            YxCouponOrderDetail orderDetail = detailList.get(i);
+            //可用
+            orderDetail.setUserStatus(1);
+        }
+        boolean updFlg = yxCouponOrderDetailService.saveOrUpdateBatch(detailList);
+        if (instFlg && updFlg) {
+            return true;
+        }
+        return false;
+    }
 }

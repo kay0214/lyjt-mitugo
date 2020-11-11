@@ -14,6 +14,8 @@ import co.yixiang.modules.commission.entity.YxCommissionRate;
 import co.yixiang.modules.commission.entity.YxCustomizeRate;
 import co.yixiang.modules.commission.service.YxCommissionRateService;
 import co.yixiang.modules.commission.service.YxCustomizeRateService;
+import co.yixiang.modules.contract.service.YxContractTemplateService;
+import co.yixiang.modules.contract.web.vo.YxContractTemplateQueryVo;
 import co.yixiang.modules.coupons.service.YxCouponsService;
 import co.yixiang.modules.coupons.web.param.YxCouponsQueryParam;
 import co.yixiang.modules.coupons.web.vo.YxCouponsQueryVo;
@@ -23,6 +25,7 @@ import co.yixiang.modules.ship.service.YxShipInfoService;
 import co.yixiang.modules.ship.service.YxShipSeriesService;
 import co.yixiang.modules.ship.web.vo.YxShipInfoQueryVo;
 import co.yixiang.utils.DateUtils;
+import co.yixiang.utils.StringUtils;
 import com.alicp.jetcache.anno.CacheRefresh;
 import com.alicp.jetcache.anno.CacheType;
 import com.alicp.jetcache.anno.Cached;
@@ -39,6 +42,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.validation.Valid;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -68,6 +72,8 @@ public class YxCouponsController extends BaseController {
     private YxShipSeriesService yxShipSeriesService;
     @Autowired
     private YxCustomizeRateService yxCustomizeRateService;
+    @Autowired
+    private YxContractTemplateService yxContractTemplateService;
     /**
      * 获取本地生活, 卡券详情
      */
@@ -136,6 +142,10 @@ public class YxCouponsController extends BaseController {
         }
         yxCouponsQueryVo.setCommission(bigCommission);
 
+        if(StringUtils.isNotBlank(yxCouponsQueryVo.getConfirmation())){
+            List<String> stringList = Arrays.asList(yxCouponsQueryVo.getConfirmation().split(","));
+            yxCouponsQueryVo.setConfirmationList(stringList);
+        }
 
         //船只信息
         if(4==yxCouponsQueryVo.getCouponType()){
@@ -144,6 +154,12 @@ public class YxCouponsController extends BaseController {
             yxCouponsQueryVo.setShipName(shipInfoQueryVo.getShipName());
             //船只系列信息
             yxCouponsQueryVo.setShipSeries(yxShipSeriesService.getYxShipSeriesById(yxCouponsQueryVo.getSeriesId()));
+            //合同信息
+            YxContractTemplateQueryVo templateQueryVo = null;
+            if (0 != yxCouponsQueryVo.getTempId()) {
+                templateQueryVo = yxContractTemplateService.getYxContractTemplateById(yxCouponsQueryVo.getTempId());
+            }
+            yxCouponsQueryVo.setContractTemplateQueryVo(templateQueryVo);
         }
         return ApiResult.ok(yxCouponsQueryVo);
     }

@@ -90,7 +90,7 @@ public class YxShipOperationController {
     @Log("海安支队大屏")
     @ApiOperation("海安支队大屏")
     @PreAuthorize("@el.check('admin','yxShipOperation:list')")
-    @PostMapping(value = "/hazdShowList")
+    @GetMapping(value = "/hazdShowList")
     public ResponseEntity<Object> hazdShowList(YxShipOperationQueryCriteria criteria, Pageable pageable) {
         return new ResponseEntity<>(yxShipOperationService.findOperationList(criteria, pageable), HttpStatus.OK);
     }

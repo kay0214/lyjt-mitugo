@@ -5,6 +5,7 @@
 package co.yixiang.utils;
 
 import cn.hutool.core.date.DateTime;
+import co.yixiang.exception.ErrorRequestException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
 
@@ -12,7 +13,11 @@ import java.lang.management.ManagementFactory;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.*;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Calendar;
 import java.util.Date;
 
 /**
@@ -302,4 +307,37 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
     public static Timestamp getDayEnd(Timestamp timestamp) {
         return Timestamp.valueOf(timestamp.toLocalDateTime().toLocalDate().toString() + " 23:59:59");
     }
+
+    /**
+     * 根据身份证号计算年龄
+     * @param idCardNo
+     * @return
+     */
+    public static Integer IdCardNoToAge(String idCardNo) {
+
+        if (co.yixiang.utils.StringUtils.isBlank(idCardNo)) {
+            throw new ErrorRequestException("身份证号为空！");
+        }
+
+        if (idCardNo.length() != 15 && idCardNo.length() != 18) {
+            throw new ErrorRequestException("身份证号长度错误！");
+        }
+        Integer age = 0;
+        Calendar cal = Calendar.getInstance();
+        int yearNow = cal.get(Calendar.YEAR);
+        int monthNow = cal.get(Calendar.MONTH) + 1;
+        int dayNow = cal.get(Calendar.DATE);
+
+        int year = Integer.valueOf(idCardNo.substring(6, 10));
+        int month = Integer.valueOf(idCardNo.substring(10, 12));
+        int day = Integer.valueOf(idCardNo.substring(12, 14));
+
+        if ((month < monthNow) || (month == monthNow && day <= dayNow)) {
+            age =yearNow - year;
+        } else {
+            age = yearNow - year - 1;
+        }
+        return age;
+    }
+
 }

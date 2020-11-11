@@ -1,5 +1,6 @@
 package co.yixiang.modules.ship.web.vo;
 
+import co.yixiang.common.mybatis.GeoPoint;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -51,7 +52,7 @@ private String shipProvince;
 private String shipAddress;
 
 @ApiModelProperty(value = "地图坐标")
-private String coordinate;
+private GeoPoint coordinate;
 
 @ApiModelProperty(value = "地图坐标经度")
 private String coordinateX;

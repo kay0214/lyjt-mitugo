@@ -17,6 +17,14 @@ import co.yixiang.constant.SystemConfigConstants;
 import co.yixiang.enums.*;
 import co.yixiang.exception.BadRequestException;
 import co.yixiang.exception.ErrorRequestException;
+import co.yixiang.modules.commission.entity.YxCommissionRate;
+import co.yixiang.modules.commission.entity.YxCustomizeRate;
+import co.yixiang.modules.commission.entity.YxNowRate;
+import co.yixiang.modules.commission.service.YxCommissionRateService;
+import co.yixiang.modules.commission.service.YxCustomizeRateService;
+import co.yixiang.modules.commission.service.YxNowRateService;
+import co.yixiang.modules.contract.mapper.YxContractTemplateMapper;
+import co.yixiang.modules.contract.web.vo.YxContractTemplateQueryVo;
 import co.yixiang.modules.coupons.entity.YxCouponOrder;
 import co.yixiang.modules.coupons.entity.YxCouponOrderDetail;
 import co.yixiang.modules.coupons.entity.YxCouponOrderUse;
@@ -43,9 +51,13 @@ import co.yixiang.modules.order.web.param.RefundParam;
 import co.yixiang.modules.ship.entity.YxShipInfo;
 import co.yixiang.modules.ship.entity.YxShipOperation;
 import co.yixiang.modules.ship.entity.YxShipOperationDetail;
+import co.yixiang.modules.ship.mapper.YxShipInfoMapper;
+import co.yixiang.modules.ship.mapper.YxShipSeriesMapper;
 import co.yixiang.modules.ship.service.YxShipInfoService;
 import co.yixiang.modules.ship.service.YxShipOperationDetailService;
 import co.yixiang.modules.ship.service.YxShipOperationService;
+import co.yixiang.modules.ship.web.vo.YxShipInfoQueryVo;
+import co.yixiang.modules.ship.web.vo.YxShipSeriesQueryVo;
 import co.yixiang.modules.shop.entity.YxStoreInfo;
 import co.yixiang.modules.shop.service.YxStoreInfoService;
 import co.yixiang.modules.shop.service.YxSystemConfigService;
@@ -158,7 +170,19 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
     @Autowired
     private YxShipInfoService yxShipInfoService;
 
+    @Autowired
+    private YxCustomizeRateService yxCustomizeRateService;
+    @Autowired
+    private YxNowRateService yxNowRateService;
+    @Autowired
+    private YxCommissionRateService commissionRateService;
 
+    @Autowired
+    private YxShipSeriesMapper yxShipSeriesMapper;
+    @Autowired
+    private YxShipInfoMapper yxShipInfoMapper;
+    @Autowired
+    private YxContractTemplateMapper yxContractTemplateMapper;
 
     @Value("${yshop.snowflake.datacenterId}")
     private Integer datacenterId;
@@ -337,9 +361,16 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
 //            couponOrder.setVerifyCode(StrUtil.sub(orderSn, orderSn.length(), -12));
 //        }
 
+        //在线发票（0：不支持，1：支持）
+        couponOrder.setOnlineInvoice(coupons.getOnlineInvoice());
         boolean res = save(couponOrder);
         if (!res) throw new ErrorRequestException("订单生成失败");
 
+        int userStatus = 1;
+        if(4==coupons.getCouponType()){
+            //船票券 默认为0：不可用
+            userStatus = 0;
+        }
         // 插入detail表相关
         List<YxCouponOrderDetail> details = new ArrayList<>();
         for (int row = 0; row < totalNum; row++) {
@@ -356,6 +387,8 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
             couponOrderDetail.setRemark("");
             couponOrderDetail.setCreateUserId(uid);
             couponOrderDetail.setCreateTime(DateTime.now());
+            //核销状态 0：不可用 1：可用
+            couponOrderDetail.setUserStatus(userStatus);
             details.add(couponOrderDetail);
         }
         res = this.yxCouponOrderDetailService.saveBatch(details);
@@ -380,6 +413,10 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
 //                LocalLiveConstants.REDIS_COUPON_ORDER_OUTTIME_UNPAY, couponOrder.getId()));
 //        redisTemplate.opsForValue().set(redisKey, couponOrder.getOrderId(),
 //                LocalLiveConstants.ORDER_OUTTIME_UNPAY, TimeUnit.MINUTES);
+
+        // add 保存购买时费率
+        YxNowRate nowRate = setNowRateByCouponId(coupons,couponOrder);
+        yxNowRateService.save(nowRate);
 
         return couponOrder;
     }
@@ -881,7 +918,40 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         if (storeImage != null) {
             item.setStoreImage(storeImage.getImgUrl());
         }
+        //船只信息
+        if(4==yxCoupons.getCouponType()){
+            //船票券
+            YxShipSeriesQueryVo yxShipSeriesQueryVo = yxShipSeriesMapper.getYxShipSeriesById(yxCoupons.getSeriesId());
+            YxShipInfoQueryVo yxShipInfoQueryVo = yxShipInfoMapper.getYxShipInfoById(yxCoupons.getShipId());
+            //合同模板
+            YxContractTemplateQueryVo yxContractTemplateQueryVo =  yxContractTemplateMapper.getYxContractTemplateById(yxCoupons.getTempId());
 
+            if(null==yxShipSeriesQueryVo){
+                throw new BadRequestException("船票券 卡券id："+yxCoupons.getId()+" 获取船只系列信息失败！seriesId " +yxCoupons.getSeriesId());
+            }
+            if(null ==yxShipInfoQueryVo){
+                throw new BadRequestException("船票券 卡券id："+yxCoupons.getId()+" 获取船只信息失败！shipId"+yxCoupons.getShipId());
+            }
+            if(null==yxContractTemplateQueryVo){
+                throw new BadRequestException("船票券 卡券id："+yxCoupons.getId()+" 获取合同模板信息失败！tempId = "+yxCoupons.getTempId());
+            }
+            //船只名称
+            item.setShipName(yxShipInfoQueryVo.getShipName());
+            //船只坐标
+            item.setShipCoordinate(yxShipSeriesQueryVo.getCoordinate());
+            item.setShipCoordinateX(yxShipSeriesQueryVo.getCoordinateX());
+            item.setShipCoordinateY(yxShipSeriesQueryVo.getCoordinateY());
+            item.setShipAddress(yxShipSeriesQueryVo.getShipAddress());
+            item.setSeriesName(yxShipSeriesQueryVo.getSeriesName());
+            //健康确认
+            if(StringUtils.isNotBlank(yxCoupons.getConfirmation())){
+                List<String> stringList = Arrays.asList(yxCoupons.getConfirmation().split(","));
+                item.setConfirmationList(stringList);
+            }
+            //合同模板信息
+            item.setTempFilePath(yxContractTemplateQueryVo.getFilePath());
+            item.setTempName(yxContractTemplateQueryVo.getTempName());
+        }
         return item;
     }
 
@@ -1440,4 +1510,30 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         map.put("yxStoreInfo",yxStoreInfo);
         return map;
     }
+
+    private YxNowRate setNowRateByCouponId(YxCoupons yxCoupons,YxCouponOrder couponOrder){
+        //
+        YxNowRate nowRate = new YxNowRate();
+        //本地生活
+        nowRate.setRateType(0);
+        nowRate.setOrderId(couponOrder.getOrderId());
+        switch (yxCoupons.getCustomizeType()){
+            case 0:
+                YxCommissionRate commissionRate = commissionRateService.getOne(new QueryWrapper<YxCommissionRate>().eq("del_flag", 0));
+                BeanUtils.copyProperties(commissionRate,nowRate);
+                break;
+            case 1:break;
+            case 2:
+                YxCustomizeRate yxCustomizeRate = yxCustomizeRateService.getCustomizeRateByParam(0,yxCoupons.getId());
+                BeanUtils.copyProperties(yxCustomizeRate,nowRate);
+                break;
+        }
+        nowRate.setDelFlag(0);
+        nowRate.setCreateUserId(couponOrder.getCreateUserId());
+        nowRate.setCreateTime(DateTime.now());
+        nowRate.setUpdateUserId(couponOrder.getCreateUserId());
+        nowRate.setUpdateTime(DateTime.now());
+        return nowRate;
+    }
+
 }

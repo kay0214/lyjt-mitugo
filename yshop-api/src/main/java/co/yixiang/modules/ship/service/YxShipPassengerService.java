@@ -1,10 +1,11 @@
 package co.yixiang.modules.ship.service;
 
-import co.yixiang.modules.ship.entity.YxShipPassenger;
 import co.yixiang.common.service.BaseService;
+import co.yixiang.common.web.vo.Paging;
+import co.yixiang.modules.coupons.web.param.YxCouponComfirmRideParam;
+import co.yixiang.modules.ship.entity.YxShipPassenger;
 import co.yixiang.modules.ship.web.param.YxShipPassengerQueryParam;
 import co.yixiang.modules.ship.web.vo.YxShipPassengerQueryVo;
-import co.yixiang.common.web.vo.Paging;
 
 import java.io.Serializable;
 
@@ -31,5 +32,11 @@ public interface YxShipPassengerService extends BaseService<YxShipPassenger> {
      * @return
      */
     Paging<YxShipPassengerQueryVo> getYxShipPassengerPageList(YxShipPassengerQueryParam yxShipPassengerQueryParam) throws Exception;
+
+    /**
+     * 确认乘坐，保存乘客信息
+     * @param couponComfirmRideParam
+     */
+    boolean saveComfrieRideInfo(YxCouponComfirmRideParam couponComfirmRideParam);
 
 }

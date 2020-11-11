@@ -15,7 +15,6 @@ import co.yixiang.exception.BadRequestException;
 import co.yixiang.modules.coupon.domain.YxCouponOrder;
 import co.yixiang.modules.coupon.service.mapper.YxCouponOrderMapper;
 import co.yixiang.modules.coupon.service.mapper.YxCouponsMapper;
-import co.yixiang.modules.shipManage.domain.YxContractTemplate;
 import co.yixiang.modules.shipManage.domain.YxShipOperation;
 import co.yixiang.modules.shipManage.domain.YxShipOperationDetail;
 import co.yixiang.modules.shipManage.domain.YxShipPassenger;
@@ -29,7 +28,10 @@ import co.yixiang.modules.shipManage.service.mapper.YxContractTemplateMapper;
 import co.yixiang.modules.shipManage.service.mapper.YxShipOperationDetailMapper;
 import co.yixiang.modules.shipManage.service.mapper.YxShipOperationMapper;
 import co.yixiang.modules.shipManage.service.mapper.YxShipPassengerMapper;
-import co.yixiang.utils.*;
+import co.yixiang.utils.BeanUtils;
+import co.yixiang.utils.CommonsUtils;
+import co.yixiang.utils.DateUtils;
+import co.yixiang.utils.FileUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -295,7 +297,7 @@ public class YxShipOperationServiceImpl extends BaseServiceImpl<YxShipOperationM
             throw new BadRequestException("根据批次号：" +batchNo + " 获取运营详情数据错误！");
         }
         //
-        int tempId = yxCouponsMapper.getTempIdByOrderId(shipOperationDetails.get(0).getCouponOrderId());
+        /*int tempId = yxCouponsMapper.getTempIdByOrderId(shipOperationDetails.get(0).getCouponOrderId());
         if (0 == tempId) {
             //未配置模板
             throw new BadRequestException("批次号：" +batchNo + " 未配置模板！");
@@ -303,7 +305,7 @@ public class YxShipOperationServiceImpl extends BaseServiceImpl<YxShipOperationM
         YxContractTemplate contractTemplate = yxContractTemplateMapper.selectById(tempId);
         //合同模板地址
         contractTemplate.getFilePath();
-        FileUtils.downloadZipFiles(response, nameList, fileName);
+        FileUtils.downloadZipFiles(response, nameList, fileName);*/
         return false;
     }
 

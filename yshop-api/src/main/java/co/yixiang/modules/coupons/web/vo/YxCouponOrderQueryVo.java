@@ -169,4 +169,30 @@ public class YxCouponOrderQueryVo implements Serializable {
 
     @ApiModelProperty(value = "店铺缩略图")
     private String storeImage;
+
+    // 以下为船只信息
+    @ApiModelProperty(value = "船只名称")
+    private String shipName;
+    @ApiModelProperty(value = "系列名称")
+    private String seriesName;
+
+    @ApiModelProperty(value = "乘船地图坐标")
+    private GeoPoint shipCoordinate;
+
+    @ApiModelProperty(value = "乘船地图坐标经度")
+    private String shipCoordinateX;
+
+    @ApiModelProperty(value = "乘船地图坐标纬度")
+    private String shipCoordinateY;
+
+    @ApiModelProperty(value = "乘船地址")
+    private String shipAddress;
+    @ApiModelProperty(value = "健康确认(数组) ")
+    private List<String> confirmationList;
+    @ApiModelProperty(value = "模板名称")
+    private String tempName;
+
+    @ApiModelProperty(value = "模板文件地址")
+    private String tempFilePath;
+
 }
