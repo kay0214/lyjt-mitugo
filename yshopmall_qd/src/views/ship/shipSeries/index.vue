@@ -23,7 +23,8 @@
               </el-select>
           </el-form-item>
           <el-form-item label="限乘人数" prop="rideLimit">
-            <el-input v-model.number="form.rideLimit" style="width: 370px;" type="number" :max="1000"/>
+            <el-input-number v-model="form.rideLimit" style="width: 370px;" :max="1000" :min="0"
+            @change="()=>{$refs.form.validateField('rideLimit')}"/>
           </el-form-item>
           <el-form-item label="尺寸" prop="shipSize">
             <el-input v-model="form.shipSize" style="width: 370px;" maxlength="15"/>
@@ -37,10 +38,11 @@
             </el-cascader>
           </el-form-item>
           <el-form-item label="乘船地址" prop="shipAddress">
-            <el-input v-model="form.shipAddress" style="width: 370px;" maxlength="50"/>
+            <el-input v-model="form.shipAddress" style="width: 370px;" maxlength="50"
+                      @change="codeAddress"/>
           </el-form-item>
           <el-form-item label=" ">
-            <div id="mapContainer" style="width:700px;height:300px;"></div>
+            <div id="mapContainer" style="width:370px;height:300px;"></div>
           </el-form-item>
           <el-form-item label="帆船状态" prop="status">
             <el-radio-group v-model="form.status">
@@ -123,7 +125,7 @@ const defaultCrud = CRUD({ title: '船只系列', url: 'api/yxShipSeries', sort:
   }
 })
 const defaultForm = { id: null, seriesName: null, shipCategory: null, rideLimit: null, shipSize: null,
-  status: 1, shipProvince: null, shipAddress: null,  coordinateX: 39, coordinateY: 116, delFlag: null,
+  status: 1, shipProvince: null, shipAddress: null,  coordinateX: null, coordinateY: null, delFlag: null,
   createUserId: null, updateUserId: null, createTime: null, updateTime: null, merId:null, storeId:null }
 export default {
   name: 'YxShipSeries',
@@ -146,8 +148,7 @@ export default {
           { required: true, message: '船只类别不能为空', trigger: 'blur' }
         ],
         rideLimit: [
-          { required: true,type: 'number', message: '限乘人数不能为空', trigger: 'blur' },
-          // { max: '1000', message: '限乘人数小于等于1000', trigger: 'blur' }
+          { required: true, message: '限乘人数不能为空', trigger: 'blur' }
         ],
         shipSize: [
           { required: true, message: '尺寸不能为空', trigger: 'blur' }
