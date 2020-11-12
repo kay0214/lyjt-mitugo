@@ -6,6 +6,7 @@ import co.yixiang.modules.coupons.web.param.YxCouponsReplyQueryParam;
 import co.yixiang.modules.coupons.web.vo.YxCouponsReplyQueryVo;
 import co.yixiang.common.web.vo.Paging;
 import co.yixiang.modules.coupons.web.vo.couponReply.addReply.YxCouponsAddReplyRequest;
+import co.yixiang.modules.coupons.web.vo.couponReply.queryReply.YxCouponsReplyVO;
 
 import java.io.Serializable;
 
@@ -40,4 +41,12 @@ public interface YxCouponsReplyService extends BaseService<YxCouponsReply> {
      * @return
      */
     boolean createReply(YxCouponsAddReplyRequest request);
+
+    /**
+     * 处理评价数据
+     *
+     * @param yxCouponsReply
+     * @return
+     */
+    YxCouponsReplyVO convertCouponsReply(YxCouponsReply yxCouponsReply);
 }

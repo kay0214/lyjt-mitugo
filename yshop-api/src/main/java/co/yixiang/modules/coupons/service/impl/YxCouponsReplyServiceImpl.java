@@ -14,8 +14,11 @@ import co.yixiang.modules.coupons.service.YxCouponsReplyService;
 import co.yixiang.modules.coupons.web.param.YxCouponsReplyQueryParam;
 import co.yixiang.modules.coupons.web.vo.YxCouponsReplyQueryVo;
 import co.yixiang.modules.coupons.web.vo.couponReply.addReply.YxCouponsAddReplyRequest;
+import co.yixiang.modules.coupons.web.vo.couponReply.queryReply.YxCouponsReplyVO;
 import co.yixiang.modules.image.entity.YxImageInfo;
 import co.yixiang.modules.image.service.YxImageInfoService;
+import co.yixiang.modules.user.entity.YxUser;
+import co.yixiang.modules.user.service.YxUserService;
 import co.yixiang.utils.DateUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -50,6 +53,8 @@ public class YxCouponsReplyServiceImpl extends BaseServiceImpl<YxCouponsReplyMap
     private YxCouponOrderService yxCouponOrderService;
     @Autowired
     private YxImageInfoService yxImageInfoService;
+    @Autowired
+    private YxUserService yxUserService;
     @Autowired
     private IGenerator generator;
 
@@ -131,6 +136,26 @@ public class YxCouponsReplyServiceImpl extends BaseServiceImpl<YxCouponsReplyMap
         updateOrder.setUpdateTime(DateTime.now().toTimestamp());
         this.yxCouponOrderService.updateById(updateOrder);
         return true;
+    }
+
+    /**
+     * 处理评价数据
+     *
+     * @param yxCouponsReply
+     * @return
+     */
+    @Override
+    public YxCouponsReplyVO convertCouponsReply(YxCouponsReply yxCouponsReply) {
+        YxCouponsReplyVO replyVO = generator.convert(yxCouponsReply, YxCouponsReplyVO.class);
+        // 处理评论用户头像
+        YxUser yxUser = this.yxUserService.getById(yxCouponsReply.getUid());
+        if (null != yxUser) {
+            replyVO.setNickname(yxUser.getNickname());
+            replyVO.setAvatar(yxUser.getAvatar());
+        }
+        replyVO.setAddTimeStr(DateUtils.timestampToStr10(yxCouponsReply.getAddTime()));
+        replyVO.setMerchantReplyTimeStr(DateUtils.timestampToStr10(yxCouponsReply.getMerchantReplyTime()));
+        return replyVO;
     }
 
 }
