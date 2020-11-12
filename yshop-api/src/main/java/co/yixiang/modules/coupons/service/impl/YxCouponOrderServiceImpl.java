@@ -1098,6 +1098,7 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
             updateMerInfo(yxCouponOrder);
         }
         map.put("status", "1");
+        map.put("usedCount", usedCount);
         map.put("statusDesc", "核销成功");
         return map;
     }
