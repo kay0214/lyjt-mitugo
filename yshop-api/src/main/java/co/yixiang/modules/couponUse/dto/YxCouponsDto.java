@@ -254,5 +254,9 @@ public class YxCouponsDto implements Serializable {
     private String shipHealthStatus;
     // 乘客
     private List<YxShipPassengerVO> shipPassenger;
+    // 船只系列ID
+    private Integer seriesId;
+    // 船只ID
+    private Integer shipId;
 
 }
