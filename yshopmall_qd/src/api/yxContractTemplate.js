@@ -24,4 +24,11 @@ export function edit(data) {
   })
 }
 
+export function getContractTemp() {
+  return request({
+    url: 'api/yxContractTemplate/getContractTemp',
+    method: 'get'
+  })
+}
+
 export default { add, edit, del }
