@@ -127,9 +127,9 @@
               <el-select v-model="form.tempId" placeholder="请选择" style="width: 650px;">
                 <el-option
                   v-for="item in tempList"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value"
+                  :key="item.id"
+                  :label="item.tempName"
+                  :value="item.id"
                 />
               </el-select>
             </el-form-item>
@@ -145,9 +145,9 @@
                 <el-radio :label="0">不限</el-radio>
                 <el-radio :label="1">
                   其它
-                  <el-input v-show='form.validity' placeholder="请输入" v-model="form.validityDays">
+                  <el-input-number v-show='form.validity' placeholder="请输入" v-model="form.validityDays" :precision="0" :min="1">
                     <template slot="append">天</template>
-                  </el-input>
+                  </el-input-number>
                 </el-radio>
               </el-radio-group>
             </el-form-item>
@@ -534,7 +534,8 @@ const defaultForm = {
   awaysRefund: null, useCondition: null, availableTimeStart: null, availableTimeEnd: null,
   delFlag: null, createUserId: null, updateUserId: null, createTime: null, updateTime: null,
   content: null, expireDate: null, image: null, sliderImage: null,
-  sliderVideo:[], video:null,sort:null, couponInfo:null,insuranceRole:0,validity:0,onlineInvoice:0}
+  sliderVideo:[], video:null,sort:null, couponInfo:null,precision:1,
+  insuranceRole:0,validity:0,onlineInvoice:0}
 const imageArr = []
 if (defaultForm.image) { imageArr[0] = defaultForm.image }
 export default {
@@ -863,6 +864,9 @@ export default {
       if (form.sliderImage) {
         formSliderImageArr = form.sliderImage
         form.sliderImage=form.sliderImage.join(',')
+      }
+      if (form.confirmation && form.confirmation.length) {
+        this.confirmation=form.confirmation.split(',')
       }
       this.imageArr = formImage
       this.sliderImageArr = formSliderImageArr
