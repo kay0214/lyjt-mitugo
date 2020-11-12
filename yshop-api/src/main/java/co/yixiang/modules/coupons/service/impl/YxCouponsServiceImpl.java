@@ -492,9 +492,8 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
             resultVo.setPhone(CardNumUtil.mobileEncrypt(item.getPhone()));
             resultVo.setPassengerName(CardNumUtil.nameEncrypt(item.getPassengerName()));
             // 0:未成年 1:成年人 2：老年人
-            if(resultVo.getIsAdult().intValue()==1){
-                resultVo.setAgeArea("");
-            }else if(resultVo.getIsAdult().intValue()==0){
+            resultVo.setAgeArea("");
+            if(resultVo.getIsAdult().intValue()==0){
                 resultVo.setAgeArea("未成年");
             }else if(resultVo.getIsAdult().intValue()==2){
                 resultVo.setAgeArea("老年人");
@@ -510,11 +509,12 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
         // 健康状况
         yxCouponsDto.setShipHealthStatus("");
         // 乘客
-        yxCouponsDto.setShipPassenger(CommonsUtils.convertBeanList(couponUsers,YxShipPassengerVO.class));
+        yxCouponsDto.setShipPassenger(users);
         // 系列ID
         yxCouponsDto.setSeriesId(yxCoupons.getSeriesId());
         // 船只ID
         yxCouponsDto.setShipId(yxCoupons.getShipId());
+        yxCouponsDto.setStatus(1);
         return yxCouponsDto;
     }
 
@@ -527,6 +527,7 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
         yxCouponsDto.setBuyTime(DateUtils.timestampToStr10(yxCouponOrder.getPayTime(), DateUtils.YYYY_MM_DD_HH_MM_SS));
         yxCouponsDto.setAvailableTimeStr(yxCoupons.getAvailableTimeStart() + " ~ " + yxCoupons.getAvailableTimeEnd());
         yxCouponsDto.setExpireDateStr(DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD, yxCoupons.getExpireDateStart()) + " ~ " + DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD, yxCoupons.getExpireDateEnd()));
+        yxCouponsDto.setStatus(1);
         return yxCouponsDto;
     }
 

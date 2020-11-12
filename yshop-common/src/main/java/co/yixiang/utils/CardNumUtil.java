@@ -12,7 +12,7 @@ public class CardNumUtil {
         if (StringUtils.isEmpty(mobile) || (mobile.length() != 11)) {
             return mobile;
         }
-        return mobile.replaceAll("(\\d{3})\\d{4}(\\d{4})", "$1****$2");
+        return mobile.replaceAll("(\\d{3})\\d{4}(\\d{4})", "$1 ** ** $2");
     }
 
     //身份证前三后四脱敏
