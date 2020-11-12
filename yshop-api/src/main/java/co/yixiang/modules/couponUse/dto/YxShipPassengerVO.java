@@ -47,4 +47,6 @@ private Integer isAdult;
 
 @ApiModelProperty(value = "是否合同签订人 0:否 1:是")
 private Integer signStatus;
+
+private String ageArea;
 }

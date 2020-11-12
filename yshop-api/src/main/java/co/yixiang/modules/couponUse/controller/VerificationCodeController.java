@@ -85,7 +85,6 @@ public class VerificationCodeController extends BaseController {
             throw new BadRequestException("无效卡券");
         }
 
-        // TODO: 2020/11/8
         return ResponseEntity.ok(this.yxCouponsService.getShipCouponInfo(decodeVerifyCode, user));
     }
 

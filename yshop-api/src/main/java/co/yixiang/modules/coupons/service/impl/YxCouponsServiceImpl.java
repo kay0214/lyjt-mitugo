@@ -456,6 +456,7 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
         // 最多乘坐
         yxCouponsDto.setShipMaxUserCount(shipSeries.getRideLimit());
         List<YxShipPassenger> couponUsers = yxShipPassengerService.list(new QueryWrapper<YxShipPassenger>().eq("coupon_order_id", yxCouponOrder.getId()));
+        List<YxShipPassengerVO> users = new ArrayList<>();
         if(couponUsers == null || couponUsers.size()==0){
             yxCouponsDto.setStatus(99);
             yxCouponsDto.setStatusDesc("未选择乘坐人");
@@ -469,9 +470,19 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
             }else if(item.getIsAdult().intValue()==2){
                 oldCount ++;
             }
-            item.setIdCard(CardNumUtil.idEncrypt(item.getIdCard()));
-            item.setPhone(CardNumUtil.mobileEncrypt(item.getPhone()));
-            item.setPassengerName(CardNumUtil.nameEncrypt(item.getPassengerName()));
+            YxShipPassengerVO resultVo = CommonsUtils.convertBean(item,YxShipPassengerVO.class);
+            resultVo.setIdCard(CardNumUtil.idEncrypt(item.getIdCard()));
+            resultVo.setPhone(CardNumUtil.mobileEncrypt(item.getPhone()));
+            resultVo.setPassengerName(CardNumUtil.nameEncrypt(item.getPassengerName()));
+            // 0:未成年 1:成年人 2：老年人
+            if(resultVo.getIsAdult().intValue()==1){
+                resultVo.setAgeArea("");
+            }else if(resultVo.getIsAdult().intValue()==0){
+                resultVo.setAgeArea("未成年");
+            }else if(resultVo.getIsAdult().intValue()==2){
+                resultVo.setAgeArea("老年人");
+            }
+            users.add(resultVo);
         }
         // 订单人数
         yxCouponsDto.setShipUserCount(couponUsers.size());
@@ -483,7 +494,10 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
         yxCouponsDto.setShipHealthStatus("");
         // 乘客
         yxCouponsDto.setShipPassenger(CommonsUtils.convertBeanList(couponUsers,YxShipPassengerVO.class));
-
+        // 系列ID
+        yxCouponsDto.setSeriesId(yxCoupons.getSeriesId());
+        // 船只ID
+        yxCouponsDto.setShipId(yxCoupons.getShipId());
         return yxCouponsDto;
     }
 
