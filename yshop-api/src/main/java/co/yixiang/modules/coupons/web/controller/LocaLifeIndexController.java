@@ -5,24 +5,20 @@ import co.yixiang.common.api.ApiResult;
 import co.yixiang.common.web.vo.Paging;
 import co.yixiang.constant.CacheConstant;
 import co.yixiang.constant.LocalLiveConstants;
+import co.yixiang.modules.coupons.web.param.IndexTabQueryParam;
 import co.yixiang.modules.coupons.web.param.LocalLiveQueryParam;
 import co.yixiang.modules.coupons.web.vo.*;
-import co.yixiang.modules.shop.entity.SystemGroupDataValue;
-import co.yixiang.modules.shop.entity.YxSystemGroupData;
 import co.yixiang.modules.shop.service.YxStoreInfoService;
 import co.yixiang.modules.shop.service.YxSystemGroupDataService;
 import co.yixiang.modules.system.service.YxNoticeService;
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alicp.jetcache.anno.CacheRefresh;
 import com.alicp.jetcache.anno.CacheType;
 import com.alicp.jetcache.anno.Cached;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -63,61 +59,48 @@ public class LocaLifeIndexController {
     @CacheRefresh(refresh = CacheConstant.DEFAULT_REFRESH_TIME, stopRefreshAfterLastAccess = CacheConstant.DEFAULT_STOP_REFRESH_TIME)
     @ApiOperation(value = "本地生活首页幻灯片",notes = "本地生活首页幻灯片",response = ApiResult.class)
     public ApiResult<LocalLiveIndexVo> getLocalLifeNav() throws Exception {
-        // 本地生活Banner下导航
-        List<YxSystemGroupData> localLiveMenu = yxSystemGroupDataService.list(new QueryWrapper<YxSystemGroupData>()
-                .eq("group_name", "local_live_menu").eq("status", 1).orderByAsc("sort").orderByDesc("add_time"));
 
         LocalLiveIndexVo localLiveIndexVo = new LocalLiveIndexVo();
 
-        List<LocalLifeSliderVo> menusList = new ArrayList<>();
-        if (localLiveMenu != null){
-            for (YxSystemGroupData menu : localLiveMenu){
-                LocalLifeSliderVo liveMenuVo = new LocalLifeSliderVo();
-                String jsonString = menu.getValue();
+        // 本地生活Banner下导航
+        List<LocalLifeSliderVo> menusList = yxSystemGroupDataService.getDataByGroupName("local_live_menu");
 
-                SystemGroupDataValue sliderSystemData = JSON.parseObject(jsonString, SystemGroupDataValue.class);
-                BeanUtils.copyProperties(sliderSystemData, liveMenuVo);
-                menusList.add(liveMenuVo);
-            }
-        }
         // 本地生活Banner上导航
-        List<YxSystemGroupData> localLiveLink = yxSystemGroupDataService.list(new QueryWrapper<YxSystemGroupData>()
-                .eq("group_name", "local_live_link").eq("status", 1).orderByAsc("sort").orderByDesc("add_time"));
-
-        List<LocalLifeSliderVo> linksList = new ArrayList<>();
-        if (localLiveLink != null){
-            for (YxSystemGroupData links : localLiveLink){
-                LocalLifeSliderVo liveLinkVo = new LocalLifeSliderVo();
-                String jsonString = links.getValue();
-
-                SystemGroupDataValue sliderSystemData = JSON.parseObject(jsonString, SystemGroupDataValue.class);
-                BeanUtils.copyProperties(sliderSystemData, liveLinkVo);
-                linksList.add(liveLinkVo);
-            }
-        }
+        List<LocalLifeSliderVo> linksList = yxSystemGroupDataService.getDataByGroupName("local_live_link");
 
         // 首页幻灯片
-        List<YxSystemGroupData> groupDataList = yxSystemGroupDataService.list(new QueryWrapper<YxSystemGroupData>()
-                .eq("group_name", "local_live_carousel").eq("status", 1).orderByAsc("sort").orderByDesc("add_time"));
-
-        List<LocalLifeSliderVo> sliderVos = new ArrayList<>();
-        if (groupDataList != null){
-            for (YxSystemGroupData yxSystemGroupData : groupDataList){
-                LocalLifeSliderVo localLifeSliderVo = new LocalLifeSliderVo();
-                String value = yxSystemGroupData.getValue();
-                SystemGroupDataValue sliderSystemData = JSON.parseObject(value, SystemGroupDataValue.class);
-                BeanUtils.copyProperties(sliderSystemData, localLifeSliderVo);
-                sliderVos.add(localLifeSliderVo);
-            }
-        }
+        List<LocalLifeSliderVo> sliderVos = yxSystemGroupDataService.getDataByGroupName("local_live_carousel");
+        // 设置首页的 模块1 的内容
+        List<LocalLifeSliderVo> module1 = yxSystemGroupDataService.getDataByGroupName("local_live_module1");
+        // 设置首页的 模块2 的内容
+        List<LocalLifeSliderVo> module2 = yxSystemGroupDataService.getDataByGroupName("local_live_module2");
+        // 设置首页的文字
+        localLiveIndexVo = yxSystemGroupDataService.setIndexTitle(localLiveIndexVo);
 
         // 首页通知公告
         NoticeVO noticeVO = noticeService.getIndexNotice();
         localLiveIndexVo.setNotice(noticeVO);
+
         localLiveIndexVo.setLocalLiveMenu(menusList);
         localLiveIndexVo.setLocalLiveLink(linksList);
         localLiveIndexVo.setSliderList(sliderVos);
+        localLiveIndexVo.setModule1(module1);
+        localLiveIndexVo.setModule2(module2);
         return ApiResult.ok(localLiveIndexVo);
+    }
+
+    @AnonymousAccess
+    @PostMapping("/getLocalLifeIndexTab")
+    @Cached(name="getLocalLifeIndexTab-", expire = CacheConstant.DEFAULT_EXPIRE_TIME, cacheType = CacheType.REMOTE)
+    @CacheRefresh(refresh = CacheConstant.DEFAULT_REFRESH_TIME, stopRefreshAfterLastAccess = CacheConstant.DEFAULT_STOP_REFRESH_TIME)
+    @ApiOperation(value = "本地生活首页tab数据",notes = "本地生活首页tab数据",response = ApiResult.class)
+    public ApiResult<Paging<LocalLifeSliderVo>> getLocalLifeNav(@Valid @RequestBody(required = false) IndexTabQueryParam
+                                                                   indexTabQueryParam) throws Exception {
+
+        // 本地生活首页tab数据
+        Paging<LocalLifeSliderVo> menusList = yxSystemGroupDataService.getDataByGroupNamePage(indexTabQueryParam);
+
+        return ApiResult.ok(menusList);
     }
 
     /**

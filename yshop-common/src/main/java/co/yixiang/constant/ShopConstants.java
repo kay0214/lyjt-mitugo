@@ -241,4 +241,12 @@ public interface ShopConstants {
 	 * 产品库存_key+：+id+：+unique
 	 */
 	public static final String SHOP_PRODUCT_STOCK = "shop_product_stock:";
+
+	/**首页文字  */
+	public static final String PAGE_INDEX_TITLE="PAGE_INDEX_TITLE:";
+	public static final String PAGE_INDEX_TITLE_1=PAGE_INDEX_TITLE+"1";
+	public static final String PAGE_INDEX_TITLE_2=PAGE_INDEX_TITLE+"2";
+	public static final String PAGE_INDEX_TITLE_3_1=PAGE_INDEX_TITLE+"3_1";
+	public static final String PAGE_INDEX_TITLE_3_2=PAGE_INDEX_TITLE+"3_2";
+	public static final String PAGE_INDEX_TITLE_3_3=PAGE_INDEX_TITLE+"3_3";
 }

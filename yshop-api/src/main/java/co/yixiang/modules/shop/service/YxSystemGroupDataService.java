@@ -4,6 +4,10 @@
 package co.yixiang.modules.shop.service;
 
 import co.yixiang.common.service.BaseService;
+import co.yixiang.common.web.vo.Paging;
+import co.yixiang.modules.coupons.web.param.IndexTabQueryParam;
+import co.yixiang.modules.coupons.web.vo.LocalLifeSliderVo;
+import co.yixiang.modules.coupons.web.vo.LocalLiveIndexVo;
 import co.yixiang.modules.shop.entity.YxSystemGroupData;
 
 import java.util.List;
@@ -23,4 +27,24 @@ public interface YxSystemGroupDataService extends BaseService<YxSystemGroupData>
 
     YxSystemGroupData findData(Integer id);
 
+    /**
+     * 设置首页的文字
+     * @param localLiveIndexVo
+     * @return
+     */
+    LocalLiveIndexVo setIndexTitle(LocalLiveIndexVo localLiveIndexVo);
+
+    /**
+     * 查询首页数据
+     * @param seachStr
+     * @return
+     */
+    List<LocalLifeSliderVo> getDataByGroupName(String seachStr);
+
+    /**
+     * 查询首页Tab数据
+     * @param indexTabQueryParam
+     * @return
+     */
+    Paging<LocalLifeSliderVo> getDataByGroupNamePage(IndexTabQueryParam indexTabQueryParam);
 }

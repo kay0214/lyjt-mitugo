@@ -17,4 +17,9 @@ public class LocalLifeSliderVo implements Serializable {
     private String url;
     private String wxappUrl;
     private String status;
+
+    private String price;
+    private String crossPrice;
+    // 展示方式  0纵向 1横向
+    private String showType;
 }
