@@ -205,7 +205,10 @@
             <el-input v-model="form.ficti" style="width: 650px;" maxlength="12" />
           </el-form-item>
           <el-form-item label="核销次数" prop="writeOff">
-            <el-input v-model="form.writeOff" style="width: 650px;" maxlength="2" />
+            <template v-if="form.couponType === 4">
+              <el-input v-model="form.writeOff=1" style="width: 650px;" readonly />
+            </template>
+            <el-input v-else v-model="form.writeOff" style="width: 650px;" maxlength="2" />
           </el-form-item>
           <el-form-item prop="expireDate" label="有效期">
             <el-date-picker
