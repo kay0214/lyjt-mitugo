@@ -15,6 +15,7 @@ import co.yixiang.modules.user.web.param.YxUsedContactsQueryParam;
 import co.yixiang.modules.user.web.vo.YxUsedContactsOrderQueryVo;
 import co.yixiang.modules.user.web.vo.YxUsedContactsQueryVo;
 import co.yixiang.utils.BeanUtils;
+import co.yixiang.utils.CardNumUtil;
 import co.yixiang.utils.DateUtils;
 import co.yixiang.utils.SecurityUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -54,34 +55,35 @@ public class YxUsedContactsServiceImpl extends BaseServiceImpl<YxUsedContactsMap
     private YxCouponOrderMapper yxCouponOrderMapper;
 
     @Override
-    public YxUsedContactsQueryVo getYxUsedContactsById(Serializable id) throws Exception{
+    public YxUsedContactsQueryVo getYxUsedContactsById(Serializable id) throws Exception {
         return yxUsedContactsMapper.getYxUsedContactsById(id);
     }
 
     @Override
-    public Paging<YxUsedContactsQueryVo> getYxUsedContactsPageList(YxUsedContactsQueryParam yxUsedContactsQueryParam) throws Exception{
-        Page page = setPageParam(yxUsedContactsQueryParam,OrderItem.desc("create_time"));
-        IPage<YxUsedContactsQueryVo> iPage = yxUsedContactsMapper.getYxUsedContactsPageList(page,yxUsedContactsQueryParam);
+    public Paging<YxUsedContactsQueryVo> getYxUsedContactsPageList(YxUsedContactsQueryParam yxUsedContactsQueryParam) throws Exception {
+        Page page = setPageParam(yxUsedContactsQueryParam, OrderItem.desc("create_time"));
+        IPage<YxUsedContactsQueryVo> iPage = yxUsedContactsMapper.getYxUsedContactsPageList(page, yxUsedContactsQueryParam);
         return new Paging(iPage);
     }
 
     /**
      * 小程序端选择乘客
+     *
      * @param orderId
      * @param userCount
      * @return
      */
     @Override
-    public YxUsedContactsOrderQueryVo getUsedContactsByUserId(YxCouponOrderPassengParam yxCouponOrderQueryParam){
+    public YxUsedContactsOrderQueryVo getUsedContactsByUserId(YxCouponOrderPassengParam yxCouponOrderQueryParam) {
         YxUsedContactsOrderQueryVo yxUsedContactsOrderQueryVo = new YxUsedContactsOrderQueryVo();
         //订单
         YxCouponOrderQueryVo couponOrderQueryVo = yxCouponOrderMapper.getYxCouponOrderById(yxCouponOrderQueryParam.getOrderId());
-        if(null!=couponOrderQueryVo){
-            throw new ErrorRequestException("订单信息不存在！订单id："+yxCouponOrderQueryParam.getOrderId());
+        if (null == couponOrderQueryVo) {
+            throw new ErrorRequestException("订单信息不存在！订单id：" + yxCouponOrderQueryParam.getOrderId());
         }
         YxCouponsQueryVo couponsQueryVo = yxCouponsMapper.getYxCouponsById(couponOrderQueryVo.getCouponId());
-        if(null!=couponsQueryVo){
-            throw new ErrorRequestException("卡券信息不存在！卡券id："+couponOrderQueryVo.getCouponId());
+        if (null == couponsQueryVo) {
+            throw new ErrorRequestException("卡券信息不存在！卡券id：" + couponOrderQueryVo.getCouponId());
         }
         // 乘客人数
         BigDecimal bigMaxPass = new BigDecimal(yxCouponOrderQueryParam.getUsedNum()).multiply(new BigDecimal(couponsQueryVo.getPassengersNum()));
@@ -89,8 +91,8 @@ public class YxUsedContactsServiceImpl extends BaseServiceImpl<YxUsedContactsMap
         //联系人信息
         Page<YxUsedContacts> pageModel = new Page<>(yxCouponOrderQueryParam.getPage(), yxCouponOrderQueryParam.getLimit());
         int uid = SecurityUtils.getUserId().intValue();
-        QueryWrapper<YxUsedContacts> queryWrapper =  new QueryWrapper();
-        queryWrapper.lambda().eq(YxUsedContacts::getUserId,uid).eq(YxUsedContacts::getDelFlag,0);
+        QueryWrapper<YxUsedContacts> queryWrapper = new QueryWrapper();
+        queryWrapper.lambda().eq(YxUsedContacts::getUserId, uid).eq(YxUsedContacts::getDelFlag, 0);
 
         IPage<YxUsedContacts> pageList = yxUsedContactsMapper.selectPage(pageModel, queryWrapper);
         if (null == pageList.getRecords() || pageList.getRecords().size() <= 0) {
@@ -99,7 +101,7 @@ public class YxUsedContactsServiceImpl extends BaseServiceImpl<YxUsedContactsMap
         List<YxUsedContacts> usedContactsList = pageList.getRecords();
         //联系人信息
         List<YxUsedContactsQueryVo> contactsQueryVoList = new ArrayList<>();
-        for(YxUsedContacts usedContacts:usedContactsList) {
+        for (YxUsedContacts usedContacts : usedContactsList) {
             //未成年人
             YxUsedContactsQueryVo usedContactsQueryVo = new YxUsedContactsQueryVo();
             int isAdult = 0;
@@ -109,13 +111,16 @@ public class YxUsedContactsServiceImpl extends BaseServiceImpl<YxUsedContactsMap
                 if (intAge >= 60) {
                     //岁数大于60 为老年人
                     isAdult = 2;
-                }else if(intAge <60 &&intAge>=18){
+                } else if (intAge < 60 && intAge >= 18) {
                     //小于60大于等于18 为成年人
                     isAdult = 1;
-                }else{
+                } else {
                     isAdult = 0;
                 }
             }
+
+            usedContactsQueryVo.setCardId(CardNumUtil.idEncrypt(usedContacts.getCardId()));
+            usedContactsQueryVo.setUserPhone(CardNumUtil.mobileEncrypt(usedContacts.getUserPhone()));
             usedContactsQueryVo.setIsAdult(isAdult);
             contactsQueryVoList.add(usedContactsQueryVo);
         }

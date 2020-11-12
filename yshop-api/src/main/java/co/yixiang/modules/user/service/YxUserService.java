@@ -4,6 +4,7 @@ import co.yixiang.common.service.BaseService;
 import co.yixiang.common.web.vo.Paging;
 import co.yixiang.modules.couponUse.dto.ShipUserVO;
 import co.yixiang.modules.manage.entity.SystemUser;
+import co.yixiang.modules.manage.entity.UsersRoles;
 import co.yixiang.modules.order.web.vo.YxStoreOrderQueryVo;
 import co.yixiang.modules.security.rest.param.LoginParam;
 import co.yixiang.modules.user.entity.YxUser;
@@ -136,4 +137,12 @@ public interface YxUserService extends BaseService<YxUser> {
      * @return
      */
     List<ShipUserVO> getAllShipUserByStoreId(int storeId);
+
+    /**
+     * 根据用户id获取角色
+     * @param uid
+     * @return
+     */
+    UsersRoles getUserRolesByUserId(Integer uid);
+
 }

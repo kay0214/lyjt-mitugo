@@ -1,10 +1,8 @@
 package co.yixiang.modules.coupons.web.param;
 
-import co.yixiang.common.web.param.QueryParam;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
 import java.util.List;
 
@@ -17,9 +15,8 @@ import java.util.List;
  * @date 2020-08-13
  */
 @Data
-@EqualsAndHashCode(callSuper = true)
 @ApiModel(value="YxCouponComfirmRideParam对象", description="确认乘坐参数对象")
-public class YxCouponComfirmRideParam extends QueryParam {
+public class YxCouponComfirmRideParam{
 
     @ApiModelProperty(value = "订单号")
     private Integer orderId;

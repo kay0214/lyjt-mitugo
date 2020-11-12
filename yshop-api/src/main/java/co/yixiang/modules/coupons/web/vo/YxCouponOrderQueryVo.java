@@ -152,7 +152,7 @@ public class YxCouponOrderQueryVo implements Serializable {
     @ApiModelProperty(value = "缩略图")
     private String image;
 
-    @ApiModelProperty(value = "卡券类型;1:代金券, 2:折扣券, 3:满减券")
+    @ApiModelProperty(value = "卡券类型;1:代金券, 2:折扣券, 3:满减券，4:船票券")
     private Integer couponType;
 
     @ApiModelProperty(value = "卡券名称")
@@ -199,4 +199,8 @@ public class YxCouponOrderQueryVo implements Serializable {
 
     @ApiModelProperty(value = "状态(0：展示立即使用，1：不展示)")
     private Integer shipOrderStatus;
+
+    @ApiModelProperty(value = "可用核销码")
+    private List<String> ableVerifyCode;
+
 }

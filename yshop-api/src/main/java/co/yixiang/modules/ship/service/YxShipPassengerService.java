@@ -8,6 +8,7 @@ import co.yixiang.modules.ship.web.param.YxShipPassengerQueryParam;
 import co.yixiang.modules.ship.web.vo.YxShipPassengerQueryVo;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * <p>
@@ -39,4 +40,10 @@ public interface YxShipPassengerService extends BaseService<YxShipPassenger> {
      */
     boolean saveComfrieRideInfo(YxCouponComfirmRideParam couponComfirmRideParam);
 
+    /**
+     * 根据订单编号获取乘客信息
+     * @param orderId
+     * @return
+     */
+    List<YxShipPassengerQueryVo> getPassengerByOrderId(int orderId);
 }

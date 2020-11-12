@@ -16,7 +16,9 @@ import co.yixiang.exception.BadRequestException;
 import co.yixiang.exception.ErrorRequestException;
 import co.yixiang.modules.couponUse.dto.ShipUserVO;
 import co.yixiang.modules.manage.entity.SystemUser;
+import co.yixiang.modules.manage.entity.UsersRoles;
 import co.yixiang.modules.manage.mapper.SystemUserMapper;
+import co.yixiang.modules.manage.mapper.UsersRolesMapper;
 import co.yixiang.modules.order.service.YxStoreOrderService;
 import co.yixiang.modules.order.web.vo.YxStoreOrderQueryVo;
 import co.yixiang.modules.security.rest.param.LoginParam;
@@ -59,6 +61,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.Serializable;
@@ -112,6 +115,9 @@ public class YxUserServiceImpl extends BaseServiceImpl<YxUserMapper, YxUser> imp
     private WxMaService wxMaService;
     @Autowired
     private YxWechatUserService wechatUserService;
+    @Autowired
+    private UsersRolesMapper usersRolesMapper;
+
     @Value("${single.login}")
     private Boolean singleLogin;
     @Value("${yshop.notify.sms.enable}")
@@ -854,10 +860,28 @@ public class YxUserServiceImpl extends BaseServiceImpl<YxUserMapper, YxUser> imp
     @Override
     public SystemUser getSystemUserById(Integer uid) {
         QueryWrapper<SystemUser> wrapper = new QueryWrapper<>();
-        wrapper.eq("id", uid).eq("merchants_status", 0)
+        /*wrapper.eq("id", uid).eq("merchants_status", 0)
                 .eq("user_role", 2)
+                .eq("enabled", 1);*/
+        wrapper.eq("id", uid)
                 .eq("enabled", 1);
         return systemUserMapper.selectOne(wrapper);
+    }
+
+    /**
+     * 根据用户id获取角色
+     * @param uid
+     * @return
+     */
+    @Override
+    public UsersRoles getUserRolesByUserId(Integer uid) {
+        QueryWrapper<UsersRoles> wrapper = new QueryWrapper<>();
+        wrapper.lambda().eq(UsersRoles::getUserId,uid);
+        List<UsersRoles> usersRolesList = usersRolesMapper.selectList(wrapper);
+        if(!CollectionUtils.isEmpty(usersRolesList)){
+            return usersRolesList.get(0);
+        }
+        return null;
     }
 
     /**
