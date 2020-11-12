@@ -145,7 +145,7 @@ public class YxLeaveMessageServiceImpl extends BaseServiceImpl<YxLeaveMessageMap
             }
         }
 
-        map.put("content", generator.convert(ipage.getRecords(), YxLeaveMessageDto.class));
+        map.put("content", resultList);
         map.put("totalElements", ipage.getTotal());
         return map;
     }

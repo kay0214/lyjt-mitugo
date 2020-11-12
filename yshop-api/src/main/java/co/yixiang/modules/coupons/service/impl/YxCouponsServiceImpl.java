@@ -45,7 +45,9 @@ import org.springframework.util.CollectionUtils;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -210,14 +212,18 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
     public YxCouponsDto getCouponByVerifyCode(String decodeVerifyCode, SystemUser user) {
 
         // 检查优惠券信息
-        YxCouponsDto yxCouponsDto = null;
-        YxCouponOrderDetail yxCouponOrderDetail = null;
-        YxCouponOrder yxCouponOrder = null;
-        YxCoupons yxCoupons = null ;
-        yxCouponsDto = checkCouponInfo(decodeVerifyCode,user,yxCouponOrderDetail,yxCouponOrder,yxCoupons);
+        YxCouponsDto yxCouponsDto = new YxCouponsDto();
+
+        Map<String , Object> checkResult = checkCouponInfo(decodeVerifyCode,user);
+        yxCouponsDto = (YxCouponsDto)checkResult.get("yxCouponsDto");
+
         if(yxCouponsDto.getStatus().intValue()==99){
             return yxCouponsDto;
         }
+
+        YxCouponOrderDetail yxCouponOrderDetail = (YxCouponOrderDetail)checkResult.get("yxCouponOrderDetail");
+        YxCouponOrder yxCouponOrder = (YxCouponOrder)checkResult.get("yxCouponOrder");
+        YxCoupons yxCoupons = (YxCoupons)checkResult.get("yxCoupons");
 
         // 组装返回参数
         yxCouponsDto = getYxCouponsDto(yxCouponOrderDetail, yxCouponOrder, yxCoupons);
@@ -227,55 +233,62 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
     }
 
     // 检查票务信息
-    private YxCouponsDto checkCouponInfo(String decodeVerifyCode, SystemUser user, YxCouponOrderDetail yxCouponOrderDetail, YxCouponOrder yxCouponOrder, YxCoupons yxCoupons) {
+    private Map<String , Object> checkCouponInfo(String decodeVerifyCode, SystemUser user) {
+        Map<String , Object> result = new HashMap<>();
+
         YxCouponsDto yxCouponsDto = new YxCouponsDto();
+        result.put("yxCouponsDto",yxCouponsDto);
         yxCouponsDto.setStatus(99);
         String[] decode = decodeVerifyCode.split(",");
         if (decode.length != 2) {
             yxCouponsDto.setStatusDesc("无效核销码");
-            return yxCouponsDto;
+            return result;
         }
         // 获取核销码
         String verifyCode = decode[0];
         // 获取核销用户的id
         String useUid = decode[1];
-        yxCouponOrderDetail = this.yxCouponOrderDetailService.getOne(new QueryWrapper<YxCouponOrderDetail>().eq("verify_code", verifyCode));
+        YxCouponOrderDetail yxCouponOrderDetail = this.yxCouponOrderDetailService.getOne(new QueryWrapper<YxCouponOrderDetail>().eq("verify_code", verifyCode));
+        result.put("yxCouponOrderDetail",yxCouponOrderDetail);
+
         if (null == yxCouponOrderDetail) {
             yxCouponsDto.setStatusDesc("无效卡券");
-            return yxCouponsDto;
+            return result;
         }
-        yxCouponOrder = this.yxCouponOrderService.getOne(new QueryWrapper<YxCouponOrder>().eq("order_id", yxCouponOrderDetail.getOrderId()));
+        YxCouponOrder yxCouponOrder = this.yxCouponOrderService.getOne(new QueryWrapper<YxCouponOrder>().eq("order_id", yxCouponOrderDetail.getOrderId()));
+        result.put("yxCouponOrder",yxCouponOrder);
         if (null == yxCouponOrder) {
             yxCouponsDto.setStatusDesc("无卡券订单信息");
-            return yxCouponsDto;
+            return result;
         }
         if (!useUid.equals(yxCouponOrder.getUid() + "")) {
             yxCouponsDto.setStatusDesc("卡券所属验证失败");
-            return yxCouponsDto;
+            return result;
         }
         // 查询优惠券信息
-        yxCoupons = this.getById(yxCouponOrderDetail.getCouponId());
+        YxCoupons yxCoupons = this.getById(yxCouponOrderDetail.getCouponId());
+        result.put("yxCoupons",yxCoupons);
         if (null == yxCoupons) {
             yxCouponsDto.setStatusDesc("卡券已失效");
-            return yxCouponsDto;
+            return result;
         }
         // 判断有效期
         LocalDateTime expireDateStart = DateUtils.dateToLocalDate(yxCoupons.getExpireDateStart());
         if (expireDateStart.isAfter(LocalDateTime.now())) {
             yxCouponsDto.setStatusDesc("未到使用日期");
-            return yxCouponsDto;
+            return result;
         }
         LocalDateTime expireDateEnd = DateUtils.dateToLocalDate(yxCoupons.getExpireDateEnd());
         if (expireDateEnd.isBefore(LocalDateTime.now())) {
             yxCouponsDto.setStatusDesc("卡券已过期");
-            return yxCouponsDto;
+            return result;
         }
 
 
         // 判断是否本商铺发放的卡券
         if (!yxCoupons.getStoreId().equals(user.getStoreId())) {
             yxCouponsDto.setStatusDesc("非本商户卡券");
-            return yxCouponsDto;
+            return result;
         }
         // 可核销次数已核销次数
         if (yxCouponOrderDetail.getUsedCount() >= yxCouponOrderDetail.getUseCount()) {
@@ -322,7 +335,7 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
         }
 
         yxCouponsDto.setStatus(1);
-        return yxCouponsDto;
+        return result;
     }
 
     /**
@@ -434,14 +447,18 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
     @Override
     public YxCouponsDto getShipCouponInfo(String decodeVerifyCode, SystemUser user) {
         // 检查优惠券信息
-        YxCouponsDto yxCouponsDto = null;
-        YxCouponOrderDetail yxCouponOrderDetail = null;
-        YxCouponOrder yxCouponOrder = null;
-        YxCoupons yxCoupons = null ;
-        yxCouponsDto = checkCouponInfo(decodeVerifyCode,user,yxCouponOrderDetail,yxCouponOrder,yxCoupons);
+        YxCouponsDto yxCouponsDto = new YxCouponsDto();
+
+        Map<String , Object> checkResult = checkCouponInfo(decodeVerifyCode,user);
+        yxCouponsDto = (YxCouponsDto)checkResult.get("yxCouponsDto");
+
         if(yxCouponsDto.getStatus().intValue()==99){
             return yxCouponsDto;
         }
+
+        YxCouponOrderDetail yxCouponOrderDetail = (YxCouponOrderDetail)checkResult.get("yxCouponOrderDetail");
+        YxCouponOrder yxCouponOrder = (YxCouponOrder)checkResult.get("yxCouponOrder");
+        YxCoupons yxCoupons = (YxCoupons)checkResult.get("yxCoupons");
 
         // 组装返回参数
         yxCouponsDto = getYxCouponsDto(yxCouponOrderDetail, yxCouponOrder, yxCoupons);
@@ -475,9 +492,8 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
             resultVo.setPhone(CardNumUtil.mobileEncrypt(item.getPhone()));
             resultVo.setPassengerName(CardNumUtil.nameEncrypt(item.getPassengerName()));
             // 0:未成年 1:成年人 2：老年人
-            if(resultVo.getIsAdult().intValue()==1){
-                resultVo.setAgeArea("");
-            }else if(resultVo.getIsAdult().intValue()==0){
+            resultVo.setAgeArea("");
+            if(resultVo.getIsAdult().intValue()==0){
                 resultVo.setAgeArea("未成年");
             }else if(resultVo.getIsAdult().intValue()==2){
                 resultVo.setAgeArea("老年人");
@@ -493,16 +509,17 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
         // 健康状况
         yxCouponsDto.setShipHealthStatus("");
         // 乘客
-        yxCouponsDto.setShipPassenger(CommonsUtils.convertBeanList(couponUsers,YxShipPassengerVO.class));
+        yxCouponsDto.setShipPassenger(users);
         // 系列ID
         yxCouponsDto.setSeriesId(yxCoupons.getSeriesId());
         // 船只ID
         yxCouponsDto.setShipId(yxCoupons.getShipId());
+        yxCouponsDto.setStatus(1);
         return yxCouponsDto;
     }
 
     private YxCouponsDto getYxCouponsDto(YxCouponOrderDetail yxCouponOrderDetail, YxCouponOrder yxCouponOrder, YxCoupons yxCoupons) {
-        YxCouponsDto yxCouponsDto;
+        YxCouponsDto yxCouponsDto = new YxCouponsDto();
         yxCouponsDto = generator.convert(yxCoupons, YxCouponsDto.class);
         yxCouponsDto.setOrderId(yxCouponOrder.getOrderId());
         yxCouponsDto.setUsedCount(yxCouponOrderDetail.getUsedCount());
@@ -510,6 +527,7 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
         yxCouponsDto.setBuyTime(DateUtils.timestampToStr10(yxCouponOrder.getPayTime(), DateUtils.YYYY_MM_DD_HH_MM_SS));
         yxCouponsDto.setAvailableTimeStr(yxCoupons.getAvailableTimeStart() + " ~ " + yxCoupons.getAvailableTimeEnd());
         yxCouponsDto.setExpireDateStr(DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD, yxCoupons.getExpireDateStart()) + " ~ " + DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD, yxCoupons.getExpireDateEnd()));
+        yxCouponsDto.setStatus(1);
         return yxCouponsDto;
     }
 

@@ -10,6 +10,7 @@ import co.yixiang.exception.BadRequestException;
 import co.yixiang.logging.aop.log.Log;
 import co.yixiang.modules.couponUse.dto.AllShipsVO;
 import co.yixiang.modules.couponUse.dto.ShipUserVO;
+import co.yixiang.modules.couponUse.param.VerifyCodeParam;
 import co.yixiang.modules.coupons.service.YxCouponOrderService;
 import co.yixiang.modules.coupons.service.YxCouponsService;
 import co.yixiang.modules.manage.entity.SystemUser;
@@ -51,20 +52,18 @@ public class VerificationCodeController extends BaseController {
     @Log("船票核销")
     @ApiOperation("B端：船票核销")
     @PostMapping(value = "/useCoupon")
-    public ResponseEntity<Object> updateCouponOrder(@RequestHeader(value = "token") String token
-            , @RequestParam(value = "verifyCode") String verifyCode
-            , @RequestParam(value = "shipId") Integer shipId
-            , @RequestParam(value = "shipUserId") Integer shipUserId) {
+    public ResponseEntity<Object> updateCouponOrder(@RequestHeader(value = "token") String token,
+                                                    @RequestBody VerifyCodeParam requestParam) {
         // 获取登陆用户的id
         SystemUser user = getRedisUser(token);
         int uid = user.getId().intValue();
         String decodeVerifyCode = "";
         try {
-            decodeVerifyCode = Base64Utils.decode(verifyCode);
+            decodeVerifyCode = Base64Utils.decode(requestParam.getVerifyCode());
         } catch (Exception e) {
             throw new BadRequestException("无效卡券");
         }
-        Map<String, Object> result = this.yxCouponOrderService.updateShipCouponOrder(decodeVerifyCode, uid,shipId,shipUserId,user);
+        Map<String, Object> result = this.yxCouponOrderService.updateShipCouponOrder(decodeVerifyCode, uid,requestParam.getShipId(),requestParam.getShipUserId(),user);
         return ResponseEntity.ok(result);
     }
 
@@ -73,14 +72,14 @@ public class VerificationCodeController extends BaseController {
     @AnonymousAccess
     @PostMapping(value = "/getShipCouponInfo")
     public ResponseEntity<Object> getShipCouponInfo(@RequestHeader(value = "token") String token
-            , @RequestParam(value = "verifyCode") String verifyCode) {
+            , @RequestBody VerifyCodeParam requestParam) {
         // 获取登陆用户的id
         Map<String, String> map = new HashMap<>();
         SystemUser user = getRedisUser(token);
         int uid = user.getId().intValue();
         String decodeVerifyCode = "";
         try {
-            decodeVerifyCode = Base64Utils.decode(verifyCode);
+            decodeVerifyCode = Base64Utils.decode(requestParam.getVerifyCode());
         } catch (Exception e) {
             throw new BadRequestException("无效卡券");
         }

@@ -256,7 +256,7 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<YxUserBillMapper, YxU
     public Paging<UserBillVo> getYxUserAccountPageList(UserAccountQueryParam param, Long userId) {
 
         QueryWrapper<YxUserBill> wrapper = new QueryWrapper<>();
-        wrapper.eq("status", 1).eq("uid", userId)
+        wrapper.eq("status", 1).eq("str_id", userId)
                 .eq("type", BillDetailEnum.TYPE_10.getValue())
                 .eq("user_type", 1)
                 .eq("category", BillDetailEnum.CATEGORY_1.getValue())
@@ -271,7 +271,7 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<YxUserBillMapper, YxU
     @Override
     public Paging<UserBillVo> getUserProductAccountList(UserAccountQueryParam param, Long id) {
         QueryWrapper<YxUserBill> wrapper = new QueryWrapper<>();
-        wrapper.eq("status", 1).eq("uid", id)
+        wrapper.eq("status", 1).eq("mer_id", id)
                 .in("type", BillDetailEnum.TYPE_3.getValue(), BillDetailEnum.TYPE_8.getValue())
                 .eq("user_type", 1).eq("category", BillDetailEnum.CATEGORY_1.getValue())
                 .orderByDesc("id");

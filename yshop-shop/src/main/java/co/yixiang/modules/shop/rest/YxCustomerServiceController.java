@@ -102,10 +102,9 @@ public class YxCustomerServiceController {
         update.setQuestion(resources.getQuestion());
         update.setAnswer(resources.getAnswer());
         update.setSort(resources.getSort());
-        update.setStatus(resources.getStatus());
         update.setUpdateUserId(loginUserId);
         update.setUpdateTime(DateTime.now().toTimestamp());
-        yxCustomerServiceService.updateById(resources);
+        yxCustomerServiceService.updateById(update);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
@@ -125,7 +124,7 @@ public class YxCustomerServiceController {
         update.setStatus(resources.getStatus());
         update.setUpdateUserId(loginUserId);
         update.setUpdateTime(DateTime.now().toTimestamp());
-        yxCustomerServiceService.updateById(resources);
+        yxCustomerServiceService.updateById(update);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 

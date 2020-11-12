@@ -9,6 +9,7 @@ import co.yixiang.aspectj.annotation.NeedLogin;
 import co.yixiang.common.constant.CommonConstant;
 import co.yixiang.common.web.controller.BaseController;
 import co.yixiang.constant.ShopConstants;
+import co.yixiang.constant.SystemConfigConstants;
 import co.yixiang.dozer.service.IGenerator;
 import co.yixiang.exception.BadRequestException;
 import co.yixiang.logging.aop.log.Log;
@@ -19,8 +20,10 @@ import co.yixiang.modules.coupons.service.YxCouponOrderUseService;
 import co.yixiang.modules.coupons.service.YxCouponsService;
 import co.yixiang.modules.image.service.YxImageInfoService;
 import co.yixiang.modules.manage.entity.SystemUser;
+import co.yixiang.modules.manage.entity.UsersRoles;
 import co.yixiang.modules.manage.entity.YxMerchantsDetail;
 import co.yixiang.modules.manage.service.YxMerchantsDetailService;
+import co.yixiang.modules.manage.web.vo.SystemUserParamVo;
 import co.yixiang.modules.security.security.vo.AuthUser;
 import co.yixiang.modules.shop.entity.YxStoreInfo;
 import co.yixiang.modules.shop.service.YxStoreInfoService;
@@ -38,9 +41,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -50,7 +51,7 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 @RestController
 @RequestMapping("/yxCouponsUse")
-@Api(value = "本地生活, 卡券核销")
+@Api(value = "本地生活, 卡券核销", tags = "本地生活, 卡券核销", description = "订单")
 public class CouponUseController extends BaseController {
     @Value("${loginCode.expiration}")
     private Long expiration;
@@ -135,11 +136,36 @@ public class CouponUseController extends BaseController {
             throw new BadRequestException("密码错误");
         }
         // 判断当前登陆用户是否是商户
-        YxStoreInfo yxStoreInfo = this.yxStoreInfoService.getOne(new QueryWrapper<YxStoreInfo>().eq("mer_id", user.getId()));
+        /*YxStoreInfo yxStoreInfo = this.yxStoreInfoService.getOne(new QueryWrapper<YxStoreInfo>().eq("mer_id", user.getId()));
+        if (null == yxStoreInfo) {
+            throw new BadRequestException("无可用门店，请先到蜜兔管理平台创建门店");
+        }*/
+        YxStoreInfo yxStoreInfo = this.yxStoreInfoService.getById(user.getStoreId());
         if (null == yxStoreInfo) {
             throw new BadRequestException("无可用门店，请先到蜜兔管理平台创建门店");
         }
 
+        UsersRoles usersRoles =  yxUserService.getUserRolesByUserId(user.getId().intValue());
+        if (null == usersRoles) {
+            throw new BadRequestException("此用户未配置角色，请先到平台分配角色");
+        }
+        int intRoleId = usersRoles.getRoleId().intValue();
+        List<Integer> listIds = new ArrayList<>();
+        //7	核销人员	只能登录核销端   只有核销功能
+        listIds.add(SystemConfigConstants.ROLE_VERIFICATION);
+        //8	船只核销人员	只能登录核销端
+        listIds.add(SystemConfigConstants.ROLE_SHIPVER);
+        //9	船长	只能登录核销端
+        listIds.add(SystemConfigConstants.ROLE_CAPTAIN);
+        //10	景区推广	只能登录核销端
+        listIds.add(SystemConfigConstants.ROLE_SPREAD);
+        if(!listIds.contains(intRoleId)){
+            throw new BadRequestException("暂无权限");
+        }
+
+        SystemUserParamVo systemUserParamVo = new SystemUserParamVo();
+        systemUserParamVo.setUsername(user.getUsername());
+        systemUserParamVo.setUserRole(intRoleId);
         // 生成一个token给前端 56
         String token = CommonConstant.COUPON_USE_LOGIN_TOKEN + SecretUtil.createRandomStr(10) + UUID.randomUUID();
         // 设置30天失效
@@ -148,6 +174,7 @@ public class CouponUseController extends BaseController {
         // 返回 token 与 用户信息
         Map<String, Object> map = new HashMap<String, Object>();
         map.put("token", token);
+        map.put("userInfo", systemUserParamVo);
         map.put("status", "1");
         map.put("statusDesc", "成功");
         return ResponseEntity.ok(map);
@@ -223,7 +250,7 @@ public class CouponUseController extends BaseController {
         SystemUser user = getRedisUser(token);
 
         int uid = user.getId().intValue();
-        criteria.setCreateUserId(uid);
+        criteria.setStoreId(user.getStoreId());
         return ResponseEntity.ok(yxCouponOrderUseService.queryAll(criteria));
     }
 

@@ -3,9 +3,8 @@ package co.yixiang.modules.ship.web.vo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-import java.io.Serializable;
 
-import java.util.Date;
+import java.io.Serializable;
 
 /**
  * <p>
@@ -47,7 +46,7 @@ private Integer isAdult;
 @ApiModelProperty(value = "是否合同签订人 0:否 1:是")
 private Integer signStatus;
 
-@ApiModelProperty(value = "是否删除（0：未删除，1：已删除）")
+/*@ApiModelProperty(value = "是否删除（0：未删除，1：已删除）")
 private Integer delFlag;
 
 @ApiModelProperty(value = "创建人")
@@ -60,6 +59,6 @@ private Integer updateUserId;
 private Date createTime;
 
 @ApiModelProperty(value = "更新时间")
-private Date updateTime;
+private Date updateTime;*/
 
 }

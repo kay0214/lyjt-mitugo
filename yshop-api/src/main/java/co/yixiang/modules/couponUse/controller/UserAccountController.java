@@ -11,6 +11,8 @@ import co.yixiang.dozer.service.IGenerator;
 import co.yixiang.modules.couponUse.dto.UserBillVo;
 import co.yixiang.modules.couponUse.param.UserAccountQueryParam;
 import co.yixiang.modules.manage.entity.SystemUser;
+import co.yixiang.modules.manage.entity.YxMerchantsDetail;
+import co.yixiang.modules.manage.service.YxMerchantsDetailService;
 import co.yixiang.modules.user.service.YxUserBillService;
 import co.yixiang.utils.RedisUtils;
 import io.swagger.annotations.Api;
@@ -41,6 +43,9 @@ public class UserAccountController extends BaseController {
     @Autowired
     private YxUserBillService billService;
 
+    @Autowired
+    private YxMerchantsDetailService yxMerchantsDetailService;
+
 
     private final IGenerator generator;
 
@@ -56,8 +61,8 @@ public class UserAccountController extends BaseController {
     public ResponseEntity<Object> getUserAccountList(@RequestHeader(value = "token") String token, UserAccountQueryParam param) {
         Map<String, Object> map = new HashMap<>();
         SystemUser user = getRedisUser(token);
-
-        Paging<UserBillVo> result = billService.getYxUserAccountPageList(param, user.getId());
+        YxMerchantsDetail detail = yxMerchantsDetailService.getById(user.getStoreId());
+        Paging<UserBillVo> result = billService.getYxUserAccountPageList(param,detail.getUid().longValue());
         return ResponseEntity.ok(result);
     }
 
@@ -68,8 +73,8 @@ public class UserAccountController extends BaseController {
     public ResponseEntity<Object> getUserProductAccountList(@RequestHeader(value = "token") String token, UserAccountQueryParam param) {
         // 获取登陆用户的id
         SystemUser user = getRedisUser(token);
-
-        Paging<UserBillVo> result = billService.getUserProductAccountList(param, user.getId());
+        YxMerchantsDetail detail = yxMerchantsDetailService.getById(user.getStoreId());
+        Paging<UserBillVo> result = billService.getUserProductAccountList(param, detail.getUid().longValue());
         return ResponseEntity.ok(result);
     }
 }
