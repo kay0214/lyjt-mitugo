@@ -87,6 +87,78 @@
               />
             </el-select>
           </el-form-item>
+          <!-- coupon_type为4时使用 -->
+          <template v-if="form.couponType === 4">
+            <el-form-item label="船只系列" prop="seriesId">
+              <el-select v-model="form.seriesId" placeholder="请选择" style="width: 650px;"
+              @change="(val)=>{
+                let i= this.shipSeriesTree.filter(function(series){
+                  return new RegExp(series.value, 'i').test(val)
+                })
+                if(i && i.length){
+                  this.shipsTree=i[0].children
+                }else{
+                  this.shipsTree=[]
+                }
+              }">
+                <el-option
+                  v-for="item in shipSeriesTree"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"
+                />
+              </el-select>
+            </el-form-item>
+            <el-form-item label="船只">
+              <el-select v-model="form.shipId" clearable placeholder="请选择" style="width: 650px;">
+                <el-option
+                  v-for="item in shipsTree"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"
+                />
+              </el-select>
+            </el-form-item>
+            <el-form-item label="乘客人数(人)" prop="passengersNum">
+              <el-input-number v-model="form.passengersNum" style="width: 650px;" maxlength="12" :min="0"
+                               @change="()=>{$refs.form.validateField('passengersNum')}"/>
+            </el-form-item>
+            <el-form-item label="合同模版" prop="tempId">
+              <el-select v-model="form.tempId" placeholder="请选择" style="width: 650px;">
+                <el-option
+                  v-for="item in tempList"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"
+                />
+              </el-select>
+            </el-form-item>
+            <el-form-item label="保险规则" prop="insuranceRole">
+              <el-radio-group v-model="form.insuranceRole">
+                <el-radio :label="0">无须保险</el-radio>
+                <el-radio :label="1">必须购买</el-radio>
+                <el-radio :label="2">非必须</el-radio>
+              </el-radio-group>
+            </el-form-item>
+            <el-form-item label="有效期" prop="validity">
+              <el-radio-group v-model="form.validity">
+                <el-radio :label="0">不限</el-radio>
+                <el-radio :label="1">
+                  其它
+                  <el-input v-show='form.validity' placeholder="请输入" v-model="form.validityDays">
+                    <template slot="append">天</template>
+                  </el-input>
+                </el-radio>
+              </el-radio-group>
+            </el-form-item>
+            <el-form-item label="在线发票" prop="onlineInvoice">
+              <el-radio-group v-model="form.onlineInvoice">
+                <el-radio :label="1">支持</el-radio>
+                <el-radio :label="0">不支持</el-radio>
+              </el-radio-group>
+            </el-form-item>
+          </template>
+
           <el-form-item label="原价" prop="originalPrice">
             <el-input v-model="form.originalPrice" style="width: 650px;" maxlength="12" />
           </el-form-item>
@@ -100,6 +172,26 @@
           <el-form-item label="佣金" prop="commission">
             <el-input v-model="form.commission" style="width: 650px;" readonly />
           </el-form-item>
+          <!-- coupon_type为4时使用 -->
+          <template v-if="form.couponType === 4">
+            <el-form-item label="景区推广价格" >
+              <el-input v-model="form.scenicPrice" style="width: 650px;" maxlength="12" />
+            </el-form-item>
+            <el-form-item label="旅行社价格" >
+              <el-input v-model="form.travelPrice" style="width: 650px;" maxlength="12" />
+            </el-form-item>
+            <el-form-item label="健康确认">
+              <el-checkbox-group v-model="confirmation" @change="(val)=>{
+                if(val && val.length){
+                  this.form.confirmation=val.join(',')
+                }else{
+                  this.form.confirmation=''
+                }
+              }">
+                <el-checkbox v-for="(item,idx) in healthConditions" :label="item" :key="idx"></el-checkbox>
+              </el-checkbox-group>
+            </el-form-item>
+          </template>
           <el-form-item label="每人限购数量" prop="quantityLimit">
             <el-input v-model="form.quantityLimit" style="width: 650px;" maxlength="12" />
           </el-form-item>
@@ -113,7 +205,10 @@
             <el-input v-model="form.ficti" style="width: 650px;" maxlength="12" />
           </el-form-item>
           <el-form-item label="核销次数" prop="writeOff">
-            <el-input v-model="form.writeOff" style="width: 650px;" maxlength="2" />
+            <template v-if="form.couponType === 4">
+              <el-input v-model="form.writeOff=1" style="width: 650px;" readonly />
+            </template>
+            <el-input v-else v-model="form.writeOff" style="width: 650px;" maxlength="2" />
           </el-form-item>
           <el-form-item prop="expireDate" label="有效期">
             <el-date-picker
@@ -420,6 +515,8 @@ import checkPermission from '@/utils/permission'
 import { sub } from "@/utils/math"
 import priceDialog from './operation/price'
 import commission from './operation/commission'
+import { initData } from '@/api/data'
+import { getContractTemp } from '@/api/yxContractTemplate'
 
 // crud交由presenter持有
 const defaultCrud = CRUD({ title: '卡券', url: 'api/yxCoupons', sort: 'id,desc', crudMethod: { ...crudYxCoupons },optShow: {
@@ -437,7 +534,7 @@ const defaultForm = {
   awaysRefund: null, useCondition: null, availableTimeStart: null, availableTimeEnd: null,
   delFlag: null, createUserId: null, updateUserId: null, createTime: null, updateTime: null,
   content: null, expireDate: null, image: null, sliderImage: null,
-  sliderVideo:[], video:null,sort:null, couponInfo:null,}
+  sliderVideo:[], video:null,sort:null, couponInfo:null,insuranceRole:0,validity:0,onlineInvoice:0}
 const imageArr = []
 if (defaultForm.image) { imageArr[0] = defaultForm.image }
 export default {
@@ -452,7 +549,11 @@ export default {
       imageArr: imageArr,
       sliderImageArr: defaultForm.sliderImage || [],
       selections: {
-        couponType: [{ label: '代金券', value: 1 }, { label: '折扣券', value: 2 }, { label: '满减券', value: 3 },{label: '船票券', value: 4}], // 卡券类型
+        couponType: [
+          { label: '代金券', value: 1 },
+          { label: '折扣券', value: 2 },
+          { label: '满减券', value: 3 },
+          {label: '船票券', value: 4}], // 卡券类型
         couponCategory: [] // 卡券分类
       },
       permission: {
@@ -462,10 +563,6 @@ export default {
         commission: ['admin', ' yxCoupons:rate']
       },
       rules: {
-        // couponNum: [
-        //   { required: true, message: '卡券编号不能为空', trigger: 'blur' }
-        // ],
-
         couponName: [
           { required: true, message: '卡券名称不能为空', trigger: 'blur' }
         ],
@@ -636,11 +733,28 @@ export default {
           }, trigger: 'blur' }
         ],
         image: [{ required: true, message: '卡券图片不能为空' }],
-        sliderImage: [{ required: true, message: '卡券轮播图不能为空' }]
+        sliderImage: [{ required: true, message: '卡券轮播图不能为空' }],
+        seriesId: [
+          { required: true, message: '必填项', trigger: 'change' }
+        ],
+        passengersNum: [
+          { required: true, message: '必填项', trigger: 'blur' }
+        ],
+        tempId: [
+          { required: true, message: '必填项', trigger: 'change' }
+        ]
       },
       queryTypeOptions: [
         { key: 'couponName', display_name: '卡券名称' }
-      ]
+      ],
+      shipSeriesTree:[],
+      shipsTree:[],
+      tempList:[],
+      confirmation:[],
+      shipSeries:'',
+      ships:'',
+      healthConditions:['心脏病','高血压','哮喘病','传染病','肌肉麻痹症',
+        '骨质疏松症','精神类疾病','孕妇','严重晕船者']
     }
   },
   computed: {
@@ -686,6 +800,23 @@ export default {
       this.form.availableTimeEnd = value ? value[1] : ''
       this.form.availableTimeStart = value ? value[0] : ''
     }
+  },
+  created() {
+    this.$nextTick(()=>{
+      let that=this
+      initData('api/yxShipInfo/getShipSeriseTree').then(res=>{
+        if(res && res.options){
+          that.shipSeriesTree=res.options
+        }else{
+          that.shipSeriesTree=[]
+        }
+      })
+      getContractTemp().then(res=>{
+        if(res && res.length){
+          that.tempList=res
+        }
+      })
+    })
   },
   mounted() {
     // 获取卡券分类数据

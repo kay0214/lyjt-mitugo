@@ -3,33 +3,31 @@
     <!--工具栏-->
     <div class="head-container">
       <!--如果想在工具栏加入更多按钮，可以使用插槽方式， slot = 'left' or 'right'-->
+      <el-input v-model="query.tempName" clearable size="small" placeholder="请输入模板名称（完全匹配）" style="width: 250px;" class="filter-item" @keyup.enter.native="crud.toQuery" />
+      <el-button class="filter-item" size="mini" type="success" icon="el-icon-search" @click="crud.toQuery">搜索</el-button>
       <crudOperation :permission="permission" />
       <!--表单组件-->
       <el-dialog :close-on-click-modal="false" :before-close="crud.cancelCU" :visible.sync="crud.status.cu > 0" :title="crud.status.title" width="500px">
         <el-form ref="form" :model="form" :rules="rules" size="small" label-width="80px">
-          <el-form-item label="id">
-            <el-input v-model="form.id" style="width: 370px;" />
-          </el-form-item>
           <el-form-item label="模板名称" prop="tempName">
             <el-input v-model="form.tempName" style="width: 370px;" />
           </el-form-item>
-          <el-form-item label="模板文件地址">
-            <el-input v-model="form.filePath" style="width: 370px;" />
-          </el-form-item>
-          <el-form-item label="是否删除（0：未删除，1：已删除）" prop="delFlag">
-            <el-input v-model="form.delFlag" style="width: 370px;" />
-          </el-form-item>
-          <el-form-item label="创建人">
-            <el-input v-model="form.createUserId" style="width: 370px;" />
-          </el-form-item>
-          <el-form-item label="修改人">
-            <el-input v-model="form.updateUserId" style="width: 370px;" />
-          </el-form-item>
-          <el-form-item label="创建时间" prop="createTime">
-            <el-input v-model="form.createTime" style="width: 370px;" />
-          </el-form-item>
-          <el-form-item label="更新时间" prop="updateTime">
-            <el-input v-model="form.updateTime" style="width: 370px;" />
+          <el-form-item label="模板文件" prop="file">
+            <el-upload
+              drag
+              action="/api/upload"
+              :headers="headers"
+              :file-list="fileList"
+              :before-upload="beforeUpload"
+              :on-success="handleSuccess"
+              :on-change="handleChange"
+              :on-preview="handlePreview"
+              accept="application/pdf"
+              >
+              <i class="el-icon-upload"></i>
+              <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
+              <div class="el-upload__tip" slot="tip">不超过5Mb</div>
+            </el-upload>
           </el-form-item>
         </el-form>
         <div slot="footer" class="dialog-footer">
@@ -42,16 +40,16 @@
         <el-table-column type="selection" width="55" />
         <el-table-column v-if="columns.visible('id')" prop="id" label="id" />
         <el-table-column v-if="columns.visible('tempName')" prop="tempName" label="模板名称" />
-        <el-table-column v-if="columns.visible('filePath')" prop="filePath" label="模板文件地址" />
-        <el-table-column v-if="columns.visible('delFlag')" prop="delFlag" label="是否删除（0：未删除，1：已删除）" />
-        <el-table-column v-if="columns.visible('createUserId')" prop="createUserId" label="创建人" />
-        <el-table-column v-if="columns.visible('updateUserId')" prop="updateUserId" label="修改人" />
-        <el-table-column v-if="columns.visible('createTime')" prop="createTime" label="创建时间">
+<!--        <el-table-column v-if="columns.visible('filePath')" prop="filePath" label="模板文件地址" />-->
+<!--        <el-table-column v-if="columns.visible('delFlag')" prop="delFlag" label="是否删除（0：未删除，1：已删除）" />-->
+        <el-table-column v-if="columns.visible('createNickname')" prop="createNickname" label="添加人" />
+<!--        <el-table-column v-if="columns.visible('updateUserId')" prop="updateUserId" label="修改人" />-->
+        <el-table-column v-if="columns.visible('createTime')" prop="createTime" label="添加时间">
           <template slot-scope="scope">
             <span>{{ parseTime(scope.row.createTime) }}</span>
           </template>
         </el-table-column>
-        <el-table-column v-if="columns.visible('updateTime')" prop="updateTime" label="更新时间">
+        <el-table-column v-if="columns.visible('updateTime')" prop="updateTime" label="修改时间">
           <template slot-scope="scope">
             <span>{{ parseTime(scope.row.updateTime) }}</span>
           </template>
@@ -79,17 +77,31 @@ import crudOperation from '@crud/CRUD.operation'
 import udOperation from '@crud/UD.operation'
 import pagination from '@crud/Pagination'
 import MaterialList from "@/components/material";
-
+import { getToken } from '@/utils/auth'
 // crud交由presenter持有
-const defaultCrud = CRUD({ title: '合同模板', url: 'api/yxContractTemplate', sort: 'id,desc', crudMethod: { ...crudYxContractTemplate }})
-const defaultForm = { id: null, tempName: null, filePath: null, delFlag: null, createUserId: null, updateUserId: null, createTime: null, updateTime: null }
+const defaultCrud = CRUD({ title: '合同模板', url: 'api/yxContractTemplate', sort: 'id,desc',
+  crudMethod: { ...crudYxContractTemplate },optShow:{
+    add: true,
+    edit: false,
+    del: false,
+    download: false
+  }
+})
+const defaultForm = { id: null, tempName: null,
+  filePath: null, delFlag: null, createUserId: null,
+  updateUserId: null, createTime: null, updateTime: null }
 export default {
   name: 'YxContractTemplate',
   components: { pagination, crudOperation, rrOperation, udOperation ,MaterialList},
   mixins: [presenter(defaultCrud), header(), form(defaultForm), crud()],
   data() {
     return {
-      
+      dialogImageUrl: '',
+      dialogVisible: false,
+      disabled: false,
+      headers: {
+        Authorization: getToken()
+      },
       permission: {
         add: ['admin', 'yxContractTemplate:add'],
         edit: ['admin', 'yxContractTemplate:edit'],
@@ -99,16 +111,13 @@ export default {
         tempName: [
           { required: true, message: '模板名称不能为空', trigger: 'blur' }
         ],
-        delFlag: [
-          { required: true, message: '是否删除（0：未删除，1：已删除）不能为空', trigger: 'blur' }
-        ],
-        createTime: [
-          { required: true, message: '创建时间不能为空', trigger: 'blur' }
-        ],
-        updateTime: [
-          { required: true, message: '更新时间不能为空', trigger: 'blur' }
+        file: [
+          { required: true, message: '比选项', trigger: 'change' }
         ]
-      }    }
+      },
+      fileList:[],
+      fileUrl:''
+    }
   },
   watch: {
   },
@@ -118,7 +127,46 @@ export default {
       return true
     }, // 新增与编辑前做的操作
     [CRUD.HOOK.afterToCU](crud, form) {
+      if(crud.status.edit){
+        this.fileList=[
+          {name:this.form.tempName,
+            url:this.form.filePath}
+        ]
+      }else{
+        this.fileList=[]
+      }
     },
+    beforeUpload(file) {
+      const isPdf =
+        file.type === 'application/pdf'
+      if (!isPdf) {
+        this.$message.error('上传模板只能是 pdf 格式!')
+        return false
+      }
+      const isLt5M = file.size / 1024 / 1024 < 5
+      if (!isLt5M) {
+        this.$message.error('上传大小不能超过 5MB!')
+      }
+      return isLt5M
+    },
+    handleSuccess(response, file, fileList) {
+      this.fileList=fileList
+      this.fileUrl=response.link
+      this.$set(this.form,'file',file)
+      this.$set(this.form,'filePath',response.link)
+    },
+    handleChange(files, fileList){
+      if(fileList.length>1){
+        fileList.splice(0,(fileList.length-1))
+      }
+    },
+    handlePreview(file){
+      if(file.url){
+        window.open(file.url, '_blank')
+      }else{
+        window.open(file.response.link, '_blank')
+      }
+    }
   }
 }
 
