@@ -22,6 +22,9 @@
               <el-form-item label="用户名" prop="username">
                 <el-input v-model="form.username" :maxlength='20' style="width: 350px;"/>
               </el-form-item>
+              <el-form-item label="邮箱" prop="email">
+                <el-input v-model="form.email" :maxlength='20' style="width: 350px;"/>
+              </el-form-item>
             </div>
 
             <!-- 以下是编辑页面展示字段 -->
@@ -386,6 +389,9 @@ export default {
         ],
         contactMobile: [
           { required: true, trigger: 'blur', validator: validPhone }
+        ],
+        email: [
+          { required: true, message: '必填项', trigger: 'blur' },
         ],
         mailbox: [
           { required: true, message: '必填项', trigger: 'blur' },
