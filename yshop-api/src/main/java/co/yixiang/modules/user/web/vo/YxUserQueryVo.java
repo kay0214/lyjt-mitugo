@@ -180,4 +180,7 @@ private String pwd;*/
     private OrderCountVO couponOrderStatusNum;
     @ApiModelProperty(value = "联行号")
     private String cnapsCode;
+
+    /** 所属店铺id */
+    private Integer storeId;
 }
