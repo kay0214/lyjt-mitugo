@@ -32,6 +32,7 @@ import co.yixiang.modules.order.web.param.OrderParam;
 import co.yixiang.modules.order.web.param.PayParam;
 import co.yixiang.modules.order.web.param.RefundParam;
 import co.yixiang.modules.ship.service.YxShipPassengerService;
+import co.yixiang.modules.ship.web.vo.YxShipPassengerQueryVo;
 import co.yixiang.modules.shop.service.YxSystemStoreService;
 import co.yixiang.modules.user.service.YxUsedContactsService;
 import co.yixiang.modules.user.service.YxUserAddressService;
@@ -513,11 +514,12 @@ public class YxCouponOrderController extends BaseController {
         return ApiResult.ok(isFlg);
     }
 
-    @PostMapping("/getBatchPassenger")
+    @AnonymousAccess
+    @GetMapping("/getBatchPassenger/{orderId}")
     @ApiOperation(value = "查看乘船人", notes = "查看乘船人")
-    public ApiResult<Boolean> getBatchPassenger(@Valid @RequestBody YxCouponComfirmRideParam param){
-        boolean isFlg =yxShipPassengerService.saveComfrieRideInfo(param);
-        return ApiResult.ok(isFlg);
+    public ApiResult<List<YxShipPassengerQueryVo>> getBatchPassenger(@PathVariable(value = "orderId") Integer orderId){
+        List<YxShipPassengerQueryVo> passengerQueryVoList =yxShipPassengerService.getPassengerByOrderId(orderId);
+        return ApiResult.ok(passengerQueryVoList);
     }
 
 }

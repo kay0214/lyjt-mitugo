@@ -14,6 +14,7 @@ import co.yixiang.modules.ship.mapper.YxShipPassengerMapper;
 import co.yixiang.modules.ship.service.YxShipPassengerService;
 import co.yixiang.modules.ship.web.param.YxShipPassengerQueryParam;
 import co.yixiang.modules.ship.web.vo.YxShipPassengerQueryVo;
+import co.yixiang.utils.CardNumUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.metadata.OrderItem;
@@ -108,5 +109,28 @@ public class YxShipPassengerServiceImpl extends BaseServiceImpl<YxShipPassengerM
             return true;
         }
         return false;
+    }
+
+    /**
+     * 根据订单编号获取乘客信息
+     * @param orderId
+     * @return
+     */
+    @Override
+    public List<YxShipPassengerQueryVo> getPassengerByOrderId(int orderId) {
+        List<YxShipPassengerQueryVo> passengerQueryVoList = new ArrayList<>();
+        QueryWrapper<YxShipPassenger> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().le(YxShipPassenger::getCouponOrderId, orderId).eq(YxShipPassenger::getDelFlag, 0);
+        List<YxShipPassenger> shipPassengerList = this.list(queryWrapper);
+        if (!CollectionUtils.isEmpty(shipPassengerList)) {
+            for (YxShipPassenger shipPassenger : shipPassengerList) {
+                YxShipPassengerQueryVo passengerQueryVo = new YxShipPassengerQueryVo();
+                BeanUtils.copyProperties(shipPassenger, passengerQueryVo);
+                passengerQueryVo.setIdCard(CardNumUtil.idEncrypt(shipPassenger.getIdCard()));
+                passengerQueryVo.setPhone(CardNumUtil.mobileEncrypt(shipPassenger.getPhone()));
+                passengerQueryVoList.add(passengerQueryVo);
+            }
+        }
+        return passengerQueryVoList;
     }
 }

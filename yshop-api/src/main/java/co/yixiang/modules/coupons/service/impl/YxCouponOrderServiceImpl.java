@@ -756,7 +756,7 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
             YxStoreInfo yxStoreInfo = this.storeInfoService.getById(yxCoupons.getStoreId());
             // 有效期
             item.setExpireDate(expireDate);
-            // 卡券类型;1:代金券, 2:折扣券, 3:满减券
+            // 卡券类型;1:代金券, 2:折扣券, 3:满减券.4:船票券
             item.setCouponType(yxCoupons.getCouponType());
             // 优惠券名称
             item.setCouponName(yxCoupons.getCouponName());
@@ -861,7 +861,7 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
             BeanUtils.copyBeanProp(vo, yxCouponOrderDetail);
             // 有效期
             vo.setExpireDate(expireDate);
-            // 卡券类型;1:代金券, 2:折扣券, 3:满减券
+            // 卡券类型;1:代金券, 2:折扣券, 3:满减券,4:船票券
             vo.setCouponType(yxCoupons.getCouponType());
             // 代金券面额
             vo.setDenomination(yxCoupons.getDenomination());
@@ -918,45 +918,78 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         if (storeImage != null) {
             item.setStoreImage(storeImage.getImgUrl());
         }
+        //卡券类型;1:代金券, 2:折扣券, 3:满减券，4:船票券
+        item.setCouponType(yxCoupons.getCouponType());
         //船只信息
         if(4==yxCoupons.getCouponType()){
-            //船票券
-            YxShipSeriesQueryVo yxShipSeriesQueryVo = yxShipSeriesMapper.getYxShipSeriesById(yxCoupons.getSeriesId());
-            YxShipInfoQueryVo yxShipInfoQueryVo = yxShipInfoMapper.getYxShipInfoById(yxCoupons.getShipId());
-            //合同模板
-            YxContractTemplateQueryVo yxContractTemplateQueryVo =  yxContractTemplateMapper.getYxContractTemplateById(yxCoupons.getTempId());
-
-            if(null==yxShipSeriesQueryVo){
-                throw new BadRequestException("船票券 卡券id："+yxCoupons.getId()+" 获取船只系列信息失败！seriesId " +yxCoupons.getSeriesId());
-            }
-            if(null ==yxShipInfoQueryVo){
-                throw new BadRequestException("船票券 卡券id："+yxCoupons.getId()+" 获取船只信息失败！shipId"+yxCoupons.getShipId());
-            }
-            if(null==yxContractTemplateQueryVo){
-                throw new BadRequestException("船票券 卡券id："+yxCoupons.getId()+" 获取合同模板信息失败！tempId = "+yxCoupons.getTempId());
-            }
-            //船只名称
-            item.setShipName(yxShipInfoQueryVo.getShipName());
-            //船只坐标
-            item.setShipCoordinate(yxShipSeriesQueryVo.getCoordinate());
-            item.setShipCoordinateX(yxShipSeriesQueryVo.getCoordinateX());
-            item.setShipCoordinateY(yxShipSeriesQueryVo.getCoordinateY());
-            item.setShipAddress(yxShipSeriesQueryVo.getShipAddress());
-            item.setSeriesName(yxShipSeriesQueryVo.getSeriesName());
-            //健康确认
-            if(StringUtils.isNotBlank(yxCoupons.getConfirmation())){
-                List<String> stringList = Arrays.asList(yxCoupons.getConfirmation().split(","));
-                item.setConfirmationList(stringList);
-            }
-            //合同模板信息
-            item.setTempFilePath(yxContractTemplateQueryVo.getFilePath());
-            item.setTempName(yxContractTemplateQueryVo.getTempName());
-            //
-            item.setShipOrderStatus(shipOrderStatus);
+            item = setShipDetailInof(item,yxCoupons,yxCouponOrder,shipOrderStatus);
         }
         return item;
     }
 
+    private YxCouponOrderQueryVo setShipDetailInof( YxCouponOrderQueryVo item,YxCoupons yxCoupons,YxCouponOrder yxCouponOrder,int shipOrderStatus){
+        //船票券
+        YxShipSeriesQueryVo yxShipSeriesQueryVo = yxShipSeriesMapper.getYxShipSeriesById(yxCoupons.getSeriesId());
+        YxShipInfoQueryVo yxShipInfoQueryVo = yxShipInfoMapper.getYxShipInfoById(yxCoupons.getShipId());
+        //合同模板
+        YxContractTemplateQueryVo yxContractTemplateQueryVo =  yxContractTemplateMapper.getYxContractTemplateById(yxCoupons.getTempId());
+
+        if(null==yxShipSeriesQueryVo){
+            throw new BadRequestException("船票券 卡券id："+yxCoupons.getId()+" 获取船只系列信息失败！seriesId " +yxCoupons.getSeriesId());
+        }
+        if(null ==yxShipInfoQueryVo){
+            throw new BadRequestException("船票券 卡券id："+yxCoupons.getId()+" 获取船只信息失败！shipId"+yxCoupons.getShipId());
+        }
+        if(null==yxContractTemplateQueryVo){
+            throw new BadRequestException("船票券 卡券id："+yxCoupons.getId()+" 获取合同模板信息失败！tempId = "+yxCoupons.getTempId());
+        }
+        //船只名称
+        item.setShipName(yxShipInfoQueryVo.getShipName());
+        //船只坐标
+        item.setShipCoordinate(yxShipSeriesQueryVo.getCoordinate());
+        item.setShipCoordinateX(yxShipSeriesQueryVo.getCoordinateX());
+        item.setShipCoordinateY(yxShipSeriesQueryVo.getCoordinateY());
+        item.setShipAddress(yxShipSeriesQueryVo.getShipAddress());
+        item.setSeriesName(yxShipSeriesQueryVo.getSeriesName());
+        //健康确认
+        if(StringUtils.isNotBlank(yxCoupons.getConfirmation())){
+            List<String> stringList = Arrays.asList(yxCoupons.getConfirmation().split(","));
+            item.setConfirmationList(stringList);
+        }
+        //合同模板信息
+        item.setTempFilePath(yxContractTemplateQueryVo.getFilePath());
+        item.setTempName(yxContractTemplateQueryVo.getTempName());
+        //
+        item.setShipOrderStatus(shipOrderStatus);
+        //可用二维码
+        List<String> ableCode = availableVerifyCode(yxCouponOrder);
+        item.setAbleVerifyCode(ableCode);
+        return item;
+    }
+
+    /**
+     * 可用二维码
+     * @param yxCouponOrder
+     * @return
+     */
+    private List<String> availableVerifyCode(YxCouponOrder yxCouponOrder){
+        List<String> listAvailable = new ArrayList<>();
+        if(4==yxCouponOrder.getStatus()){
+            //订单状态为待使用
+            QueryWrapper<YxCouponOrderDetail> queryWrapperAble =  new QueryWrapper<YxCouponOrderDetail>();
+            queryWrapperAble.lambda().eq(YxCouponOrderDetail::getOrderId, yxCouponOrder.getOrderId()).eq(YxCouponOrderDetail::getUserStatus,1).eq(YxCouponOrderDetail::getStatus,4);
+            List<YxCouponOrderDetail> detailListVisable = this.yxCouponOrderDetailService.list(queryWrapperAble);
+            if(CollectionUtils.isEmpty(detailListVisable)){
+                return listAvailable;
+            }
+            for(YxCouponOrderDetail detail:detailListVisable){
+                String ableCode = Base64Utils.encode(  detail.getVerifyCode() + "," + yxCouponOrder.getUid());
+                listAvailable.add(ableCode);
+            }
+            return listAvailable;
+        }
+        return listAvailable;
+    }
     /**
      * 计算卡券各种订单数量
      *
