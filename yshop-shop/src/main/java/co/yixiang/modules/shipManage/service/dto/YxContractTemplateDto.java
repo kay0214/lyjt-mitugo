@@ -43,6 +43,11 @@ public class YxContractTemplateDto implements Serializable {
 
     private Integer createUserId;
 
+    /** 创建人名称 */
+
+    private String createUsername;
+
+    private String createNickname;
 
     /** 修改人 */
 

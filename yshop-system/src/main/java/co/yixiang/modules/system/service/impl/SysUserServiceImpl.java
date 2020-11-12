@@ -319,7 +319,7 @@ public class SysUserServiceImpl extends BaseServiceImpl<SysUserMapper, User> imp
             yxMerchantsDetail.setAddress("");
             yxMerchantsDetail.setContacts(resources.getMerchantsContact());
             yxMerchantsDetail.setContactMobile(resources.getPhone());
-            yxMerchantsDetail.setMailbox("");
+            yxMerchantsDetail.setMailbox(resources.getEmail());
             // 默认给个0
             yxMerchantsDetail.setMerchantsType(0);
             yxMerchantsDetail.setBankNo("");
