@@ -1,6 +1,5 @@
 package co.yixiang.modules.coupon.domain;
 
-import co.yixiang.modules.shop.domain.YxCustomizeRate;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
@@ -158,7 +157,7 @@ public class CouponAddRequest implements Serializable {
     private Integer sort;
 
     /** 船只系列id */
-    @NotBlank(message = "请选择船只系列")
+    @NotNull(message = "请选择船只系列")
     private Integer seriesId;
 
 
@@ -167,12 +166,12 @@ public class CouponAddRequest implements Serializable {
 
 
     /** 合同模板id */
-    @NotBlank(message = "合同模板")
+    @NotNull(message = "合同模板")
     private Integer tempId;
 
 
     /** 乘客人数 */
-    @NotBlank(message = "乘客人数")
+    @NotNull(message = "乘客人数")
     private Integer passengersNum;
 
 
