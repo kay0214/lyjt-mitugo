@@ -223,7 +223,7 @@ public class CouponUseController extends BaseController {
         SystemUser user = getRedisUser(token);
 
         int uid = user.getId().intValue();
-        criteria.setCreateUserId(uid);
+        criteria.setStoreId(user.getStoreId());
         return ResponseEntity.ok(yxCouponOrderUseService.queryAll(criteria));
     }
 
