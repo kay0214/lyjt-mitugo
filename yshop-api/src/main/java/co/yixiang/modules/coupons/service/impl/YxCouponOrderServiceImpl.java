@@ -1134,10 +1134,12 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
             // 更新商户余额
             updateMerInfo(yxCouponOrder);
         }
-        map.put("status", "1");
-        map.put("usedCount", usedCount);
-        map.put("statusDesc", "核销成功");
-        return map;
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("status", "1");
+        result.put("usedCount", usedCount);
+        result.put("statusDesc", "核销成功");
+        return result;
     }
 
     /**
@@ -1315,9 +1317,11 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
             updateMerInfo(yxCouponOrder);
         }
 
-        map.put("status", "1");
-        map.put("statusDesc", "核销成功");
-        return map;
+        Map<String, Object> result = new HashMap<>();
+        result.put("status", "1");
+        result.put("usedCount", usedCount);
+        result.put("statusDesc", "核销成功");
+        return result;
 
     }
 

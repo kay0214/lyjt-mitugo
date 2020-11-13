@@ -69,7 +69,7 @@ public class YxShipOperationServiceImpl extends BaseServiceImpl<YxShipOperationM
         wrapper.eq("ship_id", shipId)
                 .eq("captain_id", shipUserId)
                 .eq("status", 0)
-                .eq("delFlag", 0);
+                .eq("del_flag", 0);
         List<YxShipOperation> list = yxShipOperationMapper.selectList(wrapper);
         return list == null || list.size() == 0 ? null : list.get(0);
     }
