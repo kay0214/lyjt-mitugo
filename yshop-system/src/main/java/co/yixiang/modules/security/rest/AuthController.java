@@ -116,7 +116,7 @@ public class AuthController {
             } else {
                 authInfo.put("examineStatus", merchantsDetail.getExamineStatus());
             }
-        } else if (jwtUser.getUserRole().intValue() == 3) {
+        } else if (jwtUser.getUserRole().intValue() == -1) {
             throw new BadRequestException("用户名或密码不正确");
         } else {
             authInfo.put("examineStatus", -1);
