@@ -89,11 +89,11 @@ public class YxSystemGroupDataServiceImpl extends BaseServiceImpl<YxSystemGroupD
      */
     @Override
     public LocalLiveIndexVo setIndexTitle(LocalLiveIndexVo localLiveIndexVo) {
-        localLiveIndexVo.setTitle_1((IndexTitleVO)redisUtils.get(ShopConstants.PAGE_INDEX_TITLE_1));
-        localLiveIndexVo.setTitle_2((IndexTitleVO)redisUtils.get(ShopConstants.PAGE_INDEX_TITLE_2));
-        localLiveIndexVo.setTitle_3_1((IndexTitleVO)redisUtils.get(ShopConstants.PAGE_INDEX_TITLE_3_1));
-        localLiveIndexVo.setTitle_3_2((IndexTitleVO)redisUtils.get(ShopConstants.PAGE_INDEX_TITLE_3_2));
-        localLiveIndexVo.setTitle_3_3((IndexTitleVO)redisUtils.get(ShopConstants.PAGE_INDEX_TITLE_3_3));
+        localLiveIndexVo.setTitle_1(JSONObject.parseObject(redisUtils.get(ShopConstants.PAGE_INDEX_TITLE_1)+"",IndexTitleVO.class));
+        localLiveIndexVo.setTitle_2(JSONObject.parseObject(redisUtils.get(ShopConstants.PAGE_INDEX_TITLE_2)+"",IndexTitleVO.class));
+        localLiveIndexVo.setTitle_3_1(JSONObject.parseObject(redisUtils.get(ShopConstants.PAGE_INDEX_TITLE_3_1)+"",IndexTitleVO.class));
+        localLiveIndexVo.setTitle_3_2(JSONObject.parseObject(redisUtils.get(ShopConstants.PAGE_INDEX_TITLE_3_2)+"",IndexTitleVO.class));
+        localLiveIndexVo.setTitle_3_3(JSONObject.parseObject(redisUtils.get(ShopConstants.PAGE_INDEX_TITLE_3_3)+"",IndexTitleVO.class));
         return localLiveIndexVo;
     }
 
