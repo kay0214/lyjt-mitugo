@@ -41,7 +41,6 @@ public class YxCustomerService implements Serializable {
 
 
     /** 状态：0：启用，1：禁用 */
-    @NotNull
     private Integer status;
 
 
@@ -74,7 +73,6 @@ public class YxCustomerService implements Serializable {
 
 
     /** 回答 */
-    @NotBlank
     private String answer;
 
 
