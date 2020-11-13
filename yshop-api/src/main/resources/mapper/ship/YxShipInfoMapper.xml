@@ -12,7 +12,16 @@
     </select>
 
     <select id="getYxShipInfoPageList" resultType="co.yixiang.modules.ship.web.vo.YxShipInfoQueryVo">
-        select <include refid="Base_Column_List"/> from yx_ship_info
+        select <include refid="Base_Column_List"/> from yx_ship_info where 1=1 and del_flag = 0 and ship_status = 0
+        <if test ="param.seriesId !='' and param.seriesId != null"> and series_id = #{param.seriesId} </if>
+        <if test ="param.shipName !='' and param.shipName != null"> and ship_name LIKE CONCAT('%',#{param.shipName},'%') </if>
+        <if test ="param.currentStatus !='' and param.currentStatus != null"> and current_status = #{param.currentStatus} </if>
     </select>
+    <!--<select id="getYxShipInfoPageListByParam" resultType="co.yixiang.modules.ship.web.vo.YxShipInfoQueryVo">
+        select <include refid="Base_Column_List"/> from yx_ship_info
+        <if test ="param.lnt  != '' and param.lnt != null">
+            ,ST_Distance_Sphere (POINT(#{param.lnt},#{param.lat}),coordinate) distance
+        </if>
+    </select>-->
 
 </mapper>

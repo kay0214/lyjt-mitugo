@@ -36,45 +36,45 @@ public class YxCustomerServiceController extends BaseController {
 
     @Autowired
     private YxCustomerServiceService yxCustomerServiceService;
+//
+//    /**
+//    * 添加机器人客服表
+//    */
+//    @PostMapping("/add")
+//    @ApiOperation(value = "添加YxCustomerService对象",notes = "添加机器人客服表",response = ApiResult.class)
+//    public ApiResult<Boolean> addYxCustomerService(@Valid @RequestBody YxCustomerService yxCustomerService) throws Exception{
+//        boolean flag = yxCustomerServiceService.save(yxCustomerService);
+//        return ApiResult.result(flag);
+//    }
+
+//    /**
+//    * 修改机器人客服表
+//    */
+//    @PostMapping("/update")
+//    @ApiOperation(value = "修改YxCustomerService对象",notes = "修改机器人客服表",response = ApiResult.class)
+//    public ApiResult<Boolean> updateYxCustomerService(@Valid @RequestBody YxCustomerService yxCustomerService) throws Exception{
+//        boolean flag = yxCustomerServiceService.updateById(yxCustomerService);
+//        return ApiResult.result(flag);
+//    }
+
+//    /**
+//    * 删除机器人客服表
+//    */
+//    @PostMapping("/delete")
+//    @ApiOperation(value = "删除YxCustomerService对象",notes = "删除机器人客服表",response = ApiResult.class)
+//    public ApiResult<Boolean> deleteYxCustomerService(@Valid @RequestBody IdParam idParam) throws Exception{
+//        boolean flag = yxCustomerServiceService.removeById(idParam.getId());
+//        return ApiResult.result(flag);
+//    }
 
     /**
-    * 添加机器人客服表
-    */
-    @PostMapping("/add")
-    @ApiOperation(value = "添加YxCustomerService对象",notes = "添加机器人客服表",response = ApiResult.class)
-    public ApiResult<Boolean> addYxCustomerService(@Valid @RequestBody YxCustomerService yxCustomerService) throws Exception{
-        boolean flag = yxCustomerServiceService.save(yxCustomerService);
-        return ApiResult.result(flag);
-    }
-
-    /**
-    * 修改机器人客服表
-    */
-    @PostMapping("/update")
-    @ApiOperation(value = "修改YxCustomerService对象",notes = "修改机器人客服表",response = ApiResult.class)
-    public ApiResult<Boolean> updateYxCustomerService(@Valid @RequestBody YxCustomerService yxCustomerService) throws Exception{
-        boolean flag = yxCustomerServiceService.updateById(yxCustomerService);
-        return ApiResult.result(flag);
-    }
-
-    /**
-    * 删除机器人客服表
-    */
-    @PostMapping("/delete")
-    @ApiOperation(value = "删除YxCustomerService对象",notes = "删除机器人客服表",response = ApiResult.class)
-    public ApiResult<Boolean> deleteYxCustomerService(@Valid @RequestBody IdParam idParam) throws Exception{
-        boolean flag = yxCustomerServiceService.removeById(idParam.getId());
-        return ApiResult.result(flag);
-    }
-
-    /**
-    * 获取机器人客服表
+    * 获取机器人客服表答案
     */
     @PostMapping("/info")
     @ApiOperation(value = "获取YxCustomerService对象详情",notes = "查看机器人客服表",response = YxCustomerServiceQueryVo.class)
-    public ApiResult<YxCustomerServiceQueryVo> getYxCustomerService(@Valid @RequestBody IdParam idParam) throws Exception{
+    public ApiResult<String> getYxCustomerService(@Valid @RequestBody IdParam idParam) throws Exception{
         YxCustomerServiceQueryVo yxCustomerServiceQueryVo = yxCustomerServiceService.getYxCustomerServiceById(idParam.getId());
-        return ApiResult.ok(yxCustomerServiceQueryVo);
+        return ApiResult.ok(yxCustomerServiceQueryVo.getAnswer());
     }
 
     /**

@@ -46,14 +46,10 @@ public class YxHotConfig implements Serializable {
 
 
     /** 状态：0：启用，1：禁用 */
-    @NotNull
     private Integer status;
 
 
     /** 是否删除（0：未删除，1：已删除） */
-    @NotNull
-    @TableLogic
-    @TableField(fill=FieldFill.INSERT_UPDATE)
     private Integer delFlag;
 
 
@@ -66,13 +62,11 @@ public class YxHotConfig implements Serializable {
 
 
     /** 创建时间 */
-    @NotNull
     @TableField(fill= FieldFill.INSERT)
     private Timestamp createTime;
 
 
     /** 更新时间 */
-    @NotNull
     @TableField(fill= FieldFill.INSERT_UPDATE)
     private Timestamp updateTime;
 

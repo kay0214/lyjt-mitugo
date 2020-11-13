@@ -37,46 +37,45 @@ public class YxHotConfigController extends BaseController {
     @Autowired
     private YxHotConfigService yxHotConfigService;
 
-    /**
-    * 添加HOT配置表
-    */
-    @PostMapping("/add")
-    @ApiOperation(value = "添加YxHotConfig对象",notes = "添加HOT配置表",response = ApiResult.class)
-    public ApiResult<Boolean> addYxHotConfig(@Valid @RequestBody YxHotConfig yxHotConfig) throws Exception{
-        boolean flag = yxHotConfigService.save(yxHotConfig);
-        return ApiResult.result(flag);
-    }
-
-    /**
-    * 修改HOT配置表
-    */
-    @PostMapping("/update")
-    @ApiOperation(value = "修改YxHotConfig对象",notes = "修改HOT配置表",response = ApiResult.class)
-    public ApiResult<Boolean> updateYxHotConfig(@Valid @RequestBody YxHotConfig yxHotConfig) throws Exception{
-        boolean flag = yxHotConfigService.updateById(yxHotConfig);
-        return ApiResult.result(flag);
-    }
-
-    /**
-    * 删除HOT配置表
-    */
-    @PostMapping("/delete")
-    @ApiOperation(value = "删除YxHotConfig对象",notes = "删除HOT配置表",response = ApiResult.class)
-    public ApiResult<Boolean> deleteYxHotConfig(@Valid @RequestBody IdParam idParam) throws Exception{
-        boolean flag = yxHotConfigService.removeById(idParam.getId());
-        return ApiResult.result(flag);
-    }
-
-    /**
-    * 获取HOT配置表
-    */
-    @PostMapping("/info")
-    @ApiOperation(value = "获取YxHotConfig对象详情",notes = "查看HOT配置表",response = YxHotConfigQueryVo.class)
-    public ApiResult<YxHotConfigQueryVo> getYxHotConfig(@Valid @RequestBody IdParam idParam) throws Exception{
-        YxHotConfigQueryVo yxHotConfigQueryVo = yxHotConfigService.getYxHotConfigById(idParam.getId());
-        return ApiResult.ok(yxHotConfigQueryVo);
-    }
-
+//    /**
+//    * 添加HOT配置表
+//    */
+//    @PostMapping("/add")
+//    @ApiOperation(value = "添加YxHotConfig对象",notes = "添加HOT配置表",response = ApiResult.class)
+//    public ApiResult<Boolean> addYxHotConfig(@Valid @RequestBody YxHotConfig yxHotConfig) throws Exception{
+//        boolean flag = yxHotConfigService.save(yxHotConfig);
+//        return ApiResult.result(flag);
+//    }
+//
+//    /**
+//    * 修改HOT配置表
+//    */
+//    @PostMapping("/update")
+//    @ApiOperation(value = "修改YxHotConfig对象",notes = "修改HOT配置表",response = ApiResult.class)
+//    public ApiResult<Boolean> updateYxHotConfig(@Valid @RequestBody YxHotConfig yxHotConfig) throws Exception{
+//        boolean flag = yxHotConfigService.updateById(yxHotConfig);
+//        return ApiResult.result(flag);
+//    }
+//
+//    /**
+//    * 删除HOT配置表
+//    */
+//    @PostMapping("/delete")
+//    @ApiOperation(value = "删除YxHotConfig对象",notes = "删除HOT配置表",response = ApiResult.class)
+//    public ApiResult<Boolean> deleteYxHotConfig(@Valid @RequestBody IdParam idParam) throws Exception{
+//        boolean flag = yxHotConfigService.removeById(idParam.getId());
+//        return ApiResult.result(flag);
+//    }
+//
+//    /**
+//    * 获取HOT配置表
+//    */
+//    @PostMapping("/info")
+//    @ApiOperation(value = "获取YxHotConfig对象详情",notes = "查看HOT配置表",response = YxHotConfigQueryVo.class)
+//    public ApiResult<YxHotConfigQueryVo> getYxHotConfig(@Valid @RequestBody IdParam idParam) throws Exception{
+//        YxHotConfigQueryVo yxHotConfigQueryVo = yxHotConfigService.getYxHotConfigById(idParam.getId());
+//        return ApiResult.ok(yxHotConfigQueryVo);
+//    }
     /**
      * HOT配置表分页列表
      */
