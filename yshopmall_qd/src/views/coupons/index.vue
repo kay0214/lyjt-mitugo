@@ -534,8 +534,8 @@ const defaultForm = {
   awaysRefund: null, useCondition: null, availableTimeStart: null, availableTimeEnd: null,
   delFlag: null, createUserId: null, updateUserId: null, createTime: null, updateTime: null,
   content: null, expireDate: null, image: null, sliderImage: null,
-  sliderVideo:[], video:null,sort:null, couponInfo:null,precision:1,
-  insuranceRole:0,validity:0,onlineInvoice:0}
+  sliderVideo:[], video:null,sort:null, couponInfo:null,seriesId:null,shipId:null,tempId:null,passengersNum:null,
+  insuranceRole:0,validity:0,onlineInvoice:0,scenicPrice:null,travelPrice:null,confirmation:null}
 const imageArr = []
 if (defaultForm.image) { imageArr[0] = defaultForm.image }
 export default {
@@ -867,6 +867,8 @@ export default {
       }
       if (form.confirmation && form.confirmation.length) {
         this.confirmation=form.confirmation.split(',')
+      }else{
+        this.confirmation=[]
       }
       this.imageArr = formImage
       this.sliderImageArr = formSliderImageArr
