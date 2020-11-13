@@ -158,6 +158,12 @@ public class SysUserServiceImpl extends BaseServiceImpl<SysUserMapper, User> imp
             } else if (roleIdSet.contains(5L)) {
                 user.setUserRole(2);
                 user.setChildUser(Arrays.asList(user.getId()));
+            } else if (roleIdSet.contains(11L)) {
+                user.setUserRole(3);
+                user.setChildUser(Arrays.asList(user.getId()));
+            } else {
+                user.setUserRole(-1);
+                user.setChildUser(Arrays.asList(user.getId()));
             }
         }
         return generator.convert(user, UserDto.class);
