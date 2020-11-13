@@ -29,12 +29,10 @@ public class YxRefundReason implements Serializable {
 
 
     /** 理由 */
-    @NotBlank
     private String reason;
 
 
     /** 类型：0：本地生活，1：商城 */
-    @NotNull
     private Integer reasonType;
 
 
@@ -51,13 +49,11 @@ public class YxRefundReason implements Serializable {
 
 
     /** 创建时间 */
-    @NotNull
     @TableField(fill= FieldFill.INSERT)
     private Timestamp createTime;
 
 
     /** 更新时间 */
-    @NotNull
     @TableField(fill= FieldFill.INSERT_UPDATE)
     private Timestamp updateTime;
 
