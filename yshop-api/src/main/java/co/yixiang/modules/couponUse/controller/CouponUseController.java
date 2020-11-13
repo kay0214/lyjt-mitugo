@@ -124,13 +124,13 @@ public class CouponUseController extends BaseController {
             throw new BadRequestException("密码错误");
         }
 
-        SystemUser user = yxUserService.getSystemUserByUserName(authUser.getUsername());
+        SystemUser user = yxUserService.getSystemUserByUserNameNew(authUser.getUsername());
         if (user == null || user.getId() == null) {
             throw new BadRequestException("用户名或密码错误");
         }
-        if (user.getUserRole().intValue() != 2) {
+        /*if (user.getUserRole().intValue() != 2) {
             throw new BadRequestException("暂无权限");
-        }
+        }*/
         String pass = user.getUserpassword();
         if (!PassWordUtil.getUserPassWord(password, user.getUserRole(), user.getUsername()).equals(pass)) {
             throw new BadRequestException("密码错误");

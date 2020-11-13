@@ -11,7 +11,6 @@ import co.yixiang.modules.ship.service.YxCrewSignService;
 import co.yixiang.modules.ship.web.param.YxCrewSignQueryParam;
 import co.yixiang.modules.ship.web.param.YxCrewSignReturnParam;
 import co.yixiang.modules.ship.web.vo.YxCrewSignQueryVo;
-import co.yixiang.modules.user.service.YxUserService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -45,8 +44,7 @@ public class YxCrewSignController extends BaseController {
 
     @Autowired
     private YxCrewSignService yxCrewSignService;
-    @Autowired
-    private YxUserService yxUserService;
+
     /**
     * 添加船员签到表
     */
@@ -102,15 +100,22 @@ public class YxCrewSignController extends BaseController {
     @AnonymousAccess
     @PostMapping("/captainSign")
     @ApiOperation(value = "核销端：船员签到",notes = "核销端：船员签到",response = ApiResult.class)
-    public ApiResult<Boolean> captainSign(@RequestParam(value = "temperature") String temperature,@RequestHeader(value = "token") String token){
+    public ResponseEntity<Object> captainSign(@Valid @RequestBody(required = false) Map<String,Object> mapParam,@RequestHeader(value = "token") String token){
+
+        Map<String, Object> map = new HashMap<>();
+        BigDecimal temperature = new BigDecimal(mapParam.get("temperature").toString());
         SystemUser user = getRedisUser(token);
         YxCrewSign yxCrewSign = new YxCrewSign();
         yxCrewSign.setUid(user.getId().intValue());
-        yxCrewSign.setTemperature(new BigDecimal(temperature));
+        yxCrewSign.setTemperature(temperature);
         yxCrewSign.setUsername(user.getUsername());
         yxCrewSign.setUserPhone(user.getPhone());
         yxCrewSign.setNickName(user.getNickName());
-        return ApiResult.result(yxCrewSignService.save(yxCrewSign));
+
+        map.put("status", "1");
+        map.put("statusDesc", "成功");
+        yxCrewSignService.save(yxCrewSign);
+        return ResponseEntity.ok(map);
     }
 
     /**
