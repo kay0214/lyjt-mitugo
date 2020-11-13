@@ -23,6 +23,7 @@ public enum OrderStatusEnum {
 	STATUS_2(2,"待收货"),
 	STATUS_3(3,"待评价"),
 	STATUS_4(4,"已完成"),
+	STATUS_5(5,"卡券待评价"),
 	STATUS_MINUS_1(-1,"退款中"),
 	STATUS_MINUS_2(-2,"已退款"),
 	STATUS_MINUS_3(-3,"退款");
