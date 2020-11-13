@@ -12,7 +12,7 @@ export function del(ids) {
   return request({
     url: 'api/yxHotConfig/',
     method: 'delete',
-    data: ids
+    data: ids[0]
   })
 }
 
@@ -20,6 +20,14 @@ export function edit(data) {
   return request({
     url: 'api/yxHotConfig',
     method: 'put',
+    data
+  })
+}
+
+export function updateStatus(data) {
+  return request({
+    url: 'api/yxHotConfig/updateStatus',
+    method: 'post',
     data
   })
 }
