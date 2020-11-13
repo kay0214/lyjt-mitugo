@@ -12,7 +12,7 @@ export function del(ids) {
   return request({
     url: 'api/yxLeaveMessage/',
     method: 'delete',
-    data: ids
+    data: ids[0]
   })
 }
 

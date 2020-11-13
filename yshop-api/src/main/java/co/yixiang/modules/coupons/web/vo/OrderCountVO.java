@@ -29,4 +29,6 @@ public class OrderCountVO implements Serializable {
     private Integer outTimeCount;
     @ApiModelProperty(value = "已取消数量")
     private Integer cancelCount;
+    @ApiModelProperty(value = "已取消数量")
+    private Integer waitReplyCount;
 }

@@ -840,6 +840,13 @@ public class YxUserServiceImpl extends BaseServiceImpl<YxUserMapper, YxUser> imp
         return systemUserMapper.selectOne(wrapper);
     }
 
+    @Override
+    public SystemUser getSystemUserByUserNameNew(String username) {
+        QueryWrapper<SystemUser> wrapper = new QueryWrapper<>();
+        wrapper.eq("username", username)
+                .eq("enabled", 1);
+        return systemUserMapper.selectOne(wrapper);
+    }
     /**
      * 提现扣减用户可提现金额
      *
@@ -865,6 +872,17 @@ public class YxUserServiceImpl extends BaseServiceImpl<YxUserMapper, YxUser> imp
                 .eq("enabled", 1);*/
         wrapper.eq("id", uid)
                 .eq("enabled", 1);
+        return systemUserMapper.selectOne(wrapper);
+    }
+    @Override
+    public SystemUser getSystemUserByParam(Integer uid) {
+        QueryWrapper<SystemUser> wrapper = new QueryWrapper<>();
+        /*wrapper.eq("id", uid).eq("merchants_status", 0)
+                .eq("user_role", 2)
+                .eq("enabled", 1);*/
+        wrapper.eq("id", uid)
+                .eq("enabled", 1);
+        List<SystemUser> listUser = systemUserMapper.selectList(wrapper);
         return systemUserMapper.selectOne(wrapper);
     }
 

@@ -145,4 +145,7 @@ public interface YxUserService extends BaseService<YxUser> {
      */
     UsersRoles getUserRolesByUserId(Integer uid);
 
+    SystemUser getSystemUserByParam(Integer uid);
+
+    SystemUser getSystemUserByUserNameNew(String username);
 }

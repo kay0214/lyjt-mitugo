@@ -13,8 +13,6 @@ import cn.hutool.core.bean.copier.CopyOptions;
 import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.sql.Timestamp;
 
@@ -26,57 +24,76 @@ import java.sql.Timestamp;
 @TableName("yx_customer_service")
 public class YxCustomerService implements Serializable {
 
-    /** id */
+    /**
+     * id
+     */
     @TableId(value = "id", type = IdType.AUTO)
     private Integer id;
 
 
-    /** 问题 */
-    @NotBlank
+    /**
+     * 问题
+     */
     private String question;
 
 
-    /** 排序 */
+    /**
+     * 排序
+     */
     private Integer sort;
 
 
-    /** 状态：0：启用，1：禁用 */
-    @NotNull
+    /**
+     * 状态：0：启用，1：禁用
+     */
     private Integer status;
 
 
-    /** 用户角色：0->平台运营,1->合伙人,2->商户 */
+    /**
+     * 用户角色：0->平台运营,1->合伙人,2->商户
+     */
     private Integer userRole;
 
-    /** 所属商户id */
+    /**
+     * 所属商户id
+     */
     private Integer merId;
 
-    /** 是否删除（0：未删除，1：已删除） */
-    @TableLogic
-    @TableField(fill = FieldFill.INSERT_UPDATE)
+    /**
+     * 是否删除（0：未删除，1：已删除）
+     */
     private Integer delFlag;
 
 
-    /** 创建人 */
+    /**
+     * 创建人
+     */
     private Integer createUserId;
 
 
-    /** 修改人 */
+    /**
+     * 修改人
+     */
     private Integer updateUserId;
 
 
-    /** 创建时间 */
+    /**
+     * 创建时间
+     */
     @TableField(fill = FieldFill.INSERT)
     private Timestamp createTime;
 
 
-    /** 更新时间 */
+    /**
+     * 更新时间
+     */
     @TableField(fill = FieldFill.INSERT_UPDATE)
     private Timestamp updateTime;
 
 
-    /** 回答 */
-    @NotBlank
+    /**
+     * 回答
+     */
     private String answer;
 
 

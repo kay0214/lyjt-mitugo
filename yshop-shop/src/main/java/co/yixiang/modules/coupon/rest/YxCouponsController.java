@@ -1,7 +1,6 @@
 package co.yixiang.modules.coupon.rest;
 
 import cn.hutool.core.date.DateTime;
-import co.yixiang.constant.ShopConstants;
 import co.yixiang.exception.BadRequestException;
 import co.yixiang.logging.aop.log.Log;
 import co.yixiang.modules.coupon.domain.CouponAddRequest;
@@ -24,7 +23,6 @@ import io.swagger.annotations.ApiOperation;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -106,6 +104,19 @@ public class YxCouponsController {
             }
             if (null == request.getDiscountAmount()) {
                 throw new BadRequestException("请输入满减金额!");
+            }
+        }
+        if(4==request.getCouponType()){
+            if(null == request.getSeriesId()){
+                //
+                throw new BadRequestException("请输入船只系列!");
+
+            }
+            if(null == request.getTempId()){
+                request.setTempId(0);
+            }
+            if(null == request.getPassengersNum()){
+                throw new BadRequestException("请输入乘客人数!");
             }
         }
 

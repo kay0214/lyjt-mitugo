@@ -69,7 +69,7 @@ public class YxShipOperationDetailServiceImpl extends BaseServiceImpl<YxShipOper
         YxCouponOrder yxCouponOrder = (YxCouponOrder)map.get("yxCouponOrder");
         QueryWrapper<YxShipPassenger> wrapper = new QueryWrapper<>();
         wrapper.eq("coupon_order_id", yxCouponOrder.getId())
-                .eq("delFlag", 0);
+                .eq("del_flag", 0);
         List<YxShipPassenger> list = yxShipPassengerService.list(wrapper);
 
         YxShipOperationDetail shipOperationDetail = new YxShipOperationDetail();

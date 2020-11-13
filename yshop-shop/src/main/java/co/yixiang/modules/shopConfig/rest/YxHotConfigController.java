@@ -103,6 +103,7 @@ public class YxHotConfigController {
 
         YxHotConfig updateConfig = new YxHotConfig();
         updateConfig.setId(resources.getId());
+        updateConfig.setStatus(resources.getStatus());
         updateConfig.setUpdateUserId(sysUserId);
         updateConfig.setUpdateTime(DateTime.now().toTimestamp());
         yxHotConfigService.updateById(updateConfig);

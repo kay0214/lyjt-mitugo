@@ -102,6 +102,7 @@ public class YxCustomerServiceController {
         update.setQuestion(resources.getQuestion());
         update.setAnswer(resources.getAnswer());
         update.setSort(resources.getSort());
+        update.setStatus(resources.getStatus());
         update.setUpdateUserId(loginUserId);
         update.setUpdateTime(DateTime.now().toTimestamp());
         yxCustomerServiceService.updateById(update);
