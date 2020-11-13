@@ -68,9 +68,6 @@ public class YxCustomizeRate implements Serializable {
 
 
     /** 是否删除（0：未删除，1：已删除） */
-    @NotNull
-    @TableLogic
-    @TableField(fill=FieldFill.INSERT_UPDATE)
     private Integer delFlag;
 
 

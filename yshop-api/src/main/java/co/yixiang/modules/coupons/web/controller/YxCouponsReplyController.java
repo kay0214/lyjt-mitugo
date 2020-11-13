@@ -1,12 +1,16 @@
 package co.yixiang.modules.coupons.web.controller;
 
 import cn.hutool.core.date.DateTime;
+import co.yixiang.annotation.AnonymousAccess;
 import co.yixiang.common.api.ApiResult;
 import co.yixiang.common.web.controller.BaseController;
 import co.yixiang.exception.BadRequestException;
 import co.yixiang.modules.coupons.entity.YxCouponsReply;
 import co.yixiang.modules.coupons.service.YxCouponsReplyService;
+import co.yixiang.modules.coupons.web.param.YxCouponsReplyQueryParam;
+import co.yixiang.modules.coupons.web.vo.YxCouponsQueryVo;
 import co.yixiang.modules.coupons.web.vo.couponReply.addReply.YxCouponsAddReplyRequest;
+import co.yixiang.modules.coupons.web.vo.couponReply.queryReply.YxCouponsReplyDetailVO;
 import co.yixiang.utils.SecurityUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -63,6 +67,17 @@ public class YxCouponsReplyController extends BaseController {
         deleteReply.setUpdateTime(DateTime.now().toTimestamp());
         this.yxCouponsReplyService.updateById(deleteReply);
         return ApiResult.result(true);
+    }
+
+    /**
+     * 本地生活评论表
+     */
+    @AnonymousAccess
+    @PostMapping("/getReplyList")
+    @ApiOperation(value = "获取YxCouponsReply分页列表", notes = "本地生活, 卡券评论表分页列表", response = YxCouponsQueryVo.class)
+    public ApiResult<YxCouponsReplyDetailVO> getYxCouponsPageList(@Valid @RequestBody YxCouponsReplyQueryParam param) throws Exception {
+        YxCouponsReplyDetailVO result = this.yxCouponsReplyService.getReplyDetailList(param);
+        return ApiResult.ok(result);
     }
 }
 
