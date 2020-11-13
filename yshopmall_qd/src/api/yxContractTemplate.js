@@ -12,7 +12,7 @@ export function del(ids) {
   return request({
     url: 'api/yxContractTemplate/',
     method: 'delete',
-    data: ids
+    data: ids[0]
   })
 }
 
