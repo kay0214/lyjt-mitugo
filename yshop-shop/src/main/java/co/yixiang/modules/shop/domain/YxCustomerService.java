@@ -52,8 +52,6 @@ public class YxCustomerService implements Serializable {
     private Integer merId;
 
     /** 是否删除（0：未删除，1：已删除） */
-    @TableLogic
-    @TableField(fill = FieldFill.INSERT_UPDATE)
     private Integer delFlag;
 
 
