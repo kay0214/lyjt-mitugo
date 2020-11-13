@@ -41,7 +41,7 @@ public class YxCustomerServiceServiceImpl extends BaseServiceImpl<YxCustomerServ
 
     @Override
     public Paging<YxCustomerServiceQueryVo> getYxCustomerServicePageList(YxCustomerServiceQueryParam yxCustomerServiceQueryParam) throws Exception{
-        Page page = setPageParam(yxCustomerServiceQueryParam,OrderItem.desc("create_time"));
+        Page page = setPageParam(yxCustomerServiceQueryParam,OrderItem.asc("sort"));
         IPage<YxCustomerServiceQueryVo> iPage = yxCustomerServiceMapper.getYxCustomerServicePageList(page,yxCustomerServiceQueryParam);
         return new Paging(iPage);
     }
