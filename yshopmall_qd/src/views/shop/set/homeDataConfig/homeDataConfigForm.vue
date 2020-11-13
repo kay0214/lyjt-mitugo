@@ -39,7 +39,7 @@
       </el-form-item>
 
       <el-form-item label="排序" prop="sort">
-        <el-input placeholder="请输入排序" v-model="form.sort" style="width: 300px;" maxlength="3" />
+        <el-input placeholder="请输入排序" v-model="form.sort" style="width: 300px;" />
       </el-form-item>
 
       <el-form-item label="是否显示">
