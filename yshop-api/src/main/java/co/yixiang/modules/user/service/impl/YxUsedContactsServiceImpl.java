@@ -78,11 +78,11 @@ public class YxUsedContactsServiceImpl extends BaseServiceImpl<YxUsedContactsMap
         YxUsedContactsOrderQueryVo yxUsedContactsOrderQueryVo = new YxUsedContactsOrderQueryVo();
         //订单
         YxCouponOrderQueryVo couponOrderQueryVo = yxCouponOrderMapper.getYxCouponOrderById(yxCouponOrderQueryParam.getOrderId());
-        if (null != couponOrderQueryVo) {
+        if (null == couponOrderQueryVo) {
             throw new ErrorRequestException("订单信息不存在！订单id：" + yxCouponOrderQueryParam.getOrderId());
         }
         YxCouponsQueryVo couponsQueryVo = yxCouponsMapper.getYxCouponsById(couponOrderQueryVo.getCouponId());
-        if (null != couponsQueryVo) {
+        if (null == couponsQueryVo) {
             throw new ErrorRequestException("卡券信息不存在！卡券id：" + couponOrderQueryVo.getCouponId());
         }
         // 乘客人数

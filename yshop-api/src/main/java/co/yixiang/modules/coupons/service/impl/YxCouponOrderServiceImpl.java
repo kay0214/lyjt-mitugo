@@ -932,7 +932,15 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         YxShipSeriesQueryVo yxShipSeriesQueryVo = yxShipSeriesMapper.getYxShipSeriesById(yxCoupons.getSeriesId());
         YxShipInfoQueryVo yxShipInfoQueryVo = yxShipInfoMapper.getYxShipInfoById(yxCoupons.getShipId());
         //合同模板
-        YxContractTemplateQueryVo yxContractTemplateQueryVo =  yxContractTemplateMapper.getYxContractTemplateById(yxCoupons.getTempId());
+        if (0 != yxCoupons.getTempId()) {
+            YxContractTemplateQueryVo yxContractTemplateQueryVo = yxContractTemplateMapper.getYxContractTemplateById(yxCoupons.getTempId());
+            if (null == yxContractTemplateQueryVo) {
+                throw new BadRequestException("船票券 卡券id：" + yxCoupons.getId() + " 获取合同模板信息失败！tempId = " + yxCoupons.getTempId());
+            }
+            //合同模板信息
+            item.setTempFilePath(yxContractTemplateQueryVo.getFilePath());
+            item.setTempName(yxContractTemplateQueryVo.getTempName());
+        }
 
         if(null==yxShipSeriesQueryVo){
             throw new BadRequestException("船票券 卡券id："+yxCoupons.getId()+" 获取船只系列信息失败！seriesId " +yxCoupons.getSeriesId());
@@ -940,9 +948,7 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         if(null ==yxShipInfoQueryVo){
             throw new BadRequestException("船票券 卡券id："+yxCoupons.getId()+" 获取船只信息失败！shipId"+yxCoupons.getShipId());
         }
-        if(null==yxContractTemplateQueryVo){
-            throw new BadRequestException("船票券 卡券id："+yxCoupons.getId()+" 获取合同模板信息失败！tempId = "+yxCoupons.getTempId());
-        }
+
         //船只名称
         item.setShipName(yxShipInfoQueryVo.getShipName());
         //船只坐标
@@ -956,9 +962,7 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
             List<String> stringList = Arrays.asList(yxCoupons.getConfirmation().split(","));
             item.setConfirmationList(stringList);
         }
-        //合同模板信息
-        item.setTempFilePath(yxContractTemplateQueryVo.getFilePath());
-        item.setTempName(yxContractTemplateQueryVo.getTempName());
+
         //
         item.setShipOrderStatus(shipOrderStatus);
         //可用二维码

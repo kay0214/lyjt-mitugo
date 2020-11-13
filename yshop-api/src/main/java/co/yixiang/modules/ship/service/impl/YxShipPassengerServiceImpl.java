@@ -6,14 +6,18 @@ import co.yixiang.exception.BadRequestException;
 import co.yixiang.modules.coupons.entity.YxCouponOrder;
 import co.yixiang.modules.coupons.entity.YxCouponOrderDetail;
 import co.yixiang.modules.coupons.mapper.YxCouponOrderMapper;
+import co.yixiang.modules.coupons.mapper.YxCouponsMapper;
 import co.yixiang.modules.coupons.service.YxCouponOrderDetailService;
 import co.yixiang.modules.coupons.web.param.YxCouponComfirmRideParam;
 import co.yixiang.modules.coupons.web.param.YxCouponOrderPassDetailParam;
+import co.yixiang.modules.coupons.web.vo.YxCouponsQueryVo;
 import co.yixiang.modules.ship.entity.YxShipPassenger;
 import co.yixiang.modules.ship.mapper.YxShipPassengerMapper;
 import co.yixiang.modules.ship.service.YxShipPassengerService;
 import co.yixiang.modules.ship.web.param.YxShipPassengerQueryParam;
 import co.yixiang.modules.ship.web.vo.YxShipPassengerQueryVo;
+import co.yixiang.modules.user.mapper.YxUsedContactsMapper;
+import co.yixiang.modules.user.web.vo.YxUsedContactsQueryVo;
 import co.yixiang.utils.CardNumUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -51,6 +55,10 @@ public class YxShipPassengerServiceImpl extends BaseServiceImpl<YxShipPassengerM
     private YxCouponOrderMapper yxCouponOrderMapper;
     @Autowired
     private YxCouponOrderDetailService yxCouponOrderDetailService;
+    @Autowired
+    private YxUsedContactsMapper yxUsedContactsMapper;
+    @Autowired
+    private YxCouponsMapper yxCouponsMapper;
 
     @Override
     public YxShipPassengerQueryVo getYxShipPassengerById(Serializable id) throws Exception{
@@ -79,19 +87,30 @@ public class YxShipPassengerServiceImpl extends BaseServiceImpl<YxShipPassengerM
         if(CollectionUtils.isEmpty(passDetailParamList)){
             throw new BadRequestException("乘客信息错误！");
         }
+        YxCouponOrder couponOrder = yxCouponOrderMapper.selectById(couponComfirmRideParam.getOrderId());
+        if(null == couponOrder){
+            throw new BadRequestException("获取订单信息失败！");
+        }
+        YxCouponsQueryVo yxCouponsQueryVo = yxCouponsMapper.getYxCouponsById(couponOrder.getCouponId());
+        if(null == yxCouponsQueryVo){
+            throw new BadRequestException("获取卡券信息失败！");
+        }
         for(YxCouponOrderPassDetailParam yxCouponOrderPassDetailParam:passDetailParamList){
             YxShipPassenger yxShipPassenger = new YxShipPassenger();
-            YxShipPassengerQueryVo passengerQueryVo = yxShipPassengerMapper.getYxShipPassengerById(yxCouponOrderPassDetailParam.getContactsId());
-            BeanUtils.copyProperties(passengerQueryVo,yxShipPassenger);
+            YxUsedContactsQueryVo usedContactsQueryVo =  yxUsedContactsMapper.getYxUsedContactsById(yxCouponOrderPassDetailParam.getContactsId());
+            yxShipPassenger.setPassengerName(usedContactsQueryVo.getUserName());
+            yxShipPassenger.setPhone(usedContactsQueryVo.getUserPhone());
+            yxShipPassenger.setIdCard(usedContactsQueryVo.getCardId());
             yxShipPassenger.setIsAdult(yxCouponOrderPassDetailParam.getIsAdult());
             yxShipPassenger.setSignStatus(yxCouponOrderPassDetailParam.getSignStatus());
+            yxShipPassenger.setCouponOrderId(couponComfirmRideParam.getOrderId());
+            yxShipPassenger.setShipId(yxCouponsQueryVo.getShipId());
+            yxShipPassenger.setBatchNo("");
             yxShipPassengerList.add(yxShipPassenger);
         }
         //批量保存乘客信息
        boolean instFlg = this.saveBatch(yxShipPassengerList);
 
-        couponComfirmRideParam.getOrderId();
-        YxCouponOrder couponOrder = yxCouponOrderMapper.selectById(couponComfirmRideParam.getOrderId());
         //使用张数
         QueryWrapper<YxCouponOrderDetail> queryWrapper = new QueryWrapper<>();
         queryWrapper.lambda().eq(YxCouponOrderDetail::getOrderId,couponOrder.getOrderId()).eq(YxCouponOrderDetail::getDelFlag,0);
@@ -120,7 +139,7 @@ public class YxShipPassengerServiceImpl extends BaseServiceImpl<YxShipPassengerM
     public List<YxShipPassengerQueryVo> getPassengerByOrderId(int orderId) {
         List<YxShipPassengerQueryVo> passengerQueryVoList = new ArrayList<>();
         QueryWrapper<YxShipPassenger> queryWrapper = new QueryWrapper<>();
-        queryWrapper.lambda().le(YxShipPassenger::getCouponOrderId, orderId).eq(YxShipPassenger::getDelFlag, 0);
+        queryWrapper.lambda().eq(YxShipPassenger::getCouponOrderId, orderId).eq(YxShipPassenger::getDelFlag, 0);
         List<YxShipPassenger> shipPassengerList = this.list(queryWrapper);
         if (!CollectionUtils.isEmpty(shipPassengerList)) {
             for (YxShipPassenger shipPassenger : shipPassengerList) {

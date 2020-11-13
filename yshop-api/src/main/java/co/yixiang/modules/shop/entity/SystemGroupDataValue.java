@@ -19,4 +19,9 @@ public class SystemGroupDataValue {
     private String url;
     private String wxapp_url;
     private Integer status;
+
+    private String price;
+    private String crossPrice;
+    // 展示方式  0纵向 1横向
+    private String showType;
 }
