@@ -14,6 +14,7 @@ import co.yixiang.modules.coupons.service.YxCouponsReplyService;
 import co.yixiang.modules.coupons.web.param.YxCouponsReplyQueryParam;
 import co.yixiang.modules.coupons.web.vo.YxCouponsReplyQueryVo;
 import co.yixiang.modules.coupons.web.vo.couponReply.addReply.YxCouponsAddReplyRequest;
+import co.yixiang.modules.coupons.web.vo.couponReply.queryReply.YxCouponsReplyDetailVO;
 import co.yixiang.modules.coupons.web.vo.couponReply.queryReply.YxCouponsReplyVO;
 import co.yixiang.modules.image.entity.YxImageInfo;
 import co.yixiang.modules.image.service.YxImageInfoService;
@@ -30,6 +31,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -156,6 +158,59 @@ public class YxCouponsReplyServiceImpl extends BaseServiceImpl<YxCouponsReplyMap
         replyVO.setAddTimeStr(DateUtils.timestampToStr10(yxCouponsReply.getAddTime()));
         replyVO.setMerchantReplyTimeStr(DateUtils.timestampToStr10(yxCouponsReply.getMerchantReplyTime()));
         return replyVO;
+    }
+
+    /**
+     * 获取卡券评价详情
+     *
+     * @param param
+     * @return
+     */
+    @Override
+    public YxCouponsReplyDetailVO getReplyDetailList(YxCouponsReplyQueryParam param) {
+        // 查询评价总数
+        YxCouponsReplyDetailVO result = new YxCouponsReplyDetailVO();
+        Integer totalReply = this.count(new QueryWrapper<YxCouponsReply>().lambda()
+                .eq(YxCouponsReply::getCouponId, param.getCouponId())
+                .eq(YxCouponsReply::getDelFlag, 0));
+        // 无评价返回报错
+        if (totalReply <= 0) {
+            throw new BadRequestException("当前卡券暂无评价");
+        }
+        // 处理好评率
+        Integer goodCount = this.count(new QueryWrapper<YxCouponsReply>().lambda()
+                .eq(YxCouponsReply::getCouponId, param.getCouponId())
+                .eq(YxCouponsReply::getDelFlag, 0)
+                .gt(YxCouponsReply::getGeneralScore, 3));
+        result.setGoodReplyCount(goodCount);
+        result.setGoodRate(new BigDecimal(goodCount).divide(new BigDecimal(totalReply), 4, BigDecimal.ROUND_HALF_UP).multiply(new BigDecimal(100)) + "%");
+
+        // 查询中差评数
+        Integer midCount = this.count(new QueryWrapper<YxCouponsReply>().lambda()
+                .eq(YxCouponsReply::getCouponId, param.getCouponId())
+                .eq(YxCouponsReply::getDelFlag, 0)
+                .eq(YxCouponsReply::getGeneralScore, 3));
+        result.setMidReplyCount(midCount);
+        Integer badCount = this.count(new QueryWrapper<YxCouponsReply>().lambda()
+                .eq(YxCouponsReply::getCouponId, param.getCouponId())
+                .eq(YxCouponsReply::getDelFlag, 0)
+                .lt(YxCouponsReply::getGeneralScore, 3));
+        result.setBadReplyCount(badCount);
+
+        // 处理评价分页数据
+        IPage<YxCouponsReply> replyList = this.page(new Page<>(param.getPage(), param.getLimit()), new QueryWrapper<YxCouponsReply>().lambda()
+                .eq(YxCouponsReply::getCouponId, param.getCouponId())
+                .eq(YxCouponsReply::getDelFlag, 0)
+                .orderByDesc(YxCouponsReply::getAddTime));
+        if (null != replyList && replyList.getTotal() > 0) {
+            List<YxCouponsReplyVO> replyVOs = new ArrayList<>();
+            for (YxCouponsReply item : replyList.getRecords()) {
+                YxCouponsReplyVO replyVO = convertCouponsReply(item);
+                replyVOs.add(replyVO);
+            }
+            result.setReplyList(replyVOs);
+        }
+        return result;
     }
 
 }

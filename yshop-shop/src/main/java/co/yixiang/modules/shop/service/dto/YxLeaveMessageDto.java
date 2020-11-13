@@ -85,6 +85,14 @@ public class YxLeaveMessageDto implements Serializable {
     private Integer updateUserId;
 
 
+    /** 修改人 */
+
+    private String updateUsername;
+
+
+    private String updateNickname;
+
+
     /** 创建时间 */
 
     private Timestamp createTime;

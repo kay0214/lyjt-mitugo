@@ -64,6 +64,7 @@ public class VerificationCodeController extends BaseController {
             throw new BadRequestException("无效卡券");
         }
         Map<String, Object> result = this.yxCouponOrderService.updateShipCouponOrder(decodeVerifyCode, uid,requestParam.getShipId(),requestParam.getShipUserId(),user);
+
         return ResponseEntity.ok(result);
     }
 

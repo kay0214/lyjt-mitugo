@@ -15,9 +15,11 @@ import co.yixiang.modules.coupon.domain.YxCouponOrder;
 import co.yixiang.modules.coupon.domain.YxCoupons;
 import co.yixiang.modules.coupon.service.YxCouponOrderService;
 import co.yixiang.modules.coupon.service.YxCouponsService;
+import co.yixiang.modules.shop.domain.User;
 import co.yixiang.modules.shop.domain.YxLeaveMessage;
 import co.yixiang.modules.shop.domain.YxStoreOrder;
 import co.yixiang.modules.shop.domain.YxStoreProduct;
+import co.yixiang.modules.shop.service.UserService;
 import co.yixiang.modules.shop.service.YxLeaveMessageService;
 import co.yixiang.modules.shop.service.YxStoreOrderService;
 import co.yixiang.modules.shop.service.YxStoreProductService;
@@ -68,6 +70,8 @@ public class YxLeaveMessageServiceImpl extends BaseServiceImpl<YxLeaveMessageMap
     private YxCouponOrderService yxCouponOrderService;
     @Autowired
     private YxStoreOrderService yxStoreOrderService;
+    @Autowired
+    private UserService userService;
 
     @Override
     //@Cacheable
@@ -113,6 +117,14 @@ public class YxLeaveMessageServiceImpl extends BaseServiceImpl<YxLeaveMessageMap
             if (null != item.getTakeTime() && item.getTakeTime() > 0) {
                 // 格式化处理时间
                 item.setTakeTimeStr(DateUtils.timestampToStr10(item.getTakeTime()));
+            }
+            if(0 != item.getStatus()) {
+                // 处理人信息
+                User user = this.userService.getById(item.getUpdateUserId());
+                if(null != user) {
+                    item.setUpdateUsername(user.getUsername());
+                    item.setUpdateNickname(user.getNickName());
+                }
             }
             // 留言类型：0 -> 商品，1-> 卡券 2 -> 商城订单，3 -> 本地生活订单，4 ->商户，5 -> 平台
             switch (item.getMessageType()) {

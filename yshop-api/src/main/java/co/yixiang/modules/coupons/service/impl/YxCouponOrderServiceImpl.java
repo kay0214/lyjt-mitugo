@@ -25,11 +25,17 @@ import co.yixiang.modules.commission.service.YxCustomizeRateService;
 import co.yixiang.modules.commission.service.YxNowRateService;
 import co.yixiang.modules.contract.mapper.YxContractTemplateMapper;
 import co.yixiang.modules.contract.web.vo.YxContractTemplateQueryVo;
-import co.yixiang.modules.coupons.entity.*;
+import co.yixiang.modules.coupons.entity.YxCouponOrder;
+import co.yixiang.modules.coupons.entity.YxCouponOrderDetail;
+import co.yixiang.modules.coupons.entity.YxCouponOrderUse;
+import co.yixiang.modules.coupons.entity.YxCoupons;
 import co.yixiang.modules.coupons.mapper.CouponOrderMap;
 import co.yixiang.modules.coupons.mapper.YxCouponOrderMapper;
 import co.yixiang.modules.coupons.mapper.YxCouponsMapper;
-import co.yixiang.modules.coupons.service.*;
+import co.yixiang.modules.coupons.service.YxCouponOrderDetailService;
+import co.yixiang.modules.coupons.service.YxCouponOrderService;
+import co.yixiang.modules.coupons.service.YxCouponOrderUseService;
+import co.yixiang.modules.coupons.service.YxCouponsService;
 import co.yixiang.modules.coupons.web.param.YxCouponOrderQueryParam;
 import co.yixiang.modules.coupons.web.vo.*;
 import co.yixiang.modules.image.entity.YxImageInfo;
@@ -100,8 +106,7 @@ import java.util.*;
 @Slf4j
 @Service
 @Transactional(rollbackFor = Exception.class)
-public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMapper, YxCouponOrder> implements YxCouponOrderService
-{
+public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMapper, YxCouponOrder> implements YxCouponOrderService {
 
     @Autowired
     private YxCouponOrderMapper yxCouponOrderMapper;
@@ -361,7 +366,7 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         if (!res) throw new ErrorRequestException("订单生成失败");
 
         int userStatus = 1;
-        if(4==coupons.getCouponType()){
+        if (4 == coupons.getCouponType()) {
             //船票券 默认为0：不可用
             userStatus = 0;
         }
@@ -409,7 +414,7 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
 //                LocalLiveConstants.ORDER_OUTTIME_UNPAY, TimeUnit.MINUTES);
 
         // add 保存购买时费率
-        YxNowRate nowRate = setNowRateByCouponId(coupons,couponOrder);
+        YxNowRate nowRate = setNowRateByCouponId(coupons, couponOrder);
         yxNowRateService.save(nowRate);
 
         return couponOrder;
@@ -718,6 +723,9 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
             case STATUS_4://已过期
                 wrapper.eq("status", 1);
                 break;
+            case STATUS_5:// 待评价
+                wrapper.eq("status", 6).eq("evaluate", 0);
+                break;
             case STATUS_MINUS_1://退款售后
                 wrapper.in("refund_status", 1, 2);
                 break;
@@ -833,8 +841,8 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         BeanUtils.copyBeanProp(item, yxCouponOrder);
         // 获取卡券list
         List<YxCouponOrderDetail> detailList = this.yxCouponOrderDetailService.list(new QueryWrapper<YxCouponOrderDetail>().lambda().eq(YxCouponOrderDetail::getOrderId, item.getOrderId()));
-        if(CollectionUtils.isEmpty(detailList)){
-            throw new BadRequestException("根据订单号:"+item.getOrderId()+" 未查询到卡券订单信息");
+        if (CollectionUtils.isEmpty(detailList)) {
+            throw new BadRequestException("根据订单号:" + item.getOrderId() + " 未查询到卡券订单信息");
         }
         // 获取该订单购买的优惠券id
         Integer couponId = detailList.get(0).getCouponId();
@@ -921,13 +929,13 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         //卡券类型;1:代金券, 2:折扣券, 3:满减券，4:船票券
         item.setCouponType(yxCoupons.getCouponType());
         //船只信息
-        if(4==yxCoupons.getCouponType()){
-            item = setShipDetailInof(item,yxCoupons,yxCouponOrder,shipOrderStatus);
+        if (4 == yxCoupons.getCouponType()) {
+            item = setShipDetailInof(item, yxCoupons, yxCouponOrder, shipOrderStatus);
         }
         return item;
     }
 
-    private YxCouponOrderQueryVo setShipDetailInof( YxCouponOrderQueryVo item,YxCoupons yxCoupons,YxCouponOrder yxCouponOrder,int shipOrderStatus){
+    private YxCouponOrderQueryVo setShipDetailInof(YxCouponOrderQueryVo item, YxCoupons yxCoupons, YxCouponOrder yxCouponOrder, int shipOrderStatus) {
         //船票券
         YxShipSeriesQueryVo yxShipSeriesQueryVo = yxShipSeriesMapper.getYxShipSeriesById(yxCoupons.getSeriesId());
         YxShipInfoQueryVo yxShipInfoQueryVo = yxShipInfoMapper.getYxShipInfoById(yxCoupons.getShipId());
@@ -942,11 +950,11 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
             item.setTempName(yxContractTemplateQueryVo.getTempName());
         }
 
-        if(null==yxShipSeriesQueryVo){
-            throw new BadRequestException("船票券 卡券id："+yxCoupons.getId()+" 获取船只系列信息失败！seriesId " +yxCoupons.getSeriesId());
+        if (null == yxShipSeriesQueryVo) {
+            throw new BadRequestException("船票券 卡券id：" + yxCoupons.getId() + " 获取船只系列信息失败！seriesId " + yxCoupons.getSeriesId());
         }
-        if(null ==yxShipInfoQueryVo){
-            throw new BadRequestException("船票券 卡券id："+yxCoupons.getId()+" 获取船只信息失败！shipId"+yxCoupons.getShipId());
+        if (null == yxShipInfoQueryVo) {
+            throw new BadRequestException("船票券 卡券id：" + yxCoupons.getId() + " 获取船只信息失败！shipId" + yxCoupons.getShipId());
         }
 
         //船只名称
@@ -958,7 +966,7 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         item.setShipAddress(yxShipSeriesQueryVo.getShipAddress());
         item.setSeriesName(yxShipSeriesQueryVo.getSeriesName());
         //健康确认
-        if(StringUtils.isNotBlank(yxCoupons.getConfirmation())){
+        if (StringUtils.isNotBlank(yxCoupons.getConfirmation())) {
             List<String> stringList = Arrays.asList(yxCoupons.getConfirmation().split(","));
             item.setConfirmationList(stringList);
         }
@@ -973,27 +981,29 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
 
     /**
      * 可用二维码
+     *
      * @param yxCouponOrder
      * @return
      */
-    private List<String> availableVerifyCode(YxCouponOrder yxCouponOrder){
+    private List<String> availableVerifyCode(YxCouponOrder yxCouponOrder) {
         List<String> listAvailable = new ArrayList<>();
-        if(4==yxCouponOrder.getStatus()){
+        if (4 == yxCouponOrder.getStatus()) {
             //订单状态为待使用
-            QueryWrapper<YxCouponOrderDetail> queryWrapperAble =  new QueryWrapper<YxCouponOrderDetail>();
-            queryWrapperAble.lambda().eq(YxCouponOrderDetail::getOrderId, yxCouponOrder.getOrderId()).eq(YxCouponOrderDetail::getUserStatus,1).eq(YxCouponOrderDetail::getStatus,4);
+            QueryWrapper<YxCouponOrderDetail> queryWrapperAble = new QueryWrapper<YxCouponOrderDetail>();
+            queryWrapperAble.lambda().eq(YxCouponOrderDetail::getOrderId, yxCouponOrder.getOrderId()).eq(YxCouponOrderDetail::getUserStatus, 1).eq(YxCouponOrderDetail::getStatus, 4);
             List<YxCouponOrderDetail> detailListVisable = this.yxCouponOrderDetailService.list(queryWrapperAble);
-            if(CollectionUtils.isEmpty(detailListVisable)){
+            if (CollectionUtils.isEmpty(detailListVisable)) {
                 return listAvailable;
             }
-            for(YxCouponOrderDetail detail:detailListVisable){
-                String ableCode = Base64Utils.encode(  detail.getVerifyCode() + "," + yxCouponOrder.getUid());
+            for (YxCouponOrderDetail detail : detailListVisable) {
+                String ableCode = Base64Utils.encode(detail.getVerifyCode() + "," + yxCouponOrder.getUid());
                 listAvailable.add(ableCode);
             }
             return listAvailable;
         }
         return listAvailable;
     }
+
     /**
      * 计算卡券各种订单数量
      *
@@ -1059,6 +1069,14 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
 //        countVO.setOutTimeCount(this.count(wrapper8));
         countVO.setCancelCount(this.count(wrapper8));
 
+        // 已待评价
+        QueryWrapper<YxCouponOrder> wrapper9 = new QueryWrapper<>();
+        wrapper9.lambda().eq(YxCouponOrder::getUid, uid);
+        wrapper9.lambda().eq(YxCouponOrder::getDelFlag, CommonEnum.DEL_STATUS_0.getValue());
+        wrapper9.lambda().in(YxCouponOrder::getStatus, 6);
+        wrapper9.lambda().eq(YxCouponOrder::getEvaluate, 0);
+        countVO.setWaitReplyCount(this.count(wrapper7));
+
         return countVO;
     }
 
@@ -1104,15 +1122,15 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
      * @return
      */
     @Override
-    public Map<String, Object> updateCouponOrder(String decodeVerifyCode, int uid,boolean isAll) {
+    public Map<String, Object> updateCouponOrder(String decodeVerifyCode, int uid, boolean isAll) {
         // 校验优惠券信息
-        Map<String, Object> map = this.couponCheck(decodeVerifyCode,uid,null,null);
-        if(map.containsKey("status")){
+        Map<String, Object> map = this.couponCheck(decodeVerifyCode, uid, null, null);
+        if (map.containsKey("status")) {
             return map;
         }
-        YxStoreInfo yxStoreInfo = (YxStoreInfo)map.get("yxStoreInfo");
-        YxCouponOrder yxCouponOrder = (YxCouponOrder)map.get("yxCouponOrder");
-        YxCouponOrderDetail yxCouponOrderDetail = (YxCouponOrderDetail)map.get("yxCouponOrderDetail");
+        YxStoreInfo yxStoreInfo = (YxStoreInfo) map.get("yxStoreInfo");
+        YxCouponOrder yxCouponOrder = (YxCouponOrder) map.get("yxCouponOrder");
+        YxCouponOrderDetail yxCouponOrderDetail = (YxCouponOrderDetail) map.get("yxCouponOrderDetail");
 
 
         // 第一次核销发送分佣mq
@@ -1122,7 +1140,7 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         }
 
         // 处理订单表数据
-        int usedCount = updateCouponOrder(isAll,yxCouponOrder,yxCouponOrderDetail);
+        int usedCount = updateCouponOrder(isAll, yxCouponOrder, yxCouponOrderDetail);
         // 处理店铺核销数据
         updateOrderUse(uid, yxStoreInfo, yxCouponOrder, yxCouponOrderDetail, usedCount);
 
@@ -1134,10 +1152,12 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
             // 更新商户余额
             updateMerInfo(yxCouponOrder);
         }
-        map.put("status", "1");
-        map.put("usedCount", usedCount);
-        map.put("statusDesc", "核销成功");
-        return map;
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("status", "1");
+        result.put("usedCount", usedCount);
+        result.put("statusDesc", "核销成功");
+        return result;
     }
 
     /**
@@ -1277,6 +1297,7 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
 
     /**
      * 船票核销操作
+     *
      * @param decodeVerifyCode
      * @param uid
      * @param shipId
@@ -1284,20 +1305,20 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
      * @return
      */
     @Override
-    public Map<String, Object> updateShipCouponOrder(String decodeVerifyCode, int uid, Integer shipId, Integer shipUserId,SystemUser user) {
+    public Map<String, Object> updateShipCouponOrder(String decodeVerifyCode, int uid, Integer shipId, Integer shipUserId, SystemUser user) {
         // 校验优惠券信息
-        Map<String, Object> map = this.couponCheck(decodeVerifyCode,uid,shipId,shipUserId);
-        if(map.containsKey("status")){
+        Map<String, Object> map = this.couponCheck(decodeVerifyCode, uid, shipId, shipUserId);
+        if (map.containsKey("status")) {
             return map;
         }
-        YxStoreInfo yxStoreInfo = (YxStoreInfo)map.get("yxStoreInfo");
-        YxCouponOrder yxCouponOrder = (YxCouponOrder)map.get("yxCouponOrder");
-        YxCouponOrderDetail yxCouponOrderDetail = (YxCouponOrderDetail)map.get("yxCouponOrderDetail");
+        YxStoreInfo yxStoreInfo = (YxStoreInfo) map.get("yxStoreInfo");
+        YxCouponOrder yxCouponOrder = (YxCouponOrder) map.get("yxCouponOrder");
+        YxCouponOrderDetail yxCouponOrderDetail = (YxCouponOrderDetail) map.get("yxCouponOrderDetail");
 
         // 处理船只相关操作
-        map.put("shipId",shipId);
-        map.put("shipUserId",shipUserId);
-        map.put("user",user);
+        map.put("shipId", shipId);
+        map.put("shipUserId", shipUserId);
+        map.put("user", user);
         this.updateSuccessShipInfo(map);
 
 
@@ -1307,7 +1328,7 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
             isFirst = true;
         }
         // 处理订单表数据
-        int usedCount = updateCouponOrder(true,yxCouponOrder,yxCouponOrderDetail);
+        int usedCount = updateCouponOrder(true, yxCouponOrder, yxCouponOrderDetail);
         // 处理店铺核销数据
         updateOrderUse(uid, yxStoreInfo, yxCouponOrder, yxCouponOrderDetail, usedCount);
 
@@ -1315,9 +1336,11 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
             updateMerInfo(yxCouponOrder);
         }
 
-        map.put("status", "1");
-        map.put("statusDesc", "核销成功");
-        return map;
+        Map<String, Object> result = new HashMap<>();
+        result.put("status", "1");
+        result.put("usedCount", usedCount);
+        result.put("statusDesc", "核销成功");
+        return result;
 
     }
 
@@ -1376,17 +1399,17 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
     }
 
     // 修改订单状态
-    private int updateCouponOrder(boolean isAll, YxCouponOrder yxCouponOrder,YxCouponOrderDetail yxCouponOrderDetail) {
+    private int updateCouponOrder(boolean isAll, YxCouponOrder yxCouponOrder, YxCouponOrderDetail yxCouponOrderDetail) {
         int usedCount = 1;
         List<YxCouponOrderDetail> yxCouponOrderDetails = new ArrayList<>();
-        if(isAll){
+        if (isAll) {
             usedCount = 0;
             // 全部核销 查询所有已经能用的详情  user_status 核销状态 0：不可用 1：可用
             this.yxCouponOrderDetailService.list(new QueryWrapper<YxCouponOrderDetail>().eq("order_id", yxCouponOrder.getOrderId()).eq("user_status", 1));
-            for (YxCouponOrderDetail item : yxCouponOrderDetails){
+            for (YxCouponOrderDetail item : yxCouponOrderDetails) {
                 usedCount += item.getUseCount();
             }
-        }else {
+        } else {
             yxCouponOrderDetails.add(yxCouponOrderDetail);
         }
         yxCouponOrder.setUsedCount(yxCouponOrder.getUsedCount() + usedCount);
@@ -1399,11 +1422,11 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         // 数据入库
         this.updateById(yxCouponOrder);
         // 处理订单详情表数据
-        for (YxCouponOrderDetail item : yxCouponOrderDetails){
-            if(isAll){
+        for (YxCouponOrderDetail item : yxCouponOrderDetails) {
+            if (isAll) {
                 // 全部核销
-                item.setUsedCount(item.getUseCount() );
-            }else {
+                item.setUsedCount(item.getUseCount());
+            } else {
                 // 单个核销
                 item.setUsedCount(item.getUsedCount() + 1);
             }
@@ -1423,27 +1446,27 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
     // 处理船只操作
     private void updateSuccessShipInfo(Map<String, Object> map) {
         // 先查询这个船只有没有已经分配了   yx_ship_operation_detail
-        Integer shipId = (Integer)map.get("shipId");
-        Integer shipUserId = (Integer)map.get("shipUserId");
-        YxShipOperation yxShipOperation = yxShipOperationService.getShipOperationBySidUid(shipId,shipUserId);
-        if(yxShipOperation==null){
+        Integer shipId = (Integer) map.get("shipId");
+        Integer shipUserId = (Integer) map.get("shipUserId");
+        YxShipOperation yxShipOperation = yxShipOperationService.getShipOperationBySidUid(shipId, shipUserId);
+        if (yxShipOperation == null) {
             // 没有分配  就新增一个
             yxShipOperation = yxShipOperationService.insertYxShipOperation(map);
         }
         // 插入详情表
-        map.put("yxShipOperation",yxShipOperation);
+        map.put("yxShipOperation", yxShipOperation);
         YxShipOperationDetail shipOperationDetail = yxShipOperationDetailService.saveShipOperationDetail(map);
-        yxShipOperation.setTotalPassenger(yxShipOperation.getTotalPassenger()+shipOperationDetail.getTotalPassenger());
+        yxShipOperation.setTotalPassenger(yxShipOperation.getTotalPassenger() + shipOperationDetail.getTotalPassenger());
         // 老年人人数
-        yxShipOperation.setOldPassenger(yxShipOperation.getOldPassenger()+shipOperationDetail.getOldPassenger());
+        yxShipOperation.setOldPassenger(yxShipOperation.getOldPassenger() + shipOperationDetail.getOldPassenger());
         // 未成年人数
-        yxShipOperation.setUnderagePassenger(yxShipOperation.getUnderagePassenger()+shipOperationDetail.getUnderagePassenger());
+        yxShipOperation.setUnderagePassenger(yxShipOperation.getUnderagePassenger() + shipOperationDetail.getUnderagePassenger());
         // 修改乘坐人数量之类的
         yxShipOperationService.updateById(yxShipOperation);
     }
 
     // 校验卡券状态
-    private Map couponCheck(String decodeVerifyCode, int uid,Integer shipId, Integer shipUserId){
+    private Map couponCheck(String decodeVerifyCode, int uid, Integer shipId, Integer shipUserId) {
         Map<String, Object> map = new HashMap<>();
         map.put("status", "99");
         String[] decode = decodeVerifyCode.split(",");
@@ -1517,7 +1540,7 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
             return map;
         }
         // 校验船只信息  和船长信息 乘客信息等
-        if(SystemConfigConstants.COUPON_TYPE_CP == yxCoupons.getCouponType().intValue()) {
+        if (SystemConfigConstants.COUPON_TYPE_CP == yxCoupons.getCouponType().intValue()) {
             // 如果是船票券
             YxShipInfo shipInfo = yxShipInfoService.getById(shipId);
             SystemUser captainUser = systemUserService.getById(shipUserId);
@@ -1529,11 +1552,11 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
                 map.put("statusDesc", "未查询到对应船长");
                 return map;
             }
-            if(shipInfo.getCurrentStatus().intValue()==1){
+            if (shipInfo.getCurrentStatus().intValue() == 1) {
                 map.put("statusDesc", "船只已离港");
                 return map;
             }
-            if(shipInfo.getCurrentStatus().intValue()==2){
+            if (shipInfo.getCurrentStatus().intValue() == 2) {
                 map.put("statusDesc", "船只维修中");
                 return map;
             }
@@ -1543,29 +1566,30 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
 
         // 如果校验没问题了  就放进去
         map.remove("status");
-        map.put("yxStoreInfo",yxStoreInfo);
-        map.put("yxCoupons",yxCoupons);
-        map.put("yxCouponOrder",yxCouponOrder);
-        map.put("yxCouponOrderDetail",yxCouponOrderDetail);
-        map.put("yxStoreInfo",yxStoreInfo);
+        map.put("yxStoreInfo", yxStoreInfo);
+        map.put("yxCoupons", yxCoupons);
+        map.put("yxCouponOrder", yxCouponOrder);
+        map.put("yxCouponOrderDetail", yxCouponOrderDetail);
+        map.put("yxStoreInfo", yxStoreInfo);
         return map;
     }
 
-    private YxNowRate setNowRateByCouponId(YxCoupons yxCoupons,YxCouponOrder couponOrder){
+    private YxNowRate setNowRateByCouponId(YxCoupons yxCoupons, YxCouponOrder couponOrder) {
         //
         YxNowRate nowRate = new YxNowRate();
         //本地生活
         nowRate.setRateType(0);
         nowRate.setOrderId(couponOrder.getOrderId());
-        switch (yxCoupons.getCustomizeType()){
+        switch (yxCoupons.getCustomizeType()) {
             case 0:
                 YxCommissionRate commissionRate = commissionRateService.getOne(new QueryWrapper<YxCommissionRate>().eq("del_flag", 0));
-                BeanUtils.copyProperties(commissionRate,nowRate);
+                BeanUtils.copyProperties(commissionRate, nowRate);
                 break;
-            case 1:break;
+            case 1:
+                break;
             case 2:
-                YxCustomizeRate yxCustomizeRate = yxCustomizeRateService.getCustomizeRateByParam(0,yxCoupons.getId());
-                BeanUtils.copyProperties(yxCustomizeRate,nowRate);
+                YxCustomizeRate yxCustomizeRate = yxCustomizeRateService.getCustomizeRateByParam(0, yxCoupons.getId());
+                BeanUtils.copyProperties(yxCustomizeRate, nowRate);
                 break;
         }
         nowRate.setDelFlag(0);
