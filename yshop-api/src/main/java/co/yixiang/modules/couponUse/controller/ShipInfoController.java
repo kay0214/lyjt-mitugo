@@ -157,6 +157,8 @@ public class ShipInfoController extends BaseController {
 
         YxShipOperationQueryParam yxShipOperationQueryParam = new YxShipOperationQueryParam();
         yxShipOperationQueryParam.setStatus(3);
+        //默认今日出海记录
+        shipInOperationParam.setDateStatus("1");
 //        yxShipOperationQueryParam.s
         Map<String,Object> map = yxShipInfoService.getShipOperationList(yxShipOperationQueryParam,shipInOperationParam, user.getId().intValue(),null);
         return ResponseEntity.ok(map);
