@@ -24,4 +24,14 @@
         where id=#{id}
     </update>
 
+    <select id="getCaptionListByStoreId" resultType="co.yixiang.modules.manage.web.vo.SystemUserQueryVo">
+        SELECT
+            `user`.*
+        FROM
+            `user`
+        LEFT JOIN users_roles ur ON `user`.id = ur.user_id
+        WHERE
+            `user`.store_id = #{storeId}
+        AND ur.role_id = 9
+    </select>
 </mapper>

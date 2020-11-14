@@ -12,7 +12,28 @@
     </select>
 
     <select id="getYxShipOperationPageList" resultType="co.yixiang.modules.ship.web.vo.YxShipOperationQueryVo">
-        select <include refid="Base_Column_List"/> from yx_ship_operation
+        select
+        <include refid="Base_Column_List"/>
+        from yx_ship_operation
     </select>
 
+    <select id="getYxShipOpeartionVoPageList" resultType="co.yixiang.modules.ship.web.vo.YxShipOpeartionVo">
+        select
+        <include refid="Base_Column_List"/>
+        from yx_ship_operation where del_flag = 0
+        <if test="param.captainId !='' and param.captainId != null">and captain_id = #{param.captainId}</if>
+
+        <if test="param.shipIdList != null">
+            and ship_id IN
+            <foreach item='shipId' index='index' collection='param.shipIdList ' open='(' separator=',' close=')'>
+                #{shipId}
+            </foreach>
+        </if>
+        <if test="param.status != null">
+            <if test="param.status == 3">and status!=0</if>
+        </if>
+        <if test="param.startTime !='' and param.startTime != null "> and create_time <![CDATA[ >= ]]> #{param.startTime} </if>
+        <if test="param.endTime !='' and param.endTime != null"> and create_time <![CDATA[ <= ]]>#{param.endTime} </if>
+
+    </select>
 </mapper>

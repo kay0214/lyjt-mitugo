@@ -16,10 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.CollectionUtils;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -55,6 +52,7 @@ public class ShipSeriesController extends BaseController {
         map.put("status", "99");
         map.put("statusDesc", "暂无船只系列信息！");
         SystemUser user = getRedisUser(token);
+        //测试用
 //        SystemUser user = yxUserService.getSystemUserByParam(148);
 
         QueryWrapper<YxShipSeries> queryWrapper = new QueryWrapper<>();
