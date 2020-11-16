@@ -64,9 +64,14 @@ public class YxShipInfoQueryVo implements Serializable {
     @ApiModelProperty(value = "最近一次返港时间（显示）")
     private String lastReturnTimeFormat;
     @ApiModelProperty(value = "系列名称")
-    private String seriesName;
+    private String seriesName ="";
     @ApiModelProperty(value = "船只图片")
-    private String shipImageUrl;
+    private String shipImageUrl="";
+
+    @ApiModelProperty(value = "核销时间")
+    private String userdTime;
+    @ApiModelProperty(value = "核销人员")
+    private String userdUserName;
 
 /*
 @ApiModelProperty(value = "是否删除（0：未删除，1：已删除）")

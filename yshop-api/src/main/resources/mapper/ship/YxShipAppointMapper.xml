@@ -15,4 +15,55 @@
         select <include refid="Base_Column_List"/> from yx_ship_appoint
     </select>
 
+    <select id="getYxShipAppointPageByParam" resultType="co.yixiang.modules.couponUse.dto.YxShipAppointVo">
+        SELECT
+            app.id,
+            app.`name`,
+            app.phone,
+            app.remark,
+            app.appointment_date,
+            app.create_user_id,
+            app.create_time
+        FROM
+            yx_ship_appoint app
+        LEFT JOIN yx_ship_appoint_detail appd ON app.id = appd.appoint_id
+        WHERE
+            app.del_flag = 0
+        <if test="param.shipIdList != null">
+            AND appd.ship_id IN
+            <foreach item='shipId' index='index' collection='param.shipIdList ' open='(' separator=',' close=')'>
+                #{shipId}
+            </foreach>
+        </if>
+        <if test="param.dateList != null">
+            AND app.appointment_date IN
+            <foreach item='dateParam' index='index' collection='param.dateList ' open='(' separator=',' close=')'>
+                #{dateParam}
+            </foreach>
+        </if>
+        GROUP BY app.id
+    </select>
+
+    <select id="getAppointmentDateByParam" resultType="String">
+        SELECT
+        app.appointment_date
+        FROM
+        yx_ship_appoint app
+        LEFT JOIN yx_ship_appoint_detail appd ON app.id = appd.appoint_id
+        WHERE
+        app.del_flag = 0
+        <if test="param.shipIdList != null">
+            AND appd.ship_id IN
+            <foreach item='shipId' index='index' collection='param.shipIdList ' open='(' separator=',' close=')'>
+                #{shipId}
+            </foreach>
+        </if>
+        <if test="param.dateList != null">
+            AND app.appointment_date IN
+            <foreach item='dateParam' index='index' collection='param.dateList ' open='(' separator=',' close=')'>
+                #{dateParam}
+            </foreach>
+        </if>
+        GROUP BY app.id
+    </select>
 </mapper>

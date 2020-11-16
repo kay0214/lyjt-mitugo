@@ -13,6 +13,7 @@ import co.yixiang.modules.ship.web.vo.YxShipInfoQueryVo;
 import co.yixiang.common.web.vo.Paging;
 
 import java.io.Serializable;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -78,4 +79,7 @@ public interface YxShipInfoService extends BaseService<YxShipInfo> {
      * @return
      */
     Map<String, Object> getCaptainList(int storeId);
+
+    List<Integer> shipIdList(Integer seriesId, Integer storeId);
+
 }

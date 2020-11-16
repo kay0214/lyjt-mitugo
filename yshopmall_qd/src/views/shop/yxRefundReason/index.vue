@@ -7,29 +7,13 @@
       <!--表单组件-->
       <el-dialog :close-on-click-modal="false" :before-close="crud.cancelCU" :visible.sync="crud.status.cu > 0" :title="crud.status.title" width="500px">
         <el-form ref="form" :model="form" :rules="rules" size="small" label-width="80px">
-          <el-form-item label="id">
-            <el-input v-model="form.id" style="width: 370px;" />
+          <el-form-item label="类型" prop="reasonType">
+            <el-radio-group v-model="form.reasonType">
+              <el-radio v-for="item in statusList" :label="item.value">{{item.label}}</el-radio>
+            </el-radio-group>
           </el-form-item>
           <el-form-item label="理由" prop="reason">
             <el-input v-model="form.reason" style="width: 370px;" />
-          </el-form-item>
-          <el-form-item label="类型：0：本地生活，1：商城" prop="reasonType">
-            <el-input v-model="form.reasonType" style="width: 370px;" />
-          </el-form-item>
-          <el-form-item label="是否删除（0：未删除，1：已删除）" prop="delFlag">
-            <el-input v-model="form.delFlag" style="width: 370px;" />
-          </el-form-item>
-          <el-form-item label="创建人">
-            <el-input v-model="form.createUserId" style="width: 370px;" />
-          </el-form-item>
-          <el-form-item label="修改人">
-            <el-input v-model="form.updateUserId" style="width: 370px;" />
-          </el-form-item>
-          <el-form-item label="创建时间" prop="createTime">
-            <el-input v-model="form.createTime" style="width: 370px;" />
-          </el-form-item>
-          <el-form-item label="更新时间" prop="updateTime">
-            <el-input v-model="form.updateTime" style="width: 370px;" />
           </el-form-item>
         </el-form>
         <div slot="footer" class="dialog-footer">
@@ -40,22 +24,12 @@
       <!--表格渲染-->
       <el-table ref="table" v-loading="crud.loading" :data="crud.data" size="small" style="width: 100%;" @selection-change="crud.selectionChangeHandler">
         <el-table-column type="selection" width="55" />
-        <el-table-column v-if="columns.visible('id')" prop="id" label="id" />
+        <el-table-column v-if="columns.visible('reasonType')" prop="reasonType" label="类型" >
+          <template slot-scope="scope">
+            <span @click="update(scope.row)">{{ transferLabel(scope.row.reasonType,statusList) }}</span>
+          </template>
+        </el-table-column>
         <el-table-column v-if="columns.visible('reason')" prop="reason" label="理由" />
-        <el-table-column v-if="columns.visible('reasonType')" prop="reasonType" label="类型：0：本地生活，1：商城" />
-        <el-table-column v-if="columns.visible('delFlag')" prop="delFlag" label="是否删除（0：未删除，1：已删除）" />
-        <el-table-column v-if="columns.visible('createUserId')" prop="createUserId" label="创建人" />
-        <el-table-column v-if="columns.visible('updateUserId')" prop="updateUserId" label="修改人" />
-        <el-table-column v-if="columns.visible('createTime')" prop="createTime" label="创建时间">
-          <template slot-scope="scope">
-            <span>{{ parseTime(scope.row.createTime) }}</span>
-          </template>
-        </el-table-column>
-        <el-table-column v-if="columns.visible('updateTime')" prop="updateTime" label="更新时间">
-          <template slot-scope="scope">
-            <span>{{ parseTime(scope.row.updateTime) }}</span>
-          </template>
-        </el-table-column>
         <el-table-column v-permission="['admin','yxRefundReason:edit','yxRefundReason:del']" label="操作" width="150px" align="center">
           <template slot-scope="scope">
             <udOperation
@@ -81,15 +55,22 @@ import pagination from '@crud/Pagination'
 import MaterialList from "@/components/material";
 
 // crud交由presenter持有
-const defaultCrud = CRUD({ title: '退款理由', url: 'api/yxRefundReason', sort: 'id,desc', crudMethod: { ...crudYxRefundReason }})
-const defaultForm = { id: null, reason: null, reasonType: null, delFlag: null, createUserId: null, updateUserId: null, createTime: null, updateTime: null }
+const defaultCrud = CRUD({ title: '退款理由', url: 'api/yxRefundReason', sort: 'id,desc', crudMethod: { ...crudYxRefundReason },
+  optShow:{
+    add: true,
+    edit: false,
+    del: false,
+    download: false
+  }})
+const defaultForm = { id: null, reason: null, reasonType: 0, delFlag: null, createUserId: null,
+  updateUserId: null, createTime: null, updateTime: null }
 export default {
   name: 'YxRefundReason',
   components: { pagination, crudOperation, rrOperation, udOperation ,MaterialList},
   mixins: [presenter(defaultCrud), header(), form(defaultForm), crud()],
   data() {
     return {
-      
+
       permission: {
         add: ['admin', 'yxRefundReason:add'],
         edit: ['admin', 'yxRefundReason:edit'],
@@ -100,20 +81,34 @@ export default {
           { required: true, message: '理由不能为空', trigger: 'blur' }
         ],
         reasonType: [
-          { required: true, message: '类型：0：本地生活，1：商城不能为空', trigger: 'blur' }
-        ],
-        delFlag: [
-          { required: true, message: '是否删除（0：未删除，1：已删除）不能为空', trigger: 'blur' }
-        ],
-        createTime: [
-          { required: true, message: '创建时间不能为空', trigger: 'blur' }
-        ],
-        updateTime: [
-          { required: true, message: '更新时间不能为空', trigger: 'blur' }
+          { required: true, message: '类型不能为空', trigger: 'change' }
         ]
-      }    }
+      } ,
+      statusList:[
+        {value:0,label:'本地生活'},
+        {value:1,label:'商城'}
+      ]
+    }
   },
   watch: {
+  },
+  computed:{
+    transferLabel:function(){
+      return function(value,list){
+        if(list.length){
+          let i= list.filter(function(item){
+            return new RegExp(item.value, 'i').test(value)
+          })
+          if(i.length){
+            return i[0].label
+          }else{
+            return ""
+          }
+        }else{
+          return ""
+        }
+      }
+    }
   },
   methods: {
     // 获取数据前设置好接口地址

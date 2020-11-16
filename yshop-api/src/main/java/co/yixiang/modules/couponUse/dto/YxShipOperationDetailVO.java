@@ -73,6 +73,9 @@ public class YxShipOperationDetailVO extends BaseEntity {
     private Integer rideLimit;
 
     @ApiModelProperty(value = "系列名称")
-    private String  seriesName;
-
+    private String  seriesName ="";
+    @ApiModelProperty(value = "核销时间")
+    private String userdTime;
+    @ApiModelProperty(value = "核销人员")
+    private String userdUserName;
 }
