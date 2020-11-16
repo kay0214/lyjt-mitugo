@@ -1,20 +1,21 @@
 package co.yixiang.modules.system.service.impl;
 
+import co.yixiang.common.service.impl.BaseServiceImpl;
+import co.yixiang.common.web.vo.Paging;
+import co.yixiang.dozer.service.IGenerator;
 import co.yixiang.modules.system.entity.YxHotConfig;
 import co.yixiang.modules.system.mapper.YxHotConfigMapper;
 import co.yixiang.modules.system.service.YxHotConfigService;
 import co.yixiang.modules.system.web.param.YxHotConfigQueryParam;
 import co.yixiang.modules.system.web.vo.YxHotConfigQueryVo;
-import co.yixiang.common.service.impl.BaseServiceImpl;
-import co.yixiang.common.web.vo.Paging;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.core.metadata.OrderItem;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import java.io.Serializable;
 
 
@@ -33,16 +34,24 @@ public class YxHotConfigServiceImpl extends BaseServiceImpl<YxHotConfigMapper, Y
 
     @Autowired
     private YxHotConfigMapper yxHotConfigMapper;
+    @Autowired
+    private IGenerator generator;
 
     @Override
-    public YxHotConfigQueryVo getYxHotConfigById(Serializable id) throws Exception{
+    public YxHotConfigQueryVo getYxHotConfigById(Serializable id) throws Exception {
         return yxHotConfigMapper.getYxHotConfigById(id);
     }
 
     @Override
-    public Paging<YxHotConfigQueryVo> getYxHotConfigPageList(YxHotConfigQueryParam yxHotConfigQueryParam) throws Exception{
-        Page page = setPageParam(yxHotConfigQueryParam,OrderItem.desc("create_time"));
-        IPage<YxHotConfigQueryVo> iPage = yxHotConfigMapper.getYxHotConfigPageList(page,yxHotConfigQueryParam);
+    public Paging<YxHotConfigQueryVo> getYxHotConfigPageList(YxHotConfigQueryParam yxHotConfigQueryParam) throws Exception {
+//        Page page = setPageParam(yxHotConfigQueryParam, OrderItem.asc("sort"));
+        QueryWrapper<YxHotConfig> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().eq(YxHotConfig::getDelFlag, 0).eq(YxHotConfig::getStatus, 0);
+        queryWrapper.lambda().orderByAsc(YxHotConfig::getSort).orderByDesc(YxHotConfig::getCreateTime);
+        IPage<YxHotConfig> iPage = this.page(new Page<>(yxHotConfigQueryParam.getPage(), yxHotConfigQueryParam.getLimit()), queryWrapper);
+        Paging<YxHotConfigQueryVo> result = new Paging<>();
+        result.setTotal(iPage.getTotal());
+        result.setRecords(generator.convert(iPage.getRecords(), YxHotConfigQueryVo.class));
         return new Paging(iPage);
     }
 

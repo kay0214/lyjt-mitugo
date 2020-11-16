@@ -2,6 +2,7 @@ package co.yixiang.modules.user.service;
 
 import co.yixiang.modules.user.entity.YxLeaveMessage;
 import co.yixiang.common.service.BaseService;
+import co.yixiang.modules.user.web.dto.YxLeaveMessageSaveDto;
 import co.yixiang.modules.user.web.param.YxLeaveMessageQueryParam;
 import co.yixiang.modules.user.web.vo.YxLeaveMessageQueryVo;
 import co.yixiang.common.web.vo.Paging;
@@ -32,4 +33,11 @@ public interface YxLeaveMessageService extends BaseService<YxLeaveMessage> {
      */
     Paging<YxLeaveMessageQueryVo> getYxLeaveMessagePageList(YxLeaveMessageQueryParam yxLeaveMessageQueryParam) throws Exception;
 
+    /**
+     * 用户提交留言(暂时不用)
+     *
+     * @param request
+     * @return
+     */
+    boolean saveLeaveMessage(YxLeaveMessageSaveDto request);
 }
