@@ -847,6 +847,18 @@ public class YxUserServiceImpl extends BaseServiceImpl<YxUserMapper, YxUser> imp
                 .eq("enabled", 1);
         return systemUserMapper.selectOne(wrapper);
     }
+
+    /**
+     * 修改密码
+     * @param username
+     * @param newPass
+     * @param userPass
+     */
+    @Override
+    public void updatePass(String username, String newPass, String userPass) {
+        systemUserMapper.updatePass(passwordEncoder.encode(newPass), userPass, DateUtil.format(new Date(), "yyyy-MM-dd HH:mm:ss"), username);
+    }
+
     /**
      * 提现扣减用户可提现金额
      *

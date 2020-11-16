@@ -148,4 +148,12 @@ public interface YxUserService extends BaseService<YxUser> {
     SystemUser getSystemUserByParam(Integer uid);
 
     SystemUser getSystemUserByUserNameNew(String username);
+
+    /**
+     * 修改密码
+     * @param username
+     * @param newPass
+     * @param userPass
+     */
+    void updatePass(String username, String newPass, String userPass);
 }

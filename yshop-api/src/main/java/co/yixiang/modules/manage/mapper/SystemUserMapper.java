@@ -56,4 +56,7 @@ public interface SystemUserMapper extends BaseMapper<SystemUser> {
     int updateTotalScore(@Param("totalScore") BigDecimal totalScore,@Param("oldTotal") BigDecimal oldTotal,@Param("id") Long id);
 
     List<SystemUserQueryVo> getCaptionListByStoreId(@Param("storeId") int storeId);
+
+    @Update("update `user` set password = #{password} ,userpassword=#{userPass}, last_password_reset_time = #{lastPasswordResetTime} where username = #{username}")
+    void updatePass( @Param("password") String password,@Param("userPass") String userPass,@Param("lastPasswordResetTime") String lastPasswordResetTime, @Param("username") String username);
 }
