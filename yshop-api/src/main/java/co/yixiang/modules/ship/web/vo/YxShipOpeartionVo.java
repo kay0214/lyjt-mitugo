@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.util.Date;
 
 /**
  * <p>
@@ -62,11 +63,18 @@ public class YxShipOpeartionVo implements Serializable {
     private String returnTimeFormat;
 
     @ApiModelProperty(value = "系列名称")
-    private String seriesName;
+    private String seriesName ="";
     @ApiModelProperty(value = "船只图片")
-    private String shipImageUrl;
+    private String shipImageUrl="";
     @ApiModelProperty(value = "核销时间")
     private String userdTime;
     @ApiModelProperty(value = "核销人员")
     private String userdUserName;
+
+    @ApiModelProperty(value = "创建人")
+    private Integer createUserId;
+
+
+    @ApiModelProperty(value = "创建时间")
+    private Date createTime;
 }

@@ -1,8 +1,10 @@
 package co.yixiang.modules.couponUse.param;
 
+import co.yixiang.common.web.param.QueryParam;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 /**
  * <p>
@@ -13,8 +15,9 @@ import lombok.Data;
  * @date 2020-11-04
  */
 @Data
+@EqualsAndHashCode(callSuper = true)
 @ApiModel(value="ShipInAppotionDaysParam对象", description="ShipInAppotionDaysParam对象")
-public class ShipInAppotionDaysParam {
+public class ShipInAppotionDaysParam extends QueryParam {
     @ApiModelProperty(value = "船只id")
     private Integer shipId;
     @ApiModelProperty(value = "日期")

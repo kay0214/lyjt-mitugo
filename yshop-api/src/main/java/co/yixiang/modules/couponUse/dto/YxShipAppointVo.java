@@ -5,6 +5,8 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.util.Date;
+import java.util.List;
 
 /**
  * <p>
@@ -16,22 +18,31 @@ import java.io.Serializable;
  */
 @Data
 @ApiModel(value="YxShipAppointVo对象", description="船只预约返回参数")
-public class YxShipAppointVo implements Serializable{
+public class YxShipAppointVo implements Serializable {
 
-@ApiModelProperty(value = "id")
-private Integer id;
+    @ApiModelProperty(value = "id")
+    private Integer id;
 
-@ApiModelProperty(value = "姓名")
-private String name;
+    @ApiModelProperty(value = "姓名")
+    private String name;
 
-@ApiModelProperty(value = "联系电话")
-private String phone;
+    @ApiModelProperty(value = "联系电话")
+    private String phone;
 
-@ApiModelProperty(value = "预约时间")
-private String appointmentDate;
+    @ApiModelProperty(value = "预约时间")
+    private String appointmentDate;
 
-@ApiModelProperty(value = "备注")
-private String remark;
+    @ApiModelProperty(value = "备注")
+    private String remark;
+    @ApiModelProperty(value = "创建人")
+    private Integer createUserId;
+
+    @ApiModelProperty(value = "创建时间")
+    private Date createTime;
+
+    @ApiModelProperty(value = "船只名")
+    private List<String> shipNameList;
+
 
 /*
 @ApiModelProperty(value = "是否删除（0：未删除，1：已删除）")
