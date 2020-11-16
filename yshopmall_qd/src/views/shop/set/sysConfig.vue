@@ -4,19 +4,30 @@
     <!--工具栏-->
     <div class="head-container">
       <!--表单组件-->
-        <el-form ref="form" :model="form" :rules="rules" size="small" label-width="150px">
+        <el-form ref="form" :model="form" :rules="rules" size="small" label-width="200px"
+          style="margin-top:30px">
           <el-row :gutter='20'>
             <el-col :span='6'>
-              <el-form-item label="商户提现费率" prop='fundsRate'>
-                <el-input class='percent' v-model="form.fundsRate" />
+              <el-form-item label="商户提现费率" prop='storeExtractRate'>
+                <el-input class='percent' style="width:100%" v-model="form.storeExtractRate" />
               </el-form-item>
-              <el-form-item label="分享达人提现费率" prop='shareRate'>
-                <el-input class='percent' v-model="form.shareRate" />
+              <el-form-item label="商户最低提现金额" prop='storeExtractMinPrice'>
+                <el-input v-model="form.storeExtractMinPrice" >
+                  <template slot="append">元</template>
+                </el-input>
+              </el-form-item>
+              <el-form-item label="分享达人提现费率" prop='userExtractRate'>
+                <el-input class='percent' style="width:100%" v-model="form.userExtractRate" />
+              </el-form-item>
+              <el-form-item label="分享达人最低提现金额" prop='userExtractMinPrice'>
+                <el-input v-model="form.userExtractMinPrice" >
+                  <template slot="append">元</template>
+                </el-input>
               </el-form-item>
             </el-col>
           </el-row>
       </el-form>
-        <el-col slot="footer" :offset='10' class="dialog-footer" style='marginTop:30px'>
+        <el-col slot="footer" :offset='3' class="dialog-footer" style='marginTop:30px'>
           <el-button size='medium' :loading="sublLoading" type="primary" @click="submit">保存</el-button>
         </el-col>
     </div>
@@ -24,7 +35,8 @@
 </template>
 
 <script>
-import { edit,get } from '@/api/yxCommissionRate'
+import { getExtractSet as get,updateExtractSet as edit } from '@/api/yxCommissionRate'
+import { amountValid } from '@/utils/validate'
 export default {
   name: 'YxCommissionRate',
   data() {
@@ -36,7 +48,7 @@ export default {
       },
       form: {},
       rules: {
-        fundsRate: [
+        storeExtractRate: [
           { required: true, message: '必填项', trigger: 'blur' },
           {
             pattern: /^(100)$|^((\d|[1-9]\d)(\.\d{1,2})?)$/,  //正则
@@ -44,7 +56,7 @@ export default {
             trigger: 'blur'
           },
         ],
-        shareRate: [
+        userExtractRate: [
           { required: true, message: '必填项', trigger: 'blur' },
           {
             pattern: /^(100)$|^((\d|[1-9]\d)(\.\d{1,2})?)$/,  //正则
@@ -52,46 +64,20 @@ export default {
             trigger: 'blur'
           },
         ],
-        shareParentRate: [
+        storeExtractMinPrice: [
           { required: true, message: '必填项', trigger: 'blur' },
           {
-            pattern: /^(100)$|^((\d|[1-9]\d)(\.\d{1,2})?)$/,  //正则
-            message: '请输入0~100的数字，最多两位小数',
+            validator:amountValid,
             trigger: 'blur'
           },
         ],
-        parentRate: [
+        userExtractMinPrice: [
           { required: true, message: '必填项', trigger: 'blur' },
           {
-            pattern: /^(100)$|^((\d|[1-9]\d)(\.\d{1,2})?)$/,  //正则
-            message: '请输入0~100的数字，最多两位小数',
+            validator:amountValid,
             trigger: 'blur'
           },
-        ],
-        merRate: [
-          { required: true, message: '必填项', trigger: 'blur' },
-          {
-            pattern: /^(100)$|^((\d|[1-9]\d)(\.\d{1,2})?)$/,  //正则
-            message: '请输入0~100的数字，最多两位小数',
-            trigger: 'blur'
-          },
-        ],
-        partnerRate: [
-          { required: true, message: '必填项', trigger: 'blur' },
-          {
-            pattern: /^(100)$|^((\d|[1-9]\d)(\.\d{1,2})?)$/,  //正则
-            message: '请输入0~100的数字，最多两位小数',
-            trigger: 'blur'
-          },
-        ],
-        referenceRate: [
-          { required: true, message: '必填项', trigger: 'blur' },
-          {
-            pattern: /^(100)$|^((\d|[1-9]\d)(\.\d{1,2})?)$/,  //正则
-            message: '请输入0~100的数字，最多两位小数',
-            trigger: 'blur'
-          },
-        ],
+        ]
       }
     }
   },
@@ -100,7 +86,7 @@ export default {
   mounted(){
     this.$nextTick(() => {
       get().then(ret=>{
-        if(ret.id){
+        if(ret && ret.userExtractRate){
           this.form=ret
         }
       }).catch(err => {
@@ -119,9 +105,7 @@ export default {
         if(!ret){
           return
         }else{
-          if(this.form.fundsRate*1+this.form.shareRate*1+this.form.
-  shareParentRate*1+this.form.parentRate*1+this.form.merRate*1+this.form.
-  partnerRate*1+this.form.referenceRate*1===100){
+          if(this.form.storeExtractRate*1+this.form.userExtractRate*1===1){
             this.sublLoading = true
             edit(this.form).then(res => {
               this.sublLoading = false
@@ -140,7 +124,7 @@ export default {
             })
           }else{
             this.$notify({
-              title: '添加失败：平台抽成+拉新池+分享人+分享人上级抽成+购买人上级抽成+商户+合伙人=100%',
+              title: '添加失败：费率之和为1',
               type: 'error',
               duration: 2500
             })

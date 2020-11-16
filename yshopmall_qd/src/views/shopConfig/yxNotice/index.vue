@@ -100,7 +100,7 @@ export default {
       permission: {
         add: ['admin', 'yxNotice:add'],
         edit: ['admin', 'yxNotice:edit'],
-        del: ['yxNoticeDel:del']
+        del: ['']
       },
       rules: {
         status: [
