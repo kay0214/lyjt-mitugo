@@ -39,4 +39,19 @@ export function updateRate(data) {
   })
 }
 
+export function getExtractSet() {
+  return request({
+    url: 'api/getExtractSet',
+    method: 'post'
+  })
+}
+
+export function updateExtractSet(data) {
+  return request({
+    url: 'api/updateExtractSet',
+    method: 'post',
+    data
+  })
+}
+
 export default { add, edit, del }
