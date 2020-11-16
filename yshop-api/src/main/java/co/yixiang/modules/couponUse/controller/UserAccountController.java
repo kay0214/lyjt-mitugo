@@ -93,7 +93,7 @@ public class UserAccountController extends BaseController {
     @NeedLogin
     @AnonymousAccess
     @ApiOperation("B端：修改密码")
-    @GetMapping(value = "/updateUserPwd")
+    @PostMapping(value = "/updateUserPwd")
     public ResponseEntity<Object> updateUserPwd(@RequestHeader(value = "token") String token,@RequestBody UserUpdateParam param) {
         // 获取登陆用户的id
         SystemUser user = getRedisUser(token);

@@ -17,6 +17,7 @@ import co.yixiang.enums.ProductEnum;
 import co.yixiang.exception.ErrorRequestException;
 import co.yixiang.modules.commission.entity.YxCommissionRate;
 import co.yixiang.modules.commission.service.YxCommissionRateService;
+import co.yixiang.modules.couponUse.dto.ShipUserLeaveVO;
 import co.yixiang.modules.coupons.entity.YxCoupons;
 import co.yixiang.modules.coupons.service.YxCouponsService;
 import co.yixiang.modules.image.entity.YxImageInfo;
@@ -743,6 +744,106 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
                 spreadUrl = apiUrl + "/file/qrcode/" + spreadPicName;
             }
         return ApiResult.ok(spreadUrl);
+    }
+
+    /**
+     * 商户的本地生活商品数量
+     * @param storeId
+     * @return
+     */
+    @Override
+    public Map<String, Integer> getLocalProductCount(Integer storeId) {
+        return yxStoreProductMapper.getLocalProductCount(storeId);
+    }
+
+    /**
+     * 本地生活订单相关数量
+     * @param storeId
+     * @return
+     */
+    @Override
+    public Map<String, Integer> getLocalProductOrderCount(Integer storeId) {
+        return yxStoreProductMapper.getLocalProductOrderCount(storeId);
+    }
+
+    /**
+     * 今日营业额
+     * @param storeId
+     * @return
+     */
+    @Override
+    public BigDecimal getLocalSumPrice(Integer storeId) {
+        return yxStoreProductMapper.getLocalSumPrice(storeId);
+    }
+
+    /**
+     * 商城商品相关
+     * @param storeId
+     * @return
+     */
+    @Override
+    public Map<String, Integer> getShopProductCount(Integer storeId) {
+        return yxStoreProductMapper.getShopProductCount(storeId);
+    }
+
+    /**
+     * 商城订单数量相关
+     * @param storeId
+     * @return
+     */
+    @Override
+    public Map<String, Integer> getShopOrderCount(Integer storeId) {
+        return yxStoreProductMapper.getShopOrderCount(storeId);
+    }
+
+    /**
+     * 商城今日营业额
+     * @param storeId
+     * @return
+     */
+    @Override
+    public BigDecimal getShopSumPrice(Integer storeId) {
+        return yxStoreProductMapper.getShopSumPrice(storeId);
+    }
+
+    /**
+     * 船只出港次数最多的船只
+     * @param storeId
+     * @return
+     */
+    @Override
+    public List<ShipUserLeaveVO> getTopShipLeaves(Integer storeId) {
+        return yxStoreProductMapper.getTopShipLeaves(storeId);
+    }
+
+    /**
+     * 船只出港次数最多的船长
+     * @param storeId
+     * @return
+     */
+    @Override
+    public List<ShipUserLeaveVO> getShipUserLeaveS(Integer storeId) {
+        return yxStoreProductMapper.getShipUserLeaveS(storeId);
+    }
+
+    /**
+     * 今日出港次数
+     * @param storeId
+     * @return
+     */
+    @Override
+    public Integer getShipLeaveCount(Integer storeId) {
+        return yxStoreProductMapper.getShipLeaveCount(storeId);
+    }
+
+    /**
+     * 今日运营船只
+     * @param storeId
+     * @return
+     */
+    @Override
+    public Integer getShipCount(Integer storeId) {
+        return yxStoreProductMapper.getShipCount(storeId);
     }
 
     /**
