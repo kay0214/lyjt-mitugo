@@ -1,7 +1,10 @@
 package co.yixiang.modules.user.service.impl;
 
+import cn.hutool.core.date.DateTime;
 import co.yixiang.common.service.impl.BaseServiceImpl;
 import co.yixiang.common.web.vo.Paging;
+import co.yixiang.dozer.service.IGenerator;
+import co.yixiang.exception.BadRequestException;
 import co.yixiang.exception.ErrorRequestException;
 import co.yixiang.modules.coupons.mapper.YxCouponOrderMapper;
 import co.yixiang.modules.coupons.mapper.YxCouponsMapper;
@@ -11,6 +14,8 @@ import co.yixiang.modules.coupons.web.vo.YxCouponsQueryVo;
 import co.yixiang.modules.user.entity.YxUsedContacts;
 import co.yixiang.modules.user.mapper.YxUsedContactsMapper;
 import co.yixiang.modules.user.service.YxUsedContactsService;
+import co.yixiang.modules.user.web.dto.YxUsedContactsSaveDto;
+import co.yixiang.modules.user.web.dto.YxUsedContactsUpdateDto;
 import co.yixiang.modules.user.web.param.YxUsedContactsQueryParam;
 import co.yixiang.modules.user.web.vo.YxUsedContactsOrderQueryVo;
 import co.yixiang.modules.user.web.vo.YxUsedContactsQueryVo;
@@ -53,6 +58,8 @@ public class YxUsedContactsServiceImpl extends BaseServiceImpl<YxUsedContactsMap
     private YxCouponsMapper yxCouponsMapper;
     @Autowired
     private YxCouponOrderMapper yxCouponOrderMapper;
+    @Autowired
+    private IGenerator generator;
 
     @Override
     public YxUsedContactsQueryVo getYxUsedContactsById(Serializable id) throws Exception {
@@ -126,5 +133,40 @@ public class YxUsedContactsServiceImpl extends BaseServiceImpl<YxUsedContactsMap
         }
         yxUsedContactsOrderQueryVo.setContactsQueryVoList(contactsQueryVoList);
         return yxUsedContactsOrderQueryVo;
+    }
+
+    /**
+     * 插入数据
+     *
+     * @param request
+     * @return
+     */
+    @Override
+    public boolean saveUsedContacts(YxUsedContactsSaveDto request) {
+        YxUsedContacts save = generator.convert(request, YxUsedContacts.class);
+        save.setDelFlag(0);
+        save.setCreateUserId(request.getUserId());
+        save.setCreateTime(DateTime.now().toTimestamp());
+        this.save(save);
+        return true;
+    }
+
+    /**
+     * 更新数据
+     *
+     * @param request
+     * @return
+     */
+    @Override
+    public boolean updateUsedContacts(YxUsedContactsUpdateDto request) {
+        YxUsedContacts find = this.getById(request.getId());
+        if (null == find || 1 == find.getDelFlag()) {
+            throw new BadRequestException("当前数据不存在");
+        }
+        YxUsedContacts update = generator.convert(request, YxUsedContacts.class);
+        update.setUpdateUserId(request.getUserId());
+        update.setUpdateTime(DateTime.now().toTimestamp());
+        this.updateById(update);
+        return true;
     }
 }
