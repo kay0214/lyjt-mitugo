@@ -1,10 +1,12 @@
 package co.yixiang.modules.ship.web.param;
 
+import co.yixiang.common.web.param.QueryParam;
 import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import co.yixiang.common.web.param.QueryParam;
+import java.util.List;
 
 /**
  * <p>
@@ -19,4 +21,9 @@ import co.yixiang.common.web.param.QueryParam;
 @ApiModel(value="YxShipAppointQueryParam对象", description="船只预约表查询参数")
 public class YxShipAppointQueryParam extends QueryParam {
     private static final long serialVersionUID = 1L;
+
+    @ApiModelProperty(value = "船只id")
+    private List<Integer> shipIdList;
+    @ApiModelProperty(value = "预约时间集合")
+    private List<String> dateList;
 }

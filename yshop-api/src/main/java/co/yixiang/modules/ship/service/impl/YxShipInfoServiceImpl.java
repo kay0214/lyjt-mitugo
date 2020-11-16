@@ -225,6 +225,7 @@ public class YxShipInfoServiceImpl extends BaseServiceImpl<YxShipInfoMapper, YxS
         return map;
     }
 
+    @Override
     public List<Integer> shipIdList(Integer seriesId, Integer storeId) {
         List<Integer> listIds = new ArrayList<>();
         QueryWrapper<YxShipInfo> queryWrapper = new QueryWrapper<>();
@@ -275,17 +276,6 @@ public class YxShipInfoServiceImpl extends BaseServiceImpl<YxShipInfoMapper, YxS
         mapEnd.put("startDate", strDate);
         return mapEnd;
     }
-
-/*    public void getUserShipInfo(String batchNo){
-        QueryWrapper<YxShipOperationDetail> queryWrapper = new QueryWrapper<>();
-        queryWrapper.lambda().eq(YxShipOperationDetail::getBatchNo,batchNo);
-        List<YxShipOperationDetail> operationDetailList = yxShipOperationDetailMapper.selectList(queryWrapper);
-        if(CollectionUtils.isEmpty(operationDetailList)){
-
-        }
-        operationDetailList.get(0).getCouponOrderId();
-
-    }*/
 
     /**
      * 确认出港

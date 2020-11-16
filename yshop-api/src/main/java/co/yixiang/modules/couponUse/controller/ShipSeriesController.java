@@ -1,27 +1,13 @@
 package co.yixiang.modules.couponUse.controller;
 
-import co.yixiang.annotation.AnonymousAccess;
 import co.yixiang.common.web.controller.BaseController;
-import co.yixiang.modules.couponUse.dto.YxShipSeriesVO;
-import co.yixiang.modules.manage.entity.SystemUser;
-import co.yixiang.modules.ship.entity.YxShipSeries;
 import co.yixiang.modules.ship.service.YxShipSeriesService;
-import co.yixiang.modules.ship.web.vo.YxShipSeriesQueryVo;
 import co.yixiang.modules.user.service.YxUserService;
-import co.yixiang.utils.CommonsUtils;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.util.CollectionUtils;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * <p>
@@ -42,7 +28,7 @@ public class ShipSeriesController extends BaseController {
     @Autowired
     private YxUserService yxUserService;
 
-    @AnonymousAccess
+   /* @AnonymousAccess
     @PostMapping("/getShipSeriesList")
     @ApiOperation(value = "获取系列列表",notes = "获取系列列表",response = YxShipSeriesQueryVo.class)
     public ResponseEntity<Object> getShipSeriesList(@RequestHeader(value = "token") String token) throws Exception {
@@ -66,7 +52,7 @@ public class ShipSeriesController extends BaseController {
             map.put("data", voList);
         }
         return ResponseEntity.ok(map);
-    }
+    }*/
 
 }
 

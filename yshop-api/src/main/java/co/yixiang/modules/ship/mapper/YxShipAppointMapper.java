@@ -1,15 +1,16 @@
 package co.yixiang.modules.ship.mapper;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import co.yixiang.modules.ship.entity.YxShipAppoint;
 import co.yixiang.modules.ship.web.param.YxShipAppointQueryParam;
 import co.yixiang.modules.ship.web.vo.YxShipAppointQueryVo;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * <p>
@@ -37,4 +38,7 @@ public interface YxShipAppointMapper extends BaseMapper<YxShipAppoint> {
      */
     IPage<YxShipAppointQueryVo> getYxShipAppointPageList(@Param("page") Page page, @Param("param") YxShipAppointQueryParam yxShipAppointQueryParam);
 
+    List<YxShipAppointQueryVo> getYxShipAppointListByParam(@Param("param") YxShipAppointQueryParam yxShipAppointQueryParam);
+
+    List<String> getAppointmentDateByParam(@Param("param") YxShipAppointQueryParam yxShipAppointQueryParam);
 }
