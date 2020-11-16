@@ -8,6 +8,7 @@ import co.yixiang.enums.BillDetailEnum;
 import co.yixiang.exception.BadRequestException;
 import co.yixiang.logging.aop.log.Log;
 import co.yixiang.modules.activity.domain.YxUserExtract;
+import co.yixiang.modules.activity.service.dto.YxUserExtractSetDto;
 import co.yixiang.modules.shop.domain.YxSystemConfig;
 import co.yixiang.modules.shop.service.UserService;
 import co.yixiang.modules.shop.service.YxSystemConfigService;
@@ -178,6 +179,30 @@ public class UserBillController {
             mqProducer.messageSendDelay(new MessageContent(MQConstant.MITU_TOPIC, MQConstant.MITU_WITHDRAW_TAG, UUID.randomUUID().toString(), jsonObject), 2);
         }
         return new ResponseEntity<>(true, HttpStatus.OK);
+    }
+
+    /**
+     * 用户提现费率和最低提现金额设置
+     */
+    @Log("修改提现配置")
+    @ApiOperation(value = "修改提现配置")
+    @PostMapping(value = "/updateExtractSet")
+    @PreAuthorize("hasAnyRole('admin','YXUSERBILL_ALL','YXUSERBILL_EXTRACTSET')")
+    public ResponseEntity<Object> updateExtractSet(@RequestBody YxUserExtractSetDto request) throws MQException {
+        this.yxUserBillService.updateExtractSet(request);
+        return new ResponseEntity<>(true, HttpStatus.OK);
+    }
+
+    /**
+     * 用户提现费率和最低提现金额设置
+     */
+    @Log("查询提现配置")
+    @ApiOperation(value = "查询提现配置")
+    @PostMapping(value = "/getExtractSet")
+    @PreAuthorize("hasAnyRole('admin','YXUSERBILL_ALL','YXUSERBILL_EXTRACTGET')")
+    public ResponseEntity<YxUserExtractSetDto> getExtractSet() throws MQException {
+        YxUserExtractSetDto result = this.yxUserBillService.getExtractSet();
+        return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
 

@@ -93,4 +93,32 @@ public class YxSystemConfigServiceImpl extends BaseServiceImpl<SystemConfigMappe
         }
         return systemConfig.getValue();
     }
+
+    /**
+     * 更新或插入数据
+     *
+     * @param key
+     * @param value
+     * @return
+     */
+    @Override
+    public boolean saveOrUpdateValue(String key, String value) {
+        QueryWrapper<YxSystemConfig> wrapper = new QueryWrapper<>();
+        wrapper.lambda().eq(YxSystemConfig::getMenuName, key);
+        YxSystemConfig systemConfig = getOne(wrapper);
+        if (systemConfig == null) {
+            // 没有数据插入一条
+            YxSystemConfig save = new YxSystemConfig();
+            save.setMenuName(key);
+            save.setValue(value);
+            save.setSort(0);
+            save.setStatus(0);
+            this.save(save);
+            return true;
+        }
+        // 有数据做更新
+        systemConfig.setValue(value);
+        this.updateById(systemConfig);
+        return true;
+    }
 }
