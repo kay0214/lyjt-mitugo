@@ -154,8 +154,6 @@ export default {
       if(!ret){
         return ret
       }
-      console.log(checkPermission(this.permission.del))
-      return ''
       let that=this
       this.$confirm(`确定进行[${data.status ? '启用' : '禁用'}]操作?`, '提示', {
         confirmButtonText: '确定',
