@@ -1,5 +1,6 @@
 package co.yixiang.modules.ship.service;
 
+import co.yixiang.modules.couponUse.dto.YxShipAppointResultVo;
 import co.yixiang.modules.ship.entity.YxShipAppoint;
 import co.yixiang.common.service.BaseService;
 import co.yixiang.modules.ship.web.param.YxShipAppointQueryParam;
@@ -7,6 +8,7 @@ import co.yixiang.modules.ship.web.vo.YxShipAppointQueryVo;
 import co.yixiang.common.web.vo.Paging;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * <p>
@@ -31,5 +33,9 @@ public interface YxShipAppointService extends BaseService<YxShipAppoint> {
      * @return
      */
     Paging<YxShipAppointQueryVo> getYxShipAppointPageList(YxShipAppointQueryParam yxShipAppointQueryParam) throws Exception;
+
+    List<String> getMonthAllDays(String strDate);
+
+    List<YxShipAppointResultVo> getAppointByDate(List<String> dateList, Integer storeId);
 
 }
