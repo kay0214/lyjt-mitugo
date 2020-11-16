@@ -10,6 +10,7 @@ package co.yixiang.modules.shop.service.impl;
 
 import co.yixiang.common.service.impl.BaseServiceImpl;
 import co.yixiang.common.utils.QueryHelpPlus;
+import co.yixiang.constant.SystemConfigConstants;
 import co.yixiang.dozer.service.IGenerator;
 import co.yixiang.exception.BadRequestException;
 import co.yixiang.modules.activity.domain.YxUserExtract;
@@ -17,6 +18,7 @@ import co.yixiang.modules.activity.service.mapper.YxUserExtractMapper;
 import co.yixiang.modules.shop.domain.User;
 import co.yixiang.modules.shop.domain.YxMerchantsDetail;
 import co.yixiang.modules.shop.service.UserService;
+import co.yixiang.modules.shop.service.YxSystemConfigService;
 import co.yixiang.modules.shop.service.dto.UserDto;
 import co.yixiang.modules.shop.service.dto.UserQueryCriteria;
 import co.yixiang.modules.shop.service.mapper.UserSysMapper;
@@ -24,9 +26,9 @@ import co.yixiang.modules.shop.service.mapper.YxMerchantsDetailMapper;
 import co.yixiang.utils.FileUtil;
 import co.yixiang.utils.OrderUtil;
 import co.yixiang.utils.SnowflakeUtil;
+import co.yixiang.utils.StringUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.github.pagehelper.PageInfo;
-import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Pageable;
@@ -66,13 +68,11 @@ public class UserServiceImpl extends BaseServiceImpl<UserSysMapper, User> implem
     private YxUserExtractMapper yxUserExtractMapper;
     @Autowired
     private UserSysMapper userSysMapper;
+    @Autowired
+    private YxSystemConfigService systemConfigService;
 
     @Value("${yshop.snowflake.datacenterId}")
     private Integer datacenterId;
-
-
-    // 提现手续费
-    private final BigDecimal EXTRACT_RATE = new BigDecimal(0.01);
 
     @Override
     //@Cacheable
@@ -131,8 +131,20 @@ public class UserServiceImpl extends BaseServiceImpl<UserSysMapper, User> implem
      */
     @Override
     public Integer updateUserWithdraw(Integer uid, Integer userType, BigDecimal extractPrice) {
-        if (extractPrice.compareTo(new BigDecimal(50)) <= 0) {
-            throw new BadRequestException("提现金额必须大于50");
+        // 最低提现金额判断
+        if (extractPrice.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new BadRequestException("提现金额必须大于0");
+        }
+        String storeMinPrice = systemConfigService.getData(SystemConfigConstants.STORE_EXTRACT_MIN_PRICE);
+        if (StringUtils.isNotBlank(storeMinPrice)) {
+            if (extractPrice.compareTo(new BigDecimal(storeMinPrice)) < 0) {
+                throw new BadRequestException("提现金额必须大于" + storeMinPrice);
+            }
+        }
+        // 获取提现费率 默认0.1
+        String storeRate = systemConfigService.getData(SystemConfigConstants.STORE_EXTRACT_RATE);
+        if (StringUtils.isBlank(storeRate)) {
+            storeRate = "0.1";
         }
         User user = this.getById(uid);
         if (extractPrice.compareTo(user.getWithdrawalAmount()) > 0) {
@@ -161,7 +173,7 @@ public class UserServiceImpl extends BaseServiceImpl<UserSysMapper, User> implem
         yxUserExtract.setUserType(userType);
         yxUserExtract.setBankMobile(user.getPhone());
         yxUserExtract.setCnapsCode(yxMerchantsDetail.getBankCode());
-        yxUserExtract.setTruePrice(extractPrice.subtract(extractPrice.multiply(EXTRACT_RATE)));
+        yxUserExtract.setTruePrice(extractPrice.subtract(extractPrice.multiply(new BigDecimal(storeRate))));
         // 生成订单号
         String uuid = SnowflakeUtil.getOrderId(datacenterId);
         yxUserExtract.setSeqNo(uuid);

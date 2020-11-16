@@ -5,13 +5,17 @@
 package co.yixiang.modules.shop.service.impl;
 
 import co.yixiang.common.service.impl.BaseServiceImpl;
+import co.yixiang.constant.SystemConfigConstants;
 import co.yixiang.dozer.service.IGenerator;
 import co.yixiang.enums.BillDetailEnum;
+import co.yixiang.exception.BadRequestException;
+import co.yixiang.modules.activity.service.dto.YxUserExtractSetDto;
 import co.yixiang.modules.shop.domain.User;
 import co.yixiang.modules.shop.domain.YxFundsAccount;
 import co.yixiang.modules.shop.domain.YxUserBill;
 import co.yixiang.modules.shop.service.UserService;
 import co.yixiang.modules.shop.service.YxFundsAccountService;
+import co.yixiang.modules.shop.service.YxSystemConfigService;
 import co.yixiang.modules.shop.service.YxUserBillService;
 import co.yixiang.modules.shop.service.dto.WithdrawReviewQueryCriteria;
 import co.yixiang.modules.shop.service.dto.YxUserBillDto;
@@ -56,6 +60,8 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<UserBillMapper, YxUse
     private UserBillMapper userBillMapper;
     @Autowired
     private YxFundsAccountService fundsAccountService;
+    @Autowired
+    private YxSystemConfigService systemConfigService;
 
     @Override
     //@Cacheable
@@ -311,5 +317,102 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<UserBillMapper, YxUse
         map.put("totalElements", ipage.getTotal());
         map.put("totalPrice", totalPrice);
         return map;
+    }
+
+    /**
+     * 修改提现配置
+     *
+     * @param request
+     * @return
+     */
+    @Override
+    public boolean updateExtractSet(YxUserExtractSetDto request) {
+        // ----------------------商户相关-----------------------
+        // 商户最低提现金额
+        String storeMinPrice = request.getStoreExtractMinPrice();
+        if (StringUtils.isBlank(request.getStoreExtractMinPrice())) {
+            storeMinPrice = "0";
+        }
+        boolean result = this.systemConfigService.saveOrUpdateValue(SystemConfigConstants.STORE_EXTRACT_MIN_PRICE, storeMinPrice);
+        if (!result) {
+            throw new BadRequestException("商户最低提现金额设置失败");
+        }
+        // 商户提现费率 0-1
+        BigDecimal storeRate = BigDecimal.ZERO;
+        if (StringUtils.isNotBlank(request.getStoreExtractRate())) {
+            storeRate = new BigDecimal(request.getStoreExtractRate());
+        }
+        if (storeRate.compareTo(BigDecimal.ZERO) < 0 || storeRate.compareTo(BigDecimal.ONE) > 0) {
+            throw new BadRequestException("商户提现费率设置区间0-1");
+        }
+        result = this.systemConfigService.saveOrUpdateValue(SystemConfigConstants.STORE_EXTRACT_RATE, storeRate.toString());
+        if (!result) {
+            throw new BadRequestException("商户提现费率设置设置失败");
+        }
+
+        // ----------------------用户相关-----------------------
+        // 用户最低提现金额
+        String userMinPrice = request.getUserExtractMinPrice();
+        if (StringUtils.isBlank(request.getUserExtractMinPrice())) {
+            userMinPrice = "0";
+        }
+        result = this.systemConfigService.saveOrUpdateValue(SystemConfigConstants.USER_EXTRACT_MIN_PRICE, userMinPrice);
+        if (!result) {
+            throw new BadRequestException("商户最低提现金额设置失败");
+        }
+        // 用户提现费率 0-1
+        BigDecimal userRate = BigDecimal.ZERO;
+        if (StringUtils.isNotBlank(request.getUserExtractRate())) {
+            userRate = new BigDecimal(request.getUserExtractRate());
+        }
+        if (userRate.compareTo(BigDecimal.ZERO) < 0 || userRate.compareTo(BigDecimal.ONE) > 0) {
+            throw new BadRequestException("商户提现费率设置区间0-1");
+        }
+        result = this.systemConfigService.saveOrUpdateValue(SystemConfigConstants.USER_EXTRACT_RATE, userRate.toString());
+        if (!result) {
+            throw new BadRequestException("商户提现费率设置设置失败");
+        }
+        return result;
+    }
+
+    /**
+     * 获取用户提现配置
+     *
+     * @return
+     */
+    @Override
+    public YxUserExtractSetDto getExtractSet() {
+        YxUserExtractSetDto result = new YxUserExtractSetDto();
+        // 商户最低提现金额
+        String storeMinPrice = systemConfigService.getData(SystemConfigConstants.STORE_EXTRACT_MIN_PRICE);
+        if (StringUtils.isBlank(storeMinPrice)) {
+            storeMinPrice = "0";
+            systemConfigService.saveOrUpdateValue(SystemConfigConstants.STORE_EXTRACT_MIN_PRICE, storeMinPrice);
+        }
+        // 商户最低提现费率
+        String storeRate = systemConfigService.getData(SystemConfigConstants.STORE_EXTRACT_RATE);
+        if (StringUtils.isBlank(storeRate)) {
+            storeRate = "0.1";
+            systemConfigService.saveOrUpdateValue(SystemConfigConstants.STORE_EXTRACT_RATE, storeRate);
+        }
+
+        // 用户最低提现金额
+        String userMinPrice = systemConfigService.getData(SystemConfigConstants.USER_EXTRACT_MIN_PRICE);
+        if (StringUtils.isBlank(userMinPrice)) {
+            userMinPrice = "0";
+            systemConfigService.saveOrUpdateValue(SystemConfigConstants.USER_EXTRACT_MIN_PRICE, userMinPrice);
+        }
+
+        // 用户提现费率
+        String userRate = systemConfigService.getData(SystemConfigConstants.USER_EXTRACT_RATE);
+        if (StringUtils.isBlank(userRate)) {
+            userRate = "0";
+            systemConfigService.saveOrUpdateValue(SystemConfigConstants.USER_EXTRACT_RATE, userRate);
+        }
+        result.setStoreExtractMinPrice(storeMinPrice);
+        result.setStoreExtractRate(storeRate);
+        result.setUserExtractMinPrice(userMinPrice);
+        result.setUserExtractRate(userRate);
+        return result;
     }
 }

@@ -21,7 +21,14 @@ public class SystemConfigConstants {
     public final static String STORE_POSTAGE="store_postage";
     public final static String STORE_SEFL_MENTION="store_self_mention";
     public final static String STORE_USER_MIN_RECHARGE="store_user_min_recharge";
+    // 用户最低提现金额
     public final static String USER_EXTRACT_MIN_PRICE="user_extract_min_price";
+    // 用户提现费率 默认：0
+    public final static String USER_EXTRACT_RATE = "user_extract_rate";
+    // 商户提现最低金额
+    public final static String STORE_EXTRACT_MIN_PRICE = "store_extract_min_price";
+    // 商户提现费率 默认为：0.1
+    public final static String STORE_EXTRACT_RATE = "store_extract_rate";
     // 商户是否可以提现 0：可提现 1：不可提现
     public final static String STORE_EXTRACT_SWITCH="store_extract_switch";
 

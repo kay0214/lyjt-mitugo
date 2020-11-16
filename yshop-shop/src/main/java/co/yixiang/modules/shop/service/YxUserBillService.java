@@ -6,6 +6,7 @@
 package co.yixiang.modules.shop.service;
 
 import co.yixiang.common.service.BaseService;
+import co.yixiang.modules.activity.service.dto.YxUserExtractSetDto;
 import co.yixiang.modules.shop.domain.YxUserBill;
 import co.yixiang.modules.shop.service.dto.WithdrawReviewQueryCriteria;
 import co.yixiang.modules.shop.service.dto.YxUserBillDto;
@@ -88,4 +89,18 @@ public interface YxUserBillService  extends BaseService<YxUserBill>{
      * @return
      */
     Map<String,Object> queryAllNew(YxUserBillQueryCriteria criteria, Pageable pageable);
+
+    /**
+     * 修改提现配置
+     *
+     * @param request
+     */
+    boolean updateExtractSet(YxUserExtractSetDto request);
+
+    /**
+     * 获取用户提现配置
+     *
+     * @return
+     */
+    YxUserExtractSetDto getExtractSet();
 }
