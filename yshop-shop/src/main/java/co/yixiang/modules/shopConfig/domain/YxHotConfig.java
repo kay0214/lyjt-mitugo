@@ -29,7 +29,6 @@ public class YxHotConfig implements Serializable {
 
 
     /** 标题 */
-    @NotBlank
     private String title;
 
 
