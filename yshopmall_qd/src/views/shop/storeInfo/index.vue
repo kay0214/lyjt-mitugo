@@ -3,16 +3,19 @@
     <!--工具栏-->
     <div class="head-container">
       <el-row>
-        <el-col :span='4' style='paddingTop:6px;'>
-          <div v-if="crud.props.searchToggle">
-            <!-- 搜索 -->
-            <el-input v-model="query.storeName" clearable size="small" placeholder="请输入店铺名称" style="width: 200px;" class="filter-item" @keyup.enter.native="crud.toQuery" />
-            <el-button class="filter-item" size="mini" type="success" icon="el-icon-search" @click="crud.toQuery">搜索</el-button>
-          </div>
-        </el-col>
-        <!-- <el-col :span='6'>
-          <crudOperation :permission="permission" />
-        </el-col> -->
+          <el-input v-model.trim="query.storeName" clearable size="small" placeholder="请输入店铺名称" style="width: 200px;" class="filter-item" @keyup.enter.native="crud.toQuery" />
+        <el-input v-model.trim="query.manageMobile" clearable size="small" placeholder="请输入管理人电话" style="width: 200px;" class="filter-item" @keyup.enter.native="crud.toQuery" />
+        <el-select v-model="query.status" clearable placeholder="请选择"
+                   style="width: 200px;" class="filter-item">
+          <el-option
+            v-for="item in statusList"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value">
+          </el-option>
+        </el-select>
+        <el-button class="filter-item" size="mini" type="success" icon="el-icon-search" @click="crud.toQuery">搜索</el-button>
+
       </el-row>
       <el-row style="marginBottom:20px;">
         店铺包邮金额：<el-input style='width:200px;marginRight:20px;margin-right:20px;' v-model='freePostage' :disabled="Boolean(!editFreePostage)"></el-input>
@@ -38,10 +41,10 @@
           </el-form-item>
           <el-form-item label="店铺电话" prop="storeMobile">
             <el-input v-model="form.storeMobile" style="width: 700px;" />
-          </el-form-item>          
+          </el-form-item>
           <el-form-item label="营业时间" prop="openTime" :style='zIndex=1'>
             <el-button @click="addOpenTimeSub" plain>添加营业时间</el-button>
-          </el-form-item>  
+          </el-form-item>
           <div>
             <el-table :data="formOpenTime" empty-text=" "
                       :row-style="{marginBottom:'20px'}"
@@ -94,7 +97,7 @@
                 </template>
               </el-table-column>
             </el-table>
-          </div>  
+          </div>
           <el-form-item label="人均消费" prop="perCapita">
             <el-input v-model="form.perCapita" style="width: 700px;" οnkeyup="if(isNaN(value))execCommand('undo')" onafterpaste="if(isNaN(value))execCommand('undo')"/>
           </el-form-item>
@@ -219,9 +222,9 @@
       del: false,
       download: false
     }, crudMethod: { ...crudYxStoreInfo }})
-  const defaultForm = { id: null, storeNid: null, storeName: null, manageUserName: null, merId: null, 
-  partnerId: null, manageMobile: null, storeMobile: null, status: null, perCapita: null, industryCategory: 0, 
-  storeProvince: null, storeAddress: null, delFlag: null, createUserId: null, updateUserId: null, createTime: null, 
+  const defaultForm = { id: null, storeNid: null, storeName: null, manageUserName: null, merId: null,
+  partnerId: null, manageMobile: null, storeMobile: null, status: null, perCapita: null, industryCategory: 0,
+  storeProvince: null, storeAddress: null, delFlag: null, createUserId: null, updateUserId: null, createTime: null,
   updateTime: null, introduction: null, coordinateX: null, coordinateY: null,storeService: [],
   imageArr: null, sliderImageArr: null }
   export default {
@@ -335,8 +338,12 @@
           ]
         },
         options: regionData,
-        selectedOptions: [], 
-        storeProvinceTest:''   
+        selectedOptions: [],
+        storeProvinceTest:'',
+        statusList:[
+          {value:0,label:'已上架'},
+          {value:1,label:'已下架'}
+        ]
       }
     },
     watch: {
@@ -409,7 +416,7 @@
               that.form.coordinateX = center.lng;
               console.log(that.form)
             },200)
-           
+
         });
         //调用地址解析类
         that.geocoder = new qq.maps.Geocoder({
@@ -429,7 +436,7 @@
           // 无经纬度跳到地址的经纬度
           that.codeAddress();
         }
-        
+
       },
       codeAddress() {
         const that = this;
@@ -437,7 +444,7 @@
         if(that.geocoder){
           that.geocoder.getLocation(this.storeProvinceTest + this.form.storeAddress);
         }
-        
+
       },
       setSliderImageArr(urls){
         this.sliderImageArr = urls
@@ -483,9 +490,9 @@
                 return item.label===days[0]
                 })].value
                 this.form['BusinessDayBegin'+index]=parseInt(begin)
-                this.form['BusinessDayEnd'+index]=parseInt(begin)                  
+                this.form['BusinessDayEnd'+index]=parseInt(begin)
               }
-              this.form['openTime'+index]=item.openTime.split('~')          
+              this.form['openTime'+index]=item.openTime.split('~')
         })
             if(form.imageArr!=""){
               this.picArr = form.imageArr.split(',')
@@ -537,7 +544,7 @@
             this.form['openDays'+index]=this.selections.week[val].label
           }else{
             this.form['openDays'+index]=this.selections.week[val].label+"至"+this.selections.week[this.form['BusinessDayEnd'+index]].label
-          }       
+          }
         }else{
           this.form['openDays'+index]=''
         }
@@ -548,7 +555,7 @@
             this.form['openDays'+index]=this.selections.week[val].label
           }else{
             this.form['openDays'+index]=this.selections.week[this.form['BusinessDayBegin'+index]].label+"至"+this.selections.week[val].label
-          } 
+          }
         }
       },
       addOpenTimeSub(){//添加营业时间
