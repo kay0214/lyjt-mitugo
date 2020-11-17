@@ -618,8 +618,8 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<StoreProductMappe
         if (2 == resources.getCustomizeType()) {
             YxCustomizeRate yxCustomizeRate = resources.getYxCustomizeRate();
             yxCustomizeRate.setLinkId(resources.getId());
-            // 0：本地生活，1：商城
-            yxCustomizeRate.setRateType(1);
+            // 0:商品购买 1:本地生活
+            yxCustomizeRate.setRateType(0);
             // 存入操作人
             yxCustomizeRate.setCreateUserId(resources.getMerId());
             boolean rateResult = yxCustomizeRateService.saveOrUpdateRate(yxCustomizeRate);

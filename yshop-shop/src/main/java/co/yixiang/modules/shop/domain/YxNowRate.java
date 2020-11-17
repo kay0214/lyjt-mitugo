@@ -29,7 +29,7 @@ public class YxNowRate implements Serializable {
     private Integer id;
 
 
-    /** 类型：0：本地生活，1：商城 */
+    /** 类型：0:商品购买 1:本地生活 */
     @NotNull
     private Integer rateType;
 

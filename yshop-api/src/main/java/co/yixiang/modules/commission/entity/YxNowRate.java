@@ -31,7 +31,7 @@ public class YxNowRate extends BaseEntity {
 @TableId(value = "id", type = IdType.AUTO)
 private Integer id;
 
-@ApiModelProperty(value = "类型：0：本地生活，1：商城")
+@ApiModelProperty(value = "类型：0:商品购买 1:本地生活")
 private Integer rateType;
 
 @ApiModelProperty(value = "关联订单id")

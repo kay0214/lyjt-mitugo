@@ -10,7 +10,7 @@
           <el-form-item label="主键">
             <el-input v-model="form.id" style="width: 370px;" />
           </el-form-item>
-          <el-form-item label="类型：0：本地生活，1：商城" prop="rateType">
+          <el-form-item label="类型：0:商品购买 1:本地生活" prop="rateType">
             <el-input v-model="form.rateType" style="width: 370px;" />
           </el-form-item>
           <el-form-item label="卡券/商品关联id" prop="linkId">
@@ -62,7 +62,7 @@
       <el-table ref="table" v-loading="crud.loading" :data="crud.data" size="small" style="width: 100%;" @selection-change="crud.selectionChangeHandler">
         <el-table-column type="selection" width="55" />
         <el-table-column v-if="columns.visible('id')" prop="id" label="主键" />
-        <el-table-column v-if="columns.visible('rateType')" prop="rateType" label="类型：0：本地生活，1：商城" />
+        <el-table-column v-if="columns.visible('rateType')" prop="rateType" label="类型：0:商品购买 1:本地生活" />
         <el-table-column v-if="columns.visible('linkId')" prop="linkId" label="卡券/商品关联id" />
         <el-table-column v-if="columns.visible('fundsRate')" prop="fundsRate" label="平台抽成" />
         <el-table-column v-if="columns.visible('shareRate')" prop="shareRate" label="分享人" />
@@ -117,7 +117,7 @@ export default {
   mixins: [presenter(defaultCrud), header(), form(defaultForm), crud()],
   data() {
     return {
-      
+
       permission: {
         add: ['admin', 'yxCustomizeRate:add'],
         edit: ['admin', 'yxCustomizeRate:edit'],
@@ -125,7 +125,7 @@ export default {
       },
       rules: {
         rateType: [
-          { required: true, message: '类型：0：本地生活，1：商城不能为空', trigger: 'blur' }
+          { required: true, message: '类型：0:商品购买 1:本地生活不能为空', trigger: 'blur' }
         ],
         linkId: [
           { required: true, message: '卡券/商品关联id不能为空', trigger: 'blur' }

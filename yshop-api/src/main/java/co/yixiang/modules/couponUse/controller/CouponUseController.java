@@ -22,6 +22,7 @@ import co.yixiang.modules.image.service.YxImageInfoService;
 import co.yixiang.modules.manage.entity.SystemUser;
 import co.yixiang.modules.manage.entity.UsersRoles;
 import co.yixiang.modules.manage.entity.YxMerchantsDetail;
+import co.yixiang.modules.manage.service.SystemUserService;
 import co.yixiang.modules.manage.service.YxMerchantsDetailService;
 import co.yixiang.modules.manage.web.vo.SystemUserParamVo;
 import co.yixiang.modules.security.security.vo.AuthUser;
@@ -63,6 +64,8 @@ public class CouponUseController extends BaseController {
     private String iv;
     @Value("${aes.mode}")
     private String aesMode;
+    @Value("${offline.url}")
+    private String offlineUrl;
     @Autowired
     private RedisUtils redisUtils;
     @Autowired
@@ -79,6 +82,8 @@ public class CouponUseController extends BaseController {
     private YxCouponOrderService yxCouponOrderService;
     @Autowired
     private YxUserService yxUserService;
+    @Autowired
+    private SystemUserService systemUserService;
 
     private final IGenerator generator;
 
@@ -145,7 +150,7 @@ public class CouponUseController extends BaseController {
             throw new BadRequestException("无可用门店，请先到蜜兔管理平台创建门店");
         }
 
-        UsersRoles usersRoles =  yxUserService.getUserRolesByUserId(user.getId().intValue());
+        UsersRoles usersRoles = yxUserService.getUserRolesByUserId(user.getId().intValue());
         if (null == usersRoles) {
             throw new BadRequestException("此用户未配置角色，请先到平台分配角色");
         }
@@ -159,7 +164,7 @@ public class CouponUseController extends BaseController {
         listIds.add(SystemConfigConstants.ROLE_CAPTAIN);
         //10	景区推广	只能登录核销端
         listIds.add(SystemConfigConstants.ROLE_SPREAD);
-        if(!listIds.contains(intRoleId)){
+        if (!listIds.contains(intRoleId)) {
             throw new BadRequestException("暂无权限");
         }
 
@@ -261,7 +266,7 @@ public class CouponUseController extends BaseController {
     @GetMapping(value = "/useCoupon")
     public ResponseEntity<Object> updateCouponOrder(@RequestHeader(value = "token") String token,
                                                     @RequestParam(value = "verifyCode") String verifyCode,
-                                                    @RequestParam(value = "isAll",defaultValue = "false") Boolean isAll) {
+                                                    @RequestParam(value = "isAll", defaultValue = "false") Boolean isAll) {
         // 获取登陆用户的id
         Map<String, String> map = new HashMap<>();
         SystemUser user = getRedisUser(token);
@@ -273,7 +278,7 @@ public class CouponUseController extends BaseController {
         } catch (Exception e) {
             throw new BadRequestException("无效卡券");
         }
-        Map<String, Object> result = this.yxCouponOrderService.updateCouponOrder(decodeVerifyCode, uid,isAll);
+        Map<String, Object> result = this.yxCouponOrderService.updateCouponOrder(decodeVerifyCode, uid, isAll);
         return ResponseEntity.ok(result);
     }
 
@@ -313,4 +318,23 @@ public class CouponUseController extends BaseController {
     }
 
 
+    @NeedLogin
+    @ApiOperation("B端：生成线下支付码")
+    @AnonymousAccess
+    @GetMapping(value = "/getPayOfflineCode")
+    public ResponseEntity<Object> getPayOfflineCode(@RequestHeader(value = "token") String token) {
+        SystemUser user = getRedisUser(token);
+        // 获取用户所属店铺
+        if (null == user.getStoreId()) {
+            user = systemUserService.getById(user.getId());
+        }
+        // 获取店铺信息
+        YxStoreInfo yxStoreInfo = this.yxStoreInfoService.getById(user.getStoreId());
+        if (null == yxStoreInfo) {
+            throw new BadRequestException("获取店铺信息失败");
+        }
+        String url = offlineUrl.concat("productId=").concat(yxStoreInfo.getStoreNid()).concat("&codeType=offline");
+
+        return ResponseEntity.ok("");
+    }
 }

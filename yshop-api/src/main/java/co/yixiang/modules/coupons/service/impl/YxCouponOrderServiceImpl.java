@@ -1578,7 +1578,7 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         //
         YxNowRate nowRate = new YxNowRate();
         //本地生活
-        nowRate.setRateType(0);
+        nowRate.setRateType(1);
         nowRate.setOrderId(couponOrder.getOrderId());
         switch (yxCoupons.getCustomizeType()) {
             case 0:
