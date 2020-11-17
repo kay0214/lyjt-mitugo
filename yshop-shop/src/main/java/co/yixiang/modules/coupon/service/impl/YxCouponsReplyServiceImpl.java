@@ -9,11 +9,12 @@
 package co.yixiang.modules.coupon.service.impl;
 
 import co.yixiang.common.service.impl.BaseServiceImpl;
-import co.yixiang.common.utils.QueryHelpPlus;
 import co.yixiang.constant.ShopConstants;
 import co.yixiang.dozer.service.IGenerator;
+import co.yixiang.modules.coupon.domain.YxCouponOrder;
 import co.yixiang.modules.coupon.domain.YxCoupons;
 import co.yixiang.modules.coupon.domain.YxCouponsReply;
+import co.yixiang.modules.coupon.service.YxCouponOrderService;
 import co.yixiang.modules.coupon.service.YxCouponsReplyService;
 import co.yixiang.modules.coupon.service.YxCouponsService;
 import co.yixiang.modules.coupon.service.dto.YxCouponsReplyDto;
@@ -70,6 +71,8 @@ public class YxCouponsReplyServiceImpl extends BaseServiceImpl<YxCouponsReplyMap
     private YxUserService yxUserService;
     @Autowired
     private YxImageInfoService yxImageInfoService;
+    @Autowired
+    private YxCouponOrderService yxCouponOrderService;
 
     @Override
     //@Cacheable
@@ -130,9 +133,80 @@ public class YxCouponsReplyServiceImpl extends BaseServiceImpl<YxCouponsReplyMap
         if (null != criteria.getCouponId()) {
             queryWrapper.lambda().eq(YxCouponsReply::getCouponId, criteria.getCouponId());
         }
+        if (null != criteria.getIsReply()) {
+            queryWrapper.lambda().eq(YxCouponsReply::getIsReply, criteria.getIsReply());
+        }
 
         IPage<YxCouponsReply> ipage = this.page(new Page<>(pageable.getPageNumber() + 1, pageable.getPageSize()), queryWrapper);
-        List<YxCouponsReplyDto> resultList = generator.convert(ipage.getRecords(), YxCouponsReplyDto.class);
+
+        map.put("content", dualDto(ipage.getRecords()));
+        map.put("totalElements", ipage.getTotal());
+        return map;
+    }
+
+
+    @Override
+    //@Cacheable
+    public List<YxCouponsReplyDto> queryAll(YxCouponsReplyQueryCriteria criteria) {
+        QueryWrapper<YxCouponsReply> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().eq(YxCouponsReply::getDelFlag, 0);
+        if (0 != criteria.getUserRole()) {
+            if (null == criteria.getChildStoreId() || criteria.getChildStoreId().size() <= 0) {
+                return new ArrayList<>();
+            }
+            queryWrapper.lambda().in(YxCouponsReply::getMerId, criteria.getChildStoreId());
+        }
+        // 根据用户昵称查询
+        if (StringUtils.isNotBlank(criteria.getNickName())) {
+            User user = this.userService.getOne(new QueryWrapper<User>().lambda().eq(User::getNickName, criteria.getNickName()));
+            if (null == user) {
+                return new ArrayList<>();
+            }
+            queryWrapper.lambda().eq(YxCouponsReply::getMerId, user.getId());
+        }
+        // 根据用户登录名查询
+        if (StringUtils.isNotBlank(criteria.getUsername())) {
+            User user = this.userService.getOne(new QueryWrapper<User>().lambda().eq(User::getUsername, criteria.getUsername()));
+            if (null == user) {
+                return new ArrayList<>();
+            }
+            queryWrapper.lambda().eq(YxCouponsReply::getMerId, user.getId());
+        }
+        // 根据商品名称查询
+        if (StringUtils.isNotBlank(criteria.getCouponName())) {
+            List<YxCoupons> yxCoupons = this.yxCouponsService.list(new QueryWrapper<YxCoupons>().lambda().eq(YxCoupons::getCouponName, criteria.getCouponName()));
+            if (null == yxCoupons || yxCoupons.size() <= 0) {
+                return new ArrayList<>();
+            }
+            // 大部分卡券的名称没有重复的、单独判断只查到一条的单独处理
+            if (yxCoupons.size() == 1) {
+                queryWrapper.lambda().eq(YxCouponsReply::getCouponId, yxCoupons.get(0).getId());
+            } else {
+                // 查到多条卡券的用拿到id的list用in查询
+                List<Integer> ids = new ArrayList<>();
+                for (YxCoupons item : yxCoupons) {
+                    ids.add(item.getId());
+                }
+                queryWrapper.lambda().in(YxCouponsReply::getCouponId, ids);
+            }
+        }
+        // 根据卡券id
+        if (null != criteria.getCouponId()) {
+            queryWrapper.lambda().eq(YxCouponsReply::getCouponId, criteria.getCouponId());
+        }
+        if (null != criteria.getIsReply()) {
+            queryWrapper.lambda().eq(YxCouponsReply::getIsReply, criteria.getIsReply());
+        }
+        List<YxCouponsReply> list = this.list(queryWrapper);
+        if (null == list || list.size() <= 0) {
+            return new ArrayList<>();
+        }
+
+        return dualDto(list);
+    }
+
+    private List<YxCouponsReplyDto> dualDto(List<YxCouponsReply> list) {
+        List<YxCouponsReplyDto> resultList = generator.convert(list, YxCouponsReplyDto.class);
         for (YxCouponsReplyDto item : resultList) {
             // 用户名处理
             YxUser yxUser = this.yxUserService.getById(item.getUid());
@@ -162,19 +236,18 @@ public class YxCouponsReplyServiceImpl extends BaseServiceImpl<YxCouponsReplyMap
                 }
                 item.setImages(images);
             }
+            // 处理卡券信息
+            YxCoupons yxCoupons = this.yxCouponsService.getById(item.getCouponId());
+            if (null != yxCoupons && StringUtils.isNotBlank(yxCoupons.getCouponName())) {
+                item.setCouponName(yxCoupons.getCouponName());
+            }
+            YxCouponOrder yxCouponOrder = this.yxCouponOrderService.getById(item.getOid());
+            if (null != yxCouponOrder) {
+                item.setOrderNo(yxCouponOrder.getOrderId());
+            }
         }
-        map.put("content", resultList);
-        map.put("totalElements", ipage.getTotal());
-        return map;
+        return resultList;
     }
-
-
-    @Override
-    //@Cacheable
-    public List<YxCouponsReply> queryAll(YxCouponsReplyQueryCriteria criteria) {
-        return baseMapper.selectList(QueryHelpPlus.getPredicate(YxCouponsReply.class, criteria));
-    }
-
 
     @Override
     public void download(List<YxCouponsReplyDto> all, HttpServletResponse response) throws IOException {
@@ -182,18 +255,18 @@ public class YxCouponsReplyServiceImpl extends BaseServiceImpl<YxCouponsReplyMap
         for (YxCouponsReplyDto yxCouponsReply : all) {
             Map<String, Object> map = new LinkedHashMap<>();
             map.put("用户ID", yxCouponsReply.getUid());
-            map.put("订单ID", yxCouponsReply.getOid());
-            map.put("卡券id", yxCouponsReply.getCouponId());
-            map.put("总体感觉", yxCouponsReply.getGeneralScore());
+            map.put("用户昵称", yxCouponsReply.getUsername());
+            map.put("订单号", yxCouponsReply.getOrderNo());
+            map.put("卡券名称", yxCouponsReply.getCouponName());
+            map.put("分数", yxCouponsReply.getGeneralScore());
             map.put("评论内容", yxCouponsReply.getComment());
-            map.put("评论时间", yxCouponsReply.getAddTime());
-            map.put("管理员回复时间", yxCouponsReply.getMerchantReplyTime());
-            map.put("0：未回复，1：已回复", yxCouponsReply.getIsReply());
+            map.put("评论时间", yxCouponsReply.getAddTimeStr());
+            map.put("管理员回复时间", DateUtils.timestampToStr10(yxCouponsReply.getMerchantReplyTime()));
+            map.put("回复时间", yxCouponsReply.getIsReply() == 0 ? "未回复" : "已回复");
             map.put("商户id", yxCouponsReply.getMerId());
+            map.put("商户登陆名", yxCouponsReply.getMerUsername());
+            map.put("商户名称", yxCouponsReply.getNickName());
             map.put("管理员回复内容", yxCouponsReply.getMerchantReplyContent());
-            map.put("是否删除（0：未删除，1：已删除）", yxCouponsReply.getDelFlag());
-            map.put("创建人", yxCouponsReply.getCreateUserId());
-            map.put("修改人", yxCouponsReply.getUpdateUserId());
             map.put("创建时间", yxCouponsReply.getCreateTime());
             map.put("更新时间", yxCouponsReply.getUpdateTime());
             list.add(map);

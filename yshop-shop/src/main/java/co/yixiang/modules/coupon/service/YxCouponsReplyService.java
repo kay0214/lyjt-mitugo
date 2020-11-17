@@ -36,7 +36,7 @@ public interface YxCouponsReplyService  extends BaseService<YxCouponsReply>{
     * @param criteria 条件参数
     * @return List<YxCouponsReplyDto>
     */
-    List<YxCouponsReply> queryAll(YxCouponsReplyQueryCriteria criteria);
+    List<YxCouponsReplyDto> queryAll(YxCouponsReplyQueryCriteria criteria);
 
     /**
     * 导出数据

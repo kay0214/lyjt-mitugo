@@ -52,7 +52,13 @@ public class YxCouponsReplyController {
     @GetMapping(value = "/download")
     @PreAuthorize("@el.check('admin','yxCouponsReply:list')")
     public void download(HttpServletResponse response, YxCouponsReplyQueryCriteria criteria) throws IOException {
-        yxCouponsReplyService.download(generator.convert(yxCouponsReplyService.queryAll(criteria), YxCouponsReplyDto.class), response);
+        // 处理查询角色
+        CurrUser currUser = SecurityUtils.getCurrUser();
+        criteria.setUserRole(currUser.getUserRole());
+        if (null != currUser.getChildUser()) {
+            criteria.setChildUser(currUser.getChildUser());
+        }
+        yxCouponsReplyService.download(yxCouponsReplyService.queryAll(criteria), response);
     }
 
     @GetMapping
