@@ -103,9 +103,6 @@ public class YxShipInfoServiceImpl extends BaseServiceImpl<YxShipInfoMapper, YxS
     @Override
     public Map<String, Object> getShipInfoList(ShipInfoQueryParam shipInfoQueryParam, SystemUser user) {
         Map<String, Object> map = new HashMap<>();
-        map.put("status", "99");
-        map.put("statusDesc", "暂无船只信息！");
-
         YxShipInfoQueryParam yxShipInfoQueryParam = new YxShipInfoQueryParam();
         BeanUtils.copyProperties(shipInfoQueryParam, yxShipInfoQueryParam);
         yxShipInfoQueryParam.setShipName(shipInfoQueryParam.getKeyword());
@@ -145,10 +142,10 @@ public class YxShipInfoServiceImpl extends BaseServiceImpl<YxShipInfoMapper, YxS
                 shipInfoQueryVo.setShipImageUrl(getShipImg(shipInfoQueryVo.getId()));
 
             }
-            map.put("status", "1");
-            map.put("statusDesc", "成功！");
-            map.put("data", paging);
         }
+        map.put("status", "1");
+        map.put("statusDesc", "成功！");
+        map.put("data", paging);
         return map;
     }
 
@@ -167,9 +164,9 @@ public class YxShipInfoServiceImpl extends BaseServiceImpl<YxShipInfoMapper, YxS
     @Override
     public Map<String, Object> getShipOperationList(YxShipOperationQueryParam yxShipOperationQueryParam,ShipInOperationParam shipInOperationParam, Integer captionId, Integer storeId) {
         Map<String, Object> map = new HashMap<>();
-        map.put("status", "99");
-        map.put("statusDesc", "暂无船只运营信息！");
-//        YxShipOperationQueryParam yxShipOperationQueryParam = new YxShipOperationQueryParam();
+       /* map.put("status", "99");
+        map.put("statusDesc", "暂无船只运营信息！");*/
+
         if (null != captionId) {
             //船长id = null
             yxShipOperationQueryParam.setCaptainId(captionId);
@@ -188,7 +185,7 @@ public class YxShipInfoServiceImpl extends BaseServiceImpl<YxShipInfoMapper, YxS
             yxShipOperationQueryParam.setStartTime(mapParam.get("startDate"));
         }
         IPage<YxShipOpeartionVo> shipOpertionPage = yxShipOperationMapper.getYxShipOpeartionVoPageList(page, yxShipOperationQueryParam);
-        Paging<YxShipInfoQueryVo> infoQueryVoPaging = new Paging(shipOpertionPage);
+        Paging<YxShipOpeartionVo> infoQueryVoPaging = new Paging(shipOpertionPage);
         if (infoQueryVoPaging.getTotal() > 0) {
             List<YxShipOpeartionVo> queryVoList = shipOpertionPage.getRecords();
             for (YxShipOpeartionVo queryVo : queryVoList) {
@@ -217,11 +214,13 @@ public class YxShipInfoServiceImpl extends BaseServiceImpl<YxShipInfoMapper, YxS
                         break;
                 }
                 queryVo.setStatusFormat(strStatus);
+                queryVo.setUserdUserName(systemUserMapper.getUserById(queryVo.getCreateUserId()).getNickName());
+                queryVo.setUserdTime(DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD_HH_MM_SS,queryVo.getCreateTime()));
             }
-            map.put("status", "1");
-            map.put("statusDesc", "成功！");
-            map.put("data", infoQueryVoPaging);
         }
+        map.put("status", "1");
+        map.put("statusDesc", "成功！");
+        map.put("data", infoQueryVoPaging);
         return map;
     }
 
@@ -319,11 +318,6 @@ public class YxShipInfoServiceImpl extends BaseServiceImpl<YxShipInfoMapper, YxS
         queryWrapper.lambda().eq(YxShipOperationDetail::getBatchNo, batchNo);
         List<YxShipOperationDetail> shipOperationDetailList = yxShipOperationDetailMapper.selectList(queryWrapper);
         List<YxShipOperationDetailVO> detailVOList = new ArrayList<>();
-        if (CollectionUtils.isEmpty(shipOperationDetailList)) {
-            map.put("status", "99");
-            map.put("statusDesc", "暂无船只信息！");
-            return map;
-        }
         for (YxShipOperationDetail yxShipOperationDetail : shipOperationDetailList) {
             YxShipOperationDetailVO yxShipOperationDetailVO = new YxShipOperationDetailVO();
             BeanUtils.copyProperties(yxShipOperationDetail, yxShipOperationDetailVO);
@@ -334,6 +328,11 @@ public class YxShipInfoServiceImpl extends BaseServiceImpl<YxShipInfoMapper, YxS
             YxShipSeries yxShipSeries = getShpSeriesByShipId(yxShipOperationDetailVO.getShipId());
             yxShipOperationDetailVO.setSeriesName(yxShipSeries.getSeriesName());
             yxShipOperationDetailVO.setRideLimit(yxShipSeries.getRideLimit());
+            //核销时间
+            yxShipOperationDetailVO.setUserdTime(DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD_HH_MM_SS,yxShipOperationDetail.getCreateTime()));
+            SystemUserQueryVo systemUser = systemUserMapper.getUserById(yxShipOperationDetail.getCreateUserId());
+            // 核销人
+            yxShipOperationDetailVO.setUserdUserName(systemUser.getNickName());
 
             QueryWrapper<YxShipPassenger> queryWrapperPasseng = new QueryWrapper<>();
             queryWrapperPasseng.lambda().eq(YxShipPassenger::getBatchNo, batchNo)
@@ -420,7 +419,7 @@ public class YxShipInfoServiceImpl extends BaseServiceImpl<YxShipInfoMapper, YxS
         yxShipOperation.setCaptainId(param.getCaptainId());
         yxShipOperation.setUpdateUserId(uid);
         yxShipOperation.setUpdateTime(new Date());
-        yxShipOperation.setCaptainName(systemUser.getUsername());
+        yxShipOperation.setCaptainName(systemUser.getNickName());
         yxShipOperationService.updateById(yxShipOperation);
 
         map.put("status", "1");

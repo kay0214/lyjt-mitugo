@@ -15,13 +15,15 @@
         select <include refid="Base_Column_List"/> from yx_ship_appoint
     </select>
 
-    <select id="getYxShipAppointListByParam" resultType="co.yixiang.modules.ship.web.vo.YxShipAppointQueryVo">
+    <select id="getYxShipAppointPageByParam" resultType="co.yixiang.modules.couponUse.dto.YxShipAppointVo">
         SELECT
             app.id,
             app.`name`,
             app.phone,
             app.remark,
-            app.appointment_date
+            app.appointment_date,
+            app.create_user_id,
+            app.create_time
         FROM
             yx_ship_appoint app
         LEFT JOIN yx_ship_appoint_detail appd ON app.id = appd.appoint_id

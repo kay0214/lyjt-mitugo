@@ -1,6 +1,7 @@
 package co.yixiang.modules.shop.service;
 
 import co.yixiang.common.api.ApiResult;
+import co.yixiang.modules.couponUse.dto.ShipUserLeaveVO;
 import co.yixiang.modules.shop.entity.YxStoreProduct;
 import co.yixiang.common.service.BaseService;
 import co.yixiang.modules.shop.web.dto.ProductDTO;
@@ -12,7 +13,9 @@ import co.yixiang.common.web.vo.Paging;
 import java.awt.*;
 import java.io.IOException;
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
@@ -95,4 +98,74 @@ public interface YxStoreProductService extends BaseService<YxStoreProduct> {
      * @return
      */
     ApiResult productPoster(String pageType, Integer id) throws IOException, FontFormatException;
+
+    /**
+     * 本地生活商品数量
+     * @param storeId
+     * @return
+     */
+    Map<String, Integer> getLocalProductCount(Integer storeId);
+
+    /**
+     * 本地生活订单相关数量
+     * @param storeId
+     * @return
+     */
+    Map<String, Integer> getLocalProductOrderCount(Integer storeId);
+
+    /**
+     * 今日营业额
+     * @param storeId
+     * @return
+     */
+    BigDecimal getLocalSumPrice(Integer storeId);
+
+    /**
+     * 商城商品相关
+     * @param storeId
+     * @return
+     */
+    Map<String, Integer> getShopProductCount(Integer storeId);
+
+    /**
+     * 商城订单数量相关
+     * @param storeId
+     * @return
+     */
+    Map<String, Integer> getShopOrderCount(Integer storeId);
+
+    /**
+     * 商城今日营业额
+     * @param storeId
+     * @return
+     */
+    BigDecimal getShopSumPrice(Integer storeId);
+
+    /**
+     * 船只出港次数最多的船只
+     * @param storeId
+     * @return
+     */
+    List<ShipUserLeaveVO> getTopShipLeaves(Integer storeId);
+
+    /**
+     * 出港最多的船长
+     * @param storeId
+     * @return
+     */
+    List<ShipUserLeaveVO> getShipUserLeaveS(Integer storeId);
+
+    /**
+     * 今日出港次数
+     * @param storeId
+     * @return
+     */
+    Integer getShipLeaveCount(Integer storeId);
+
+    /**
+     * 今日运营船只
+     * @param storeId
+     * @return
+     */
+    Integer getShipCount(Integer storeId);
 }

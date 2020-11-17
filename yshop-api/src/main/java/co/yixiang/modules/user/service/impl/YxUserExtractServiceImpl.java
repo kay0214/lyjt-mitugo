@@ -90,8 +90,8 @@ public class YxUserExtractServiceImpl extends BaseServiceImpl<YxUserExtractMappe
         String userRate = this.systemConfigService.getData(SystemConfigConstants.USER_EXTRACT_RATE);
         if (StringUtils.isNotBlank(userRate)) {
             BigDecimal userRateBig = new BigDecimal(userRate);
-            if (userRateBig.compareTo(BigDecimal.ZERO) > 0 && userRateBig.compareTo(BigDecimal.ONE) <= 0) {
-                truePrice = truePrice.subtract(truePrice.multiply(userRateBig));
+            if (userRateBig.compareTo(BigDecimal.ZERO) > 0 && userRateBig.compareTo(new BigDecimal(100)) <= 0) {
+                truePrice = truePrice.subtract(truePrice.multiply(userRateBig.divide(new BigDecimal(100), 2, BigDecimal.ROUND_HALF_UP)));
             }
         }
 

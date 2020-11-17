@@ -3,20 +3,34 @@ package co.yixiang.modules.ship.service.impl;
 import co.yixiang.common.service.impl.BaseServiceImpl;
 import co.yixiang.common.web.vo.Paging;
 import co.yixiang.modules.couponUse.dto.YxShipAppointResultVo;
+import co.yixiang.modules.couponUse.dto.YxShipAppointVo;
+import co.yixiang.modules.couponUse.param.ShipInAppotionDaysParam;
+import co.yixiang.modules.couponUse.param.ShipInAppotionParam;
+import co.yixiang.modules.manage.entity.SystemUser;
 import co.yixiang.modules.ship.entity.YxShipAppoint;
+import co.yixiang.modules.ship.entity.YxShipAppointDetail;
+import co.yixiang.modules.ship.entity.YxShipInfo;
 import co.yixiang.modules.ship.mapper.YxShipAppointMapper;
+import co.yixiang.modules.ship.service.YxShipAppointDetailService;
 import co.yixiang.modules.ship.service.YxShipAppointService;
 import co.yixiang.modules.ship.service.YxShipInfoService;
 import co.yixiang.modules.ship.web.param.YxShipAppointQueryParam;
 import co.yixiang.modules.ship.web.vo.YxShipAppointQueryVo;
+import co.yixiang.modules.user.entity.YxLeaveMessage;
+import co.yixiang.modules.user.entity.YxUser;
+import co.yixiang.modules.user.service.YxLeaveMessageService;
+import co.yixiang.modules.user.service.YxUserService;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.metadata.OrderItem;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import java.io.Serializable;
 import java.text.ParseException;
@@ -42,6 +56,12 @@ public class YxShipAppointServiceImpl extends BaseServiceImpl<YxShipAppointMappe
 
     @Autowired
     private YxShipInfoService yxShipInfoService;
+    @Autowired
+    private YxShipAppointDetailService yxShipAppointDetailService;
+    @Autowired
+    private YxLeaveMessageService yxLeaveMessageService;
+    @Autowired
+    private YxUserService yxUserService;
 
     @Override
     public YxShipAppointQueryVo getYxShipAppointById(Serializable id) throws Exception{
@@ -143,11 +163,17 @@ public class YxShipAppointServiceImpl extends BaseServiceImpl<YxShipAppointMappe
 
 
     @Override
-    public List<YxShipAppointResultVo> getAppointByDate(List<String> dateList,Integer storeId) {
+    public List<YxShipAppointResultVo> getAppointByDate(List<String> dateList,Integer storeId,Integer shipId) {
         List<YxShipAppointResultVo> resultVoList = new ArrayList<>();
         YxShipAppointQueryParam param = new YxShipAppointQueryParam();
         param.setDateList(dateList);
-        List<Integer> shipIds = yxShipInfoService.shipIdList(null, storeId);
+        List<Integer> shipIds = new ArrayList<>();
+        if(null == shipId){
+            shipIds = yxShipInfoService.shipIdList(null, storeId);
+        }else{
+            shipIds.add(shipId);
+        }
+
         param.setShipIdList(shipIds);
 
         List<String> appointmentDateList = yxShipAppointMapper.getAppointmentDateByParam(param);
@@ -165,5 +191,117 @@ public class YxShipAppointServiceImpl extends BaseServiceImpl<YxShipAppointMappe
         }
         return resultVoList;
 
+    }
+
+    /**
+     * 新增船只预约
+     * @param param
+     * @param user
+     * @return
+     */
+    @Transactional
+    @Override
+    public Map<String, Object> saveAppotionInfo(ShipInAppotionParam param, SystemUser user){
+        Map<String, Object> map = new HashMap<>();
+        YxShipAppoint shipAppoint = new YxShipAppoint();
+        if(null!=param.getLeaveId()){
+            //留言id
+            YxLeaveMessage yxLeaveMessage = yxLeaveMessageService.getById(param.getLeaveId());
+            if(null==yxLeaveMessage){
+                map.put("status", "99");
+                map.put("statusDesc", "根据留言id："+param.getLeaveId()+" 获取信息失败！");
+                return map;
+            }
+            YxUser yxUser = yxUserService.getById(yxLeaveMessage.getCreateUserId());
+            if(null==yxUser){
+                map.put("status", "99");
+                map.put("statusDesc", "根据留言用户id："+yxLeaveMessage.getCreateUserId()+" 获取信息失败！");
+                return map;
+            }
+            param.setName(yxUser.getRealName());
+            param.setPhone(yxUser.getPhone());
+
+        }
+        BeanUtils.copyProperties(param,shipAppoint);
+        shipAppoint.setCreateTime(new Date());
+        shipAppoint.setCreateUserId(user.getId().intValue());
+        shipAppoint.setUpdateTime(new Date());
+        shipAppoint.setUpdateUserId(user.getId().intValue());
+        this.save(shipAppoint);
+
+        if(!StringUtils.isEmpty(param.getShipIds())){
+            String[] shipIds = param.getShipIds().split(",");
+            List<YxShipAppointDetail> detailList = new ArrayList<>();
+            for(int i=0;i<shipIds.length;i++){
+                int intShipId = Integer.parseInt(shipIds[i]);
+                YxShipInfo yxShipInfo = yxShipInfoService.getById(intShipId);
+                YxShipAppointDetail yxShipAppointDetail = new YxShipAppointDetail();
+                yxShipAppointDetail.setAppointId(shipAppoint.getId());
+                yxShipAppointDetail.setShipId(yxShipInfo.getId());
+                yxShipAppointDetail.setSeriesId(yxShipInfo.getSeriesId());
+                yxShipAppointDetail.setCreateTime(new Date());
+                yxShipAppointDetail.setCreateUserId(user.getId().intValue());
+                yxShipAppointDetail.setUpdateTime(new Date());
+                yxShipAppointDetail.setUpdateUserId(user.getId().intValue());
+                detailList.add(yxShipAppointDetail);
+            }
+            yxShipAppointDetailService.saveBatch(detailList);
+        }
+        map.put("status", "1");
+        map.put("statusDesc", "成功！");
+        return map;
+    }
+
+
+    /**
+     * 显示预约详情
+     * @param param
+     * @param user
+     * @return
+     */
+    @Override
+    public Map<String,Object> getAppotionByDate(ShipInAppotionDaysParam param,SystemUser user){
+        Map<String,Object> map = new HashMap<>();
+        YxShipAppointQueryParam yxShipAppointQueryParam = new YxShipAppointQueryParam();
+        List<Integer> shipIds = new ArrayList<>();
+        if(null == param.getShipId()){
+            shipIds = yxShipInfoService.shipIdList(null, user.getStoreId());
+        }else{
+            shipIds.add(param.getShipId());
+        }
+        yxShipAppointQueryParam.setShipIdList(shipIds);
+        List<String> listDates = new ArrayList<>();
+        listDates.add(param.getDate());
+        yxShipAppointQueryParam.setDateList(listDates);
+        Page page = setPageParam(yxShipAppointQueryParam, OrderItem.desc("create_time"));
+        IPage<YxShipAppointVo> shipOpertionPage = yxShipAppointMapper.getYxShipAppointPageByParam(page, yxShipAppointQueryParam);
+        Paging<YxShipAppointVo> shipAppointQueryVoPaging = new Paging(shipOpertionPage);
+        if (shipAppointQueryVoPaging.getTotal() > 0) {
+            List<YxShipAppointVo> appointQueryVoList = shipAppointQueryVoPaging.getRecords();
+            for(YxShipAppointVo appointVo:appointQueryVoList){
+                appointVo.setShipNameList(getShipNameByAppotionId(appointVo.getId()));
+            }
+        }
+        map.put("status", "1");
+        map.put("statusDesc", "成功！");
+        map.put("data", shipAppointQueryVoPaging);
+        return map;
+    }
+
+    private List<String>  getShipNameByAppotionId(int appId){
+        QueryWrapper<YxShipAppointDetail> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().eq(YxShipAppointDetail::getAppointId,appId).eq(YxShipAppointDetail::getDelFlag,0);
+        List<YxShipAppointDetail> appointDetailList = yxShipAppointDetailService.list(queryWrapper);
+        List<String> shipName = new ArrayList<>();
+        if(CollectionUtils.isEmpty(appointDetailList)){
+            return shipName;
+        }
+        for(YxShipAppointDetail appointDetail :appointDetailList){
+            YxShipInfo shipInfo = yxShipInfoService.getById(appointDetail.getId());
+            if(null!=shipInfo){
+                shipName.add(shipInfo.getShipName());
+            }
+        }
+        return shipName;
     }
 }

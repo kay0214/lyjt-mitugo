@@ -337,13 +337,13 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<UserBillMapper, YxUse
         if (!result) {
             throw new BadRequestException("商户最低提现金额设置失败");
         }
-        // 商户提现费率 0-1
+        // 商户提现费率 0-100
         BigDecimal storeRate = BigDecimal.ZERO;
         if (StringUtils.isNotBlank(request.getStoreExtractRate())) {
             storeRate = new BigDecimal(request.getStoreExtractRate());
         }
-        if (storeRate.compareTo(BigDecimal.ZERO) < 0 || storeRate.compareTo(BigDecimal.ONE) > 0) {
-            throw new BadRequestException("商户提现费率设置区间0-1");
+        if (storeRate.compareTo(BigDecimal.ZERO) < 0 || storeRate.compareTo(new BigDecimal(100)) > 0) {
+            throw new BadRequestException("商户提现费率设置区间0-100");
         }
         result = this.systemConfigService.saveOrUpdateValue(SystemConfigConstants.STORE_EXTRACT_RATE, storeRate.toString());
         if (!result) {
@@ -365,8 +365,8 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<UserBillMapper, YxUse
         if (StringUtils.isNotBlank(request.getUserExtractRate())) {
             userRate = new BigDecimal(request.getUserExtractRate());
         }
-        if (userRate.compareTo(BigDecimal.ZERO) < 0 || userRate.compareTo(BigDecimal.ONE) > 0) {
-            throw new BadRequestException("商户提现费率设置区间0-1");
+        if (userRate.compareTo(BigDecimal.ZERO) < 0 || userRate.compareTo(new BigDecimal(100)) > 0) {
+            throw new BadRequestException("商户提现费率设置区间0-100");
         }
         result = this.systemConfigService.saveOrUpdateValue(SystemConfigConstants.USER_EXTRACT_RATE, userRate.toString());
         if (!result) {
@@ -392,7 +392,7 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<UserBillMapper, YxUse
         // 商户最低提现费率
         String storeRate = systemConfigService.getData(SystemConfigConstants.STORE_EXTRACT_RATE);
         if (StringUtils.isBlank(storeRate)) {
-            storeRate = "0.1";
+            storeRate = "10";
             systemConfigService.saveOrUpdateValue(SystemConfigConstants.STORE_EXTRACT_RATE, storeRate);
         }
 
