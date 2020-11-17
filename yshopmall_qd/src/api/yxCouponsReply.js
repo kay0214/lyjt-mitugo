@@ -26,7 +26,7 @@ export function edit(data) {
 
 export function reply(data) {
   return request({
-    url: 'api/yxCouponsReply/reply',
+    url: 'api/yxCouponsReply/updateMerchantReply',
     method: 'put',
     data
   })
