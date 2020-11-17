@@ -2,6 +2,7 @@ package co.yixiang.modules.coupons.web.vo;
 
 import co.yixiang.common.mybatis.GeoPoint;
 import co.yixiang.modules.coupons.entity.YxCoupons;
+import co.yixiang.modules.ship.web.vo.YxShipPassengerQueryVo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -202,5 +203,12 @@ public class YxCouponOrderQueryVo implements Serializable {
 
     @ApiModelProperty(value = "可用核销码")
     private List<String> ableVerifyCode;
+    @ApiModelProperty(value = "评价状态：0未评价 1已评价")
+    private Integer evaluate;
 
+    @ApiModelProperty(value = "乘客列表")
+    private List<YxShipPassengerQueryVo> passengeList;
+
+    @ApiModelProperty(value = "限乘人数")
+    private Integer rideLimit;
 }

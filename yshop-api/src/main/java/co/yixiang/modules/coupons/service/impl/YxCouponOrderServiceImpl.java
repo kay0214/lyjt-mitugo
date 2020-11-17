@@ -56,6 +56,7 @@ import co.yixiang.modules.ship.mapper.YxShipSeriesMapper;
 import co.yixiang.modules.ship.service.YxShipInfoService;
 import co.yixiang.modules.ship.service.YxShipOperationDetailService;
 import co.yixiang.modules.ship.service.YxShipOperationService;
+import co.yixiang.modules.ship.service.YxShipPassengerService;
 import co.yixiang.modules.ship.web.vo.YxShipInfoQueryVo;
 import co.yixiang.modules.ship.web.vo.YxShipSeriesQueryVo;
 import co.yixiang.modules.shop.entity.YxStoreInfo;
@@ -182,6 +183,9 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
     private YxShipInfoMapper yxShipInfoMapper;
     @Autowired
     private YxContractTemplateMapper yxContractTemplateMapper;
+
+    @Autowired
+    private YxShipPassengerService yxShipPassengerService;
 
     @Value("${yshop.snowflake.datacenterId}")
     private Integer datacenterId;
@@ -931,6 +935,8 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         //船只信息
         if (4 == yxCoupons.getCouponType()) {
             item = setShipDetailInof(item, yxCoupons, yxCouponOrder, shipOrderStatus);
+            item.setPassengeList(yxShipPassengerService.getPassengerByOrderId(item.getId()));
+
         }
         return item;
     }
@@ -965,6 +971,7 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         item.setShipCoordinateY(yxShipSeriesQueryVo.getCoordinateY());
         item.setShipAddress(yxShipSeriesQueryVo.getShipAddress());
         item.setSeriesName(yxShipSeriesQueryVo.getSeriesName());
+        item.setRideLimit(yxShipSeriesQueryVo.getRideLimit());
         //健康确认
         if (StringUtils.isNotBlank(yxCoupons.getConfirmation())) {
             List<String> stringList = Arrays.asList(yxCoupons.getConfirmation().split(","));

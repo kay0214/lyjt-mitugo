@@ -18,7 +18,7 @@ import lombok.Data;
 public class YxCouponOrderPassDetailParam{
 
     @ApiModelProperty(value = "联系人id")
-    private Integer contactsId;
+    private Integer id;
     @ApiModelProperty(value = "状态：0:未成年 1:成年人 2：老年人")
     private Integer isAdult;
     @ApiModelProperty(value = "是否合同签订人 0:否 1:是")

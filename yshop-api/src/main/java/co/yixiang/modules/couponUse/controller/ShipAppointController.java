@@ -46,7 +46,7 @@ public class ShipAppointController extends BaseController {
         Map<String, Object> map = new HashMap<>();
         String strDate = param.getDate();
         List<String> dateList = yxShipAppointService.getMonthAllDays(strDate);
-        List<YxShipAppointResultVo> resultVoList = yxShipAppointService.getAppointByDate(dateList,user.getStoreId(),param.getShipId());
+        YxShipAppointResultVo resultVoList = yxShipAppointService.getAppointByDate(dateList,user.getStoreId(),param.getShipId());
         map.put("status", "1");
         map.put("statusDesc", "成功");
         map.put("data", resultVoList);

@@ -8,6 +8,7 @@ import co.yixiang.common.constant.CommonConstant;
 import co.yixiang.common.util.IpUtils;
 import co.yixiang.common.web.controller.BaseController;
 import co.yixiang.common.web.param.IdParam;
+import co.yixiang.common.web.vo.Paging;
 import co.yixiang.enums.OrderInfoEnum;
 import co.yixiang.exception.BadRequestException;
 import co.yixiang.exception.ErrorRequestException;
@@ -37,7 +38,7 @@ import co.yixiang.modules.shop.service.YxSystemStoreService;
 import co.yixiang.modules.user.service.YxUsedContactsService;
 import co.yixiang.modules.user.service.YxUserAddressService;
 import co.yixiang.modules.user.service.YxUserService;
-import co.yixiang.modules.user.web.vo.YxUsedContactsOrderQueryVo;
+import co.yixiang.modules.user.web.vo.YxUsedContactsQueryVo;
 import co.yixiang.utils.CommonsUtils;
 import co.yixiang.utils.RedisUtil;
 import co.yixiang.utils.SecurityUtils;
@@ -450,6 +451,7 @@ public class YxCouponOrderController extends BaseController {
     /**
      * 获取卡券订单表
      */
+    @AnonymousAccess
     @PostMapping("/info")
     @ApiOperation(value = "查看卡券订单详情", notes = "卡券订单详情")
     public ApiResult<YxCouponOrderQueryVo> getMyCouponOrder(@Valid @RequestBody IdParam idParam, @RequestHeader(value = "location", required = false) String location) throws Exception {
@@ -497,8 +499,8 @@ public class YxCouponOrderController extends BaseController {
     @AnonymousAccess
     @PostMapping("/getUsedContactsList")
     @ApiOperation(value = "选择乘客", notes = "选择乘客")
-    public ApiResult<YxUsedContactsOrderQueryVo> getUsedContactsByUserId(@Valid @RequestBody YxCouponOrderPassengParam yxCouponOrderQueryParam){
-        YxUsedContactsOrderQueryVo yxUsedContactsOrderQueryVo = yxUsedContactsService.getUsedContactsByUserId(yxCouponOrderQueryParam);
+    public ApiResult<Paging<YxUsedContactsQueryVo>> getUsedContactsByUserId(@Valid @RequestBody YxCouponOrderPassengParam yxCouponOrderQueryParam){
+        Paging<YxUsedContactsQueryVo> yxUsedContactsOrderQueryVo = yxUsedContactsService.getUsedContactsByUserId(yxCouponOrderQueryParam);
         return ApiResult.ok(yxUsedContactsOrderQueryVo);
     }
 
