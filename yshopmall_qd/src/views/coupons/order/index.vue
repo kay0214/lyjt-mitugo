@@ -42,6 +42,7 @@
             icon="el-icon-refresh"
             @click="crud.toQuery"
           >刷新</el-button>
+          <crudOperation :permission="permission" />
         </div>
         <!--表单组件-->
         <!-- <el-dialog :close-on-click-modal="false" :before-close="crud.cancelCU" :visible.sync="crud.status.cu > 0" :title="crud.status.title" width="500px">
@@ -104,7 +105,7 @@
             <template slot-scope="scope">
               <span>{{ formatTime(scope.row.createTime) }}</span>
             </template>
-          </el-table-column>         
+          </el-table-column>
           <el-table-column label="操作" width="150px" align="center">
             <template slot-scope="scope">
               <el-button
@@ -144,7 +145,13 @@ import eRefund from './refund'
 
 // crud交由presenter持有
 const defaultCrud = CRUD({ title: '卡券订单', url: 'api/yxCouponOrder',
-sort: 'id,desc', crudMethod: { ...crudYxCouponOrder }, query:{orderStatus: '',orderType: '',value:'' }})
+sort: 'id,desc', crudMethod: { ...crudYxCouponOrder },optShow: {
+    add: false,
+    edit: false,
+    del: false,
+    download: true
+  },
+  query:{orderStatus: '',orderType: '',value:'' }})
 const defaultForm = {  orderId: null,  mark: null }
 export default {
   name: 'YxCouponOrder',
