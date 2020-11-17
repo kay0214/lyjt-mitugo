@@ -22,3 +22,11 @@ export function edit(data) {
     data
   })
 }
+
+export function reply(data) {
+  return request({
+    url: 'api/yxStoreProductReply/reply',
+    method: 'put',
+    data
+  })
+}
