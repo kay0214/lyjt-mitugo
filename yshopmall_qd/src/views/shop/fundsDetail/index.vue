@@ -44,7 +44,7 @@
         </el-date-picker>
       <el-button class="filter-item" size="mini" type="success" icon="el-icon-search" @click="crud.toQuery">搜索</el-button>
       <!--如果想在工具栏加入更多按钮，可以使用插槽方式， slot = 'left' or 'right'-->
-      <!-- <crudOperation :permission="permission" /> -->
+       <crudOperation :permission="permission" />
       <!--表单组件-->
       <el-dialog :close-on-click-modal="false" :before-close="crud.cancelCU" :visible.sync="crud.status.cu > 0" :title="crud.status.title" width="500px">
         <el-form ref="form" :model="form" :rules="rules" size="small" label-width="80px">
@@ -139,10 +139,10 @@ import {getType} from '@/api/yxUserBill'
 
 // crud交由presenter持有
 const defaultCrud = CRUD({ title: '平台资金明细', url: 'api/yxUserBillAll', sort: 'id,desc',optShow: {
-      add: true,
-      edit: true,
-      del: true,
-      download: false
+      add: false,
+      edit: false,
+      del: false,
+      download: true
     },
     query: {
       username:'',category:'',type:'',pm:'',addTimeStart:'',addTimeEnd:'',
