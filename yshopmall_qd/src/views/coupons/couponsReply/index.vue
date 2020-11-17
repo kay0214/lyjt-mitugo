@@ -19,7 +19,6 @@
       <el-button class="filter-item" size="mini" type="success" icon="el-icon-search" @click="toQuery">搜索</el-button>
 
       <!--表单组件-->
-      <eForm ref="form" :is-add="isAdd" />
       <!--表格渲染-->
       <el-table ref="table" v-loading="loading" :data="data" size="small" style="width: 100%;">
         <el-table-column type="selection" width="55" />
@@ -108,12 +107,11 @@ import crudYxCouponsReply,{ del,reply } from '@/api/yxCouponsReply'
 import pagination from '@crud/Pagination'
 import checkPermission from '@/utils/permission'
 import initData from '@/mixins/crud'
-import eForm from './form'
 import { formatTime } from '@/utils/index'
 
 export default {
   name: 'YxCouponsReply',
-  components: { pagination,eForm},
+  components: { pagination},
   mixins: [initData],
   data() {
     return {
