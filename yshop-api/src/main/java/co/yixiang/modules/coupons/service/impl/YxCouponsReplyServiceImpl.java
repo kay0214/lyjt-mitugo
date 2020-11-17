@@ -81,9 +81,15 @@ public class YxCouponsReplyServiceImpl extends BaseServiceImpl<YxCouponsReplyMap
      */
     @Override
     public boolean createReply(YxCouponsAddReplyRequest request) {
+        // 查询是否已评价
+        List<YxCouponsReply> findList = this.list(new QueryWrapper<YxCouponsReply>().lambda()
+                .eq(YxCouponsReply::getOid, request.getOid()));
+        if (null != findList && findList.size() > 0) {
+            throw new BadRequestException("当前订单已提交过评价");
+        }
         // 获取订单信息
         YxCouponOrder yxCouponOrder = this.yxCouponOrderService.getOne(new QueryWrapper<YxCouponOrder>().lambda()
-                .eq(YxCouponOrder::getOrderId, request.getOid())
+                .eq(YxCouponOrder::getId, request.getOid())
                 .eq(YxCouponOrder::getEvaluate, 0)
                 .eq(YxCouponOrder::getStatus, 6));
         if (null == yxCouponOrder) {
@@ -159,6 +165,7 @@ public class YxCouponsReplyServiceImpl extends BaseServiceImpl<YxCouponsReplyMap
         replyVO.setMerchantReplyTimeStr(DateUtils.timestampToStr10(yxCouponsReply.getMerchantReplyTime()));
         List<YxImageInfo> imageList = this.yxImageInfoService.list(new QueryWrapper<YxImageInfo>().lambda()
                 .eq(YxImageInfo::getDelFlag, 0)
+                .eq(YxImageInfo::getTypeId, yxCouponsReply.getId())
                 .eq(YxImageInfo::getImgType, ShopConstants.IMG_TYPE_CARD)
                 .eq(YxImageInfo::getImgCategory, ShopConstants.IMG_CATEGORY_REPLY));
         if (null != imageList && imageList.size() > 0) {
