@@ -29,44 +29,36 @@ public class YxMerchantsSettlement implements Serializable {
 
 
     /** 公司名 */
-    @NotBlank
     private String companyName;
 
 
     /** 联系人 */
-    @NotBlank
     private String contactsName;
 
 
     /** 联系电话 */
-    @NotBlank
     private String phone;
 
 
     /** 联系地址 */
-    @NotBlank
     private String address;
 
 
     /** 说明 */
-    @NotBlank
     @TableField(value = "`explain`")
     private String explain;
 
 
     /** 备注 */
-    @NotBlank
     private String remark;
 
 
     /** 状态：0：待联系，1：有意向，2：已拒绝 */
-    @NotNull
     @TableField(value = "`status`")
     private Integer status;
 
 
     /** 是否删除（0：未删除，1：已删除） */
-    @NotNull
     @TableLogic
     @TableField(fill=FieldFill.INSERT_UPDATE)
     private Integer delFlag;
@@ -81,13 +73,11 @@ public class YxMerchantsSettlement implements Serializable {
 
 
     /** 创建时间 */
-    @NotNull
     @TableField(fill= FieldFill.INSERT)
     private Timestamp createTime;
 
 
     /** 更新时间 */
-    @NotNull
     @TableField(fill= FieldFill.INSERT_UPDATE)
     private Timestamp updateTime;
 
