@@ -205,3 +205,23 @@ jetcache:
       host: ${spring.redis.host}
       port: ${spring.redis.port}
       password: ${spring.redis.password}
+
+# 线下收款地址配置
+offline:
+  url: https://testmituapi.hyjf.com/shop/
+
+#悟空开放平台地址 模拟：http://smlitsm.tsign.cn:8080    正式http://openapi.tsign.cn:8080：
+wukong:
+  url: http://smlitsm.tsign.cn:8080/tgmonitor/rest/app!getAPIInfo2
+  project:
+    id: 4438785109
+    secret: 0c0bd9c66d760866bafe89cce9109ac7
+  cunzheng:
+    url: http://smlcunzheng.tsign.cn:8083/
+  # 生成合同的存放路径
+  path: /esgin/pdf/
+  # 填充模板用个人用户数据
+  template:
+    user:
+     name: 锺强
+     idcard: 140000200011043143

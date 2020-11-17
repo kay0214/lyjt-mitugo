@@ -24,7 +24,7 @@ public class YxCustomizeRateQueryVo implements Serializable{
 @ApiModelProperty(value = "主键")
 private Integer id;
 
-@ApiModelProperty(value = "类型：0：本地生活，1：商城")
+@ApiModelProperty(value = "类型：0:商品购买 1:本地生活")
 private Integer rateType;
 
 @ApiModelProperty(value = "卡券/商品关联id")

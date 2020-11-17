@@ -608,8 +608,8 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
         if (2 == request.getCustomizeType()) {
             YxCustomizeRate yxCustomizeRate = request.getYxCustomizeRate();
             yxCustomizeRate.setLinkId(request.getId());
-            // 0：本地生活，1：商城
-            yxCustomizeRate.setRateType(0);
+            // 0:商品购买 1:本地生活
+            yxCustomizeRate.setRateType(1);
             // 存入操作人
             yxCustomizeRate.setCreateUserId(request.getCreateUser());
             boolean rateResult = yxCustomizeRateService.saveOrUpdateRate(yxCustomizeRate);

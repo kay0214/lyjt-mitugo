@@ -73,7 +73,7 @@ public class YxNowRateServiceImpl extends BaseServiceImpl<YxNowRateMapper, YxNow
         List<Map<String, Object>> list = new ArrayList<>();
         for (YxNowRateDto yxNowRate : all) {
             Map<String,Object> map = new LinkedHashMap<>();
-            map.put("类型：0：本地生活，1：商城", yxNowRate.getRateType());
+            map.put("类型：0:商品购买 1:本地生活", yxNowRate.getRateType());
             map.put("关联订单id", yxNowRate.getOrderId());
             map.put("购物车id", yxNowRate.getCartId());
             map.put("商品id", yxNowRate.getProductId());

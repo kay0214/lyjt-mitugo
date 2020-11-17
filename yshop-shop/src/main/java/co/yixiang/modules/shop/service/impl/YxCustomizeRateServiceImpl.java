@@ -76,7 +76,7 @@ public class YxCustomizeRateServiceImpl extends BaseServiceImpl<YxCustomizeRateM
         List<Map<String, Object>> list = new ArrayList<>();
         for (YxCustomizeRateDto yxCustomizeRate : all) {
             Map<String, Object> map = new LinkedHashMap<>();
-            map.put("类型：0：本地生活，1：商城", yxCustomizeRate.getRateType());
+            map.put("类型：0:商品购买 1:本地生活", yxCustomizeRate.getRateType());
             map.put("卡券/商品关联id", yxCustomizeRate.getLinkId());
             map.put("平台抽成", yxCustomizeRate.getFundsRate());
             map.put("分享人", yxCustomizeRate.getShareRate());
