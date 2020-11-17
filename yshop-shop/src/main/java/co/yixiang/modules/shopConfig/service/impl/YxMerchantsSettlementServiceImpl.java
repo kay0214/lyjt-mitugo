@@ -98,7 +98,9 @@ public class YxMerchantsSettlementServiceImpl extends BaseServiceImpl<YxMerchant
      */
     @Override
     public YxMerchantsSettlement selectById(Integer id) {
-        YxMerchantsSettlement yxMerchantsSettlement = this.getOne(new QueryWrapper<YxMerchantsSettlement>().lambda().eq(YxMerchantsSettlement::getDelFlag, 0));
+        YxMerchantsSettlement yxMerchantsSettlement = this.getOne(new QueryWrapper<YxMerchantsSettlement>().lambda()
+                .eq(YxMerchantsSettlement::getDelFlag, 0)
+                .eq(YxMerchantsSettlement::getId, id));
         if (null != yxMerchantsSettlement) {
             return yxMerchantsSettlement;
         }
