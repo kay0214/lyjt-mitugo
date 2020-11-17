@@ -24,4 +24,12 @@ export function edit(data) {
   })
 }
 
+export function reply(data) {
+  return request({
+    url: 'api/yxCouponsReply/reply',
+    method: 'put',
+    data
+  })
+}
+
 export default { add, edit, del }

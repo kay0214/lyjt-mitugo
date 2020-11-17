@@ -3,100 +3,95 @@
     <!--工具栏-->
     <div class="head-container">
       <!--如果想在工具栏加入更多按钮，可以使用插槽方式， slot = 'left' or 'right'-->
-      <crudOperation :permission="permission" />
+
+      <el-input v-model="query.username" clearable placeholder="商户登录名称(完全匹配)" style="width: 200px;" class="filter-item" @keyup.enter.native="toQuery" />
+      <el-input v-model="query.storeName" clearable placeholder="商品名称(完全匹配)" style="width: 200px;" class="filter-item" @keyup.enter.native="toQuery" />
+      <el-input v-model="query.username" clearable placeholder="商户用户名(完全匹配)" style="width: 200px;" class="filter-item" @keyup.enter.native="toQuery" />
+      <el-input v-model="query.username" clearable placeholder="用户手机号(完全匹配)" style="width: 200px;" class="filter-item" @keyup.enter.native="toQuery" />
+      <el-select v-model="query.isReply" clearable placeholder="回复状态"
+                 style="width: 200px;" class="filter-item">
+        <el-option
+          v-for="item in statusList"
+          :key="item.value"
+          :label="item.label"
+          :value="item.value">
+        </el-option>
+      </el-select>
+      <el-button class="filter-item" size="mini" type="success" icon="el-icon-search" @click="toQuery">搜索</el-button>
+
       <!--表单组件-->
-      <el-dialog :close-on-click-modal="false" :before-close="crud.cancelCU" :visible.sync="crud.status.cu > 0" :title="crud.status.title" width="500px">
-        <el-form ref="form" :model="form" :rules="rules" size="small" label-width="80px">
-          <el-form-item label="评论ID">
-            <el-input v-model="form.id" style="width: 370px;" />
-          </el-form-item>
-          <el-form-item label="用户ID" prop="uid">
-            <el-input v-model="form.uid" style="width: 370px;" />
-          </el-form-item>
-          <el-form-item label="订单ID" prop="oid">
-            <el-input v-model="form.oid" style="width: 370px;" />
-          </el-form-item>
-          <el-form-item label="卡券id" prop="couponId">
-            <el-input v-model="form.couponId" style="width: 370px;" />
-          </el-form-item>
-          <el-form-item label="总体感觉" prop="generalScore">
-            <el-input v-model="form.generalScore" style="width: 370px;" />
-          </el-form-item>
-          <el-form-item label="评论内容" prop="comment">
-            <el-input v-model="form.comment" style="width: 370px;" />
-          </el-form-item>
-          <el-form-item label="评论时间" prop="addTime">
-            <el-input v-model="form.addTime" style="width: 370px;" />
-          </el-form-item>
-          <el-form-item label="管理员回复时间">
-            <el-input v-model="form.merchantReplyTime" style="width: 370px;" />
-          </el-form-item>
-          <el-form-item label="0：未回复，1：已回复" prop="isReply">
-            <el-input v-model="form.isReply" style="width: 370px;" />
-          </el-form-item>
-          <el-form-item label="商户id" prop="merId">
-            <el-input v-model="form.merId" style="width: 370px;" />
-          </el-form-item>
-          <el-form-item label="管理员回复内容">
-            <el-input v-model="form.merchantReplyContent" style="width: 370px;" />
-          </el-form-item>
-          <el-form-item label="是否删除（0：未删除，1：已删除）" prop="delFlag">
-            <el-input v-model="form.delFlag" style="width: 370px;" />
-          </el-form-item>
-          <el-form-item label="创建人">
-            <el-input v-model="form.createUserId" style="width: 370px;" />
-          </el-form-item>
-          <el-form-item label="修改人">
-            <el-input v-model="form.updateUserId" style="width: 370px;" />
-          </el-form-item>
-          <el-form-item label="创建时间" prop="createTime">
-            <el-input v-model="form.createTime" style="width: 370px;" />
-          </el-form-item>
-          <el-form-item label="更新时间" prop="updateTime">
-            <el-input v-model="form.updateTime" style="width: 370px;" />
-          </el-form-item>
-        </el-form>
-        <div slot="footer" class="dialog-footer">
-          <el-button type="text" @click="crud.cancelCU">取消</el-button>
-          <el-button :loading="crud.cu === 2" type="primary" @click="crud.submitCU">确认</el-button>
-        </div>
-      </el-dialog>
+      <eForm ref="form" :is-add="isAdd" />
       <!--表格渲染-->
       <el-table ref="table" v-loading="crud.loading" :data="crud.data" size="small" style="width: 100%;" @selection-change="crud.selectionChangeHandler">
         <el-table-column type="selection" width="55" />
-        <el-table-column v-if="columns.visible('id')" prop="id" label="评论ID" />
-        <el-table-column v-if="columns.visible('uid')" prop="uid" label="用户ID" />
-        <el-table-column v-if="columns.visible('oid')" prop="oid" label="订单ID" />
-        <el-table-column v-if="columns.visible('couponId')" prop="couponId" label="卡券id" />
-        <el-table-column v-if="columns.visible('generalScore')" prop="generalScore" label="总体感觉" />
-        <el-table-column v-if="columns.visible('comment')" prop="comment" label="评论内容" />
-        <el-table-column v-if="columns.visible('addTime')" prop="addTime" label="评论时间" />
-        <el-table-column v-if="columns.visible('merchantReplyTime')" prop="merchantReplyTime" label="管理员回复时间" />
-        <el-table-column v-if="columns.visible('isReply')" prop="isReply" label="0：未回复，1：已回复" />
-        <el-table-column v-if="columns.visible('merId')" prop="merId" label="商户id" />
-        <el-table-column v-if="columns.visible('merchantReplyContent')" prop="merchantReplyContent" label="管理员回复内容" />
-        <el-table-column v-if="columns.visible('delFlag')" prop="delFlag" label="是否删除（0：未删除，1：已删除）" />
-        <el-table-column v-if="columns.visible('createUserId')" prop="createUserId" label="创建人" />
-        <el-table-column v-if="columns.visible('updateUserId')" prop="updateUserId" label="修改人" />
-        <el-table-column v-if="columns.visible('createTime')" prop="createTime" label="创建时间">
+        <el-table-column prop="id" label="ID" />
+        <el-table-column prop="user.nickname" label="用户" />
+        <el-table-column prop="sysUser.username" label="所在商户" />
+        <el-table-column prop="storeProduct.storeName" label="商品信息" />
+        <el-table-column prop="productScore" label="商品分数" />
+        <el-table-column prop="serviceScore" label="服务分数" />
+        <el-table-column prop="" label="评论回复" >
           <template slot-scope="scope">
-            <span>{{ parseTime(scope.row.createTime) }}</span>
+            <div>{{scope.row.merchantReplyContent}}</div>
+            <div v-if="scope.row.isReply" style="text-align: center;color:#909399;">{{ formatTime(scope.row.merchantReplyTime) }}</div>
           </template>
         </el-table-column>
-        <el-table-column v-if="columns.visible('updateTime')" prop="updateTime" label="更新时间">
+        <el-table-column prop="comment" label="评论内容" />
+        <el-table-column prop="" label="评论图片">
           <template slot-scope="scope">
-            <span>{{ parseTime(scope.row.updateTime) }}</span>
+            <div v-if="scope.row.pics">
+              <a v-for="pic in handlePic(scope.row.pics)" :href="pic" style="color: #42b983" target="_blank">
+                <img :src="pic" alt="点击打开" class="el-avatar">
+              </a>
+            </div>
+            <div v-else>无图</div>
           </template>
         </el-table-column>
-        <el-table-column v-permission="['admin','yxCouponsReply:edit','yxCouponsReply:del']" label="操作" width="150px" align="center">
+        <el-table-column prop="addTime" label="评论时间">
           <template slot-scope="scope">
-            <udOperation
-              :data="scope.row"
-              :permission="permission"
-            />
+            <span>{{ formatTime(scope.row.addTime) }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column v-if="checkPermission(['admin','yxCouponsReply:add','yxCouponsReply:edit','yxCouponsReply:del'])" label="操作" width="150px" align="center">
+          <template slot-scope="scope">
+            <el-popover
+              :ref="scope.row.id"
+              v-permission="['admin','YXSTOREPRODUCTREPLY_ALL','YXSTOREPRODUCTREPLY_DELETE']"
+              placement="top"
+              width="180"
+            >
+              <p>确定删除本条数据吗？</p>
+              <div style="text-align: right; margin: 0">
+                <el-button size="mini" type="text" @click="$refs[scope.row.id].doClose()">取消</el-button>
+                <el-button :loading="delLoading" type="primary" size="mini" @click="subDelete(scope.row.id)">确定</el-button>
+              </div>
+              <el-button slot="reference" type="danger" icon="el-icon-delete" size="mini" />
+            </el-popover>
+            <el-button v-if="(!scope.row.isReply) && checkPermission(['admin','YXSTOREPRODUCTREPLY_EDIT'])" @click="reply(scope.row)">评论回复</el-button>
           </template>
         </el-table-column>
       </el-table>
+      <el-dialog
+        title="评论回复"
+        :visible.sync="replyShow"
+        width="30%"
+        center>
+
+        <div>
+          <p>评论内容</p>
+          <div style="font-size: small; padding:0 20px 20px;">{{replyComment}}</div>
+        </div>
+        <div>
+          <p>评论回复</p>
+          <el-input type="textarea" :rows="5" v-model="merchantReplyContent"
+                    placeholder="请输入回复内容" maxlength="200"
+                    show-word-limit></el-input>
+        </div>
+        <span slot="footer" class="dialog-footer">
+        <el-button @click="replyShow = false">取 消</el-button>
+        <el-button type="primary" @click="replySubmit()">确 定</el-button>
+      </span>
+      </el-dialog>
       <!--分页组件-->
       <pagination />
     </div>
@@ -104,24 +99,36 @@
 </template>
 
 <script>
-import crudYxCouponsReply from '@/api/yxCouponsReply'
+import crudYxCouponsReply,{ del,reply } from '@/api/yxCouponsReply'
 import CRUD, { presenter, header, form, crud } from '@crud/crud'
 import rrOperation from '@crud/RR.operation'
 import crudOperation from '@crud/CRUD.operation'
 import udOperation from '@crud/UD.operation'
 import pagination from '@crud/Pagination'
-import MaterialList from "@/components/material";
+import checkPermission from '@/utils/permission'
+import initData from '@/mixins/crud'
+import eForm from './form'
+import { formatTime } from '@/utils/index'
 
 // crud交由presenter持有
 const defaultCrud = CRUD({ title: '本地生活评论', url: 'api/yxCouponsReply', sort: 'id,desc', crudMethod: { ...crudYxCouponsReply }})
 const defaultForm = { id: null, uid: null, oid: null, couponId: null, generalScore: null, comment: null, addTime: null, merchantReplyTime: null, isReply: null, merId: null, merchantReplyContent: null, delFlag: null, createUserId: null, updateUserId: null, createTime: null, updateTime: null }
 export default {
   name: 'YxCouponsReply',
-  components: { pagination, crudOperation, rrOperation, udOperation ,MaterialList},
-  mixins: [presenter(defaultCrud), header(), form(defaultForm), crud()],
+  components: { pagination, crudOperation, rrOperation, udOperation ,eForm},
+  mixins: [presenter(defaultCrud), header(), form(defaultForm), crud(),initData],
   data() {
     return {
-      
+
+      statusList:[
+        {value:0,label:'未回复'},
+        {value:1,label:'已回复'}
+      ],
+      delLoading: false,
+      replyShow: false,
+      replyComment: '',
+      merchantReplyContent: '',
+      replyId: '',
       permission: {
         add: ['admin', 'yxCouponsReply:add'],
         edit: ['admin', 'yxCouponsReply:edit'],
@@ -161,17 +168,107 @@ export default {
         updateTime: [
           { required: true, message: '更新时间不能为空', trigger: 'blur' }
         ]
-      }    }
+      }
+    }
   },
   watch: {
   },
+  computed:{
+    transferLabel:function(){
+      return function(value,list){
+        if(list.length){
+          let i= list.filter(function(item){
+            return new RegExp(item.value, 'i').test(value)
+          })
+          if(i.length){
+            return i[0].label
+          }else{
+            return ""
+          }
+        }else{
+          return ""
+        }
+      }
+    }
+  },
   methods: {
+    formatTime,
+    checkPermission,
     // 获取数据前设置好接口地址
     [CRUD.HOOK.beforeRefresh]() {
       return true
     }, // 新增与编辑前做的操作
     [CRUD.HOOK.afterToCU](crud, form) {
     },
+    subDelete(id) {
+      this.delLoading = true
+      del(id).then(res => {
+        this.delLoading = false
+        this.$refs[id].doClose()
+        this.dleChangePage()
+        this.init()
+        this.$notify({
+          title: '删除成功',
+          type: 'success',
+          duration: 2500
+        })
+      }).catch(err => {
+        this.delLoading = false
+        this.$refs[id].doClose()
+        console.log(err.response.data.message)
+      })
+    },
+    add() {
+      this.isAdd = true
+      this.$refs.form.dialog = true
+    },
+    edit(data) {
+      this.isAdd = false
+      const _this = this.$refs.form
+      _this.form = {
+        id: data.id,
+        uid: data.uid,
+        oid: data.oid,
+        unique: data.unique,
+        productId: data.productId,
+        replyType: data.replyType,
+        productScore: data.productScore,
+        serviceScore: data.serviceScore,
+        comment: data.comment,
+        pics: data.pics,
+        addTime: data.addTime,
+        merchantReplyContent: data.merchantReplyContent,
+        merchantReplyTime: data.merchantReplyTime,
+        isDel: data.isDel,
+        isReply: data.isReply
+      }
+      _this.dialog = true
+    },
+    reply(data){
+      this.replyComment=data.comment
+      this.replyId=data.id
+      this.replyShow=true
+    },
+    replySubmit(){
+      reply({
+        id:this.replyId,
+        merchantReplyContent:this.merchantReplyContent
+      }).then(res=>{
+        this.$notify({
+          title: '回复成功',
+          type: 'success',
+          duration: 2500
+        })
+        this.init()
+      }).catch(err=>{
+        this.$notify({
+          title: '提交异常，请稍后再试',
+          type: 'error',
+          duration: 2500
+        })
+      })
+      this.replyShow=false
+    }
   }
 }
 
