@@ -79,10 +79,20 @@ public class YxMerchantsSettlementServiceImpl extends BaseServiceImpl<YxMerchant
             map.put("联系地址", yxMerchantsSettlement.getAddress());
             map.put("说明", yxMerchantsSettlement.getExplain());
             map.put("备注", yxMerchantsSettlement.getRemark());
-            map.put("状态：0：待联系，1：有意向，2：已拒绝", yxMerchantsSettlement.getStatus());
-            map.put("是否删除（0：未删除，1：已删除）", yxMerchantsSettlement.getDelFlag());
-            map.put("创建人", yxMerchantsSettlement.getCreateUserId());
-            map.put("修改人", yxMerchantsSettlement.getUpdateUserId());
+            switch (yxMerchantsSettlement.getStatus()) {
+                case 0:
+                    map.put("状态", "待联系");
+                    break;
+                case 1:
+                    map.put("状态", "有意向");
+                    break;
+                case 2:
+                    map.put("状态", "已拒绝");
+                    break;
+            }
+            map.put("是否删除", yxMerchantsSettlement.getDelFlag() == 0 ? "未删除" : "已删除");
+//            map.put("创建人", yxMerchantsSettlement.getCreateUserId());
+//            map.put("修改人", yxMerchantsSettlement.getUpdateUserId());
             map.put("创建时间", yxMerchantsSettlement.getCreateTime());
             map.put("更新时间", yxMerchantsSettlement.getUpdateTime());
             list.add(map);
