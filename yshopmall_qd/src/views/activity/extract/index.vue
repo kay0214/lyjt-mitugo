@@ -16,6 +16,16 @@
         icon="el-icon-refresh"
         @click="toQuery"
       >刷新</el-button>
+      <div>
+        <el-button
+          :loading="downloadLoading"
+          class="filter-item"
+          size="mini"
+          type="warning"
+          icon="el-icon-download"
+          @click="downloadMethod()"
+        >导出</el-button>
+      </div>
     </div>
     <!--表单组件-->
     <eForm ref="form" :is-add="isAdd" />
