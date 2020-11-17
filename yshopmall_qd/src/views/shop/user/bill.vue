@@ -71,11 +71,21 @@
             <el-button type="primary" size="mini" @click="withdraw($event,formWithdraw.extractPrice)">提现</el-button>
           </div>
           </el-form>
-          
+
           <el-button v-permission='permission.withdraw' slot="reference" type="primary">提现</el-button>
-          
+
         </el-popover>
       </el-row>
+      <div>
+        <el-button
+          :loading="downloadLoading"
+          class="filter-item"
+          size="mini"
+          type="warning"
+          icon="el-icon-download"
+          @click="downloadMethod()"
+        >导出</el-button>
+      </div>
 
     </div>
     <!--表单组件-->

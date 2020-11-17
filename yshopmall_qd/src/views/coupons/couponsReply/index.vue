@@ -4,10 +4,9 @@
     <div class="head-container">
       <!--如果想在工具栏加入更多按钮，可以使用插槽方式， slot = 'left' or 'right'-->
 
-      <el-input v-model="query.username" clearable placeholder="商户登录名称(完全匹配)" style="width: 200px;" class="filter-item" @keyup.enter.native="toQuery" />
-      <el-input v-model="query.storeName" clearable placeholder="商品名称(完全匹配)" style="width: 200px;" class="filter-item" @keyup.enter.native="toQuery" />
+      <el-input v-model="query.nickName" clearable placeholder="商户昵称(完全匹配)" style="width: 200px;" class="filter-item" @keyup.enter.native="toQuery" />
+      <el-input v-model="query.couponName" clearable placeholder="商品名称(完全匹配)" style="width: 200px;" class="filter-item" @keyup.enter.native="toQuery" />
       <el-input v-model="query.username" clearable placeholder="商户用户名(完全匹配)" style="width: 200px;" class="filter-item" @keyup.enter.native="toQuery" />
-      <el-input v-model="query.username" clearable placeholder="用户手机号(完全匹配)" style="width: 200px;" class="filter-item" @keyup.enter.native="toQuery" />
       <el-select v-model="query.isReply" clearable placeholder="回复状态"
                  style="width: 200px;" class="filter-item">
         <el-option
@@ -25,11 +24,10 @@
       <el-table ref="table" v-loading="crud.loading" :data="crud.data" size="small" style="width: 100%;" @selection-change="crud.selectionChangeHandler">
         <el-table-column type="selection" width="55" />
         <el-table-column prop="id" label="ID" />
-        <el-table-column prop="user.nickname" label="用户" />
-        <el-table-column prop="sysUser.username" label="所在商户" />
-        <el-table-column prop="storeProduct.storeName" label="商品信息" />
-        <el-table-column prop="productScore" label="商品分数" />
-        <el-table-column prop="serviceScore" label="服务分数" />
+        <el-table-column prop="username" label="用户" />
+        <el-table-column prop="merUsername" label="所在商户" />
+        <el-table-column prop="couponName" label="商品信息" />
+        <el-table-column prop="generalScore" label="分数" />
         <el-table-column prop="" label="评论回复" >
           <template slot-scope="scope">
             <div>{{scope.row.merchantReplyContent}}</div>
