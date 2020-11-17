@@ -157,6 +157,17 @@ public class YxCouponsReplyServiceImpl extends BaseServiceImpl<YxCouponsReplyMap
         }
         replyVO.setAddTimeStr(DateUtils.timestampToStr10(yxCouponsReply.getAddTime()));
         replyVO.setMerchantReplyTimeStr(DateUtils.timestampToStr10(yxCouponsReply.getMerchantReplyTime()));
+        List<YxImageInfo> imageList = this.yxImageInfoService.list(new QueryWrapper<YxImageInfo>().lambda()
+                .eq(YxImageInfo::getDelFlag, 0)
+                .eq(YxImageInfo::getImgType, ShopConstants.IMG_TYPE_CARD)
+                .eq(YxImageInfo::getImgCategory, ShopConstants.IMG_CATEGORY_REPLY));
+        if (null != imageList && imageList.size() > 0) {
+            List<String> images = new ArrayList<>();
+            for (YxImageInfo item : imageList) {
+                images.add(item.getImgUrl());
+            }
+            replyVO.setImages(images);
+        }
         return replyVO;
     }
 
@@ -177,6 +188,7 @@ public class YxCouponsReplyServiceImpl extends BaseServiceImpl<YxCouponsReplyMap
         if (totalReply <= 0) {
             throw new BadRequestException("当前卡券暂无评价");
         }
+        result.setReplyCount(totalReply);
         // 处理好评率
         Integer goodCount = this.count(new QueryWrapper<YxCouponsReply>().lambda()
                 .eq(YxCouponsReply::getCouponId, param.getCouponId())

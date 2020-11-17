@@ -8,6 +8,8 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.util.List;
+
 /**
  * <p>
  * 本地生活评论表
@@ -59,4 +61,7 @@ public class YxCouponsReplyVO extends BaseEntity {
 
     @ApiModelProperty(value = "管理员回复内容")
     private String merchantReplyContent;
+
+    @ApiModelProperty(value = "评论图片")
+    private List<String> images;
 }

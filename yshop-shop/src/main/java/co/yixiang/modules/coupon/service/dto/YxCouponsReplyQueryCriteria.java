@@ -26,6 +26,9 @@ public class YxCouponsReplyQueryCriteria extends BaseCriteria {
     @Query(type = Query.Type.EQUAL)
     private Integer merId;
 
+    /** 0：未回复，1：已回复 */
+    @Query(type = Query.Type.EQUAL)
+    private Integer isReply;
 
     /** 卡券id */
     @Query(type = Query.Type.EQUAL)
