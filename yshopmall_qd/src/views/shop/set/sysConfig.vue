@@ -4,12 +4,12 @@
     <!--工具栏-->
     <div class="head-container">
       <!--表单组件-->
-        <el-form ref="form" :model="form" :rules="rules" size="small" label-width="200px"
+        <el-form ref="form" :model="form" :rules="rules" size="small" label-width="180px"
           style="margin-top:30px">
           <el-row :gutter='20'>
             <el-col :span='6'>
               <el-form-item label="商户提现费率" prop='storeExtractRate'>
-                <el-input class='percent' style="width:100%" v-model="form.storeExtractRate" />
+                <el-input-number style="width:100%" :precision="0" :min="0" :max="100" v-model="form.storeExtractRate" /><span style="position: absolute;margin-left:10px">%</span>
               </el-form-item>
               <el-form-item label="商户最低提现金额" prop='storeExtractMinPrice'>
                 <el-input v-model="form.storeExtractMinPrice" >
@@ -17,7 +17,7 @@
                 </el-input>
               </el-form-item>
               <el-form-item label="分享达人提现费率" prop='userExtractRate'>
-                <el-input class='percent' style="width:100%" v-model="form.userExtractRate" />
+                <el-input-number style="width:100%" :precision="0" :min="0" :max="100" v-model="form.userExtractRate" /><span style="position: absolute;margin-left:10px">%</span>
               </el-form-item>
               <el-form-item label="分享达人最低提现金额" prop='userExtractMinPrice'>
                 <el-input v-model="form.userExtractMinPrice" >
@@ -105,30 +105,22 @@ export default {
         if(!ret){
           return
         }else{
-          if(this.form.storeExtractRate*1+this.form.userExtractRate*1===1){
-            this.sublLoading = true
-            edit(this.form).then(res => {
-              this.sublLoading = false
-              this.$notify({
-                title: '设置成功',
-                type: 'success',
-                duration: 2500
-              })
-            }).catch(err => {
-              this.sublLoading = false
-              this.$notify({
-                title: '设置失败：'+err.response.data.message,
-                type: 'success',
-                duration: 2500
-              })
-            })
-          }else{
+          this.sublLoading = true
+          edit(this.form).then(res => {
+            this.sublLoading = false
             this.$notify({
-              title: '添加失败：费率之和为1',
-              type: 'error',
+              title: '设置成功',
+              type: 'success',
               duration: 2500
             })
-          }
+          }).catch(err => {
+            this.sublLoading = false
+            this.$notify({
+              title: '设置失败：'+err.response.data.message,
+              type: 'success',
+              duration: 2500
+            })
+          })
         }
       })
     },
