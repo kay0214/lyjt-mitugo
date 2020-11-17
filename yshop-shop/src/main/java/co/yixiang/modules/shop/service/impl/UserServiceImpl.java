@@ -141,10 +141,10 @@ public class UserServiceImpl extends BaseServiceImpl<UserSysMapper, User> implem
                 throw new BadRequestException("提现金额必须大于" + storeMinPrice);
             }
         }
-        // 获取提现费率 默认0.1
+        // 获取提现费率 默认10
         String storeRate = systemConfigService.getData(SystemConfigConstants.STORE_EXTRACT_RATE);
         if (StringUtils.isBlank(storeRate)) {
-            storeRate = "0.1";
+            storeRate = "10";
         }
         User user = this.getById(uid);
         if (extractPrice.compareTo(user.getWithdrawalAmount()) > 0) {
@@ -173,7 +173,7 @@ public class UserServiceImpl extends BaseServiceImpl<UserSysMapper, User> implem
         yxUserExtract.setUserType(userType);
         yxUserExtract.setBankMobile(user.getPhone());
         yxUserExtract.setCnapsCode(yxMerchantsDetail.getBankCode());
-        yxUserExtract.setTruePrice(extractPrice.subtract(extractPrice.multiply(new BigDecimal(storeRate))));
+        yxUserExtract.setTruePrice(extractPrice.subtract(extractPrice.multiply(new BigDecimal(storeRate).divide(new BigDecimal(100), 2, BigDecimal.ROUND_HALF_UP))));
         // 生成订单号
         String uuid = SnowflakeUtil.getOrderId(datacenterId);
         yxUserExtract.setSeqNo(uuid);

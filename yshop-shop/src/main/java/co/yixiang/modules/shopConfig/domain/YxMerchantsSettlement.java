@@ -50,6 +50,7 @@ public class YxMerchantsSettlement implements Serializable {
 
     /** 说明 */
     @NotBlank
+    @TableField(value = "`explain`")
     private String explain;
 
 
@@ -60,6 +61,7 @@ public class YxMerchantsSettlement implements Serializable {
 
     /** 状态：0：待联系，1：有意向，2：已拒绝 */
     @NotNull
+    @TableField(value = "`status`")
     private Integer status;
 
 
