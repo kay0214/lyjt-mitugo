@@ -262,7 +262,7 @@ public class YxCouponsReplyServiceImpl extends BaseServiceImpl<YxCouponsReplyMap
             map.put("评论内容", yxCouponsReply.getComment());
             map.put("评论时间", yxCouponsReply.getAddTimeStr());
             map.put("管理员回复时间", DateUtils.timestampToStr10(yxCouponsReply.getMerchantReplyTime()));
-            map.put("回复时间", yxCouponsReply.getIsReply() == 0 ? "未回复" : "已回复");
+            map.put("回复状态", yxCouponsReply.getIsReply() == 0 ? "未回复" : "已回复");
             map.put("商户id", yxCouponsReply.getMerId());
             map.put("商户登陆名", yxCouponsReply.getMerUsername());
             map.put("商户名称", yxCouponsReply.getNickName());
