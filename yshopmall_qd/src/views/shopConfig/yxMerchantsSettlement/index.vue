@@ -3,7 +3,7 @@
     <!--工具栏-->
     <div class="head-container">
       <!--如果想在工具栏加入更多按钮，可以使用插槽方式， slot = 'left' or 'right'-->
-      <el-input v-model="query.userName" clearable size="small" placeholder="请输入公司名"
+      <el-input v-model="query.companyName" clearable size="small" placeholder="请输入公司名"
                 style="width: 200px;" class="filter-item" @keyup.enter.native="crud.toQuery" />
       <el-input v-model="query.contactsName" clearable size="small" placeholder="请输入联系人"
                 style="width: 200px;" class="filter-item" @keyup.enter.native="crud.toQuery" />
