@@ -37,7 +37,7 @@ public class YxCouponsReplyVO extends BaseEntity {
     private String avatar;
 
     @ApiModelProperty(value = "订单ID")
-    private Integer oid;
+    private String oid;
 
     @ApiModelProperty(value = "卡券id")
     private Integer couponId;
