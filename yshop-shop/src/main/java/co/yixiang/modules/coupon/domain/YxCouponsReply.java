@@ -35,7 +35,7 @@ public class YxCouponsReply implements Serializable {
 
     /** 订单ID */
     @NotNull
-    private String oid;
+    private Integer oid;
 
 
     /** 卡券id */

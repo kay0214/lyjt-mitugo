@@ -27,12 +27,12 @@ public class YxCouponsReplyDto implements Serializable {
 
     /** 用户ID */
 
-    private String uid;
+    private Integer uid;
 
 
     /** 订单ID */
 
-    private String oid;
+    private Integer oid;
 
 
     /** 卡券id */

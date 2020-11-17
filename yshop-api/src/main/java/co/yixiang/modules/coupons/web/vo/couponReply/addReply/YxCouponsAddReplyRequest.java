@@ -19,7 +19,7 @@ public class YxCouponsAddReplyRequest {
     private Integer uid;
 
     @ApiModelProperty(value = "订单ID")
-    private String oid;
+    private Integer oid;
 
     @ApiModelProperty(value = "总体感觉")
     private Integer generalScore;

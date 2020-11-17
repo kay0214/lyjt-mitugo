@@ -34,7 +34,7 @@ private Integer id;
 private Integer uid;
 
 @ApiModelProperty(value = "订单ID")
-private String oid;
+private Integer oid;
 
 @ApiModelProperty(value = "卡券id")
 private Integer couponId;
