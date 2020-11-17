@@ -24,30 +24,35 @@
       <el-dialog :close-on-click-modal="false" :before-close="crud.cancelCU" :visible.sync="crud.status.cu > 0" :title="crud.status.title" width="500px">
         <el-form ref="form" :model="form" :rules="rules" size="small" label-width="80px">
           <el-form-item label="公司名">
-            <el-input v-model="form.companyName" style="width: 370px;" />
+            {{form.companyName}}
           </el-form-item>
           <el-form-item label="联系人">
-            <el-input v-model="form.contactsName" style="width: 370px;" />
+            {{form.contactsName}}
           </el-form-item>
           <el-form-item label="联系电话">
-            <el-input v-model="form.phone" style="width: 370px;" />
+            {{form.phone}}
           </el-form-item>
           <el-form-item label="联系地址">
-            <el-input v-model="form.address" style="width: 370px;" />
+            {{form.address}}
           </el-form-item>
           <el-form-item label="说明">
-            <el-input v-model="form.explain" style="width: 370px;" />
+            {{form.explain}}
           </el-form-item>
           <el-form-item label="备注" prop="remark">
-            <el-input v-model="form.remark" type="textarea"
+            <div v-if="form.status">
+              {{form.remark}}
+            </div>
+            <el-input v-else v-model="form.remark" type="textarea"
                       :row='10' style="width: 370px;"
                       show-word-limit  maxlength="200"/>
           </el-form-item>
         </el-form>
-        <div slot="footer" class="dialog-footer"  v-if="!scope.row.status">
-          <el-button v-if="scope.row.status" type="text" @click="crud.cancelCU">关闭</el-button>
-          <el-button v-if="!scope.row.status" :loading="crud.cu === 2" type="primary" @click="()=>{form.status=1;crud.submitCU()}">有意向</el-button>
-          <el-button v-if="!scope.row.status" :loading="crud.cu === 2" type="primary" @click="()=>{form.status=2;crud.submitCU()}">已拒绝</el-button>
+        <div slot="footer" class="dialog-footer" v-if="!form.status">
+          <el-button :loading="crud.cu === 2" type="primary" @click="()=>{this.setStatus=1;crud.submitCU()}">有意向</el-button>
+          <el-button :loading="crud.cu === 2" type="primary" @click="()=>{this.setStatus=2;crud.submitCU()}">已拒绝</el-button>
+        </div>
+        <div slot="footer" class="dialog-footer" v-else>
+          <el-button type="primary" @click="crud.cancelCU">关闭</el-button>
         </div>
       </el-dialog>
       <!--表格渲染-->
@@ -98,7 +103,8 @@ const defaultCrud = CRUD({ title: '商家入驻', url: 'api/yxMerchantsSettlemen
     del: false,
     download: true
   },crudMethod: { ...crudYxMerchantsSettlement }})
-const defaultForm = { id: null, companyName: null, contactsName: null, phone: null, address: null, explain: null, remark: null, status: null, delFlag: null, createUserId: null, updateUserId: null, createTime: null, updateTime: null }
+const defaultForm = { id: null, companyName: null, contactsName: null, phone: null, address: null, explain: null,
+  remark: null, delFlag: null, createUserId: null, updateUserId: null, createTime: null, updateTime: null }
 export default {
   name: 'YxMerchantsSettlement',
   components: { pagination, crudOperation, rrOperation, udOperation ,MaterialList},
@@ -150,17 +156,38 @@ export default {
         updateTime: [
           { required: true, message: '更新时间不能为空', trigger: 'blur' }
         ]
-      }    }
+      },
+      setStatus:0
+    }
   },
   watch: {
+  },
+  computed:{
+    transferLabel:function(){
+      return function(value,list){
+        if(list.length){
+          let i= list.filter(function(item){
+            return new RegExp(item.value, 'i').test(value)
+          })
+          if(i.length){
+            return i[0].label
+          }else{
+            return ""
+          }
+        }else{
+          return ""
+        }
+      }
+    }
   },
   methods: {
     // 获取数据前设置好接口地址
     [CRUD.HOOK.beforeRefresh]() {
       return true
-    }, // "新建/编辑" 验证 - 之前
-    [CRUD.HOOK.beforeValidateCU](crud) {
-      console.log(crud.form);
+    }, // "新建/编辑" 验证 - 之后
+    [CRUD.HOOK.afterValidateCU](crud) {
+      crud.form.status=this.setStatus
+      console.log(crud.form)
       return true
     }, // 新增与编辑前做的操作
     [CRUD.HOOK.afterToCU](crud, form) {
