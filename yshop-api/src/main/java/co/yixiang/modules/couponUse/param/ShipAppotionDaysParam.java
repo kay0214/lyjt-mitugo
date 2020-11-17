@@ -17,7 +17,7 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ApiModel(value="ShipInAppotionDaysParam对象", description="ShipInAppotionDaysParam对象")
-public class ShipInAppotionDaysParam extends QueryParam {
+public class ShipAppotionDaysParam extends QueryParam {
     @ApiModelProperty(value = "船只id")
     private Integer shipId;
     @ApiModelProperty(value = "日期")

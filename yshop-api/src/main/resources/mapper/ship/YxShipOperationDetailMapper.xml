@@ -15,4 +15,8 @@
         select <include refid="Base_Column_List"/> from yx_ship_operation_detail
     </select>
 
+    <select id="getYxShipOperationDetailPageListByParam" resultType="co.yixiang.modules.couponUse.dto.YxShipOperationDetailVO">
+        select <include refid="Base_Column_List"/> from yx_ship_operation_detail where del_flag = 0 and batch_no = #{param.batchNo}
+    </select>
+
 </mapper>

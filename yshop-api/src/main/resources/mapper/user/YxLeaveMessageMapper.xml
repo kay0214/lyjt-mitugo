@@ -15,4 +15,11 @@
         select <include refid="Base_Column_List"/> from yx_leave_message
     </select>
 
+    <select id="getYxLeaveMessagePageListByParam" resultType="co.yixiang.modules.couponUse.dto.YxLeaveMessageVo">
+        select <include refid="Base_Column_List"/> from yx_leave_message where del_flag = 0
+        <if test="param.merId!= null">  and  mer_id = #{param.merId} </if>
+        <if test="param.status!= null">  and `status` = #{param.status} </if>
+        <if test="param.startTime !='' and param.startTime != null "> and create_time <![CDATA[ >= ]]> #{param.startTime} </if>
+        <if test="param.endTime !='' and param.endTime != null"> and create_time <![CDATA[ <= ]]>#{param.endTime} </if>
+    </select>
 </mapper>

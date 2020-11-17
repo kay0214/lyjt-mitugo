@@ -14,7 +14,7 @@ import lombok.Data;
  */
 @Data
 @ApiModel(value="ShipInAppotionParam对象", description="ShipInAppotionParam对象")
-public class ShipInAppotionParam {
+public class ShipAppotionAddParam {
 
     @ApiModelProperty(value = "留言id")
     private Integer leaveId;

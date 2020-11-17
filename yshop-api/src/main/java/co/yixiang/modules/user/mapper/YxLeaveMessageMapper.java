@@ -1,11 +1,12 @@
 package co.yixiang.modules.user.mapper;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import co.yixiang.modules.couponUse.dto.YxLeaveMessageVo;
 import co.yixiang.modules.user.entity.YxLeaveMessage;
 import co.yixiang.modules.user.web.param.YxLeaveMessageQueryParam;
 import co.yixiang.modules.user.web.vo.YxLeaveMessageQueryVo;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
@@ -36,5 +37,7 @@ public interface YxLeaveMessageMapper extends BaseMapper<YxLeaveMessage> {
      * @return
      */
     IPage<YxLeaveMessageQueryVo> getYxLeaveMessagePageList(@Param("page") Page page, @Param("param") YxLeaveMessageQueryParam yxLeaveMessageQueryParam);
+
+    IPage<YxLeaveMessageVo> getYxLeaveMessagePageListByParam(@Param("page") Page page, @Param("param") YxLeaveMessageQueryParam yxLeaveMessageQueryParam);
 
 }

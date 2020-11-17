@@ -43,7 +43,11 @@ public class YxShipAppointVo implements Serializable {
     @ApiModelProperty(value = "船只名")
     private List<String> shipNameList;
 
+    @ApiModelProperty(value = "创建人")
+    private String createUserName;
 
+    @ApiModelProperty(value = "创建时间")
+    private String createTimeStr;
 /*
 @ApiModelProperty(value = "是否删除（0：未删除，1：已删除）")
 private Integer delFlag;

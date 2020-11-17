@@ -2,11 +2,14 @@ package co.yixiang.modules.ship.service.impl;
 
 import co.yixiang.common.service.impl.BaseServiceImpl;
 import co.yixiang.common.web.vo.Paging;
+import co.yixiang.modules.couponUse.dto.YxLeaveMessageVo;
 import co.yixiang.modules.couponUse.dto.YxShipAppointResultVo;
 import co.yixiang.modules.couponUse.dto.YxShipAppointVo;
-import co.yixiang.modules.couponUse.param.ShipInAppotionDaysParam;
-import co.yixiang.modules.couponUse.param.ShipInAppotionParam;
+import co.yixiang.modules.couponUse.param.ShipAppotionAddParam;
+import co.yixiang.modules.couponUse.param.ShipAppotionDaysParam;
+import co.yixiang.modules.couponUse.param.ShipLeaveMessageParam;
 import co.yixiang.modules.manage.entity.SystemUser;
+import co.yixiang.modules.manage.mapper.SystemUserMapper;
 import co.yixiang.modules.ship.entity.YxShipAppoint;
 import co.yixiang.modules.ship.entity.YxShipAppointDetail;
 import co.yixiang.modules.ship.entity.YxShipInfo;
@@ -16,10 +19,15 @@ import co.yixiang.modules.ship.service.YxShipAppointService;
 import co.yixiang.modules.ship.service.YxShipInfoService;
 import co.yixiang.modules.ship.web.param.YxShipAppointQueryParam;
 import co.yixiang.modules.ship.web.vo.YxShipAppointQueryVo;
+import co.yixiang.modules.shop.entity.YxStoreInfo;
+import co.yixiang.modules.shop.service.YxStoreInfoService;
 import co.yixiang.modules.user.entity.YxLeaveMessage;
 import co.yixiang.modules.user.entity.YxUser;
+import co.yixiang.modules.user.mapper.YxLeaveMessageMapper;
 import co.yixiang.modules.user.service.YxLeaveMessageService;
 import co.yixiang.modules.user.service.YxUserService;
+import co.yixiang.modules.user.web.param.YxLeaveMessageQueryParam;
+import co.yixiang.utils.DateUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.metadata.OrderItem;
@@ -62,6 +70,13 @@ public class YxShipAppointServiceImpl extends BaseServiceImpl<YxShipAppointMappe
     private YxLeaveMessageService yxLeaveMessageService;
     @Autowired
     private YxUserService yxUserService;
+    @Autowired
+    private SystemUserMapper systemUserMapper;
+    @Autowired
+    private YxLeaveMessageMapper yxLeaveMessageMapper;
+    @Autowired
+    private YxStoreInfoService yxStoreInfoService;
+
 
     @Override
     public YxShipAppointQueryVo getYxShipAppointById(Serializable id) throws Exception{
@@ -201,12 +216,13 @@ public class YxShipAppointServiceImpl extends BaseServiceImpl<YxShipAppointMappe
      */
     @Transactional
     @Override
-    public Map<String, Object> saveAppotionInfo(ShipInAppotionParam param, SystemUser user){
+    public Map<String, Object> saveAppotionInfo(ShipAppotionAddParam param, SystemUser user){
         Map<String, Object> map = new HashMap<>();
         YxShipAppoint shipAppoint = new YxShipAppoint();
+        YxLeaveMessage yxLeaveMessage = null;
         if(null!=param.getLeaveId()){
             //留言id
-            YxLeaveMessage yxLeaveMessage = yxLeaveMessageService.getById(param.getLeaveId());
+            yxLeaveMessage = yxLeaveMessageService.getById(param.getLeaveId());
             if(null==yxLeaveMessage){
                 map.put("status", "99");
                 map.put("statusDesc", "根据留言id："+param.getLeaveId()+" 获取信息失败！");
@@ -220,7 +236,6 @@ public class YxShipAppointServiceImpl extends BaseServiceImpl<YxShipAppointMappe
             }
             param.setName(yxUser.getRealName());
             param.setPhone(yxUser.getPhone());
-
         }
         BeanUtils.copyProperties(param,shipAppoint);
         shipAppoint.setCreateTime(new Date());
@@ -247,6 +262,14 @@ public class YxShipAppointServiceImpl extends BaseServiceImpl<YxShipAppointMappe
             }
             yxShipAppointDetailService.saveBatch(detailList);
         }
+        if(null!=yxLeaveMessage){
+            // 已处理
+            yxLeaveMessage.setStatus(1);
+            yxLeaveMessage.setTakeTime(DateUtils.getNowTime());
+            yxLeaveMessage.setUpdateUserId(user.getId().intValue());
+            yxLeaveMessage.setUpdateTime(new Date());
+            yxLeaveMessageService.updateById(yxLeaveMessage);
+        }
         map.put("status", "1");
         map.put("statusDesc", "成功！");
         return map;
@@ -260,7 +283,7 @@ public class YxShipAppointServiceImpl extends BaseServiceImpl<YxShipAppointMappe
      * @return
      */
     @Override
-    public Map<String,Object> getAppotionByDate(ShipInAppotionDaysParam param,SystemUser user){
+    public Map<String,Object> getAppotionByDate(ShipAppotionDaysParam param, SystemUser user){
         Map<String,Object> map = new HashMap<>();
         YxShipAppointQueryParam yxShipAppointQueryParam = new YxShipAppointQueryParam();
         List<Integer> shipIds = new ArrayList<>();
@@ -269,6 +292,7 @@ public class YxShipAppointServiceImpl extends BaseServiceImpl<YxShipAppointMappe
         }else{
             shipIds.add(param.getShipId());
         }
+        BeanUtils.copyProperties(param,yxShipAppointQueryParam);
         yxShipAppointQueryParam.setShipIdList(shipIds);
         List<String> listDates = new ArrayList<>();
         listDates.add(param.getDate());
@@ -280,7 +304,10 @@ public class YxShipAppointServiceImpl extends BaseServiceImpl<YxShipAppointMappe
             List<YxShipAppointVo> appointQueryVoList = shipAppointQueryVoPaging.getRecords();
             for(YxShipAppointVo appointVo:appointQueryVoList){
                 appointVo.setShipNameList(getShipNameByAppotionId(appointVo.getId()));
+                appointVo.setCreateUserName(systemUserMapper.getUserById(appointVo.getCreateUserId()).getNickName());
+                appointVo.setCreateTimeStr(DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD_HH_MM_SS,appointVo.getCreateTime()));
             }
+
         }
         map.put("status", "1");
         map.put("statusDesc", "成功！");
@@ -304,4 +331,118 @@ public class YxShipAppointServiceImpl extends BaseServiceImpl<YxShipAppointMappe
         }
         return shipName;
     }
+
+
+    /**
+     * 留言列表
+     * @param param
+     * @param user
+     * @return
+     */
+    @Override
+    public Map<String,Object> getAllLeaveMessage(ShipLeaveMessageParam param, SystemUser user) {
+        Map<String, Object> map = new HashMap<>();
+        YxLeaveMessageQueryParam leaveMessageQueryParam = new YxLeaveMessageQueryParam();
+        BeanUtils.copyProperties(param, leaveMessageQueryParam);
+
+        if (null == user.getStoreId()) {
+            map.put("status", "99");
+            map.put("statusDesc", "根据用户id：" + user.getId() + " 店铺id 为空！");
+            return map;
+        }
+        YxStoreInfo yxStoreInfo = yxStoreInfoService.getById(user.getStoreId());
+        if (null == yxStoreInfo) {
+            map.put("status", "99");
+            map.put("statusDesc", "根据用户id：" + user.getId() + " 获取店铺信息失败！");
+            return map;
+        }
+        leaveMessageQueryParam.setMerId(yxStoreInfo.getMerId());
+        if (null == param.getStatus()) {
+            //默认显示待处理
+            leaveMessageQueryParam.setStatus(0);
+        }
+
+        if (null != param.getDateStatus()) {
+            // 日期
+            Map<String, String> mapParam = getDateFormat(param.getDateStatus());
+            leaveMessageQueryParam.setEndTime(mapParam.get("endDate"));
+            leaveMessageQueryParam.setStartTime(mapParam.get("startDate"));
+        }
+
+        Page page = setPageParam(leaveMessageQueryParam, OrderItem.desc("create_time"));
+       /* IPage<YxLeaveMessageQueryVo> yxLeaveMessageQueryVoIPage =  yxLeaveMessageMapper.getYxLeaveMessagePageList(page, leaveMessageQueryParam);
+        Paging<YxLeaveMessageQueryVo> yxLeaveMessageQueryVoPaging = new Paging(yxLeaveMessageQueryVoIPage);*/
+        IPage<YxLeaveMessageVo> yxLeaveMessageQueryVoIPage =  yxLeaveMessageMapper.getYxLeaveMessagePageListByParam(page, leaveMessageQueryParam);
+        Paging<YxLeaveMessageVo> yxLeaveMessageQueryVoPaging = new Paging(yxLeaveMessageQueryVoIPage);
+        if(yxLeaveMessageQueryVoPaging.getTotal()>0){
+            for(YxLeaveMessageVo messageVo:yxLeaveMessageQueryVoPaging.getRecords()){
+                messageVo.setTakeTimeStr(DateUtils.timestampToStr10(messageVo.getTakeTime()));
+                messageVo.setCreateTimeStr(DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD_HH_MM_SS,messageVo.getCreateTime()));
+            }
+        }
+        map.put("status", "1");
+        map.put("statusDesc", "成功！");
+        map.put("data", yxLeaveMessageQueryVoPaging);
+        return map;
+    }
+
+    public Map<String, String> getDateFormat(Integer strFlg) {
+        Calendar calendarDate = Calendar.getInstance();
+        calendarDate.setTime(new Date());
+        Date dateBase = calendarDate.getTime();
+        String strDate = null;
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+        String endDate = format.format(dateBase) + " 23:59:59";
+        Map<String, String> mapEnd = new HashMap<>();
+        mapEnd.put("endDate", endDate);
+        switch (strFlg) {
+            case 1:
+                //今日
+                strDate = format.format(dateBase) + " 00:00:00";
+                break;
+            case 2:
+                //近七天
+                calendarDate.add(Calendar.DATE, -7);
+                Date sevenDay = calendarDate.getTime();
+                strDate = format.format(sevenDay) + " 00:00:00";
+                break;
+            case 3:
+                //近一个月
+                calendarDate.add(Calendar.MONTH, -1);
+                Date lastMonthDay = calendarDate.getTime();
+                strDate = format.format(lastMonthDay);
+                break;
+        }
+        mapEnd.put("startDate", strDate);
+        return mapEnd;
+    }
+
+
+    /**
+     * 不予处理
+     * @param leaveId
+     * @param user
+     * @return
+     */
+    @Override
+    public Map<String,Object> cancelLeavesMessage(Integer leaveId, SystemUser user) {
+        Map<String, Object> map = new HashMap<>();
+        YxLeaveMessage yxLeaveMessage = yxLeaveMessageService.getById(leaveId);
+        if(null==yxLeaveMessage){
+            map.put("status", "99");
+            map.put("statusDesc", "根据留言id：" + leaveId + " 获取留言信息失败！");
+            return map;
+        }
+        //不予处理
+        yxLeaveMessage.setStatus(2);
+        yxLeaveMessage.setTakeTime(DateUtils.getNowTime());
+        yxLeaveMessage.setUpdateTime(new Date());
+        yxLeaveMessage.setUpdateUserId(user.getId().intValue());
+        yxLeaveMessageService.updateById(yxLeaveMessage);
+        map.put("status", "1");
+        map.put("statusDesc", "成功！");
+        return map;
+    }
+
+
 }

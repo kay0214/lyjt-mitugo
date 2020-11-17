@@ -6,9 +6,9 @@ import co.yixiang.constant.ShopConstants;
 import co.yixiang.modules.couponUse.dto.YxShipOperationDetailVO;
 import co.yixiang.modules.couponUse.dto.YxShipPassengerVO;
 import co.yixiang.modules.couponUse.param.ShipCaptainModifyParam;
-import co.yixiang.modules.couponUse.param.ShipInOperationParam;
 import co.yixiang.modules.couponUse.param.ShipInfoChangeParam;
 import co.yixiang.modules.couponUse.param.ShipInfoQueryParam;
+import co.yixiang.modules.couponUse.param.ShipOperationParam;
 import co.yixiang.modules.coupons.entity.YxCouponOrder;
 import co.yixiang.modules.coupons.mapper.YxCouponOrderUseMapper;
 import co.yixiang.modules.coupons.service.YxCouponOrderService;
@@ -17,7 +17,10 @@ import co.yixiang.modules.image.service.YxImageInfoService;
 import co.yixiang.modules.manage.entity.SystemUser;
 import co.yixiang.modules.manage.mapper.SystemUserMapper;
 import co.yixiang.modules.manage.web.vo.SystemUserQueryVo;
-import co.yixiang.modules.ship.entity.*;
+import co.yixiang.modules.ship.entity.YxShipInfo;
+import co.yixiang.modules.ship.entity.YxShipOperation;
+import co.yixiang.modules.ship.entity.YxShipPassenger;
+import co.yixiang.modules.ship.entity.YxShipSeries;
 import co.yixiang.modules.ship.mapper.YxShipInfoMapper;
 import co.yixiang.modules.ship.mapper.YxShipOperationDetailMapper;
 import co.yixiang.modules.ship.mapper.YxShipOperationMapper;
@@ -27,6 +30,7 @@ import co.yixiang.modules.ship.service.YxShipOperationService;
 import co.yixiang.modules.ship.service.YxShipPassengerService;
 import co.yixiang.modules.ship.service.YxShipSeriesService;
 import co.yixiang.modules.ship.web.param.YxShipInfoQueryParam;
+import co.yixiang.modules.ship.web.param.YxShipOperationDetailQueryParam;
 import co.yixiang.modules.ship.web.param.YxShipOperationQueryParam;
 import co.yixiang.modules.ship.web.vo.YxShipInfoQueryVo;
 import co.yixiang.modules.ship.web.vo.YxShipOpeartionVo;
@@ -155,14 +159,14 @@ public class YxShipInfoServiceImpl extends BaseServiceImpl<YxShipInfoMapper, YxS
         queryWrapper.lambda().eq(YxImageInfo::getTypeId, shipId).eq(YxImageInfo::getImgType, ShopConstants.IMG_TYPE_SHIPINFO).eq(YxImageInfo::getDelFlag, 0);
         List<YxImageInfo> listImgs = yxImageInfoService.list(queryWrapper);
         if (CollectionUtils.isEmpty(listImgs)) {
-            return null;
+            return "";
         }
         return listImgs.get(0).getImgUrl();
     }
 
 
     @Override
-    public Map<String, Object> getShipOperationList(YxShipOperationQueryParam yxShipOperationQueryParam,ShipInOperationParam shipInOperationParam, Integer captionId, Integer storeId) {
+    public Map<String, Object> getShipOperationList(YxShipOperationQueryParam yxShipOperationQueryParam, ShipOperationParam shipOperationParam, Integer captionId, Integer storeId) {
         Map<String, Object> map = new HashMap<>();
        /* map.put("status", "99");
         map.put("statusDesc", "暂无船只运营信息！");*/
@@ -171,16 +175,16 @@ public class YxShipInfoServiceImpl extends BaseServiceImpl<YxShipInfoMapper, YxS
             //船长id = null
             yxShipOperationQueryParam.setCaptainId(captionId);
         }
-        BeanUtils.copyProperties(shipInOperationParam, yxShipOperationQueryParam);
+        BeanUtils.copyProperties(shipOperationParam, yxShipOperationQueryParam);
         Page page = setPageParam(yxShipOperationQueryParam, OrderItem.desc("create_time"));
         //
         //根据系列id获取船只id
-        List<Integer> shipIds = shipIdList(shipInOperationParam.getSeriesId(), storeId);
+        List<Integer> shipIds = shipIdList(shipOperationParam.getSeriesId(), storeId);
         yxShipOperationQueryParam.setShipIdList(shipIds);
 
-        if (StringUtils.isNotBlank(shipInOperationParam.getDateStatus())) {
+        if (StringUtils.isNotBlank(shipOperationParam.getDateStatus())) {
             // 日期
-            Map<String, String> mapParam = getDateFormat(shipInOperationParam.getDateStatus());
+            Map<String, String> mapParam = getDateFormat(shipOperationParam.getDateStatus());
             yxShipOperationQueryParam.setEndTime(mapParam.get("endDate"));
             yxShipOperationQueryParam.setStartTime(mapParam.get("startDate"));
         }
@@ -312,42 +316,43 @@ public class YxShipInfoServiceImpl extends BaseServiceImpl<YxShipInfoMapper, YxS
      * @return
      */
     @Override
-    public Map<String, Object> getShipOperationDeatalList(String batchNo) {
+    public Map<String, Object> getShipOperationDeatalList(YxShipOperationDetailQueryParam param) {
         Map<String, Object> map = new HashMap<>();
-        QueryWrapper<YxShipOperationDetail> queryWrapper = new QueryWrapper<>();
-        queryWrapper.lambda().eq(YxShipOperationDetail::getBatchNo, batchNo);
-        List<YxShipOperationDetail> shipOperationDetailList = yxShipOperationDetailMapper.selectList(queryWrapper);
-        List<YxShipOperationDetailVO> detailVOList = new ArrayList<>();
-        for (YxShipOperationDetail yxShipOperationDetail : shipOperationDetailList) {
-            YxShipOperationDetailVO yxShipOperationDetailVO = new YxShipOperationDetailVO();
-            BeanUtils.copyProperties(yxShipOperationDetail, yxShipOperationDetailVO);
+        Page page = setPageParam(param, OrderItem.desc("create_time"));
+        IPage<YxShipOperationDetailVO> iPage = yxShipOperationDetailMapper.getYxShipOperationDetailPageListByParam(page, param);
+        Paging<YxShipOperationDetailVO> shipOperationDetailQueryVoPaging = new Paging(iPage);
+        if(shipOperationDetailQueryVoPaging.getTotal()>0){}
+        for (YxShipOperationDetailVO yxShipOperationDetail : shipOperationDetailQueryVoPaging.getRecords()) {
+
             YxCouponOrder yxCouponOrder = yxCouponOrderService.getById(yxShipOperationDetail.getCouponOrderId());
             // 购买时间
-            yxShipOperationDetailVO.setBuyDate(DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD_HH_MM_SS, yxCouponOrder.getCreateTime()));
+            yxShipOperationDetail.setBuyDate(DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD_HH_MM_SS, yxCouponOrder.getCreateTime()));
             //系列名& 限乘人数
-            YxShipSeries yxShipSeries = getShpSeriesByShipId(yxShipOperationDetailVO.getShipId());
-            yxShipOperationDetailVO.setSeriesName(yxShipSeries.getSeriesName());
-            yxShipOperationDetailVO.setRideLimit(yxShipSeries.getRideLimit());
+            YxShipSeries yxShipSeries = getShpSeriesByShipId(yxShipOperationDetail.getShipId());
+            yxShipOperationDetail.setSeriesName(yxShipSeries.getSeriesName());
+            yxShipOperationDetail.setRideLimit(yxShipSeries.getRideLimit());
             //核销时间
-            yxShipOperationDetailVO.setUserdTime(DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD_HH_MM_SS,yxShipOperationDetail.getCreateTime()));
+            yxShipOperationDetail.setUserdTime(DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD_HH_MM_SS,yxShipOperationDetail.getCreateTime()));
             SystemUserQueryVo systemUser = systemUserMapper.getUserById(yxShipOperationDetail.getCreateUserId());
             // 核销人
-            yxShipOperationDetailVO.setUserdUserName(systemUser.getNickName());
+            yxShipOperationDetail.setUserdUserName(systemUser.getNickName());
 
             QueryWrapper<YxShipPassenger> queryWrapperPasseng = new QueryWrapper<>();
-            queryWrapperPasseng.lambda().eq(YxShipPassenger::getBatchNo, batchNo)
+            queryWrapperPasseng.lambda().eq(YxShipPassenger::getBatchNo, param.getBatchNo())
                     .eq(YxShipPassenger::getCouponOrderId, yxShipOperationDetail.getCouponOrderId())
                     .eq(YxShipPassenger::getDelFlag, 0);
             List<YxShipPassenger> passengerList = yxShipPassengerService.list(queryWrapperPasseng);
             List<YxShipPassengerVO> passengerVOList = CommonsUtils.convertBeanList(passengerList, YxShipPassengerVO.class);
-            yxShipOperationDetailVO.setPassengerVOList(passengerVOList);
-            detailVOList.add(yxShipOperationDetailVO);
+            yxShipOperationDetail.setPassengerVOList(passengerVOList);
+            //图片
+            yxShipOperationDetail.setShipImageUrl(getShipImg(yxShipOperationDetail.getShipId()));
         }
         map.put("status", "1");
         map.put("statusDesc", "成功！");
-        map.put("data", detailVOList);
+        map.put("data", shipOperationDetailQueryVoPaging);
         return map;
     }
+
 
     private YxShipSeries getShpSeriesByShipId(int shipId) {
         YxShipInfo yxShipInfo = this.getById(shipId);

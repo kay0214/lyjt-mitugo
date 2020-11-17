@@ -1,11 +1,12 @@
 package co.yixiang.modules.ship.mapper;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import co.yixiang.modules.couponUse.dto.YxShipOperationDetailVO;
 import co.yixiang.modules.ship.entity.YxShipOperationDetail;
 import co.yixiang.modules.ship.web.param.YxShipOperationDetailQueryParam;
 import co.yixiang.modules.ship.web.vo.YxShipOperationDetailQueryVo;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
@@ -36,5 +37,7 @@ public interface YxShipOperationDetailMapper extends BaseMapper<YxShipOperationD
      * @return
      */
     IPage<YxShipOperationDetailQueryVo> getYxShipOperationDetailPageList(@Param("page") Page page, @Param("param") YxShipOperationDetailQueryParam yxShipOperationDetailQueryParam);
+
+    IPage<YxShipOperationDetailVO> getYxShipOperationDetailPageListByParam(@Param("page") Page page, @Param("param") YxShipOperationDetailQueryParam yxShipOperationDetailQueryParam);
 
 }

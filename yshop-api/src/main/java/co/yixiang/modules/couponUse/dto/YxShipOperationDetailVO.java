@@ -8,6 +8,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -78,4 +79,11 @@ public class YxShipOperationDetailVO extends BaseEntity {
     private String userdTime;
     @ApiModelProperty(value = "核销人员")
     private String userdUserName;
+
+    @ApiModelProperty(value = "船只图片")
+    private String shipImageUrl="";
+    @ApiModelProperty(value = "创建人")
+    private Integer createUserId;
+    @ApiModelProperty(value = "创建时间")
+    private Date createTime;
 }

@@ -5,12 +5,9 @@ import co.yixiang.common.service.impl.BaseServiceImpl;
 import co.yixiang.common.web.vo.Paging;
 import co.yixiang.dozer.service.IGenerator;
 import co.yixiang.exception.BadRequestException;
-import co.yixiang.exception.ErrorRequestException;
 import co.yixiang.modules.coupons.mapper.YxCouponOrderMapper;
 import co.yixiang.modules.coupons.mapper.YxCouponsMapper;
 import co.yixiang.modules.coupons.web.param.YxCouponOrderPassengParam;
-import co.yixiang.modules.coupons.web.vo.YxCouponOrderQueryVo;
-import co.yixiang.modules.coupons.web.vo.YxCouponsQueryVo;
 import co.yixiang.modules.user.entity.YxUsedContacts;
 import co.yixiang.modules.user.mapper.YxUsedContactsMapper;
 import co.yixiang.modules.user.service.YxUsedContactsService;
@@ -33,7 +30,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.Serializable;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -84,7 +80,7 @@ public class YxUsedContactsServiceImpl extends BaseServiceImpl<YxUsedContactsMap
     public YxUsedContactsOrderQueryVo getUsedContactsByUserId(YxCouponOrderPassengParam yxCouponOrderQueryParam) {
         YxUsedContactsOrderQueryVo yxUsedContactsOrderQueryVo = new YxUsedContactsOrderQueryVo();
         //订单
-        YxCouponOrderQueryVo couponOrderQueryVo = yxCouponOrderMapper.getYxCouponOrderById(yxCouponOrderQueryParam.getOrderId());
+        /*YxCouponOrderQueryVo couponOrderQueryVo = yxCouponOrderMapper.getYxCouponOrderById(yxCouponOrderQueryParam.getOrderId());
         if (null == couponOrderQueryVo) {
             throw new ErrorRequestException("订单信息不存在！订单id：" + yxCouponOrderQueryParam.getOrderId());
         }
@@ -94,7 +90,7 @@ public class YxUsedContactsServiceImpl extends BaseServiceImpl<YxUsedContactsMap
         }
         // 乘客人数
         BigDecimal bigMaxPass = new BigDecimal(yxCouponOrderQueryParam.getUsedNum()).multiply(new BigDecimal(couponsQueryVo.getPassengersNum()));
-        yxUsedContactsOrderQueryVo.setMaxPassengersNum(bigMaxPass.intValue());
+        yxUsedContactsOrderQueryVo.setMaxPassengersNum(bigMaxPass.intValue());*/
         //联系人信息
         Page<YxUsedContacts> pageModel = new Page<>(yxCouponOrderQueryParam.getPage(), yxCouponOrderQueryParam.getLimit());
         int uid = SecurityUtils.getUserId().intValue();

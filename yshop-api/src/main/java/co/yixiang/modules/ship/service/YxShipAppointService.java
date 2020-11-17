@@ -3,8 +3,9 @@ package co.yixiang.modules.ship.service;
 import co.yixiang.common.service.BaseService;
 import co.yixiang.common.web.vo.Paging;
 import co.yixiang.modules.couponUse.dto.YxShipAppointResultVo;
-import co.yixiang.modules.couponUse.param.ShipInAppotionDaysParam;
-import co.yixiang.modules.couponUse.param.ShipInAppotionParam;
+import co.yixiang.modules.couponUse.param.ShipAppotionDaysParam;
+import co.yixiang.modules.couponUse.param.ShipAppotionAddParam;
+import co.yixiang.modules.couponUse.param.ShipLeaveMessageParam;
 import co.yixiang.modules.manage.entity.SystemUser;
 import co.yixiang.modules.ship.entity.YxShipAppoint;
 import co.yixiang.modules.ship.web.param.YxShipAppointQueryParam;
@@ -47,7 +48,7 @@ public interface YxShipAppointService extends BaseService<YxShipAppoint> {
      * @param user
      * @return
      */
-    public Map<String, Object> saveAppotionInfo(ShipInAppotionParam param, SystemUser user);
+    public Map<String, Object> saveAppotionInfo(ShipAppotionAddParam param, SystemUser user);
 
     /**
      * 显示预约详情
@@ -55,5 +56,20 @@ public interface YxShipAppointService extends BaseService<YxShipAppoint> {
      * @param user
      * @return
      */
-    Map<String,Object> getAppotionByDate(ShipInAppotionDaysParam param, SystemUser user);
+    Map<String,Object> getAppotionByDate(ShipAppotionDaysParam param, SystemUser user);
+
+    /**
+     * 留言列表
+     * @param param
+     * @param user
+     * @return
+     */
+    Map<String,Object> getAllLeaveMessage(ShipLeaveMessageParam param, SystemUser user);
+    /**
+     * 不予处理
+     * @param leaveId
+     * @param user
+     * @return
+     */
+    Map<String,Object> cancelLeavesMessage(Integer leaveId, SystemUser user);
 }

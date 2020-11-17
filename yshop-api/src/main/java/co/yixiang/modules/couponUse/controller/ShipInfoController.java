@@ -3,11 +3,12 @@ package co.yixiang.modules.couponUse.controller;
 import co.yixiang.annotation.AnonymousAccess;
 import co.yixiang.common.web.controller.BaseController;
 import co.yixiang.modules.couponUse.param.ShipCaptainModifyParam;
-import co.yixiang.modules.couponUse.param.ShipInOperationParam;
+import co.yixiang.modules.couponUse.param.ShipOperationParam;
 import co.yixiang.modules.couponUse.param.ShipInfoChangeParam;
 import co.yixiang.modules.couponUse.param.ShipInfoQueryParam;
 import co.yixiang.modules.manage.entity.SystemUser;
 import co.yixiang.modules.ship.service.YxShipInfoService;
+import co.yixiang.modules.ship.web.param.YxShipOperationDetailQueryParam;
 import co.yixiang.modules.ship.web.param.YxShipOperationQueryParam;
 import co.yixiang.modules.user.service.YxUserService;
 import io.swagger.annotations.Api;
@@ -71,13 +72,13 @@ public class ShipInfoController extends BaseController {
     @AnonymousAccess
     @PostMapping("/captainOutPortList")
     @ApiOperation(value = "船长出港列表展示",notes = "船长出港列表展示")
-    public ResponseEntity<Object> captainOutPortList(@RequestHeader(value = "token") String token,@RequestBody ShipInOperationParam shipInOperationParam) {
+    public ResponseEntity<Object> captainOutPortList(@RequestHeader(value = "token") String token,@RequestBody ShipOperationParam shipOperationParam) {
         SystemUser user = getRedisUser(token);
         //测试用
 //        SystemUser user = yxUserService.getSystemUserByParam(134);
         YxShipOperationQueryParam yxShipOperationQueryParam = new YxShipOperationQueryParam();
 
-        Map<String,Object> map = yxShipInfoService.getShipOperationList(yxShipOperationQueryParam,shipInOperationParam, user.getId().intValue(),null);
+        Map<String,Object> map = yxShipInfoService.getShipOperationList(yxShipOperationQueryParam, shipOperationParam, user.getId().intValue(),null);
         return ResponseEntity.ok(map);
     }
     @AnonymousAccess
@@ -95,22 +96,21 @@ public class ShipInfoController extends BaseController {
     @AnonymousAccess
     @PostMapping("/getShipOperationList")
     @ApiOperation(value = "船只运营记录",notes = "船只运营记录")
-    public ResponseEntity<Object> getShipOperationList(@RequestHeader(value = "token") String token, @RequestBody ShipInOperationParam shipInOperationParam) throws Exception {
+    public ResponseEntity<Object> getShipOperationList(@RequestHeader(value = "token") String token, @RequestBody ShipOperationParam shipOperationParam) throws Exception {
         //测试用
 //        SystemUser user = yxUserService.getSystemUserByParam(155);
         SystemUser user = getRedisUser(token);
         YxShipOperationQueryParam yxShipOperationQueryParam = new YxShipOperationQueryParam();
 
-        Map<String,Object> map = yxShipInfoService.getShipOperationList(yxShipOperationQueryParam,shipInOperationParam, null,user.getStoreId());
+        Map<String,Object> map = yxShipInfoService.getShipOperationList(yxShipOperationQueryParam, shipOperationParam, null,user.getStoreId());
         return ResponseEntity.ok(map);
     }
 
     @AnonymousAccess
     @PostMapping("/getShipOperationDeatalList")
     @ApiOperation(value = "船只订单详情",notes = "船只订单详情")
-    public ResponseEntity<Object> getShipOperationDeatalList(@RequestBody Map<String,String> mapParam) throws Exception {
-        String batchNo = mapParam.get("batchNo");
-        Map<String,Object> map = yxShipInfoService.getShipOperationDeatalList(batchNo);
+    public ResponseEntity<Object> getShipOperationDeatalList(@RequestBody YxShipOperationDetailQueryParam param) throws Exception {
+        Map<String,Object> map = yxShipInfoService.getShipOperationDeatalList(param);
         return ResponseEntity.ok(map);
     }
 /*    @AnonymousAccess
@@ -138,7 +138,7 @@ public class ShipInfoController extends BaseController {
     @AnonymousAccess
     @PostMapping("/getShipLeaveRecord")
     @ApiOperation(value = "今日出海记录",notes = "今日出海记录")
-    public ResponseEntity<Object> getShipLeaveRecord(@RequestHeader(value = "token") String token, @RequestBody ShipInOperationParam shipInOperationParam) throws Exception {
+    public ResponseEntity<Object> getShipLeaveRecord(@RequestHeader(value = "token") String token, @RequestBody ShipOperationParam shipOperationParam) throws Exception {
         //测试用
 //        SystemUser user = yxUserService.getSystemUserByParam(149);
         SystemUser user = getRedisUser(token);
@@ -146,9 +146,9 @@ public class ShipInfoController extends BaseController {
         YxShipOperationQueryParam yxShipOperationQueryParam = new YxShipOperationQueryParam();
         yxShipOperationQueryParam.setStatus(3);
         //默认今日出海记录
-        shipInOperationParam.setDateStatus("1");
+        shipOperationParam.setDateStatus("1");
 
-        Map<String,Object> map = yxShipInfoService.getShipOperationList(yxShipOperationQueryParam,shipInOperationParam, user.getId().intValue(),null);
+        Map<String,Object> map = yxShipInfoService.getShipOperationList(yxShipOperationQueryParam, shipOperationParam, user.getId().intValue(),null);
         return ResponseEntity.ok(map);
     }
 }

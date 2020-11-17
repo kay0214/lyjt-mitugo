@@ -1,13 +1,14 @@
 package co.yixiang.modules.ship.service;
 
 import co.yixiang.modules.couponUse.param.ShipCaptainModifyParam;
-import co.yixiang.modules.couponUse.param.ShipInOperationParam;
+import co.yixiang.modules.couponUse.param.ShipOperationParam;
 import co.yixiang.modules.couponUse.param.ShipInfoChangeParam;
 import co.yixiang.modules.couponUse.param.ShipInfoQueryParam;
 import co.yixiang.modules.manage.entity.SystemUser;
 import co.yixiang.modules.ship.entity.YxShipInfo;
 import co.yixiang.common.service.BaseService;
 import co.yixiang.modules.ship.web.param.YxShipInfoQueryParam;
+import co.yixiang.modules.ship.web.param.YxShipOperationDetailQueryParam;
 import co.yixiang.modules.ship.web.param.YxShipOperationQueryParam;
 import co.yixiang.modules.ship.web.vo.YxShipInfoQueryVo;
 import co.yixiang.common.web.vo.Paging;
@@ -42,7 +43,7 @@ public interface YxShipInfoService extends BaseService<YxShipInfo> {
 
     Map<String,Object> getShipInfoList(ShipInfoQueryParam shipInfoQueryParam, SystemUser user);
 
-    public Map<String, Object> getShipOperationList(YxShipOperationQueryParam yxShipOperationQueryParam, ShipInOperationParam shipInOperationParam, Integer captionId, Integer storeId);
+    public Map<String, Object> getShipOperationList(YxShipOperationQueryParam yxShipOperationQueryParam, ShipOperationParam shipOperationParam, Integer captionId, Integer storeId);
     /**
      * 确认出港
      * @param uid
@@ -56,7 +57,7 @@ public interface YxShipInfoService extends BaseService<YxShipInfo> {
      * @param batchNo
      * @return
      */
-    Map<String,Object> getShipOperationDeatalList(String batchNo);
+    Map<String,Object> getShipOperationDeatalList(YxShipOperationDetailQueryParam param);
 
     /**
      * 修改船只状态
