@@ -2,11 +2,11 @@
   <div class="app-container">
     <!--工具栏-->
     <div class="head-container">
-      <el-input v-model="query.username" clearable placeholder="商户登录名称(完全匹配)" style="width: 200px;" class="filter-item" @keyup.enter.native="toQuery" />
-      <el-input v-model="query.storeName" clearable placeholder="商品名称(完全匹配)" style="width: 200px;" class="filter-item" @keyup.enter.native="toQuery" />
-      <el-input v-model="query.username" clearable placeholder="商户用户名(完全匹配)" style="width: 200px;" class="filter-item" @keyup.enter.native="toQuery" />
-      <el-input v-model="query.username" clearable placeholder="用户手机号(完全匹配)" style="width: 200px;" class="filter-item" @keyup.enter.native="toQuery" />
-      <el-select v-model="query.isReply" clearable placeholder="回复状态"
+<!--      <el-input v-model="query.username" clearable placeholder="商户登录名称(完全匹配)" style="width: 200px;" class="filter-item" @keyup.enter.native="toQuery" />-->
+      <el-input v-model.trim="query.storeName" clearable placeholder="商品名称(完全匹配)" style="width: 200px;" class="filter-item" @keyup.enter.native="toQuery" />
+      <el-input v-model.trim="query.username" clearable placeholder="商户用户名(完全匹配)" style="width: 200px;" class="filter-item" @keyup.enter.native="toQuery" />
+
+      <el-select v-model="query.isReply" clearable placeholder="请选择"
                  style="width: 200px;" class="filter-item">
         <el-option
           v-for="item in statusList"
@@ -90,7 +90,7 @@
       </div>
       <div>
         <p>评论回复</p>
-        <el-input type="textarea" :rows="5" v-model="merchantReplyContent"
+        <el-input type="textarea" :rows="5" v-model.trim="merchantReplyContent"
                   placeholder="请输入回复内容" maxlength="200"
                   show-word-limit></el-input>
       </div>
@@ -126,6 +126,7 @@ export default {
         {value:0,label:'未回复'},
         {value:1,label:'已回复'}
       ],
+      subLoading: false,
       delLoading: false,
       replyShow: false,
       replyComment: '',
@@ -215,9 +216,27 @@ export default {
     reply(data){
       this.replyComment=data.comment
       this.replyId=data.id
+      this.merchantReplyContent=''
       this.replyShow=true
     },
     replySubmit(){
+      if(this.subLoading){
+        this.$notify({
+          title: '请勿重复提交',
+          type: 'error',
+          duration: 2500
+        })
+        return
+      }
+      if(!this.merchantReplyContent.length){
+        this.$notify({
+          title: '请输入回复内容',
+          type: 'error',
+          duration: 2500
+        })
+        return
+      }
+      this.subLoading=true
       reply({
         id:this.replyId,
         merchantReplyContent:this.merchantReplyContent
@@ -227,15 +246,18 @@ export default {
           type: 'success',
           duration: 2500
         })
+        this.subLoading=false
         this.init()
+        this.replyShow=false
       }).catch(err=>{
         this.$notify({
           title: '提交异常，请稍后再试',
           type: 'error',
           duration: 2500
         })
+        this.subLoading=false
+        this.replyShow=false
       })
-      this.replyShow=false
     }
   }
 }

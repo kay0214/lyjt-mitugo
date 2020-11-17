@@ -4,10 +4,10 @@
     <div class="head-container">
       <!--如果想在工具栏加入更多按钮，可以使用插槽方式， slot = 'left' or 'right'-->
 
-      <el-input v-model="query.nickName" clearable placeholder="商户昵称(完全匹配)" style="width: 200px;" class="filter-item" @keyup.enter.native="toQuery" />
-      <el-input v-model="query.couponName" clearable placeholder="商品名称(完全匹配)" style="width: 200px;" class="filter-item" @keyup.enter.native="toQuery" />
-      <el-input v-model="query.username" clearable placeholder="商户用户名(完全匹配)" style="width: 200px;" class="filter-item" @keyup.enter.native="toQuery" />
-      <el-select v-model="query.isReply" clearable placeholder="回复状态"
+<!--      <el-input v-model.trim="query.nickName" clearable placeholder="商户昵称(完全匹配)" style="width: 200px;" class="filter-item" @keyup.enter.native="toQuery" />-->
+      <el-input v-model.trim="query.couponName" clearable placeholder="商品名称(完全匹配)" style="width: 200px;" class="filter-item" @keyup.enter.native="toQuery" />
+      <el-input v-model.trim="query.username" clearable placeholder="商户用户名(完全匹配)" style="width: 200px;" class="filter-item" @keyup.enter.native="toQuery" />
+      <el-select v-model="query.isReply" clearable placeholder="请选择"
                  style="width: 200px;" class="filter-item">
         <el-option
           v-for="item in statusList"
@@ -21,7 +21,7 @@
       <!--表单组件-->
       <eForm ref="form" :is-add="isAdd" />
       <!--表格渲染-->
-      <el-table ref="table" v-loading="crud.loading" :data="crud.data" size="small" style="width: 100%;" @selection-change="crud.selectionChangeHandler">
+      <el-table ref="table" v-loading="loading" :data="data" size="small" style="width: 100%;">
         <el-table-column type="selection" width="55" />
         <el-table-column prop="id" label="ID" />
         <el-table-column prop="username" label="用户" />
@@ -81,40 +81,40 @@
         </div>
         <div>
           <p>评论回复</p>
-          <el-input type="textarea" :rows="5" v-model="merchantReplyContent"
+          <el-input type="textarea" :rows="5" v-model.trim="merchantReplyContent"
                     placeholder="请输入回复内容" maxlength="200"
                     show-word-limit></el-input>
         </div>
         <span slot="footer" class="dialog-footer">
         <el-button @click="replyShow = false">取 消</el-button>
-        <el-button type="primary" @click="replySubmit()">确 定</el-button>
+        <el-button type="primary" :loading="subLoading" @click="replySubmit()">确 定</el-button>
       </span>
       </el-dialog>
       <!--分页组件-->
-      <pagination />
+      <el-pagination
+        :total="total"
+        :current-page="page + 1"
+        style="margin-top: 8px;"
+        layout="total, prev, pager, next, sizes"
+        @size-change="sizeChange"
+        @current-change="pageChange"
+      />
     </div>
   </div>
 </template>
 
 <script>
 import crudYxCouponsReply,{ del,reply } from '@/api/yxCouponsReply'
-import CRUD, { presenter, header, form, crud } from '@crud/crud'
-import rrOperation from '@crud/RR.operation'
-import crudOperation from '@crud/CRUD.operation'
-import udOperation from '@crud/UD.operation'
 import pagination from '@crud/Pagination'
 import checkPermission from '@/utils/permission'
 import initData from '@/mixins/crud'
 import eForm from './form'
 import { formatTime } from '@/utils/index'
 
-// crud交由presenter持有
-const defaultCrud = CRUD({ title: '本地生活评论', url: 'api/yxCouponsReply', sort: 'id,desc', crudMethod: { ...crudYxCouponsReply }})
-const defaultForm = { id: null, uid: null, oid: null, couponId: null, generalScore: null, comment: null, addTime: null, merchantReplyTime: null, isReply: null, merId: null, merchantReplyContent: null, delFlag: null, createUserId: null, updateUserId: null, createTime: null, updateTime: null }
 export default {
   name: 'YxCouponsReply',
-  components: { pagination, crudOperation, rrOperation, udOperation ,eForm},
-  mixins: [presenter(defaultCrud), header(), form(defaultForm), crud(),initData],
+  components: { pagination,eForm},
+  mixins: [initData],
   data() {
     return {
 
@@ -122,6 +122,7 @@ export default {
         {value:0,label:'未回复'},
         {value:1,label:'已回复'}
       ],
+      subLoading: false,
       delLoading: false,
       replyShow: false,
       replyComment: '',
@@ -171,6 +172,11 @@ export default {
   },
   watch: {
   },
+  created() {
+    this.$nextTick(() => {
+      this.init()
+    })
+  },
   computed:{
     transferLabel:function(){
       return function(value,list){
@@ -192,11 +198,11 @@ export default {
   methods: {
     formatTime,
     checkPermission,
-    // 获取数据前设置好接口地址
-    [CRUD.HOOK.beforeRefresh]() {
+    beforeInit() {
+      this.url = 'api/yxCouponsReply'
+      const sort = 'id,desc'
+      this.params = { page: this.page, size: this.size, sort: sort }
       return true
-    }, // 新增与编辑前做的操作
-    [CRUD.HOOK.afterToCU](crud, form) {
     },
     subDelete(id) {
       this.delLoading = true
@@ -204,7 +210,7 @@ export default {
         this.delLoading = false
         this.$refs[id].doClose()
         this.dleChangePage()
-        this.init()
+        that.init()
         this.$notify({
           title: '删除成功',
           type: 'success',
@@ -245,27 +251,49 @@ export default {
     reply(data){
       this.replyComment=data.comment
       this.replyId=data.id
+      this.merchantReplyContent=''
       this.replyShow=true
     },
     replySubmit(){
+      if(this.subLoading){
+        this.$notify({
+          title: '请勿重复提交',
+          type: 'error',
+          duration: 2500
+        })
+        return
+      }
+      if(!this.merchantReplyContent.length){
+        this.$notify({
+          title: '请输入回复内容',
+          type: 'error',
+          duration: 2500
+        })
+        return
+      }
+      this.subLoading=true
+      let that=this
       reply({
         id:this.replyId,
         merchantReplyContent:this.merchantReplyContent
       }).then(res=>{
-        this.$notify({
+        that.$notify({
           title: '回复成功',
           type: 'success',
           duration: 2500
         })
-        this.init()
+        that.init()
+        this.subLoading=false
+        this.replyShow=false
       }).catch(err=>{
         this.$notify({
           title: '提交异常，请稍后再试',
           type: 'error',
           duration: 2500
         })
+        this.subLoading=false
+        this.replyShow=false
       })
-      this.replyShow=false
     }
   }
 }
