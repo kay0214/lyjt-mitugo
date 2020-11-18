@@ -103,4 +103,20 @@ public interface YxUserBillService  extends BaseService<YxUserBill>{
      * @return
      */
     YxUserExtractSetDto getExtractSet();
+
+    /**
+     * 查询资金明细导出数据
+     *
+     * @param criteria
+     * @return
+     */
+    List<YxUserBillDto> queryDownloadUserBill(YxUserBillQueryCriteria criteria);
+
+    /**
+     * 查询平台资金明细导出数据
+     *
+     * @param criteria
+     * @return
+     */
+    List<YxUserBillDto> queryUserBillAll(YxUserBillQueryCriteria criteria);
 }

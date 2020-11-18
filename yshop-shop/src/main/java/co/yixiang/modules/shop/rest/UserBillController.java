@@ -33,6 +33,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.*;
 
 /**
@@ -68,11 +70,25 @@ public class UserBillController {
         return new ResponseEntity(yxUserBillService.queryAll(criteria, pageable), HttpStatus.OK);
     }
 
+    @ApiOperation("资金明细导出数据")
+    @GetMapping(value = "/downloadUserBill")
+    @PreAuthorize("@el.check('yxUserRecharge:download')")
+    public void downloadUserBill(HttpServletResponse response, YxUserBillQueryCriteria criteria) throws IOException {
+        yxUserBillService.download(yxUserBillService.queryDownloadUserBill(criteria), response);
+    }
+
     @ApiOperation(value = "平台资金明细")
     @GetMapping(value = "/yxUserBillAll")
     @PreAuthorize("hasAnyRole('admin','YXUSERBILL_ALL','YXUSERBILL_SELECT')")
     public ResponseEntity getYxUserBillAll(YxUserBillQueryCriteria criteria, Pageable pageable) {
         return new ResponseEntity(yxUserBillService.queryAllNew(criteria, pageable), HttpStatus.OK);
+    }
+
+    @ApiOperation("平台资金明细导出数据")
+    @GetMapping(value = "/downloadUserBillAll")
+    @PreAuthorize("@el.check('yxUserRecharge:downloadAll')")
+    public void download(HttpServletResponse response, YxUserBillQueryCriteria criteria) throws IOException {
+        yxUserBillService.download(yxUserBillService.queryUserBillAll(criteria), response);
     }
 
     @ApiOperation(value = "积分明细 废弃")

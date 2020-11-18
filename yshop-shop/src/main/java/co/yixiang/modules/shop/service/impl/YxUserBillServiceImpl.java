@@ -148,18 +148,27 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<UserBillMapper, YxUse
     public void download(List<YxUserBillDto> all, HttpServletResponse response) throws IOException {
         List<Map<String, Object>> list = new ArrayList<>();
         for (YxUserBillDto yxUserBill : all) {
+            // 状态处理
+            String status = "";
+            if (0 == yxUserBill.getStatus()) {
+                status = "待确定";
+            } else if (1 == yxUserBill.getStatus()) {
+                status = "有效";
+            } else if (2 == yxUserBill.getStatus()) {
+                status = "无效";
+            }
             Map<String, Object> map = new LinkedHashMap<>();
             map.put("用户uid", yxUserBill.getUid());
-            map.put("关联id", yxUserBill.getLinkId());
-            map.put("0 = 支出 1 = 获得", yxUserBill.getPm());
+//            map.put("关联id", yxUserBill.getLinkId());
+            map.put("类型", yxUserBill.getPm() == 0 ? "支出" : "获得");
             map.put("账单标题", yxUserBill.getTitle());
-            map.put("明细种类", yxUserBill.getCategory());
-            map.put("明细类型", yxUserBill.getType());
+            map.put("明细种类", BillDetailEnum.getDesc(yxUserBill.getCategory()));
+            map.put("明细类型", BillDetailEnum.getDesc(yxUserBill.getType()));
             map.put("明细数字", yxUserBill.getNumber());
             map.put("剩余", yxUserBill.getBalance());
             map.put("备注", yxUserBill.getMark());
-            map.put("添加时间", yxUserBill.getAddTime());
-            map.put("0 = 带确定 1 = 有效 -1 = 无效", yxUserBill.getStatus());
+            map.put("添加时间", DateUtils.timestampToStr10(yxUserBill.getAddTime()));
+            map.put("状态", status);
             list.add(map);
         }
         FileUtil.downloadExcel(list, response);
@@ -414,5 +423,90 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<UserBillMapper, YxUse
         result.setUserExtractMinPrice(userMinPrice);
         result.setUserExtractRate(userRate);
         return result;
+    }
+
+    /**
+     * 查询资金明细导出数据
+     *
+     * @param criteria
+     * @return
+     */
+    @Override
+    public List<YxUserBillDto> queryDownloadUserBill(YxUserBillQueryCriteria criteria) {
+        QueryWrapper<YxUserBill> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().eq(YxUserBill::getCategory, BillDetailEnum.CATEGORY_1.getValue());
+        queryWrapper.lambda().orderByDesc(YxUserBill::getAddTime);
+        if (1 == criteria.getUserRole()) {
+            queryWrapper.lambda().eq(YxUserBill::getUid, criteria.getUid()).eq(YxUserBill::getUserType, 2);
+        }
+        if (2 == criteria.getUserRole()) {
+            queryWrapper.lambda().eq(YxUserBill::getUid, criteria.getUid()).eq(YxUserBill::getUserType, 1);
+        }
+        if (StringUtils.isNotBlank(criteria.getUsername())) {
+            queryWrapper.lambda().like(YxUserBill::getUsername, criteria.getUsername());
+        }
+        //收支类型
+        if (null != criteria.getPm()) {
+            queryWrapper.lambda().eq(YxUserBill::getPm, criteria.getPm());
+        }
+        if (StringUtils.isNotBlank(criteria.getTitle())) {
+            queryWrapper.lambda().like(YxUserBill::getTitle, criteria.getTitle());
+        }
+        if (StringUtils.isNotBlank(criteria.getAddTimeStart()) && StringUtils.isNotBlank(criteria.getAddTimeEnd())) {
+            queryWrapper.lambda().ge(YxUserBill::getAddTime, DateUtils.stringToTimestamp(criteria.getAddTimeStart() + " 00:00:00")).le(YxUserBill::getAddTime, DateUtils.stringToTimestamp(criteria.getAddTimeEnd() + " 23:59:59"));
+        }
+        //明细种类
+        if (StringUtils.isNotBlank(criteria.getCategory())) {
+            queryWrapper.lambda().eq(YxUserBill::getCategory, criteria.getCategory());
+        }
+
+        //明细类型
+        if (StringUtils.isNotBlank(criteria.getType())) {
+            queryWrapper.lambda().eq(YxUserBill::getType, criteria.getType());
+        }
+        List<YxUserBill> list = this.list(queryWrapper);
+        if (null == list || list.size() <= 0) {
+            throw new BadRequestException("未查询到数据");
+        }
+        return generator.convert(list, YxUserBillDto.class);
+    }
+
+    /**
+     * 查询平台资金明细导出数据
+     *
+     * @param criteria
+     * @return
+     */
+    @Override
+    public List<YxUserBillDto> queryUserBillAll(YxUserBillQueryCriteria criteria) {
+        QueryWrapper<YxUserBill> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().eq(YxUserBill::getCategory, BillDetailEnum.CATEGORY_1.getValue()).eq(YxUserBill::getStatus, 1);
+        if (StringUtils.isNotBlank(criteria.getAddTimeStart()) && StringUtils.isNotBlank(criteria.getAddTimeStart())) {
+            queryWrapper.lambda().ge(YxUserBill::getAddTime, DateUtils.stringToTimestamp(criteria.getAddTimeStart() + " 00:00:00")).le(YxUserBill::getAddTime, DateUtils.stringToTimestamp(criteria.getAddTimeEnd() + " 23:59:59"));
+        }
+        //收支类型
+        if (null != criteria.getPm()) {
+            queryWrapper.lambda().eq(YxUserBill::getPm, criteria.getPm());
+        }
+        if (StringUtils.isNotBlank(criteria.getTitle())) {
+            queryWrapper.lambda().like(YxUserBill::getTitle, criteria.getTitle());
+        }
+        //明细类型
+        if (StringUtils.isNotBlank(criteria.getType())) {
+            queryWrapper.lambda().eq(YxUserBill::getType, criteria.getType());
+        }
+        // 用户昵称
+        if (StringUtils.isNotBlank(criteria.getUsername())) {
+            queryWrapper.lambda().like(YxUserBill::getUsername, criteria.getUsername());
+        }
+        if (null != criteria.getUserType()) {
+            queryWrapper.lambda().eq(YxUserBill::getUserType, criteria.getUserType());
+        }
+        queryWrapper.lambda().orderByDesc(YxUserBill::getAddTime);
+        List<YxUserBill> list = this.list(queryWrapper);
+        if (null == list || list.size() <= 0) {
+            throw new BadRequestException("未查询到数据");
+        }
+        return generator.convert(list, YxUserBillDto.class);
     }
 }
