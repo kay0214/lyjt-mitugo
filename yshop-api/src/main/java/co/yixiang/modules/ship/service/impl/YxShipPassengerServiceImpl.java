@@ -97,7 +97,7 @@ public class YxShipPassengerServiceImpl extends BaseServiceImpl<YxShipPassengerM
         }
         for(YxCouponOrderPassDetailParam yxCouponOrderPassDetailParam:passDetailParamList){
             YxShipPassenger yxShipPassenger = new YxShipPassenger();
-            YxUsedContactsQueryVo usedContactsQueryVo =  yxUsedContactsMapper.getYxUsedContactsById(yxCouponOrderPassDetailParam.getContactsId());
+            YxUsedContactsQueryVo usedContactsQueryVo =  yxUsedContactsMapper.getYxUsedContactsById(yxCouponOrderPassDetailParam.getId());
             yxShipPassenger.setPassengerName(usedContactsQueryVo.getUserName());
             yxShipPassenger.setPhone(usedContactsQueryVo.getUserPhone());
             yxShipPassenger.setIdCard(usedContactsQueryVo.getCardId());

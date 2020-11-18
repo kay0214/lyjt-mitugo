@@ -178,33 +178,23 @@ public class YxShipAppointServiceImpl extends BaseServiceImpl<YxShipAppointMappe
 
 
     @Override
-    public List<YxShipAppointResultVo> getAppointByDate(List<String> dateList,Integer storeId,Integer shipId) {
-        List<YxShipAppointResultVo> resultVoList = new ArrayList<>();
+    public YxShipAppointResultVo getAppointByDate(List<String> dateList,Integer storeId,Integer shipId) {
+        YxShipAppointResultVo resultVo = new YxShipAppointResultVo();
         YxShipAppointQueryParam param = new YxShipAppointQueryParam();
-        param.setDateList(dateList);
         List<Integer> shipIds = new ArrayList<>();
         if(null == shipId){
             shipIds = yxShipInfoService.shipIdList(null, storeId);
         }else{
+            YxShipInfo shipInfo = yxShipInfoService.getById(shipId);
+            resultVo.setShipName(shipInfo.getShipName());
             shipIds.add(shipId);
         }
 
         param.setShipIdList(shipIds);
 
         List<String> appointmentDateList = yxShipAppointMapper.getAppointmentDateByParam(param);
-        for (String strDate : dateList) {
-            YxShipAppointResultVo appointResultVo = new YxShipAppointResultVo();
-            appointResultVo.setDateShow(strDate);
-            int orderFlg = 0;
-            if (!CollectionUtils.isEmpty(appointmentDateList)) {
-                if(appointmentDateList.contains(strDate)){
-                    orderFlg = 1;
-                }
-            }
-            appointResultVo.setOrderFlg(orderFlg);
-            resultVoList.add(appointResultVo);
-        }
-        return resultVoList;
+        resultVo.setDateList(appointmentDateList);
+        return resultVo;
 
     }
 

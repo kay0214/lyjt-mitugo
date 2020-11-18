@@ -1,11 +1,11 @@
 package co.yixiang.modules.user.mapper;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import co.yixiang.modules.user.entity.YxUsedContacts;
 import co.yixiang.modules.user.web.param.YxUsedContactsQueryParam;
 import co.yixiang.modules.user.web.vo.YxUsedContactsQueryVo;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
@@ -36,5 +36,8 @@ public interface YxUsedContactsMapper extends BaseMapper<YxUsedContacts> {
      * @return
      */
     IPage<YxUsedContactsQueryVo> getYxUsedContactsPageList(@Param("page") Page page, @Param("param") YxUsedContactsQueryParam yxUsedContactsQueryParam);
+
+
+    IPage<YxUsedContactsQueryVo> getYxUsedContactsPageListByParam(@Param("page") Page page, @Param("param") YxUsedContactsQueryParam yxUsedContactsQueryParam);
 
 }

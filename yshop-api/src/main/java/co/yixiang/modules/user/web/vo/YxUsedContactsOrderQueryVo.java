@@ -5,7 +5,6 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.io.Serializable;
-import java.util.List;
 
 /**
  * <p>
@@ -19,7 +18,5 @@ import java.util.List;
 @ApiModel(value="YxUsedContactsOrderQueryVo对象", description="添加联系人")
 public class YxUsedContactsOrderQueryVo implements Serializable {
     @ApiModelProperty(value = "联系人列表")
-    List<YxUsedContactsQueryVo> contactsQueryVoList;
-    @ApiModelProperty(value = "乘坐人数量")
-    int maxPassengersNum;
+    YxUsedContactsQueryVo contactsQueryVoList;
 }

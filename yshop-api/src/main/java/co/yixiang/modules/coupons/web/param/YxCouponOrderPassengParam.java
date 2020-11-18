@@ -2,7 +2,6 @@ package co.yixiang.modules.coupons.web.param;
 
 import co.yixiang.common.web.param.QueryParam;
 import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -18,11 +17,4 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 @ApiModel(value="YxCouponOrderQueryParam对象", description="卡券订单表查询参数")
 public class YxCouponOrderPassengParam extends QueryParam {
-
-    private static final long serialVersionUID = 1L;
-
-    @ApiModelProperty(value = "订单id")
-    private Integer orderId;
-    @ApiModelProperty(value = "使用数量")
-    private Integer usedNum;
 }

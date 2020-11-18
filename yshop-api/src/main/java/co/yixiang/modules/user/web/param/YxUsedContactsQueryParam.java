@@ -24,5 +24,5 @@ public class YxUsedContactsQueryParam extends QueryParam {
     private Integer userId;
 
     @ApiModelProperty(value = "是否删除（0：未删除，1：已删除）")
-    private Integer delFlag = 0;
+    private Integer delFlag;
 }

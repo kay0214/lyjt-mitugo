@@ -41,7 +41,7 @@ public interface YxShipAppointService extends BaseService<YxShipAppoint> {
 
     List<String> getMonthAllDays(String strDate);
 
-    List<YxShipAppointResultVo> getAppointByDate(List<String> dateList,Integer storeId,Integer shipId);
+    YxShipAppointResultVo getAppointByDate(List<String> dateList,Integer storeId,Integer shipId);
     /**
      * 新增船只预约
      * @param param

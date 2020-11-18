@@ -218,7 +218,9 @@ public class YxShipInfoServiceImpl extends BaseServiceImpl<YxShipInfoMapper, YxS
                         break;
                 }
                 queryVo.setStatusFormat(strStatus);
-                queryVo.setUserdUserName(systemUserMapper.getUserById(queryVo.getCreateUserId()).getNickName());
+                if(0!= queryVo.getCreateUserId()){
+                    queryVo.setUserdUserName(systemUserMapper.getUserById(queryVo.getCreateUserId()).getNickName());
+                }
                 queryVo.setUserdTime(DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD_HH_MM_SS,queryVo.getCreateTime()));
             }
         }
@@ -333,9 +335,11 @@ public class YxShipInfoServiceImpl extends BaseServiceImpl<YxShipInfoMapper, YxS
             yxShipOperationDetail.setRideLimit(yxShipSeries.getRideLimit());
             //核销时间
             yxShipOperationDetail.setUserdTime(DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD_HH_MM_SS,yxShipOperationDetail.getCreateTime()));
-            SystemUserQueryVo systemUser = systemUserMapper.getUserById(yxShipOperationDetail.getCreateUserId());
-            // 核销人
-            yxShipOperationDetail.setUserdUserName(systemUser.getNickName());
+            if(0!=yxShipOperationDetail.getCreateUserId()){
+                SystemUserQueryVo systemUser = systemUserMapper.getUserById(yxShipOperationDetail.getCreateUserId());
+                // 核销人
+                yxShipOperationDetail.setUserdUserName(systemUser.getNickName());
+            }
 
             QueryWrapper<YxShipPassenger> queryWrapperPasseng = new QueryWrapper<>();
             queryWrapperPasseng.lambda().eq(YxShipPassenger::getBatchNo, param.getBatchNo())

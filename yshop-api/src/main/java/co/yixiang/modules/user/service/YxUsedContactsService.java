@@ -7,7 +7,6 @@ import co.yixiang.modules.user.entity.YxUsedContacts;
 import co.yixiang.modules.user.web.dto.YxUsedContactsSaveDto;
 import co.yixiang.modules.user.web.dto.YxUsedContactsUpdateDto;
 import co.yixiang.modules.user.web.param.YxUsedContactsQueryParam;
-import co.yixiang.modules.user.web.vo.YxUsedContactsOrderQueryVo;
 import co.yixiang.modules.user.web.vo.YxUsedContactsQueryVo;
 
 import java.io.Serializable;
@@ -42,7 +41,7 @@ public interface YxUsedContactsService extends BaseService<YxUsedContacts> {
      * @param userCount
      * @return
      */
-    YxUsedContactsOrderQueryVo getUsedContactsByUserId(YxCouponOrderPassengParam yxCouponOrderQueryParam);
+    Paging<YxUsedContactsQueryVo> getUsedContactsByUserId(YxCouponOrderPassengParam yxCouponOrderQueryParam);
 
     /**
      * 插入数据
