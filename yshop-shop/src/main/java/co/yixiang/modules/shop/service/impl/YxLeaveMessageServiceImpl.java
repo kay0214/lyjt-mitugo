@@ -83,12 +83,12 @@ public class YxLeaveMessageServiceImpl extends BaseServiceImpl<YxLeaveMessageMap
         queryWrapper.lambda().eq(YxLeaveMessage::getDelFlag, 0);
         // 处理查询角色
         if (0 != criteria.getUserRole()) {
-            if (null == criteria.getChildStoreId() || criteria.getChildStoreId().size() <= 0) {
+            if (null == criteria.getChildUser() || criteria.getChildUser().size() <= 0) {
                 map.put("content", new ArrayList<>());
                 map.put("totalElements", 0);
                 return map;
             }
-            queryWrapper.lambda().in(YxLeaveMessage::getMerId, criteria.getChildStoreId()).ne(YxLeaveMessage::getMessageType, 4);
+            queryWrapper.lambda().in(YxLeaveMessage::getMerId, criteria.getChildUser()).ne(YxLeaveMessage::getMessageType, 4);
         } else {
             // 平台管理只查看平台相关的留言
             // 留言类型：0 -> 商品，1-> 卡券 2 -> 商城订单，3 -> 本地生活订单，4 ->商户，5 -> 平台
