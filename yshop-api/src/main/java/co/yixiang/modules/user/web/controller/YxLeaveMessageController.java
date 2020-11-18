@@ -4,10 +4,13 @@ import cn.hutool.core.date.DateTime;
 import co.yixiang.common.api.ApiResult;
 import co.yixiang.common.web.controller.BaseController;
 import co.yixiang.dozer.service.IGenerator;
+import co.yixiang.exception.BadRequestException;
 import co.yixiang.modules.user.entity.YxLeaveMessage;
 import co.yixiang.modules.user.service.YxLeaveMessageService;
+import co.yixiang.modules.user.web.dto.YxLeaveMessageGetDataDto;
 import co.yixiang.modules.user.web.dto.YxLeaveMessageSaveDto;
 import co.yixiang.utils.SecurityUtils;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -18,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
+import java.util.List;
 
 /**
  * <p>
@@ -85,15 +89,18 @@ public class YxLeaveMessageController extends BaseController {
     public ApiResult<Boolean> addYxLeaveMessage(@Valid @RequestBody YxLeaveMessageSaveDto request) throws Exception {
         int uid = SecurityUtils.getUserId().intValue();
         request.setCreateUserId(uid);
-//        boolean flag = yxLeaveMessageService.saveLeaveMessage(request);
-        YxLeaveMessage saveData = generator.convert(request, YxLeaveMessage.class);
-        saveData.setStatus(0);
-        saveData.setDelFlag(0);
-        saveData.setCreateUserId(uid);
-        saveData.setCreateTime(DateTime.now().toTimestamp());
-        boolean flag = yxLeaveMessageService.save(saveData);
+        boolean flag = yxLeaveMessageService.saveLeaveMessage(request);
         return ApiResult.result(flag);
     }
 
+    /**
+     * 留言表查询相关数据（废弃）
+     */
+    @PostMapping("/getData")
+    @ApiOperation(value = "留言查询相关信息", notes = "留言查询相关信息", response = ApiResult.class)
+    public ApiResult<YxLeaveMessageGetDataDto> getData(@Valid @RequestBody YxLeaveMessageSaveDto request) throws Exception {
+        YxLeaveMessageGetDataDto data = this.yxLeaveMessageService.getData(request);
+        return ApiResult.ok(data);
+    }
 }
 

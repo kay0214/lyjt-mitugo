@@ -2,6 +2,7 @@ package co.yixiang.modules.user.service;
 
 import co.yixiang.modules.user.entity.YxLeaveMessage;
 import co.yixiang.common.service.BaseService;
+import co.yixiang.modules.user.web.dto.YxLeaveMessageGetDataDto;
 import co.yixiang.modules.user.web.dto.YxLeaveMessageSaveDto;
 import co.yixiang.modules.user.web.param.YxLeaveMessageQueryParam;
 import co.yixiang.modules.user.web.vo.YxLeaveMessageQueryVo;
@@ -40,4 +41,12 @@ public interface YxLeaveMessageService extends BaseService<YxLeaveMessage> {
      * @return
      */
     boolean saveLeaveMessage(YxLeaveMessageSaveDto request);
+
+    /**
+     * 根据留言类型获取相关数据
+     *
+     * @param request
+     * @return
+     */
+    YxLeaveMessageGetDataDto getData(YxLeaveMessageSaveDto request);
 }
