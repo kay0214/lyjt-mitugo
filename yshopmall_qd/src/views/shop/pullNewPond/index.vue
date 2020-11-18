@@ -6,6 +6,16 @@
       <!--如果想在工具栏加入更多按钮，可以使用插槽方式， slot = 'left' or 'right'-->
       <el-row>
         <el-input v-model="query.username" clearable placeholder="用户昵称" style="width: 200px;marginRight:20px;" class="filter-item" @keyup.enter.native="crud.toQuery" />
+        <el-input v-model="query.phone" clearable placeholder="输入用户手机号" style="width: 200px;" class="filter-item" @keyup.enter.native="pageRefesh" />
+        <el-input v-model="query.linkId" clearable placeholder="输入订单号" style="width: 200px;" class="filter-item" @keyup.enter.native="pageRefesh" />
+        <el-select v-model="query.brokerageType" clearable placeholder="订单类型" class="filter-item" style="width: 130px">
+          <el-option
+            v-for="item in statusList"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value"
+          />
+        </el-select>
         <el-date-picker
           type="daterange"
           v-model="query.searchTime"
@@ -86,7 +96,11 @@ export default {
         edit: ['admin', 'yxPointDetail:edit'],
         del: ['admin', 'yxPointDetail:del']
       },
-      rules: {}
+      rules: {},
+      statusList: [
+        { value: 0, label: '商品购买 ' },
+        { value: 1, label: '本地生活' }
+      ]
     }
   },
   mounted(){
