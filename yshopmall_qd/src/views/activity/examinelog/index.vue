@@ -4,11 +4,44 @@
     <!--工具栏-->
     <div class="head-container">
       <!--如果想在工具栏加入更多按钮，可以使用插槽方式， slot = 'left' or 'right'-->
-      <div v-if="crud.props.searchToggle">
+
         <!-- 搜索 -->
         <el-input v-model="query.username" clearable size="small" placeholder="输入姓名搜索" style="width: 200px;" class="filter-item" @keyup.enter.native="crud.toQuery" />
+        <el-input v-model="query.phone" clearable placeholder="用户手机号" style="width: 200px;" class="filter-item" @keyup.enter.native="toQuery" />
+        <el-input v-model="query.userTrueName" clearable placeholder="真实姓名" style="width: 200px;" class="filter-item" @keyup.enter.native="toQuery" />
+        <el-input v-model="query.bankCode" clearable placeholder="银行卡号" style="width: 200px;" class="filter-item" @keyup.enter.native="toQuery" />
+        <el-input v-model="query.seqNo" clearable placeholder="订单号" style="width: 200px;" class="filter-item" @keyup.enter.native="toQuery" />
+        <el-select v-model="query.userType" clearable placeholder="用户类型"
+                   style="width: 200px;" class="filter-item">
+          <el-option
+            v-for="(val,index) in userTypeOptions"
+            :key="index"
+            :label="val"
+            :value="index">
+          </el-option>
+        </el-select>
+        <el-select v-model="query.userRole" clearable placeholder="审核状态"
+                   style="width: 200px;" class="filter-item">
+          <el-option
+            v-for="item in statusList"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value">
+          </el-option>
+        </el-select>
+        <el-date-picker
+          v-model="query.addTime"
+          :default-time="['00:00:00','23:59:59']"
+          type="daterange"
+          range-separator=":"
+          size="small"
+          class="date-item"
+          value-format="yyyy-MM-dd"
+          start-placeholder="开始日期"
+          end-placeholder="结束日期"
+        />
         <el-button class="filter-item" size="mini" type="success" icon="el-icon-search" @click="crud.toQuery">搜索</el-button>
-      </div>
+
       <!-- <crudOperation :permission="permission" /> -->
       <!--表单组件-->
       <el-dialog :close-on-click-modal="false" :before-close="crud.cancelCU" :visible.sync="crud.status.cu > 0" :title="crud.status.title" width="500px">
@@ -102,7 +135,14 @@ export default {
         del: ['admin', 'yxExamineLog:del']
       },
       rules: {
-      }    }
+      },
+      userTypeOptions: ['预留','商户','合伙人','前台用户'],
+      statusList:[
+        {value:-1,label:'提现未通过'},
+        {value:0,label:'未提现'},
+        {value:1,label:'提现通过'}
+      ]
+    }
   },
   watch: {
   },

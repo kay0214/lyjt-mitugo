@@ -7,6 +7,39 @@
       <el-select v-model="query.type" clearable placeholder="类型" class="filter-item" style="width: 130px">
         <el-option v-for="item in queryTypeOptions" :key="item.key" :label="item.display_name" :value="item.key" />
       </el-select>
+<!--      <el-input v-model="query.phone" clearable placeholder="用户手机号" style="width: 200px;" class="filter-item" @keyup.enter.native="toQuery" />-->
+<!--      <el-input v-model="query.userTrueName" clearable placeholder="真实姓名" style="width: 200px;" class="filter-item" @keyup.enter.native="toQuery" />-->
+<!--      <el-input v-model="query.bankCode" clearable placeholder="银行卡号" style="width: 200px;" class="filter-item" @keyup.enter.native="toQuery" />-->
+<!--      <el-input v-model="query.seqNo" clearable placeholder="订单号" style="width: 200px;" class="filter-item" @keyup.enter.native="toQuery" />-->
+      <el-select v-model="query.userType" clearable placeholder="用户类型"
+                 style="width: 200px;" class="filter-item">
+        <el-option
+          v-for="(val,index) in userTypeOptions"
+          :key="index"
+          :label="val"
+          :value="index">
+        </el-option>
+      </el-select>
+      <el-select v-model="query.userRole" clearable placeholder="审核状态"
+                 style="width: 200px;" class="filter-item">
+        <el-option
+          v-for="item in statusList"
+          :key="item.value"
+          :label="item.label"
+          :value="item.value">
+        </el-option>
+      </el-select>
+      <el-date-picker
+        v-model="query.addTime"
+        :default-time="['00:00:00','23:59:59']"
+        type="daterange"
+        range-separator=":"
+        size="small"
+        class="date-item"
+        value-format="yyyy-MM-dd"
+        start-placeholder="开始日期"
+        end-placeholder="结束日期"
+      />
       <el-button class="filter-item" size="mini" type="success" icon="el-icon-search" @click="toQuery">搜索</el-button>
       <!-- 新增 -->
       <el-button
@@ -120,9 +153,18 @@ export default {
     return {
       delLoading: false,
       queryTypeOptions: [
-        { key: 'realName', display_name: '名称' }
+        { key: 'realName', display_name: '名称' },
+        { key: 'phone', display_name: '用户手机号' },
+        { key: 'userTrueName', display_name: '真实姓名' },
+        { key: 'bankCode', display_name: '银行卡号' },
+        { key: 'seqNo', display_name: '订单号' }
       ],
-      userTypeOptions: ['预留','商户','合伙人','前台用户']
+      userTypeOptions: ['预留','商户','合伙人','前台用户'],
+      statusList:[
+        {value:-1,label:'提现未通过'},
+        {value:0,label:'未提现'},
+        {value:1,label:'提现通过'}
+      ]
     }
   },
   created() {
