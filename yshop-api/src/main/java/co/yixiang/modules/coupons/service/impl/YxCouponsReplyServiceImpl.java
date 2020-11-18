@@ -217,10 +217,20 @@ public class YxCouponsReplyServiceImpl extends BaseServiceImpl<YxCouponsReplyMap
         result.setBadReplyCount(badCount);
 
         // 处理评价分页数据
-        IPage<YxCouponsReply> replyList = this.page(new Page<>(param.getPage(), param.getLimit()), new QueryWrapper<YxCouponsReply>().lambda()
-                .eq(YxCouponsReply::getCouponId, param.getCouponId())
+        QueryWrapper<YxCouponsReply> queryWrapper = new QueryWrapper<>();
+        if (null != param.getReplyType()) {
+            if (1 == param.getReplyType()) {
+                queryWrapper.lambda().gt(YxCouponsReply::getGeneralScore, 3);
+            } else if (2 == param.getReplyType()) {
+                queryWrapper.lambda().eq(YxCouponsReply::getGeneralScore, 3);
+            } else if (3 == param.getReplyType()) {
+                queryWrapper.lambda().lt(YxCouponsReply::getGeneralScore, 3);
+            }
+        }
+        queryWrapper.lambda().eq(YxCouponsReply::getCouponId, param.getCouponId())
                 .eq(YxCouponsReply::getDelFlag, 0)
-                .orderByDesc(YxCouponsReply::getAddTime));
+                .orderByDesc(YxCouponsReply::getAddTime);
+        IPage<YxCouponsReply> replyList = this.page(new Page<>(param.getPage(), param.getLimit()), queryWrapper);
         if (null != replyList && replyList.getTotal() > 0) {
             List<YxCouponsReplyVO> replyVOs = new ArrayList<>();
             for (YxCouponsReply item : replyList.getRecords()) {
