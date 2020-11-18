@@ -3,11 +3,25 @@
     <!--工具栏-->
     <div class="head-container">
       <!--如果想在工具栏加入更多按钮，可以使用插槽方式， slot = 'left' or 'right'-->
-      <div v-if="crud.props.searchToggle">
-        <!-- 搜索 -->
-        <el-input v-model="query.username" clearable size="small" placeholder="输入分类名称搜索" style="width: 200px;" class="filter-item" @keyup.enter.native="crud.toQuery" />
-        <el-button class="filter-item" size="mini" type="success" icon="el-icon-search" @click="crud.toQuery">搜索</el-button>
-      </div>
+      <el-input v-model.trim="query.merchantsName" clearable size="small" placeholder="输入商户名称" style="width: 200px;" class="filter-item" @keyup.enter.native="crud.toQuery" />
+      <el-input v-model.trim="query.contactMobile" clearable size="small" placeholder="输入商户联系人电话" style="width: 200px;" class="filter-item" @keyup.enter.native="crud.toQuery" />
+      <el-select v-model="query.status" clearable placeholder="审批状态"
+                 style="width: 200px;" class="filter-item">
+        <el-option
+          v-for="item in statusList"
+          :key="item.value"
+          :label="item.label"
+          :value="item.value">
+        </el-option>
+      </el-select>
+      <el-button class="filter-item" size="mini" type="success" icon="el-icon-search" @click="crud.toQuery">搜索</el-button>
+      <el-button
+        type="danger"
+        class="filter-item"
+        size="mini"
+        icon="el-icon-refresh"
+        @click="crud.toQuery"
+      >刷新</el-button>
       <!-- <crudOperation :permission="permission" /> -->
       <!--表单组件-->
       <el-dialog :close-on-click-modal="false" :before-close="crud.cancelCU" :visible.sync="crud.status.cu > 0" :title="crud.status.title" width="500px">
@@ -46,9 +60,9 @@
         <el-table-column label="审批状态" align="center">
           <template slot-scope="scope">
             <div>
-              <el-tag v-if="scope.row.status == 1">通过</el-tag>
-              <el-tag v-else-if="scope.row.status == 2">驳回</el-tag>
-              <el-tag v-else>待审核</el-tag>
+              <el-tag v-if="scope.row.status == 1" type="success">通过</el-tag>
+              <el-tag v-else-if="scope.row.status == 2" type="danger">驳回</el-tag>
+              <el-tag v-else type="info">待审核</el-tag>
             </div>
           </template>
         </el-table-column>
@@ -90,7 +104,13 @@ export default {
         del: ['admin', 'yxExamineLog:del']
       },
       rules: {
-      }    }
+      },
+      statusList:[
+        {value:0,label:'待审核'},
+        {value:1,label:'通过'},
+        {value:2,label:'驳回'}
+      ]
+    }
   },
   watch: {
   },
