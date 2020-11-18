@@ -1085,9 +1085,9 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         QueryWrapper<YxCouponOrder> wrapper9 = new QueryWrapper<>();
         wrapper9.lambda().eq(YxCouponOrder::getUid, uid);
         wrapper9.lambda().eq(YxCouponOrder::getDelFlag, CommonEnum.DEL_STATUS_0.getValue());
-        wrapper9.lambda().in(YxCouponOrder::getStatus, 6);
+        wrapper9.lambda().eq(YxCouponOrder::getStatus, 6);
         wrapper9.lambda().eq(YxCouponOrder::getEvaluate, 0);
-        countVO.setWaitReplyCount(this.count(wrapper7));
+        countVO.setWaitReplyCount(this.count(wrapper9));
 
         return countVO;
     }
