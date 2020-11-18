@@ -22,7 +22,7 @@ public class YxHotConfigQueryVo implements Serializable {
     @ApiModelProperty(value = "id")
     private Integer id;
 
-    @ApiModelProperty(value = "公司名")
+    @ApiModelProperty(value = "标题名")
     private String title;
 
     @ApiModelProperty(value = "封面图地址")

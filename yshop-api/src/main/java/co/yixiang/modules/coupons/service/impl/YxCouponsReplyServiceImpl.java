@@ -202,7 +202,7 @@ public class YxCouponsReplyServiceImpl extends BaseServiceImpl<YxCouponsReplyMap
                 .eq(YxCouponsReply::getDelFlag, 0)
                 .gt(YxCouponsReply::getGeneralScore, 3));
         result.setGoodReplyCount(goodCount);
-        result.setGoodRate(new BigDecimal(goodCount).divide(new BigDecimal(totalReply), 4, BigDecimal.ROUND_HALF_UP).multiply(new BigDecimal(100)) + "%");
+        result.setGoodRate(new BigDecimal(goodCount).multiply(new BigDecimal(100)).divide(new BigDecimal(totalReply), 2, BigDecimal.ROUND_HALF_UP) + "%");
 
         // 查询中差评数
         Integer midCount = this.count(new QueryWrapper<YxCouponsReply>().lambda()

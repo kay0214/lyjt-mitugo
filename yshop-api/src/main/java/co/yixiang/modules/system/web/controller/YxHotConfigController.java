@@ -77,7 +77,7 @@ public class YxHotConfigController extends BaseController {
 //        return ApiResult.ok(yxHotConfigQueryVo);
 //    }
     /**
-     * HOT配置表分页列表
+     * HOT配置表分页列表（废 用/getHotData接口）
      */
     @PostMapping("/getPageList")
     @ApiOperation(value = "获取YxHotConfig分页列表",notes = "HOT配置表分页列表",response = YxHotConfigQueryVo.class)

@@ -10,7 +10,10 @@ import co.yixiang.modules.coupons.web.param.LocalLiveQueryParam;
 import co.yixiang.modules.coupons.web.vo.*;
 import co.yixiang.modules.shop.service.YxStoreInfoService;
 import co.yixiang.modules.shop.service.YxSystemGroupDataService;
+import co.yixiang.modules.system.service.YxHotConfigService;
 import co.yixiang.modules.system.service.YxNoticeService;
+import co.yixiang.modules.system.web.param.YxHotConfigQueryParam;
+import co.yixiang.modules.system.web.vo.YxHotConfigQueryVo;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alicp.jetcache.anno.CacheRefresh;
@@ -47,6 +50,9 @@ public class LocaLifeIndexController {
 
     @Autowired
     private YxNoticeService noticeService;
+
+    @Autowired
+    private YxHotConfigService yxHotConfigService;
 
     /**
      * Banner 上下方导航
@@ -135,16 +141,27 @@ public class LocaLifeIndexController {
         return ApiResult.ok(paging);
     }
 
-    @AnonymousAccess
-    @GetMapping("/getHotData")
-    @ApiOperation(value = "获取hot数据",notes = "获取hot数据")
-    public ResponseEntity getHotData() {
+//    @AnonymousAccess
+//    @GetMapping("/getHotData")
+//    @ApiOperation(value = "获取hot数据",notes = "获取hot数据")
+//    public ResponseEntity getHotData() {
+//
+//        Map<String, Object> map = new HashMap<String, Object>();
+//        map.put("data", getHotDataJson());
+//        map.put("status", 200);
+//        map.put("msg", "成功");
+//        return ResponseEntity.ok(map);
+//    }
 
-        Map<String, Object> map = new HashMap<String, Object>();
-        map.put("data", getHotDataJson());
-        map.put("status", 200);
-        map.put("msg", "成功");
-        return ResponseEntity.ok(map);
+    /**
+     * HOT配置表分页列表
+     */
+    @AnonymousAccess
+    @PostMapping("/getHotData")
+    @ApiOperation(value = "获取YxHotConfig分页列表",notes = "HOT配置表分页列表",response = YxHotConfigQueryVo.class)
+    public ApiResult<Paging<YxHotConfigQueryVo>> getYxHotConfigPageList(@Valid @RequestBody(required = false) YxHotConfigQueryParam yxHotConfigQueryParam) throws Exception{
+        Paging<YxHotConfigQueryVo> paging = yxHotConfigService.getYxHotConfigPageList(yxHotConfigQueryParam);
+        return ApiResult.ok(paging);
     }
 
     private  JSONObject getHotDataJson(){
