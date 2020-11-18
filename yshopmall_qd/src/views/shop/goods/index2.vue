@@ -7,6 +7,33 @@
       <el-select v-model="query.type" clearable placeholder="类型" class="filter-item" style="width: 130px">
         <el-option v-for="item in queryTypeOptions" :key="item.key" :label="item.display_name" :value="item.key" />
       </el-select>
+      <el-select v-model="query.isBest" clearable placeholder="精品推荐"
+                 style="width: 200px;" class="filter-item">
+        <el-option
+          v-for="item in pstatusList"
+          :key="item.value"
+          :label="item.label"
+          :value="item.value">
+        </el-option>
+      </el-select>
+      <el-select v-model="query.isHot" clearable placeholder="热销榜单"
+                 style="width: 200px;" class="filter-item">
+        <el-option
+          v-for="item in pstatusList"
+          :key="item.value"
+          :label="item.label"
+          :value="item.value">
+        </el-option>
+      </el-select>
+      <el-select v-model="query.status" clearable placeholder="请选择"
+                 style="width: 200px;" class="filter-item">
+        <el-option
+          v-for="item in statusList"
+          :key="item.value"
+          :label="item.label"
+          :value="item.value">
+        </el-option>
+      </el-select>
       <el-button class="filter-item" size="mini" type="success" icon="el-icon-search" @click="toQuery">搜索</el-button>
       <!-- 新增 -->
       <el-button
@@ -90,6 +117,14 @@ export default {
       queryTypeOptions: [
         { key: 'storeName', display_name: '商品名称' },
         { key: 'merUsername', display_name: '商户用户名' }
+      ],
+      statusList:[
+        {value:0,label:'已下架'},
+        {value:1,label:'已上架'}
+      ],
+      pstatusList:[
+        {value:1,label:'是'},
+        {value:0,label:'否'}
       ]
     }
   },
