@@ -2,6 +2,16 @@
   <div class="app-container">
     <!--工具栏-->
     <div class="head-container">
+      <el-input v-model="query.username" clearable placeholder="商户用户名" style="width: 200px;" class="filter-item" @keyup.enter.native="toQuery" />
+      <el-select v-model="query.status" clearable placeholder="状态" class="filter-item" style="width: 130px">
+        <el-option
+          v-for="item in statusList"
+          :key="item.value"
+          :label="item.label"
+          :value="item.value"
+        />
+      </el-select>
+      <el-button class="filter-item" size="mini" type="success" icon="el-icon-search" @click="toQuery">搜索</el-button>
       <!-- 新增 -->
       <div style="display: inline-block;margin: 0px 2px;">
         <el-button
@@ -29,7 +39,7 @@
         </template>
       </el-table-column>
       <el-table-column prop="sort" label="排序" width="100" />
-      <el-table-column label="状态" width="100" align="center">        
+      <el-table-column label="状态" width="100" align="center">
         <template slot-scope="scope">
           <div @click="onStatus(scope.row)">
             <el-tag v-if="scope.row.status === 1" style="cursor: pointer" :type="''">开启</el-tag>
@@ -109,7 +119,11 @@ export default {
   mixins: [initData],
   data() {
     return {
-      delLoading: false
+      delLoading: false,
+      statusList:[
+        {value:0,label:'关闭'},
+        {value:1,label:'开启'}
+      ]
     }
   },
   created() {
@@ -178,7 +192,7 @@ export default {
         isDel: 0
       }
       _this.dialog = true
-    },    
+    },
     onStatus(form) {
       let ret=checkPermission(['admin','YXSTORECOUPON_EDIT'])
       if(!ret){

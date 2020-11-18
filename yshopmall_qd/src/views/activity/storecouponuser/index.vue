@@ -3,10 +3,27 @@
     <!--工具栏-->
     <div class="head-container">
       <!-- 搜索 -->
-      <el-input v-model="query.value" clearable placeholder="输入搜索内容" style="width: 200px;" class="filter-item" @keyup.enter.native="toQuery" />
+      <el-input v-model.trim="query.value" clearable placeholder="输入搜索内容" style="width: 200px;" class="filter-item" @keyup.enter.native="toQuery" />
       <el-select v-model="query.type" clearable placeholder="类型" class="filter-item" style="width: 130px">
         <el-option v-for="item in queryTypeOptions" :key="item.key" :label="item.display_name" :value="item.key" />
       </el-select>
+      <el-input v-model.trim="query.username" clearable placeholder="用户手机号" style="width: 200px;" class="filter-item" @keyup.enter.native="toQuery" />
+      <el-select v-model="query.isUsed" clearable placeholder="是否可用" class="filter-item" style="width: 130px">
+        <el-option
+          v-for="item in useStatus"
+          :key="item.value"
+          :label="item.label"
+          :value="item.value"
+        />
+      </el-select>
+      <el-select v-model="query.status" clearable placeholder="状态" class="filter-item" style="width: 130px">
+      <el-option
+        v-for="item in statusList"
+        :key="item.value"
+        :label="item.label"
+        :value="item.value"
+      />
+    </el-select>
       <el-button class="filter-item" size="mini" type="success" icon="el-icon-search" @click="toQuery">搜索</el-button>
       <!-- 新增 -->
       <el-button
@@ -88,6 +105,15 @@ export default {
       queryTypeOptions: [
         { key: 'couponTitle', display_name: '优惠券名称' },
         { key: 'userName', display_name: '用户名' }
+      ],
+      useStatus:[
+        {value:0,label:'可用'},
+        {value:1,label:'不可用'}
+      ],
+      statusList:[
+        {value:0,label:'未使用'},
+        {value:1,label:'已使用'},
+        {value:2,label:'已过期'}
       ]
     }
   },
