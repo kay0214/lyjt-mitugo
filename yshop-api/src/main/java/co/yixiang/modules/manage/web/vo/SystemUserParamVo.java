@@ -23,4 +23,8 @@ public class SystemUserParamVo implements Serializable {
 
     @ApiModelProperty(value = "用户角色：超级管理员 -> 1，合伙人 -> 4 ，商户 -> 5，平台管理员 -> 6， 核销人员 -> 7，船只核销人员 -> 8，船长 -> 9，景区推广 -> 10 ，海岸支队 -> 11")
     private Integer userRole;
+
+    @ApiModelProperty(value = "头像")
+    private String avatar;
+
 }

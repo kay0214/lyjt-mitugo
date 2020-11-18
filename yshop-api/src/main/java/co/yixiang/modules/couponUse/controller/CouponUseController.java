@@ -24,9 +24,11 @@ import co.yixiang.modules.coupons.service.YxCouponOrderUseService;
 import co.yixiang.modules.coupons.service.YxCouponsService;
 import co.yixiang.modules.image.service.YxImageInfoService;
 import co.yixiang.modules.manage.entity.SystemUser;
+import co.yixiang.modules.manage.entity.UserAvatar;
 import co.yixiang.modules.manage.entity.UsersRoles;
 import co.yixiang.modules.manage.entity.YxMerchantsDetail;
 import co.yixiang.modules.manage.service.SystemUserService;
+import co.yixiang.modules.manage.service.UserAvatarService;
 import co.yixiang.modules.manage.service.YxMerchantsDetailService;
 import co.yixiang.modules.manage.web.vo.SystemUserParamVo;
 import co.yixiang.modules.security.security.vo.AuthUser;
@@ -101,6 +103,8 @@ public class CouponUseController extends BaseController {
     private YxSystemAttachmentService systemAttachmentService;
     @Autowired
     private YxSystemConfigService systemConfigService;
+    @Autowired
+    private UserAvatarService userAvatarService;
 
     private final IGenerator generator;
 
@@ -188,6 +192,19 @@ public class CouponUseController extends BaseController {
         SystemUserParamVo systemUserParamVo = new SystemUserParamVo();
         systemUserParamVo.setUsername(user.getUsername());
         systemUserParamVo.setUserRole(intRoleId);
+        // 默认头衔
+        systemUserParamVo.setAvatar("https://mtcdn.metoogo.cn/admin_tx.png");
+        // 处理用户头像
+        if (null != user.getAvatarId()) {
+            UserAvatar userAvatar = this.userAvatarService.getById(user.getAvatarId());
+            if (null != userAvatar) {
+                // 获取数据库配置的api接口地址
+                String apiUrl = systemConfigService.getData(SystemConfigConstants.API_URL);
+                if (StringUtils.isNotBlank(apiUrl)) {
+                    systemUserParamVo.setAvatar(apiUrl + "/" + "avatar/" + userAvatar.getRealName());
+                }
+            }
+        }
         // 生成一个token给前端 56
         String token = CommonConstant.COUPON_USE_LOGIN_TOKEN + SecretUtil.createRandomStr(10) + UUID.randomUUID();
         // 设置30天失效
