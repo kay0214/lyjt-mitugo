@@ -844,12 +844,12 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         YxCouponOrder yxCouponOrder = this.yxCouponOrderMapper.selectById(id);
         BeanUtils.copyBeanProp(item, yxCouponOrder);
         // 获取卡券list
-        List<YxCouponOrderDetail> detailList = this.yxCouponOrderDetailService.list(new QueryWrapper<YxCouponOrderDetail>().lambda().eq(YxCouponOrderDetail::getOrderId, item.getOrderId()));
-        if (CollectionUtils.isEmpty(detailList)) {
+        List<YxCouponOrderDetail> detailList = this.yxCouponOrderDetailService.list(new QueryWrapper<YxCouponOrderDetail>().lambda().eq(YxCouponOrderDetail::getOrderId, item.getOrderId()).eq(YxCouponOrderDetail::getUserStatus,1));
+       /* if (CollectionUtils.isEmpty(detailList)) {
             throw new BadRequestException("根据订单号:" + item.getOrderId() + " 未查询到卡券订单信息");
-        }
-        // 获取该订单购买的优惠券id
-        Integer couponId = detailList.get(0).getCouponId();
+        }*/
+//        Integer couponId = detailList.get(0).getCouponId();
+        Integer couponId = yxCouponOrder.getCouponId();
 
         // 卡券缩略图
         YxImageInfo thumbnail = yxImageInfoService.getOne(new QueryWrapper<YxImageInfo>().eq("type_id", couponId).eq("img_type", LocalLiveConstants.IMG_TYPE_COUPONS)
@@ -868,28 +868,34 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         YxStoreInfo yxStoreInfo = this.storeInfoService.getById(yxCoupons.getStoreId());
         List<YxCouponOrderDetailQueryVo> voList = new ArrayList<>();
         int shipOrderStatus = 1;
-        for (YxCouponOrderDetail yxCouponOrderDetail : detailList) {
-            YxCouponOrderDetailQueryVo vo = new YxCouponOrderDetailQueryVo();
-            BeanUtils.copyBeanProp(vo, yxCouponOrderDetail);
-            // 有效期
-            vo.setExpireDate(expireDate);
-            // 卡券类型;1:代金券, 2:折扣券, 3:满减券,4:船票券
-            vo.setCouponType(yxCoupons.getCouponType());
-            // 代金券面额
-            vo.setDenomination(yxCoupons.getDenomination());
-            // 折扣券折扣率
-            vo.setDiscount(yxCoupons.getDiscount());
-            // 使用门槛
-            vo.setThreshold(yxCoupons.getThreshold());
-            // 优惠金额
-            vo.setDiscountAmount(yxCoupons.getDiscountAmount());
-            // 核销码加密
-            vo.setVerifyCode(Base64Utils.encode(vo.getVerifyCode() + "," + vo.getUid()));
-            voList.add(vo);
-            //核销状态 0：不可用 ,则有未核销的船只订单
-            if (0 == yxCouponOrderDetail.getUserStatus()) {
-                // 状态(0：展示立即使用，1：不展示)
-                shipOrderStatus = 0;
+
+        // 船只订单还有未选择乘客的订单数量
+        int userCount = this.yxCouponOrderDetailService.count(new QueryWrapper<YxCouponOrderDetail>().lambda().eq(YxCouponOrderDetail::getOrderId, item.getOrderId()).eq(YxCouponOrderDetail::getUserStatus, 0));
+        if (userCount > 0) {
+            // 状态(0：展示立即使用，1：不展示)
+            shipOrderStatus = 0;
+        }
+        item.setOptionalNum(userCount);
+
+        if(!CollectionUtils.isEmpty(detailList)){
+            for (YxCouponOrderDetail yxCouponOrderDetail : detailList) {
+                YxCouponOrderDetailQueryVo vo = new YxCouponOrderDetailQueryVo();
+                BeanUtils.copyBeanProp(vo, yxCouponOrderDetail);
+                // 有效期
+                vo.setExpireDate(expireDate);
+                // 卡券类型;1:代金券, 2:折扣券, 3:满减券,4:船票券
+                vo.setCouponType(yxCoupons.getCouponType());
+                // 代金券面额
+                vo.setDenomination(yxCoupons.getDenomination());
+                // 折扣券折扣率
+                vo.setDiscount(yxCoupons.getDiscount());
+                // 使用门槛
+                vo.setThreshold(yxCoupons.getThreshold());
+                // 优惠金额
+                vo.setDiscountAmount(yxCoupons.getDiscountAmount());
+                // 核销码加密
+                vo.setVerifyCode(Base64Utils.encode(vo.getVerifyCode() + "," + vo.getUid()));
+                voList.add(vo);
             }
         }
 
@@ -936,7 +942,6 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         if (4 == yxCoupons.getCouponType()) {
             item = setShipDetailInof(item, yxCoupons, yxCouponOrder, shipOrderStatus);
             item.setPassengeList(yxShipPassengerService.getPassengerByOrderId(item.getId()));
-
         }
         return item;
     }
@@ -963,6 +968,7 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
             throw new BadRequestException("船票券 卡券id：" + yxCoupons.getId() + " 获取船只信息失败！shipId" + yxCoupons.getShipId());
         }
 
+        item.setRideLimit(yxCoupons.getPassengersNum());
         //船只名称
         item.setShipName(yxShipInfoQueryVo.getShipName());
         //船只坐标
@@ -971,7 +977,6 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         item.setShipCoordinateY(yxShipSeriesQueryVo.getCoordinateY());
         item.setShipAddress(yxShipSeriesQueryVo.getShipAddress());
         item.setSeriesName(yxShipSeriesQueryVo.getSeriesName());
-        item.setRideLimit(yxShipSeriesQueryVo.getRideLimit());
         //健康确认
         if (StringUtils.isNotBlank(yxCoupons.getConfirmation())) {
             List<String> stringList = Arrays.asList(yxCoupons.getConfirmation().split(","));
