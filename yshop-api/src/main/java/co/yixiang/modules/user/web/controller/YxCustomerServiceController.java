@@ -1,11 +1,12 @@
 package co.yixiang.modules.user.web.controller;
 
-import co.yixiang.modules.user.entity.YxCustomerService;
+import co.yixiang.common.api.ApiResult;
+import co.yixiang.common.web.controller.BaseController;
+import co.yixiang.common.web.param.IdParam;
+import co.yixiang.common.web.vo.Paging;
 import co.yixiang.modules.user.service.YxCustomerServiceService;
 import co.yixiang.modules.user.web.param.YxCustomerServiceQueryParam;
 import co.yixiang.modules.user.web.vo.YxCustomerServiceQueryVo;
-import co.yixiang.common.web.controller.BaseController;
-import co.yixiang.common.api.ApiResult;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -16,9 +17,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
-
-import co.yixiang.common.web.vo.Paging;
-import co.yixiang.common.web.param.IdParam;
 
 /**
  * <p>
@@ -68,11 +66,11 @@ public class YxCustomerServiceController extends BaseController {
 //    }
 
     /**
-    * 获取机器人客服表答案
-    */
+     * 获取机器人客服表答案
+     */
     @PostMapping("/info")
-    @ApiOperation(value = "获取YxCustomerService对象详情",notes = "查看机器人客服表",response = YxCustomerServiceQueryVo.class)
-    public ApiResult<String> getYxCustomerService(@Valid @RequestBody IdParam idParam) throws Exception{
+    @ApiOperation(value = "获取YxCustomerService对象详情", notes = "查看机器人客服表", response = YxCustomerServiceQueryVo.class)
+    public ApiResult<String> getYxCustomerService(@Valid @RequestBody IdParam idParam) throws Exception {
         YxCustomerServiceQueryVo yxCustomerServiceQueryVo = yxCustomerServiceService.getYxCustomerServiceById(idParam.getId());
         return ApiResult.ok(yxCustomerServiceQueryVo.getAnswer());
     }
@@ -81,8 +79,14 @@ public class YxCustomerServiceController extends BaseController {
      * 机器人客服表分页列表
      */
     @PostMapping("/getPageList")
-    @ApiOperation(value = "获取YxCustomerService分页列表",notes = "机器人客服表分页列表",response = YxCustomerServiceQueryVo.class)
-    public ApiResult<Paging<YxCustomerServiceQueryVo>> getYxCustomerServicePageList(@Valid @RequestBody(required = false) YxCustomerServiceQueryParam yxCustomerServiceQueryParam) throws Exception{
+    @ApiOperation(value = "获取YxCustomerService分页列表", notes = "机器人客服表分页列表", response = YxCustomerServiceQueryVo.class)
+    public ApiResult<Paging<YxCustomerServiceQueryVo>> getYxCustomerServicePageList(@Valid @RequestBody(required = false) YxCustomerServiceQueryParam yxCustomerServiceQueryParam) throws Exception {
+        if (null == yxCustomerServiceQueryParam.getUserRole()) {
+            return ApiResult.ok(new Paging<>());
+        }
+        if (2 == yxCustomerServiceQueryParam.getUserRole() && null == yxCustomerServiceQueryParam.getMerId()) {
+            return ApiResult.ok(new Paging<>());
+        }
         Paging<YxCustomerServiceQueryVo> paging = yxCustomerServiceService.getYxCustomerServicePageList(yxCustomerServiceQueryParam);
         return ApiResult.ok(paging);
     }
