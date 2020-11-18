@@ -193,9 +193,6 @@ jetcache:
       host: ${spring.redis.host}
       port: ${spring.redis.port}
       password: ${spring.redis.password}
-# 线下收款地址配置
-offline:
-  url: https://testmituapi.hyjf.com/shop/
 
 #悟空开放平台地址 模拟：http://smlitsm.tsign.cn:8080    正式http://openapi.tsign.cn:8080：
 wukong:

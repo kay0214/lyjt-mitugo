@@ -211,4 +211,7 @@ public class YxCouponOrderQueryVo implements Serializable {
 
     @ApiModelProperty(value = "限乘人数")
     private Integer rideLimit;
+
+    @ApiModelProperty(value = "可选张数")
+    private Integer optionalNum;
 }

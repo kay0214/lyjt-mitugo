@@ -113,7 +113,7 @@ public class YxShipPassengerServiceImpl extends BaseServiceImpl<YxShipPassengerM
 
         //使用张数
         QueryWrapper<YxCouponOrderDetail> queryWrapper = new QueryWrapper<>();
-        queryWrapper.lambda().eq(YxCouponOrderDetail::getOrderId,couponOrder.getOrderId()).eq(YxCouponOrderDetail::getDelFlag,0);
+        queryWrapper.lambda().eq(YxCouponOrderDetail::getOrderId,couponOrder.getOrderId()).eq(YxCouponOrderDetail::getDelFlag,0).eq(YxCouponOrderDetail::getUserStatus,0);
         List<YxCouponOrderDetail> detailList = yxCouponOrderDetailService.list(queryWrapper);
         if(CollectionUtils.isEmpty(detailList)){
             throw new BadRequestException("获取卡券订单详情数据错误！订单id："+couponOrder.getOrderId());

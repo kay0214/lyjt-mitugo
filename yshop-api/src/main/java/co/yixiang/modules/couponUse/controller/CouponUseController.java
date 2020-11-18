@@ -3,7 +3,11 @@
  */
 package co.yixiang.modules.couponUse.controller;
 
+import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.IdUtil;
+import cn.hutool.core.util.StrUtil;
+import cn.hutool.extra.qrcode.QrCodeUtil;
+import cn.hutool.extra.qrcode.QrConfig;
 import co.yixiang.annotation.AnonymousAccess;
 import co.yixiang.aspectj.annotation.NeedLogin;
 import co.yixiang.common.constant.CommonConstant;
@@ -28,7 +32,11 @@ import co.yixiang.modules.manage.web.vo.SystemUserParamVo;
 import co.yixiang.modules.security.security.vo.AuthUser;
 import co.yixiang.modules.shop.entity.YxStoreInfo;
 import co.yixiang.modules.shop.service.YxStoreInfoService;
+import co.yixiang.modules.shop.service.YxSystemConfigService;
+import co.yixiang.modules.user.service.YxSystemAttachmentService;
 import co.yixiang.modules.user.service.YxUserService;
+import co.yixiang.tools.domain.QiniuContent;
+import co.yixiang.tools.service.QiNiuService;
 import co.yixiang.utils.*;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.wf.captcha.ArithmeticCaptcha;
@@ -42,6 +50,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.File;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -64,8 +73,10 @@ public class CouponUseController extends BaseController {
     private String iv;
     @Value("${aes.mode}")
     private String aesMode;
-    @Value("${offline.url}")
-    private String offlineUrl;
+    @Value("${file.localUrl}")
+    private String localUrl;
+    @Value("${file.path}")
+    private String path;
     @Autowired
     private RedisUtils redisUtils;
     @Autowired
@@ -84,6 +95,12 @@ public class CouponUseController extends BaseController {
     private YxUserService yxUserService;
     @Autowired
     private SystemUserService systemUserService;
+    @Autowired
+    QiNiuService qiNiuService;
+    @Autowired
+    private YxSystemAttachmentService systemAttachmentService;
+    @Autowired
+    private YxSystemConfigService systemConfigService;
 
     private final IGenerator generator;
 
@@ -333,8 +350,47 @@ public class CouponUseController extends BaseController {
         if (null == yxStoreInfo) {
             throw new BadRequestException("获取店铺信息失败");
         }
-        String url = offlineUrl.concat("productId=").concat(yxStoreInfo.getStoreNid()).concat("&codeType=offline");
+        // 获取数据库配置的api接口地址
+        String apiUrl = systemConfigService.getData(SystemConfigConstants.API_URL);
+        // 组装线下收款地址
+        if (!apiUrl.endsWith("/")) {
+            apiUrl = apiUrl.concat("/");
+        }
+        String urlAddress = apiUrl.concat("shop/?productId=").concat(yxStoreInfo.getStoreNid()).concat("&codeType=offline");
 
-        return ResponseEntity.ok("");
+        // 二维码路径+地址
+        String fileDir = path + "qrcode" + File.separator;
+        File path = new File(fileDir);
+        if (!path.exists()) {
+            path.mkdirs();
+        }
+
+        // 二维码名称：商铺nid+商铺id+offline+时间戳
+        String name = yxStoreInfo.getStoreNid() + "_" + yxStoreInfo.getId() + "_offline_" + DateUtils.getNowTime() + ".jpg";
+
+        // 生成二维码
+        QrConfig config = new QrConfig(300, 300);
+        config.setMargin(0);
+        File file = new File(fileDir + name);
+        QrCodeUtil.generate(urlAddress, config, file);
+
+        // 返回二维码的url地址
+        String qrCodeUrl = "";
+        if (StrUtil.isEmpty(localUrl)) {
+            QiniuContent qiniuContent = qiNiuService.uploadPic(file, qiNiuService.find());
+            systemAttachmentService.attachmentAdd(name, String.valueOf(qiniuContent.getSize()),
+                    qiniuContent.getUrl(), qiniuContent.getUrl(), 2);
+            qrCodeUrl = qiniuContent.getUrl();
+        } else {
+            systemAttachmentService.attachmentAdd(name, String.valueOf(FileUtil.size(file)),
+                    fileDir + name, "qrcode/" + name);
+            qrCodeUrl = apiUrl + "/file/qrcode/" + name;
+        }
+
+        Map<String, String> map = new HashMap<>();
+        map.put("status", "1");
+        map.put("statusDesc", "成功");
+        map.put("data", qrCodeUrl);
+        return ResponseEntity.ok(map);
     }
 }
