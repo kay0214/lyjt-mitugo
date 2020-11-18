@@ -23,4 +23,7 @@ public class YxCouponsReplyQueryParam extends QueryParam {
 
     @ApiModelProperty(value = "卡券id")
     private Integer couponId;
+
+    @ApiModelProperty(value = "评价类型 0:全部 1：好评2：中评3差评")
+    private Integer replyType;
 }

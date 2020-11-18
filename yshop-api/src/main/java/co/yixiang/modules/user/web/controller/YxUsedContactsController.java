@@ -12,7 +12,9 @@ import co.yixiang.modules.user.web.dto.YxUsedContactsSaveDto;
 import co.yixiang.modules.user.web.dto.YxUsedContactsUpdateDto;
 import co.yixiang.modules.user.web.param.YxUsedContactsQueryParam;
 import co.yixiang.modules.user.web.vo.YxUsedContactsQueryVo;
+import co.yixiang.utils.IdCardUtils;
 import co.yixiang.utils.SecurityUtils;
+import co.yixiang.utils.StringUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -49,6 +51,9 @@ public class YxUsedContactsController extends BaseController {
     public ApiResult<Boolean> addYxUsedContacts(@Valid @RequestBody YxUsedContactsSaveDto request) throws Exception {
         int uid = SecurityUtils.getUserId().intValue();
         request.setUserId(uid);
+        if (!IdCardUtils.isValid(request.getCardId())) {
+            throw new BadRequestException("请输入正确的身份证号");
+        }
         boolean flag = yxUsedContactsService.saveUsedContacts(request);
         return ApiResult.result(flag);
     }
@@ -61,6 +66,9 @@ public class YxUsedContactsController extends BaseController {
     public ApiResult<Boolean> updateYxUsedContacts(@Valid @RequestBody YxUsedContactsUpdateDto request) throws Exception {
         int uid = SecurityUtils.getUserId().intValue();
         request.setUserId(uid);
+        if (StringUtils.isNotBlank(request.getCardId()) && !IdCardUtils.isValid(request.getCardId())) {
+            throw new BadRequestException("请输入正确的身份证号");
+        }
         boolean flag = yxUsedContactsService.updateUsedContacts(request);
         return ApiResult.result(flag);
     }
@@ -85,18 +93,18 @@ public class YxUsedContactsController extends BaseController {
         return ApiResult.result(flag);
     }
 
-//    /**
-//    * 获取常用联系人表
-//    */
-//    @PostMapping("/info")
-//    @ApiOperation(value = "获取YxUsedContacts对象详情",notes = "查看常用联系人表",response = YxUsedContactsQueryVo.class)
-//    public ApiResult<YxUsedContactsQueryVo> getYxUsedContacts(@Valid @RequestBody IdParam idParam) throws Exception{
-//        YxUsedContactsQueryVo yxUsedContactsQueryVo = yxUsedContactsService.getYxUsedContactsById(idParam.getId());
-//        return ApiResult.ok(yxUsedContactsQueryVo);
-//    }
+    /**
+    * 获取常用联系人表
+    */
+    @PostMapping("/info")
+    @ApiOperation(value = "获取YxUsedContacts对象详情",notes = "查看常用联系人表",response = YxUsedContactsQueryVo.class)
+    public ApiResult<YxUsedContactsQueryVo> getYxUsedContacts(@Valid @RequestBody IdParam idParam) throws Exception{
+        YxUsedContactsQueryVo yxUsedContactsQueryVo = yxUsedContactsService.getYxUsedContactsById(idParam.getId());
+        return ApiResult.ok(yxUsedContactsQueryVo);
+    }
 
     /**
-     * 常用联系人表分页列表
+     * 常用联系人表分页列表(废) 用/getUsedContactsList接口查询
      */
     @PostMapping("/getPageList")
     @ApiOperation(value = "获取YxUsedContacts分页列表", notes = "常用联系人表分页列表", response = YxUsedContactsQueryVo.class)

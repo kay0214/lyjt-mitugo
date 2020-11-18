@@ -1,5 +1,6 @@
 package co.yixiang.modules.user.web.param;
 
+import co.yixiang.annotation.Query;
 import co.yixiang.common.web.param.QueryParam;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -22,7 +23,4 @@ public class YxUsedContactsQueryParam extends QueryParam {
 
     @ApiModelProperty(value = "所属用户id")
     private Integer userId;
-
-    @ApiModelProperty(value = "是否删除（0：未删除，1：已删除）")
-    private Integer delFlag;
 }

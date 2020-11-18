@@ -5,8 +5,6 @@ import co.yixiang.common.service.impl.BaseServiceImpl;
 import co.yixiang.common.web.vo.Paging;
 import co.yixiang.dozer.service.IGenerator;
 import co.yixiang.exception.BadRequestException;
-import co.yixiang.modules.coupons.mapper.YxCouponOrderMapper;
-import co.yixiang.modules.coupons.mapper.YxCouponsMapper;
 import co.yixiang.modules.coupons.web.param.YxCouponOrderPassengParam;
 import co.yixiang.modules.user.entity.YxUsedContacts;
 import co.yixiang.modules.user.mapper.YxUsedContactsMapper;
@@ -15,10 +13,7 @@ import co.yixiang.modules.user.web.dto.YxUsedContactsSaveDto;
 import co.yixiang.modules.user.web.dto.YxUsedContactsUpdateDto;
 import co.yixiang.modules.user.web.param.YxUsedContactsQueryParam;
 import co.yixiang.modules.user.web.vo.YxUsedContactsQueryVo;
-import co.yixiang.utils.BeanUtils;
-import co.yixiang.utils.CardNumUtil;
-import co.yixiang.utils.DateUtils;
-import co.yixiang.utils.SecurityUtils;
+import co.yixiang.utils.*;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.metadata.OrderItem;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -48,10 +43,6 @@ public class YxUsedContactsServiceImpl extends BaseServiceImpl<YxUsedContactsMap
     private YxUsedContactsMapper yxUsedContactsMapper;
 
     @Autowired
-    private YxCouponsMapper yxCouponsMapper;
-    @Autowired
-    private YxCouponOrderMapper yxCouponOrderMapper;
-    @Autowired
     private IGenerator generator;
 
     @Override
@@ -62,7 +53,7 @@ public class YxUsedContactsServiceImpl extends BaseServiceImpl<YxUsedContactsMap
     @Override
     public Paging<YxUsedContactsQueryVo> getYxUsedContactsPageList(YxUsedContactsQueryParam yxUsedContactsQueryParam) throws Exception {
         Page page = setPageParam(yxUsedContactsQueryParam, OrderItem.desc("create_time"));
-        IPage<YxUsedContactsQueryVo> iPage = yxUsedContactsMapper.getYxUsedContactsPageList(page, yxUsedContactsQueryParam);
+        IPage<YxUsedContactsQueryVo> iPage = yxUsedContactsMapper.getYxUsedContactsPageListByParam(page, yxUsedContactsQueryParam);
         return new Paging(iPage);
     }
 
@@ -81,26 +72,28 @@ public class YxUsedContactsServiceImpl extends BaseServiceImpl<YxUsedContactsMap
         int uid = SecurityUtils.getUserId().intValue();
         YxUsedContactsQueryParam param = new YxUsedContactsQueryParam();
         param.setUserId(uid);
-        BeanUtils.copyProperties(yxCouponOrderQueryParam,param);
+        BeanUtils.copyProperties(yxCouponOrderQueryParam, param);
 
         IPage<YxUsedContactsQueryVo> pageList = yxUsedContactsMapper.getYxUsedContactsPageListByParam(page, param);
         Paging<YxUsedContactsQueryVo> usedContactsQueryVoPaging = new Paging(pageList);
-        if(usedContactsQueryVoPaging.getTotal()>0){
+        if (usedContactsQueryVoPaging.getTotal() > 0) {
             List<YxUsedContactsQueryVo> usedContactsList = usedContactsQueryVoPaging.getRecords();
             //联系人信息
             for (YxUsedContactsQueryVo usedContacts : usedContactsList) {
                 //未成年人
-                int isAdult = 0;
+                int isAdult = -1;
                 if (0 != usedContacts.getUserType()) {
-                    Integer intAge = DateUtils.IdCardNoToAge(usedContacts.getCardId());
-                    if (intAge >= 60) {
-                        //岁数大于60 为老年人
-                        isAdult = 2;
-                    } else if (intAge < 60 && intAge >= 18) {
-                        //小于60大于等于18 为成年人
-                        isAdult = 1;
-                    } else {
-                        isAdult = 0;
+                    if (IdCardUtils.isValid(usedContacts.getCardId())) {
+                        Integer intAge = DateUtils.IdCardNoToAge(usedContacts.getCardId());
+                        if (intAge >= 60) {
+                            //岁数大于60 为老年人
+                            isAdult = 2;
+                        } else if (intAge < 60 && intAge >= 18) {
+                            //小于60大于等于18 为成年人
+                            isAdult = 1;
+                        } else {
+                            isAdult = 0;
+                        }
                     }
                 }
 
