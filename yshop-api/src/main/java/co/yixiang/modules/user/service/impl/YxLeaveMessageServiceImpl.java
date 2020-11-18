@@ -22,7 +22,7 @@ import java.io.Serializable;
 
 /**
  * <p>
- * 常用联系人表 服务实现类
+ * 用户留言表 服务实现类
  * </p>
  *
  * @author lsy

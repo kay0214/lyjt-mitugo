@@ -52,6 +52,6 @@ public class YxUsedContactsQueryVo implements Serializable {
     @ApiModelProperty(value = "更新时间")
     private Date updateTime;
 */
-    @ApiModelProperty(value = "状态：0:未成年 1:成年人 2：老年人")
+    @ApiModelProperty(value = "状态：0:未成年 1:成年人 2：老年人 -1:无效身份证")
     private Integer isAdult;
 }
