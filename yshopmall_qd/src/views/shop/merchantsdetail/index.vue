@@ -3,6 +3,26 @@
     <!--工具栏-->
     <div class="head-container">
       <!--如果想在工具栏加入更多按钮，可以使用插槽方式， slot = 'left' or 'right'-->
+      <el-input v-model="query.username" clearable placeholder="商户用户名" style="width: 200px;"
+                class="filter-item" @keyup.enter.native="toQuery" />
+      <el-input v-model="query.merchantsName" clearable placeholder="商户名称" style="width: 200px;"
+                class="filter-item" @keyup.enter.native="toQuery" />
+      <el-input v-model="query.contactMobile" clearable placeholder="联系人电话 " style="width: 200px;"
+                class="filter-item" @keyup.enter.native="toQuery" />
+      <el-select v-model="query.status" clearable placeholder="商户状态" class="filter-item" style="width: 130px">
+        <el-option v-for="item in statusList" :key="item.value" :label="item.label" :value="item.value" />
+      </el-select>
+      <el-select v-model="query.examineStatus" clearable placeholder="审批状态" class="filter-item" style="width: 130px">
+        <el-option v-for="(val,key,indx) in dict.label.merchants_status" :key="key" :label="val" :value="key" />
+      </el-select>
+      <el-button class="filter-item" size="mini" type="success" icon="el-icon-search" @click="crud.toQuery">搜索</el-button>
+      <el-button
+        type="danger"
+        class="filter-item"
+        size="mini"
+        icon="el-icon-refresh"
+        @click="crud.toQuery"
+      >刷新</el-button>
       <crudOperation :permission="permission" />
       <!--表单组件-->
       <el-dialog append-to-body :close-on-click-modal="false" :before-close="dialogBeforeCancel" :visible.sync="crud.status.cu>0 || dialogVisible"
@@ -505,7 +525,11 @@ export default {
       selectedOptions: [],
       opOptions: provinceAndCityData,
       selectedMOptions: [],
-      selectedOPOptions: []
+      selectedOPOptions: [],
+      statusList:[
+        {value:0,label:'启用中'},
+        {value:1,label:'已禁用'}
+      ]
    }
   },
   watch: {
