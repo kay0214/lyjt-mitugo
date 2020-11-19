@@ -59,7 +59,7 @@ public class YxCustomerServiceServiceImpl extends BaseServiceImpl<YxCustomerServ
         QueryWrapper<YxCustomerService> queryWrapper = new QueryWrapper<>();
         queryWrapper.lambda().eq(YxCustomerService::getDelFlag, 0);
         if (0 != criteria.getUserRole()) {
-            if (null == criteria.getChildStoreId() || criteria.getChildStoreId().size() <= 0) {
+            if (null == criteria.getChildUser() || criteria.getChildUser().size() <= 0) {
                 map.put("content", new ArrayList<>());
                 map.put("totalElements", 0);
                 return map;
