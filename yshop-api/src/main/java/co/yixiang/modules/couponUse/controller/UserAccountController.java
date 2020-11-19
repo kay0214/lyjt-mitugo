@@ -15,6 +15,8 @@ import co.yixiang.modules.couponUse.param.UserUpdateParam;
 import co.yixiang.modules.manage.entity.SystemUser;
 import co.yixiang.modules.manage.entity.YxMerchantsDetail;
 import co.yixiang.modules.manage.service.YxMerchantsDetailService;
+import co.yixiang.modules.shop.entity.YxStoreInfo;
+import co.yixiang.modules.shop.service.YxStoreInfoService;
 import co.yixiang.modules.user.service.YxUserBillService;
 import co.yixiang.modules.user.service.YxUserService;
 import co.yixiang.utils.AESUtils;
@@ -49,6 +51,9 @@ public class UserAccountController extends BaseController {
 
     @Autowired
     private YxMerchantsDetailService yxMerchantsDetailService;
+
+    @Autowired
+    private YxStoreInfoService yxStoreInfoService;
     @Value("${aes.localKey}")
     private String aesKey;
     @Value("${aes.iv}")
@@ -73,8 +78,8 @@ public class UserAccountController extends BaseController {
     public ResponseEntity<Object> getUserAccountList(@RequestHeader(value = "token") String token, UserAccountQueryParam param) {
         Map<String, Object> map = new HashMap<>();
         SystemUser user = getRedisUser(token);
-        YxMerchantsDetail detail = yxMerchantsDetailService.getById(user.getStoreId());
-        Paging<UserBillVo> result = billService.getYxUserAccountPageList(param,detail.getUid().longValue());
+        YxStoreInfo detail = yxStoreInfoService.getById(user.getStoreId());
+        Paging<UserBillVo> result = billService.getYxUserAccountPageList(param,detail.getMerId().longValue());
         return ResponseEntity.ok(result);
     }
 
@@ -85,8 +90,8 @@ public class UserAccountController extends BaseController {
     public ResponseEntity<Object> getUserProductAccountList(@RequestHeader(value = "token") String token, UserAccountQueryParam param) {
         // 获取登陆用户的id
         SystemUser user = getRedisUser(token);
-        YxMerchantsDetail detail = yxMerchantsDetailService.getById(user.getStoreId());
-        Paging<UserBillVo> result = billService.getUserProductAccountList(param, detail.getUid().longValue());
+        YxStoreInfo detail = yxStoreInfoService.getById(user.getStoreId());
+        Paging<UserBillVo> result = billService.getUserProductAccountList(param, detail.getMerId().longValue());
         return ResponseEntity.ok(result);
     }
 
