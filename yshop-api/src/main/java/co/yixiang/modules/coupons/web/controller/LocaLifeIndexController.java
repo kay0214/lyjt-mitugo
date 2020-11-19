@@ -2,6 +2,7 @@ package co.yixiang.modules.coupons.web.controller;
 
 import co.yixiang.annotation.AnonymousAccess;
 import co.yixiang.common.api.ApiResult;
+import co.yixiang.common.web.param.IdParam;
 import co.yixiang.common.web.vo.Paging;
 import co.yixiang.constant.CacheConstant;
 import co.yixiang.constant.LocalLiveConstants;
@@ -23,12 +24,10 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -162,6 +161,16 @@ public class LocaLifeIndexController {
     public ApiResult<Paging<YxHotConfigQueryVo>> getYxHotConfigPageList(@Valid @RequestBody(required = false) YxHotConfigQueryParam yxHotConfigQueryParam) throws Exception{
         Paging<YxHotConfigQueryVo> paging = yxHotConfigService.getYxHotConfigPageList(yxHotConfigQueryParam);
         return ApiResult.ok(paging);
+    }
+
+    /**
+     * 获取HOT配置表
+     */
+    @PostMapping("/getHotDataInfo")
+    @ApiOperation(value = "获取YxHotConfig对象详情", notes = "查看HOT配置表", response = YxHotConfigQueryVo.class)
+    public ApiResult<YxHotConfigQueryVo> getYxHotConfig(@Valid @RequestBody IdParam idParam) throws Exception {
+        YxHotConfigQueryVo yxHotConfigQueryVo = yxHotConfigService.getYxHotConfigById(idParam.getId());
+        return ApiResult.ok(yxHotConfigQueryVo);
     }
 
     private  JSONObject getHotDataJson(){

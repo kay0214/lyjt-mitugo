@@ -5,10 +5,7 @@ import co.yixiang.common.web.vo.Paging;
 import co.yixiang.constant.ShopConstants;
 import co.yixiang.modules.couponUse.dto.YxShipOperationDetailVO;
 import co.yixiang.modules.couponUse.dto.YxShipPassengerVO;
-import co.yixiang.modules.couponUse.param.ShipCaptainModifyParam;
-import co.yixiang.modules.couponUse.param.ShipInfoChangeParam;
-import co.yixiang.modules.couponUse.param.ShipInfoQueryParam;
-import co.yixiang.modules.couponUse.param.ShipOperationParam;
+import co.yixiang.modules.couponUse.param.*;
 import co.yixiang.modules.coupons.entity.YxCouponOrder;
 import co.yixiang.modules.coupons.mapper.YxCouponOrderUseMapper;
 import co.yixiang.modules.coupons.service.YxCouponOrderService;
@@ -168,8 +165,6 @@ public class YxShipInfoServiceImpl extends BaseServiceImpl<YxShipInfoMapper, YxS
     @Override
     public Map<String, Object> getShipOperationList(YxShipOperationQueryParam yxShipOperationQueryParam, ShipOperationParam shipOperationParam, Integer captionId, Integer storeId) {
         Map<String, Object> map = new HashMap<>();
-       /* map.put("status", "99");
-        map.put("statusDesc", "暂无船只运营信息！");*/
 
         if (null != captionId) {
             //船长id = null
@@ -181,7 +176,12 @@ public class YxShipInfoServiceImpl extends BaseServiceImpl<YxShipInfoMapper, YxS
         //根据系列id获取船只id
         List<Integer> shipIds = shipIdList(shipOperationParam.getSeriesId(), storeId);
         yxShipOperationQueryParam.setShipIdList(shipIds);
-
+        if(CollectionUtils.isEmpty(shipIds)){
+            map.put("status", "1");
+            map.put("statusDesc", "成功！");
+            map.put("data", new Paging());
+            return map;
+        }
         if (StringUtils.isNotBlank(shipOperationParam.getDateStatus())) {
             // 日期
             Map<String, String> mapParam = getDateFormat(shipOperationParam.getDateStatus());
@@ -211,10 +211,10 @@ public class YxShipInfoServiceImpl extends BaseServiceImpl<YxShipInfoMapper, YxS
                         strStatus = "待出港";
                         break;
                     case 1:
-                        strStatus = "出港";
+                        strStatus = "离港";
                         break;
                     case 2:
-                        strStatus = "回港";
+                        strStatus = "在港";
                         break;
                 }
                 queryVo.setStatusFormat(strStatus);
@@ -243,7 +243,7 @@ public class YxShipInfoServiceImpl extends BaseServiceImpl<YxShipInfoMapper, YxS
         }
         List<YxShipInfo> shipInfoList = this.list(queryWrapper);
         if (CollectionUtils.isEmpty(shipInfoList)) {
-            return listIds;
+            return null;
         }
         for (YxShipInfo shipInfo : shipInfoList) {
             listIds.add(shipInfo.getId());
@@ -291,21 +291,31 @@ public class YxShipInfoServiceImpl extends BaseServiceImpl<YxShipInfoMapper, YxS
      */
     @Override
     @Transactional
-    public Map<String, Object> updateCaptainLeave(int uid, String batchNo) {
+    public Map<String, Object> updateCaptainLeave(int uid, ShipOutInParam param) {
         Map<String, Object> map = new HashMap<>();
         QueryWrapper<YxShipOperation> queryWrapper = new QueryWrapper<>();
-        queryWrapper.lambda().eq(YxShipOperation::getBatchNo, batchNo);
+        queryWrapper.lambda().eq(YxShipOperation::getBatchNo, param.getBatchNo());
         YxShipOperation yxShipOperation = yxShipOperationMapper.selectOne(queryWrapper);
-        // 出港
-        yxShipOperation.setStatus(1);
+        YxShipInfo yxShipInfo = this.getById(yxShipOperation.getShipId());
+
+        if(1==param.getStatus()){
+            // 出港
+            yxShipOperation.setStatus(1);
+            yxShipInfo.setLastLeaveTime(DateUtils.getNowTime());
+
+        }else{
+            // 回港
+            yxShipOperation.setStatus(2);
+            yxShipInfo.setLastReturnTime(DateUtils.getNowTime());
+        }
         yxShipOperation.setUpdateUserId(uid);
         yxShipOperation.setUpdateTime(new Date());
         yxShipOperation.setLeaveTime(DateUtils.getNowTime());
+        //更新出行记录
         yxShipOperationService.updateById(yxShipOperation);
-        yxShipOperation.getShipId();
-        YxShipInfo yxShipInfo = this.getById(yxShipOperation.getShipId());
-        yxShipInfo.setLastLeaveTime(DateUtils.getNowTime());
+        // 更新船只表
         this.updateById(yxShipInfo);
+
         map.put("status", "1");
         map.put("statusDesc", "成功！");
         return map;
@@ -434,5 +444,9 @@ public class YxShipInfoServiceImpl extends BaseServiceImpl<YxShipInfoMapper, YxS
         map.put("status", "1");
         map.put("statusDesc", "成功！");
         return map;
+    }
+
+    public void  sendEmail(String batchNo){
+//        MailUtil.send
     }
 }

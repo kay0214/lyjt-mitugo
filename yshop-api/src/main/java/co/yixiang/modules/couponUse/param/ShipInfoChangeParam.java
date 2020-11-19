@@ -17,6 +17,7 @@ import lombok.Data;
 public class ShipInfoChangeParam {
     @ApiModelProperty(value = "船只id")
     private Integer shipId;
-    @ApiModelProperty(value = "船只状态：0：，1：离港。2：维修中")
+    @ApiModelProperty(value = "船只状态：0：在港，1：离港。2：维修中")
     private Integer currentStatus;
+
 }

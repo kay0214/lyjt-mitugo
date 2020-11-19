@@ -121,6 +121,35 @@ public class YxShipAppointServiceImpl extends BaseServiceImpl<YxShipAppointMappe
         }
         return listDate;
     }
+
+    public Map<String,String> getDaysByMonth(String strDate){
+        Map<String,String> mapDate = new HashMap<>();
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM");
+        try {
+            Date dateParam = simpleDateFormat.parse(strDate);
+
+            int month=Integer.parseInt(new SimpleDateFormat("MM").format(dateParam));//取到月份
+            int year = Integer.parseInt(new SimpleDateFormat("yyyy").format(dateParam));//年份
+
+            Integer num = getDaysByYearMonth(year, month);
+            //开始日期
+            String strDateParamStart  = strDate+"-01";
+            String strDateParamEnd  = strDate+"-"+num;
+
+            //上个月最后七天数据
+            String lastDays = getCalculationDate(7,strDateParamStart,0);
+
+            //下个月前七天数据
+            String firstDays = getCalculationDate(7,strDateParamEnd,1);
+
+            mapDate.put("startTime",lastDays);
+            mapDate.put("endTime",firstDays);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return mapDate;
+    }
+
     /**
      * 根据年 月 获取对应的月份 天数
      */
@@ -178,7 +207,7 @@ public class YxShipAppointServiceImpl extends BaseServiceImpl<YxShipAppointMappe
 
 
     @Override
-    public YxShipAppointResultVo getAppointByDate(List<String> dateList,Integer storeId,Integer shipId) {
+    public YxShipAppointResultVo getAppointByDate(String strDate,Integer storeId,Integer shipId) {
         YxShipAppointResultVo resultVo = new YxShipAppointResultVo();
         YxShipAppointQueryParam param = new YxShipAppointQueryParam();
         List<Integer> shipIds = new ArrayList<>();
@@ -189,8 +218,10 @@ public class YxShipAppointServiceImpl extends BaseServiceImpl<YxShipAppointMappe
             resultVo.setShipName(shipInfo.getShipName());
             shipIds.add(shipId);
         }
-
+        Map<String,String> mapDate = getDaysByMonth(strDate);
         param.setShipIdList(shipIds);
+        param.setStartTime(mapDate.get("startTime"));
+        param.setEndTime(mapDate.get("endTime"));
 
         List<String> appointmentDateList = yxShipAppointMapper.getAppointmentDateByParam(param);
         resultVo.setDateList(appointmentDateList);
@@ -284,9 +315,8 @@ public class YxShipAppointServiceImpl extends BaseServiceImpl<YxShipAppointMappe
         }
         BeanUtils.copyProperties(param,yxShipAppointQueryParam);
         yxShipAppointQueryParam.setShipIdList(shipIds);
-        List<String> listDates = new ArrayList<>();
-        listDates.add(param.getDate());
-        yxShipAppointQueryParam.setDateList(listDates);
+        yxShipAppointQueryParam.setStartTime(param.getDate());
+
         Page page = setPageParam(yxShipAppointQueryParam, OrderItem.desc("create_time"));
         IPage<YxShipAppointVo> shipOpertionPage = yxShipAppointMapper.getYxShipAppointPageByParam(page, yxShipAppointQueryParam);
         Paging<YxShipAppointVo> shipAppointQueryVoPaging = new Paging(shipOpertionPage);
@@ -314,7 +344,7 @@ public class YxShipAppointServiceImpl extends BaseServiceImpl<YxShipAppointMappe
             return shipName;
         }
         for(YxShipAppointDetail appointDetail :appointDetailList){
-            YxShipInfo shipInfo = yxShipInfoService.getById(appointDetail.getId());
+            YxShipInfo shipInfo = yxShipInfoService.getById(appointDetail.getShipId());
             if(null!=shipInfo){
                 shipName.add(shipInfo.getShipName());
             }
@@ -360,8 +390,6 @@ public class YxShipAppointServiceImpl extends BaseServiceImpl<YxShipAppointMappe
         }
 
         Page page = setPageParam(leaveMessageQueryParam, OrderItem.desc("create_time"));
-       /* IPage<YxLeaveMessageQueryVo> yxLeaveMessageQueryVoIPage =  yxLeaveMessageMapper.getYxLeaveMessagePageList(page, leaveMessageQueryParam);
-        Paging<YxLeaveMessageQueryVo> yxLeaveMessageQueryVoPaging = new Paging(yxLeaveMessageQueryVoIPage);*/
         IPage<YxLeaveMessageVo> yxLeaveMessageQueryVoIPage =  yxLeaveMessageMapper.getYxLeaveMessagePageListByParam(page, leaveMessageQueryParam);
         Paging<YxLeaveMessageVo> yxLeaveMessageQueryVoPaging = new Paging(yxLeaveMessageQueryVoIPage);
         if(yxLeaveMessageQueryVoPaging.getTotal()>0){
