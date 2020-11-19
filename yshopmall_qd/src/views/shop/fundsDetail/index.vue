@@ -46,7 +46,18 @@
         </el-date-picker>
       <el-button class="filter-item" size="mini" type="success" icon="el-icon-search" @click="crud.toQuery">搜索</el-button>
       <!--如果想在工具栏加入更多按钮，可以使用插槽方式， slot = 'left' or 'right'-->
-       <crudOperation :permission="permission" />
+<!--       <crudOperation :permission="permission" />-->
+      <div>
+        <el-button
+          :loading="crud.downloadLoading"
+          class="filter-item"
+          size="mini"
+          type="warning"
+          icon="el-icon-download"
+          @click="doExport()"
+          v-permission='permission.download'
+        >导出</el-button>
+      </div>
       <!--表单组件-->
       <el-dialog :close-on-click-modal="false" :before-close="crud.cancelCU" :visible.sync="crud.status.cu > 0" :title="crud.status.title" width="500px">
         <el-form ref="form" :model="form" :rules="rules" size="small" label-width="80px">
@@ -138,13 +149,15 @@ import udOperation from '@crud/UD.operation'
 import pagination from '@crud/Pagination'
 import MaterialList from "@/components/material";
 import {getType} from '@/api/yxUserBill'
+import { download } from '@/api/data'
+import { downloadFile } from '@/utils/index'
 
 // crud交由presenter持有
 const defaultCrud = CRUD({ title: '平台资金明细', url: 'api/yxUserBillAll', sort: 'id,desc',optShow: {
       add: false,
       edit: false,
       del: false,
-      download: true
+      download: false
     },
     query: {
       username:'',category:'',type:'',pm:'',addTimeStart:'',addTimeEnd:'',
@@ -161,7 +174,8 @@ export default {
       permission: {
         add: ['admin', 'fundsDetail:add'],
         edit: ['admin', 'fundsDetail:edit'],
-        del: ['admin', 'fundsDetail:del']
+        del: ['admin', 'fundsDetail:del'],
+        download: ['admin', 'yxUserRecharge:downloadAll']
       },
       rules: {
         type: [
@@ -232,6 +246,15 @@ export default {
       return true
     }, // 新增与编辑前做的操作
     [CRUD.HOOK.afterToCU](crud, form) {
+    },
+    doExport() {
+      crud.downloadLoading = true
+      download('api/downloadUserBillAll', this.crud.getQueryParams()).then(result => {
+        downloadFile(result, crud.title + '数据', 'xlsx')
+        crud.downloadLoading = false
+      }).catch(() => {
+        crud.downloadLoading = false
+      })
     },
   }
 }

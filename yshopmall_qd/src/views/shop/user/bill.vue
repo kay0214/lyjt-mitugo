@@ -85,7 +85,8 @@
           size="mini"
           type="warning"
           icon="el-icon-download"
-          @click="downloadMethod()"
+          @click="downloadList()"
+          v-permission='permission.download'
         >导出</el-button>
       </div>
 
@@ -148,6 +149,9 @@
 import {getType} from '@/api/yxUserBill'
 import checkPermission from '@/utils/permission'
 import initData from '@/mixins/crud'
+import {
+  download
+} from '@/api/data'
 import { del, onStatus, withdraw } from '@/api/yxUser'
 import eForm from './form'
 import pForm from './formp'
@@ -168,6 +172,7 @@ export default {
       expenditurePrice:0,//累计支出
       permission: {
         withdraw: ['admin', 'YXUSERBILL_WITHDRAW'],
+        download: ['admin', 'yxUserRecharge:download'],
       },
       queryTypeOptions: [
         { key: 'username', display_name: '用户昵称' },
@@ -382,6 +387,16 @@ export default {
         res.remainPrice?this.remainPrice=res.remainPrice:{}
         res.totalPrice?this.totalPrice=res.totalPrice:{}
         res.expenditurePrice?this.expenditurePrice=res.expenditurePrice:{}
+      })
+    },
+    downloadList(){
+      this.beforeInit()
+      this.downloadLoading = true
+      download('api/downloadUserBill', this.params).then(result => {
+        this.downloadFile(result, this.title + '数据', 'xlsx')
+        this.downloadLoading = false
+      }).catch(() => {
+        this.downloadLoading = false
       })
     }
   }
