@@ -45,6 +45,7 @@
       >刷新</el-button>
     </div>
     <!--表单组件-->
+    <h5Form ref="h5" />
     <eForm ref="form" :is-add="isAdd" />
     <commission ref="form6"/>
     <!--表格渲染-->
@@ -85,6 +86,7 @@
             </div>
             <el-button slot="reference" type="danger" icon="el-icon-delete" size="mini" />
           </el-popover>
+          <el-button v-permission="['admin','YXSTOREPRODUCT_EDIT']" slot="reference" type="info" plain size="mini" @click="h5(scope.row)">预览</el-button>
           <el-button v-permission="['admin', 'YXSTOREPRODUCT_RATE']" plain type="primary"  @click="commission(scope.row)" style="margin-top:5px">分佣配置</el-button>
         </template>
       </el-table-column>
@@ -106,9 +108,10 @@ import checkPermission from '@/utils/permission'
 import initData from '@/mixins/crud'
 import { del, onsale } from '@/api/yxStoreProduct'
 import eForm from './form'
+import h5Form from './h5'
 import commission from './commission'
 export default {
-  components: { eForm, commission },
+  components: { eForm, commission,h5Form },
   mixins: [initData],
   data() {
     return {
@@ -236,6 +239,10 @@ export default {
         settlement: data.settlement
       }
       _this.dialog = true
+    },
+    h5(data) {
+      this.$refs.h5.dialog = true
+      this.$refs.h5.id=data.id
     },
     commission(data) {
       const _this = this.$refs.form6

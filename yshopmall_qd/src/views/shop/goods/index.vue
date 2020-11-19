@@ -55,6 +55,7 @@
       </div>
     </div>
     <!--表单组件-->
+    <h5Form ref="h5" />
     <eForm ref="form" :is-add="isAdd" />
     <eAttr ref="form2" :is-attr="isAttr" />
     <comForm ref="form3" :is-add="isAdd" />
@@ -160,6 +161,7 @@
               </el-dropdown-item>-->
             </el-dropdown-menu>
           </el-dropdown>
+          <el-button v-permission="permission.edit" slot="reference" type="info" plain size="mini" @click="h5(scope.row)">预览</el-button>
           <el-button v-permission="permission.commission"plain type="primary"  @click="commission(scope.row)" style="margin-top:5px">分佣配置</el-button>
         </template>
       </el-table-column>
@@ -181,6 +183,7 @@ import checkPermission from '@/utils/permission'
 import initData from '@/mixins/crud'
 import { del, onsale, changeStatus } from '@/api/yxStoreProduct'
 import eForm from './form'
+import h5Form from './h5'
 import eAttr from './attr'
 import commission from './commission'
 import comForm from '@/views/activity/combination/form'
@@ -188,7 +191,7 @@ import killForm from '@/views/activity/seckill/form'
 import bargainForm from '@/views/activity/bargain/form'
 import yxCustomizeRate from '../../../api/yxCustomizeRate'
 export default {
-  components: { eForm, eAttr, comForm, killForm, bargainForm, commission },
+  components: { eForm, eAttr, comForm, killForm, bargainForm, commission,h5Form },
   mixins: [initData],
   data() {
     return {
@@ -497,6 +500,10 @@ export default {
       }
       _this.dialog = true
       this.$refs.form2.getAttrs(data.id)
+    },
+    h5(data) {
+      this.$refs.h5.dialog = true
+      this.$refs.h5.id=data.id
     },
     changeHotStatus(id,status,type){//设置精品或热销
       let ret=checkPermission(this.permission.change)
