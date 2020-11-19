@@ -255,7 +255,7 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
     @Override
     public ProductDTO goodsDetail(int id, int type, int uid, String latitude, String longitude) {
         QueryWrapper<YxStoreProduct> wrapper = new QueryWrapper<>();
-        wrapper.eq("is_del", 0).eq("is_show", 1).eq("id", id);
+        wrapper.eq("is_del", 0).eq("id", id);
         YxStoreProduct storeProduct = yxStoreProductMapper.selectOne(wrapper);
         if (ObjectUtil.isNull(storeProduct)) {
             throw new ErrorRequestException("商品不存在或已下架");
