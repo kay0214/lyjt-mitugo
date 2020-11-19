@@ -147,6 +147,7 @@ public class YxShipPassengerServiceImpl extends BaseServiceImpl<YxShipPassengerM
                 BeanUtils.copyProperties(shipPassenger, passengerQueryVo);
                 passengerQueryVo.setIdCard(CardNumUtil.idEncrypt(shipPassenger.getIdCard()));
                 passengerQueryVo.setPhone(CardNumUtil.mobileEncrypt(shipPassenger.getPhone()));
+                passengerQueryVo.setPassengerName(CardNumUtil.nameEncrypt(shipPassenger.getPassengerName()));
                 passengerQueryVoList.add(passengerQueryVo);
             }
         }
