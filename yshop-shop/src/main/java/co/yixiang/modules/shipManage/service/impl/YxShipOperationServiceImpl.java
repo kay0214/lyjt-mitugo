@@ -28,10 +28,7 @@ import co.yixiang.modules.shipManage.service.mapper.YxContractTemplateMapper;
 import co.yixiang.modules.shipManage.service.mapper.YxShipOperationDetailMapper;
 import co.yixiang.modules.shipManage.service.mapper.YxShipOperationMapper;
 import co.yixiang.modules.shipManage.service.mapper.YxShipPassengerMapper;
-import co.yixiang.utils.BeanUtils;
-import co.yixiang.utils.CommonsUtils;
-import co.yixiang.utils.DateUtils;
-import co.yixiang.utils.FileUtil;
+import co.yixiang.utils.*;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -94,6 +91,9 @@ public class YxShipOperationServiceImpl extends BaseServiceImpl<YxShipOperationM
         }
         if(null!=criteria.getCaptainName()){
             queryWrapper.lambda().likeRight(YxShipOperation::getCaptainName ,criteria.getCaptainName());
+        }
+        if(StringUtils.isNotBlank(criteria.getBatchNo())){
+            queryWrapper.lambda().eq(YxShipOperation::getBatchNo ,criteria.getBatchNo());
         }
         if(null!=criteria.getStartDate()&&null!=criteria.getEndDate()){
             String startDate = criteria.getStartDate()+" 00:00:00";
