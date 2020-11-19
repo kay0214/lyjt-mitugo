@@ -41,6 +41,7 @@
       <!--表单组件-->
       <priceDialog ref="price"/>
       <commission ref="form6"/>
+      <h5Form ref="h5" />
       <el-dialog :close-on-click-modal="false" :before-close="crud.cancelCU" :visible.sync="crud.status.cu > 0" :title="crud.status.title" width="900px">
         <el-form ref="form" :model="form" :rules="rules" size="small" label-width="140px" v-if="crud.status.cu > 0">
           <el-form-item v-show="crud.status.edit === 1" label="卡券id">
@@ -488,6 +489,7 @@
             />
             <el-button v-permission="permission.commission" plain type="primary"  @click="commission(scope.row)" style="margin-top:5px">分佣配置</el-button>
             <el-button v-permission="permission.edit" plain @click="price(scope.row)" style="margin-top:5px;margin-left: 0">价格配置</el-button>
+            <el-button v-permission="permission.edit" slot="reference" type="info" plain @click="h5(scope.row)" style="margin-top:5px">预览</el-button>
 <!--            <el-button v-permission="permission.edit" slot="reference" type="danger" size="mini" @click="attr(scope.row)">渠道配置</el-button>-->
           </template>
         </el-table-column>
@@ -514,6 +516,7 @@ import { Message } from 'element-ui'
 import checkPermission from '@/utils/permission'
 import { sub } from "@/utils/math"
 import priceDialog from './operation/price'
+import h5Form from './operation/h5'
 import commission from './operation/commission'
 import { initData } from '@/api/data'
 import { getContractTemp } from '@/api/yxContractTemplate'
@@ -541,7 +544,7 @@ if (defaultForm.image) { imageArr[0] = defaultForm.image }
 export default {
   name: 'YxCoupons',
   components: { pagination, crudOperation, rrOperation, udOperation, MaterialList,
-    picUploadTwo, mulpicUpload, editor, priceDialog, commission },
+    picUploadTwo, mulpicUpload, editor, priceDialog, commission,h5Form },
   mixins: [presenter(defaultCrud), header(), form(defaultForm), crud()],
   data() {
     return {
@@ -964,6 +967,10 @@ export default {
       }
       _this.dialog = true
       this.$refs.price.getPrices(data.id)
+    },
+    h5(data) {
+      this.$refs.h5.dialog = true
+      this.$refs.h5.id=data.id
     },
     commission(data) {
       const _this = this.$refs.form6
