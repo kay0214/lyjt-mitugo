@@ -75,4 +75,12 @@ public interface YxCouponOrderService extends BaseService<YxCouponOrder> {
      * @return
      */
     boolean updateCancelNoPayOrder(YxCouponOrder yxCouponOrder);
+
+    /**
+     * 查询导出数据
+     *
+     * @param criteria
+     * @return
+     */
+    List<YxCouponOrderDto> queryDownload(YxCouponOrderQueryCriteria criteria);
 }

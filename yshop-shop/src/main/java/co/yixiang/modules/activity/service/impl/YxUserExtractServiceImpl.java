@@ -24,6 +24,7 @@ import co.yixiang.modules.shop.service.UserService;
 import co.yixiang.modules.shop.service.YxExamineLogService;
 import co.yixiang.modules.shop.service.YxUserBillService;
 import co.yixiang.modules.shop.service.YxUserService;
+import co.yixiang.utils.DateUtils;
 import co.yixiang.utils.FileUtil;
 import co.yixiang.utils.OrderUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -110,20 +111,35 @@ public class YxUserExtractServiceImpl extends BaseServiceImpl<YxUserExtractMappe
     public void download(List<YxUserExtractDto> all, HttpServletResponse response) throws IOException {
         List<Map<String, Object>> list = new ArrayList<>();
         for (YxUserExtractDto yxUserExtract : all) {
+            String statusStr = "";
+            switch (yxUserExtract.getStatus()) {
+                case -1:
+                    statusStr = "未通过";
+                    break;
+                case 0:
+                    statusStr = "审核中";
+                    break;
+                case 1:
+                    statusStr = "已提现";
+                    break;
+                default:
+                    statusStr = "未知状态" + yxUserExtract.getStatus();
+                    break;
+            }
             Map<String, Object> map = new LinkedHashMap<>();
-            map.put(" uid", yxUserExtract.getUid());
-            map.put("名称", yxUserExtract.getRealName());
-            map.put("bank = 银行卡 alipay = 支付宝wx=微信", yxUserExtract.getExtractType());
-            map.put("银行卡", yxUserExtract.getBankCode());
+            map.put("用户id", yxUserExtract.getUid());
+            map.put("真实姓名", yxUserExtract.getRealName());
+            map.put("提现类型", yxUserExtract.getExtractType().equals("bank") ? "银行卡" : "其他");
+            map.put("银行卡号", yxUserExtract.getBankCode());
             map.put("开户地址", yxUserExtract.getBankAddress());
             map.put("支付宝账号", yxUserExtract.getAlipayCode());
             map.put("提现金额", yxUserExtract.getExtractPrice());
-            map.put(" mark", yxUserExtract.getMark());
-            map.put(" balance", yxUserExtract.getBalance());
+            map.put("提现后余额", yxUserExtract.getBalance());
+            map.put("备注", yxUserExtract.getMark());
             map.put("无效原因", yxUserExtract.getFailMsg());
-            map.put(" failTime", yxUserExtract.getFailTime());
+            map.put("失败原因", DateUtils.timestampToStr10(yxUserExtract.getFailTime()));
             map.put("添加时间", yxUserExtract.getAddTime());
-            map.put("-1 未通过 0 审核中 1 已提现", yxUserExtract.getStatus());
+            map.put("状态", statusStr);
             map.put("微信号", yxUserExtract.getWechat());
             list.add(map);
         }
@@ -230,5 +246,36 @@ public class YxUserExtractServiceImpl extends BaseServiceImpl<YxUserExtractMappe
         yxExamineLog.setDelFlag(0);
         yxExamineLogService.save(yxExamineLog);
         return true;
+    }
+
+    /**
+     * 查询导出数据
+     *
+     * @param criteria
+     * @return
+     */
+    @Override
+    public List<YxUserExtractDto> queryDownload(YxUserExtractQueryCriteria criteria) {
+        List<YxUserExtract> yxUserExtracts = queryAll(criteria);
+        List<YxUserExtractDto> list = generator.convert(yxUserExtracts, YxUserExtractDto.class);
+        if (null == list || list.size() <= 0) {
+            throw new BadRequestException("未查询到数据");
+        }
+        for (YxUserExtractDto extractDto : list) {
+            // 用户类型 1商户;2合伙人;3用户
+            if (3 == extractDto.getUserType()) {
+                YxUser user = yxUserService.getById(extractDto.getUid());
+                if (ObjectUtil.isNotEmpty(user)) {
+                    extractDto.setUserTrueName(StringUtils.isNotBlank(user.getRealName()) ? user.getRealName().substring(0, 1) + "**" : "");
+                }
+            } else {
+                User user = userService.getById(extractDto.getUid());
+                if (null != user) {
+                    extractDto.setUserTrueName(StringUtils.isNotBlank(user.getMerchantsContact()) ? user.getMerchantsContact().substring(0, 1) + "**" : "");
+                }
+            }
+        }
+
+        return null;
     }
 }

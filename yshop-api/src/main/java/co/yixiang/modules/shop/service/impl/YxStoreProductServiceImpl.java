@@ -269,11 +269,11 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
         if (newStock != null) storeProductQueryVo.setStock(newStock);
 
         //设置VIP价格
-        double vipPrice = userService.setLevelPrice(
-                storeProductQueryVo.getPrice().doubleValue(), uid);
-        storeProductQueryVo.setVipPrice(BigDecimal.valueOf(vipPrice));
-        storeProductQueryVo.setUserCollect(relationService
-                .isProductRelation(id, "product", uid, "collect"));
+//        double vipPrice = userService.setLevelPrice(
+//                storeProductQueryVo.getPrice().doubleValue(), uid);
+//        storeProductQueryVo.setVipPrice(BigDecimal.valueOf(vipPrice));
+//        storeProductQueryVo.setUserCollect(relationService
+//                .isProductRelation(id, "product", uid, "collect"));
         //销量= 销量+虚拟销量
         storeProductQueryVo.setSales(storeProductQueryVo.getSales() + storeProductQueryVo.getFicti());
         productDTO.setProductAttr((List<YxStoreProductAttrQueryVo>) returnMap.get("productAttr"));
