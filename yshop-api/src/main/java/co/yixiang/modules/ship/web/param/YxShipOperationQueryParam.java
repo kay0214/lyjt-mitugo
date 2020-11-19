@@ -21,6 +21,8 @@ import java.util.List;
 @ApiModel(value="YxShipOperationQueryParam对象", description="船只运营记录查询参数")
 public class YxShipOperationQueryParam extends QueryParam {
     private static final long serialVersionUID = 1L;
+    @ApiModelProperty(value = "批次号")
+    private String batchNo;
     @ApiModelProperty(value = "船长id")
     private Integer captainId;
     @ApiModelProperty(value = "船只id")

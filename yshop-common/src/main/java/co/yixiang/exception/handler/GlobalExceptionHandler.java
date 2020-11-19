@@ -5,6 +5,7 @@
 package co.yixiang.exception.handler;
 
 import co.yixiang.exception.*;
+import co.yixiang.exception.response.R;
 import co.yixiang.utils.ThrowableUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -74,10 +75,10 @@ public class GlobalExceptionHandler {
      * 处理自定义异常
      */
     @ExceptionHandler(value = NotLoginException.class)
-    public ResponseEntity<ApiError> notLoginException(NotLoginException e) {
+    public R notLoginException(NotLoginException e) {
         // 打印堆栈信息
         log.info(ThrowableUtil.getStackTrace(e));
-        return buildResponseEntity(ApiError.error(e.getStatus(), e.getMessage()));
+        return buildResponseEntity3(ApiError.error(e.getStatus(), e.getMessage()));
     }
 
     /**
@@ -145,5 +146,15 @@ public class GlobalExceptionHandler {
      */
     private ResponseEntity<ApiErr> buildResponseEntity2(ApiErr apiError) {
         return new ResponseEntity(apiError, HttpStatus.valueOf(apiError.getStatus()));
+    }
+
+    /**
+     * 统一返回
+     *
+     * @param apiError
+     * @return
+     */
+    private R buildResponseEntity3(ApiError apiError) {
+        return R.fail(999,apiError.getMessage());
     }
 }

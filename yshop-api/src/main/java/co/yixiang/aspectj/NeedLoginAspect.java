@@ -3,7 +3,7 @@ package co.yixiang.aspectj;
 
 import co.yixiang.aspectj.annotation.NeedLogin;
 import co.yixiang.common.util.ServletUtils;
-import co.yixiang.exception.BadRequestException;
+import co.yixiang.exception.NotLoginException;
 import co.yixiang.modules.manage.entity.SystemUser;
 import co.yixiang.utils.RedisUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -59,7 +59,7 @@ public class NeedLoginAspect {
             // 获取登录用户
             SystemUser user = getRedisUser(token);
             if (null == user ) {
-                throw new BadRequestException("用户未登录！");
+                throw new NotLoginException("用户未登录！");
             }
         }
 

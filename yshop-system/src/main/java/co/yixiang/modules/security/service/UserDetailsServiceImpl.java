@@ -67,7 +67,8 @@ public class UserDetailsServiceImpl implements UserDetailsService {
                 user.getCreateTime(),
                 user.getUserRole(),
                 user.getChildUser(),
-                user.getLastPasswordResetTime()
+                user.getLastPasswordResetTime(),
+                user.getShipUser()
         );
     }
 }
