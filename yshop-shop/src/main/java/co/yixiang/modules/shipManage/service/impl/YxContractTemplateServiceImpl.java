@@ -67,12 +67,12 @@ public class YxContractTemplateServiceImpl extends BaseServiceImpl<YxContractTem
         queryWrapper.orderByDesc("create_time");
         queryWrapper.lambda().eq(YxContractTemplate::getDelFlag, 0);
         if (0 != criteria.getUserRole()) {
-            if (null == criteria.getChildStoreId() || criteria.getChildStoreId().size() <= 0) {
+            if (null == criteria.getChildUser() || criteria.getChildUser().size() <= 0) {
                 map.put("content", new ArrayList<>());
                 map.put("totalElements", 0);
                 return map;
             }
-            queryWrapper.lambda().in(YxContractTemplate::getCreateUserId, criteria.getChildStoreId());
+            queryWrapper.lambda().in(YxContractTemplate::getCreateUserId, criteria.getChildUser());
         }
         if (StringUtils.isNotBlank(criteria.getTempName())) {
             queryWrapper.lambda().eq(YxContractTemplate::getTempName, criteria.getTempName());
