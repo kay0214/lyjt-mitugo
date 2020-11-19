@@ -24,6 +24,11 @@ public class YxShipAppointQueryParam extends QueryParam {
 
     @ApiModelProperty(value = "船只id")
     private List<Integer> shipIdList;
-    @ApiModelProperty(value = "预约时间集合")
-    private List<String> dateList;
+    /*@ApiModelProperty(value = "预约时间集合")
+    private List<String> dateList;*/
+    @ApiModelProperty(value = "开始时间")
+    private String startTime;
+
+    @ApiModelProperty(value = "结束时间")
+    private String endTime;
 }

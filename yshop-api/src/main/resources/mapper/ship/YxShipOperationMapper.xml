@@ -21,7 +21,7 @@
         select
         <include refid="Base_Column_List"/>
         from yx_ship_operation where del_flag = 0
-        <if test="param.captainId !='' and param.captainId != null">and captain_id = #{param.captainId}</if>
+        <if test="param.captainId !='' and param.captainId != null"> and captain_id = #{param.captainId} </if>
 
         <if test="param.shipIdList != null">
             and ship_id IN
@@ -30,10 +30,10 @@
             </foreach>
         </if>
         <if test="param.status != null">
-            <if test="param.status == 3">and status!=0</if>
+            <if test="param.status == 3"> and status!=0 </if>
         </if>
         <if test="param.startTime !='' and param.startTime != null "> and create_time <![CDATA[ >= ]]> #{param.startTime} </if>
         <if test="param.endTime !='' and param.endTime != null"> and create_time <![CDATA[ <= ]]>#{param.endTime} </if>
-
+        order by status asc
     </select>
 </mapper>

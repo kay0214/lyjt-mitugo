@@ -1,9 +1,6 @@
 package co.yixiang.modules.ship.service;
 
-import co.yixiang.modules.couponUse.param.ShipCaptainModifyParam;
-import co.yixiang.modules.couponUse.param.ShipOperationParam;
-import co.yixiang.modules.couponUse.param.ShipInfoChangeParam;
-import co.yixiang.modules.couponUse.param.ShipInfoQueryParam;
+import co.yixiang.modules.couponUse.param.*;
 import co.yixiang.modules.manage.entity.SystemUser;
 import co.yixiang.modules.ship.entity.YxShipInfo;
 import co.yixiang.common.service.BaseService;
@@ -50,7 +47,7 @@ public interface YxShipInfoService extends BaseService<YxShipInfo> {
      * @param batchNo
      * @return
      */
-    Map<String,Object> updateCaptainLeave(int uid,String batchNo);
+    Map<String,Object> updateCaptainLeave(int uid, ShipOutInParam param);
 
     /**
      * 根据订单号获取详情

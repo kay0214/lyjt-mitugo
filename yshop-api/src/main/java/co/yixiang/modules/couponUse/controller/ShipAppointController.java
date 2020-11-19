@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -45,8 +44,7 @@ public class ShipAppointController extends BaseController {
         SystemUser user = getRedisUser(token);
         Map<String, Object> map = new HashMap<>();
         String strDate = param.getDate();
-        List<String> dateList = yxShipAppointService.getMonthAllDays(strDate);
-        YxShipAppointResultVo resultVoList = yxShipAppointService.getAppointByDate(dateList,user.getStoreId(),param.getShipId());
+        YxShipAppointResultVo resultVoList = yxShipAppointService.getAppointByDate(strDate,user.getStoreId(),param.getShipId());
         map.put("status", "1");
         map.put("statusDesc", "成功");
         map.put("data", resultVoList);
@@ -84,7 +82,6 @@ public class ShipAppointController extends BaseController {
     @ApiOperation(value = "预约申请-不予处理",notes = "预约申请-不予处理")
     public ResponseEntity<Object> cancelLeavesMessage(@Valid @RequestBody IdParam idParam, @RequestHeader(value = "token") String token) {
         SystemUser user = getRedisUser(token);
-//        Integer leaveId = param.get("leaveId");
         Map<String, Object> map = yxShipAppointService.cancelLeavesMessage(Integer.parseInt(idParam.getId()),user);
         return ResponseEntity.ok(map);
     }
