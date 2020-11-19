@@ -25,7 +25,7 @@
           :value="item.value">
         </el-option>
       </el-select>
-      <el-select v-model="query.status" clearable placeholder="请选择"
+      <el-select v-model="query.isShow" clearable placeholder="状态"
                  style="width: 200px;" class="filter-item">
         <el-option
           v-for="item in statusList"
