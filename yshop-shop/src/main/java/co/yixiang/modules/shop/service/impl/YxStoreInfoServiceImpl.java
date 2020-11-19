@@ -86,6 +86,12 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
         if (StringUtils.isNotBlank(criteria.getStoreName())) {
             queryWrapper.lambda().like(YxStoreInfo::getStoreName, criteria.getStoreName());
         }
+        if (StringUtils.isNotBlank(criteria.getManageMobile())) {
+            queryWrapper.lambda().eq(YxStoreInfo::getManageMobile, criteria.getManageMobile());
+        }
+        if (null != criteria.getStatus()) {
+            queryWrapper.lambda().eq(YxStoreInfo::getStatus, criteria.getStatus());
+        }
         IPage<YxStoreInfo> ipage = this.page(new Page<>(pageable.getPageNumber() + 1, pageable.getPageSize()), queryWrapper);
 
         Map<String, Object> map = new LinkedHashMap<>(2);
@@ -391,15 +397,16 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
 
     /**
      * 根据商户id获取店铺信息
+     *
      * @param merId
      * @return
      */
     @Override
-    public  YxStoreInfo getStoreInfoByMerId(int merId){
+    public YxStoreInfo getStoreInfoByMerId(int merId) {
         QueryWrapper<YxStoreInfo> queryWrapper = new QueryWrapper<>();
-        queryWrapper.lambda().eq(YxStoreInfo::getMerId,merId);
+        queryWrapper.lambda().eq(YxStoreInfo::getMerId, merId);
         List<YxStoreInfo> storeInfoList = yxStoreInfoMapper.selectList(queryWrapper);
-        if(CollectionUtils.isNotEmpty(storeInfoList)){
+        if (CollectionUtils.isNotEmpty(storeInfoList)) {
             return storeInfoList.get(0);
         }
         return null;

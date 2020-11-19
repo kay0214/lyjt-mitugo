@@ -12,6 +12,8 @@ import lombok.Data;
 import java.util.List;
 import co.yixiang.annotation.Query;
 
+import javax.validation.constraints.NotBlank;
+
 /**
 * @author nxl
 * @date 2020-08-14
@@ -21,6 +23,14 @@ public class YxStoreInfoQueryCriteria extends BaseCriteria{
     /** 店铺名称 */
     @Query(type = Query.Type.INNER_LIKE)
     private String storeName;
+
+    /** 管理人电话 */
+    @Query(type = Query.Type.EQUAL)
+    private String manageMobile;
+
+    @Query(type = Query.Type.EQUAL)
+    private Integer status;
+
     @Query
     private Integer delFlag;
 
