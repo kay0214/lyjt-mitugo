@@ -24,7 +24,7 @@
                           }'/>
           </el-form-item>
           <el-form-item label="链接">
-            <el-input v-model="form.linkUrl" style="width: 650px;" maxlength="15"/>
+            <el-input v-model="form.linkUrl" style="width: 650px;" maxlength="200"/>
           </el-form-item>
           <el-form-item label="排序">
             <el-input-number v-model="form.sort" style="width: 650px;" :precision="0"/>
