@@ -88,11 +88,11 @@ public class YxLeaveMessageServiceImpl extends BaseServiceImpl<YxLeaveMessageMap
                 map.put("totalElements", 0);
                 return map;
             }
-            queryWrapper.lambda().in(YxLeaveMessage::getMerId, criteria.getChildUser()).ne(YxLeaveMessage::getMessageType, 4);
+            queryWrapper.lambda().in(YxLeaveMessage::getMerId, criteria.getChildUser()).ne(YxLeaveMessage::getMessageType, 5);
         } else {
             // 平台管理只查看平台相关的留言
             // 留言类型：0 -> 商品，1-> 卡券 2 -> 商城订单，3 -> 本地生活订单，4 ->商户，5 -> 平台
-            queryWrapper.lambda().in(YxLeaveMessage::getMessageType, 5);
+            queryWrapper.lambda().eq(YxLeaveMessage::getMessageType, 5);
         }
         // 处理查询条件
         if (StringUtils.isNotBlank(criteria.getUserName())) {
@@ -118,10 +118,10 @@ public class YxLeaveMessageServiceImpl extends BaseServiceImpl<YxLeaveMessageMap
                 // 格式化处理时间
                 item.setTakeTimeStr(DateUtils.timestampToStr10(item.getTakeTime()));
             }
-            if(0 != item.getStatus()) {
+            if (0 != item.getStatus()) {
                 // 处理人信息
                 User user = this.userService.getById(item.getUpdateUserId());
-                if(null != user) {
+                if (null != user) {
                     item.setUpdateUsername(user.getUsername());
                     item.setUpdateNickname(user.getNickName());
                 }
