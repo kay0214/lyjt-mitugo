@@ -49,11 +49,11 @@
             <span>{{ formatTime(scope.row.addTime) }}</span>
           </template>
         </el-table-column>
-        <el-table-column v-if="checkPermission(['admin','yxCouponsReply:add','yxCouponsReply:edit','yxCouponsReply:del'])" label="操作" width="150px" align="center">
+        <el-table-column label="操作" width="150px" align="center">
           <template slot-scope="scope">
             <el-popover
               :ref="scope.row.id"
-              v-permission="['admin','YXSTOREPRODUCTREPLY_ALL','YXSTOREPRODUCTREPLY_DELETE']"
+              v-permission="permission.del"
               placement="top"
               width="180"
             >
@@ -64,7 +64,7 @@
               </div>
               <el-button slot="reference" type="danger" icon="el-icon-delete" size="mini" />
             </el-popover>
-            <el-button v-if="(!scope.row.isReply) && checkPermission(['admin','YXSTOREPRODUCTREPLY_EDIT'])" @click="reply(scope.row)">评论回复</el-button>
+            <el-button v-if="(!scope.row.isReply) && checkPermission(['admin','yxCouponsReply:reply'])" @click="reply(scope.row)">评论回复</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -103,7 +103,7 @@
 </template>
 
 <script>
-import crudYxCouponsReply,{ del,reply } from '@/api/yxCouponsReply'
+import { del,reply } from '@/api/yxCouponsReply'
 import pagination from '@crud/Pagination'
 import checkPermission from '@/utils/permission'
 import initData from '@/mixins/crud'
@@ -127,8 +127,8 @@ export default {
       merchantReplyContent: '',
       replyId: '',
       permission: {
-        add: ['admin', 'yxCouponsReply:add'],
-        edit: ['admin', 'yxCouponsReply:edit'],
+        reply: ['admin', 'yxCouponsReply:reply'],
+        list: ['admin', 'yxCouponsReply:list'],
         del: ['admin', 'yxCouponsReply:del']
       },
       rules: {
