@@ -4,10 +4,7 @@
  */
 package co.yixiang.exception.handler;
 
-import co.yixiang.exception.BadRequestException;
-import co.yixiang.exception.EntityExistException;
-import co.yixiang.exception.EntityNotFoundException;
-import co.yixiang.exception.ErrorRequestException;
+import co.yixiang.exception.*;
 import co.yixiang.utils.ThrowableUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -68,6 +65,16 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(value = BadRequestException.class)
     public ResponseEntity<ApiError> badRequestException(BadRequestException e) {
+        // 打印堆栈信息
+        log.info(ThrowableUtil.getStackTrace(e));
+        return buildResponseEntity(ApiError.error(e.getStatus(), e.getMessage()));
+    }
+
+    /**
+     * 处理自定义异常
+     */
+    @ExceptionHandler(value = NotLoginException.class)
+    public ResponseEntity<ApiError> notLoginException(NotLoginException e) {
         // 打印堆栈信息
         log.info(ThrowableUtil.getStackTrace(e));
         return buildResponseEntity(ApiError.error(e.getStatus(), e.getMessage()));
