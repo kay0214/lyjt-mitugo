@@ -74,6 +74,13 @@ public class UserBillController {
     @GetMapping(value = "/downloadUserBill")
     @PreAuthorize("@el.check('yxUserRecharge:download')")
     public void downloadUserBill(HttpServletResponse response, YxUserBillQueryCriteria criteria) throws IOException {
+        int uid = SecurityUtils.getUserId().intValue();
+        CurrUser currUser = SecurityUtils.getCurrUser();
+        criteria.setUserRole(currUser.getUserRole());
+        criteria.setUid(uid);
+        if (null != currUser.getChildUser()) {
+            criteria.setChildUser(currUser.getChildUser());
+        }
         yxUserBillService.download(yxUserBillService.queryDownloadUserBill(criteria), response);
     }
 
