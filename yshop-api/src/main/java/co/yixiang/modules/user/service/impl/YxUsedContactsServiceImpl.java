@@ -99,6 +99,7 @@ public class YxUsedContactsServiceImpl extends BaseServiceImpl<YxUsedContactsMap
 
                 usedContacts.setCardId(CardNumUtil.idEncrypt(usedContacts.getCardId()));
                 usedContacts.setUserPhone(CardNumUtil.mobileEncrypt(usedContacts.getUserPhone()));
+                usedContacts.setUserName(CardNumUtil.mobileEncrypt(usedContacts.getUserName()));
                 usedContacts.setIsAdult(isAdult);
             }
         }
