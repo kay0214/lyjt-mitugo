@@ -38,7 +38,7 @@ import java.util.Map;
 @Slf4j
 @RestController
 @RequestMapping("/userAccount")
-@Api(value = "核销端 交易流水")
+@Api(value = "核销端 交易流水", tags = "核销端 交易流水")
 public class UserAccountController extends BaseController {
 
     @Autowired

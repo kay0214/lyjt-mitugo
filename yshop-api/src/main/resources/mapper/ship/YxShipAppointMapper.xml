@@ -35,13 +35,9 @@
                 #{shipId}
             </foreach>
         </if>
-        <if test="param.dateList != null">
-            AND app.appointment_date IN
-            <foreach item='dateParam' index='index' collection='param.dateList ' open='(' separator=',' close=')'>
-                #{dateParam}
-            </foreach>
+        <if test="param.startTime !='' and param.startTime != null">
+            AND app.appointment_date = #{param.startTime}
         </if>
-        GROUP BY app.id
     </select>
 
     <select id="getAppointmentDateByParam" resultType="String">
@@ -58,12 +54,13 @@
                 #{shipId}
             </foreach>
         </if>
-        <if test="param.dateList != null">
+        <if test="param.startTime !='' and param.startTime != null and param.endTime !='' and param.endTime != null"> and app.appointment_date BETWEEN  #{param.startTime} AND  #{param.endTime}</if>
+        <!--<if test="param.dateList != null">
             AND app.appointment_date IN
             <foreach item='dateParam' index='index' collection='param.dateList ' open='(' separator=',' close=')'>
                 #{dateParam}
             </foreach>
-        </if>
-        GROUP BY app.id
+        </if>-->
+        GROUP BY app.appointment_date
     </select>
 </mapper>

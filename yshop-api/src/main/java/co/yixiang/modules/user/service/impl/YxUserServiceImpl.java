@@ -118,6 +118,7 @@ public class YxUserServiceImpl extends BaseServiceImpl<YxUserMapper, YxUser> imp
     @Autowired
     private UsersRolesMapper usersRolesMapper;
 
+
     @Value("${single.login}")
     private Boolean singleLogin;
     @Value("${yshop.notify.sms.enable}")
@@ -987,4 +988,6 @@ public class YxUserServiceImpl extends BaseServiceImpl<YxUserMapper, YxUser> imp
         List<SystemUser> list =  systemUserMapper.selectList(wrapper);
         return CommonsUtils.convertBeanList(list, ShipUserVO.class);
     }
+
+
 }
