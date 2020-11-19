@@ -251,4 +251,7 @@ public class YxCouponsQueryVo implements Serializable {
 
     @ApiModelProperty(value = "好评率")
     private String goodRate;
+
+    @ApiModelProperty(value = "商户id")
+    private Integer merId;
 }

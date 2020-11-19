@@ -5,16 +5,11 @@
 package co.yixiang.modules.activity.rest;
 
 import cn.hutool.core.util.StrUtil;
-import co.yixiang.dozer.service.IGenerator;
 import co.yixiang.exception.BadRequestException;
 import co.yixiang.logging.aop.log.Log;
 import co.yixiang.modules.activity.domain.YxUserExtract;
 import co.yixiang.modules.activity.service.YxUserExtractService;
 import co.yixiang.modules.activity.service.dto.YxUserExtractQueryCriteria;
-import co.yixiang.modules.shop.service.YxUserBillService;
-import co.yixiang.modules.shop.service.YxUserService;
-import co.yixiang.modules.shop.service.YxWechatUserService;
-import co.yixiang.mp.service.YxPayService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +19,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 /**
  * @author hupeng
@@ -36,6 +34,14 @@ public class UserExtractController {
 
     @Autowired
     private YxUserExtractService yxUserExtractService;
+
+    @Log("导出数据")
+    @ApiOperation("导出数据")
+    @GetMapping(value = "/yxUserExtract/download")
+    @PreAuthorize("@el.check('admin','YXUSEREXTRACT_SELECT')")
+    public void download(HttpServletResponse response, YxUserExtractQueryCriteria criteria) throws IOException {
+        yxUserExtractService.download(yxUserExtractService.queryDownload(criteria), response);
+    }
 
     @ApiOperation(value = "查询提现记录")
     @GetMapping(value = "/yxUserExtract")

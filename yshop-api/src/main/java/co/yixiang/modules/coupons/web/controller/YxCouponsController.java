@@ -28,6 +28,8 @@ import co.yixiang.modules.image.service.YxImageInfoService;
 import co.yixiang.modules.ship.service.YxShipInfoService;
 import co.yixiang.modules.ship.service.YxShipSeriesService;
 import co.yixiang.modules.ship.web.vo.YxShipInfoQueryVo;
+import co.yixiang.modules.shop.entity.YxStoreInfo;
+import co.yixiang.modules.shop.service.YxStoreInfoService;
 import co.yixiang.modules.user.service.YxUserService;
 import co.yixiang.utils.DateUtils;
 import co.yixiang.utils.StringUtils;
@@ -84,6 +86,8 @@ public class YxCouponsController extends BaseController {
     @Autowired
     private YxUserService yxUserService;
     @Autowired
+    private YxStoreInfoService yxStoreInfoService;
+    @Autowired
     private IGenerator generator;
 
     /**
@@ -94,9 +98,13 @@ public class YxCouponsController extends BaseController {
     @ApiOperation(value = "获取YxCoupons对象详情", notes = "查看本地生活, 卡券表", response = YxCouponsQueryVo.class)
     public ApiResult<YxCouponsQueryVo> getYxCoupons(@Valid @RequestBody IdParam idParam) throws Exception {
         YxCouponsQueryVo yxCouponsQueryVo = yxCouponsService.getYxCouponsById(idParam.getId());
-
         if (null == yxCouponsQueryVo) {
             throw new BadRequestException("未查询到卡券详情");
+        }
+        // 查询店铺所属人id
+        YxStoreInfo yxStoreInfo = this.yxStoreInfoService.getById(yxCouponsQueryVo.getStoreId());
+        if (null != yxStoreInfo) {
+            yxCouponsQueryVo.setMerId(yxStoreInfo.getMerId());
         }
         // 总销量
         yxCouponsQueryVo.setTotalSales(yxCouponsQueryVo.getSales() + yxCouponsQueryVo.getFicti());

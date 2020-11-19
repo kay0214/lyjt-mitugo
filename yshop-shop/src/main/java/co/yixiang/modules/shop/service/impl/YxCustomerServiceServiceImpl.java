@@ -64,7 +64,7 @@ public class YxCustomerServiceServiceImpl extends BaseServiceImpl<YxCustomerServ
                 map.put("totalElements", 0);
                 return map;
             }
-            queryWrapper.lambda().in(YxCustomerService::getMerId, criteria.getChildStoreId());
+            queryWrapper.lambda().in(YxCustomerService::getMerId, criteria.getChildUser());
         }
         IPage<YxCustomerService> ipage = this.page(new Page<>(pageable.getPageNumber() + 1, pageable.getPageSize()), queryWrapper);
         if (ipage.getTotal() <= 0) {
