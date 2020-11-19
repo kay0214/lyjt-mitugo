@@ -142,6 +142,9 @@ public class YxStoreProductQueryVo implements Serializable {
     @ApiModelProperty(value = "平台结算")
     private BigDecimal settlement;
 
+    @ApiModelProperty(value = "商品短视频")
+    private String video;
+
     private String image_base;
 
     private String codeBase;
