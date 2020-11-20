@@ -300,9 +300,9 @@ public class YxUserExtractServiceImpl extends BaseServiceImpl<YxUserExtractMappe
             BankCode bankCode = this.bankCodeService.getOne(new QueryWrapper<BankCode>().lambda().eq(BankCode::getBankCode, extractDto.getCnapsCode()));
             if (null != bankCode && StringUtils.isNotBlank(bankCode.getBankAdd())) {
                 extractDto.setBankAdd(bankCode.getBankAdd());
-            }
-            if (StringUtils.isBlank(extractDto.getBankAddress())) {
-                extractDto.setBankAddress(bankCode.getBankName());
+                if (StringUtils.isBlank(extractDto.getBankAddress())) {
+                    extractDto.setBankAddress(bankCode.getBankName());
+                }
             }
         }
 
