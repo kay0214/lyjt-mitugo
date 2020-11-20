@@ -52,7 +52,7 @@ public class YxUserExtractDto implements Serializable {
     // 添加时间
     private Integer addTime;
 
-    // -1 未通过 0 审核中 1 已提现
+    // -1 未通过 0 审核中 1 已提现  2处理中  3提现失败
     private Integer status;
 
     // 微信号
@@ -71,4 +71,11 @@ public class YxUserExtractDto implements Serializable {
     private BigDecimal truePrice;
 
     private String seqNo;
+
+    /** 联行号 */
+    private String cnapsCode;
+
+    // 开户支行
+    private String bankAdd;
+
 }

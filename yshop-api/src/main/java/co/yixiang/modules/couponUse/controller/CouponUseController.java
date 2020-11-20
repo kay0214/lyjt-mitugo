@@ -192,7 +192,11 @@ public class CouponUseController extends BaseController {
         SystemUserParamVo systemUserParamVo = new SystemUserParamVo();
         systemUserParamVo.setUsername(user.getUsername());
         systemUserParamVo.setUserRole(intRoleId);
-        // 默认头衔
+        // 默认头像
+        String defaultAvatar = this.systemConfigService.getData(SystemConfigConstants.ADMIN_DEFAULT_AVATAR);
+        if (StringUtils.isNotBlank(defaultAvatar)) {
+            systemUserParamVo.setAvatar(defaultAvatar);
+        }
         systemUserParamVo.setAvatar("https://mtcdn.metoogo.cn/admin_tx.png");
         // 处理用户头像
         if (null != user.getAvatarId()) {
