@@ -6,13 +6,14 @@
         <el-form ref="form" :model="form2" :rules="rules" size="small" label-width="150px">
 
           <el-form-item label="分佣类型">
-          <el-radio-group v-model="form.customizeType">
+          <el-radio-group v-model="form.customizeType" @change="change">
             <el-radio :label="0">按平台</el-radio>
             <el-radio :label="1">不分佣</el-radio>
             <el-radio :label="2">自定义分佣</el-radio>
           </el-radio-group>
           </el-form-item>
-          <el-row :gutter='24'>
+
+          <el-row id="commision-box" :gutter='24' v-show="form.customizeType!=1">
             <el-col :span='8'>
               <el-form-item label="平台抽成" prop='fundsRate'>
                 <el-input class='percent' v-model="form2.fundsRate"/>
@@ -50,7 +51,8 @@
 </template>
 
 <script>
-import { updateRate } from '@/api/yxCommissionRate'
+import { get,updateRate } from '@/api/yxCommissionRate'
+import { Loading } from 'element-ui';
 export default {
   name: 'YxCommissionRate',
   data() {
@@ -61,7 +63,15 @@ export default {
         edit: ['admin', 'yxCommissionRate:edit']
       },
       form: {},
-      form2:{},
+      form2:{
+        fundsRate: '',
+        merRate: '',
+        parentRate: '',
+        partnerRate: '',
+        referenceRate: '',
+        shareParentRate: '',
+        shareRate: ''
+      },
       rules: {
         customizeType:[
           { required: true, message: '必填项', trigger: 'blur' },
@@ -132,6 +142,27 @@ export default {
   methods: {
     cancel() {
       this.resetForm()
+    },
+    change(val){
+      let that=this
+      if(val===0){
+        let loading=Loading.service({
+          target:'#commision-box'
+        });
+        get().then(ret=>{
+          if(ret.id){
+            Object.assign(that.form2,ret)
+          }
+          loading.close()
+        }).catch(err => {
+          // this.$notify({
+          //   title: '设置失败：'+err.response.data.message,
+          //   type: 'success',
+          //   duration: 2500
+          // })
+          loading.close()
+        })
+      }
     },
     resetForm() {
       this.dialog = false

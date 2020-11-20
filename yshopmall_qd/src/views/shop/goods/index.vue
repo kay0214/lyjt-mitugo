@@ -555,8 +555,9 @@ export default {
       if(data.customizeType===2){
         Object.assign(_this.form2,data.yxCustomizeRate)
       }
-      console.log('**********')
-      console.log(_this.form)
+      // if(data.customizeType===0){
+      //   _this.change(data.customizeType)
+      // }
       _this.dialog = true
     }
   }
