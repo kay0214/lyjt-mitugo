@@ -1,23 +1,24 @@
 package co.yixiang.modules.ship.service.impl;
 
+import cn.hutool.extra.mail.MailAccount;
+import cn.hutool.extra.mail.MailUtil;
 import co.yixiang.common.service.impl.BaseServiceImpl;
 import co.yixiang.common.web.vo.Paging;
 import co.yixiang.constant.ShopConstants;
+import co.yixiang.constant.SystemConfigConstants;
 import co.yixiang.modules.couponUse.dto.YxShipOperationDetailVO;
 import co.yixiang.modules.couponUse.dto.YxShipPassengerVO;
 import co.yixiang.modules.couponUse.param.*;
 import co.yixiang.modules.coupons.entity.YxCouponOrder;
-import co.yixiang.modules.coupons.mapper.YxCouponOrderUseMapper;
 import co.yixiang.modules.coupons.service.YxCouponOrderService;
 import co.yixiang.modules.image.entity.YxImageInfo;
 import co.yixiang.modules.image.service.YxImageInfoService;
 import co.yixiang.modules.manage.entity.SystemUser;
+import co.yixiang.modules.manage.entity.UsersRoles;
 import co.yixiang.modules.manage.mapper.SystemUserMapper;
+import co.yixiang.modules.manage.mapper.UsersRolesMapper;
 import co.yixiang.modules.manage.web.vo.SystemUserQueryVo;
-import co.yixiang.modules.ship.entity.YxShipInfo;
-import co.yixiang.modules.ship.entity.YxShipOperation;
-import co.yixiang.modules.ship.entity.YxShipPassenger;
-import co.yixiang.modules.ship.entity.YxShipSeries;
+import co.yixiang.modules.ship.entity.*;
 import co.yixiang.modules.ship.mapper.YxShipInfoMapper;
 import co.yixiang.modules.ship.mapper.YxShipOperationDetailMapper;
 import co.yixiang.modules.ship.mapper.YxShipOperationMapper;
@@ -32,10 +33,7 @@ import co.yixiang.modules.ship.web.param.YxShipOperationQueryParam;
 import co.yixiang.modules.ship.web.vo.YxShipInfoQueryVo;
 import co.yixiang.modules.ship.web.vo.YxShipOpeartionVo;
 import co.yixiang.modules.ship.web.vo.YxShipSeriesQueryVo;
-import co.yixiang.utils.BeanUtils;
-import co.yixiang.utils.CommonsUtils;
-import co.yixiang.utils.DateUtils;
-import co.yixiang.utils.StringUtils;
+import co.yixiang.utils.*;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.metadata.OrderItem;
@@ -75,8 +73,6 @@ public class YxShipInfoServiceImpl extends BaseServiceImpl<YxShipInfoMapper, YxS
     @Autowired
     private YxShipOperationMapper yxShipOperationMapper;
     @Autowired
-    private YxCouponOrderUseMapper yxCouponOrderUseMapper;
-    @Autowired
     private YxShipOperationService yxShipOperationService;
     @Autowired
     private YxShipPassengerService yxShipPassengerService;
@@ -87,6 +83,8 @@ public class YxShipInfoServiceImpl extends BaseServiceImpl<YxShipInfoMapper, YxS
     private YxShipSeriesService yxShipSeriesService;
     @Autowired
     private SystemUserMapper systemUserMapper;
+    @Autowired
+    private UsersRolesMapper usersRolesMapper;
 
 
     @Override
@@ -286,7 +284,7 @@ public class YxShipInfoServiceImpl extends BaseServiceImpl<YxShipInfoMapper, YxS
      * 确认出港
      *
      * @param uid
-     * @param batchNo
+     * @param param
      * @return
      */
     @Override
@@ -324,7 +322,7 @@ public class YxShipInfoServiceImpl extends BaseServiceImpl<YxShipInfoMapper, YxS
     /**
      * 根据订单号获取详情
      *
-     * @param batchNo
+     * @param param
      * @return
      */
     @Override
@@ -356,10 +354,11 @@ public class YxShipInfoServiceImpl extends BaseServiceImpl<YxShipInfoMapper, YxS
                     .eq(YxShipPassenger::getCouponOrderId, yxShipOperationDetail.getCouponOrderId())
                     .eq(YxShipPassenger::getDelFlag, 0);
             List<YxShipPassenger> passengerList = yxShipPassengerService.list(queryWrapperPasseng);
-            List<YxShipPassengerVO> passengerVOList = CommonsUtils.convertBeanList(passengerList, YxShipPassengerVO.class);
+            List<YxShipPassengerVO> passengerVOList = formatPassenger(passengerList);
             yxShipOperationDetail.setPassengerVOList(passengerVOList);
             //图片
             yxShipOperationDetail.setShipImageUrl(getShipImg(yxShipOperationDetail.getShipId()));
+            //
         }
         map.put("status", "1");
         map.put("statusDesc", "成功！");
@@ -367,6 +366,14 @@ public class YxShipInfoServiceImpl extends BaseServiceImpl<YxShipInfoMapper, YxS
         return map;
     }
 
+    private List<YxShipPassengerVO> formatPassenger(List<YxShipPassenger> passengerList){
+        List<YxShipPassengerVO> passengerVOList = CommonsUtils.convertBeanList(passengerList, YxShipPassengerVO.class);
+        for(YxShipPassengerVO passengerVO:passengerVOList){
+            passengerVO.setIdCard(CardNumUtil.idEncrypt(passengerVO.getIdCard()));
+            passengerVO.setPhone(CardNumUtil.mobileEncrypt(passengerVO.getPhone()));
+            passengerVO.setPassengerName(CardNumUtil.nameEncrypt(passengerVO.getPassengerName()));        }
+        return passengerVOList;
+    }
 
     private YxShipSeries getShpSeriesByShipId(int shipId) {
         YxShipInfo yxShipInfo = this.getById(shipId);
@@ -446,7 +453,97 @@ public class YxShipInfoServiceImpl extends BaseServiceImpl<YxShipInfoMapper, YxS
         return map;
     }
 
-    public void  sendEmail(String batchNo){
-//        MailUtil.send
+    @Override
+    public Map<String, Object> sendEmail(String batchNo){
+        Map<String, Object> map = new HashMap<>();
+        map.put("status", "1");
+        map.put("statusDesc", "成功！");
+
+        String strContent = "批次号："+batchNo+" 出行记录信息";
+        String path ="E://"+ batchNo +"出行记录.xlsx";
+        QueryWrapper<YxShipOperation> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().eq(YxShipOperation::getBatchNo, batchNo);
+        YxShipOperation yxShipOperation = yxShipOperationMapper.selectOne(queryWrapper);
+
+        QueryWrapper<YxShipOperationDetail> detailQueryWrapper = new QueryWrapper<>();
+        detailQueryWrapper.lambda().eq(YxShipOperationDetail::getBatchNo, batchNo).eq(YxShipOperationDetail::getDelFlag,0);
+        List<YxShipOperationDetail> detailList = yxShipOperationDetailMapper.selectList(detailQueryWrapper);
+
+        if(CollectionUtils.isEmpty(detailList)){
+            map.put("status", "99");
+            map.put("statusDesc", "获取运营详情数据错误！");
+            return map;
+        }
+        List<Map<String, Object>> lst = new ArrayList<>();
+
+        for(YxShipOperationDetail detail:detailList){
+            YxCouponOrder order = yxCouponOrderService.getById(detail.getCouponOrderId());
+            if(null==order){
+                map.put("status", "99");
+                map.put("statusDesc", "获取订单数据错误！");
+                return map;
+            }
+            QueryWrapper<YxShipPassenger> passengerQueryWrapper = new QueryWrapper<>();
+            passengerQueryWrapper.lambda().eq(YxShipPassenger::getBatchNo, batchNo).
+                    eq(YxShipPassenger::getDelFlag,0).
+                    eq(YxShipPassenger::getCouponOrderId,detail.getCouponOrderId());
+            List<YxShipPassenger> passengerList = yxShipPassengerService.list(passengerQueryWrapper);
+            if(CollectionUtils.isEmpty(passengerList)){
+                map.put("status", "99");
+                map.put("statusDesc", "获取乘客信息错误！");
+                return map;
+            }
+            for(YxShipPassenger passenger:passengerList){
+                Map<String, Object> rowParam = new LinkedHashMap<>();
+                rowParam.put("日期",DateUtils.timestampToStr10(yxShipOperation.getLeaveTime()));
+                rowParam.put("船名",yxShipOperation.getShipName());
+                rowParam.put("船长",yxShipOperation.getCaptainName());
+                rowParam.put("人数",1);
+                rowParam.put("价格（元）",order.getTotalPrice());
+                rowParam.put("姓名", passenger.getPassengerName());
+//            rowParam.put("电话",passenger.getPhone());
+                rowParam.put("身份证号",passenger.getIdCard());
+                lst.add(rowParam);
+            }
+        }
+
+        FileUtil.generatorExcel(lst,path,strContent,6);
+
+        // 以下为测试
+        MailAccount account = new MailAccount();
+        account.setHost("smtp.qiye.163.com");
+        account.setPort(25);
+        account.setAuth(true);
+        account.setFrom("nixiaoling@hyjf.com");
+        account.setUser("nixiaoling@hyjf.com");
+        account.setPass("kid0717Q!@#");
+
+        //获取邮箱
+        QueryWrapper<UsersRoles> wrapper = new QueryWrapper<>();
+        wrapper.lambda().eq(UsersRoles::getRoleId, SystemConfigConstants.ROLE_POLICE);
+        List<UsersRoles> usersRolesList = usersRolesMapper.selectList(wrapper);
+        if(CollectionUtils.isEmpty(usersRolesList)){
+            map.put("status", "99");
+            map.put("statusDesc", "获取用户角色为【海岸支队】失败！");
+            return map;
+        }
+        String strReceiveEmail ="";
+        for(UsersRoles usersRoles:usersRolesList) {
+            SystemUserQueryVo systemUser = systemUserMapper.getUserById(usersRoles.getUserId());
+            if (null != systemUser && StringUtils.isNotBlank(systemUser.getEmail())) {
+                strReceiveEmail = systemUser.getEmail();
+                break;
+            }
+        }
+        if(StringUtils.isBlank(strReceiveEmail)){
+            map.put("status", "99");
+            map.put("statusDesc", "获取用户角色为【海岸支队】的邮箱失败！");
+            return map;
+        }
+        MailUtil.send(account,strReceiveEmail, strContent, "<h1>你好 "+strContent+"，请查收</h1>",true, FileUtil.file(path));
+        // 删除文件
+        FileUtil.del(path);
+        return map;
     }
+
 }

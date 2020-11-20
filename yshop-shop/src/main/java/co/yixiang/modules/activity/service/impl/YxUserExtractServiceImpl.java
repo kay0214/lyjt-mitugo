@@ -16,6 +16,8 @@ import co.yixiang.modules.activity.service.YxUserExtractService;
 import co.yixiang.modules.activity.service.dto.YxUserExtractDto;
 import co.yixiang.modules.activity.service.dto.YxUserExtractQueryCriteria;
 import co.yixiang.modules.activity.service.mapper.YxUserExtractMapper;
+import co.yixiang.modules.bank.domain.BankCode;
+import co.yixiang.modules.bank.service.BankCodeService;
 import co.yixiang.modules.shop.domain.User;
 import co.yixiang.modules.shop.domain.YxExamineLog;
 import co.yixiang.modules.shop.domain.YxUser;
@@ -70,6 +72,8 @@ public class YxUserExtractServiceImpl extends BaseServiceImpl<YxUserExtractMappe
     private YxUserBillService yxUserBillService;
     @Autowired
     private YxExamineLogService yxExamineLogService;
+    @Autowired
+    private BankCodeService bankCodeService;
 
     @Override
     //@Cacheable
@@ -122,25 +126,43 @@ public class YxUserExtractServiceImpl extends BaseServiceImpl<YxUserExtractMappe
                 case 1:
                     statusStr = "已提现";
                     break;
+                case 2:
+                    statusStr = "处理中";
+                    break;
+                case 3:
+                    statusStr = "提现失败";
+                    break;
                 default:
                     statusStr = "未知状态" + yxUserExtract.getStatus();
                     break;
             }
             Map<String, Object> map = new LinkedHashMap<>();
+            // 申请id  用户名  真实姓名  银行卡号  所属银行  支行   联行号   联系电话   提现金额  订单号  用户类型  时间   状态    驳回原因  驳回时间
             map.put("用户id", yxUserExtract.getUid());
-            map.put("真实姓名", yxUserExtract.getRealName());
-            map.put("提现类型", yxUserExtract.getExtractType().equals("bank") ? "银行卡" : "其他");
+            map.put("真实姓名", yxUserExtract.getUserTrueName());
+//            map.put("提现类型", yxUserExtract.getExtractType().equals("bank") ? "银行卡" : "其他");
             map.put("银行卡号", yxUserExtract.getBankCode());
-            map.put("开户地址", yxUserExtract.getBankAddress());
-            map.put("支付宝账号", yxUserExtract.getAlipayCode());
+            // 所属银行
+            map.put("所属银行", yxUserExtract.getBankAddress());
+            // 支行
+            map.put("支行", yxUserExtract.getBankAdd());
+            // 联行号
+            map.put("联行号", yxUserExtract.getCnapsCode());
+            // 联系电话
+            map.put("联系电话", yxUserExtract.getBankMobile());
             map.put("提现金额", yxUserExtract.getExtractPrice());
-            map.put("提现后余额", yxUserExtract.getBalance());
-            map.put("备注", yxUserExtract.getMark());
-            map.put("无效原因", yxUserExtract.getFailMsg());
-            map.put("失败原因", DateUtils.timestampToStr10(yxUserExtract.getFailTime()));
-            map.put("添加时间", yxUserExtract.getAddTime());
+            // 订单号
+            map.put("订单号", yxUserExtract.getSeqNo());
+            // 用户类型map.put("添加时间", DateUtils.timestampToStr10(yxUserExtract.getAddTime()));
             map.put("状态", statusStr);
-            map.put("微信号", yxUserExtract.getWechat());
+            map.put("驳回原因", yxUserExtract.getFailMsg());
+            map.put("驳回时间", DateUtils.timestampToStr10(yxUserExtract.getFailTime()));
+//
+//            map.put("开户地址", yxUserExtract.getBankAddress());
+//            map.put("支付宝账号", yxUserExtract.getAlipayCode());
+//            map.put("提现后余额", yxUserExtract.getBalance());
+//            map.put("备注", yxUserExtract.getMark());
+//            map.put("微信号", yxUserExtract.getWechat());
             list.add(map);
         }
         FileUtil.downloadExcel(list, response);
@@ -266,16 +288,24 @@ public class YxUserExtractServiceImpl extends BaseServiceImpl<YxUserExtractMappe
             if (3 == extractDto.getUserType()) {
                 YxUser user = yxUserService.getById(extractDto.getUid());
                 if (ObjectUtil.isNotEmpty(user)) {
-                    extractDto.setUserTrueName(StringUtils.isNotBlank(user.getRealName()) ? user.getRealName().substring(0, 1) + "**" : "");
+                    extractDto.setUserTrueName(user.getRealName());
                 }
             } else {
                 User user = userService.getById(extractDto.getUid());
                 if (null != user) {
-                    extractDto.setUserTrueName(StringUtils.isNotBlank(user.getMerchantsContact()) ? user.getMerchantsContact().substring(0, 1) + "**" : "");
+                    extractDto.setUserTrueName(user.getMerchantsContact());
+                }
+            }
+            // 根据联行号查询支行
+            BankCode bankCode = this.bankCodeService.getOne(new QueryWrapper<BankCode>().lambda().eq(BankCode::getBankCode, extractDto.getCnapsCode()));
+            if (null != bankCode && StringUtils.isNotBlank(bankCode.getBankAdd())) {
+                extractDto.setBankAdd(bankCode.getBankAdd());
+                if (StringUtils.isBlank(extractDto.getBankAddress())) {
+                    extractDto.setBankAddress(bankCode.getBankName());
                 }
             }
         }
 
-        return null;
+        return list;
     }
 }

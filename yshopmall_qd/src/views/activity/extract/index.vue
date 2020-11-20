@@ -91,16 +91,16 @@
       <el-table-column prop="status" label="审核状态">
         <template slot-scope="scope">
           <div v-if="scope.row.status==1">
-            提现通过
+            {{ transferLabel(scope.row.status,statusList) }}
           </div>
           <div v-else-if="scope.row.status==-1">
-            提现未通过<br>
+            {{ transferLabel(scope.row.status,statusList) }}<br>
             未通过原因：{{ scope.row.failMsg }}
             <br>
             未通过时间：{{ formatTimeTwo(scope.row.failTime) }}
           </div>
           <div v-else>
-            未提现
+            {{ transferLabel(scope.row.status,statusList) }}
           </div>
         </template>
       </el-table-column>
@@ -163,7 +163,9 @@ export default {
       statusList:[
         {value:-1,label:'提现未通过'},
         {value:0,label:'未提现'},
-        {value:1,label:'提现通过'}
+        {value:1,label:'提现通过'},
+        {value:2,label:'提现处理中'},
+        {value:3,label:'提现失败'}
       ]
     }
   },
@@ -171,6 +173,24 @@ export default {
     this.$nextTick(() => {
       this.init()
     })
+  },
+  computed:{
+    transferLabel:function(){
+      return function(value,list){
+        if(list.length){
+          let i= list.filter(function(item){
+            return new RegExp(item.value, 'i').test(value)
+          })
+          if(i.length){
+            return i[0].label
+          }else{
+            return ""
+          }
+        }else{
+          return ""
+        }
+      }
+    }
   },
   methods: {
     formatTimeTwo,

@@ -451,4 +451,22 @@ public class FileUtil extends cn.hutool.core.io.FileUtil {
 
     }
 
+    /**
+     * 生成excel到指定路径
+     */
+    public static void generatorExcel(List<Map<String, Object>> list, String filePath,String content,int mergeSize) {
+
+        File file = new File(filePath);
+        BigExcelWriter writer= ExcelUtil.getBigWriter(file);
+        // 合并单元格后的标题行，使用默认标题样式
+//        writer.merge(2, content);
+        writer.merge(mergeSize, content);
+        // 一次性写出内容，使用默认样式，强制输出标题
+        writer.write(list, true);
+        // 关闭writer，释放内存
+        writer.close();
+    }
+
+
+
 }

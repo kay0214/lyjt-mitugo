@@ -51,6 +51,11 @@ public class YxCouponOrderController {
     @GetMapping(value = "/download")
     @PreAuthorize("@el.check('admin','yxCouponOrder:list')")
     public void download(HttpServletResponse response, YxCouponOrderQueryCriteria criteria) throws IOException {
+        CurrUser currUser = SecurityUtils.getCurrUser();
+        criteria.setUserRole(currUser.getUserRole());
+        if (null != currUser.getChildUser()) {
+            criteria.setChildUser(currUser.getChildUser());
+        }
         yxCouponOrderService.download(yxCouponOrderService.queryDownload(criteria), response);
     }
 

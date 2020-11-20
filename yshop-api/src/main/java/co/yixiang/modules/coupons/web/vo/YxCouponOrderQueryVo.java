@@ -201,8 +201,7 @@ public class YxCouponOrderQueryVo implements Serializable {
     @ApiModelProperty(value = "状态(0：展示立即使用，1：不展示)")
     private Integer shipOrderStatus;
 
-    @ApiModelProperty(value = "可用核销码")
-    private List<String> ableVerifyCode;
+
     @ApiModelProperty(value = "评价状态：0未评价 1已评价")
     private Integer evaluate;
 

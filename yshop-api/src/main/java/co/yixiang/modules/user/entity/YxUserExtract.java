@@ -61,7 +61,7 @@ public class YxUserExtract extends BaseEntity {
     @ApiModelProperty(value = "添加时间")
     private Integer addTime;
 
-    @ApiModelProperty(value = "-1 未通过 0 审核中 1 已提现")
+    @ApiModelProperty(value = "-1 未通过 0 审核中 1 已提现  2处理中  3提现失败")
     @TableField(value = "`status`")
     private Integer status;
 

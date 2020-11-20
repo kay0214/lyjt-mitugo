@@ -9,6 +9,13 @@
                 v-loading="loading" :visible.sync="dialog" :title="crud.status.title" width="1000px">
         <el-form ref="form" :model="form" :rules="rules" disabled size="small" label-width="120px">
           <el-row :gutter="20">
+            <el-col :span="16">
+              <el-form-item label="批次号">
+                <el-input v-model="form.batchNo" />
+              </el-form-item>
+            </el-col>
+          </el-row>
+          <el-row :gutter="20">
             <el-col :span="8">
               <el-form-item label="船只名称">
                 <el-input v-model="form.shipName" />

@@ -31,6 +31,10 @@ public class SystemConfigConstants {
     public final static String STORE_EXTRACT_RATE = "store_extract_rate";
     // 商户是否可以提现 0：可提现 1：不可提现
     public final static String STORE_EXTRACT_SWITCH="store_extract_switch";
+    // 核销端默认头像地址
+    public final static String ADMIN_DEFAULT_AVATAR = "admin_default_avatar";
+    // 核销端查询账单默认缩略图
+    public final static String BILL_DEFAULT_IMAGE = "bill_default_image";
 
     //微信相关配置
     public final static String WECHAT_APPID="wechat_appid";

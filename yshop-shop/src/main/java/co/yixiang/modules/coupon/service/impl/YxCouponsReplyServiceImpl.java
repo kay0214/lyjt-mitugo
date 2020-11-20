@@ -81,12 +81,12 @@ public class YxCouponsReplyServiceImpl extends BaseServiceImpl<YxCouponsReplyMap
         QueryWrapper<YxCouponsReply> queryWrapper = new QueryWrapper<>();
         queryWrapper.lambda().eq(YxCouponsReply::getDelFlag, 0);
         if (0 != criteria.getUserRole()) {
-            if (null == criteria.getChildStoreId() || criteria.getChildStoreId().size() <= 0) {
+            if (null == criteria.getChildUser() || criteria.getChildUser().size() <= 0) {
                 map.put("content", new ArrayList<>());
                 map.put("totalElements", 0);
                 return map;
             }
-            queryWrapper.lambda().in(YxCouponsReply::getMerId, criteria.getChildStoreId());
+            queryWrapper.lambda().in(YxCouponsReply::getMerId, criteria.getChildUser());
         }
         // 根据用户昵称查询
         if (StringUtils.isNotBlank(criteria.getNickName())) {
@@ -151,10 +151,10 @@ public class YxCouponsReplyServiceImpl extends BaseServiceImpl<YxCouponsReplyMap
         QueryWrapper<YxCouponsReply> queryWrapper = new QueryWrapper<>();
         queryWrapper.lambda().eq(YxCouponsReply::getDelFlag, 0);
         if (0 != criteria.getUserRole()) {
-            if (null == criteria.getChildStoreId() || criteria.getChildStoreId().size() <= 0) {
+            if (null == criteria.getChildUser() || criteria.getChildUser().size() <= 0) {
                 return new ArrayList<>();
             }
-            queryWrapper.lambda().in(YxCouponsReply::getMerId, criteria.getChildStoreId());
+            queryWrapper.lambda().in(YxCouponsReply::getMerId, criteria.getChildUser());
         }
         // 根据用户昵称查询
         if (StringUtils.isNotBlank(criteria.getNickName())) {

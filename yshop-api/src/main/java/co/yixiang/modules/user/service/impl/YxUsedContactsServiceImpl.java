@@ -81,9 +81,9 @@ public class YxUsedContactsServiceImpl extends BaseServiceImpl<YxUsedContactsMap
             //联系人信息
             for (YxUsedContactsQueryVo usedContacts : usedContactsList) {
                 //未成年人
-                int isAdult = -1;
+                int isAdult = 0;
                 if (0 != usedContacts.getUserType()) {
-                    if (IdCardUtils.isValid(usedContacts.getCardId())) {
+                    if (StringUtils.isNotBlank(usedContacts.getCardId()) && IdCardUtils.isValid(usedContacts.getCardId())) {
                         Integer intAge = DateUtils.IdCardNoToAge(usedContacts.getCardId());
                         if (intAge >= 60) {
                             //岁数大于60 为老年人
@@ -99,6 +99,7 @@ public class YxUsedContactsServiceImpl extends BaseServiceImpl<YxUsedContactsMap
 
                 usedContacts.setCardId(CardNumUtil.idEncrypt(usedContacts.getCardId()));
                 usedContacts.setUserPhone(CardNumUtil.mobileEncrypt(usedContacts.getUserPhone()));
+                usedContacts.setUserName(CardNumUtil.mobileEncrypt(usedContacts.getUserName()));
                 usedContacts.setIsAdult(isAdult);
             }
         }

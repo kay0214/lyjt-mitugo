@@ -45,7 +45,7 @@ public interface SysUserMapper extends CoreMapper<User> {
      * 根据用户名查询用户信息
      * @param userName 用户名
      */
-    @Select("SELECT u.id,u.nick_name,u.sex,u.dept_id,u.enabled,u.create_time,u.phone,u.email,u.job_id ,u.`password` ,u.username,ua.real_name avatar FROM `user` " +
+    @Select("SELECT u.id,u.nick_name,u.sex,u.dept_id,u.enabled,u.create_time,u.phone,u.email,u.job_id ,u.`password` ,u.ship_user,u.username,ua.real_name avatar FROM `user` " +
             " u LEFT JOIN user_avatar ua ON u.avatar_id = ua.id  WHERE u.username = #{username}")
     User findByName(String userName);
 

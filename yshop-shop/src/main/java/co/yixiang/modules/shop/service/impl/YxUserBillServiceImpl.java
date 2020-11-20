@@ -159,16 +159,17 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<UserBillMapper, YxUse
             }
             Map<String, Object> map = new LinkedHashMap<>();
             map.put("用户uid", yxUserBill.getUid());
-//            map.put("关联id", yxUserBill.getLinkId());
-            map.put("类型", yxUserBill.getPm() == 0 ? "支出" : "获得");
+            map.put("用户昵称", yxUserBill.getUsername());
             map.put("账单标题", yxUserBill.getTitle());
+            map.put("订单号", yxUserBill.getLinkId());
             map.put("明细种类", BillDetailEnum.getDesc(yxUserBill.getCategory()));
             map.put("明细类型", BillDetailEnum.getDesc(yxUserBill.getType()));
+            map.put("收支类型", yxUserBill.getPm() == 0 ? "支出" : "获得");
             map.put("明细数字", yxUserBill.getNumber());
-            map.put("剩余", yxUserBill.getBalance());
-            map.put("备注", yxUserBill.getMark());
-            map.put("添加时间", DateUtils.timestampToStr10(yxUserBill.getAddTime()));
-            map.put("状态", status);
+//            map.put("剩余", yxUserBill.getBalance());
+//            map.put("备注", yxUserBill.getMark());
+            map.put("创建时间", DateUtils.timestampToStr10(yxUserBill.getAddTime()));
+//            map.put("状态", status);
             list.add(map);
         }
         FileUtil.downloadExcel(list, response);

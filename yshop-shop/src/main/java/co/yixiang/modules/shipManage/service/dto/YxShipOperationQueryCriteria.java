@@ -32,4 +32,7 @@ public class YxShipOperationQueryCriteria{
     /** 结束时间 */
     @Query
     private String endDate;
+
+    @Query
+    private String batchNo;
 }

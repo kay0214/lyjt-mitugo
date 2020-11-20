@@ -107,6 +107,12 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<StoreProductMappe
         if (null != criteria.getIsShow()) {
             queryWrapper.lambda().eq(YxStoreProduct::getIsShow, criteria.getIsShow());
         }
+        if (null != criteria.getIsBest()) {
+            queryWrapper.lambda().eq(YxStoreProduct::getIsBest, criteria.getIsBest());
+        }
+        if (null != criteria.getIsHot()) {
+            queryWrapper.lambda().eq(YxStoreProduct::getIsHot, criteria.getIsHot());
+        }
         if (StringUtils.isNotBlank(criteria.getType()) && StringUtils.isNotBlank(criteria.getValue())) {
             if ("storeName".equals(criteria.getType())) {
                 queryWrapper.lambda().like(YxStoreProduct::getStoreName, criteria.getValue());
@@ -172,12 +178,12 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<StoreProductMappe
                 yxStoreProduct.setCateFlg(yxStoreProduct.getStoreCategory().getIsShow() == 1 ? 1 : 0);
             }
             // 分佣模式（0：按平台，1：不分佣，2：自定义分佣）
-            if(2 == yxStoreProduct.getCustomizeType()) {
+            if (2 == yxStoreProduct.getCustomizeType()) {
                 YxCustomizeRate yxCustomizeRate = this.yxCustomizeRateService.getOne(new QueryWrapper<YxCustomizeRate>().lambda()
                         .eq(YxCustomizeRate::getRateType, 1)
                         .eq(YxCustomizeRate::getLinkId, yxStoreProduct.getId())
                         .eq(YxCustomizeRate::getDelFlag, 0));
-                if(null != yxCustomizeRate) {
+                if (null != yxCustomizeRate) {
                     yxCustomizeRate.setFundsRate(yxCustomizeRate.getFundsRate().multiply(new BigDecimal("100")));
                     yxCustomizeRate.setShareRate(yxCustomizeRate.getShareRate().multiply(new BigDecimal("100")));
                     yxCustomizeRate.setShareParentRate(yxCustomizeRate.getShareParentRate().multiply(new BigDecimal("100")));
@@ -367,7 +373,8 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<StoreProductMappe
             yxStoreProductAttrValue.setUnique(IdUtil.simpleUUID());
             yxStoreProductAttrValue.setImage(productFormatDTO.getPic());
             //佣金 = 商品金额-平台结算(cost:为平台结算价)
-            double bigComm = productFormatDTO.getPrice() - productFormatDTO.getCost();
+//            double bigComm = productFormatDTO.getPrice() - productFormatDTO.getCost();
+            double bigComm = productFormatDTO.getCommission();
             DecimalFormat df1 = new DecimalFormat("0.00");
             yxStoreProductAttrValue.setCommission(new BigDecimal(df1.format(bigComm).toString()));
 
@@ -475,7 +482,8 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<StoreProductMappe
         if (!check) throw new BadRequestException("商品分类必选选择二级");
         resources.setCateId(resources.getStoreCategory().getId().toString());
         //
-        resources.setCommission(resources.getPrice().subtract(resources.getSettlement()));
+//        resources.setCommission(resources.getPrice().subtract(resources.getSettlement()));
+        resources.setCommission(resources.getCommission());
         //删除详情图片
         QueryWrapper<YxSystemAttachment> queryWrapperAtt = new QueryWrapper();
         queryWrapperAtt.like("name", resources.getId() + "_%").like("name", "%good%");
