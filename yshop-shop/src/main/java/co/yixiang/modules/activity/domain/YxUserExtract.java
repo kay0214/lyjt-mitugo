@@ -72,7 +72,7 @@ public class YxUserExtract implements Serializable {
     private Integer addTime;
 
 
-    /** -1 未通过 0 审核中 1 已提现 */
+    /** -1 未通过 0 审核中 1 已提现  2处理中  3提现失败 */
     @TableField(value = "`status`")
     private Integer status;
 

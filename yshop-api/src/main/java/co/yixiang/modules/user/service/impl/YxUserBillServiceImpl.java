@@ -2,15 +2,24 @@ package co.yixiang.modules.user.service.impl;
 
 import co.yixiang.common.service.impl.BaseServiceImpl;
 import co.yixiang.common.web.vo.Paging;
+import co.yixiang.constant.ShopConstants;
+import co.yixiang.constant.SystemConfigConstants;
 import co.yixiang.enums.BillDetailEnum;
 import co.yixiang.enums.BillEnum;
 import co.yixiang.enums.BillInfoEnum;
 import co.yixiang.modules.couponUse.dto.UserBillVo;
 import co.yixiang.modules.couponUse.param.UserAccountQueryParam;
+import co.yixiang.modules.coupons.entity.YxCouponOrder;
+import co.yixiang.modules.coupons.entity.YxCoupons;
+import co.yixiang.modules.coupons.service.YxCouponOrderService;
+import co.yixiang.modules.coupons.service.YxCouponsService;
+import co.yixiang.modules.image.entity.YxImageInfo;
+import co.yixiang.modules.image.service.YxImageInfoService;
 import co.yixiang.modules.manage.entity.SystemUser;
 import co.yixiang.modules.manage.service.SystemUserService;
 import co.yixiang.modules.manage.web.vo.SystemUserQueryVo;
 import co.yixiang.modules.order.web.vo.YxStoreOrderQueryVo;
+import co.yixiang.modules.shop.service.YxSystemConfigService;
 import co.yixiang.modules.user.entity.YxUserBill;
 import co.yixiang.modules.user.mapper.YxUserBillMapper;
 import co.yixiang.modules.user.mapping.BiillMap;
@@ -23,6 +32,7 @@ import co.yixiang.modules.user.web.vo.YxUserBillQueryVo;
 import co.yixiang.utils.CommonsUtils;
 import co.yixiang.utils.DateUtils;
 import co.yixiang.utils.OrderUtil;
+import co.yixiang.utils.StringUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.metadata.OrderItem;
@@ -57,6 +67,14 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<YxUserBillMapper, YxU
     private BiillMap biillMap;
     @Autowired
     private SystemUserService systemUserService;
+    @Autowired
+    private YxCouponOrderService yxCouponOrderService;
+    @Autowired
+    private YxCouponsService yxCouponsService;
+    @Autowired
+    private YxImageInfoService yxImageInfoService;
+    @Autowired
+    private YxSystemConfigService systemConfigService;
 
     /**
      * 签到了多少次
@@ -213,7 +231,7 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<YxUserBillMapper, YxU
         List<String> cartIds = Arrays.asList(order.getCartId().split(","));
         BigDecimal bigDecimalComm = yxUserBillMapper.getSumCommission(cartIds);
         // 商户收入=支付金额-佣金 小于0 的情况给个0
-        if(order.getPayPrice().compareTo(bigDecimalComm) > 0) {
+        if (order.getPayPrice().compareTo(bigDecimalComm) > 0) {
             bigMerPrice = order.getPayPrice().subtract(bigDecimalComm);
         }
 
@@ -313,6 +331,20 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<YxUserBillMapper, YxU
             for (YxUserBill item : result.getRecords()) {
                 UserBillVo userBillVo = CommonsUtils.convertBean(item, UserBillVo.class);
                 userBillVo.setAddTimeStr(DateUtils.timestampToStr10(item.getAddTime(), DateUtils.YYYY_MM_DD_HH_MM_SS));
+                // 放个默认的缩略图
+                String defaultUrl = this.systemConfigService.getData(SystemConfigConstants.BILL_DEFAULT_IMAGE);
+                if (StringUtils.isNotBlank(defaultUrl)) {
+                    userBillVo.setImage(defaultUrl);
+                }
+                // 卡券订单的关联卡券缩略图显示
+                YxCouponOrder yxCouponOrder = this.yxCouponOrderService.getOne(new QueryWrapper<YxCouponOrder>().lambda().eq(YxCouponOrder::getOrderId, item.getLinkId()));
+                if (null != yxCouponOrder) {
+                    YxCoupons yxCoupons = this.yxCouponsService.getById(yxCouponOrder.getCouponId());
+                    if (null != yxCoupons) {
+                        YxImageInfo yxImageInfo = this.yxImageInfoService.selectOneImg(yxCoupons.getId(), ShopConstants.IMG_TYPE_CARD, ShopConstants.IMG_CATEGORY_PIC);
+                        userBillVo.setImage(yxImageInfo.getImgUrl());
+                    }
+                }
                 list.add(userBillVo);
             }
             resultStr.setRecords(list);
