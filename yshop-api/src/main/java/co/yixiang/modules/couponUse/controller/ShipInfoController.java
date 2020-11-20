@@ -2,7 +2,6 @@ package co.yixiang.modules.couponUse.controller;
 
 import co.yixiang.annotation.AnonymousAccess;
 import co.yixiang.common.web.controller.BaseController;
-import co.yixiang.common.web.param.IdParam;
 import co.yixiang.modules.couponUse.param.*;
 import co.yixiang.modules.manage.entity.SystemUser;
 import co.yixiang.modules.ship.service.YxShipInfoService;
@@ -16,7 +15,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -125,10 +123,10 @@ public class ShipInfoController extends BaseController {
     @AnonymousAccess
     @PostMapping("/sendEmail")
     @ApiOperation(value = "发送邮件",notes = "发送邮件")
-    public ResponseEntity<Object> sendEmail(@Valid @RequestBody IdParam idParam, @RequestHeader(value = "token") String token) {
+    public ResponseEntity<Object> sendEmail(@RequestBody Map<String,String> mapParam, @RequestHeader(value = "token") String token) {
         SystemUser user = getRedisUser(token);
-//        Integer leaveId = param.get("leaveId");
-        Map<String, Object> map = new HashMap<>();
+        String batchNo = mapParam.get("batchNo");
+        Map<String, Object> map =yxShipInfoService.sendEmail(batchNo);
         return ResponseEntity.ok(map);
     }
 }
