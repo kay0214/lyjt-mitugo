@@ -66,7 +66,7 @@
         </el-col>
         <el-col :span='8'>
           <el-form-item label="佣金" prop='commission'>
-            <el-input v-model="commission"/>
+            <el-input v-model="form.commission"/>
           </el-form-item>
           <el-form-item label="排序" prop='sort'>
             <el-input v-model="form.sort" />
@@ -110,11 +110,11 @@ export default {
     }
   },
   computed: {
-    commission: function () {
-      if(!isNaN(this.form.price) && !isNaN(this.form.settlement)) {
-        return sub(this.form.price,this.form.settlement)
-      } else return 0
-    }
+    // commission: function () {
+    //   if(!isNaN(this.form.price) && !isNaN(this.form.settlement)) {
+    //     return sub(this.form.price,this.form.settlement)
+    //   } else return this.form.commission
+    // }
   },
   data() {
     //浮点数上限校验
@@ -136,20 +136,21 @@ export default {
         callback()
       }
     };
+
     //佣金校验 销售价price-平台结算价settlement>=0
     let commissionValue=(r,value,callback)=>{
       let val= sub(this.form.price*1,this.form.settlement*1)
       if(val<0){
-        callback(new Error("佣金=销售价-平台结算价 (佣金>=0)"));
+        callback(new Error("销售价>=平台结算价"));
       }else{
-        if(!isNaN(val)){
+        if(!isNaN(val) && !this.subForm){
           this.$set(this.form,'commission',val)
         }
         callback()
       }
     };
     return {
-      loading: false, dialog: false, cates: [],
+      loading: false, dialog: false, cates: [],subForm:false,
       form: {
         id: '',
         merId: 0,
@@ -321,7 +322,9 @@ export default {
       this.resetForm()
     },
     doSubmit() {
+     this.subForm=true
      this.$refs['form'].validate(valid=>{
+       this.subForm=false
        if(!valid){
          return;
        }else{
