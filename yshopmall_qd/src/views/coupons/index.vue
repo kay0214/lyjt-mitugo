@@ -171,7 +171,7 @@
             <el-input v-model="form.settlementPrice" style="width: 650px;" @change="setCommission" maxlength="12" />
           </el-form-item>
           <el-form-item label="佣金" prop="commission">
-            <el-input v-model="form.commission" style="width: 650px;" readonly />
+            <el-input v-model="form.commission" style="width: 650px;" />
           </el-form-item>
           <!-- coupon_type为4时使用 -->
           <template v-if="form.couponType === 4">
@@ -647,7 +647,11 @@ export default {
           }
         ],
         commission: [
-          { required: true, message: '佣金不能为空', trigger: 'change' }
+          { required: true, message: '佣金不能为空', trigger: 'change' },
+          {
+            pattern: /^[0-9]{0,6}([.]{1}[0-9]{0,2}){0,1}$/,  //正则
+            message: '请输入数字--限定6位整数2位小数'
+          }
         ],
         quantityLimit: [
           { required: true, message: '每人限购数量不能为空', trigger: 'blur' },

@@ -1,7 +1,7 @@
 <!--商品属性页面-->
 <template>
   <el-dialog :append-to-body="true" :close-on-click-modal="false" :before-close="cancel" :visible.sync="dialog" :title="title" width="900px">
-     <!--规则编辑--> 
+     <!--规则编辑-->
     <div style='border:1px solid #e4e7ec;border-radius:5px;padding:20px 20px 2px 20px'>
       <el-form ref="form" :model="form" :inline="true">
         <div>
@@ -70,33 +70,33 @@
                 </p>
               </template>
               </el-col>
-              <el-col :span="4">                
-                <el-form-item :prop='`price${index}`' :class="attr.check ? 'check':''" label="金额:" 
+              <el-col :span="4">
+                <el-form-item :prop='`price${index}`' :class="attr.check ? 'check':''" label="金额:"
                 :rules="rules.price">
                   <el-input v-model="form2['price'+index]" style="width: 100%" placeholder="金额" @input="(val)=>{attr.price=val}"
                   ></el-input>
                 </el-form-item>
               </el-col>
-              <el-col :span="4">             
-                <el-form-item :prop='`sales${index}`' :class="attr.check ? 'check':''" label="库存:" 
+              <el-col :span="4">
+                <el-form-item :prop='`sales${index}`' :class="attr.check ? 'check':''" label="库存:"
                 :rules='rules.sales'>
                   <el-input v-model="form2['sales'+index]" placeholder="库存" style="width: 100%" @input="(val)=>{attr.sales=val}"
                   ></el-input>
                 </el-form-item>
               </el-col>
-              <el-col :span="4">           
-                <el-form-item :prop='`cost${index}`' :class="attr.check ? 'check':''" label="平台结算价:" 
+              <el-col :span="4">
+                <el-form-item :prop='`cost${index}`' :class="attr.check ? 'check':''" label="平台结算价:"
                 :rules='rules.cost'>
                   <el-input v-model="form2['cost'+index]" placeholder="平台结算价" style="width: 100%" @input="(val)=>{attr.cost=val}"
                   ></el-input>
                 </el-form-item>
               </el-col>
               <el-col :span="3">
-                <el-form-item :prop='`commission${index}`' :class="attr.check ? 'check':''" label="佣金:" 
+                <el-form-item :prop='`commission${index}`' :class="attr.check ? 'check':''" label="佣金:"
                 :rules='rules.commission'>
-                  <el-input readonly v-model="form2['commission'+index]" placeholder="佣金" style="width: 100%" @input="(val)=>{attr.commission=val}"
+                  <el-input v-model="form2['commission'+index]" placeholder="佣金" style="width: 100%" @input="(val)=>{attr.commission=val}"
                   ></el-input>
-                </el-form-item>                
+                </el-form-item>
               </el-col>
               <el-col :span="3" style="margin-right: 2px">
                 <div class="demo-upload">
@@ -144,7 +144,7 @@ export default {
     }
   },
   data() {
-  // const validateRequire=(r,value,callback)=>{    
+  // const validateRequire=(r,value,callback)=>{
   //     if(!value){
   //       callback(new Error("必填项"));
   //     }else{
@@ -181,7 +181,7 @@ export default {
         price: [
           {required:true,message:'必填项',trigger:'blur'},
           {
-            pattern: /^[0-9]+([.]{1}[0-9]+){0,1}$/,  
+            pattern: /^[0-9]+([.]{1}[0-9]+){0,1}$/,
             message: '请输入数字',
             trigger: 'blur'
           },
@@ -190,16 +190,16 @@ export default {
             let index=rule.field.replace('price','')
             if(value<this.form2['cost'+index]*1){
                 callback(new Error('金额应大于等于平台结算价格'));
-              }else{              
+              }else{
                 this.form2['commission'+index]= sub(value,this.form2['cost'+index])
                 callback()
               }
-          }, trigger: 'blur'},          
+          }, trigger: 'blur'},
         ],
         sales: [
           {required:true,message:'必填项',trigger:'blur'},
           {
-            pattern: /^[0-9]+$/,  
+            pattern: /^[0-9]+$/,
             message: '请输入数字',
             trigger: 'blur'
           },
@@ -208,7 +208,7 @@ export default {
         cost: [
           {required:true,message:'必填项',trigger:'blur'},
           {
-            pattern: /^[0-9]+([.]{1}[0-9]+){0,1}$/,  
+            pattern: /^[0-9]+([.]{1}[0-9]+){0,1}$/,
             message: '请输入数字',
             trigger: 'blur'
           },
@@ -221,7 +221,7 @@ export default {
                 this.form2['commission'+index]= sub(this.form2['price'+index],value)
                 callback()
               }
-          }, trigger: 'blur'},     
+          }, trigger: 'blur'},
         ],
         commission: [
           {required:true,message:'必填项',trigger:'blur'},

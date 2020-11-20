@@ -66,7 +66,7 @@
         </el-col>
         <el-col :span='8'>
           <el-form-item label="佣金" prop='commission'>
-            <el-input v-model="commission" readonly />
+            <el-input v-model="commission"/>
           </el-form-item>
           <el-form-item label="排序" prop='sort'>
             <el-input v-model="form.sort" />
@@ -268,7 +268,8 @@ export default {
           { validator: (rule, value, callback)=>{validateInt(rule, value, callback)}, trigger: 'blur'}
         ],
         commission:[
-          // { required: true,message: '必填项', trigger: 'blur'}
+          { required: true,message: '必填项', trigger: 'blur'},
+          { validator: validateNum, trigger: 'blur'}
         ],
         isPostage:[
           { required: true,message: '必填项', trigger: 'blur'}
