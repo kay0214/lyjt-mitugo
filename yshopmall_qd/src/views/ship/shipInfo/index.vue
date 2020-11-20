@@ -3,7 +3,7 @@
     <!--工具栏-->
     <div class="head-container">
       <!--如果想在工具栏加入更多按钮，可以使用插槽方式， slot = 'left' or 'right'-->
-      <el-input v-model="query.seriesName" clearable size="small" placeholder="请输入系列名称" style="width: 200px;" class="filter-item" @keyup.enter.native="crud.toQuery" />
+      <el-input v-model.trim="query.shipName" clearable size="small" placeholder="请输入船只名称" style="width: 200px;" class="filter-item" @keyup.enter.native="crud.toQuery" />
       <el-select v-model.number="query.seriesId" clearable @clear="()=>{$route.query.seriesId=''}" placeholder="请选择船只系列" style="width: 200px;" class="filter-item">
         <el-option
           v-for="item in shipSeries"
@@ -194,7 +194,8 @@ export default {
         {value:'0',label:'在港'},
         {value:'1',label:'离港'},
         {value:'2',label:'维修中'}
-      ]
+      ],
+      newTab:true
     }
   },
   watch: {
@@ -232,15 +233,18 @@ export default {
   mounted() {
     initData('api/yxShipSeries').then(res=>{
       this.shipSeries=res.content
+      this.newTab=false
     })
   },
   methods: {
     // 获取数据前设置好接口地址
     [CRUD.HOOK.beforeRefresh]() {
-      if(Boolean(this.$route.query.seriesId) && !isNaN(this.$route.query.seriesId)){
-        this.query.seriesId=parseInt(this.$route.query.seriesId)
-      }else{
-        this.query.seriesId=''
+      if(this.newTab){
+        if(Boolean(this.$route.query.seriesId) && !isNaN(this.$route.query.seriesId)){
+          this.query.seriesId=parseInt(this.$route.query.seriesId)
+        }else{
+          this.query.seriesId=''
+        }
       }
       return true
     }, // 新增与编辑前做的操作
