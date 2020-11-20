@@ -18,6 +18,7 @@ import co.yixiang.dozer.service.IGenerator;
 import co.yixiang.exception.BadRequestException;
 import co.yixiang.logging.aop.log.Log;
 import co.yixiang.modules.couponUse.criteria.YxCouponOrderUseQueryCriteria;
+import co.yixiang.modules.couponUse.dto.YxCouponsDto;
 import co.yixiang.modules.couponUse.dto.YxStoreInfoDto;
 import co.yixiang.modules.coupons.service.YxCouponOrderService;
 import co.yixiang.modules.coupons.service.YxCouponOrderUseService;
@@ -348,11 +349,17 @@ public class CouponUseController extends BaseController {
     @GetMapping(value = "/getUseCouponInput")
     public ResponseEntity<Object> getUseCouponInput(@RequestHeader(value = "token") String token, @RequestParam(value = "orderId") String orderId) {
         // 获取登陆用户的id
-        Map<String, String> map = new HashMap<>();
+        Map<String, Object> map = new HashMap<>();
         SystemUser user = getRedisUser(token);
 
         int uid = user.getId().intValue();
-        return ResponseEntity.ok(this.yxCouponsService.getCouponByOrderId(orderId, user));
+        YxCouponsDto yxCouponsDto = this.yxCouponsService.getCouponByOrderId(orderId, user);
+        if (1 == yxCouponsDto.getStatus()) {
+            map.put("data", yxCouponsDto);
+        }
+        map.put("status", yxCouponsDto.getStatus());
+        map.put("statusDesc", yxCouponsDto.getStatusDesc());
+        return ResponseEntity.ok(map);
     }
 
 

@@ -80,7 +80,7 @@ public class YxCouponOrderUseDto implements Serializable {
     /** 用户昵称 */
     private String nickName;
 
-    /** 卡券类型;1:代金券, 2:折扣券, 3:满减券 */
+    /** 卡券类型;1:代金券, 2:折扣券, 3:满减券,4:船票 */
     private Integer couponType;
 
     /** 代金券面额, coupon_type为1时使用 */
@@ -97,4 +97,7 @@ public class YxCouponOrderUseDto implements Serializable {
 
     /** 核销时间 */
     private String useTime;
+
+    /** 卡券缩略图 */
+    private String couponImage;
 }
