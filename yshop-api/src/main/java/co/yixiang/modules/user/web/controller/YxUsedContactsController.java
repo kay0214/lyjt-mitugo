@@ -51,7 +51,7 @@ public class YxUsedContactsController extends BaseController {
     public ApiResult<Boolean> addYxUsedContacts(@Valid @RequestBody YxUsedContactsSaveDto request) throws Exception {
         int uid = SecurityUtils.getUserId().intValue();
         request.setUserId(uid);
-        if (!IdCardUtils.isValid(request.getCardId())) {
+        if (StringUtils.isNotBlank(request.getCardId()) && !IdCardUtils.isValid(request.getCardId())) {
             throw new BadRequestException("请输入正确的身份证号");
         }
         boolean flag = yxUsedContactsService.saveUsedContacts(request);
@@ -94,11 +94,11 @@ public class YxUsedContactsController extends BaseController {
     }
 
     /**
-    * 获取常用联系人表
-    */
+     * 获取常用联系人表
+     */
     @PostMapping("/info")
-    @ApiOperation(value = "获取YxUsedContacts对象详情",notes = "查看常用联系人表",response = YxUsedContactsQueryVo.class)
-    public ApiResult<YxUsedContactsQueryVo> getYxUsedContacts(@Valid @RequestBody IdParam idParam) throws Exception{
+    @ApiOperation(value = "获取YxUsedContacts对象详情", notes = "查看常用联系人表", response = YxUsedContactsQueryVo.class)
+    public ApiResult<YxUsedContactsQueryVo> getYxUsedContacts(@Valid @RequestBody IdParam idParam) throws Exception {
         YxUsedContactsQueryVo yxUsedContactsQueryVo = yxUsedContactsService.getYxUsedContactsById(idParam.getId());
         return ApiResult.ok(yxUsedContactsQueryVo);
     }

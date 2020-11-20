@@ -16,6 +16,8 @@ import co.yixiang.modules.activity.service.YxUserExtractService;
 import co.yixiang.modules.activity.service.dto.YxUserExtractDto;
 import co.yixiang.modules.activity.service.dto.YxUserExtractQueryCriteria;
 import co.yixiang.modules.activity.service.mapper.YxUserExtractMapper;
+import co.yixiang.modules.bank.domain.BankCode;
+import co.yixiang.modules.bank.service.BankCodeService;
 import co.yixiang.modules.shop.domain.User;
 import co.yixiang.modules.shop.domain.YxExamineLog;
 import co.yixiang.modules.shop.domain.YxUser;
@@ -70,6 +72,8 @@ public class YxUserExtractServiceImpl extends BaseServiceImpl<YxUserExtractMappe
     private YxUserBillService yxUserBillService;
     @Autowired
     private YxExamineLogService yxExamineLogService;
+    @Autowired
+    private BankCodeService bankCodeService;
 
     @Override
     //@Cacheable
@@ -141,12 +145,15 @@ public class YxUserExtractServiceImpl extends BaseServiceImpl<YxUserExtractMappe
             // 所属银行
             map.put("所属银行", yxUserExtract.getBankAddress());
             // 支行
+            map.put("支行", yxUserExtract.getBankAdd());
             // 联行号
+            map.put("联行号", yxUserExtract.getCnapsCode());
             // 联系电话
+            map.put("联系电话", yxUserExtract.getBankMobile());
             map.put("提现金额", yxUserExtract.getExtractPrice());
             // 订单号
-            // 用户类型
-            map.put("添加时间", DateUtils.timestampToStr10(yxUserExtract.getAddTime()));
+            map.put("订单号", yxUserExtract.getSeqNo());
+            // 用户类型map.put("添加时间", DateUtils.timestampToStr10(yxUserExtract.getAddTime()));
             map.put("状态", statusStr);
             map.put("驳回原因", yxUserExtract.getFailMsg());
             map.put("驳回时间", DateUtils.timestampToStr10(yxUserExtract.getFailTime()));
@@ -290,7 +297,13 @@ public class YxUserExtractServiceImpl extends BaseServiceImpl<YxUserExtractMappe
                 }
             }
             // 根据联行号查询支行
-
+            BankCode bankCode = this.bankCodeService.getOne(new QueryWrapper<BankCode>().lambda().eq(BankCode::getBankCode, extractDto.getCnapsCode()));
+            if (null != bankCode && StringUtils.isNotBlank(bankCode.getBankAdd())) {
+                extractDto.setBankAdd(bankCode.getBankAdd());
+            }
+            if (StringUtils.isBlank(extractDto.getBankAddress())) {
+                extractDto.setBankAddress(bankCode.getBankName());
+            }
         }
 
         return list;
