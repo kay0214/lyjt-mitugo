@@ -145,6 +145,9 @@ public class YxStoreProductQueryVo implements Serializable {
     @ApiModelProperty(value = "商品短视频")
     private String video;
 
+    @ApiModelProperty(value = "分佣模式（0：按平台，1：不分佣，2：自定义分佣）")
+    private Integer customizeType;
+
     private String image_base;
 
     private String codeBase;

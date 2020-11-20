@@ -5,6 +5,7 @@ import cn.hutool.extra.mail.MailUtil;
 import co.yixiang.common.service.impl.BaseServiceImpl;
 import co.yixiang.common.web.vo.Paging;
 import co.yixiang.constant.ShopConstants;
+import co.yixiang.constant.SystemConfigConstants;
 import co.yixiang.modules.couponUse.dto.YxShipOperationDetailVO;
 import co.yixiang.modules.couponUse.dto.YxShipPassengerVO;
 import co.yixiang.modules.couponUse.param.*;
@@ -13,7 +14,9 @@ import co.yixiang.modules.coupons.service.YxCouponOrderService;
 import co.yixiang.modules.image.entity.YxImageInfo;
 import co.yixiang.modules.image.service.YxImageInfoService;
 import co.yixiang.modules.manage.entity.SystemUser;
+import co.yixiang.modules.manage.entity.UsersRoles;
 import co.yixiang.modules.manage.mapper.SystemUserMapper;
+import co.yixiang.modules.manage.mapper.UsersRolesMapper;
 import co.yixiang.modules.manage.web.vo.SystemUserQueryVo;
 import co.yixiang.modules.ship.entity.*;
 import co.yixiang.modules.ship.mapper.YxShipInfoMapper;
@@ -80,6 +83,8 @@ public class YxShipInfoServiceImpl extends BaseServiceImpl<YxShipInfoMapper, YxS
     private YxShipSeriesService yxShipSeriesService;
     @Autowired
     private SystemUserMapper systemUserMapper;
+    @Autowired
+    private UsersRolesMapper usersRolesMapper;
 
 
     @Override
@@ -513,7 +518,29 @@ public class YxShipInfoServiceImpl extends BaseServiceImpl<YxShipInfoMapper, YxS
         account.setUser("nixiaoling@hyjf.com");
         account.setPass("kid0717Q!@#");
 
-        MailUtil.send(account,"kid_07@yeah.net", strContent, "<h1>你好 "+strContent+"，请查收</h1>",true, FileUtil.file(path));
+        //获取邮箱
+        QueryWrapper<UsersRoles> wrapper = new QueryWrapper<>();
+        wrapper.lambda().eq(UsersRoles::getRoleId, SystemConfigConstants.ROLE_POLICE);
+        List<UsersRoles> usersRolesList = usersRolesMapper.selectList(wrapper);
+        if(CollectionUtils.isEmpty(usersRolesList)){
+            map.put("status", "99");
+            map.put("statusDesc", "获取用户角色为【海岸支队】失败！");
+            return map;
+        }
+        String strReceiveEmail ="";
+        for(UsersRoles usersRoles:usersRolesList) {
+            SystemUserQueryVo systemUser = systemUserMapper.getUserById(usersRoles.getUserId());
+            if (null != systemUser && StringUtils.isNotBlank(systemUser.getEmail())) {
+                strReceiveEmail = systemUser.getEmail();
+                break;
+            }
+        }
+        if(StringUtils.isBlank(strReceiveEmail)){
+            map.put("status", "99");
+            map.put("statusDesc", "获取用户角色为【海岸支队】的邮箱失败！");
+            return map;
+        }
+        MailUtil.send(account,strReceiveEmail, strContent, "<h1>你好 "+strContent+"，请查收</h1>",true, FileUtil.file(path));
         // 删除文件
         FileUtil.del(path);
         return map;

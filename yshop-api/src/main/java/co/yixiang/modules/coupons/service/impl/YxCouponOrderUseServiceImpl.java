@@ -80,7 +80,7 @@ public class YxCouponOrderUseServiceImpl extends BaseServiceImpl<YxCouponOrderUs
 //        PageInfo<YxCouponOrderUse> page = new PageInfo<>(baseMapper.selectList(QueryHelpPlus.getPredicate(YxCouponOrderUse.class, criteria)));
         Page page = setPageParam(criteria, OrderItem.desc("id"));
 
-        IPage<YxCouponOrderUse> ipage = this.page(page, new QueryWrapper<YxCouponOrderUse>().lambda().eq(YxCouponOrderUse::getCreateUserId, criteria.getCreateUserId()));
+        IPage<YxCouponOrderUse> ipage = this.page(page, new QueryWrapper<YxCouponOrderUse>().lambda().eq(YxCouponOrderUse::getStoreId, criteria.getStoreId()));
         if (ipage.getTotal() == 0) {
             Map<String, Object> map = new LinkedHashMap<>(2);
             map.put("content", new ArrayList<>());

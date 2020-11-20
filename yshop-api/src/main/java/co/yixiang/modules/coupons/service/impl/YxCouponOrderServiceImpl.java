@@ -940,13 +940,13 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         item.setCouponType(yxCoupons.getCouponType());
         //船只信息
         if (4 == yxCoupons.getCouponType()) {
-            item = setShipDetailInof(item, yxCoupons, yxCouponOrder, shipOrderStatus);
+            item = setShipDetailInof(item, yxCoupons, shipOrderStatus);
             item.setPassengeList(yxShipPassengerService.getPassengerByOrderId(item.getId()));
         }
         return item;
     }
 
-    private YxCouponOrderQueryVo setShipDetailInof(YxCouponOrderQueryVo item, YxCoupons yxCoupons, YxCouponOrder yxCouponOrder, int shipOrderStatus) {
+    private YxCouponOrderQueryVo setShipDetailInof(YxCouponOrderQueryVo item, YxCoupons yxCoupons, int shipOrderStatus) {
         //船票券
         YxShipSeriesQueryVo yxShipSeriesQueryVo = yxShipSeriesMapper.getYxShipSeriesById(yxCoupons.getSeriesId());
         YxShipInfoQueryVo yxShipInfoQueryVo = yxShipInfoMapper.getYxShipInfoById(yxCoupons.getShipId());
@@ -985,36 +985,13 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
 
         //
         item.setShipOrderStatus(shipOrderStatus);
-        //可用二维码
-        List<String> ableCode = availableVerifyCode(yxCouponOrder);
-        item.setAbleVerifyCode(ableCode);
+        //
+        item.setUserPhone(yxShipInfoQueryVo.getManagerPhone());
+        //
+
         return item;
     }
 
-    /**
-     * 可用二维码
-     *
-     * @param yxCouponOrder
-     * @return
-     */
-    private List<String> availableVerifyCode(YxCouponOrder yxCouponOrder) {
-        List<String> listAvailable = new ArrayList<>();
-        if (4 == yxCouponOrder.getStatus()) {
-            //订单状态为待使用
-            QueryWrapper<YxCouponOrderDetail> queryWrapperAble = new QueryWrapper<YxCouponOrderDetail>();
-            queryWrapperAble.lambda().eq(YxCouponOrderDetail::getOrderId, yxCouponOrder.getOrderId()).eq(YxCouponOrderDetail::getUserStatus, 1).eq(YxCouponOrderDetail::getStatus, 4);
-            List<YxCouponOrderDetail> detailListVisable = this.yxCouponOrderDetailService.list(queryWrapperAble);
-            if (CollectionUtils.isEmpty(detailListVisable)) {
-                return listAvailable;
-            }
-            for (YxCouponOrderDetail detail : detailListVisable) {
-                String ableCode = Base64Utils.encode(detail.getVerifyCode() + "," + yxCouponOrder.getUid());
-                listAvailable.add(ableCode);
-            }
-            return listAvailable;
-        }
-        return listAvailable;
-    }
 
     /**
      * 计算卡券各种订单数量

@@ -194,7 +194,7 @@ public class YxCouponsController extends BaseController {
                 }
                 break;
         }
-        yxCouponsQueryVo.setCommission(bigCommission);
+        yxCouponsQueryVo.setCommission(bigCommission.setScale(2,BigDecimal.ROUND_DOWN));
 
         if (StringUtils.isNotBlank(yxCouponsQueryVo.getConfirmation())) {
             List<String> stringList = Arrays.asList(yxCouponsQueryVo.getConfirmation().split(","));
