@@ -48,7 +48,7 @@
           <el-form-item label="原价" prop='otPrice'>
             <el-input v-model="form.otPrice" οnkeyup="if(isNaN(value))execCommand('undo')" onafterpaste="if(isNaN(value))execCommand('undo')" maxlength="12" />
           </el-form-item>
-          <el-form-item label="虚拟销量" prop='ficti'>
+          <el-form-item v-if="$store.getters.user.userRole==0 || $store.getters.user.username=='admin'" label="虚拟销量" prop='ficti'>
             <el-input v-model="form.ficti" maxlength="12" />
           </el-form-item>
         </el-col>
@@ -68,7 +68,7 @@
           <el-form-item label="佣金" prop='commission'>
             <el-input v-model="form.commission"/>
           </el-form-item>
-          <el-form-item label="排序" prop='sort'>
+          <el-form-item v-if="$store.getters.user.userRole==0 || $store.getters.user.username=='admin'" label="排序" prop='sort'>
             <el-input v-model="form.sort" />
           </el-form-item>
           <el-form-item v-if='!form.isPostage' prop='postage' :rules="form.isPostage?[{required:false}]:rules.postage" label="邮费">

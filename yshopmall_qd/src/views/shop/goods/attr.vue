@@ -171,7 +171,7 @@ export default {
       }
     };
     return {
-      loading: false, dialog: false, cates: [], title: '规则属性',
+      loading: false, dialog: false, cates: [], title: '规则属性',subForm:false,
       form: {},
       form2:{},
       rules: {
@@ -191,7 +191,9 @@ export default {
             if(value<this.form2['cost'+index]*1){
                 callback(new Error('金额应大于等于平台结算价格'));
               }else{
+                if(!this.subForm){
                 this.form2['commission'+index]= sub(value,this.form2['cost'+index])
+                }
                 callback()
               }
           }, trigger: 'blur'},
@@ -467,7 +469,9 @@ export default {
       })
     },
     submit() {
+      this.subForm=true
       this.$refs.form2.validate(ret=>{
+        this.subForm=false
         if(!ret){
           Message({ message: '请查看必填项是否填充正确', type: 'error' })
           return
