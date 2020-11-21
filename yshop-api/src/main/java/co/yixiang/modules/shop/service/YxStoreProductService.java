@@ -104,14 +104,14 @@ public interface YxStoreProductService extends BaseService<YxStoreProduct> {
      * @param storeId
      * @return
      */
-    Map<String, Integer> getLocalProductCount(Integer storeId);
+    Map<String, Long> getLocalProductCount(Integer storeId);
 
     /**
      * 本地生活订单相关数量
      * @param storeId
      * @return
      */
-    Map<String, Integer> getLocalProductOrderCount(Integer storeId);
+    Map<String, Long> getLocalProductOrderCount(Integer storeId);
 
     /**
      * 今日营业额
@@ -125,14 +125,14 @@ public interface YxStoreProductService extends BaseService<YxStoreProduct> {
      * @param storeId
      * @return
      */
-    Map<String, Integer> getShopProductCount(Integer storeId);
+    Map<String, Long> getShopProductCount(Integer storeId);
 
     /**
      * 商城订单数量相关
      * @param storeId
      * @return
      */
-    Map<String, Integer> getShopOrderCount(Integer storeId);
+    Map<String, Long> getShopOrderCount(Integer storeId);
 
     /**
      * 商城今日营业额

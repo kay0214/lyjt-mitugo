@@ -774,7 +774,7 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
      * @return
      */
     @Override
-    public Map<String, Integer> getLocalProductCount(Integer storeId) {
+    public Map<String, Long> getLocalProductCount(Integer storeId) {
         return yxStoreProductMapper.getLocalProductCount(storeId);
     }
 
@@ -785,7 +785,7 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
      * @return
      */
     @Override
-    public Map<String, Integer> getLocalProductOrderCount(Integer storeId) {
+    public Map<String, Long> getLocalProductOrderCount(Integer storeId) {
         return yxStoreProductMapper.getLocalProductOrderCount(storeId);
     }
 
@@ -807,7 +807,7 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
      * @return
      */
     @Override
-    public Map<String, Integer> getShopProductCount(Integer storeId) {
+    public Map<String, Long> getShopProductCount(Integer storeId) {
         return yxStoreProductMapper.getShopProductCount(storeId);
     }
 
@@ -818,7 +818,7 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
      * @return
      */
     @Override
-    public Map<String, Integer> getShopOrderCount(Integer storeId) {
+    public Map<String, Long> getShopOrderCount(Integer storeId) {
         return yxStoreProductMapper.getShopOrderCount(storeId);
     }
 

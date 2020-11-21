@@ -28,6 +28,8 @@ public class YxUserBillQueryCriteria extends BaseCriteria {
     @Query(type = Query.Type.INNER_LIKE)
     private String title;
 
+    @Query(type = Query.Type.EQUAL)
+    private String linkId;
 
     //开始时间
     private String addTimeStart;
@@ -40,5 +42,7 @@ public class YxUserBillQueryCriteria extends BaseCriteria {
     private String type;
     // 用户类型
     private Integer userType;
+
+    private Integer brokerageType;
 
 }

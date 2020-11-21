@@ -81,17 +81,44 @@ public class YxMerchantsDetailServiceImpl extends BaseServiceImpl<YxMerchantsDet
     @Override
     //@Cacheable
     public Map<String, Object> queryAll(YxMerchantsDetailQueryCriteria criteria, Pageable pageable) {
+        Map<String, Object> map = new LinkedHashMap<>(2);
         QueryWrapper<YxMerchantsDetail> queryWrapper = new QueryWrapper<>();
         queryWrapper.lambda().orderByDesc(YxMerchantsDetail::getCreateTime);
         if (0 != criteria.getUserRole()) {
             if (null == criteria.getChildUser() || criteria.getChildUser().size() <= 0) {
-                Map<String, Object> map = new LinkedHashMap<>(2);
                 map.put("content", new ArrayList<>());
                 map.put("totalElements", 0);
                 return map;
             }
             queryWrapper.lambda().in(YxMerchantsDetail::getUid, criteria.getChildUser()).eq(YxMerchantsDetail::getDelFlag, 0);
         }
+        // 登陆用户名
+        if (StringUtils.isNotBlank(criteria.getUsername())) {
+            User user = this.userService.getOne(new QueryWrapper<User>().lambda().eq(User::getUsername, criteria.getUsername()));
+            if (null == user) {
+                map.put("content", new ArrayList<>());
+                map.put("totalElements", 0);
+                return map;
+            }
+            queryWrapper.lambda().eq(YxMerchantsDetail::getUid, user.getId());
+        }
+        // 商户名称
+        if (StringUtils.isNotBlank(criteria.getMerchantsName())) {
+            queryWrapper.lambda().like(YxMerchantsDetail::getMerchantsName, criteria.getMerchantsName());
+        }
+        // 联系人电话
+        if (StringUtils.isNotBlank(criteria.getContactMobile())) {
+            queryWrapper.lambda().eq(YxMerchantsDetail::getContactMobile, criteria.getContactMobile());
+        }
+        // 状态
+        if (null != criteria.getStatus()) {
+            queryWrapper.lambda().eq(YxMerchantsDetail::getStatus, criteria.getStatus());
+        }
+        // 审核状态
+        if (null != criteria.getExamineStatus()) {
+            queryWrapper.lambda().eq(YxMerchantsDetail::getExamineStatus, criteria.getExamineStatus());
+        }
+
         IPage<YxMerchantsDetail> ipage = this.page(new Page<>(pageable.getPageNumber() + 1, pageable.getPageSize()), queryWrapper);
 
         List<YxMerchantsDetailDto> list = new ArrayList<>();
@@ -136,7 +163,6 @@ public class YxMerchantsDetailServiceImpl extends BaseServiceImpl<YxMerchantsDet
             list.add(dto);
         }
 
-        Map<String, Object> map = new LinkedHashMap<>(2);
         map.put("content", list);
         map.put("totalElements", ipage.getTotal());
         return map;
