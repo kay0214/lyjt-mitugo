@@ -16,13 +16,26 @@ import lombok.Data;
  * @date 2020-08-19
  */
 @Data
-public class YxExamineLogQueryCriteria extends BaseCriteria{
+public class YxExamineLogQueryCriteria extends BaseCriteria {
 
-    /** 审批类型 1:提现 2:商户信息 */
+    /**
+     * 审批类型 1:提现 2:商户信息
+     */
     @Query(type = Query.Type.EQUAL)
     private Integer type;
 
-    /** 冗余字段：被审核人信息 */
+    /**
+     * 冗余字段：被审核人信息
+     */
     @Query(type = Query.Type.LEFT_LIKE)
     private String username;
+
+    @Query(type = Query.Type.INNER_LIKE)
+    private String merchantsName;
+
+    @Query(type = Query.Type.EQUAL)
+    private String contactMobile;
+
+    @Query(type = Query.Type.EQUAL)
+    private Integer status;
 }
