@@ -132,6 +132,20 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
                 queryWrapper.lambda().eq(YxCouponOrder::getMerId, user.getId());
             }
         }
+        if (StringUtils.isNotBlank(criteria.getStoreName())) {
+            List<YxCoupons> coupons = this.yxCouponsService.list(new QueryWrapper<YxCoupons>().lambda().like(YxCoupons::getCouponName, criteria.getStoreName()));
+            if (null == coupons || coupons.size() <= 0) {
+                Map<String, Object> map = new LinkedHashMap<>(2);
+                map.put("content", new ArrayList<>());
+                map.put("totalElements", 0);
+                return map;
+            }
+            List<Integer> ids = new ArrayList<>();
+            for (YxCoupons item : coupons) {
+                ids.add(item.getId());
+            }
+            queryWrapper.lambda().in(YxCouponOrder::getCouponId, ids);
+        }
 
         IPage<YxCouponOrder> ipage = this.page(new Page<>(pageable.getPageNumber() + 1, pageable.getPageSize()), queryWrapper);
         if (ipage.getTotal() <= 0) {

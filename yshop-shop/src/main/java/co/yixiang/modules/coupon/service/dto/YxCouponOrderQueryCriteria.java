@@ -5,9 +5,9 @@ import co.yixiang.modules.shop.service.dto.BaseCriteria;
 import lombok.Data;
 
 /**
-* @author huiy
-* @date 2020-08-14
-*/
+ * @author huiy
+ * @date 2020-08-14
+ */
 @Data
 public class YxCouponOrderQueryCriteria extends BaseCriteria {
 
@@ -28,5 +28,8 @@ public class YxCouponOrderQueryCriteria extends BaseCriteria {
 
     @Query(type = Query.Type.EQUAL)
     private String value;
+
+    @Query(type = Query.Type.EQUAL)
+    private String storeName;
 
 }
