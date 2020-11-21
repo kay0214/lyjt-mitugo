@@ -49,7 +49,7 @@ public class TodayDataController extends BaseController {
 
     @AnonymousAccess
     @NeedLogin
-    @Cached(name="cachedWordGetTodayData-", expire = CacheConstant.DEFAULT_EXPIRE_TIME, cacheType = CacheType.REMOTE)
+    @Cached(name="cachedGetTodayData-", expire = CacheConstant.DEFAULT_EXPIRE_TIME, cacheType = CacheType.REMOTE)
     @CacheRefresh(refresh = CacheConstant.DEFAULT_REFRESH_TIME, stopRefreshAfterLastAccess = CacheConstant.DEFAULT_STOP_REFRESH_TIME)
     @GetMapping(value = "/getTodayData")
     @ApiOperation("核销端今日数据统计")

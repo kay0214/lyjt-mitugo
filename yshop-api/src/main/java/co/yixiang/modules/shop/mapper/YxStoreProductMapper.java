@@ -84,22 +84,22 @@ public interface YxStoreProductMapper extends BaseMapper<YxStoreProduct> {
      * @return
      */
     @Select("SELECT count(is_show = 0 or null) AS localProductUnder,count(0) AS localProduct FROM yx_coupons WHERE store_id = #{storeId} AND del_flag = 0 ")
-    Map<String, Integer> getLocalProductCount(@Param("storeId")Integer storeId);
+    Map<String, Long> getLocalProductCount(@Param("storeId")Integer storeId);
 
     /**
      * 本地生活订单相关数量
      * @param storeId
      * @return
      */
-    @Select("select  count(0) AS localOrderCount,count(status in(4,5) or null) AS localOrderWait, count(status = 7 or null) AS localOrderRefund from yx_coupon_order where mer_id=#{storeId} pay_staus=1 and (status =2 or status >3) and del_flag=0 and DATE_FORMAT(FROM_UNIXTIME(create_time),'%Y-%m-%d') = DATE_FORMAT(NOW(),'%Y-%m-%d')")
-    Map<String, Integer> getLocalProductOrderCount(@Param("storeId") Integer storeId);
+    @Select("select  count(0) AS localOrderCount,count(status in(4,5) or null) AS localOrderWait, count(status = 7 or null) AS localOrderRefund from yx_coupon_order where mer_id=#{storeId} and  pay_staus=1 and (status =2 or status >3) and del_flag=0 and DATE_FORMAT(FROM_UNIXTIME(create_time),'%Y-%m-%d') = DATE_FORMAT(NOW(),'%Y-%m-%d')")
+    Map<String, Long> getLocalProductOrderCount(@Param("storeId") Integer storeId);
 
     /**
      * 今日营业额
      * @param storeId
      * @return
      */
-    @Select("select IFNULL(sum(total_price),0) from yx_coupon_order where mer_id=#{storeId} and del_flag=0 and status in (2,4,5,6) and DATE_FORMAT(FROM_UNIXTIME(create_time),'%Y-%m-%d') = DATE_FORMAT(NOW(),'%Y-%m-%d') and mer_id=#{mer_id}")
+    @Select("select IFNULL(sum(total_price),0) from yx_coupon_order where mer_id=#{storeId} and del_flag=0 and status in (2,4,5,6) and DATE_FORMAT(FROM_UNIXTIME(create_time),'%Y-%m-%d') = DATE_FORMAT(NOW(),'%Y-%m-%d')")
     BigDecimal getLocalSumPrice(@Param("storeId") Integer storeId);
 
     /**
@@ -108,22 +108,22 @@ public interface YxStoreProductMapper extends BaseMapper<YxStoreProduct> {
      * @return
      */
     @Select("SELECT count(is_show = 0 or null) AS shopProductUnder,count(0) AS shopProduct FROM yx_store_product WHERE store_id = #{storeId} AND is_del = 0 ")
-    Map<String, Integer> getShopProductCount(@Param("storeId")Integer storeId);
+    Map<String, Long> getShopProductCount(@Param("storeId")Integer storeId);
 
     /**
      * 商城订单数量相关
      * @param storeId
      * @return
      */
-    @Select("select  count(0) AS shopOrderCount,count(status =0 or null) AS shopOrderSend, count(status = -1 or null) AS shopOrderRefund from yx_store_order where mer_id=#{storeId}   and is_del=0 and DATE_FORMAT(FROM_UNIXTIME(create_time),'%Y-%m-%d') = DATE_FORMAT(NOW(),'%Y-%m-%d')")
-    Map<String, Integer> getShopOrderCount(@Param("storeId")Integer storeId);
+    @Select("select  count(0) AS shopOrderCount,count(status =0 or null) AS shopOrderSend, count(status = -1 or null) AS shopOrderRefund from yx_store_order where mer_id=#{storeId}   and is_del=0 and DATE_FORMAT(FROM_UNIXTIME(add_time),'%Y-%m-%d') = DATE_FORMAT(NOW(),'%Y-%m-%d')")
+    Map<String, Long> getShopOrderCount(@Param("storeId")Integer storeId);
 
     /**
      * 商城今日营业额
      * @param storeId
      * @return
      */
-    @Select("select  IFNULL(sum(total_price),0) AS shopSumPrice from yx_store_order where mer_id=#{storeId} and status in (0,1,2,3)   and is_del=0 and DATE_FORMAT(FROM_UNIXTIME(create_time),'%Y-%m-%d') = DATE_FORMAT(NOW(),'%Y-%m-%d')")
+    @Select("select  IFNULL(sum(total_price),0) AS shopSumPrice from yx_store_order where mer_id=#{storeId} and status in (0,1,2,3)   and is_del=0 and DATE_FORMAT(FROM_UNIXTIME(add_time),'%Y-%m-%d') = DATE_FORMAT(NOW(),'%Y-%m-%d')")
     BigDecimal getShopSumPrice(@Param("storeId") Integer storeId);
 
     /**

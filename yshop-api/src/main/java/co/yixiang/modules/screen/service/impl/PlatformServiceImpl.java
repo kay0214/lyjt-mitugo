@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -90,20 +91,20 @@ public class PlatformServiceImpl  implements PlatformService {
 
         TodayDataDto result = new TodayDataDto();
         // 本地生活相关-----------------------
-        Map<String,Integer> localProductCount = productService.getLocalProductCount(storeId);
+        Map<String,Long> localProductCount = productService.getLocalProductCount(storeId);
         // 卡券数量
-        result.setLocalProduct(localProductCount.get("localProduct"));
+        result.setLocalProduct(localProductCount.get("localProduct").intValue());
         // 待上架卡券数量
-        result.setLocalProductUnder(localProductCount.get("localProductUnder"));
+        result.setLocalProductUnder(localProductCount.get("localProductUnder").intValue());
         // 卡券订单相关
-        Map<String,Integer> localProductOrderCount = productService.getLocalProductOrderCount(storeId);
+        Map<String,Long> localProductOrderCount = productService.getLocalProductOrderCount(storeId);
 
         // 今日订单数
-        result.setLocalOrderCount(localProductOrderCount.get("localOrderCount"));
+        result.setLocalOrderCount(localProductOrderCount.get("localOrderCount").intValue());
         // 未核销订单
-        result.setLocalOrderWait(localProductOrderCount.get("localOrderWait"));
+        result.setLocalOrderWait(localProductOrderCount.get("localOrderWait").intValue());
         // 待处理退款
-        result.setLocalOrderRefund(localProductOrderCount.get("localOrderRefund"));
+        result.setLocalOrderRefund(localProductOrderCount.get("localOrderRefund").intValue());
 
         BigDecimal localSumPrice = productService.getLocalSumPrice(storeId);
         // 今日营业额
@@ -111,20 +112,20 @@ public class PlatformServiceImpl  implements PlatformService {
         // 本地生活相关----------------------- end
 
         // 商城相关===========================
-        Map<String,Integer> shopProductCount = productService.getShopProductCount(storeId);
+        Map<String,Long> shopProductCount = productService.getShopProductCount(storeId);
         // 商品数量
-        result.setShopProduct(shopProductCount.get("shopProduct"));
+        result.setShopProduct(shopProductCount.get("shopProduct").intValue());
         // 待上架商品
-        result.setShopProductUnder(shopProductCount.get("shopProductUnder"));
+        result.setShopProductUnder(shopProductCount.get("shopProductUnder").intValue());
 
         // 商城订单数量相关
-        Map<String,Integer> shopOrders = productService.getShopOrderCount(storeId);
+        Map<String,Long> shopOrders = productService.getShopOrderCount(storeId);
         // 今日订单数
-        result.setShopOrderCount(shopOrders.get("hopOrderCount"));
+        result.setShopOrderCount(shopOrders.get("shopOrderCount").intValue());
         // 待发货订单
-        result.setShopOrderSend(shopOrders.get("shopOrderSend"));
+        result.setShopOrderSend(shopOrders.get("shopOrderSend").intValue());
         // 待处理退款
-        result.setShopOrderRefund(shopOrders.get("shopOrderRefund"));
+        result.setShopOrderRefund(shopOrders.get("shopOrderRefund").intValue());
 
         // 今日营业额
         BigDecimal shopSumPrice = productService.getLocalSumPrice(storeId);
@@ -146,6 +147,91 @@ public class PlatformServiceImpl  implements PlatformService {
         result.setLeaveCount(leaveCount);
         result.setShipCount(shipCount);
 
+        return result;
+    }
+
+    private TodayDataDto getFalseData(){
+        TodayDataDto result = new TodayDataDto();
+
+        // 本地生活相关-----------------------
+        result.setLocalProduct(999);
+
+        result.setLocalProductUnder(975);
+
+        result.setLocalSumPrice(new BigDecimal("12210.21"));
+
+        result.setLocalOrderCount(1234);
+
+        result.setLocalOrderWait(2);
+
+        result.setLocalOrderRefund(222);
+
+
+        // 商城相关-----------------------
+        result.setShopProduct(222);
+
+        result.setShopProductUnder(111);
+
+        result.setShopSumPrice(new BigDecimal("23345.99"));
+
+        result.setShopOrderCount(6666);
+
+        result.setShopOrderSend(6678);
+
+        result.setShopOrderRefund(12345);
+
+
+        // 船只信息---------------
+        result.setLeaveCount(222221);
+
+        result.setShipCount(11234);
+
+         List<ShipUserLeaveVO> shipUserLeaveS = new ArrayList<>();
+        ShipUserLeaveVO  s1 = new ShipUserLeaveVO();
+        s1.setCounts(222);
+        s1.setName("战士王1");
+        ShipUserLeaveVO  s2 = new ShipUserLeaveVO();
+        s2.setCounts(1);
+        s2.setName("战士王2");
+        ShipUserLeaveVO  s3 = new ShipUserLeaveVO();
+        s3.setCounts(44);
+        s3.setName("战士王3");
+        ShipUserLeaveVO  s4 = new ShipUserLeaveVO();
+        s4.setCounts(321);
+        s4.setName("战士王4");
+        ShipUserLeaveVO  s5 = new ShipUserLeaveVO();
+        s5.setCounts(211);
+        s5.setName("战士王5");
+        shipUserLeaveS.add(s1);
+        shipUserLeaveS.add(s2);
+        shipUserLeaveS.add(s3);shipUserLeaveS.add(s4);shipUserLeaveS.add(s5);
+
+
+
+        result.setShipUserLeaveS(shipUserLeaveS);
+        List<ShipUserLeaveVO> shipLeaves= new ArrayList<>() ;
+
+        ShipUserLeaveVO  sa1 = new ShipUserLeaveVO();
+        sa1.setCounts(222);
+        sa1.setName("爱仕达25");
+        ShipUserLeaveVO  sa2 = new ShipUserLeaveVO();
+        sa2.setCounts(1);
+        sa2.setName("爱仕达35");
+        ShipUserLeaveVO  sa3 = new ShipUserLeaveVO();
+        sa3.setCounts(44);
+        sa3.setName("爱仕达王1");
+        ShipUserLeaveVO  sa4 = new ShipUserLeaveVO();
+        sa4.setCounts(3213);
+        sa4.setName("ss王4");
+        ShipUserLeaveVO  sa5 = new ShipUserLeaveVO();
+        sa5.setCounts(2111);
+        sa5.setName("爱仕达王5");
+        shipLeaves.add(sa1);
+        shipLeaves.add(sa2);
+        shipLeaves.add(sa3);
+        shipLeaves.add(sa4);
+        shipLeaves.add(sa5);
+        result.setShipLeaves(shipLeaves);
         return result;
     }
 }
