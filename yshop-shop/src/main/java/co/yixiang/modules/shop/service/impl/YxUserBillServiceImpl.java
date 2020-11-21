@@ -244,6 +244,12 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<UserBillMapper, YxUse
         if (StringUtils.isNotBlank(criteria.getUsername())) {
             queryWrapper.lambda().like(YxUserBill::getUsername, criteria.getUsername());
         }
+        if (StringUtils.isNotBlank(criteria.getLinkId())) {
+            queryWrapper.lambda().eq(YxUserBill::getLinkId, criteria.getLinkId());
+        }
+        if (null != criteria.getBrokerageType()) {
+            queryWrapper.lambda().eq(YxUserBill::getBrokerageType, criteria.getBrokerageType());
+        }
         queryWrapper.lambda().orderByDesc(YxUserBill::getAddTime);
 
         IPage<YxUserBill> ipage = this.page(new Page<>(pageable.getPageNumber() + 1, pageable.getPageSize()), queryWrapper);
@@ -273,6 +279,15 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<UserBillMapper, YxUse
         queryWrapper.lambda().eq(YxUserBill::getCategory, BillDetailEnum.CATEGORY_2.getValue()).eq(YxUserBill::getType, BillDetailEnum.TYPE_12.getValue()).eq(YxUserBill::getStatus, 1);
         if (StringUtils.isNotBlank(criteria.getAddTimeStart()) && StringUtils.isNotBlank(criteria.getAddTimeStart())) {
             queryWrapper.lambda().ge(YxUserBill::getAddTime, DateUtils.stringToTimestamp(criteria.getAddTimeStart() + " 00:00:00")).le(YxUserBill::getAddTime, DateUtils.stringToTimestamp(criteria.getAddTimeEnd() + " 23:59:59"));
+        }
+        if (StringUtils.isNotBlank(criteria.getUsername())) {
+            queryWrapper.lambda().like(YxUserBill::getUsername, criteria.getUsername());
+        }
+        if (StringUtils.isNotBlank(criteria.getLinkId())) {
+            queryWrapper.lambda().eq(YxUserBill::getLinkId, criteria.getLinkId());
+        }
+        if (null != criteria.getBrokerageType()) {
+            queryWrapper.lambda().eq(YxUserBill::getBrokerageType, criteria.getBrokerageType());
         }
         queryWrapper.lambda().orderByDesc(YxUserBill::getAddTime);
 

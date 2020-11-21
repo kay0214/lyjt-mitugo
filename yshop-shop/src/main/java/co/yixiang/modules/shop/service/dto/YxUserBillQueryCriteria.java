@@ -43,4 +43,6 @@ public class YxUserBillQueryCriteria extends BaseCriteria {
     // 用户类型
     private Integer userType;
 
+    private Integer brokerageType;
+
 }
