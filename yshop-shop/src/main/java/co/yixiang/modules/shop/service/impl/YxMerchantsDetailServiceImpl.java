@@ -366,11 +366,11 @@ public class YxMerchantsDetailServiceImpl extends BaseServiceImpl<YxMerchantsDet
 
             // 生成店铺分销用的二维码
             //判断用户是否小程序,注意小程序二维码生成路径要与H5不一样 不然会导致都跳转到小程序问题
+            // 重新查库获取到当前商铺的id
+            yxStoreInfo = this.yxStoreInfoService.getOne(new QueryWrapper<YxStoreInfo>().lambda().eq(YxStoreInfo::getMerId, yxMerchantsDetail.getUid()));
             String siteUrl = systemConfigService.getData(SystemConfigConstants.SITE_URL);
             String apiUrl = systemConfigService.getData(SystemConfigConstants.API_URL);
             if (StringUtils.isNotBlank(siteUrl) && StringUtils.isNotBlank(apiUrl)) {
-                // 重新查库获取到当前商铺的id
-                yxStoreInfo = this.yxStoreInfoService.getOne(new QueryWrapper<YxStoreInfo>().lambda().eq(YxStoreInfo::getMerId, yxMerchantsDetail.getUid()));
                 //小程序地址
                 siteUrl = siteUrl + "/shop/";
                 // 二维码长宽
@@ -386,6 +386,11 @@ public class YxMerchantsDetailServiceImpl extends BaseServiceImpl<YxMerchantsDet
                 String qrcodeUrl = apiUrl + "/file/qrcode/" + name;
                 yxMerchantsDetail.setQrcode(qrcodeUrl);
             }
+
+            User updateUser = new User();
+            updateUser.setId(user.getId());
+            updateUser.setStoreId(yxStoreInfo.getId());
+            this.userService.updateById(updateUser);
         }
         // 审核状态更新后放、审核通过的场景生成二维码
         yxMerchantsDetail.setExamineStatus(resources.getExamineStatus());
