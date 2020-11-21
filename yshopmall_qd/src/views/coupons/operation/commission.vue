@@ -6,38 +6,45 @@
         <el-form ref="form" :model="form2" :rules="rules" size="small" label-width="150px">
 
           <el-form-item label="分佣类型">
-          <el-radio-group v-model="form.customizeType">
+          <el-radio-group v-model="form.customizeType" @change="change">
             <el-radio :label="0">按平台</el-radio>
             <el-radio :label="1">不分佣</el-radio>
             <el-radio :label="2">自定义分佣</el-radio>
           </el-radio-group>
           </el-form-item>
-          <el-row :gutter='24'>
+          <el-row id="commision-box" :gutter='24' v-show="form.customizeType!=1">
             <el-col :span='8'>
               <el-form-item label="平台抽成" prop='fundsRate'>
-                <el-input class='percent' v-model="form2.fundsRate"/>
+                <span v-if="form.customizeType===0">{{form2.fundsRate}}  %</span>
+                <el-input class='percent' v-else v-model="form2.fundsRate"/>
               </el-form-item>
               <el-form-item label="分享人" prop='shareRate'>
-                <el-input class='percent' v-model="form2.shareRate" />
+                <span v-if="form.customizeType===0">{{form2.shareRate}}  %</span>
+                <el-input class='percent' v-else v-model="form2.shareRate" />
               </el-form-item>
               <el-form-item label="商户" prop='merRate'>
-                <el-input class='percent score' v-model="form2.merRate"/>
+                <span v-if="form.customizeType===0">{{form2.merRate}}  % 积分</span>
+                <el-input class='percent score' v-else v-model="form2.merRate"/>
               </el-form-item>
             </el-col>
             <el-col :span='8'>
               <el-form-item label="拉新池" prop='referenceRate'>
-                <el-input class='percent score' v-model="form2.referenceRate"/>
+                <span v-if="form.customizeType===0">{{form2.referenceRate}}  % 积分</span>
+                <el-input class='percent score' v-else v-model="form2.referenceRate"/>
               </el-form-item>
               <el-form-item label="分享人上级抽成" prop='shareParentRate'>
-                <el-input class='percent' v-model="form2.shareParentRate"/>
+                <span v-if="form.customizeType===0">{{form2.shareParentRate}}  %</span>
+                <el-input class='percent' v-else v-model="form2.shareParentRate"/>
               </el-form-item>
               <el-form-item label="合伙人" prop='partnerRate'>
-                <el-input class='percent score' v-model="form2.partnerRate"/>
+                <span v-if="form.customizeType===0">{{form2.partnerRate}}  % 积分</span>
+                <el-input class='percent score' v-else v-model="form2.partnerRate"/>
               </el-form-item>
             </el-col>
             <el-col :span='8'>
               <el-form-item label="购买人上级抽成" prop='parentRate'>
-                <el-input class='percent' v-model="form2.parentRate"/>
+                <span v-if="form.customizeType===0">{{form2.parentRate}}  %</span>
+                <el-input class='percent' v-else v-model="form2.parentRate"/>
               </el-form-item>
             </el-col>
           </el-row>
@@ -51,6 +58,8 @@
 
 <script>
 import { updateRate } from '@/api/yxCoupons'
+import { get } from '@/api/yxCommissionRate'
+import { Loading } from 'element-ui';
 export default {
   name: 'YxCommissionRate',
   data() {
@@ -60,8 +69,18 @@ export default {
         add: ['admin', 'yxCommissionRate:edit'],
         edit: ['admin', 'yxCommissionRate:edit']
       },
-      form: {},
-      form2:{},
+      form: {
+        customizeType:''
+      },
+      form2:{
+        fundsRate: '',
+        merRate: '',
+        parentRate: '',
+        partnerRate: '',
+        referenceRate: '',
+        shareParentRate: '',
+        shareRate: ''
+      },
       rules: {
         customizeType:[
           { required: true, message: '必填项', trigger: 'blur' },
@@ -132,6 +151,31 @@ export default {
   methods: {
     cancel() {
       this.resetForm()
+    },
+    change(val){
+      let that=this
+      if(val!==1){
+        let loading=Loading.service({
+          target:'#commision-box'
+        });
+        if(val===0){
+          get().then(ret=>{
+            if(ret.id){
+              that.form2=Object.assign({},that.form2,ret)
+            }
+            loading.close()
+          }).catch(err => {
+            loading.close()
+          })
+        }else{
+          if(Object.values(that.form.yxCustomizeRate).length){
+            that.form2=Object.assign({},that.form2,that.form.yxCustomizeRate)
+          }else{
+            that.form2= {}
+          }
+          loading.close()
+        }
+      }
     },
     resetForm() {
       this.dialog = false

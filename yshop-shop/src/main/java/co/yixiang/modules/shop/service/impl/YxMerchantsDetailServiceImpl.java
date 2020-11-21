@@ -81,17 +81,44 @@ public class YxMerchantsDetailServiceImpl extends BaseServiceImpl<YxMerchantsDet
     @Override
     //@Cacheable
     public Map<String, Object> queryAll(YxMerchantsDetailQueryCriteria criteria, Pageable pageable) {
+        Map<String, Object> map = new LinkedHashMap<>(2);
         QueryWrapper<YxMerchantsDetail> queryWrapper = new QueryWrapper<>();
         queryWrapper.lambda().orderByDesc(YxMerchantsDetail::getCreateTime);
         if (0 != criteria.getUserRole()) {
             if (null == criteria.getChildUser() || criteria.getChildUser().size() <= 0) {
-                Map<String, Object> map = new LinkedHashMap<>(2);
                 map.put("content", new ArrayList<>());
                 map.put("totalElements", 0);
                 return map;
             }
             queryWrapper.lambda().in(YxMerchantsDetail::getUid, criteria.getChildUser()).eq(YxMerchantsDetail::getDelFlag, 0);
         }
+        // 登陆用户名
+        if (StringUtils.isNotBlank(criteria.getUsername())) {
+            User user = this.userService.getOne(new QueryWrapper<User>().lambda().eq(User::getUsername, criteria.getUsername()));
+            if (null == user) {
+                map.put("content", new ArrayList<>());
+                map.put("totalElements", 0);
+                return map;
+            }
+            queryWrapper.lambda().eq(YxMerchantsDetail::getUid, user.getId());
+        }
+        // 商户名称
+        if (StringUtils.isNotBlank(criteria.getMerchantsName())) {
+            queryWrapper.lambda().like(YxMerchantsDetail::getMerchantsName, criteria.getMerchantsName());
+        }
+        // 联系人电话
+        if (StringUtils.isNotBlank(criteria.getContactMobile())) {
+            queryWrapper.lambda().eq(YxMerchantsDetail::getContactMobile, criteria.getContactMobile());
+        }
+        // 状态
+        if (null != criteria.getStatus()) {
+            queryWrapper.lambda().eq(YxMerchantsDetail::getStatus, criteria.getStatus());
+        }
+        // 审核状态
+        if (null != criteria.getExamineStatus()) {
+            queryWrapper.lambda().eq(YxMerchantsDetail::getExamineStatus, criteria.getExamineStatus());
+        }
+
         IPage<YxMerchantsDetail> ipage = this.page(new Page<>(pageable.getPageNumber() + 1, pageable.getPageSize()), queryWrapper);
 
         List<YxMerchantsDetailDto> list = new ArrayList<>();
@@ -136,7 +163,6 @@ public class YxMerchantsDetailServiceImpl extends BaseServiceImpl<YxMerchantsDet
             list.add(dto);
         }
 
-        Map<String, Object> map = new LinkedHashMap<>(2);
         map.put("content", list);
         map.put("totalElements", ipage.getTotal());
         return map;
@@ -366,11 +392,11 @@ public class YxMerchantsDetailServiceImpl extends BaseServiceImpl<YxMerchantsDet
 
             // 生成店铺分销用的二维码
             //判断用户是否小程序,注意小程序二维码生成路径要与H5不一样 不然会导致都跳转到小程序问题
+            // 重新查库获取到当前商铺的id
+            yxStoreInfo = this.yxStoreInfoService.getOne(new QueryWrapper<YxStoreInfo>().lambda().eq(YxStoreInfo::getMerId, yxMerchantsDetail.getUid()));
             String siteUrl = systemConfigService.getData(SystemConfigConstants.SITE_URL);
             String apiUrl = systemConfigService.getData(SystemConfigConstants.API_URL);
             if (StringUtils.isNotBlank(siteUrl) && StringUtils.isNotBlank(apiUrl)) {
-                // 重新查库获取到当前商铺的id
-                yxStoreInfo = this.yxStoreInfoService.getOne(new QueryWrapper<YxStoreInfo>().lambda().eq(YxStoreInfo::getMerId, yxMerchantsDetail.getUid()));
                 //小程序地址
                 siteUrl = siteUrl + "/shop/";
                 // 二维码长宽
@@ -386,6 +412,11 @@ public class YxMerchantsDetailServiceImpl extends BaseServiceImpl<YxMerchantsDet
                 String qrcodeUrl = apiUrl + "/file/qrcode/" + name;
                 yxMerchantsDetail.setQrcode(qrcodeUrl);
             }
+
+            User updateUser = new User();
+            updateUser.setId(user.getId());
+            updateUser.setStoreId(yxStoreInfo.getId());
+            this.userService.updateById(updateUser);
         }
         // 审核状态更新后放、审核通过的场景生成二维码
         yxMerchantsDetail.setExamineStatus(resources.getExamineStatus());
