@@ -239,10 +239,12 @@ export default {
       const that = this;
       //通过getLocation();方法获取位置信息值
       if(that.geocoder){
-        this.mapLoading=Loading.service({
-          target:'#mapContainer'
-        });
-        that.geocoder.getLocation(this.shipProvinceTest + this.form.shipAddress);
+        if(this.shipProvinceTest!==''){
+          this.mapLoading=Loading.service({
+            target:'#mapContainer'
+          });
+          that.geocoder.getLocation(this.shipProvinceTest + this.form.shipAddress);
+        }
       }
 
     },
