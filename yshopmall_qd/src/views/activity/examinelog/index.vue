@@ -10,7 +10,7 @@
         <el-input v-model="query.phone" clearable placeholder="用户手机号" style="width: 200px;" class="filter-item" @keyup.enter.native="toQuery" />
         <el-input v-model="query.userTrueName" clearable placeholder="真实姓名" style="width: 200px;" class="filter-item" @keyup.enter.native="toQuery" />
         <el-input v-model="query.bankCode" clearable placeholder="银行卡号" style="width: 200px;" class="filter-item" @keyup.enter.native="toQuery" />
-        <el-input v-model="query.seqNo" clearable placeholder="订单号" style="width: 200px;" class="filter-item" @keyup.enter.native="toQuery" />
+        <el-input v-model="query.seqNo" clearable placeholder="交易流水号" style="width: 200px;" class="filter-item" @keyup.enter.native="toQuery" />
         <el-select v-model="query.userType" clearable placeholder="用户类型"
                    style="width: 200px;" class="filter-item">
           <el-option

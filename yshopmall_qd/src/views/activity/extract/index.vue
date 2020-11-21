@@ -20,7 +20,7 @@
           :value="index">
         </el-option>
       </el-select>
-      <el-select v-model="query.userRole" clearable placeholder="审核状态"
+      <el-select v-model="query.status" clearable placeholder="审核状态"
                  style="width: 200px;" class="filter-item">
         <el-option
           v-for="item in statusList"
