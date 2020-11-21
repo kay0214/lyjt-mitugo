@@ -62,7 +62,9 @@ export default {
         add: ['admin', 'yxCommissionRate:edit'],
         edit: ['admin', 'yxCommissionRate:edit']
       },
-      form: {},
+      form: {
+        customizeType:''
+      },
       form2:{
         fundsRate: '',
         merRate: '',
@@ -145,23 +147,27 @@ export default {
     },
     change(val){
       let that=this
-      if(val===0){
+      if(val!==1){
         let loading=Loading.service({
           target:'#commision-box'
         });
-        get().then(ret=>{
-          if(ret.id){
-            Object.assign(that.form2,ret)
+        if(val===0){
+          get().then(ret=>{
+            if(ret.id){
+              that.form2=Object.assign({},that.form2,ret)
+            }
+            loading.close()
+          }).catch(err => {
+            loading.close()
+          })
+        }else{
+          if(Object.values(that.form.yxCustomizeRate).length){
+            that.form2=Object.assign({},that.form2,that.form.yxCustomizeRate)
+          }else{
+            that.form2= {}
           }
           loading.close()
-        }).catch(err => {
-          // this.$notify({
-          //   title: '设置失败：'+err.response.data.message,
-          //   type: 'success',
-          //   duration: 2500
-          // })
-          loading.close()
-        })
+        }
       }
     },
     resetForm() {
