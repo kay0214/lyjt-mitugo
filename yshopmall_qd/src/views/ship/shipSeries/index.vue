@@ -51,10 +51,10 @@
             </el-radio-group>
           </el-form-item>
           <el-form-item label="地图坐标经度" v-show="false">
-            <el-input v-model="form.coordinateX"/>
+            <el-input v-model.number="form.coordinateX"/>
           </el-form-item>
           <el-form-item label="地图坐标纬度" v-show="false">
-            <el-input v-model="form.coordinateY"/>
+            <el-input v-model.number="form.coordinateY"/>
           </el-form-item>
           <el-form-item label=" " v-show="false">
             <el-input v-model="form.merId"/>
@@ -108,7 +108,7 @@ import pagination from '@crud/Pagination'
 import MaterialList from "@/components/material";
 import storeMark from "@/assets/images/store_mark.png"
 import {  regionData,   CodeToText } from 'element-china-area-data'
-import { Notification } from 'element-ui'
+import { Notification,Loading } from 'element-ui'
 import path from 'path'
 import { isExternal } from '@/utils/validate'
 import AppLink from '@/layout/components/Sidebar/Link'
@@ -135,6 +135,7 @@ export default {
   data() {
     return {
       map:null,
+      geocoder: null,
       permission: {
         add: ['admin', 'yxShipSeries:add'],
         edit: ['admin', 'yxShipSeries:edit'],
@@ -166,7 +167,8 @@ export default {
       options: regionData,
       selectedOptions: [],
       shipProvinceTest:'',
-      basePath:''
+      basePath:'',
+      mapLoading:'',
     }
   },
   watch: {
@@ -206,7 +208,6 @@ export default {
         timer = setTimeout(()=>{
           that.form.coordinateY = center.lat;
           that.form.coordinateX = center.lng;
-          console.log(that.form)
         },200)
 
       });
@@ -219,10 +220,14 @@ export default {
           // 设置经纬度
           that.form.coordinateY = location.lat;
           that.form.coordinateX = location.lng;
+          that.mapLoading.close()
         }
       });
       // 有经纬度跳到地址
       if(that.form.coordinateY){
+        // this.mapLoading=Loading.service({
+        //   target:'#mapContainer'
+        // });
         map.panTo(new qq.maps.LatLng(that.form.coordinateY, that.form.coordinateX))
       }else{
         // 无经纬度跳到地址的经纬度
@@ -234,6 +239,9 @@ export default {
       const that = this;
       //通过getLocation();方法获取位置信息值
       if(that.geocoder){
+        this.mapLoading=Loading.service({
+          target:'#mapContainer'
+        });
         that.geocoder.getLocation(this.shipProvinceTest + this.form.shipAddress);
       }
 
@@ -243,8 +251,15 @@ export default {
       return true
     }, // 新增与编辑前做的操作
     [CRUD.HOOK.afterToCU](crud, form) {
+      this.map = null;
+      this.geocoder = null;
       if(form.shipProvince){
         this.selectedOptions=form.shipProvince.split(',')
+        let pcrt=[]
+        this.selectedOptions.forEach(item=>{
+          pcrt.push(CodeToText[item])
+        })
+        this.shipProvinceTest=pcrt.join('')
       }
       this.$nextTick(()=>{
         document.getElementById('mapContainer').innerHTML = "";
