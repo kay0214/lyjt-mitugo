@@ -1394,13 +1394,16 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         if (isAll) {
             usedCount = 0;
             // 全部核销 查询所有已经能用的详情  user_status 核销状态 0：不可用 1：可用
-            this.yxCouponOrderDetailService.list(new QueryWrapper<YxCouponOrderDetail>().eq("order_id", yxCouponOrder.getOrderId()).eq("user_status", 1));
+            yxCouponOrderDetails = this.yxCouponOrderDetailService.list(new QueryWrapper<YxCouponOrderDetail>().eq("order_id", yxCouponOrder.getOrderId()).eq("user_status", 1));
             for (YxCouponOrderDetail item : yxCouponOrderDetails) {
-                usedCount += item.getUseCount();
+                // 核销次数只记录剩余次数
+                usedCount = usedCount + item.getUseCount() - item.getUsedCount();
             }
         } else {
+            // 单次核销只存放传进来的用核销码查询到的卡券详情
             yxCouponOrderDetails.add(yxCouponOrderDetail);
         }
+        // 已用次数+本次使用次数、全部核销的话计算完used应该与use相等
         yxCouponOrder.setUsedCount(yxCouponOrder.getUsedCount() + usedCount);
         if (yxCouponOrder.getUsedCount().equals(yxCouponOrder.getUseCount())) {
             // 次数全部使用完成的状态更新为已核销
