@@ -1430,7 +1430,7 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
                 item.setStatus(5);
             }
             // 数据入库
-            this.yxCouponOrderDetailService.updateById(yxCouponOrderDetail);
+            this.yxCouponOrderDetailService.updateById(item);
         }
         return usedCount;
     }
