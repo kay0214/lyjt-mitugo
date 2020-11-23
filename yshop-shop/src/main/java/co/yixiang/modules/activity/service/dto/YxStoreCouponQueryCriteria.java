@@ -20,4 +20,5 @@ public class YxStoreCouponQueryCriteria extends BaseCriteria {
     @Query
     private Integer status;
     private String username;
+    private String title;
 }

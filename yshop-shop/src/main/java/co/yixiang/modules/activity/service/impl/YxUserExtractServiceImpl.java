@@ -117,6 +117,7 @@ public class YxUserExtractServiceImpl extends BaseServiceImpl<YxUserExtractMappe
      */
     private QueryWrapper<YxUserExtract> createQueryWrapper(YxUserExtractQueryCriteria criteria) {
         QueryWrapper<YxUserExtract> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().orderByDesc(YxUserExtract::getId);
         if (StringUtils.isNotBlank(criteria.getSeqNo())) {
             queryWrapper.lambda().eq(YxUserExtract::getSeqNo, criteria.getSeqNo());
         }
