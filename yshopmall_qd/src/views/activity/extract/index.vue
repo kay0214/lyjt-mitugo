@@ -69,7 +69,7 @@
       <el-table-column prop="userTrueName" label="真实姓名" />
       <el-table-column prop="bankCode" label="银行卡号" />
       <el-table-column prop="extractPrice" label="提现金额" />
-      <el-table-column prop="seqNo" label="订单号" />
+      <el-table-column prop="seqNo" label="流水号" />
       <el-table-column prop="userType" label="用户类型" >
         <template slot-scope="scope">
           <div>{{userTypeOptions[scope.row.userType]}}</div>
@@ -153,11 +153,11 @@ export default {
     return {
       delLoading: false,
       queryTypeOptions: [
-        { key: 'realName', display_name: '名称' },
+        { key: 'realName', display_name: '用户名' },
         { key: 'phone', display_name: '用户手机号' },
         { key: 'userTrueName', display_name: '真实姓名' },
         { key: 'bankCode', display_name: '银行卡号' },
-        { key: 'seqNo', display_name: '订单号' }
+        { key: 'seqNo', display_name: '流水号' }
       ],
       userTypeOptions: ['预留','商户','合伙人','前台用户'],
       statusList:[
