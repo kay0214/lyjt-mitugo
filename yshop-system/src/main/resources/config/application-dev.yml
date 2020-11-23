@@ -6,7 +6,7 @@ spring:
     druid:
       type: com.alibaba.druid.pool.DruidDataSource
       driverClassName: net.sf.log4jdbc.sql.jdbcapi.DriverSpy
-      url: jdbc:log4jdbc:mysql://39.98.146.255:33306/mitu_test?serverTimezone=Asia/Shanghai&characterEncoding=utf8&useSSL=false&zeroDateTimeBehavior=convertToNull
+      url: jdbc:log4jdbc:mysql://39.98.139.163:33306/mitu?serverTimezone=Asia/Shanghai&characterEncoding=utf8&useSSL=false&zeroDateTimeBehavior=convertToNull
       username: dbwrite
       password: aAR!Q23AUP!ogk$J
 
@@ -38,10 +38,10 @@ spring:
         exclusions: "*.js,*.gif,*.jpg,*.bmp,*.png,*.css,*.ico,/druid/*"
   redis:
     #数据库索引
-    database: 0
-    host: 39.98.139.163
+    database: 1
+    host: 10.10.2.221
     port: 6379
-    password: RH06863b3e6
+    password: hyjf@2020
     #连接超时时间
     timeout: 5000
 
