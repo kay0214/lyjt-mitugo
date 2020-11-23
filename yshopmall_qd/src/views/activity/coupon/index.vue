@@ -2,7 +2,8 @@
   <div class="app-container">
     <!--工具栏-->
     <div class="head-container">
-      <el-input v-model="query.username" clearable placeholder="商户用户名" style="width: 200px;" class="filter-item" @keyup.enter.native="toQuery" />
+      <el-input v-model.trim="query.title" clearable placeholder="优惠券名称" style="width: 200px;" class="filter-item" @keyup.enter.native="toQuery" />
+      <el-input v-model.trim="query.username" clearable placeholder="商户用户名" style="width: 200px;" class="filter-item" @keyup.enter.native="toQuery" />
       <el-select v-model="query.status" clearable placeholder="状态" class="filter-item" style="width: 130px">
         <el-option
           v-for="item in statusList"
