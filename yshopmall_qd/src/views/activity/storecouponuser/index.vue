@@ -72,7 +72,7 @@
         <template slot-scope="scope">
           <div>
             <el-tag v-if="scope.row.status == 2">已过期</el-tag>
-            <el-tag v-if="scope.row.status == 1">已使用</el-tag>
+            <el-tag v-else-if="scope.row.status == 1">已使用</el-tag>
             <el-tag v-else>未使用</el-tag>
           </div>
         </template>
