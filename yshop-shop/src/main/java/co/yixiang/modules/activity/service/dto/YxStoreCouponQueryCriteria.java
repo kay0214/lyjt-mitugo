@@ -19,4 +19,5 @@ public class YxStoreCouponQueryCriteria extends BaseCriteria {
     private Integer isDel;
     @Query
     private Integer status;
+    private String username;
 }

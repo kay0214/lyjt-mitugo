@@ -12,11 +12,17 @@ import co.yixiang.modules.activity.service.YxStoreCouponService;
 import co.yixiang.modules.activity.service.dto.YxStoreCouponDto;
 import co.yixiang.modules.activity.service.dto.YxStoreCouponQueryCriteria;
 import co.yixiang.modules.activity.service.mapper.YxStoreCouponMapper;
+import co.yixiang.modules.shop.domain.User;
+import co.yixiang.modules.shop.domain.YxStoreInfo;
+import co.yixiang.modules.shop.service.UserService;
+import co.yixiang.modules.shop.service.YxStoreInfoService;
 import co.yixiang.utils.FileUtil;
+import co.yixiang.utils.StringUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -35,9 +41,9 @@ import java.util.Map;
 //import org.springframework.cache.annotation.Cacheable;
 
 /**
-* @author liusy
-* @date 2020-08-31
-*/
+ * @author liusy
+ * @date 2020-08-31
+ */
 @Service
 @AllArgsConstructor
 //@CacheConfig(cacheNames = "yxStoreCoupon")
@@ -45,26 +51,47 @@ import java.util.Map;
 public class YxStoreCouponServiceImpl extends BaseServiceImpl<YxStoreCouponMapper, YxStoreCoupon> implements YxStoreCouponService {
 
     private final IGenerator generator;
+    @Autowired
+    private UserService userService;
+    @Autowired
+    private YxStoreInfoService yxStoreInfoService;
 
     @Override
     //@Cacheable
     public Map<String, Object> queryAll(YxStoreCouponQueryCriteria criteria, Pageable pageable) {
 //        getPage(pageable);
 //        PageInfo<YxStoreCoupon> page = new PageInfo<>(queryAll(criteria));
+        Map<String, Object> map = new LinkedHashMap<>(2);
         QueryWrapper<YxStoreCoupon> queryWrapper = new QueryWrapper<>();
-        queryWrapper.lambda().orderByDesc(YxStoreCoupon::getAddTime);
+        queryWrapper.lambda().eq(YxStoreCoupon::getIsDel, 0).orderByDesc(YxStoreCoupon::getAddTime);
         if (0 != criteria.getUserRole()) {
             if (null == criteria.getChildStoreId() || criteria.getChildStoreId().size() <= 0) {
-                Map<String, Object> map = new LinkedHashMap<>(2);
                 map.put("content", new ArrayList<>());
                 map.put("totalElements", 0);
                 return map;
             }
-            queryWrapper.lambda().in(YxStoreCoupon::getStoreId, criteria.getChildStoreId()).eq(YxStoreCoupon::getIsDel, 0);
+            queryWrapper.lambda().in(YxStoreCoupon::getStoreId, criteria.getChildStoreId());
+        }
+        if (null != criteria.getStatus()) {
+            queryWrapper.lambda().eq(YxStoreCoupon::getStatus, criteria.getStatus());
+        }
+        if (StringUtils.isNotBlank(criteria.getUsername())) {
+            User user = this.userService.getOne(new QueryWrapper<User>().lambda().eq(User::getUsername, criteria.getUsername()));
+            if (null == user) {
+                map.put("content", new ArrayList<>());
+                map.put("totalElements", 0);
+                return map;
+            }
+            YxStoreInfo yxStoreInfo = this.yxStoreInfoService.getOne(new QueryWrapper<YxStoreInfo>().lambda().eq(YxStoreInfo::getMerId, user.getId()));
+            if (null == yxStoreInfo) {
+                map.put("content", new ArrayList<>());
+                map.put("totalElements", 0);
+                return map;
+            }
+            queryWrapper.lambda().eq(YxStoreCoupon::getStoreId, yxStoreInfo.getId());
         }
         IPage<YxStoreCoupon> ipage = this.page(new Page<>(pageable.getPageNumber() + 1, pageable.getPageSize()), queryWrapper);
 
-        Map<String, Object> map = new LinkedHashMap<>(2);
         map.put("content", generator.convert(ipage.getRecords(), YxStoreCouponDto.class));
         map.put("totalElements", ipage.getTotal());
         return map;
