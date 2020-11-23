@@ -105,7 +105,7 @@
               </el-select>
             </el-form-item>
             <el-form-item label="所属店铺" prop="storeId" label-width="auto">
-              <el-select v-model="form.storeId" filterable clearable="true"
+              <el-select v-model="form.storeId" filterable clearable
                          style="width: 430px" placeholder="请先选择部门">
                 <el-option
                   v-for="(item, index) in storeList"
@@ -164,7 +164,7 @@
               </el-radio-group>
             </el-form-item>
 
-            <el-form-item label="商户收款码" prop="useCodeFlg" label-width="auto" style="margin-bottom: 0;margin-left: -12px;">
+            <el-form-item v-permission="permission.setCode" label="商户收款码" prop="useCodeFlg" label-width="auto" style="margin-bottom: 0;margin-left: -12px;">
               <el-radio-group v-model="form.useCodeFlg" style="width: 337px">
                 <el-radio :label="1">启用</el-radio>
                 <el-radio :label="0">禁用</el-radio>
@@ -276,7 +276,8 @@ export default {
       permission: {
         add: ['admin', 'user:add'],
         edit: ['admin', 'user:edit'],
-        del: ['admin', 'user:del']
+        del: ['admin', 'user:del'],
+        setCode: ['admin', 'user:setCode']
       },
       enabledTypeOptions: [
         { key: 'true', display_name: '激活' },
