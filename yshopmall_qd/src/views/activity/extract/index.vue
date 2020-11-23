@@ -67,6 +67,7 @@
       <el-table-column prop="id" label="申请ID" />
       <el-table-column prop="realName" label="用户名" />
       <el-table-column prop="userTrueName" label="真实姓名" />
+      <el-table-column prop="phone" label="用户手机号" />
       <el-table-column prop="bankCode" label="银行卡号" />
       <el-table-column prop="extractPrice" label="提现金额" />
       <el-table-column prop="seqNo" label="流水号" />
@@ -159,7 +160,7 @@ export default {
         { key: 'bankCode', display_name: '银行卡号' },
         { key: 'seqNo', display_name: '流水号' }
       ],
-      userTypeOptions: ['预留','商户','合伙人','前台用户'],
+      userTypeOptions: ['商户','前台用户'],
       statusList:[
         {value:-1,label:'提现未通过'},
         {value:0,label:'未提现'},
