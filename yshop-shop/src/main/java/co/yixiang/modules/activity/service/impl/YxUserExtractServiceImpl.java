@@ -105,7 +105,7 @@ public class YxUserExtractServiceImpl extends BaseServiceImpl<YxUserExtractMappe
             }
         }
         map.put("content", extractDtoList);
-        map.put("totalElements", extractDtoList);
+        map.put("totalElements", iPage.getTotal());
         return map;
     }
 
