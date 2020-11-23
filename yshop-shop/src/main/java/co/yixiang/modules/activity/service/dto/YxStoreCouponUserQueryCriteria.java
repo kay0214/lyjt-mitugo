@@ -23,5 +23,6 @@ public class YxStoreCouponUserQueryCriteria extends BaseCriteria {
     private Integer status;
     /** 是否可用 */
     private Integer isUsed;
+    private String userPhone;
 
 }

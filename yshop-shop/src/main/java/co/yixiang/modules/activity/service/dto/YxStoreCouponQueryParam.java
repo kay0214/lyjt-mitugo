@@ -22,4 +22,5 @@ public class YxStoreCouponQueryParam extends QueryParam {
     private Integer status;
     /** 是否可用 */
     private String isUsed;
+    private String userPhone;
 }
