@@ -42,7 +42,7 @@
             <div v-if="form.status">
               {{form.remark}}
             </div>
-            <el-input v-else v-model="form.remark" type="textarea"
+            <el-input v-else v-model.trim="form.remark" type="textarea"
                       :row='10' style="width: 370px;"
                       show-word-limit  maxlength="200"/>
           </el-form-item>
