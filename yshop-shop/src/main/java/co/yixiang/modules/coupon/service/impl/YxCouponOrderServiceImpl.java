@@ -146,6 +146,9 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
             }
             queryWrapper.lambda().in(YxCouponOrder::getCouponId, ids);
         }
+        if (null != criteria.getCreateTime() && criteria.getCreateTime().size() == 2) {
+            queryWrapper.lambda().ge(YxCouponOrder::getCreateTime, criteria.getCreateTime().get(0).concat(" 00:00:00")).le(YxCouponOrder::getCreateTime, criteria.getCreateTime().get(1).concat(" 23:59:59"));
+        }
 
         IPage<YxCouponOrder> ipage = this.page(new Page<>(pageable.getPageNumber() + 1, pageable.getPageSize()), queryWrapper);
         if (ipage.getTotal() <= 0) {
