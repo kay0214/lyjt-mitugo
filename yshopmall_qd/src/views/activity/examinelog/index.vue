@@ -6,20 +6,20 @@
       <!--如果想在工具栏加入更多按钮，可以使用插槽方式， slot = 'left' or 'right'-->
 
         <!-- 搜索 -->
-        <el-input v-model="query.username" clearable size="small" placeholder="输入姓名搜索" style="width: 200px;" class="filter-item" @keyup.enter.native="crud.toQuery" />
-        <el-input v-model="query.phone" clearable placeholder="用户手机号" style="width: 200px;" class="filter-item" @keyup.enter.native="toQuery" />
+        <el-input v-model="query.username" clearable size="small" placeholder="输入用户名" style="width: 200px;" class="filter-item" @keyup.enter.native="crud.toQuery" />
+<!--        <el-input v-model="query.phone" clearable placeholder="用户手机号" style="width: 200px;" class="filter-item" @keyup.enter.native="toQuery" />-->
         <el-input v-model="query.userTrueName" clearable placeholder="真实姓名" style="width: 200px;" class="filter-item" @keyup.enter.native="toQuery" />
-        <el-input v-model="query.bankCode" clearable placeholder="银行卡号" style="width: 200px;" class="filter-item" @keyup.enter.native="toQuery" />
+<!--        <el-input v-model="query.bankCode" clearable placeholder="银行卡号" style="width: 200px;" class="filter-item" @keyup.enter.native="toQuery" />-->
         <el-input v-model="query.seqNo" clearable placeholder="交易流水号" style="width: 200px;" class="filter-item" @keyup.enter.native="toQuery" />
-        <el-select v-model="query.userType" clearable placeholder="用户类型"
-                   style="width: 200px;" class="filter-item">
-          <el-option
-            v-for="(val,index) in userTypeOptions"
-            :key="index"
-            :label="val"
-            :value="index">
-          </el-option>
-        </el-select>
+<!--        <el-select v-model="query.userType" clearable placeholder="用户类型"-->
+<!--                   style="width: 200px;" class="filter-item">-->
+<!--          <el-option-->
+<!--            v-for="(val,index) in userTypeOptions"-->
+<!--            :key="index"-->
+<!--            :label="val"-->
+<!--            :value="index">-->
+<!--          </el-option>-->
+<!--        </el-select>-->
         <el-select v-model="query.userRole" clearable placeholder="审核状态"
                    style="width: 200px;" class="filter-item">
           <el-option
