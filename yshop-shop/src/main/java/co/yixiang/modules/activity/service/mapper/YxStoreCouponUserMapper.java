@@ -39,6 +39,9 @@ public interface YxStoreCouponUserMapper extends CoreMapper<YxStoreCouponUser> {
             "</if>" +
             "<if test=\"param.userName!=null and param.userName != '' \"> and yu.nickname LIKE  CONCAT('%',#{param.userName},'%')</if>" +
             "<if test=\"param.couponTitle!=null and param.couponTitle != '' \"> and scu.coupon_title LIKE CONCAT('%',#{param.couponTitle},'%')</if>" +
+            "<if test=\"param.status!=null and param.status != '' \"> and scu.`status` = #{param.status}</if>" +
+            "<if test=\"param.isUsed!=null and param.isUsed != '' and param.isUsed =='yes' \"> and scu.`status` = 0 and scu.is_fail = 0 </if>" +
+            "<if test=\"param.isUsed!=null and param.isUsed != '' and param.isUsed == 'no' \"> and (scu.`status` <![CDATA[ <> ]]> 0 or scu.is_fail <![CDATA[ <> ]]> 0) </if>" +
             " order by  scu.add_time  desc "+
             "</script>")
     List<YxStoreCouponUserDto> selectCouponUserPage(Page<YxStoreCouponUserDto> page,@Param("param") YxStoreCouponQueryParam param, @Param("storeIds") List<Long> childStoreId);
@@ -53,6 +56,9 @@ public interface YxStoreCouponUserMapper extends CoreMapper<YxStoreCouponUser> {
             "</if>" +
             "<if test=\"param.userName!=null and param.userName != '' \"> and yu.nickname LIKE  CONCAT('%',#{param.userName},'%')</if>" +
             "<if test=\"param.couponTitle!=null and param.couponTitle != '' \"> and scu.coupon_title LIKE CONCAT('%',#{param.couponTitle},'%')</if>" +
+            "<if test=\"param.status!=null and param.status != '' \"> and scu.`status` = #{param.status}</if>" +
+            "<if test=\"param.isUsed!=null and param.isUsed != '' and param.isUsed == 'yes' \"> and scu.`status` = 0 and scu.is_fail = 0</if>" +
+            "<if test=\"param.isUsed!=null and param.isUsed != '' and param.isUsed == 'no' \"> and (scu.`status` <![CDATA[ <> ]]> 0 or scu.is_fail <![CDATA[ <> ]]> 0) </if>" +
             "</script>")
     int countCouponUserPage(@Param("param") YxStoreCouponQueryParam param, @Param("storeIds") List<Long> childStoreId);
 

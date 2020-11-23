@@ -20,5 +20,8 @@ public class YxStoreCouponUserQueryCriteria extends BaseCriteria {
     private String couponTitle;
     @Query(type = Query.Type.INNER_LIKE)
     private String userName;
+    private Integer status;
+    /** 是否可用 */
+    private Integer isUsed;
 
 }

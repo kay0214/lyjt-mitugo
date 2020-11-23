@@ -15,9 +15,11 @@ import lombok.EqualsAndHashCode;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@ApiModel(value="YxStoreCouponQueryParam对象", description="优惠券表查询参数")
+@ApiModel(value = "YxStoreCouponQueryParam对象", description = "优惠券表查询参数")
 public class YxStoreCouponQueryParam extends QueryParam {
     private String userName;
     private String couponTitle;
-
+    private Integer status;
+    /** 是否可用 */
+    private String isUsed;
 }
