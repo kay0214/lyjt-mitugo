@@ -11,6 +11,9 @@ package co.yixiang.modules.shop.service.dto;
 import co.yixiang.annotation.Query;
 import lombok.Data;
 
+import java.sql.Timestamp;
+import java.util.List;
+
 /**
  * @author liusy
  * @date 2020-08-19
@@ -38,4 +41,10 @@ public class YxExamineLogQueryCriteria extends BaseCriteria {
 
     @Query(type = Query.Type.EQUAL)
     private Integer status;
+
+    private String phone;
+    private String userTrueName;
+    private String bankCode;
+    private String seqNo;
+    private List<String> addTime;
 }
