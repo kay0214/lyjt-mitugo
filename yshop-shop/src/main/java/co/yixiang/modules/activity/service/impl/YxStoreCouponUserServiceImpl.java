@@ -95,6 +95,14 @@ public class YxStoreCouponUserServiceImpl extends BaseServiceImpl<YxStoreCouponU
             storeIds = criteria.getChildStoreId();
         }
         BeanUtils.copyProperties(criteria,queryParam);
+        // if标签判断==0不生效
+        if(null != criteria.getIsUsed()) {
+            if(0 == criteria.getIsUsed()) {
+                queryParam.setIsUsed("yes");
+            } else {
+                queryParam.setIsUsed("no");
+            }
+        }
         Page<YxStoreCouponUserDto> pageParam = new Page<YxStoreCouponUserDto>(pageable.getPageNumber()+1,pageable.getPageSize());
         int countSize = storeCouponUserMapper.countCouponUserPage(queryParam,storeIds);
         List<YxStoreCouponUserDto> storeCouponUserDtoList = storeCouponUserMapper.selectCouponUserPage(pageParam,queryParam,storeIds);

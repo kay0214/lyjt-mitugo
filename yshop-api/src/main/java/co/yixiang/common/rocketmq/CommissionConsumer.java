@@ -1,7 +1,9 @@
 package co.yixiang.common.rocketmq;
 
-import co.yixiang.constant.MQConstant;
 import co.yixiang.common.rocketmq.service.CommissionService;
+import co.yixiang.constant.MQConstant;
+import co.yixiang.constant.ShopConstants;
+import co.yixiang.utils.RedisUtil;
 import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.rocketmq.client.consumer.DefaultMQPushConsumer;
@@ -32,6 +34,12 @@ public class CommissionConsumer implements RocketMQListener<String>, RocketMQPus
         String orderId = callBackResult.getString("orderId");
         String orderType = callBackResult.getString("orderType");
         log.info("分佣订单号：{},订单类型:{}", orderId,orderType);
+        String value = RedisUtil.get(ShopConstants.COMMISSION_ORDER + orderType + orderId);
+        if (null != value) {
+            log.info("订单重复分佣，订单类型:{},订单号：{}", orderType, orderId);
+            return;
+        }
+        RedisUtil.set(ShopConstants.COMMISSION_ORDER + orderType + orderId, 1, 5);
         commissionService.updateInfo(orderId,orderType);
 
     }
@@ -48,6 +56,9 @@ public class CommissionConsumer implements RocketMQListener<String>, RocketMQPus
         defaultMQPushConsumer.setMessageModel(MessageModel.CLUSTERING);
         //设置最大重试次数
         defaultMQPushConsumer.setMaxReconsumeTimes(MAX_RECONSUME_TIME);
+        defaultMQPushConsumer.setConsumeMessageBatchMaxSize(1);
+        defaultMQPushConsumer.setConsumeThreadMax(1);
+        defaultMQPushConsumer.setConsumeThreadMin(1);
         log.info("====commission consumer=====");
     }
 }
