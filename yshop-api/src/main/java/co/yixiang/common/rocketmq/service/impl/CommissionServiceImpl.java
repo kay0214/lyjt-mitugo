@@ -93,12 +93,6 @@ public class CommissionServiceImpl implements CommissionService {
     @Override
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void updateInfo(String orderId, String orderType) {
-        String value = RedisUtil.get(ShopConstants.COMMISSION_ORDER + orderType + orderId);
-        if (null != value) {
-            log.info("订单重复分佣，订单类型:{},订单号：{}", orderType, orderId);
-            return;
-        }
-        RedisUtil.set(ShopConstants.COMMISSION_ORDER + orderType + orderId, 1, 5);
         switch (orderType){
             case "0":
                 //商品购买
