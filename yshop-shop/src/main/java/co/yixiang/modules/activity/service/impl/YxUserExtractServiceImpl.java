@@ -30,7 +30,8 @@ import co.yixiang.utils.DateUtils;
 import co.yixiang.utils.FileUtil;
 import co.yixiang.utils.OrderUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.github.pagehelper.PageInfo;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.AllArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,7 +39,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -78,29 +78,102 @@ public class YxUserExtractServiceImpl extends BaseServiceImpl<YxUserExtractMappe
     @Override
     //@Cacheable
     public Map<String, Object> queryAll(YxUserExtractQueryCriteria criteria, Pageable pageable) {
-        getPage(pageable);
-        PageInfo<YxUserExtract> page = new PageInfo<>(queryAll(criteria));
+//        getPage(pageable);
+//        PageInfo<YxUserExtract> page = new PageInfo<>(queryAll(criteria));
         Map<String, Object> map = new LinkedHashMap<>(2);
-        List<YxUserExtractDto> extractDtoList = generator.convert(page.getList(), YxUserExtractDto.class);
-        if (!CollectionUtils.isEmpty(extractDtoList)) {
-            for (YxUserExtractDto extractDto : extractDtoList) {
-                // 用户类型 1商户;2合伙人;3用户
-                if (3 == extractDto.getUserType()) {
-                    YxUser user = yxUserService.getById(extractDto.getUid());
-                    if (ObjectUtil.isNotEmpty(user)) {
-                        extractDto.setUserTrueName(StringUtils.isNotBlank(user.getRealName()) ? user.getRealName().substring(0, 1) + "**" : "");
-                    }
-                } else {
-                    User user = userService.getById(extractDto.getUid());
-                    if (null != user) {
-                        extractDto.setUserTrueName(StringUtils.isNotBlank(user.getMerchantsContact()) ? user.getMerchantsContact().substring(0, 1) + "**" : "");
-                    }
+        // 组装查询条件
+        QueryWrapper<YxUserExtract> queryWrapper = createQueryWrapper(criteria);
+        IPage<YxUserExtract> iPage = this.page(new Page<>(pageable.getPageNumber() + 1, pageable.getPageSize()), queryWrapper);
+        if (0 == iPage.getTotal()) {
+            map.put("content", new ArrayList<>());
+            map.put("totalElements", 0);
+            return map;
+        }
+        List<YxUserExtractDto> extractDtoList = generator.convert(iPage.getRecords(), YxUserExtractDto.class);
+        for (YxUserExtractDto extractDto : extractDtoList) {
+            // 用户类型 1商户;2合伙人;3用户
+            if (3 == extractDto.getUserType()) {
+                YxUser user = yxUserService.getById(extractDto.getUid());
+                if (ObjectUtil.isNotEmpty(user)) {
+                    extractDto.setUserTrueName(StringUtils.isNotBlank(user.getRealName()) ? user.getRealName().substring(0, 1) + "**" : "");
+                }
+            } else {
+                User user = userService.getById(extractDto.getUid());
+                if (null != user) {
+                    extractDto.setUserTrueName(StringUtils.isNotBlank(user.getMerchantsContact()) ? user.getMerchantsContact().substring(0, 1) + "**" : "");
                 }
             }
         }
         map.put("content", extractDtoList);
-        map.put("totalElements", page.getTotal());
+        map.put("totalElements", extractDtoList);
         return map;
+    }
+
+    /**
+     * 组装查询条件
+     *
+     * @param criteria
+     * @return
+     */
+    private QueryWrapper<YxUserExtract> createQueryWrapper(YxUserExtractQueryCriteria criteria) {
+        QueryWrapper<YxUserExtract> queryWrapper = new QueryWrapper<>();
+        if (StringUtils.isNotBlank(criteria.getSeqNo())) {
+            queryWrapper.lambda().eq(YxUserExtract::getSeqNo, criteria.getSeqNo());
+        }
+        if (StringUtils.isNotBlank(criteria.getRealName())) {
+            queryWrapper.lambda().eq(YxUserExtract::getRealName, criteria.getRealName());
+        }
+        if (StringUtils.isNotBlank(criteria.getUserTrueName())) {
+            List<YxUser> yxUsers = this.yxUserService.list(new QueryWrapper<YxUser>().lambda().eq(YxUser::getRealName, criteria.getUserTrueName()));
+            List<User> users = this.userService.list(new QueryWrapper<User>().lambda().eq(User::getMerchantsContact, criteria.getUserTrueName()));
+            if (null != yxUsers && yxUsers.size() > 0 && null != users && users.size() > 0) {
+                List<Integer> yxUserIds = new ArrayList<>();
+                for (YxUser item : yxUsers) {
+                    yxUserIds.add(item.getUid());
+                }
+                List<Integer> userIds = new ArrayList<>();
+                for (User item : users) {
+                    userIds.add(item.getId().intValue());
+                }
+                queryWrapper.lambda().and(orqw -> orqw.and(qw -> qw.in(YxUserExtract::getUid, yxUserIds).eq(YxUserExtract::getUserType, 3)).or(qw -> qw.in(YxUserExtract::getUid, userIds).eq(YxUserExtract::getUserType, 1)));
+            } else if (null != yxUsers && yxUsers.size() > 0) {
+                List<Integer> yxUserIds = new ArrayList<>();
+                for (YxUser item : yxUsers) {
+                    yxUserIds.add(item.getUid());
+                }
+                queryWrapper.lambda().in(YxUserExtract::getUid, yxUserIds).eq(YxUserExtract::getUserType, 3);
+            } else if (null != users && users.size() > 0) {
+                List<Integer> userIds = new ArrayList<>();
+                for (User item : users) {
+                    userIds.add(item.getId().intValue());
+                }
+                queryWrapper.lambda().in(YxUserExtract::getUid, userIds).eq(YxUserExtract::getUserType, 1);
+            } else {
+                // 查询必为空的条件
+                queryWrapper.lambda().eq(YxUserExtract::getId, 0);
+            }
+        }
+        if (StringUtils.isNotBlank(criteria.getBankCode())) {
+            queryWrapper.lambda().eq(YxUserExtract::getBankCode, criteria.getBankCode());
+        }
+        if (StringUtils.isNotBlank(criteria.getPhone())) {
+            queryWrapper.lambda().eq(YxUserExtract::getBankMobile, criteria.getPhone());
+        }
+        if (StringUtils.isNotBlank(criteria.getBankCode())) {
+            queryWrapper.lambda().eq(YxUserExtract::getBankCode, criteria.getBankCode());
+        }
+        if (null != criteria.getUserType()) {
+            queryWrapper.lambda().eq(YxUserExtract::getUserType, criteria.getUserType());
+        }
+        if (null != criteria.getStatus()) {
+            queryWrapper.lambda().eq(YxUserExtract::getStatus, criteria.getStatus());
+        }
+        if (null != criteria.getAddTime() && criteria.getAddTime().size() == 2) {
+            Integer addTimeStart = DateUtils.stringToTimestamp(criteria.getAddTime().get(0).concat(" 00:00:00"));
+            Integer addTimeEnd = DateUtils.stringToTimestamp(criteria.getAddTime().get(1).concat(" 23:59:59"));
+            queryWrapper.lambda().ge(YxUserExtract::getAddTime, addTimeStart).le(YxUserExtract::getAddTime, addTimeEnd);
+        }
+        return queryWrapper;
     }
 
 
@@ -278,11 +351,12 @@ public class YxUserExtractServiceImpl extends BaseServiceImpl<YxUserExtractMappe
      */
     @Override
     public List<YxUserExtractDto> queryDownload(YxUserExtractQueryCriteria criteria) {
-        List<YxUserExtract> yxUserExtracts = queryAll(criteria);
-        List<YxUserExtractDto> list = generator.convert(yxUserExtracts, YxUserExtractDto.class);
-        if (null == list || list.size() <= 0) {
+        QueryWrapper<YxUserExtract> queryWrapper = createQueryWrapper(criteria);
+        List<YxUserExtract> yxUserExtracts = this.list(queryWrapper);
+        if (null == yxUserExtracts || yxUserExtracts.size() <= 0) {
             throw new BadRequestException("未查询到数据");
         }
+        List<YxUserExtractDto> list = generator.convert(yxUserExtracts, YxUserExtractDto.class);
         for (YxUserExtractDto extractDto : list) {
             // 用户类型 1商户;2合伙人;3用户
             if (3 == extractDto.getUserType()) {
