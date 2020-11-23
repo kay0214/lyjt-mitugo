@@ -844,7 +844,7 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         YxCouponOrder yxCouponOrder = this.yxCouponOrderMapper.selectById(id);
         BeanUtils.copyBeanProp(item, yxCouponOrder);
         // 获取卡券list
-        List<YxCouponOrderDetail> detailList = this.yxCouponOrderDetailService.list(new QueryWrapper<YxCouponOrderDetail>().lambda().eq(YxCouponOrderDetail::getOrderId, item.getOrderId()).eq(YxCouponOrderDetail::getUserStatus,1));
+        List<YxCouponOrderDetail> detailList = this.yxCouponOrderDetailService.list(new QueryWrapper<YxCouponOrderDetail>().lambda().eq(YxCouponOrderDetail::getOrderId, item.getOrderId()).eq(YxCouponOrderDetail::getUserStatus, 1));
        /* if (CollectionUtils.isEmpty(detailList)) {
             throw new BadRequestException("根据订单号:" + item.getOrderId() + " 未查询到卡券订单信息");
         }*/
@@ -877,7 +877,7 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         }
         item.setOptionalNum(userCount);
 
-        if(!CollectionUtils.isEmpty(detailList)){
+        if (!CollectionUtils.isEmpty(detailList)) {
             for (YxCouponOrderDetail yxCouponOrderDetail : detailList) {
                 YxCouponOrderDetailQueryVo vo = new YxCouponOrderDetailQueryVo();
                 BeanUtils.copyBeanProp(vo, yxCouponOrderDetail);
@@ -1496,7 +1496,12 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
             map.put("statusDesc", "卡券不存在");
             return map;
         }
-        YxStoreInfo yxStoreInfo = this.storeInfoService.getOne(new QueryWrapper<YxStoreInfo>().eq("mer_id", uid));
+        SystemUser systemUser = this.systemUserService.getById(uid);
+        if (null == systemUser) {
+            map.put("statusDesc", "核销用户异常");
+            return map;
+        }
+        YxStoreInfo yxStoreInfo = this.storeInfoService.getOne(new QueryWrapper<YxStoreInfo>().lambda().eq(YxStoreInfo::getId, systemUser.getStoreId()));
         if (null == yxStoreInfo) {
             map.put("statusDesc", "卡券店铺异常");
             return map;
@@ -1555,7 +1560,6 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
 
         // 如果校验没问题了  就放进去
         map.remove("status");
-        map.put("yxStoreInfo", yxStoreInfo);
         map.put("yxCoupons", yxCoupons);
         map.put("yxCouponOrder", yxCouponOrder);
         map.put("yxCouponOrderDetail", yxCouponOrderDetail);
