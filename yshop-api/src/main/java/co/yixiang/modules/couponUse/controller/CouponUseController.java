@@ -309,10 +309,7 @@ public class CouponUseController extends BaseController {
         // 获取登陆用户的id
         Map<String, String> map = new HashMap<>();
         SystemUser user = getRedisUser(token);
-        if(isAll) {
-            log.info("------------打印日志----------------");
-        }
-        log.info("增加打印日志看下传参：" + isAll.toString());
+
         int uid = user.getId().intValue();
         String decodeVerifyCode = "";
         try {
