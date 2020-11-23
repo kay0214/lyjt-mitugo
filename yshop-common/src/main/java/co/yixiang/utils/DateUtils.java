@@ -346,7 +346,7 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
      */
     public static Integer stringToTimestampDate(String strDate){
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        Long dateTimeLong = 0l;
+        Long dateTimeLong = 0L;
         try {
             dateTimeLong = sdf.parse(strDate).getTime()/ 1000;
         } catch (ParseException e) {
