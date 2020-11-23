@@ -25,6 +25,7 @@ import co.yixiang.modules.shop.service.dto.YxExamineLogDto;
 import co.yixiang.modules.shop.service.dto.YxExamineLogQueryCriteria;
 import co.yixiang.modules.shop.service.mapper.YxExamineLogMapper;
 import co.yixiang.modules.shop.service.mapper.YxMerchantsDetailMapper;
+import co.yixiang.utils.DateUtils;
 import co.yixiang.utils.FileUtil;
 import co.yixiang.utils.StringUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -147,6 +148,7 @@ public class YxExamineLogServiceImpl extends BaseServiceImpl<YxExamineLogMapper,
     public Map<String, Object> queryExtractAll(YxExamineLogQueryCriteria criteria, Pageable pageable) {
 //        getPage(pageable);
 //        PageInfo<YxExamineLogDto> page = new PageInfo<>(queryAll(criteria));
+        Map<String, Object> map = new LinkedHashMap<>(2);
         QueryWrapper<YxExamineLog> queryWrapper = new QueryWrapper<>();
         queryWrapper.lambda().orderByDesc(YxExamineLog::getCreateTime);
         if (null != criteria.getType()) {
@@ -154,6 +156,81 @@ public class YxExamineLogServiceImpl extends BaseServiceImpl<YxExamineLogMapper,
         }
         if (StringUtils.isNotBlank(criteria.getUsername())) {
             queryWrapper.lambda().like(YxExamineLog::getUsername, criteria.getUsername());
+        }
+        if (null != criteria.getStatus()) {
+            queryWrapper.lambda().eq(YxExamineLog::getStatus, criteria.getStatus());
+        }
+//        if (StringUtils.isNotBlank(criteria.getPhone())) {
+//            List<YxUserExtract> extracts = this.yxUserExtractMapper.selectList(new QueryWrapper<YxUserExtract>().lambda().eq(YxUserExtract::getBankMobile, criteria.getPhone()));
+//            if (null == extracts || extracts.size() <= 0) {
+//                map.put("content", new ArrayList<>());
+//                map.put("totalElements", 0);
+//                return map;
+//            }
+//            List<Integer> ids = new ArrayList<>();
+//            for (YxUserExtract item : extracts) {
+//                ids.add(item.getId());
+//            }
+//            queryWrapper.lambda().in(YxExamineLog::getTypeId, ids);
+//        }
+        if (StringUtils.isNotBlank(criteria.getUserTrueName())) {
+            QueryWrapper<YxUserExtract> extractWrapper = new QueryWrapper<>();
+            List<YxUser> yxUsers = this.yxUserService.list(new QueryWrapper<YxUser>().lambda().eq(YxUser::getRealName, criteria.getUserTrueName()));
+            List<User> users = this.userService.list(new QueryWrapper<User>().lambda().eq(User::getMerchantsContact, criteria.getUserTrueName()));
+            if (null != yxUsers && yxUsers.size() > 0 && null != users && users.size() > 0) {
+                List<Integer> yxUserIds = new ArrayList<>();
+                for (YxUser item : yxUsers) {
+                    yxUserIds.add(item.getUid());
+                }
+                List<Integer> userIds = new ArrayList<>();
+                for (User item : users) {
+                    userIds.add(item.getId().intValue());
+                }
+                extractWrapper.lambda().and(orqw -> orqw.and(qw -> qw.in(YxUserExtract::getUid, yxUserIds).eq(YxUserExtract::getUserType, 3)).or(qw -> qw.in(YxUserExtract::getUid, userIds).eq(YxUserExtract::getUserType, 1)));
+            } else if (null != yxUsers && yxUsers.size() > 0) {
+                List<Integer> yxUserIds = new ArrayList<>();
+                for (YxUser item : yxUsers) {
+                    yxUserIds.add(item.getUid());
+                }
+                extractWrapper.lambda().in(YxUserExtract::getUid, yxUserIds).eq(YxUserExtract::getUserType, 3);
+            } else if (null != users && users.size() > 0) {
+                List<Integer> userIds = new ArrayList<>();
+                for (User item : users) {
+                    userIds.add(item.getId().intValue());
+                }
+                extractWrapper.lambda().in(YxUserExtract::getUid, userIds).eq(YxUserExtract::getUserType, 1);
+            } else {
+                map.put("content", new ArrayList<>());
+                map.put("totalElements", 0);
+                return map;
+            }
+            List<YxUserExtract> extracts = this.yxUserExtractMapper.selectList(extractWrapper);
+            if (null == extracts || extracts.size() <= 0) {
+                map.put("content", new ArrayList<>());
+                map.put("totalElements", 0);
+                return map;
+            }
+            List<Integer> ids = new ArrayList<>();
+            for (YxUserExtract item : extracts) {
+                ids.add(item.getId());
+            }
+            queryWrapper.lambda().in(YxExamineLog::getTypeId, ids);
+        }
+        if(StringUtils.isNotBlank(criteria.getSeqNo())) {
+            List<YxUserExtract> extracts = this.yxUserExtractMapper.selectList(new QueryWrapper<YxUserExtract>().lambda().eq(YxUserExtract::getSeqNo, criteria.getSeqNo()));
+            if (null == extracts || extracts.size() <= 0) {
+                map.put("content", new ArrayList<>());
+                map.put("totalElements", 0);
+                return map;
+            }
+            List<Integer> ids = new ArrayList<>();
+            for (YxUserExtract item : extracts) {
+                ids.add(item.getId());
+            }
+            queryWrapper.lambda().in(YxExamineLog::getTypeId, ids);
+        }
+        if (null != criteria.getAddTime() && criteria.getAddTime().size() == 2) {
+            queryWrapper.lambda().ge(YxExamineLog::getCreateTime, criteria.getAddTime().get(0).concat(" 00:00:00")).le(YxExamineLog::getCreateTime, criteria.getAddTime().get(1).concat(" 23:59:59"));
         }
         IPage<YxExamineLog> ipage = this.page(new Page<>(pageable.getPageNumber() + 1, pageable.getPageSize()), queryWrapper);
         List<YxExamineLogDto> list = generator.convert(ipage.getRecords(), YxExamineLogDto.class);
@@ -206,7 +283,6 @@ public class YxExamineLogServiceImpl extends BaseServiceImpl<YxExamineLogMapper,
             }
         }
 
-        Map<String, Object> map = new LinkedHashMap<>(2);
         map.put("content", list);
         map.put("totalElements", ipage.getTotal());
         return map;
