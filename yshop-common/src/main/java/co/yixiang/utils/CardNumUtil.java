@@ -20,7 +20,7 @@ public class CardNumUtil {
         if (StringUtils.isEmpty(id) || (id.length() < 8)) {
             return id;
         }// (?<=\w{3})\w(?=\w{4})
-        return id.replaceAll("(\\d{4})\\d{10}(\\d{4})", "$1 ** $2");
+        return id.replaceAll("(\\w{3})\\w{11}(\\w{4})", "$1 ** $2");
     }
 
     public static void main(String[] args) {
