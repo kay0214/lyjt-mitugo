@@ -213,7 +213,7 @@ public class YxUserExtractServiceImpl extends BaseServiceImpl<YxUserExtractMappe
             Map<String, Object> map = new LinkedHashMap<>();
             // 申请id  用户名  真实姓名  银行卡号  所属银行  支行   联行号   联系电话   提现金额  订单号  用户类型  时间   状态    驳回原因  驳回时间
             map.put("申请id", yxUserExtract.getId());
-            map.put("用户id", yxUserExtract.getUid());
+            map.put("用户名", yxUserExtract.getRealName());
             map.put("真实姓名", yxUserExtract.getUserTrueName());
 //            map.put("提现类型", yxUserExtract.getExtractType().equals("bank") ? "银行卡" : "其他");
             map.put("银行卡号", yxUserExtract.getBankCode());
@@ -228,7 +228,8 @@ public class YxUserExtractServiceImpl extends BaseServiceImpl<YxUserExtractMappe
             map.put("提现金额", yxUserExtract.getExtractPrice());
             // 订单号
             map.put("订单号", yxUserExtract.getSeqNo());
-            // 用户类型map.put("添加时间", DateUtils.timestampToStr10(yxUserExtract.getAddTime()));
+            map.put("用户类型", yxUserExtract.getUserType() == 3 ? "用户" : "商户");
+            map.put("添加时间", DateUtils.timestampToStr10(yxUserExtract.getAddTime()));
             map.put("状态", statusStr);
             map.put("驳回原因", yxUserExtract.getFailMsg());
             map.put("驳回时间", DateUtils.timestampToStr10(yxUserExtract.getFailTime()));
