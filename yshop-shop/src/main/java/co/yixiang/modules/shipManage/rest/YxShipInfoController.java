@@ -11,6 +11,7 @@ package co.yixiang.modules.shipManage.rest;
 import co.yixiang.annotation.AnonymousAccess;
 import co.yixiang.constant.SystemConfigConstants;
 import co.yixiang.dozer.service.IGenerator;
+import co.yixiang.exception.BadRequestException;
 import co.yixiang.logging.aop.log.Log;
 import co.yixiang.modules.shipManage.domain.YxShipInfo;
 import co.yixiang.modules.shipManage.domain.YxShipSeries;
@@ -153,7 +154,11 @@ public class YxShipInfoController {
             merId = currUser.getChildUser();
         }
         //海安支队
-        if(SystemConfigConstants.ROLE_POLICE == currUser.getUserRole()){
+        Integer intRole = userService.getRoleIdByUserId(currUser.getId().intValue());
+        if(null==intRole){
+            throw new BadRequestException("当前登陆用户角色错误！");
+        }
+        if(SystemConfigConstants.ROLE_POLICE == intRole){
             merId = null;
         }
         List<YxShipSeries> shipSeriesList = yxShipInfoService.getShipSeriseList(merId);
