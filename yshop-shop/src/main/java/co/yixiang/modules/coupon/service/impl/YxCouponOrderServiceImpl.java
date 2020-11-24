@@ -173,6 +173,32 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
             Integer couponId = item.getCouponId();
             // 购买卡券的信息
             YxCoupons yxCoupons = this.yxCouponsService.getById(couponId);
+            if (null == yxCoupons) {
+                log.info("订单号:" + item.getOrderId() + "卡券id" + couponId + "未查询到详情信息");
+                continue;
+            }
+            if (null == yxCoupons.getCouponType()) {
+                log.info("订单号:" + item.getOrderId() + "卡券id" + couponId + "未查询到卡券类型");
+                continue;
+            }
+            // 卡券类型 1:代金券, 2:折扣券, 3:满减券 ，4：船票券
+            switch (yxCoupons.getCouponType()) {
+                case 1:
+                    item.setCouponTypeStr("代金券");
+                    break;
+                case 2:
+                    item.setCouponTypeStr("折扣券");
+                    break;
+                case 3:
+                    item.setCouponTypeStr("满减券");
+                    break;
+                case 4:
+                    item.setCouponTypeStr("船票券");
+                    break;
+                default:
+                    item.setCouponTypeStr("其他");
+                    break;
+            }
             // 卡券缩略图
             YxImageInfo thumbnail = yxImageInfoService.getOne(new QueryWrapper<YxImageInfo>().eq("type_id", couponId).eq("img_type", LocalLiveConstants.IMG_TYPE_COUPONS)
                     .eq("img_category", ShopConstants.IMG_CATEGORY_PIC).eq("del_flag", 0));
@@ -197,24 +223,6 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
                         "<span>退款时间：" + refundTime + "</span><br/>";
             }
             item.setStatusName(orderStatusStr);
-            // 卡券类型 1:代金券, 2:折扣券, 3:满减券 ，4：船票券
-            switch (yxCoupons.getCouponType()) {
-                case 1:
-                    item.setCouponTypeStr("代金券");
-                    break;
-                case 2:
-                    item.setCouponTypeStr("折扣券");
-                    break;
-                case 3:
-                    item.setCouponTypeStr("满减券");
-                    break;
-                case 4:
-                    item.setCouponTypeStr("船票券");
-                    break;
-                default:
-                    item.setCouponTypeStr("其他");
-                    break;
-            }
             User user = this.userService.getById(item.getMerId());
             if (null != user) {
                 item.setUser(user);
