@@ -256,7 +256,7 @@ export default {
     editStatus(row){
       let that=this
       changeStatus(row.id).then(res=>{
-        let t='已'+ (row.currentStatus?'启用':'禁用')
+        let t='已'+ (row.shipStatus?'启用':'禁用')
         Notification.success({
           title: t
         })

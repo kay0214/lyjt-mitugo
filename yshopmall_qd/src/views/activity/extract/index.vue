@@ -3,7 +3,7 @@
     <!--工具栏-->
     <div class="head-container">
       <!-- 搜索 -->
-      <el-input v-model="query.value" clearable placeholder="输入搜索内容" style="width: 200px;" class="filter-item" @keyup.enter.native="toQuery" />
+      <el-input v-model.trim="query.value" clearable placeholder="输入搜索内容" style="width: 200px;" class="filter-item" @keyup.enter.native="toQuery" />
       <el-select v-model="query.type" clearable placeholder="类型" class="filter-item" style="width: 130px">
         <el-option v-for="item in queryTypeOptions" :key="item.key" :label="item.display_name" :value="item.key" />
       </el-select>
@@ -14,10 +14,10 @@
       <el-select v-model="query.userType" clearable placeholder="用户类型"
                  style="width: 200px;" class="filter-item">
         <el-option
-          v-for="(val,index) in userTypeOptions"
+          v-for="(item,index) in userTypeOptions"
           :key="index"
-          :label="val"
-          :value="index">
+          :label="item.label"
+          :value="item.value">
         </el-option>
       </el-select>
       <el-select v-model="query.status" clearable placeholder="审核状态"
@@ -67,13 +67,13 @@
       <el-table-column prop="id" label="申请ID" />
       <el-table-column prop="realName" label="用户名" />
       <el-table-column prop="userTrueName" label="真实姓名" />
-      <el-table-column prop="phone" label="用户手机号" />
+      <el-table-column prop="bankMobile" label="用户手机号" />
       <el-table-column prop="bankCode" label="银行卡号" />
       <el-table-column prop="extractPrice" label="提现金额" />
       <el-table-column prop="seqNo" label="流水号" />
       <el-table-column prop="userType" label="用户类型" >
         <template slot-scope="scope">
-          <div>{{userTypeOptions[scope.row.userType]}}</div>
+          <div>{{ transferLabel(scope.row.userType,userTypeOptions) }}</div>
         </template>
       </el-table-column>
       <el-table-column prop="extractType" label="提现方式">
@@ -160,7 +160,12 @@ export default {
         { key: 'bankCode', display_name: '银行卡号' },
         { key: 'seqNo', display_name: '流水号' }
       ],
-      userTypeOptions: ['商户','前台用户'],
+      userTypeOptions: [
+        {value:1,label:'商户'},
+        {value:2,label:'合伙人'},
+        {value:3,label:'用户'},
+        {value:0,label:'预留'}
+      ],
       statusList:[
         {value:-1,label:'提现未通过'},
         {value:0,label:'未提现'},

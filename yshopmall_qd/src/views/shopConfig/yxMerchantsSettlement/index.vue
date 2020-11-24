@@ -43,7 +43,7 @@
               {{form.remark}}
             </div>
             <el-input v-else v-model.trim="form.remark" type="textarea"
-                      :row='10' style="width: 370px;"
+                      :rows='8' style="width: 370px;" resize="vertical"
                       show-word-limit  maxlength="200"/>
           </el-form-item>
         </el-form>
