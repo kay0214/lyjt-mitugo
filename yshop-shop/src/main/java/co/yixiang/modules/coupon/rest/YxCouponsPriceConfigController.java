@@ -16,7 +16,6 @@ import co.yixiang.modules.coupon.service.dto.YxCouponsPriceConfigDto;
 import co.yixiang.modules.coupon.service.dto.YxCouponsPriceConfigQueryCriteria;
 import co.yixiang.utils.CommonsUtils;
 import co.yixiang.utils.CurrUser;
-import co.yixiang.utils.DateUtils;
 import co.yixiang.utils.SecurityUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import io.swagger.annotations.Api;
@@ -61,23 +60,23 @@ public class YxCouponsPriceConfigController {
     @Log("查询本地生活价格配置")
     @ApiOperation("查询本地生活价格配置")
     @PreAuthorize("@el.check('admin','yxCouponsPriceConfig:list')")
-    public ResponseEntity<Object> getYxCouponsPriceConfigs(YxCouponsPriceConfigQueryCriteria criteria, Pageable pageable){
-        return new ResponseEntity<>(yxCouponsPriceConfigService.queryAll(criteria,pageable),HttpStatus.OK);
+    public ResponseEntity<Object> getYxCouponsPriceConfigs(YxCouponsPriceConfigQueryCriteria criteria, Pageable pageable) {
+        return new ResponseEntity<>(yxCouponsPriceConfigService.queryAll(criteria, pageable), HttpStatus.OK);
     }
 
     @PostMapping
     @Log("新增本地生活价格配置")
     @ApiOperation("新增本地生活价格配置")
     @PreAuthorize("@el.check('admin','yxCouponsPriceConfig:add')")
-    public ResponseEntity<Object> create(@Validated @RequestBody YxCouponsPriceConfig resources){
-        return new ResponseEntity<>(yxCouponsPriceConfigService.save(resources),HttpStatus.CREATED);
+    public ResponseEntity<Object> create(@Validated @RequestBody YxCouponsPriceConfig resources) {
+        return new ResponseEntity<>(yxCouponsPriceConfigService.save(resources), HttpStatus.CREATED);
     }
 
     @PutMapping
     @Log("修改本地生活价格配置")
     @ApiOperation("修改本地生活价格配置")
     @PreAuthorize("@el.check('admin','yxCouponsPriceConfig:edit')")
-    public ResponseEntity<Object> update(@Validated @RequestBody YxCouponsPriceConfig resources){
+    public ResponseEntity<Object> update(@Validated @RequestBody YxCouponsPriceConfig resources) {
         yxCouponsPriceConfigService.updateById(resources);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
@@ -87,7 +86,7 @@ public class YxCouponsPriceConfigController {
     @PreAuthorize("@el.check('admin','yxCouponsPriceConfig:del')")
     @DeleteMapping
     public ResponseEntity<Object> deleteAll(@RequestBody Integer[] ids) {
-        Arrays.asList(ids).forEach(id->{
+        Arrays.asList(ids).forEach(id -> {
             yxCouponsPriceConfigService.removeById(id);
         });
         return new ResponseEntity<>(HttpStatus.OK);
@@ -95,6 +94,7 @@ public class YxCouponsPriceConfigController {
 
     /**
      * 价格配置
+     *
      * @param priceJson
      * @return
      */
@@ -114,16 +114,22 @@ public class YxCouponsPriceConfigController {
 //    @PreAuthorize("@el.check('admin','yxCoupons:add')")
     public ResponseEntity<Object> getPriceConfigList(@PathVariable Integer couponId) {
         QueryWrapper<YxCouponsPriceConfig> queryWrapper = new QueryWrapper<>();
-        queryWrapper.lambda().eq(YxCouponsPriceConfig::getCouponId, couponId).eq(YxCouponsPriceConfig::getDelFlag, 0);
+        queryWrapper.lambda().eq(YxCouponsPriceConfig::getCouponId, couponId).eq(YxCouponsPriceConfig::getDelFlag, 0).orderByAsc(YxCouponsPriceConfig::getStartDate);
         List<YxCouponsPriceConfig> priceConfigList = yxCouponsPriceConfigService.list(queryWrapper);
         List<YxCouponsPriceConfigDto> priceConfigDtoList = CommonsUtils.convertBeanList(priceConfigList, YxCouponsPriceConfigDto.class);
         //格式日期
-        if(!CollectionUtils.isEmpty(priceConfigDtoList)){
-            for(YxCouponsPriceConfigDto configDto:priceConfigDtoList){
-                String startDate = DateUtils.timestampToStr10(configDto.getStartDate(),"yyyy-MM-dd");
-                configDto.setStartDateStr(startDate);
-                String endDate = DateUtils.timestampToStr10(configDto.getEndDate(),"yyyy-MM-dd");
-                configDto.setEndDateStr(endDate);
+        if (!CollectionUtils.isEmpty(priceConfigDtoList)) {
+            for (YxCouponsPriceConfigDto configDto : priceConfigDtoList) {
+                if (configDto.getStartDate().toString().length() == 3) {
+                    configDto.setStartDateStr("0" + configDto.getStartDate().toString());
+                } else {
+                    configDto.setStartDateStr(configDto.getStartDate().toString());
+                }
+                if (configDto.getEndDate().toString().length() == 3) {
+                    configDto.setEndDateStr("0" + configDto.getEndDate().toString());
+                } else {
+                    configDto.setEndDateStr(configDto.getEndDate().toString());
+                }
             }
         }
         return new ResponseEntity(priceConfigDtoList, HttpStatus.OK);

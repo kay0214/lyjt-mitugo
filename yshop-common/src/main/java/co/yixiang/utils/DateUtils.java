@@ -30,6 +30,8 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
 
     public static String YYYY_MM_DD = "yyyy-MM-dd";
 
+    public static String MMDD = "MMdd";
+
     public static String YYYYMMDDHHMMSS = "yyyyMMddHHmmss";
 
     public static String YYYY_MM_DD_HH_MM_SS = "yyyy-MM-dd HH:mm:ss";
@@ -58,6 +60,15 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
      */
     public static String getDate() {
         return dateTimeNow(YYYY_MM_DD);
+    }
+
+    /**
+     * 获取当前日期, 默认格式为yyyy-MM-dd
+     *
+     * @return String
+     */
+    public static String getDateMMDD() {
+        return dateTimeNow(MMDD);
     }
 
     public static final String getTime() {

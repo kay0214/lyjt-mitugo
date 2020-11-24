@@ -23,7 +23,6 @@ import co.yixiang.modules.coupon.service.dto.YxCouponsPriceConfigQueryCriteria;
 import co.yixiang.modules.coupon.service.mapper.YxCouponsMapper;
 import co.yixiang.modules.coupon.service.mapper.YxCouponsPriceConfigMapper;
 import co.yixiang.utils.BeanUtils;
-import co.yixiang.utils.DateUtils;
 import co.yixiang.utils.FileUtil;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -117,39 +116,94 @@ public class YxCouponsPriceConfigServiceImpl extends BaseServiceImpl<YxCouponsPr
         int couponId = Integer.parseInt(couponIdStr);
         //查询
         YxCoupons yxCoupons = yxCouponsMapper.selectById(couponId);
-        if(null == yxCoupons){
-            throw new BadRequestException("根据卡券id："+couponId+" 获取卡券信息失败！");
+        if (null == yxCoupons) {
+            throw new BadRequestException("根据卡券id：" + couponId + " 获取卡券信息失败！");
         }
+        // 处理添加数据
+        List<YxCouponsPriceConfigRequest> configList = JSON.parseArray(jsonObject.get("data").toString(), YxCouponsPriceConfigRequest.class);
+        if (CollectionUtils.isEmpty(configList)) {
+            throw new BadRequestException("添加失败！");
+        }
+        // 入库list
+        List<YxCouponsPriceConfig> resultList = new ArrayList<>();
+        // 时间段check用list
+        List<String> timeList = new ArrayList<>();
+        // 时间段check用下标
+        Integer index = 0;
+        for (YxCouponsPriceConfigRequest param : configList) {
+            YxCouponsPriceConfig priceConfig = new YxCouponsPriceConfig();
+            BeanUtils.copyProperties(param, priceConfig);
+            Integer startDateInt = Integer.parseInt(param.getStartDateStr());
+            Integer endDateInt = Integer.parseInt(param.getEndDateStr());
+            if (startDateInt > endDateInt) {
+                throw new BadRequestException("时间配置错误");
+            }
+            // 时间list处理
+            timeList.add(index + "-" + startDateInt + "-" + endDateInt);
+            // 时间下标+1
+            index += 1;
+            priceConfig.setStartDate(startDateInt);
+            priceConfig.setEndDate(endDateInt);
+            priceConfig.setCouponId(couponId);
+            priceConfig.setCreateUserId(currUserId);
+            priceConfig.setUpdateUserId(currUserId);
+            priceConfig.setDelFlag(0);
+            int intCommFlg = priceConfig.getSellingPrice().subtract(yxCoupons.getSettlementPrice()).compareTo(BigDecimal.ZERO);
+            if (intCommFlg < 0) {
+                throw new BadRequestException("佣金不正确!");
+            }
+            BigDecimal bigComm = priceConfig.getSellingPrice().subtract(yxCoupons.getSettlementPrice());
+            priceConfig.setCommission(bigComm);
+            resultList.add(priceConfig);
+        }
+        // 校验时间是否有重叠
+        if (timeList.size() > 1 && !checkTimeList(timeList)) {
+            throw new BadRequestException("时间设置不可重叠");
+        }
+
         //先删除
         QueryWrapper<YxCouponsPriceConfig> queryWrapper = new QueryWrapper<>();
         queryWrapper.lambda().eq(YxCouponsPriceConfig::getCouponId, couponId);
         couponsPriceConfigMapper.delete(queryWrapper);
-        //后添加
-        List<YxCouponsPriceConfigRequest> configList = JSON.parseArray(jsonObject.get("data").toString(), YxCouponsPriceConfigRequest.class);
-        if (!CollectionUtils.isEmpty(configList)) {
-            List<YxCouponsPriceConfig> couponsPriceConfigList = new ArrayList<YxCouponsPriceConfig>();
-            for (YxCouponsPriceConfigRequest param : configList) {
-                YxCouponsPriceConfig priceConfig = new YxCouponsPriceConfig();
-                BeanUtils.copyProperties(param, priceConfig);
-                /*priceConfig.setStartDate(DateUtils.stringToTimestamp(param.getStartDateStr()));
-                priceConfig.setEndDate(DateUtils.stringToTimestamp(param.getEndDateStr()));*/
-                int intStart = DateUtils.stringToTimestamp(param.getStartDateStr() + " 00:00:00");
-                priceConfig.setStartDate(intStart);
-                priceConfig.setEndDate(DateUtils.stringToTimestamp(param.getEndDateStr() + " 23:59:59"));
-                priceConfig.setCouponId(couponId);
-                priceConfig.setCreateUserId(currUserId);
-                priceConfig.setUpdateUserId(currUserId);
-                priceConfig.setDelFlag(0);
-                int intCommFlg = priceConfig.getSellingPrice().subtract(yxCoupons.getSettlementPrice()).compareTo(BigDecimal.ZERO);
-                if (intCommFlg < 0) {
-                    throw new BadRequestException("佣金不正确!");
-                }
-                BigDecimal bigComm = priceConfig.getSellingPrice() .subtract(yxCoupons.getSettlementPrice());
-                priceConfig.setCommission(bigComm);
-                couponsPriceConfigList.add(priceConfig);
-            }
-            this.saveBatch(couponsPriceConfigList);
-        }
+        // 后添加
+        this.saveBatch(resultList);
     }
+
+    /**
+     * 判断时间是否重叠
+     *
+     * @param timeList
+     * @return
+     */
+    private boolean checkTimeList(List<String> timeList) {
+        for (String itemOut : timeList) {
+            // 判断时间有没有跟其他时间重复
+            String[] itemOutStr = itemOut.split("-");
+            // 获取下标、开始、结束时间
+            Integer outIdx = Integer.parseInt(itemOutStr[0]);
+            Integer outStart = Integer.parseInt(itemOutStr[1]);
+            Integer outEnd = Integer.parseInt(itemOutStr[2]);
+            // 再次遍历list判断当前时间段是否与列表其他时间段重复
+            for (String itemIn : timeList) {
+                String[] itemInStr = itemIn.split("-");
+                Integer inIdx = Integer.parseInt(itemInStr[0]);
+                Integer inStart = Integer.parseInt(itemInStr[1]);
+                Integer inEnd = Integer.parseInt(itemInStr[2]);
+                // 下标相同的不做处理
+                if (inIdx.equals(outIdx)) {
+                    continue;
+                }
+                // 1.判定时间在当前时间段之前
+                boolean check1 = outEnd < inStart;
+                // 2.判定时间在当前时间段之后
+                boolean check2 = outStart > inEnd;
+                if (!check2 && !check1) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
 
 }
