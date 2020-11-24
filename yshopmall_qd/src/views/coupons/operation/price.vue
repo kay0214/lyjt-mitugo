@@ -17,7 +17,8 @@
                 range-separator="至"
                 start-placeholder="开始日期"
                 end-placeholder="结束日期"
-                value-format="yyyy-MM-dd"
+                format="MM-dd"
+                value-format="MMdd"
               >
               </el-date-picker>
             </div>
@@ -199,6 +200,13 @@ export default {
       this.resetForm()
     },
     priceRemove(index) {
+      let underArray=this.prices.slice(index+1)
+      underArray.forEach((val,idx)=>{
+        this.$set(this.form,['sellingPrice'+(index+idx)],this.form['sellingPrice'+(index+idx+1)])
+        this.$set(this.form,['scenicPrice'+(index+idx)],this.form['scenicPrice'+(index+idx+1)])
+        this.$set(this.form,['travelPrice'+(index+idx)],this.form['travelPrice'+(index+idx+1)])
+        this.$set(this.form,['commission'+(index+idx)],this.form['commission'+(index+idx+1)])
+      })
       this.prices.splice(index, 1)
     },
     resetForm() {
