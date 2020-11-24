@@ -104,7 +104,7 @@
           </el-table-column>
           <el-table-column v-if="columns.visible('createTime')" prop="createTime" label="创建时间">
             <template slot-scope="scope">
-              <span>{{ formatTime(scope.row.createTime) }}</span>
+              <span>{{ parseTime(scope.row.createTime) }}</span>
             </template>
           </el-table-column>
           <el-table-column label="操作" width="150px" align="center">
@@ -140,7 +140,7 @@ import rrOperation from '@crud/RR.operation'
 import crudOperation from '@crud/CRUD.operation'
 import udOperation from '@crud/UD.operation'
 import pagination from '@crud/Pagination'
-import { formatTime } from '@/utils/index'
+import { parseTime } from '@/utils/index'
 import eDetail from './detail'
 import eRefund from './refund'
 
@@ -204,7 +204,6 @@ export default {
     }, // 新增与编辑前做的操作
     [CRUD.HOOK.afterToCU](crud, form) {
     },
-    formatTime,
     handleOrder(tab, event) {
       this.crud.query.orderStatus = tab.label
       this.crud.page.page = 1
