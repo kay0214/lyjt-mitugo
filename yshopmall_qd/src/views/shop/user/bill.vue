@@ -3,10 +3,10 @@
     <!--工具栏-->
     <div class="head-container">
       <!-- 搜索 -->
-      <el-input v-model="username" clearable placeholder="输入用户昵称" style="width: 200px;" class="filter-item" @keyup.enter.native="pageRefesh" />
+      <el-input v-model.trim="query.username" clearable placeholder="输入用户昵称" style="width: 200px;" class="filter-item" @keyup.enter.native="pageRefesh" />
 <!--      <el-input v-model="query.phone" clearable placeholder="输入用户手机号" style="width: 200px;" class="filter-item" @keyup.enter.native="pageRefesh" />-->
-      <el-input v-model="query.linkId" clearable placeholder="输入订单号" style="width: 200px;" class="filter-item" @keyup.enter.native="pageRefesh" />
-      <el-select v-model="category" clearable placeholder="明细种类" class="filter-item" style="width: 130px">
+      <el-input v-model.trim="query.linkId" clearable placeholder="输入订单号" style="width: 200px;" class="filter-item" @keyup.enter.native="pageRefesh" />
+      <el-select v-model="query.category" clearable placeholder="明细种类" class="filter-item" style="width: 130px">
         <el-option
           v-for="item in categoryOptions"
           :key="item.value"
@@ -14,7 +14,7 @@
           :value="item.value"
         />
       </el-select>
-      <el-select v-model="type" clearable placeholder="明细类型" class="filter-item" style="width: 130px">
+      <el-select v-model="query.type" clearable placeholder="明细类型" class="filter-item" style="width: 130px">
         <template v-for="item in typeOptions">
         <el-option
           v-for="(val,key) in item"
@@ -24,7 +24,7 @@
         />
         </template>
       </el-select>
-      <el-select v-model="pm" clearable placeholder="收支类型" class="filter-item" style="width: 130px">
+      <el-select v-model="query.pm" clearable placeholder="收支类型" class="filter-item" style="width: 130px">
         <el-option
           v-for="item in pmOptions"
           :key="item.value"
@@ -96,12 +96,13 @@
     <pForm ref="formp" :is-add="isAdd" />
     <!--表格渲染-->
     <el-table v-loading="loading" :data="data" size="small" style="width: 100%;">
+      <el-table-column prop="uid" label="用户uid" />
       <el-table-column prop="username" label="用户昵称" />
       <el-table-column prop="title" label="账单标题" />
       <el-table-column prop="linkId" label="订单号" />
       <el-table-column prop="category" label="明细种类">
         <template slot-scope="scope">
-          <span v-if="scope.row.category == 'now_money'">余额</span>
+          <span v-if="scope.row.category == 'now_money'">金额</span>
           <span v-else-if="scope.row.category == 'integral'">积分</span>
           <span v-else>未知</span>
         </template>
@@ -129,7 +130,7 @@
       </el-table-column>
       <el-table-column :show-overflow-tooltip="true" prop="addTime" label="创建日期">
         <template slot-scope="scope">
-          <span>{{ formatTime(scope.row.addTime) }}</span>
+          <span>{{ parseTime(scope.row.addTime) }}</span>
         </template>
       </el-table-column>
     </el-table>
@@ -155,7 +156,7 @@ import {
 import { del, onStatus, withdraw } from '@/api/yxUser'
 import eForm from './form'
 import pForm from './formp'
-import { formatTime } from '@/utils/index'
+import { parseTime } from '@/utils/index'
 import { Notification } from 'element-ui'
 import { amountValid } from '@/utils/validate'
 export default {
@@ -179,7 +180,7 @@ export default {
         { key: 'phone', display_name: '手机号码' }
       ],
       categoryOptions: [
-        { value: 'now_money', label: '余额' },
+        { value: 'now_money', label: '金额' },
         { value: 'integral', label: '积分' }
       ],
       typeOptions: [],
@@ -229,7 +230,6 @@ export default {
     }
   },
   methods: {
-    formatTime,
     checkPermission,
     onStatus(id, status) {
       this.$confirm(`确定进行[${status ? '禁用' : '开启'}]操作?`, '提示', {
@@ -270,10 +270,10 @@ export default {
       this.params = {
         page: this.page,
         size: this.size,
-        username: this.username,
-        category: this.category,
-        type: this.type,
-        pm: this.pm,
+        // username: this.username,
+        // category: this.category,
+        // type: this.type,
+        // pm: this.pm,
         addTimeStart:this.searchTime?this.searchTime[0]:null,
         addTimeEnd:this.searchTime?this.searchTime[1]:null
       }
