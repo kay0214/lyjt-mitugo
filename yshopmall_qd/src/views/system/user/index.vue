@@ -106,7 +106,7 @@
             </el-form-item>
             <el-form-item label="所属店铺" prop="storeId" label-width="auto">
               <el-select v-model="form.storeId" filterable clearable
-                         style="width: 430px" placeholder="请先选择部门">
+                         style="width: 430px" placeholder="请选择所属店铺">
                 <el-option
                   v-for="(item, index) in storeList"
                   :key="item.storeNid"
@@ -485,6 +485,10 @@ export default {
         if(Array.isArray(res)){
           this.storeList = res
         }
+        this.storeList.unshift(
+          {storeName: "无关联店铺",
+            storeNid: "0",id:0}
+        )
       }).catch(() => { })
     }
   }
