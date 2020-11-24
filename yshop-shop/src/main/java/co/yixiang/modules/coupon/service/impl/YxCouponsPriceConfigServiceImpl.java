@@ -133,9 +133,9 @@ public class YxCouponsPriceConfigServiceImpl extends BaseServiceImpl<YxCouponsPr
                 BeanUtils.copyProperties(param, priceConfig);
                 /*priceConfig.setStartDate(DateUtils.stringToTimestamp(param.getStartDateStr()));
                 priceConfig.setEndDate(DateUtils.stringToTimestamp(param.getEndDateStr()));*/
-                int intStart = DateUtils.stringToTimestampDate(param.getStartDateStr());
+                int intStart = DateUtils.formatStringToTimestampDate(param.getStartDateStr()+" 00:00:00");
                 priceConfig.setStartDate(intStart);
-                priceConfig.setEndDate(DateUtils.stringToTimestampDate(param.getEndDateStr()));
+                priceConfig.setEndDate(DateUtils.formatStringToTimestampDate(param.getEndDateStr()+" 23:59:59"));
                 priceConfig.setCouponId(couponId);
                 priceConfig.setCreateUserId(currUserId);
                 priceConfig.setUpdateUserId(currUserId);
