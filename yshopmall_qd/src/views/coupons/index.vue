@@ -101,6 +101,7 @@
                 }else{
                   this.shipsTree=[]
                 }
+                this.form.shipId=null
               }">
                 <el-option
                   v-for="item in shipSeriesTree"
