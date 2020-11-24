@@ -16,11 +16,13 @@ import co.yixiang.exception.BadRequestException;
 import co.yixiang.modules.activity.domain.YxUserExtract;
 import co.yixiang.modules.activity.service.mapper.YxUserExtractMapper;
 import co.yixiang.modules.shop.domain.User;
+import co.yixiang.modules.shop.domain.UsersRoles;
 import co.yixiang.modules.shop.domain.YxMerchantsDetail;
 import co.yixiang.modules.shop.service.UserService;
 import co.yixiang.modules.shop.service.YxSystemConfigService;
 import co.yixiang.modules.shop.service.dto.UserDto;
 import co.yixiang.modules.shop.service.dto.UserQueryCriteria;
+import co.yixiang.modules.shop.service.mapper.SysUsersRolesMapper;
 import co.yixiang.modules.shop.service.mapper.UserSysMapper;
 import co.yixiang.modules.shop.service.mapper.YxMerchantsDetailMapper;
 import co.yixiang.utils.FileUtil;
@@ -35,6 +37,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -73,6 +76,8 @@ public class UserServiceImpl extends BaseServiceImpl<UserSysMapper, User> implem
 
     @Value("${yshop.snowflake.datacenterId}")
     private Integer datacenterId;
+    @Autowired
+    private SysUsersRolesMapper sysUsersRolesMapper;
 
     @Override
     //@Cacheable
@@ -229,5 +234,16 @@ public class UserServiceImpl extends BaseServiceImpl<UserSysMapper, User> implem
     @Override
     public void updateWithdrawalAmountSub(int id, BigDecimal withdrawalAmount) {
         userSysMapper.updateWithdrawalAmountSub(id, withdrawalAmount);
+    }
+
+    @Override
+    public Integer getRoleIdByUserId(int userId) {
+        QueryWrapper<UsersRoles> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().eq(UsersRoles::getUserId,userId);
+        List<UsersRoles> usersRolesList = sysUsersRolesMapper.selectList(queryWrapper);
+        if(CollectionUtils.isEmpty(usersRolesList)){
+            return null;
+        };
+        return usersRolesList.get(0).getRoleId().intValue();
     }
 }
