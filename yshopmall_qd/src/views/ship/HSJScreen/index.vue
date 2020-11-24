@@ -155,6 +155,10 @@
       <!--分页组件-->
       <pagination/>
     </div>
+    <el-table ref="table" v-show="false" v-loading="crud.loading" :data="crud.data" size="small" style="width: 100%;" @selection-change="crud.selectionChangeHandler">
+      <el-table-column v-if="columns.visible('shipName')" prop="shipName" label="船只名" />
+      <el-table-column v-if="columns.visible('captainName')" prop="captainName" label="船长名" />
+    </el-table>
   </div>
 </template>
 
