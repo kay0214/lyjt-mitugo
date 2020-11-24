@@ -173,14 +173,6 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
             Integer couponId = item.getCouponId();
             // 购买卡券的信息
             YxCoupons yxCoupons = this.yxCouponsService.getById(couponId);
-            if (null == yxCoupons) {
-                log.info("订单号:" + item.getOrderId() + "卡券id" + couponId + "未查询到详情信息");
-                continue;
-            }
-            if (null == yxCoupons.getCouponType()) {
-                log.info("订单号:" + item.getOrderId() + "卡券id" + couponId + "未查询到卡券类型");
-                continue;
-            }
             // 卡券类型 1:代金券, 2:折扣券, 3:满减券 ，4：船票券
             switch (yxCoupons.getCouponType()) {
                 case 1:
@@ -337,7 +329,7 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
             map.put("订单号", yxCouponOrder.getOrderId());
             map.put("用户昵称", yxCouponOrder.getRealName());
             map.put("uid", yxCouponOrder.getUid());
-            map.put("商品名称", yxCouponOrder.getYxCouponsDto().getCouponName());
+            map.put("商品名称", null != yxCouponOrder.getYxCouponsDto() && StringUtils.isNotBlank(yxCouponOrder.getYxCouponsDto().getCouponName()) ? yxCouponOrder.getYxCouponsDto().getCouponName() : "");
             map.put("实际支付", yxCouponOrder.getTotalPrice());
             map.put("佣金", yxCouponOrder.getCommission());
             map.put("支付状态", yxCouponOrder.getPayStaus() == 0 ? "未支付" : "已支付");

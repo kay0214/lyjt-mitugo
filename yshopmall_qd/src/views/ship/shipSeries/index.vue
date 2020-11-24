@@ -262,6 +262,9 @@ export default {
           pcrt.push(CodeToText[item])
         })
         this.shipProvinceTest=pcrt.join('')
+      }else{
+        this.selectedOptions=[]
+        this.shipProvinceTest=''
       }
       this.$nextTick(()=>{
         document.getElementById('mapContainer').innerHTML = "";
