@@ -26,10 +26,7 @@ import co.yixiang.modules.shop.domain.YxStoreInfo;
 import co.yixiang.modules.shop.service.YxImageInfoService;
 import co.yixiang.modules.shop.service.mapper.UserSysMapper;
 import co.yixiang.modules.shop.service.mapper.YxStoreInfoMapper;
-import co.yixiang.utils.BeanUtils;
-import co.yixiang.utils.FileUtil;
-import co.yixiang.utils.SecurityUtils;
-import co.yixiang.utils.StringUtils;
+import co.yixiang.utils.*;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
@@ -99,9 +96,21 @@ public class YxShipInfoServiceImpl extends BaseServiceImpl<YxShipInfoMapper, YxS
         }
 
         IPage<YxShipInfo> ipage = this.page(new Page<>(pageable.getPageNumber() + 1, pageable.getPageSize()), queryWrapper);
-
+        List<YxShipInfo> yxShipInfoList = ipage.getRecords();
+        List<YxShipInfoDto> yxShipInfoDtoList = new ArrayList<>();
+        if(CollectionUtils.isNotEmpty(yxShipInfoList)){
+            yxShipInfoDtoList = CommonsUtils.convertBeanList(yxShipInfoList,YxShipInfoDto.class);
+            for(YxShipInfoDto yxShipInfoDto:yxShipInfoDtoList){
+                QueryWrapper<YxImageInfo> queryWrapperImg= new QueryWrapper<YxImageInfo>();
+                queryWrapperImg.lambda().eq(YxImageInfo::getTypeId, yxShipInfoDto.getId())
+                        .eq(YxImageInfo::getImgType, ShopConstants.IMG_TYPE_SHIPINFO)
+                        .eq(YxImageInfo::getDelFlag, 0);
+                YxImageInfo imageInfo = yxImageInfoService.getOne(queryWrapperImg);
+                if(null!=imageInfo){yxShipInfoDto.setImageUrl(imageInfo.getImgUrl());}
+            }
+        }
         Map<String, Object> map = new LinkedHashMap<>(2);
-        map.put("content", generator.convert(ipage.getRecords(), YxShipInfoDto.class));
+        map.put("content", yxShipInfoDtoList);
         map.put("totalElements", ipage.getTotal());
 
         return map;

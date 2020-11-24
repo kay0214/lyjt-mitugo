@@ -103,4 +103,6 @@ public class YxShipInfoDto implements Serializable {
 
     private Timestamp updateTime;
 
+    private String imageUrl;
+
 }
