@@ -7,6 +7,8 @@ package co.yixiang.modules.shop.service.impl;
 import co.yixiang.common.service.impl.BaseServiceImpl;
 import co.yixiang.common.utils.QueryHelpPlus;
 import co.yixiang.dozer.service.IGenerator;
+import co.yixiang.modules.shop.domain.User;
+import co.yixiang.modules.shop.domain.YxStoreProduct;
 import co.yixiang.modules.shop.domain.YxStoreProductReply;
 import co.yixiang.modules.shop.service.UserService;
 import co.yixiang.modules.shop.service.YxStoreProductReplyService;
@@ -16,6 +18,7 @@ import co.yixiang.modules.shop.service.dto.YxStoreProductReplyDto;
 import co.yixiang.modules.shop.service.dto.YxStoreProductReplyQueryCriteria;
 import co.yixiang.modules.shop.service.mapper.StoreProductReplyMapper;
 import co.yixiang.utils.FileUtil;
+import co.yixiang.utils.StringUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -62,16 +65,41 @@ public class YxStoreProductReplyServiceImpl extends BaseServiceImpl<StoreProduct
     public Map<String, Object> queryAll(YxStoreProductReplyQueryCriteria criteria, Pageable pageable) {
 //        getPage(pageable);
 //        PageInfo<YxStoreProductReply> page = new PageInfo<>(queryAll(criteria));
+        Map<String, Object> map = new LinkedHashMap<>(2);
         QueryWrapper<YxStoreProductReply> queryWrapper = new QueryWrapper<>();
         queryWrapper.lambda().orderByDesc(YxStoreProductReply::getAddTime);
         if (0 != criteria.getUserRole()) {
             if (null == criteria.getChildUser() || criteria.getChildUser().size() <= 0) {
-                Map<String, Object> map = new LinkedHashMap<>(2);
                 map.put("content", new ArrayList<>());
                 map.put("totalElements", 0);
                 return map;
             }
             queryWrapper.lambda().in(YxStoreProductReply::getMerId, criteria.getChildUser());
+        }
+        if (null != criteria.getIsReply()) {
+            queryWrapper.lambda().eq(YxStoreProductReply::getIsReply, criteria.getIsReply());
+        }
+        if (StringUtils.isNotBlank(criteria.getStoreName())) {
+            List<YxStoreProduct> list = this.yxStoreProductService.list(new QueryWrapper<YxStoreProduct>().lambda().eq(YxStoreProduct::getStoreName, criteria.getStoreName()));
+            if (null == list || list.size() <= 0) {
+                map.put("content", new ArrayList<>());
+                map.put("totalElements", 0);
+                return map;
+            }
+            List<Integer> ids = new ArrayList<>();
+            for (YxStoreProduct item : list) {
+                ids.add(item.getId());
+            }
+            queryWrapper.lambda().in(YxStoreProductReply::getProductId, ids);
+        }
+        if (StringUtils.isNotBlank(criteria.getUsername())) {
+            User user = this.userService.getOne(new QueryWrapper<User>().lambda().eq(User::getUsername, criteria.getUsername()));
+            if (null == user) {
+                map.put("content", new ArrayList<>());
+                map.put("totalElements", 0);
+                return map;
+            }
+            queryWrapper.lambda().eq(YxStoreProductReply::getMerId, user.getId());
         }
         queryWrapper.lambda().eq(YxStoreProductReply::getIsDel, 0);
         IPage<YxStoreProductReply> ipage = this.page(new Page<>(pageable.getPageNumber() + 1, pageable.getPageSize()), queryWrapper);
@@ -81,7 +109,6 @@ public class YxStoreProductReplyServiceImpl extends BaseServiceImpl<StoreProduct
             yxStoreProductReply.setStoreProduct(yxStoreProductService.getById(yxStoreProductReply.getProductId()));
             yxStoreProductReply.setSysUser(userService.getById(yxStoreProductReply.getMerId()));
         });
-        Map<String, Object> map = new LinkedHashMap<>(2);
         map.put("content", generator.convert(ipage.getRecords(), YxStoreProductReplyDto.class));
         map.put("totalElements", ipage.getTotal());
         return map;

@@ -75,6 +75,9 @@ public class YxStoreCouponServiceImpl extends BaseServiceImpl<YxStoreCouponMappe
         if (null != criteria.getStatus()) {
             queryWrapper.lambda().eq(YxStoreCoupon::getStatus, criteria.getStatus());
         }
+        if (StringUtils.isNotBlank(criteria.getTitle())) {
+            queryWrapper.lambda().like(YxStoreCoupon::getTitle, criteria.getTitle());
+        }
         if (StringUtils.isNotBlank(criteria.getUsername())) {
             User user = this.userService.getOne(new QueryWrapper<User>().lambda().eq(User::getUsername, criteria.getUsername()));
             if (null == user) {
