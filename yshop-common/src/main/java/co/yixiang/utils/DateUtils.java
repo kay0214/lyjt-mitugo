@@ -354,4 +354,15 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
         }
         return dateTimeLong.intValue();
     }
+
+    public static Integer formatStringToTimestampDate(String strDate){
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Long dateTimeLong = 0L;
+        try {
+            dateTimeLong = sdf.parse(strDate).getTime()/ 1000;
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return dateTimeLong.intValue();
+    }
 }
