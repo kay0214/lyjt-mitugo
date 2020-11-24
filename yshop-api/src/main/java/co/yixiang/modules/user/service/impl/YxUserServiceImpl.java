@@ -851,6 +851,7 @@ public class YxUserServiceImpl extends BaseServiceImpl<YxUserMapper, YxUser> imp
 
     /**
      * 修改密码
+     *
      * @param username
      * @param newPass
      * @param userPass
@@ -887,6 +888,7 @@ public class YxUserServiceImpl extends BaseServiceImpl<YxUserMapper, YxUser> imp
                 .eq("enabled", 1);
         return systemUserMapper.selectOne(wrapper);
     }
+
     @Override
     public SystemUser getSystemUserByParam(Integer uid) {
         QueryWrapper<SystemUser> wrapper = new QueryWrapper<>();
@@ -901,15 +903,16 @@ public class YxUserServiceImpl extends BaseServiceImpl<YxUserMapper, YxUser> imp
 
     /**
      * 根据用户id获取角色
+     *
      * @param uid
      * @return
      */
     @Override
     public UsersRoles getUserRolesByUserId(Integer uid) {
         QueryWrapper<UsersRoles> wrapper = new QueryWrapper<>();
-        wrapper.lambda().eq(UsersRoles::getUserId,uid);
+        wrapper.lambda().eq(UsersRoles::getUserId, uid);
         List<UsersRoles> usersRolesList = usersRolesMapper.selectList(wrapper);
-        if(!CollectionUtils.isEmpty(usersRolesList)){
+        if (!CollectionUtils.isEmpty(usersRolesList)) {
             return usersRolesList.get(0);
         }
         return null;
@@ -982,10 +985,18 @@ public class YxUserServiceImpl extends BaseServiceImpl<YxUserMapper, YxUser> imp
      */
     @Override
     public List<ShipUserVO> getAllShipUserByStoreId(int storeId) {
-        QueryWrapper<SystemUser> wrapper = new QueryWrapper<>();
-        wrapper.eq("user_role", SystemConfigConstants.ROLE_CAPTAIN)
-                .eq("enabled", 1);
-        List<SystemUser> list =  systemUserMapper.selectList(wrapper);
+        List<UsersRoles> usersRoles = this.usersRolesMapper.selectList(new QueryWrapper<UsersRoles>().lambda().eq(UsersRoles::getRoleId, SystemConfigConstants.ROLE_CAPTAIN));
+        if (null == usersRoles || usersRoles.size() <= 0) {
+            return new ArrayList<>();
+        }
+        List<Integer> ids = new ArrayList<>();
+        for (UsersRoles item : usersRoles) {
+            ids.add(item.getUserId().intValue());
+        }
+        List<SystemUser> list = systemUserMapper.selectList(new QueryWrapper<SystemUser>().lambda()
+                .eq(SystemUser::getEnabled, 1)
+                .eq(SystemUser::getStoreId, storeId)
+                .in(SystemUser::getId, ids));
         return CommonsUtils.convertBeanList(list, ShipUserVO.class);
     }
 
