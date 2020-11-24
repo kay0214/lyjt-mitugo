@@ -544,7 +544,7 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
                 .eq(YxCouponsPriceConfig::getCouponId, couponId)
                 .eq(YxCouponsPriceConfig::getDelFlag, 0)
                 .le(YxCouponsPriceConfig::getStartDate, nowDate)
-                .ge(YxCouponsPriceConfig::getEndDate, nowDate);
+                .ge(YxCouponsPriceConfig::getEndDate, nowDate).orderByDesc(YxCouponsPriceConfig::getCreateTime);
         List<YxCouponsPriceConfig> couponsPriceConfigList = yxCouponsPriceConfigService.list(queryWrapper);
         if (!CollectionUtils.isEmpty(couponsPriceConfigList)) {
             return couponsPriceConfigList.get(0);
