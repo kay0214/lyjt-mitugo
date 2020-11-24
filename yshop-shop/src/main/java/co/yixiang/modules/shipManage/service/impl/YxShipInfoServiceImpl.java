@@ -10,7 +10,6 @@ package co.yixiang.modules.shipManage.service.impl;
 
 import cn.hutool.core.date.DateTime;
 import co.yixiang.common.service.impl.BaseServiceImpl;
-import co.yixiang.common.utils.QueryHelpPlus;
 import co.yixiang.constant.ShopConstants;
 import co.yixiang.dozer.service.IGenerator;
 import co.yixiang.exception.BadRequestException;
@@ -30,9 +29,11 @@ import co.yixiang.modules.shop.service.mapper.YxStoreInfoMapper;
 import co.yixiang.utils.BeanUtils;
 import co.yixiang.utils.FileUtil;
 import co.yixiang.utils.SecurityUtils;
+import co.yixiang.utils.StringUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
-import com.github.pagehelper.PageInfo;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
@@ -75,11 +76,34 @@ public class YxShipInfoServiceImpl extends BaseServiceImpl<YxShipInfoMapper, YxS
     @Override
     //@Cacheable
     public Map<String, Object> queryAll(YxShipInfoQueryCriteria criteria, Pageable pageable) {
-        getPage(pageable);
-        PageInfo<YxShipInfo> page = new PageInfo<>(queryAll(criteria));
+        QueryWrapper<YxShipInfo> queryWrapper = new QueryWrapper<>();
+
+        if (0 != criteria.getUserRole()) {
+            if (null == criteria.getChildUser() || criteria.getChildUser().size() <= 0) {
+                Map<String, Object> map = new LinkedHashMap<>(2);
+                map.put("content", new ArrayList<>());
+                map.put("totalElements", 0);
+                return map;
+            }
+            queryWrapper.lambda().in(YxShipInfo::getMerId, criteria.getChildUser()).eq(YxShipInfo::getDelFlag, 0);
+        }
+        if (StringUtils.isNotBlank(criteria.getShipName())) {
+            queryWrapper.lambda().like(YxShipInfo::getShipName, criteria.getShipName());
+        }
+        if (null!=criteria.getSeriesId()) {
+            queryWrapper.lambda().eq(YxShipInfo::getSeriesId, criteria.getSeriesId());
+        }
+
+        if (null!=criteria.getCurrentStatus()) {
+            queryWrapper.lambda().eq(YxShipInfo::getCurrentStatus, criteria.getCurrentStatus());
+        }
+
+        IPage<YxShipInfo> ipage = this.page(new Page<>(pageable.getPageNumber() + 1, pageable.getPageSize()), queryWrapper);
+
         Map<String, Object> map = new LinkedHashMap<>(2);
-        map.put("content", generator.convert(page.getList(), YxShipInfoDto.class));
-        map.put("totalElements", page.getTotal());
+        map.put("content", generator.convert(ipage.getRecords(), YxShipInfoDto.class));
+        map.put("totalElements", ipage.getTotal());
+
         return map;
     }
 
@@ -87,7 +111,26 @@ public class YxShipInfoServiceImpl extends BaseServiceImpl<YxShipInfoMapper, YxS
     @Override
     //@Cacheable
     public List<YxShipInfo> queryAll(YxShipInfoQueryCriteria criteria) {
-        return baseMapper.selectList(QueryHelpPlus.getPredicate(YxShipInfo.class, criteria));
+        QueryWrapper<YxShipInfo> queryWrapper = new QueryWrapper<>();
+
+        if (0 != criteria.getUserRole()) {
+            if (null == criteria.getChildUser() || criteria.getChildUser().size() <= 0) {
+                return null;
+            }
+            queryWrapper.lambda().in(YxShipInfo::getMerId, criteria.getChildUser()).eq(YxShipInfo::getDelFlag, 0);
+        }
+        if (StringUtils.isNotBlank(criteria.getShipName())) {
+            queryWrapper.lambda().like(YxShipInfo::getShipName, criteria.getShipName());
+        }
+        if (null!=criteria.getSeriesId()) {
+            queryWrapper.lambda().eq(YxShipInfo::getSeriesId, criteria.getSeriesId());
+        }
+
+        if (null!=criteria.getCurrentStatus()) {
+            queryWrapper.lambda().eq(YxShipInfo::getCurrentStatus, criteria.getCurrentStatus());
+        }
+        return baseMapper.selectList(queryWrapper);
+//        return baseMapper.selectList(QueryHelpPlus.getPredicate(YxShipInfo.class, criteria));
     }
 
 
@@ -122,11 +165,11 @@ public class YxShipInfoServiceImpl extends BaseServiceImpl<YxShipInfoMapper, YxS
      * @return
      */
     @Override
-    public List<YxShipSeries> getShipSeriseList(Integer merId) {
+    public List<YxShipSeries> getShipSeriseList(List<Long> merId) {
         QueryWrapper<YxShipSeries> queryWrapper = new QueryWrapper<>();
         queryWrapper.lambda().eq(YxShipSeries::getStatus, 0).eq(YxShipSeries::getDelFlag, 0);
-        if(null!=merId){
-            queryWrapper.lambda().eq(YxShipSeries::getMerId,merId);
+        if(CollectionUtils.isNotEmpty(merId)){
+            queryWrapper.lambda().in(YxShipSeries::getMerId,merId);
         }
         return shipSeriesMapper.selectList(queryWrapper);
     }
@@ -138,11 +181,11 @@ public class YxShipInfoServiceImpl extends BaseServiceImpl<YxShipInfoMapper, YxS
      * @return
      */
     @Override
-    public List<YxShipInfo> getShipInfoList(int seriseId, Integer merId) {
+    public List<YxShipInfo> getShipInfoList(int seriseId, List<Long> merId) {
         QueryWrapper<YxShipInfo> queryWrapper = new QueryWrapper<>();
         queryWrapper.lambda().eq(YxShipInfo::getSeriesId, seriseId).eq(YxShipInfo::getShipStatus, 0).eq(YxShipInfo::getDelFlag, 0);
-        if(null!=merId){
-            queryWrapper.lambda().eq(YxShipInfo::getMerId, merId);
+        if(CollectionUtils.isNotEmpty(merId)){
+            queryWrapper.lambda().in(YxShipInfo::getMerId, merId);
         }
         return this.list(queryWrapper);
     }

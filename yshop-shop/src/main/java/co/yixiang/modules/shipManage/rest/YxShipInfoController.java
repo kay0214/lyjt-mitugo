@@ -9,11 +9,12 @@
 package co.yixiang.modules.shipManage.rest;
 
 import co.yixiang.annotation.AnonymousAccess;
+import co.yixiang.constant.SystemConfigConstants;
 import co.yixiang.dozer.service.IGenerator;
 import co.yixiang.logging.aop.log.Log;
 import co.yixiang.modules.shipManage.domain.YxShipInfo;
-import co.yixiang.modules.shipManage.param.YxShipInfoRequest;
 import co.yixiang.modules.shipManage.domain.YxShipSeries;
+import co.yixiang.modules.shipManage.param.YxShipInfoRequest;
 import co.yixiang.modules.shipManage.service.YxShipInfoService;
 import co.yixiang.modules.shipManage.service.YxShipSeriesService;
 import co.yixiang.modules.shipManage.service.dto.YxShipInfoDto;
@@ -64,6 +65,11 @@ public class YxShipInfoController {
     @GetMapping(value = "/download")
     @PreAuthorize("@el.check('admin','yxShipInfo:list')")
     public void download(HttpServletResponse response, YxShipInfoQueryCriteria criteria) throws IOException {
+        CurrUser currUser = SecurityUtils.getCurrUser();
+        criteria.setUserRole(currUser.getUserRole());
+        if (null != currUser.getChildUser()) {
+            criteria.setChildUser(currUser.getChildUser());
+        }
         yxShipInfoService.download(generator.convert(yxShipInfoService.queryAll(criteria), YxShipInfoDto.class), response);
     }
 
@@ -72,6 +78,11 @@ public class YxShipInfoController {
     @ApiOperation("查询船只管理")
     @PreAuthorize("@el.check('admin','yxShipInfo:list')")
     public ResponseEntity<Object> getYxShipInfos(YxShipInfoQueryCriteria criteria, Pageable pageable){
+        CurrUser currUser = SecurityUtils.getCurrUser();
+        criteria.setUserRole(currUser.getUserRole());
+        if (null != currUser.getChildUser()) {
+            criteria.setChildUser(currUser.getChildUser());
+        }
         return new ResponseEntity<>(yxShipInfoService.queryAll(criteria,pageable),HttpStatus.OK);
     }
 
@@ -108,9 +119,9 @@ public class YxShipInfoController {
     @GetMapping(value = "/getShipSeriseList")
     public ResponseEntity<Object> getShipSeriseList() {
         CurrUser currUser = SecurityUtils.getCurrUser();
-        Integer merId = null;
-        if(2==currUser.getUserRole()){
-            merId = currUser.getId().intValue();
+        List<Long>  merId = new ArrayList<>();
+        if (null != currUser.getChildUser()) {
+            merId = currUser.getChildUser();
         }
         List<YxShipSeries> shipSeriesList = yxShipInfoService.getShipSeriseList(merId);
         List<YxShipSeriesDto> categoryDtoLists = CommonsUtils.convertBeanList(shipSeriesList, YxShipSeriesDto.class);
@@ -125,7 +136,7 @@ public class YxShipInfoController {
         Map<String,Object> mapRetrun = new HashMap<String,Object>();
         YxShipSeries yxShipSeries = yxShipSeriesService.getById(seriesId);
         mapRetrun.put("rideLimit",yxShipSeries.getRideLimit());
-        List<YxShipInfo> shipInfoList = yxShipInfoService.getShipInfoList(seriesId,currUser.getId().intValue());
+        List<YxShipInfo> shipInfoList = yxShipInfoService.getShipInfoList(seriesId,currUser.getChildUser());
         List<YxShipInfoDto> shipInfoDtoList = CommonsUtils.convertBeanList(shipInfoList, YxShipInfoDto.class);
         mapRetrun.put("shipInfoList",shipInfoDtoList);
         return new ResponseEntity(mapRetrun, HttpStatus.OK);
@@ -137,9 +148,13 @@ public class YxShipInfoController {
     @GetMapping(value = "/getShipSeriseTree")
     public ResponseEntity<Object> getShipSeriseTree() {
         CurrUser currUser = SecurityUtils.getCurrUser();
-        Integer merId = null;
-        if (2 == currUser.getUserRole()) {
-            merId = currUser.getId().intValue();
+        List<Long>  merId = new ArrayList<>();
+        if (null != currUser.getChildUser()) {
+            merId = currUser.getChildUser();
+        }
+        //海安支队
+        if(SystemConfigConstants.ROLE_POLICE == currUser.getUserRole()){
+            merId = null;
         }
         List<YxShipSeries> shipSeriesList = yxShipInfoService.getShipSeriseList(merId);
         Map<String, Object> mapReturn = new HashMap<String, Object>();
