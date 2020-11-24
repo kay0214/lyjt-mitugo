@@ -9,6 +9,7 @@
 package co.yixiang.modules.shipManage.service.dto;
 
 import co.yixiang.annotation.Query;
+import co.yixiang.modules.shop.service.dto.BaseCriteria;
 import lombok.Data;
 
 /**
@@ -16,7 +17,7 @@ import lombok.Data;
 * @date 2020-11-04
 */
 @Data
-public class YxShipInfoQueryCriteria{
+public class YxShipInfoQueryCriteria extends BaseCriteria {
     /** 船只名称 */
 
     @Query(type = Query.Type.INNER_LIKE)
@@ -31,6 +32,4 @@ public class YxShipInfoQueryCriteria{
     private Integer currentStatus;
     @Query
     private Integer delFlag = 0;
-
-
 }

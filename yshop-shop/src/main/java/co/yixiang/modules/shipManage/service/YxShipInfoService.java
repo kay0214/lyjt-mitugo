@@ -54,7 +54,7 @@ public interface YxShipInfoService extends BaseService<YxShipInfo> {
      * 获取状态为启用的船只系列
      * @return
      */
-    public List<YxShipSeries> getShipSeriseList(Integer merId);
+    public List<YxShipSeries> getShipSeriseList(List<Long> merId);
 
     /**
      * 根据船只系列，以及商户id获取船只信息
@@ -62,7 +62,7 @@ public interface YxShipInfoService extends BaseService<YxShipInfo> {
      * @param merId
      * @return
      */
-    List<YxShipInfo> getShipInfoList(int seriseId, Integer merId);
+    List<YxShipInfo> getShipInfoList(int seriseId, List<Long> merId);
 
     /**
      * 保存船只信息
