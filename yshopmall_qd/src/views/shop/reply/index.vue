@@ -73,7 +73,7 @@
             </div>
             <el-button slot="reference" type="danger" icon="el-icon-delete" size="mini" />
           </el-popover>
-          <el-button v-if="(!scope.row.isReply) && checkPermission(['admin','YXSTOREPRODUCTREPLY_EDIT'])" @click="reply(scope.row)">评论回复</el-button>
+          <el-button v-if="(!scope.row.isReply) && checkPermission(['YXSTOREPRODUCTREPLY_EDIT'])" @click="reply(scope.row)">评论回复</el-button>
         </template>
       </el-table-column>
     </el-table>
