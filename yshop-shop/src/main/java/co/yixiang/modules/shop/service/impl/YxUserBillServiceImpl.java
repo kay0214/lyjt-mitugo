@@ -70,7 +70,7 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<UserBillMapper, YxUse
 //        PageInfo<YxUserBillDto> page = new PageInfo<>(queryAll(criteria));
         QueryWrapper<YxUserBill> queryWrapper = new QueryWrapper<>();
         queryWrapper.lambda().eq(YxUserBill::getCategory, BillDetailEnum.CATEGORY_1.getValue());
-        queryWrapper.lambda().orderByDesc(YxUserBill::getAddTime);
+        queryWrapper.lambda().orderByDesc(YxUserBill::getAddTime).orderByDesc(YxUserBill::getId);
         int userType = 0;
         if (1 == criteria.getUserRole()) {
             userType = 2;
@@ -340,7 +340,7 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<UserBillMapper, YxUse
         if (StringUtils.isNotBlank(criteria.getLinkId())) {
             queryWrapper.lambda().eq(YxUserBill::getLinkId, criteria.getLinkId());
         }
-        queryWrapper.lambda().orderByDesc(YxUserBill::getAddTime);
+        queryWrapper.lambda().orderByDesc(YxUserBill::getAddTime).orderByDesc(YxUserBill::getId);
 
         IPage<YxUserBill> ipage = this.page(new Page<>(pageable.getPageNumber() + 1, pageable.getPageSize()), queryWrapper);
         Map<String, Object> map = new LinkedHashMap<>(3);
@@ -457,7 +457,7 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<UserBillMapper, YxUse
     public List<YxUserBillDto> queryDownloadUserBill(YxUserBillQueryCriteria criteria) {
         QueryWrapper<YxUserBill> queryWrapper = new QueryWrapper<>();
         queryWrapper.lambda().eq(YxUserBill::getCategory, BillDetailEnum.CATEGORY_1.getValue());
-        queryWrapper.lambda().orderByDesc(YxUserBill::getAddTime);
+        queryWrapper.lambda().orderByDesc(YxUserBill::getAddTime).orderByDesc(YxUserBill::getId);
         if (1 == criteria.getUserRole()) {
             queryWrapper.lambda().eq(YxUserBill::getUid, criteria.getUid()).eq(YxUserBill::getUserType, 2);
         }
@@ -530,7 +530,7 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<UserBillMapper, YxUse
         if (StringUtils.isNotBlank(criteria.getLinkId())) {
             queryWrapper.lambda().eq(YxUserBill::getLinkId, criteria.getLinkId());
         }
-        queryWrapper.lambda().orderByDesc(YxUserBill::getAddTime);
+        queryWrapper.lambda().orderByDesc(YxUserBill::getAddTime).orderByDesc(YxUserBill::getId);
         List<YxUserBill> list = this.list(queryWrapper);
         if (null == list || list.size() <= 0) {
             throw new BadRequestException("未查询到数据");
