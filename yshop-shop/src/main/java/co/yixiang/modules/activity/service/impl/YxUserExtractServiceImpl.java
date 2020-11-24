@@ -212,6 +212,7 @@ public class YxUserExtractServiceImpl extends BaseServiceImpl<YxUserExtractMappe
             }
             Map<String, Object> map = new LinkedHashMap<>();
             // 申请id  用户名  真实姓名  银行卡号  所属银行  支行   联行号   联系电话   提现金额  订单号  用户类型  时间   状态    驳回原因  驳回时间
+            map.put("申请id", yxUserExtract.getId());
             map.put("用户id", yxUserExtract.getUid());
             map.put("真实姓名", yxUserExtract.getUserTrueName());
 //            map.put("提现类型", yxUserExtract.getExtractType().equals("bank") ? "银行卡" : "其他");
