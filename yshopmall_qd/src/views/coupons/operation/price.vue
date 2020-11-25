@@ -252,9 +252,9 @@ export default {
             this.dialog = false
             this.resetForm()
           }).catch(err => {
-            Message({ message: '网络异常，请稍后再试！', type: 'error' })
+            // Message({ message: '网络异常，请稍后再试！', type: 'error' })
             // this.loading = false
-            this.$refs.price.resetFields()
+            // this.$refs.price.resetFields()
             console.log(err.response.data.message)
           })
         }
