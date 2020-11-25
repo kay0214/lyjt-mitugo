@@ -82,11 +82,12 @@ public class YxStoreCouponUserServiceImpl extends BaseServiceImpl<YxStoreCouponU
         map.put("content", storeOrderDTOS);
         map.put("totalElements", ipage.getTotal());*/
 
+        Map<String, Object> map = new LinkedHashMap<>(2);
+
         YxStoreCouponQueryParam queryParam = new YxStoreCouponQueryParam();
         List<Long> storeIds =null;
         if (0 != criteria.getUserRole()) {
             if (null == criteria.getChildStoreId() || criteria.getChildStoreId().size() <= 0) {
-                Map<String, Object> map = new LinkedHashMap<>(2);
                 map.put("content", new ArrayList<>());
                 map.put("totalElements", 0);
                 return map;
@@ -103,11 +104,15 @@ public class YxStoreCouponUserServiceImpl extends BaseServiceImpl<YxStoreCouponU
                 queryParam.setIsUsed("no");
             }
         }
-        Page<YxStoreCouponUserDto> pageParam = new Page<YxStoreCouponUserDto>(pageable.getPageNumber()+1,pageable.getPageSize());
         int countSize = storeCouponUserMapper.countCouponUserPage(queryParam,storeIds);
+        if(0 == countSize) {
+            map.put("content", new ArrayList<>());
+            map.put("totalElements", 0);
+            return map;
+        }
+        Page<YxStoreCouponUserDto> pageParam = new Page<YxStoreCouponUserDto>(pageable.getPageNumber()+1,pageable.getPageSize());
         List<YxStoreCouponUserDto> storeCouponUserDtoList = storeCouponUserMapper.selectCouponUserPage(pageParam,queryParam,storeIds);
 
-        Map<String, Object> map = new LinkedHashMap<>(2);
         map.put("content", storeCouponUserDtoList);
         map.put("totalElements", countSize);
         return map;
