@@ -641,6 +641,152 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<StoreProductMappe
         this.updateById(yxStoreProduct);
     }
 
+    /**
+     * 卡券相关 数据统计
+     * @param storeId
+     * @return
+     */
+    @Override
+    public Map<String, Long> getLocalProductCount(int storeId) {
+
+        return storeProductMapper.getLocalProductCount(storeId);
+    }
+
+    /**
+     * 卡券订单相关
+     * @param storeId
+     * @return
+     */
+    @Override
+    public Map<String, Long> getLocalProductOrderCount(int storeId) {
+        return storeProductMapper.getLocalProductOrderCount(storeId);
+    }
+
+    /**
+     * 今日营业额
+     * @param storeId
+     * @return
+     */
+    @Override
+    public BigDecimal getLocalSumPrice(int storeId) {
+        return storeProductMapper.getLocalSumPrice(storeId);
+    }
+
+    /**
+     * 商城相关
+     * @param storeId
+     * @return
+     */
+    @Override
+    public Map<String, Long> getShopProductCount(int storeId) {
+        return storeProductMapper.getShopProductCount(storeId);
+    }
+
+    /**
+     * 商城订单数量相关
+     * @param storeId
+     * @return
+     */
+    @Override
+    public Map<String, Long> getShopOrderCount(int storeId) {
+        return storeProductMapper.getShopOrderCount(storeId);
+    }
+
+    /**
+     * 本月本地生活成交额
+     * @param nowMonth
+     * @param storeId
+     * @return
+     */
+    @Override
+    public Double getMonthLocalPrice(int nowMonth, int storeId) {
+        return storeProductMapper.getMonthLocalPrice(nowMonth,storeId);
+    }
+
+    /**
+     * 本月本地生活成交量
+     *
+     * @param nowMonth
+     * @param storeId
+     * @return
+     */
+    @Override
+    public Integer getMonthLocalCount(int nowMonth, int storeId) {
+        return storeProductMapper.getMonthLocalCount(nowMonth,storeId);
+    }
+
+    /**
+     * 本月商城成交额
+     *
+     * @param nowMonth
+     * @param storeId
+     * @return
+     */
+    @Override
+    public Double getMonthShopPrice(int nowMonth, int storeId) {
+        return storeProductMapper.getMonthShopPrice(nowMonth,storeId);
+    }
+
+    /**
+     * 本月商城成交量
+     *
+     * @param nowMonth
+     * @param storeId
+     * @return
+     */
+    @Override
+    public Integer getMonthShopCount(int nowMonth, int storeId) {
+        return storeProductMapper.getMonthShopCount(nowMonth,storeId);
+    }
+
+    /**
+     * 近七天本地生活成交量
+     *
+     * @param nowMonth
+     * @param storeId
+     * @return
+     */
+    @Override
+    public Integer getLastWeekLocalCount(int nowMonth, int storeId) {
+        return storeProductMapper.getMonthLocalCount(nowMonth,storeId);
+    }
+
+    /**
+     * 近七天本地生活成交额
+     *
+     * @param nowMonth
+     * @param storeId
+     * @return
+     */
+    @Override
+    public Double getLastWeekLocalPrice(int nowMonth, int storeId) {
+        return storeProductMapper.getMonthLocalPrice(nowMonth,storeId);
+    }
+
+    /**
+     * 近七天商城成交量
+     *
+     * @param nowMonth
+     * @param storeId
+     * @return
+     */
+    @Override
+    public Integer getLastWeekShopCount(int nowMonth, int storeId) {
+        return storeProductMapper.getMonthShopCount(nowMonth,storeId);
+    }
+
+    /**
+     * 近七天商城成交额
+     *
+     * @param nowMonth
+     * @param storeId
+     * @return
+     */
+    @Override
+    public Double getLastWeekShopPrice(int nowMonth, int storeId) {
+        return storeProductMapper.getMonthShopPrice(nowMonth,storeId);
+    }
+
   /*  @Override
     public String getStoreProductAttrResultNew(Integer id) {
         YxStoreProductAttrResult yxStoreProductAttrResult = yxStoreProductAttrResultService
