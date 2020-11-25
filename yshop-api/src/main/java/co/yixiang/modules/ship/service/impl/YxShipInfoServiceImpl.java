@@ -126,10 +126,10 @@ public class YxShipInfoServiceImpl extends BaseServiceImpl<YxShipInfoMapper, YxS
                 shipInfoQueryVo.setCurrentStatusFormat(statusFor);
                 String leaveTimeStr = "";
                 String returnTimeStr = "";
-                if (0 != shipInfoQueryVo.getLastLeaveTime()) {
+                if (null != shipInfoQueryVo.getLastLeaveTime() && 0 != shipInfoQueryVo.getLastLeaveTime()) {
                     leaveTimeStr = DateUtils.timestampToStr10(shipInfoQueryVo.getLastLeaveTime());
                 }
-                if (0 != shipInfoQueryVo.getLastReturnTime()) {
+                if (null != shipInfoQueryVo.getLastReturnTime() && 0 != shipInfoQueryVo.getLastReturnTime()) {
                     returnTimeStr = DateUtils.timestampToStr10(shipInfoQueryVo.getLastReturnTime());
                 }
                 shipInfoQueryVo.setLastReturnTimeFormat(returnTimeStr);
@@ -174,7 +174,7 @@ public class YxShipInfoServiceImpl extends BaseServiceImpl<YxShipInfoMapper, YxS
         //根据系列id获取船只id
         List<Integer> shipIds = shipIdList(shipOperationParam.getSeriesId(), storeId);
         yxShipOperationQueryParam.setShipIdList(shipIds);
-        if(CollectionUtils.isEmpty(shipIds)){
+        if (CollectionUtils.isEmpty(shipIds)) {
             map.put("status", "1");
             map.put("statusDesc", "成功！");
             map.put("data", new Paging());
@@ -216,10 +216,10 @@ public class YxShipInfoServiceImpl extends BaseServiceImpl<YxShipInfoMapper, YxS
                         break;
                 }
                 queryVo.setStatusFormat(strStatus);
-                if(0!= queryVo.getCreateUserId()){
+                if (0 != queryVo.getCreateUserId()) {
                     queryVo.setUserdUserName(systemUserMapper.getUserById(queryVo.getCreateUserId()).getNickName());
                 }
-                queryVo.setUserdTime(DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD_HH_MM_SS,queryVo.getCreateTime()));
+                queryVo.setUserdTime(DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD_HH_MM_SS, queryVo.getCreateTime()));
             }
         }
         map.put("status", "1");
@@ -296,12 +296,12 @@ public class YxShipInfoServiceImpl extends BaseServiceImpl<YxShipInfoMapper, YxS
         YxShipOperation yxShipOperation = yxShipOperationMapper.selectOne(queryWrapper);
         YxShipInfo yxShipInfo = this.getById(yxShipOperation.getShipId());
 
-        if(1==param.getStatus()){
+        if (1 == param.getStatus()) {
             // 出港
             yxShipOperation.setStatus(1);
             yxShipInfo.setLastLeaveTime(DateUtils.getNowTime());
 
-        }else{
+        } else {
             // 回港
             yxShipOperation.setStatus(2);
             yxShipInfo.setLastReturnTime(DateUtils.getNowTime());
@@ -331,7 +331,8 @@ public class YxShipInfoServiceImpl extends BaseServiceImpl<YxShipInfoMapper, YxS
         Page page = setPageParam(param, OrderItem.desc("create_time"));
         IPage<YxShipOperationDetailVO> iPage = yxShipOperationDetailMapper.getYxShipOperationDetailPageListByParam(page, param);
         Paging<YxShipOperationDetailVO> shipOperationDetailQueryVoPaging = new Paging(iPage);
-        if(shipOperationDetailQueryVoPaging.getTotal()>0){}
+        if (shipOperationDetailQueryVoPaging.getTotal() > 0) {
+        }
         for (YxShipOperationDetailVO yxShipOperationDetail : shipOperationDetailQueryVoPaging.getRecords()) {
 
             YxCouponOrder yxCouponOrder = yxCouponOrderService.getById(yxShipOperationDetail.getCouponOrderId());
@@ -342,8 +343,8 @@ public class YxShipInfoServiceImpl extends BaseServiceImpl<YxShipInfoMapper, YxS
             yxShipOperationDetail.setSeriesName(yxShipSeries.getSeriesName());
             yxShipOperationDetail.setRideLimit(yxShipSeries.getRideLimit());
             //核销时间
-            yxShipOperationDetail.setUserdTime(DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD_HH_MM_SS,yxShipOperationDetail.getCreateTime()));
-            if(0!=yxShipOperationDetail.getCreateUserId()){
+            yxShipOperationDetail.setUserdTime(DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD_HH_MM_SS, yxShipOperationDetail.getCreateTime()));
+            if (0 != yxShipOperationDetail.getCreateUserId()) {
                 SystemUserQueryVo systemUser = systemUserMapper.getUserById(yxShipOperationDetail.getCreateUserId());
                 // 核销人
                 yxShipOperationDetail.setUserdUserName(systemUser.getNickName());
@@ -366,12 +367,13 @@ public class YxShipInfoServiceImpl extends BaseServiceImpl<YxShipInfoMapper, YxS
         return map;
     }
 
-    private List<YxShipPassengerVO> formatPassenger(List<YxShipPassenger> passengerList){
+    private List<YxShipPassengerVO> formatPassenger(List<YxShipPassenger> passengerList) {
         List<YxShipPassengerVO> passengerVOList = CommonsUtils.convertBeanList(passengerList, YxShipPassengerVO.class);
-        for(YxShipPassengerVO passengerVO:passengerVOList){
+        for (YxShipPassengerVO passengerVO : passengerVOList) {
             passengerVO.setIdCard(CardNumUtil.idEncrypt(passengerVO.getIdCard()));
             passengerVO.setPhone(CardNumUtil.mobileEncrypt(passengerVO.getPhone()));
-            passengerVO.setPassengerName(CardNumUtil.nameEncrypt(passengerVO.getPassengerName()));        }
+            passengerVO.setPassengerName(CardNumUtil.nameEncrypt(passengerVO.getPassengerName()));
+        }
         return passengerVOList;
     }
 
@@ -410,6 +412,7 @@ public class YxShipInfoServiceImpl extends BaseServiceImpl<YxShipInfoMapper, YxS
 
     /**
      * 获取船长列表
+     *
      * @param storeId
      * @return
      */
@@ -419,7 +422,7 @@ public class YxShipInfoServiceImpl extends BaseServiceImpl<YxShipInfoMapper, YxS
         map.put("status", "99");
         map.put("statusDesc", "暂无船长信息！");
         List<SystemUserQueryVo> systemUserQueryVoList = systemUserMapper.getCaptionListByStoreId(storeId);
-        if(CollectionUtils.isEmpty(systemUserQueryVoList)){
+        if (CollectionUtils.isEmpty(systemUserQueryVoList)) {
             return map;
         }
         map.put("status", "1");
@@ -430,12 +433,13 @@ public class YxShipInfoServiceImpl extends BaseServiceImpl<YxShipInfoMapper, YxS
 
     /**
      * 修改船长信息
+     *
      * @param param
      * @param uid
      * @return
      */
     @Override
-    public Map<String, Object> modifyCaptain(ShipCaptainModifyParam param,int uid) {
+    public Map<String, Object> modifyCaptain(ShipCaptainModifyParam param, int uid) {
         Map<String, Object> map = new HashMap<>();
 
         QueryWrapper<YxShipOperation> queryWrapper = new QueryWrapper<>();
@@ -454,60 +458,60 @@ public class YxShipInfoServiceImpl extends BaseServiceImpl<YxShipInfoMapper, YxS
     }
 
     @Override
-    public Map<String, Object> sendEmail(String batchNo){
+    public Map<String, Object> sendEmail(String batchNo) {
         Map<String, Object> map = new HashMap<>();
         map.put("status", "1");
         map.put("statusDesc", "成功！");
 
-        String strContent = "批次号："+batchNo+" 出行记录信息";
-        String path ="E://"+ batchNo +"出行记录.xlsx";
+        String strContent = "批次号：" + batchNo + " 出行记录信息";
+        String path = "E://" + batchNo + "出行记录.xlsx";
         QueryWrapper<YxShipOperation> queryWrapper = new QueryWrapper<>();
         queryWrapper.lambda().eq(YxShipOperation::getBatchNo, batchNo);
         YxShipOperation yxShipOperation = yxShipOperationMapper.selectOne(queryWrapper);
 
         QueryWrapper<YxShipOperationDetail> detailQueryWrapper = new QueryWrapper<>();
-        detailQueryWrapper.lambda().eq(YxShipOperationDetail::getBatchNo, batchNo).eq(YxShipOperationDetail::getDelFlag,0);
+        detailQueryWrapper.lambda().eq(YxShipOperationDetail::getBatchNo, batchNo).eq(YxShipOperationDetail::getDelFlag, 0);
         List<YxShipOperationDetail> detailList = yxShipOperationDetailMapper.selectList(detailQueryWrapper);
 
-        if(CollectionUtils.isEmpty(detailList)){
+        if (CollectionUtils.isEmpty(detailList)) {
             map.put("status", "99");
             map.put("statusDesc", "获取运营详情数据错误！");
             return map;
         }
         List<Map<String, Object>> lst = new ArrayList<>();
 
-        for(YxShipOperationDetail detail:detailList){
+        for (YxShipOperationDetail detail : detailList) {
             YxCouponOrder order = yxCouponOrderService.getById(detail.getCouponOrderId());
-            if(null==order){
+            if (null == order) {
                 map.put("status", "99");
                 map.put("statusDesc", "获取订单数据错误！");
                 return map;
             }
             QueryWrapper<YxShipPassenger> passengerQueryWrapper = new QueryWrapper<>();
             passengerQueryWrapper.lambda().eq(YxShipPassenger::getBatchNo, batchNo).
-                    eq(YxShipPassenger::getDelFlag,0).
-                    eq(YxShipPassenger::getCouponOrderId,detail.getCouponOrderId());
+                    eq(YxShipPassenger::getDelFlag, 0).
+                    eq(YxShipPassenger::getCouponOrderId, detail.getCouponOrderId());
             List<YxShipPassenger> passengerList = yxShipPassengerService.list(passengerQueryWrapper);
-            if(CollectionUtils.isEmpty(passengerList)){
+            if (CollectionUtils.isEmpty(passengerList)) {
                 map.put("status", "99");
                 map.put("statusDesc", "获取乘客信息错误！");
                 return map;
             }
-            for(YxShipPassenger passenger:passengerList){
+            for (YxShipPassenger passenger : passengerList) {
                 Map<String, Object> rowParam = new LinkedHashMap<>();
-                rowParam.put("日期",DateUtils.timestampToStr10(yxShipOperation.getLeaveTime()));
-                rowParam.put("船名",yxShipOperation.getShipName());
-                rowParam.put("船长",yxShipOperation.getCaptainName());
-                rowParam.put("人数",1);
-                rowParam.put("价格（元）",order.getTotalPrice());
+                rowParam.put("日期", DateUtils.timestampToStr10(yxShipOperation.getLeaveTime()));
+                rowParam.put("船名", yxShipOperation.getShipName());
+                rowParam.put("船长", yxShipOperation.getCaptainName());
+                rowParam.put("人数", 1);
+                rowParam.put("价格（元）", order.getTotalPrice());
                 rowParam.put("姓名", passenger.getPassengerName());
 //            rowParam.put("电话",passenger.getPhone());
-                rowParam.put("身份证号",passenger.getIdCard());
+                rowParam.put("身份证号", passenger.getIdCard());
                 lst.add(rowParam);
             }
         }
 
-        FileUtil.generatorExcel(lst,path,strContent,6);
+        FileUtil.generatorExcel(lst, path, strContent, 6);
 
         // 以下为测试
         MailAccount account = new MailAccount();
@@ -522,25 +526,25 @@ public class YxShipInfoServiceImpl extends BaseServiceImpl<YxShipInfoMapper, YxS
         QueryWrapper<UsersRoles> wrapper = new QueryWrapper<>();
         wrapper.lambda().eq(UsersRoles::getRoleId, SystemConfigConstants.ROLE_POLICE);
         List<UsersRoles> usersRolesList = usersRolesMapper.selectList(wrapper);
-        if(CollectionUtils.isEmpty(usersRolesList)){
+        if (CollectionUtils.isEmpty(usersRolesList)) {
             map.put("status", "99");
             map.put("statusDesc", "获取用户角色为【海岸支队】失败！");
             return map;
         }
-        String strReceiveEmail ="";
-        for(UsersRoles usersRoles:usersRolesList) {
+        String strReceiveEmail = "";
+        for (UsersRoles usersRoles : usersRolesList) {
             SystemUserQueryVo systemUser = systemUserMapper.getUserById(usersRoles.getUserId());
             if (null != systemUser && StringUtils.isNotBlank(systemUser.getEmail())) {
                 strReceiveEmail = systemUser.getEmail();
                 break;
             }
         }
-        if(StringUtils.isBlank(strReceiveEmail)){
+        if (StringUtils.isBlank(strReceiveEmail)) {
             map.put("status", "99");
             map.put("statusDesc", "获取用户角色为【海岸支队】的邮箱失败！");
             return map;
         }
-        MailUtil.send(account,strReceiveEmail, strContent, "<h1>你好 "+strContent+"，请查收</h1>",true, FileUtil.file(path));
+        MailUtil.send(account, strReceiveEmail, strContent, "<h1>你好 " + strContent + "，请查收</h1>", true, FileUtil.file(path));
         // 删除文件
         FileUtil.del(path);
         return map;
