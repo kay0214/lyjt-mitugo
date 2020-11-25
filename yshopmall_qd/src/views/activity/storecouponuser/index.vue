@@ -7,7 +7,7 @@
       <el-select v-model="query.type" clearable placeholder="类型" class="filter-item" style="width: 130px">
         <el-option v-for="item in queryTypeOptions" :key="item.key" :label="item.display_name" :value="item.key" />
       </el-select>
-      <el-input v-model.trim="query.userPhone" clearable placeholder="用户手机号" style="width: 200px;" class="filter-item" @keyup.enter.native="toQuery" />
+<!--      <el-input v-model.trim="query.userPhone" clearable placeholder="用户手机号" style="width: 200px;" class="filter-item" @keyup.enter.native="toQuery" />-->
       <el-select v-model="query.isUsed" clearable placeholder="是否可用" class="filter-item" style="width: 130px">
         <el-option
           v-for="item in useStatus"
