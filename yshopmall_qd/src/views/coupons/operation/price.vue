@@ -17,7 +17,8 @@
                 range-separator="至"
                 start-placeholder="开始日期"
                 end-placeholder="结束日期"
-                value-format="yyyy-MM-dd"
+                format="MM-dd"
+                value-format="MMdd"
               >
               </el-date-picker>
             </div>
@@ -37,6 +38,13 @@
               </span>
             <span v-else>无任何数据</span>
           </div>
+          <div v-if="isEmpty">
+            <el-row :gutter="10">
+              <el-col :span="6">
+                <el-button type="primary" @click="clear">清空所有属性</el-button>
+              </el-col>
+            </el-row>
+          </div>
         </div>
         <div v-else>
         <template v-for="(price,index) in prices">
@@ -52,14 +60,17 @@
               <el-col :span="4">
                 <el-form-item :prop='`sellingPrice${index}`' label="销售价:"
                 :rules="rules.sellingPrice">
-                  <el-input v-model="form['sellingPrice'+index]" style="width: 100%" placeholder="销售价" @input="(val)=>{prices[index].sellingPrice=val}"
+                  <el-input v-model="form['sellingPrice'+index]" style="width: 100%" placeholder="销售价"
+                            @input="(val)=>{prices[index].sellingPrice=val}"
+                            @change="setCommission($event,index)"
                   ></el-input>
                 </el-form-item>
               </el-col>
               <el-col :span="3">
                 <el-form-item :prop='`commission${index}`' label="佣金:"
                               :rules='rules.commission'>
-                  <el-input readonly v-model="form['commission'+index]" placeholder="佣金" style="width: 100%"
+                  <el-input v-model="form['commission'+index]" placeholder="佣金" style="width: 100%"
+                            @change="(val)=>{prices[index].commission=val}"
                   ></el-input>
                 </el-form-item>
               </el-col>
@@ -120,6 +131,7 @@ export default {
     };
     return {
       loading: false, dialog: false,  title: '价格配置',
+      isEmpty:false,
       form: {},
       rules: {
         sellingPrice: [
@@ -130,12 +142,9 @@ export default {
             trigger: 'blur'
           },
           { validator: (rule, value, callback)=>{
-            let index=rule.field.replace('sellingPrice','')
             if(value<this.form.settlementPrice*1){
                 callback(new Error('金额应大于等于平台结算价格'+this.form.settlementPrice));
               }else{
-                this.form['commission'+index]= sub(value,this.form.settlementPrice*1)
-                this.prices[index].commission=sub(value,this.form.settlementPrice*1)
                 callback()
               }
           }, trigger: 'blur'},
@@ -199,7 +208,17 @@ export default {
       this.resetForm()
     },
     priceRemove(index) {
+      let underArray=this.prices.slice(index+1)
+      underArray.forEach((val,idx)=>{
+        this.$set(this.form,['sellingPrice'+(index+idx)],this.form['sellingPrice'+(index+idx+1)])
+        this.$set(this.form,['scenicPrice'+(index+idx)],this.form['scenicPrice'+(index+idx+1)])
+        this.$set(this.form,['travelPrice'+(index+idx)],this.form['travelPrice'+(index+idx+1)])
+        this.$set(this.form,['commission'+(index+idx)],this.form['commission'+(index+idx+1)])
+      })
       this.prices.splice(index, 1)
+      if(!this.prices.length){
+        this.isEmpty=true
+      }
     },
     resetForm() {
       this.dialog = false
@@ -212,9 +231,9 @@ export default {
         settlementPrice: ''
       }
     },
-    setCommission(sellingPrice) {
-      const commission = sub(sellingPrice,this.form.settlementPrice)
-      this.form.commission = isNaN(commission) ? null : commission
+    setCommission(sellingPrice,index) {
+      this.form['commission'+index]= sub(sellingPrice,this.form.settlementPrice*1)
+      this.prices[index].commission=sub(sellingPrice,this.form.settlementPrice*1)
     },
     submit() {
       this.$refs.price.validate(ret=>{
@@ -230,13 +249,14 @@ export default {
             data:this.prices
           }).then(res => {
             Message({ message: '操作成功', type: 'success' })
+            this.dialog = false
+            this.resetForm()
           }).catch(err => {
-            this.loading = false
-            this.$refs.price.resetFields()
+            // Message({ message: '网络异常，请稍后再试！', type: 'error' })
+            // this.loading = false
+            // this.$refs.price.resetFields()
             console.log(err.response.data.message)
           })
-          this.dialog = false
-          this.resetForm()
         }
       })
     },
@@ -249,7 +269,7 @@ export default {
         .then(() => {
           del(this.form.id).then(({ data }) => {
             Message({ message: '操作成功', type: 'success' })
-            // this.dialog = false
+            this.isEmpty = false
             this.getPrices(this.form.id)
           })
         })

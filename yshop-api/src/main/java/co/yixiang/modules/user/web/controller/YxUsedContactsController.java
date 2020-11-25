@@ -15,6 +15,7 @@ import co.yixiang.modules.user.web.vo.YxUsedContactsQueryVo;
 import co.yixiang.utils.IdCardUtils;
 import co.yixiang.utils.SecurityUtils;
 import co.yixiang.utils.StringUtils;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -53,6 +54,14 @@ public class YxUsedContactsController extends BaseController {
         request.setUserId(uid);
         if (StringUtils.isNotBlank(request.getCardId()) && !IdCardUtils.isValid(request.getCardId())) {
             throw new BadRequestException("请输入正确的身份证号");
+        }
+        // 查询当前身份证号是否已存入
+        YxUsedContacts find = this.yxUsedContactsService.getOne(new QueryWrapper<YxUsedContacts>().lambda()
+                .eq(YxUsedContacts::getDelFlag, 0)
+                .eq(YxUsedContacts::getUserId, uid)
+                .eq(YxUsedContacts::getCardId, request.getCardId()));
+        if (null != find) {
+            throw new BadRequestException("身份证号不能重复");
         }
         boolean flag = yxUsedContactsService.saveUsedContacts(request);
         return ApiResult.result(flag);

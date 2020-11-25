@@ -172,6 +172,7 @@ public class YxShipInfoController {
             List<Map<String, Object>> mapChildList = new ArrayList<>();
             mapParent.put("value", shipSeries.getId());
             mapParent.put("label", shipSeries.getSeriesName());
+            mapParent.put("rideLimit", shipSeries.getRideLimit());
             List<YxShipInfo> shipInfoList = yxShipInfoService.getShipInfoList(shipSeries.getId(),merId);
             if(CollectionUtils.isEmpty(shipInfoList)){
                 mapParent.put("children", mapChildList);

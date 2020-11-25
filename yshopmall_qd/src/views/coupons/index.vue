@@ -43,6 +43,7 @@
       <commission ref="form6"/>
       <h5Form ref="h5" />
       <el-dialog :close-on-click-modal="false" :before-close="crud.cancelCU" :visible.sync="crud.status.cu > 0" :title="crud.status.title" width="900px">
+
         <el-form ref="form" :model="form" :rules="rules" size="small" label-width="140px" v-if="crud.status.cu > 0">
           <el-form-item v-show="crud.status.edit === 1" label="卡券id">
             <!-- <el-input v-model="form.id" style="width: 100%;" /> -->
@@ -98,6 +99,10 @@
                 })
                 if(i && i.length){
                   this.shipsTree=i[0].children
+                  this.form.passengersNumLimit=i[0].rideLimit
+                  if(this.form.passengersNum && this.form.passengersNum>this.form.passengersNumLimit){
+                    this.form.passengersNum=this.form.passengersNumLimit
+                  }
                 }else{
                   this.shipsTree=[]
                 }
@@ -122,7 +127,7 @@
               </el-select>
             </el-form-item>
             <el-form-item label="乘客人数(人)" prop="passengersNum">
-              <el-input-number v-model="form.passengersNum" style="width: 650px;" maxlength="12" :min="0"
+              <el-input-number v-model="form.passengersNum" style="width: 650px;" maxlength="12" :min="0" :max="form.passengersNumLimit"
                                @change="()=>{$refs.form.validateField('passengersNum')}"/>
             </el-form-item>
             <el-form-item label="合同模版" prop="tempId">
@@ -538,7 +543,7 @@ const defaultForm = {
   awaysRefund: null, useCondition: null, availableTimeStart: null, availableTimeEnd: null,
   delFlag: null, createUserId: null, updateUserId: null, createTime: null, updateTime: null,
   content: null, expireDate: null, image: null, sliderImage: null,
-  sliderVideo:[], video:null,sort:null, couponInfo:null,seriesId:null,shipId:null,tempId:null,passengersNum:null,
+  sliderVideo:[], video:null,sort:null, couponInfo:null,seriesId:null,shipId:null,tempId:null,passengersNum:null,passengersNumLimit:999999,
   insuranceRole:0,validity:0,onlineInvoice:0,scenicPrice:null,travelPrice:null,confirmation:null}
 const imageArr = []
 if (defaultForm.image) { imageArr[0] = defaultForm.image }

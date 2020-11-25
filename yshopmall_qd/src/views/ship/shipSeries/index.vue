@@ -266,6 +266,9 @@ export default {
         this.selectedOptions=[]
         this.shipProvinceTest=''
       }
+      if(form.shipCategory){
+        form.shipCategory=form.shipCategory.toString()
+      }
       this.$nextTick(()=>{
         document.getElementById('mapContainer').innerHTML = "";
         this.initMap()

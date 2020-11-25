@@ -10,6 +10,8 @@ import co.yixiang.modules.coupon.domain.YxCoupons;
 import co.yixiang.modules.coupon.service.YxCouponsCategoryService;
 import co.yixiang.modules.coupon.service.YxCouponsService;
 import co.yixiang.modules.coupon.service.dto.YxCouponsQueryCriteria;
+import co.yixiang.modules.shipManage.domain.YxShipSeries;
+import co.yixiang.modules.shipManage.service.YxShipSeriesService;
 import co.yixiang.modules.shop.domain.User;
 import co.yixiang.modules.shop.domain.YxStoreInfo;
 import co.yixiang.modules.shop.service.UserService;
@@ -50,6 +52,8 @@ public class YxCouponsController {
     private UserService userService;
     @Autowired
     private YxStoreInfoService yxStoreInfoService;
+    @Autowired
+    private YxShipSeriesService yxShipSeriesService;
 
     @GetMapping
     @ApiOperation("查询卡券表")
@@ -106,17 +110,24 @@ public class YxCouponsController {
                 throw new BadRequestException("请输入满减金额!");
             }
         }
-        if(4==request.getCouponType()){
-            if(null == request.getSeriesId()){
+        if (4 == request.getCouponType()) {
+            if (null == request.getSeriesId()) {
                 //
                 throw new BadRequestException("请输入船只系列!");
-
             }
-            if(null == request.getTempId()){
+            if (null == request.getTempId()) {
                 request.setTempId(0);
             }
-            if(null == request.getPassengersNum()){
+            if (null == request.getPassengersNum()) {
                 throw new BadRequestException("请输入乘客人数!");
+            }
+            // 获取船只系列
+            YxShipSeries yxShipSeries = this.yxShipSeriesService.getById(request.getSeriesId());
+            if (null == yxShipSeries || 1 == yxShipSeries.getDelFlag()) {
+                throw new BadRequestException("船只系列失效，请重新选择");
+            }
+            if (request.getPassengersNum() > yxShipSeries.getRideLimit()) {
+                throw new BadRequestException("船只限乘人数不可大于船只系列限定人数");
             }
         }
 
@@ -157,6 +168,26 @@ public class YxCouponsController {
             }
             if (null == request.getDiscountAmount()) {
                 throw new BadRequestException("请输入满减金额!");
+            }
+        }
+        if (4 == request.getCouponType()) {
+            if (null == request.getSeriesId()) {
+                //
+                throw new BadRequestException("请输入船只系列!");
+            }
+            if (null == request.getTempId()) {
+                request.setTempId(0);
+            }
+            if (null == request.getPassengersNum()) {
+                throw new BadRequestException("请输入乘客人数!");
+            }
+            // 获取船只系列
+            YxShipSeries yxShipSeries = this.yxShipSeriesService.getById(request.getSeriesId());
+            if (null == yxShipSeries || 1 == yxShipSeries.getDelFlag()) {
+                throw new BadRequestException("船只系列失效，请重新选择");
+            }
+            if (request.getPassengersNum() > yxShipSeries.getRideLimit()) {
+                throw new BadRequestException("船只限乘人数不可大于船只系列限定人数");
             }
         }
 

@@ -34,11 +34,11 @@ public class YxCouponsPriceConfigRequest implements Serializable {
     private Integer couponId;
 
 
-    /** 开始日期(YYYYMMDD) */
+    /** 开始日期(MMDD) */
     private String startDateStr;
 
 
-    /** 结束日期(YYYYMMDD) */
+    /** 结束日期(MMDD) */
     private String endDateStr;
 
 

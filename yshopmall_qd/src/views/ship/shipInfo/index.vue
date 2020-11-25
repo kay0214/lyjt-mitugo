@@ -87,6 +87,15 @@
           </template>
         </el-table-column>
         <el-table-column v-if="columns.visible('shipName')" prop="shipName" label="船只名称" />
+        <el-table-column v-if="columns.visible('imageUrl')" prop="imageUrl" label="船只缩略图" >
+          <template slot-scope="scope">
+            <el-image
+              style="width: 100px; height: 100px"
+              :src="scope.row.imageUrl"
+              :preview-src-list="[scope.row.imageUrl]">
+            </el-image>
+          </template>
+        </el-table-column>
         <el-table-column v-if="columns.visible('merName')" prop="merName" label="船只所属商户" />
         <el-table-column v-if="columns.visible('managerName')" prop="managerName" label="船只负责人" />
         <el-table-column v-if="columns.visible('managerPhone')" prop="managerPhone" label="负责人电话" />
@@ -154,7 +163,7 @@ const defaultCrud = CRUD({ title: '船只管理', url: 'api/yxShipInfo', sort: '
 })
 const defaultForm = { id: null, shipName: null, seriesId: null, merId: null,
   storeId: null, merName: null, managerName: null, managerPhone: null, shipStatus: 1,
-  currentStatus: null, lastLeaveTime: null, lastReturnTime: null, delFlag: null,
+  currentStatus: null, lastLeaveTime: null, lastReturnTime: null, delFlag: null,imageUrl:null,
   createUserId: null, updateUserId: null, createTime: null, updateTime: null,imageArr:[] }
 export default {
   name: 'YxShipInfo',
@@ -251,6 +260,8 @@ export default {
     [CRUD.HOOK.afterToCU](crud, form) {
       if(form.imageUrl){
         form.imageArr=form.imageUrl.split(',')
+      }else{
+        form.imageArr=[]
       }
     },
     editStatus(row){

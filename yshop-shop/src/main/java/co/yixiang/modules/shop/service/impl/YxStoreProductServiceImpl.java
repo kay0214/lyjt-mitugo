@@ -180,7 +180,7 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<StoreProductMappe
             // 分佣模式（0：按平台，1：不分佣，2：自定义分佣）
             if (2 == yxStoreProduct.getCustomizeType()) {
                 YxCustomizeRate yxCustomizeRate = this.yxCustomizeRateService.getOne(new QueryWrapper<YxCustomizeRate>().lambda()
-                        .eq(YxCustomizeRate::getRateType, 1)
+                        .eq(YxCustomizeRate::getRateType, 0)
                         .eq(YxCustomizeRate::getLinkId, yxStoreProduct.getId())
                         .eq(YxCustomizeRate::getDelFlag, 0));
                 if (null != yxCustomizeRate) {
@@ -522,6 +522,9 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<StoreProductMappe
      * @return
      */
     public DetailDto attrFormat(String jsonStr) {
+        // 定义两个键盘无法录入的分隔符
+        String break01 = String.valueOf((char) 1);
+        String break02 = String.valueOf((char) 2);
         JSONObject jsonObject = JSON.parseObject(jsonStr);
         List<FromatDetailDto> fromatDetailDTOList = JSON.parseArray(jsonObject.get("items").toString(),
                 FromatDetailDto.class);
@@ -535,18 +538,18 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<StoreProductMappe
                     for (String g : fromatDetailDTOList.get(i + 1).getDetail()) {
                         String rep2 = "";
                         if (i == 0) {
-                            rep2 = fromatDetailDTOList.get(i).getValue() + "_" + v + "-"
-                                    + fromatDetailDTOList.get(i + 1).getValue() + "_" + g;
+                            rep2 = fromatDetailDTOList.get(i).getValue() + break02 + v + break01
+                                    + fromatDetailDTOList.get(i + 1).getValue() + break02 + g;
                         } else {
-                            rep2 = v + "-"
-                                    + fromatDetailDTOList.get(i + 1).getValue() + "_" + g;
+                            rep2 = v + break01
+                                    + fromatDetailDTOList.get(i + 1).getValue() + break02 + g;
                         }
                         tmp.add(rep2);
                         if (i == fromatDetailDTOList.size() - 2) {
                             LinkedHashMap<String, Map<String, String>> rep4 = new LinkedHashMap<>();
                             Map<String, String> reptemp = new LinkedHashMap<>();
-                            for (String h : Arrays.asList(rep2.split("-"))) {
-                                List<String> rep3 = Arrays.asList(h.split("_"));
+                            for (String h : Arrays.asList(rep2.split(break01))) {
+                                List<String> rep3 = Arrays.asList(h.split(break02));
 
                                 if (rep3.size() > 1) {
                                     reptemp.put(rep3.get(0), rep3.get(1));
@@ -572,7 +575,7 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<StoreProductMappe
                 for (String str : fromatDetailDTO.getDetail()) {
                     LinkedHashMap<String, Map<String, String>> map2 = new LinkedHashMap<>();
                     //List<Map<String,String>> list1 = new ArrayList<>();
-                    dataArr.add(fromatDetailDTO.getValue() + "_" + str);
+                    dataArr.add(fromatDetailDTO.getValue() + break02 + str);
                     Map<String, String> map1 = new LinkedHashMap<>();
                     map1.put(fromatDetailDTO.getValue(), str);
                     //list1.add(map1);
@@ -580,7 +583,7 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<StoreProductMappe
                     res.add(map2);
                 }
             }
-            String s = StrUtil.join("-", dataArr);
+            String s = StrUtil.join(break01, dataArr);
             data.add(s);
         }
         DetailDto detailDTO = new DetailDto();

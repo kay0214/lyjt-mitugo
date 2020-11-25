@@ -121,7 +121,7 @@ const defaultForm = { id: null, couponOrderId: null, shipId: null, batchNo: null
 export default {
   name: 'YxShipOperationDetail',
   components: { MaterialList},
-  mixins: [presenter(defaultCrud), header(), form(defaultForm), crud()],
+  mixins: [header(), form(defaultForm), crud()],
   data() {
     return {
       dialog: false,loading: false,

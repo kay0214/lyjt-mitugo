@@ -59,7 +59,6 @@
     <eForm ref="form" :is-add="isAdd" />
     <eAttr ref="form2" :is-attr="isAttr" />
     <comForm ref="form3" :is-add="isAdd" />
-    <killForm ref="form4" :is-add="isAdd" />
     <bargainForm ref="form5" :is-add="isAdd" />
     <commission ref="form6"/>
     <!--表格渲染-->
@@ -187,11 +186,10 @@ import h5Form from './h5'
 import eAttr from './attr'
 import commission from './commission'
 import comForm from '@/views/activity/combination/form'
-import killForm from '@/views/activity/seckill/form'
 import bargainForm from '@/views/activity/bargain/form'
 import yxCustomizeRate from '../../../api/yxCustomizeRate'
 export default {
-  components: { eForm, eAttr, comForm, killForm, bargainForm, commission,h5Form },
+  components: { eForm, eAttr, comForm, bargainForm, commission,h5Form },
   mixins: [initData],
   data() {
     return {
@@ -384,40 +382,6 @@ export default {
         cost: data.cost,
         isDel: 0,
         browse: 0*/
-      }
-      _this.dialog = true
-    },
-    editD(data) {
-      this.isAdd = false
-      const _this = this.$refs.form4
-      _this.form = {
-        productId: data.id,
-        merId: data.merId,
-        image: data.image,
-        images: data.sliderImage,
-        imageArr: data.image.split(','),
-        sliderImageArr: data.sliderImage.split(','),
-        title: data.storeName,
-        info: data.storeInfo,
-        postage: data.postage,
-        unitName: data.unitName,
-        sort: data.sort,
-        sales: data.sales,
-        stock: data.stock,
-        isShow: data.isShow,
-        status: 1,
-        isHot: data.isHot,
-        description: data.description,
-        isPostage: data.isPostage,
-        people: 0,
-        price: 0.01,
-        effectiveTime: 24,
-        otPrice: data.otPrice,
-        cost: data.cost,
-        num: 1,
-        giveIntegral: 0,
-        isDel: 0,
-        browse: 0
       }
       _this.dialog = true
     },

@@ -236,13 +236,13 @@ public class CouponUseController extends BaseController {
 
         int uid = user.getId().intValue();
         // 判断当前登陆用户是否是商户
-        YxStoreInfo yxStoreInfo = this.yxStoreInfoService.getOne(new QueryWrapper<YxStoreInfo>().eq("mer_id", uid));
+        YxStoreInfo yxStoreInfo = this.yxStoreInfoService.getById(user.getStoreId());
         if (null == yxStoreInfo) {
             map.put("status", "99");
             map.put("statusDesc", "无可用门店，请先到蜜兔管理平台创建门店");
             return ResponseEntity.ok(map);
         }
-        YxMerchantsDetail yxMerchantsDetail = this.yxMerchantsDetailService.getOne(new QueryWrapper<YxMerchantsDetail>().eq("uid", uid));
+        YxMerchantsDetail yxMerchantsDetail = this.yxMerchantsDetailService.getOne(new QueryWrapper<YxMerchantsDetail>().eq("uid", yxStoreInfo.getMerId()));
         if (null == yxMerchantsDetail) {
             map.put("status", "99");
             map.put("statusDesc", "无可用商户认证信息，请先到蜜兔管理平台提交审核");
@@ -317,11 +317,6 @@ public class CouponUseController extends BaseController {
         } catch (Exception e) {
             throw new BadRequestException("无效卡券");
         }
-        // 增加打印日志
-        if (isAll) {
-            log.info("------------打印日志----------------" + decodeVerifyCode);
-        }
-        log.info("增加打印日志看下传参：" + isAll.toString());
 
         Map<String, Object> result = this.yxCouponOrderService.updateCouponOrder(decodeVerifyCode, uid, isAll);
         return ResponseEntity.ok(result);
