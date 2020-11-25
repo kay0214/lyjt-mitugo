@@ -238,13 +238,14 @@ export default {
             data:this.prices
           }).then(res => {
             Message({ message: '操作成功', type: 'success' })
+            this.dialog = false
+            this.resetForm()
           }).catch(err => {
-            this.loading = false
+            Message({ message: '网络异常，请稍后再试！', type: 'error' })
+            // this.loading = false
             this.$refs.price.resetFields()
             console.log(err.response.data.message)
           })
-          this.dialog = false
-          this.resetForm()
         }
       })
     },
