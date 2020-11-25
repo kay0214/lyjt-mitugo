@@ -862,7 +862,16 @@ export default {
         if(form.video){
           form.sliderVideo=[form.video]
         }
-
+        if(form.seriesId){
+          let i= this.shipSeriesTree.filter(function(series){
+            return new RegExp(series.value, 'i').test(form.seriesId)
+          })
+          if(i && i.length){
+            this.shipsTree=i[0].children
+          }else{
+            this.shipsTree=[]
+          }
+        }
       }
       //  设置默认 可用时段
       this.form.availableTimeEnd = this.availableTime[1]
