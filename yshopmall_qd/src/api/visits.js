@@ -23,7 +23,7 @@ export function getChartData() {
 
 export function gett() {
   return request({
-    url: 'api/data/count',
+    url: 'api/platData/getData',
     method: 'get'
   })
 }
