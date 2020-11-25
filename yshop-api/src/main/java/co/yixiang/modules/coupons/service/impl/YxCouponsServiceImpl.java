@@ -508,6 +508,15 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
             }
             users.add(resultVo);
         }
+        // 查询卡券缩略图
+        YxImageInfo yxImageInfo = this.yxImageInfoMapper.selectOne(new QueryWrapper<YxImageInfo>().lambda()
+                .eq(YxImageInfo::getDelFlag, 0)
+                .eq(YxImageInfo::getImgType, ShopConstants.IMG_TYPE_CARD)
+                .eq(YxImageInfo::getImgCategory, ShopConstants.IMG_CATEGORY_PIC)
+                .eq(YxImageInfo::getTypeId, yxCoupons.getId()));
+        if (null != yxImageInfo) {
+            yxCouponsDto.setImage(yxImageInfo.getImgUrl());
+        }
         // 订单人数
         yxCouponsDto.setShipUserCount(couponUsers.size());
         // 未成年人数
@@ -515,7 +524,7 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
         // 老年人人数
         yxCouponsDto.setOldCount(oldCount);
         // 健康状况
-        yxCouponsDto.setShipHealthStatus("");
+        yxCouponsDto.setShipHealthStatus("健康");
         // 乘客
         yxCouponsDto.setShipPassenger(users);
         // 系列ID
