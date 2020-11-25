@@ -317,11 +317,6 @@ public class CouponUseController extends BaseController {
         } catch (Exception e) {
             throw new BadRequestException("无效卡券");
         }
-        // 增加打印日志
-        if (isAll) {
-            log.info("------------打印日志----------------" + decodeVerifyCode);
-        }
-        log.info("增加打印日志看下传参：" + isAll.toString());
 
         Map<String, Object> result = this.yxCouponOrderService.updateCouponOrder(decodeVerifyCode, uid, isAll);
         return ResponseEntity.ok(result);

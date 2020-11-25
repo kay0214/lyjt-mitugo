@@ -31,7 +31,10 @@ import co.yixiang.modules.ship.entity.YxShipSeries;
 import co.yixiang.modules.ship.service.YxShipPassengerService;
 import co.yixiang.modules.ship.service.YxShipSeriesService;
 import co.yixiang.modules.shop.mapping.YxCouponsMap;
-import co.yixiang.utils.*;
+import co.yixiang.utils.Base64Utils;
+import co.yixiang.utils.CommonsUtils;
+import co.yixiang.utils.DateUtils;
+import co.yixiang.utils.StringUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.metadata.OrderItem;
@@ -496,9 +499,13 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
                 oldCount++;
             }
             YxShipPassengerVO resultVo = CommonsUtils.convertBean(item, YxShipPassengerVO.class);
-            resultVo.setIdCard(CardNumUtil.idEncrypt(item.getIdCard()));
-            resultVo.setPhone(CardNumUtil.mobileEncrypt(item.getPhone()));
-            resultVo.setPassengerName(CardNumUtil.nameEncrypt(item.getPassengerName()));
+//            resultVo.setIdCard(CardNumUtil.idEncrypt(item.getIdCard()));
+//            resultVo.setPhone(CardNumUtil.mobileEncrypt(item.getPhone()));
+//            resultVo.setPassengerName(CardNumUtil.nameEncrypt(item.getPassengerName()));
+            // 扫码核销的时候数据不做脱敏处理
+            resultVo.setIdCard(item.getIdCard());
+            resultVo.setPhone(item.getPhone());
+            resultVo.setPassengerName(item.getPassengerName());
             // 0:未成年 1:成年人 2：老年人
             resultVo.setAgeArea("");
             if (resultVo.getIsAdult().intValue() == 0) {
@@ -508,6 +515,15 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
             }
             users.add(resultVo);
         }
+        // 查询卡券缩略图
+        YxImageInfo yxImageInfo = this.yxImageInfoMapper.selectOne(new QueryWrapper<YxImageInfo>().lambda()
+                .eq(YxImageInfo::getDelFlag, 0)
+                .eq(YxImageInfo::getImgType, ShopConstants.IMG_TYPE_CARD)
+                .eq(YxImageInfo::getImgCategory, ShopConstants.IMG_CATEGORY_PIC)
+                .eq(YxImageInfo::getTypeId, yxCoupons.getId()));
+        if (null != yxImageInfo) {
+            yxCouponsDto.setImage(yxImageInfo.getImgUrl());
+        }
         // 订单人数
         yxCouponsDto.setShipUserCount(couponUsers.size());
         // 未成年人数
@@ -515,7 +531,7 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
         // 老年人人数
         yxCouponsDto.setOldCount(oldCount);
         // 健康状况
-        yxCouponsDto.setShipHealthStatus("");
+        yxCouponsDto.setShipHealthStatus("健康");
         // 乘客
         yxCouponsDto.setShipPassenger(users);
         // 系列ID

@@ -746,6 +746,16 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
         return g.getFontMetrics(g.getFont()).charWidth(c);
     }
 
+    /**
+     * 获取二维码连接
+     * @param fileDir
+     * @param userType
+     * @param siteUrl
+     * @param apiUrl
+     * @param uid
+     * @param id
+     * @return
+     */
     public String getCode(String fileDir, String userType, String siteUrl, String apiUrl, int uid, int id) {
         String name = uid + "_" + id + "_store_" + userType + "_product_detail_wap.jpg";
         YxSystemAttachment attachmentWap = systemAttachmentService.getInfo(name);
@@ -755,7 +765,6 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
         } else {
             QrConfig config = new QrConfig(150, 150);
             config.setMargin(0);
-            BufferedImage qrCode;
             //如果类型是小程序
             File file = new File(fileDir + name);
             if (userType.equals(AppFromEnum.ROUNTINE.getValue())) {
