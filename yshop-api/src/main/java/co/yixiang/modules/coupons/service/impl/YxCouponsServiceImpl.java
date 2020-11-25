@@ -78,6 +78,8 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
     private YxShipSeriesService yxShipSeriesService;
     @Autowired
     private YxShipPassengerService yxShipPassengerService;
+    @Autowired
+    private YxCouponsService yxCouponsService;
 
 
     private final IGenerator generator;
@@ -195,6 +197,12 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
             BeanUtil.copyProperties(coupons, localLiveCouponsVo);
             if (yxImageInfo != null) {
                 localLiveCouponsVo.setImg(yxImageInfo.getImgUrl());
+            }
+            // 获取价格配置
+            YxCouponsPriceConfig yxCouponsPriceConfig = yxCouponsService.getPirceConfig(coupons.getId());
+            if (null != yxCouponsPriceConfig) {
+                //销售价格
+                localLiveCouponsVo.setSellingPrice(yxCouponsPriceConfig.getSellingPrice());
             }
             localLiveCouponsVoList.add(localLiveCouponsVo);
         }
