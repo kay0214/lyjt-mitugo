@@ -219,6 +219,15 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
             if (null != user) {
                 item.setUser(user);
             }
+            // 处理核销时间
+            List<YxCouponOrderUse> useList = this.yxCouponOrderUseService.list(new QueryWrapper<YxCouponOrderUse>().lambda().eq(YxCouponOrderUse::getOrderId, item.getOrderId()));
+            if (null != useList && useList.size() > 0) {
+                String usedTime = "";
+                for (YxCouponOrderUse useItem : useList) {
+                    usedTime = usedTime.concat(",").concat(DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD_HH_MM_SS, useItem.getCreateTime()));
+                }
+                item.setUsedTime(usedTime.substring(1, usedTime.length()));
+            }
         }
         return list;
     }
