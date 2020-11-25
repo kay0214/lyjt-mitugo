@@ -56,7 +56,7 @@ export const loadMenus = (next, to) => {
   buildMenus().then(res => {
     /* 对于商户增加判断，如果商户不是船只商户类型，则不显示船只相关的菜单
     * shipUser 是否是船只用户（0：是，1：否）
-    * userRole 0 平台运营 1 合伙人 2 商户
+    * userRole 0 平台运营(包含admin) 1 合伙人 2 商户 3其他
     * */
     if (getToken()) {
       if (!store.getters.user.shipUser && store.getters.user.userRole === 2) {
