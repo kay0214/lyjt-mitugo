@@ -60,14 +60,17 @@
               <el-col :span="4">
                 <el-form-item :prop='`sellingPrice${index}`' label="销售价:"
                 :rules="rules.sellingPrice">
-                  <el-input v-model="form['sellingPrice'+index]" style="width: 100%" placeholder="销售价" @input="(val)=>{prices[index].sellingPrice=val}"
+                  <el-input v-model="form['sellingPrice'+index]" style="width: 100%" placeholder="销售价"
+                            @input="(val)=>{prices[index].sellingPrice=val}"
+                            @change="setCommission($event,index)"
                   ></el-input>
                 </el-form-item>
               </el-col>
               <el-col :span="3">
                 <el-form-item :prop='`commission${index}`' label="佣金:"
                               :rules='rules.commission'>
-                  <el-input readonly v-model="form['commission'+index]" placeholder="佣金" style="width: 100%"
+                  <el-input v-model="form['commission'+index]" placeholder="佣金" style="width: 100%"
+                            @change="(val)=>{prices[index].commission=val}"
                   ></el-input>
                 </el-form-item>
               </el-col>
@@ -139,12 +142,9 @@ export default {
             trigger: 'blur'
           },
           { validator: (rule, value, callback)=>{
-            let index=rule.field.replace('sellingPrice','')
             if(value<this.form.settlementPrice*1){
                 callback(new Error('金额应大于等于平台结算价格'+this.form.settlementPrice));
               }else{
-                this.form['commission'+index]= sub(value,this.form.settlementPrice*1)
-                this.prices[index].commission=sub(value,this.form.settlementPrice*1)
                 callback()
               }
           }, trigger: 'blur'},
@@ -231,9 +231,9 @@ export default {
         settlementPrice: ''
       }
     },
-    setCommission(sellingPrice) {
-      const commission = sub(sellingPrice,this.form.settlementPrice)
-      this.form.commission = isNaN(commission) ? null : commission
+    setCommission(sellingPrice,index) {
+      this.form['commission'+index]= sub(sellingPrice,this.form.settlementPrice*1)
+      this.prices[index].commission=sub(sellingPrice,this.form.settlementPrice*1)
     },
     submit() {
       this.$refs.price.validate(ret=>{
