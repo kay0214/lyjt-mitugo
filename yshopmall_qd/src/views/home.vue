@@ -3,8 +3,8 @@
     <div class="dashboard-editor-container">
       <!--<yshop-info />-->
       <panel-group />
-      <panel-group-t />
-
+      <!-- <panel-group-t /> -->
+<!-- 
       <el-row :gutter="32">
         <el-col :xs="16" :sm="16" :lg="8">
           <order-count></order-count>
@@ -22,7 +22,7 @@
             <pie-chart />
           </div>
         </el-col>
-      </el-row>
+      </el-row> -->
 
     </div>
   </div>

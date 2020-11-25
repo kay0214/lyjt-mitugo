@@ -343,8 +343,9 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
             map.put("佣金", yxCouponOrder.getCommission());
             map.put("支付状态", yxCouponOrder.getPayStaus() == 0 ? "未支付" : "已支付");
             map.put("订单状态", statusStr);
-            map.put("创建时间", yxCouponOrder.getCreateTime());
+            map.put("创建时间", DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD_HH_MM_SS, yxCouponOrder.getCreateTime()));
             // 核销时间暂时无法处理
+            map.put("核销时间", yxCouponOrder.getUsedTime());
             map.put("商户ID", yxCouponOrder.getMerId());
             if (null != yxCouponOrder.getUser()) {
                 map.put("商户名称", yxCouponOrder.getUser().getNickName());
