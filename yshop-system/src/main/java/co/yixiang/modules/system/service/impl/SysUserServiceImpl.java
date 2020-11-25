@@ -249,6 +249,7 @@ public class SysUserServiceImpl extends BaseServiceImpl<SysUserMapper, User> imp
         Set<Role> set = resources.getRoles();
         boolean isPartner = false;
         boolean isMer = false;
+        boolean isOther = false;
         for (Role roleIds : set) {
             usersRoles.setRoleId(roleIds.getId());
             Role role = this.roleService.getById(roleIds.getId());
@@ -258,6 +259,9 @@ public class SysUserServiceImpl extends BaseServiceImpl<SysUserMapper, User> imp
             if (3 == role.getLevel()) {
                 isMer = true;
             }
+            if (4 == role.getLevel()) {
+                isOther = true;
+            }
         }
         // 根据用户的角色设定用户user表里用户的角色
         resources.setUserRole(0);
@@ -266,6 +270,9 @@ public class SysUserServiceImpl extends BaseServiceImpl<SysUserMapper, User> imp
         }
         if (isPartner) {
             resources.setUserRole(1);
+        }
+        if (isOther) {
+            resources.setUserRole(3);
         }
         resources.setUserpassword(PassWordUtil.getUserPassWord("123456", resources.getUserRole(), resources.getUsername()));
         boolean result = this.save(resources);
