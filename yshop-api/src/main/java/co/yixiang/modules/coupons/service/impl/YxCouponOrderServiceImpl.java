@@ -25,10 +25,7 @@ import co.yixiang.modules.commission.service.YxCustomizeRateService;
 import co.yixiang.modules.commission.service.YxNowRateService;
 import co.yixiang.modules.contract.mapper.YxContractTemplateMapper;
 import co.yixiang.modules.contract.web.vo.YxContractTemplateQueryVo;
-import co.yixiang.modules.coupons.entity.YxCouponOrder;
-import co.yixiang.modules.coupons.entity.YxCouponOrderDetail;
-import co.yixiang.modules.coupons.entity.YxCouponOrderUse;
-import co.yixiang.modules.coupons.entity.YxCoupons;
+import co.yixiang.modules.coupons.entity.*;
 import co.yixiang.modules.coupons.mapper.CouponOrderMap;
 import co.yixiang.modules.coupons.mapper.YxCouponOrderMapper;
 import co.yixiang.modules.coupons.mapper.YxCouponsMapper;
@@ -183,6 +180,8 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
     private YxShipInfoMapper yxShipInfoMapper;
     @Autowired
     private YxContractTemplateMapper yxContractTemplateMapper;
+    @Autowired
+    private YxCouponsService yxCouponsService;
 
     @Autowired
     private YxShipPassengerService yxShipPassengerService;
@@ -630,6 +629,12 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         YxStoreInfo storeInfo = storeInfoService.getOne(new QueryWrapper<YxStoreInfo>().eq("id", yxCoupons.getStoreId()).eq("del_flag", 0));
         if (storeInfo != null) {
             couponInfoQueryVo.setStoreInfo(storeInfo);
+        }
+        // 获取价格配置
+        YxCouponsPriceConfig yxCouponsPriceConfig = yxCouponsService.getPirceConfig(yxCoupons.getId());
+        if (null != yxCouponsPriceConfig) {
+            //销售价格
+            couponInfoQueryVo.setSellingPrice(yxCouponsPriceConfig.getSellingPrice());
         }
         return couponInfoQueryVo;
     }
