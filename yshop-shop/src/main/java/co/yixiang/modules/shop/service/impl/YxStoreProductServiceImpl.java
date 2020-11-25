@@ -180,7 +180,7 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<StoreProductMappe
             // 分佣模式（0：按平台，1：不分佣，2：自定义分佣）
             if (2 == yxStoreProduct.getCustomizeType()) {
                 YxCustomizeRate yxCustomizeRate = this.yxCustomizeRateService.getOne(new QueryWrapper<YxCustomizeRate>().lambda()
-                        .eq(YxCustomizeRate::getRateType, 1)
+                        .eq(YxCustomizeRate::getRateType, 0)
                         .eq(YxCustomizeRate::getLinkId, yxStoreProduct.getId())
                         .eq(YxCustomizeRate::getDelFlag, 0));
                 if (null != yxCustomizeRate) {
