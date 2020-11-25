@@ -38,6 +38,13 @@
               </span>
             <span v-else>无任何数据</span>
           </div>
+          <div v-if="isEmpty">
+            <el-row :gutter="10">
+              <el-col :span="6">
+                <el-button type="primary" @click="clear">清空所有属性</el-button>
+              </el-col>
+            </el-row>
+          </div>
         </div>
         <div v-else>
         <template v-for="(price,index) in prices">
@@ -121,6 +128,7 @@ export default {
     };
     return {
       loading: false, dialog: false,  title: '价格配置',
+      isEmpty:false,
       form: {},
       rules: {
         sellingPrice: [
@@ -208,6 +216,9 @@ export default {
         this.$set(this.form,['commission'+(index+idx)],this.form['commission'+(index+idx+1)])
       })
       this.prices.splice(index, 1)
+      if(!this.prices.length){
+        this.isEmpty=true
+      }
     },
     resetForm() {
       this.dialog = false
@@ -258,7 +269,7 @@ export default {
         .then(() => {
           del(this.form.id).then(({ data }) => {
             Message({ message: '操作成功', type: 'success' })
-            // this.dialog = false
+            this.isEmpty = false
             this.getPrices(this.form.id)
           })
         })
