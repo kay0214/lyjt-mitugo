@@ -152,8 +152,7 @@ public class YxCouponsPriceConfigServiceImpl extends BaseServiceImpl<YxCouponsPr
             if (intCommFlg < 0) {
                 throw new BadRequestException("佣金不正确!");
             }
-            BigDecimal bigComm = priceConfig.getSellingPrice().subtract(yxCoupons.getSettlementPrice());
-            priceConfig.setCommission(bigComm);
+            priceConfig.setCommission(priceConfig.getCommission());
             resultList.add(priceConfig);
         }
         // 校验时间是否有重叠
