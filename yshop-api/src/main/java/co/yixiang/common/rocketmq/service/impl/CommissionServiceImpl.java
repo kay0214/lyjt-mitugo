@@ -90,15 +90,18 @@ public class CommissionServiceImpl implements CommissionService {
     @Autowired
     YxCouponsMapper yxCouponsMapper;
 
+    private final static String COUPONS_TYPE = "1";
+    private final static String SHOP_TYPE = "0";
+
     @Override
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void updateInfo(String orderId, String orderType) {
         switch (orderType){
-            case "0":
+            case SHOP_TYPE:
                 //商品购买
                 updateOrderInfo(orderId);
                 break;
-            case "1":
+            case COUPONS_TYPE:
                 //本地生活
                 updateCouponInfo(orderId);
                 break;
@@ -390,7 +393,7 @@ public class CommissionServiceImpl implements CommissionService {
         if(yxStoreProduct.getCustomizeType() == 0){
             yxCommissionRate = yxCommissionRateMapper.selectOne(new QueryWrapper<>());
         }else if (yxStoreProduct.getCustomizeType() == 2){
-            YxNowRate yxNowRate = yxNowRateMapper.selectOne(new QueryWrapper<YxNowRate>().lambda().eq(YxNowRate::getOrderId, orderId).eq(YxNowRate::getCartId, cartId).eq(YxNowRate::getProductId, productId));
+            YxNowRate yxNowRate = yxNowRateMapper.selectOne(new QueryWrapper<YxNowRate>().lambda().eq(YxNowRate::getOrderId, orderId).eq(YxNowRate::getCartId, cartId).eq(YxNowRate::getProductId, productId).eq(YxNowRate::getRateType,SHOP_TYPE));
             if(null == yxNowRate){
                 log.info("分佣失败，该商品分佣比例配置不存在，订单号：{}", orderId);
                 return null;
@@ -411,7 +414,7 @@ public class CommissionServiceImpl implements CommissionService {
         if(0 == yxCoupons.getCustomizeType()){
             yxCommissionRate = yxCommissionRateMapper.selectOne(new QueryWrapper<>());
         }else if (2 == yxCoupons.getCustomizeType()){
-            YxNowRate yxNowRate = yxNowRateMapper.selectOne(new QueryWrapper<YxNowRate>().lambda().eq(YxNowRate::getOrderId, orderId));
+            YxNowRate yxNowRate = yxNowRateMapper.selectOne(new QueryWrapper<YxNowRate>().lambda().eq(YxNowRate::getOrderId, orderId).eq(YxNowRate::getRateType,COUPONS_TYPE));
             if(null == yxNowRate){
                 log.info("分佣失败，该商品分佣比例配置不存在，订单号：{}", orderId);
                 return null;
