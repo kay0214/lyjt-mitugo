@@ -31,7 +31,10 @@ import co.yixiang.modules.ship.entity.YxShipSeries;
 import co.yixiang.modules.ship.service.YxShipPassengerService;
 import co.yixiang.modules.ship.service.YxShipSeriesService;
 import co.yixiang.modules.shop.mapping.YxCouponsMap;
-import co.yixiang.utils.*;
+import co.yixiang.utils.Base64Utils;
+import co.yixiang.utils.CommonsUtils;
+import co.yixiang.utils.DateUtils;
+import co.yixiang.utils.StringUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.metadata.OrderItem;
@@ -496,9 +499,13 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
                 oldCount++;
             }
             YxShipPassengerVO resultVo = CommonsUtils.convertBean(item, YxShipPassengerVO.class);
-            resultVo.setIdCard(CardNumUtil.idEncrypt(item.getIdCard()));
-            resultVo.setPhone(CardNumUtil.mobileEncrypt(item.getPhone()));
-            resultVo.setPassengerName(CardNumUtil.nameEncrypt(item.getPassengerName()));
+//            resultVo.setIdCard(CardNumUtil.idEncrypt(item.getIdCard()));
+//            resultVo.setPhone(CardNumUtil.mobileEncrypt(item.getPhone()));
+//            resultVo.setPassengerName(CardNumUtil.nameEncrypt(item.getPassengerName()));
+            // 扫码核销的时候数据不做脱敏处理
+            resultVo.setIdCard(item.getIdCard());
+            resultVo.setPhone(item.getPhone());
+            resultVo.setPassengerName(item.getPassengerName());
             // 0:未成年 1:成年人 2：老年人
             resultVo.setAgeArea("");
             if (resultVo.getIsAdult().intValue() == 0) {
