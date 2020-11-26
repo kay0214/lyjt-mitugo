@@ -3,10 +3,10 @@
     <!--工具栏-->
     <div class="head-container">
       <!-- 检索 -->
-      <el-select 
+      <el-select
         v-model="groupName"
-        placeholder="栏目" 
-        class="filter-item" 
+        placeholder="栏目"
+        class="filter-item"
         style="width: 130px"
       >
         <el-option
@@ -16,10 +16,10 @@
           :value="item.value"
         />
       </el-select>
-      <el-select 
-        v-model="status" 
-        placeholder="状态" 
-        class="filter-item" 
+      <el-select
+        v-model="status"
+        placeholder="状态"
+        class="filter-item"
         style="width: 130px"
       >
         <el-option
@@ -65,7 +65,7 @@
       <el-table-column prop="sort" label="排序" />
       <el-table-column label="状态" align="center">
         <template slot-scope="scope">
-          <div>
+          <div @click="changeStatus(scope.row)">
             <el-tag v-if="scope.row.status === 1" style="cursor: pointer" :type="''">显示</el-tag>
             <el-tag v-else style="cursor: pointer" :type=" 'info' ">不显示</el-tag>
           </div>
@@ -105,7 +105,7 @@
 <script>
 import checkPermission from '@/utils/permission'
 import initData from '@/mixins/crud'
-import { del } from '@/api/yxSystemGroupData'
+import { edit,del } from '@/api/yxSystemGroupData'
 //  添加修改弹窗
 import eForm from './homeDataConfigForm'
 //  页面配置弹窗
@@ -147,10 +147,10 @@ export default {
     beforeInit() {
       this.url = 'api/yxSystemGroupData'
       const sort = 'id,desc'
-      this.params = { 
-        page: this.page, 
-        size: this.size, 
-        sort: sort, 
+      this.params = {
+        page: this.page,
+        size: this.size,
+        sort: sort,
         groupName: this.groupName,
         status: this.status
       }
@@ -218,6 +218,32 @@ export default {
         showType: data.map.showType,
       }
       _this.dialog = true
+    },
+    changeStatus(data){
+      this.$confirm(`确定设置 [${data.status ? '不显示' : '显示'} ]操作?`, '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      })
+        .then(() => {
+          let param=Object.assign({},data,{status:data.status?0:1})
+          edit(param).then(res => {
+            this.init()
+            this.$notify({
+              title: '设置成功',
+              type: 'success',
+              duration: 1000
+            })
+          }).catch(err => {
+            this.$notify({
+              title: err.response.data.msg,
+              type: 'error',
+              duration: 1000
+            })
+            console.log(err.response.data.msg)
+          })
+        })
+        .catch(() => { })
     }
   }
 }
