@@ -155,6 +155,6 @@ public interface YxStoreProductMapper extends BaseMapper<YxStoreProduct> {
      * @param storeId
      * @return
      */
-    @Select("select count(0) counts from `yx_ship_operation` a left JOIN `yx_ship_info` b on a.ship_id=b.id and b.`store_id`=#{storeId} WHERE a.del_flag=0 and a.`status` in (0,1,2)  and DATE_FORMAT(FROM_UNIXTIME(a.`create_time`),'%Y-%m-%d') = DATE_FORMAT(NOW(),'%Y-%m-%d') group by `ship_id`")
+    @Select("select count(0) counts (select a.`ship_id` from `yx_ship_operation` a left JOIN `yx_ship_info` b on a.ship_id=b.id and b.`store_id`=#{storeId} WHERE a.del_flag=0 and a.`status` in (0,1,2)  and DATE_FORMAT(FROM_UNIXTIME(a.`create_time`),'%Y-%m-%d') = DATE_FORMAT(NOW(),'%Y-%m-%d') group by `ship_id` ) c")
     Integer getShipCount(@Param("storeId") Integer storeId);
 }
