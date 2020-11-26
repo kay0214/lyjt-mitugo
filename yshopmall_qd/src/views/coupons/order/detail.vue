@@ -28,6 +28,14 @@
           <div class="text item"></div>
           <div class="text item">创建时间: {{ parseTime(form.createTime) }}</div>
           <div class="text item">支付时间: {{ parseTime(form.payTime) }}</div>
+          <div class="text item">
+            <el-row>
+              <el-col :span="5">核销时间:</el-col>
+              <el-col :span="18">
+                <div v-for="(time,index) in form.usedTime" :key="index">{{time}}</div>
+              </el-col>
+            </el-row>
+          </div>
         </el-col>
       </el-row>
     </el-card>
@@ -75,7 +83,7 @@ export default {
         // { value: '8', label: '已退款' },
         // { value: '9', label: '退款驳回'},
         '待支付','已过期','待发放','支付失败','待使用','已使用','已核销','退款中','已退款','退款驳回','已取消',
-      ],  
+      ],
       form: {
         orderId: '',
         totalNum: '',

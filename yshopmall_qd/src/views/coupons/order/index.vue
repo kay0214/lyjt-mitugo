@@ -233,8 +233,12 @@ export default {
         payTime: data.payTime,
         mark:data.mark,
         createTime:data.createTime,
+        usedTime:'',
         refundStatus:data.refundStatus,
         couponOrderUseList: data.couponOrderUseList,
+      }
+      if(data.usedTime &&data.usedTime.length){
+        _this.form.usedTime=data.usedTime.split(',')
       }
       _this.dialog = true
     },
