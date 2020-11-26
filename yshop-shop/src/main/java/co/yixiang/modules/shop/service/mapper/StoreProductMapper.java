@@ -54,8 +54,9 @@ public interface StoreProductMapper extends CoreMapper<YxStoreProduct> {
      * @param storeId
      * @return
      */
-    @Select({"<script>","select  count(0) AS localOrderCount,count(status in(4,5) or null) AS localOrderWait, count(status = 7 or null) AS localOrderRefund from yx_coupon_order where 1=1 ",
-            " <if test='storeId!=0'> and mer_id=#{storeId} </if> and  pay_staus=1 and (status =2 or status >3) and del_flag=0 and DATE_FORMAT(FROM_UNIXTIME(create_time),'%Y-%m-%d') = DATE_FORMAT(NOW(),'%Y-%m-%d') ","</script>"})
+    @Select({"<script>","select  count(0) AS localOrderCount,count(a.status in(4,5) or null) AS localOrderWait, count(a.status = 7 or null) AS localOrderRefund from yx_coupon_order a " +
+            "<if test='storeId!=0'> left join yx_store_info b on a.mer_id = b.mer_id and b.id=#{storeId} </if> " +
+            "where a.pay_staus=1 and (a.status =2 or a.status >3) and a.del_flag=0 and DATE_FORMAT(a.create_time,'%Y-%m-%d') = DATE_FORMAT(NOW(),'%Y-%m-%d') ","</script>"})
     Map<String, Long> getLocalProductOrderCount(@Param("storeId") Integer storeId);
 
     /**
@@ -63,7 +64,8 @@ public interface StoreProductMapper extends CoreMapper<YxStoreProduct> {
      * @param storeId
      * @return
      */
-    @Select({"<script>","select IFNULL(sum(total_price),0) from yx_coupon_order where 1=1  <if test='storeId!=0'> and mer_id=#{storeId} </if> and del_flag=0 and status in (2,4,5,6) and DATE_FORMAT(FROM_UNIXTIME(create_time),'%Y-%m-%d') = DATE_FORMAT(NOW(),'%Y-%m-%d')","</script>"})
+    @Select({"<script>","select IFNULL(sum(a.total_price),0) from yx_coupon_order a <if test='storeId!=0'> left join yx_store_info b on a.mer_id = b.mer_id and b.id=#{storeId} </if>" +
+            " where a.del_flag=0 and a.status in (2,4,5,6) and DATE_FORMAT(a.create_time,'%Y-%m-%d') = DATE_FORMAT(NOW(),'%Y-%m-%d')","</script>"})
     BigDecimal getLocalSumPrice(@Param("storeId") Integer storeId);
 
     /**
@@ -79,7 +81,7 @@ public interface StoreProductMapper extends CoreMapper<YxStoreProduct> {
      * @param storeId
      * @return
      */
-    @Select({"<script>"," select  count(0) AS shopOrderCount,count(status =0 or null) AS shopOrderSend, count(status = -1 or null) AS shopOrderRefund from yx_store_order where 1=1  <if test='storeId!=0'>  and mer_id=#{storeId}  </if>  and is_del=0 and DATE_FORMAT(FROM_UNIXTIME(add_time),'%Y-%m-%d') = DATE_FORMAT(NOW(),'%Y-%m-%d')","</script>"})
+    @Select({"<script>"," select  count(0) AS shopOrderCount,count(status =0 or null) AS shopOrderSend, count(status = -1 or null) AS shopOrderRefund from yx_store_order where 1=1  <if test='storeId!=0'>  and store_id=#{storeId}  </if>  and is_del=0 and DATE_FORMAT(FROM_UNIXTIME(add_time),'%Y-%m-%d') = DATE_FORMAT(NOW(),'%Y-%m-%d')","</script>"})
     Map<String, Long> getShopOrderCount(@Param("storeId")Integer storeId);
 
     /**
@@ -87,7 +89,7 @@ public interface StoreProductMapper extends CoreMapper<YxStoreProduct> {
      * @param storeId
      * @return
      */
-    @Select({"<script>"," select  IFNULL(sum(total_price),0) AS shopSumPrice from yx_store_order where 1=1 <if test='storeId!=0'>  and  mer_id=#{storeId} </if> and status in (0,1,2,3)   and is_del=0 and DATE_FORMAT(FROM_UNIXTIME(add_time),'%Y-%m-%d') = DATE_FORMAT(NOW(),'%Y-%m-%d')","</script>"})
+    @Select({"<script>"," select  IFNULL(sum(total_price),0) AS shopSumPrice from yx_store_order where 1=1 <if test='storeId!=0'>  and  store_id=#{storeId} </if> and status in (0,1,2,3)   and is_del=0 and DATE_FORMAT(FROM_UNIXTIME(add_time),'%Y-%m-%d') = DATE_FORMAT(NOW(),'%Y-%m-%d')","</script>"})
     BigDecimal getShopSumPrice(@Param("storeId") Integer storeId);
 
     /**
@@ -96,7 +98,7 @@ public interface StoreProductMapper extends CoreMapper<YxStoreProduct> {
      * @param storeId
      * @return
      */
-    @Select({"<script>","select IFNULL(sum(total_price),0) from yx_coupon_order where 1=1  <if test='storeId!=0'> and mer_id=#{storeId} </if> and del_flag=0 and status in (2,4,5,6) and create_time>= #{nowMonth} ","</script>"})
+    @Select({"<script>","select IFNULL(sum(a.total_price),0) from yx_coupon_order a <if test='storeId!=0'> left join yx_store_info b on a.mer_id = b.mer_id and b.id=#{storeId} </if> where a.del_flag=0 and a.status in (2,4,5,6) and a.create_time>= FROM_UNIXTIME(#{nowMonth}) ","</script>"})
     Double getMonthLocalPrice(@Param("nowMonth")int nowMonth, @Param("storeId")int storeId);
 
     /**
@@ -105,7 +107,7 @@ public interface StoreProductMapper extends CoreMapper<YxStoreProduct> {
      * @param storeId
      * @return
      */
-    @Select({"<script>","select count(0) from yx_coupon_order where 1=1  <if test='storeId!=0'> and mer_id=#{storeId} </if> and del_flag=0 and status in (2,4,5,6) and create_time >= #{nowMonth}","</script>"})
+    @Select({"<script>","select count(0) from yx_coupon_order a <if test='storeId!=0'> left join yx_store_info b on a.mer_id = b.mer_id and b.id=#{storeId} </if> where a.del_flag=0 and a.status in (2,4,5,6) and a.create_time >= FROM_UNIXTIME(#{nowMonth})","</script>"})
     Integer getMonthLocalCount(@Param("nowMonth")int nowMonth, @Param("storeId")int storeId);
 
     /**
@@ -114,7 +116,7 @@ public interface StoreProductMapper extends CoreMapper<YxStoreProduct> {
      * @param storeId
      * @return
      */
-    @Select({"<script>"," select  IFNULL(sum(total_price),0) AS shopSumPrice from yx_store_order where 1=1 <if test='storeId!=0'>  and  mer_id=#{storeId} </if> and status in (0,1,2,3)   and is_del=0 and add_time >= #{nowMonth}","</script>"})
+    @Select({"<script>"," select  IFNULL(sum(total_price),0) AS shopSumPrice from yx_store_order where 1=1 <if test='storeId!=0'>  and  store_id=#{storeId} </if> and status in (0,1,2,3)   and is_del=0 and add_time >= FROM_UNIXTIME(#{nowMonth})","</script>"})
     Double getMonthShopPrice(@Param("nowMonth")int nowMonth, @Param("storeId")int storeId);
 
     /**
@@ -123,7 +125,7 @@ public interface StoreProductMapper extends CoreMapper<YxStoreProduct> {
      * @param storeId
      * @return
      */
-    @Select({"<script>"," select  count(0)  from yx_store_order where 1=1 <if test='storeId!=0'>  and  mer_id=#{storeId} </if> and status in (0,1,2,3)   and is_del=0 and add_time >= #{nowMonth}","</script>"})
+    @Select({"<script>"," select  count(0)  from yx_store_order where 1=1 <if test='storeId!=0'>  and  store_id=#{storeId} </if> and status in (0,1,2,3)   and is_del=0 and add_time >= FROM_UNIXTIME(#{nowMonth})","</script>"})
     Integer getMonthShopCount(@Param("nowMonth")int nowMonth, @Param("storeId")int storeId);
 
 }
