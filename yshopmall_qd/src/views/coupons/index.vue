@@ -487,14 +487,14 @@
           </template>
         </el-table-column>
         <!-- <el-table-column v-if="columns.visible('content')" prop="content" label="卡券详情" /> -->
-        <el-table-column v-permission="['admin','yxCoupons:edit','yxCoupons:del']" fixed="right" label="操作" width="120px" align="center">
+        <el-table-column fixed="right" label="操作" width="120px" align="center">
           <template slot-scope="scope">
             <udOperation
               :data="scope.row"
               :permission="permission"
             />
             <el-button v-permission="permission.commission" plain type="primary"  @click="commission(scope.row)" style="margin-top:5px">分佣配置</el-button>
-            <el-button v-permission="permission.edit" plain @click="price(scope.row)" style="margin-top:5px;margin-left: 0">价格配置</el-button>
+            <el-button v-permission="permission.priceConfig" plain @click="price(scope.row)" style="margin-top:5px;margin-left: 0">价格配置</el-button>
             <el-button v-permission="permission.edit" slot="reference" type="info" plain @click="h5(scope.row)" style="margin-top:5px">预览</el-button>
 <!--            <el-button v-permission="permission.edit" slot="reference" type="danger" size="mini" @click="attr(scope.row)">渠道配置</el-button>-->
           </template>
@@ -570,7 +570,8 @@ export default {
         add: ['admin', 'yxCoupons:add'],
         edit: ['admin', 'yxCoupons:edit'],
         del: ['admin', 'yxCoupons:del'],
-        commission: ['admin', ' yxCoupons:rate']
+        commission: ['admin', 'yxCoupons:rate'],
+        priceConfig: ['admin', 'yxCouponsPriceConfig:add']
       },
       rules: {
         couponName: [
