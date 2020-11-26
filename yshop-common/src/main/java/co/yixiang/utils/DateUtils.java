@@ -160,6 +160,7 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
 
     /**
      * String(yyyy-MM-dd HH:mm:ss)转10位时间戳
+     *
      * @param dateStr
      * @return
      */
@@ -185,6 +186,7 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
 
     /**
      * Date转LocalDateTime
+     *
      * @param date
      * @return
      */
@@ -229,6 +231,7 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
 
     /**
      * 日期增加Minutes分钟
+     *
      * @author liusy
      * @date 2019/9/23 18:36
      */
@@ -238,6 +241,7 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
 
     /**
      * 日期减少Minutes分钟
+     *
      * @author liusy
      * @date 2019/9/23 18:36
      */
@@ -247,6 +251,7 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
 
     /**
      * 日期增加Seconds秒
+     *
      * @author liusy
      * @date 2019/9/23 18:36
      */
@@ -256,6 +261,7 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
 
     /**
      * 日期增加Seconds秒
+     *
      * @author liusy
      * @date 2019/9/23 18:36
      */
@@ -265,6 +271,7 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
 
     /**
      * 日期增加days天
+     *
      * @author zhangyk
      * @date 2019/9/23 18:36
      */
@@ -274,6 +281,7 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
 
     /**
      * 日期减少days天
+     *
      * @author zhangyk
      * @date 2019/9/23 18:36
      */
@@ -283,6 +291,7 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
 
     /**
      * 日期增加mouths月
+     *
      * @author liusy
      * @date 2020/5/27 11:20
      */
@@ -292,6 +301,7 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
 
     /**
      * 日期增加mouths月
+     *
      * @author liusy
      * @date 2020/5/27 11:20
      */
@@ -321,6 +331,7 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
 
     /**
      * 根据身份证号计算年龄
+     *
      * @param idCardNo
      * @return
      */
@@ -352,17 +363,44 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
 
     /**
      * 获取某个日期的时间戳（yyyy-MM-dd）
+     *
      * @param strDate
      * @return
      */
-    public static Integer stringToTimestampDate(String strDate){
+    public static Integer stringToTimestampDate(String strDate) {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         Long dateTimeLong = 0L;
         try {
-            dateTimeLong = sdf.parse(strDate).getTime()/ 1000;
+            dateTimeLong = sdf.parse(strDate).getTime() / 1000;
         } catch (ParseException e) {
             e.printStackTrace();
         }
         return dateTimeLong.intValue();
+    }
+
+    /**
+     * 获取当前时间结束的时间戳
+     *
+     * @param date
+     * @return
+     */
+    public static int dateEndToTimestamp(Date date) {
+        SimpleDateFormat ymd = new SimpleDateFormat(YYYY_MM_DD);
+        String endDate = "";
+        try {
+            endDate = ymd.parse(date.toString()).toString() + " 23:59:59";
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return stringToTimestamp(endDate);
+    }
+
+    /**
+     * 获取当前时间结束的时间戳
+     *
+     * @return
+     */
+    public static int nowDayEndToTimestamp() {
+        return stringToTimestampDate(plusDays(LocalDate.now(), 1).toString()) - 1;
     }
 }

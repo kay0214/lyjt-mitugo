@@ -365,14 +365,25 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
 
         //在线发票（0：不支持，1：支持）
         couponOrder.setOnlineInvoice(coupons.getOnlineInvoice());
-        boolean res = save(couponOrder);
-        if (!res) throw new ErrorRequestException("订单生成失败");
-
+        // 处理过期时间
+        Integer outTime = DateUtils.dateEndToTimestamp(yxCoupons.getExpireDateEnd());
         int userStatus = 1;
         if (4 == coupons.getCouponType()) {
             //船票券 默认为0：不可用
             userStatus = 0;
+            // 处理失效时间
+            if (1 == yxCoupons.getValidity()) {
+                Integer validity = DateUtils.nowDayEndToTimestamp() + (yxCoupons.getValidityDays() * 24 * 60 * 60);
+                if (validity < outTime) {
+                    outTime = validity;
+                }
+            }
         }
+        couponOrder.setOutTime(outTime);
+
+        boolean res = save(couponOrder);
+        if (!res) throw new ErrorRequestException("订单生成失败");
+
         // 插入detail表相关
         List<YxCouponOrderDetail> details = new ArrayList<>();
         for (int row = 0; row < totalNum; row++) {

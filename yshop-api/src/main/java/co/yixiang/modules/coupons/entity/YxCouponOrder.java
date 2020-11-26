@@ -152,4 +152,6 @@ public class YxCouponOrder extends BaseEntity {
     @ApiModelProperty(value = "在线发票（0：不支持，1：支持）")
     private Integer onlineInvoice;
 
+    @ApiModelProperty(value = "失效时间")
+    private Integer outTime;
 }
