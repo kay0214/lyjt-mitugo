@@ -66,13 +66,14 @@
         </el-table-column>
         <el-table-column v-permission="['admin','yxCrewSign:edit','yxCrewSign:del']" label="操作" width="150px" align="center">
           <template slot-scope="scope">
-            <el-popover v-model="pop" v-permission="permission.del" placement="top" width="180" trigger="manual" @show="onPopoverShow" @hide="onPopoverHide">
+            <el-popover v-model="pop[scope.$index]" v-permission="permission.del" placement="top" width="180" trigger="manual"
+                        @show="onPopoverShow(scope.$index)" @hide="onPopoverHide(scope.$index)">
               <p>确定删除本条数据吗？</p>
               <div style="text-align: right; margin: 0">
-                <el-button size="mini" type="text" @click="doCancel(scope.row)">取消</el-button>
+                <el-button size="mini" type="text" @click="doCancel(scope.row,scope.$index)">取消</el-button>
                 <el-button :loading="crud.dataStatus[scope.row.id].delete === 2" type="primary" size="mini" @click="crud.doDelete(scope.row)">确定</el-button>
               </div>
-              <el-button slot="reference" type="danger" icon="el-icon-delete" size="mini" @click="toDelete" />
+              <el-button slot="reference" type="danger" icon="el-icon-delete" size="mini" @click="toDelete(scope.$index)" />
             </el-popover>
           </template>
         </el-table-column>
@@ -115,7 +116,7 @@ export default {
   mixins: [presenter(defaultCrud), header(), form(defaultForm), crud()],
   data() {
     return {
-      pop: false,
+      pop: [],pId:'',
       permission: {
         add: ['admin', 'yxCrewSign:add'],
         edit: ['admin', 'yxCrewSign:edit'],
@@ -151,29 +152,38 @@ export default {
     }, // 新增与编辑前做的操作
     [CRUD.HOOK.afterToCU](crud, form) {
     },
-    doCancel(data) {
-      this.pop = false
+    doCancel(data,index) {
+      this.popVal(index, false)
       this.crud.cancelDelete(data)
     },
-    toDelete() {
-      this.pop = true
+    toDelete(index) {
+      this.popVal(index, true)
     },
     [CRUD.HOOK.afterDelete](crud, data) {
-      if (data === this.data) {
-        this.pop = false
+      console.log(this.pId)
+      if (this.pId) {
+        this.popVal(this.pId,false)
       }
     },
-    onPopoverShow() {
+    onPopoverShow(index) {
       setTimeout(() => {
-        document.addEventListener('click', this.handleDocumentClick)
+        document.addEventListener('click', ()=>{this.handleDocumentClick(index)})
       }, 0)
     },
-    onPopoverHide() {
-      document.removeEventListener('click', this.handleDocumentClick)
+    onPopoverHide(index) {
+      document.removeEventListener('click', ()=>{this.handleDocumentClick(index)})
     },
-    handleDocumentClick(event) {
-      this.pop = false
+    handleDocumentClick(index) {
+      this.popVal(index, false)
     },
+    popVal(index,val){
+      this.$set(this.pop,index,val)
+      if(val){
+        this.pId=index
+      }else{
+        this.pId=''
+      }
+    }
   }
 }
 
