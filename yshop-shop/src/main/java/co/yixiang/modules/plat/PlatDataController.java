@@ -3,7 +3,6 @@
  */
 package co.yixiang.modules.plat;
 
-import co.yixiang.constant.SystemConfigConstants;
 import co.yixiang.modules.plat.domain.TodayDataDto;
 import co.yixiang.modules.shop.domain.User;
 import co.yixiang.modules.shop.service.UserService;
@@ -37,23 +36,26 @@ public class PlatDataController {
     @Autowired
     private UserService userService;
 
-    /**@Valid
-     * 根据商品分类统计订单占比
+    /**
+     * @Valid 根据商品分类统计订单占比
      */
     @GetMapping("/getData")
-    @ApiOperation(value = "查询平台数据",notes = "查询平台数据",response = ExpressParam.class)
-    public ResponseEntity getData(){
+    @ApiOperation(value = "查询平台数据", notes = "查询平台数据", response = ExpressParam.class)
+    public ResponseEntity getData() {
         CurrUser currUser = SecurityUtils.getCurrUser();
+        // 合伙人和其他权限人员不给查询数据
+        if (1 == currUser.getUserRole() || 3 == currUser.getUserRole()) {
+            return new ResponseEntity(new TodayDataDto(), HttpStatus.OK);
+        }
+        // 商户所属商铺查询
         int storeId = 0;
-        if(!currUser.getUserRole().equals(SystemConfigConstants.ROLE_ADMIN)
-                && !currUser.getUserRole().equals(SystemConfigConstants.ROLE_MANAGE)){
+        if (0 != currUser.getUserRole()) {
             // 平台运营  和 admin 查询所有的
             User user = userService.getById(currUser.getId());
-
             storeId = user.getStoreId();
         }
 
-        TodayDataDto orderCountDto  = yxStoreOrderService.getPlatformData(storeId);
+        TodayDataDto orderCountDto = yxStoreOrderService.getPlatformData(storeId);
         return new ResponseEntity(orderCountDto, HttpStatus.OK);
     }
 
