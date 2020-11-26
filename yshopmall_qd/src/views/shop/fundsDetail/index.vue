@@ -12,7 +12,18 @@
           :value="item.value"
         />
       </el-select> -->
-<!--      <el-input v-model="query.phone" clearable placeholder="输入用户手机号" style="width: 200px;" class="filter-item" @keyup.enter.native="pageRefesh" />-->
+      <el-input v-model="query.phone" clearable placeholder="输入用户手机号" style="width: 200px;" class="filter-item" @keyup.enter.native="pageRefesh" />
+      <el-select v-model="query.userType" clearable placeholder="用户类型" class="filter-item" style="width: 130px">
+        <template>
+          <el-option
+            v-for="item in userTypes"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value"
+          />
+        </template>
+      </el-select>
+
       <el-input v-model="query.linkId" clearable placeholder="输入订单号" style="width: 200px;" class="filter-item" @keyup.enter.native="pageRefesh" />
       <el-select v-model="query.type" clearable placeholder="明细类型" class="filter-item" style="width: 130px">
         <template v-for="item in typeOptions">
@@ -96,6 +107,7 @@
         <el-table-column type="selection" width="55" />
         <el-table-column v-if="columns.visible('uid')" prop="uid" label="用户uid" />
         <el-table-column v-if="columns.visible('username')" prop="username" label="用户名" />
+        <el-table-column v-if="columns.visible('phone')" prop="phone" label="用户手机号" />
         <el-table-column v-if="columns.visible('title')" prop="title" label="标题" />
         <el-table-column prop="category" label="明细种类">
           <template slot-scope="scope">
@@ -119,6 +131,11 @@
           <span v-else>未知</span>
         </template>
       </el-table-column>
+        <el-table-column v-if="columns.visible('userType')" prop="userType" label="用户类型" >
+          <template slot-scope="scope">
+            {{ transferLabel(scope.row.userType,userTypes) }}
+          </template>
+        </el-table-column>
         <el-table-column v-if="columns.visible('number')" prop="number" label="金额" />
         <el-table-column v-if="columns.visible('addTime')" prop="addTime" label="订单日期">
           <template slot-scope="scope">
@@ -205,6 +222,11 @@ export default {
         { value: '0', label: '支出 ' },
         { value: '1', label: '收入' }
       ],
+      userTypes: [
+        { value: 0, label: '平台 ' },
+        { value: 1, label: '商户' },
+        { value: 3, label: '用户' }
+      ],
     }
   },
   created() {
@@ -238,6 +260,22 @@ export default {
         return ""
       }
     }
+    },
+    transferLabel:function(){
+      return function(value,list){
+        if(list.length){
+          let i= list.filter(function(item){
+            return new RegExp(item.value, 'i').test(value)
+          })
+          if(i.length){
+            return i[0].label
+          }else{
+            return ""
+          }
+        }else{
+          return ""
+        }
+      }
     }
   },
   methods: {
