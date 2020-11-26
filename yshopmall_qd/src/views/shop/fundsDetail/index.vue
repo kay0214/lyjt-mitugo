@@ -12,7 +12,7 @@
           :value="item.value"
         />
       </el-select> -->
-      <el-input v-model="query.phone" clearable placeholder="输入用户手机号" style="width: 200px;" class="filter-item" @keyup.enter.native="pageRefesh" />
+      <el-input v-model="query.phone" clearable placeholder="输入用户手机号2" style="width: 200px;" class="filter-item" @keyup.enter.native="pageRefesh" />
       <el-select v-model="query.userType" clearable placeholder="用户类型" class="filter-item" style="width: 130px">
         <template>
           <el-option
