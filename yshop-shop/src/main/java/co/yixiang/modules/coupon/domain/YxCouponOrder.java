@@ -1,25 +1,28 @@
 /**
-* Copyright (C) 2018-2020
-* All rights reserved, Designed By www.yixiang.co
-* 注意：
-* 本软件为www.yixiang.co开发研制，未经购买不得使用
-* 购买后可获得全部源代码（禁止转卖、分享、上传到码云、github等开源平台）
-* 一经发现盗用、分享等行为，将追究法律责任，后果自负
-*/
+ * Copyright (C) 2018-2020
+ * All rights reserved, Designed By www.yixiang.co
+ * 注意：
+ * 本软件为www.yixiang.co开发研制，未经购买不得使用
+ * 购买后可获得全部源代码（禁止转卖、分享、上传到码云、github等开源平台）
+ * 一经发现盗用、分享等行为，将追究法律责任，后果自负
+ */
 package co.yixiang.modules.coupon.domain;
-import lombok.Data;
-import com.baomidou.mybatisplus.annotation.*;
+
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.bean.copier.CopyOptions;
-import javax.validation.constraints.*;
-import java.sql.Timestamp;
-import java.math.BigDecimal;
+import com.baomidou.mybatisplus.annotation.*;
+import lombok.Data;
+
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
+import java.math.BigDecimal;
+import java.sql.Timestamp;
 
 /**
-* @author huiy
-* @date 2020-08-14
-*/
+ * @author huiy
+ * @date 2020-08-14
+ */
 @Data
 @TableName("yx_coupon_order")
 public class YxCouponOrder implements Serializable {
@@ -166,10 +169,13 @@ public class YxCouponOrder implements Serializable {
     /** 分佣状态 0:未分佣 1:已分佣 */
     private Integer rebateStatus;
 
+    /** 过期时间 */
+    private Integer outTime;
+
     /** 是否删除（0：未删除，1：已删除） */
     @NotNull
     @TableLogic
-    @TableField(fill=FieldFill.INSERT_UPDATE)
+    @TableField(fill = FieldFill.INSERT_UPDATE)
     private Integer delFlag;
 
 
@@ -183,13 +189,13 @@ public class YxCouponOrder implements Serializable {
 
     /** 创建时间 */
     @NotNull
-    @TableField(fill= FieldFill.INSERT)
+    @TableField(fill = FieldFill.INSERT)
     private Timestamp createTime;
 
 
     /** 更新时间 */
     @NotNull
-    @TableField(fill= FieldFill.INSERT_UPDATE)
+    @TableField(fill = FieldFill.INSERT_UPDATE)
     private Timestamp updateTime;
 
     /** 评价状态：0未评价 1已评价 */
@@ -200,7 +206,7 @@ public class YxCouponOrder implements Serializable {
     @NotNull
     private Integer onlineInvoice;
 
-    public void copy(YxCouponOrder source){
-        BeanUtil.copyProperties(source,this, CopyOptions.create().setIgnoreNullValue(true));
+    public void copy(YxCouponOrder source) {
+        BeanUtil.copyProperties(source, this, CopyOptions.create().setIgnoreNullValue(true));
     }
 }
