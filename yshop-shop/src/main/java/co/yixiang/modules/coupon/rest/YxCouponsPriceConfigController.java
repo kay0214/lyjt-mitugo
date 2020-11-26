@@ -101,7 +101,7 @@ public class YxCouponsPriceConfigController {
     @PostMapping(value = "/setPriceConfig")
     @Log("本地生活价格配置")
     @ApiOperation("本地生活价格配置")
-//    @PreAuthorize("@el.check('admin','yxCoupons:add')")
+    @PreAuthorize("@el.check('admin','yxCouponsPriceConfig:add')")
     public ResponseEntity<Object> setPriceConfig(@Validated @RequestBody String priceJson) {
         CurrUser currUser = SecurityUtils.getCurrUser();
         yxCouponsPriceConfigService.setPriceConfig(priceJson, currUser.getId().intValue());
