@@ -76,6 +76,7 @@
         <el-table-column v-if="columns.visible('username')" prop="username" label="姓名" />
         <el-table-column v-if="columns.visible('wechat')" prop="wechat" label="用户名" />
         <el-table-column v-if="columns.visible('typeId')" prop="typeId" label="提现申请ID" />
+        <el-table-column v-if="columns.visible('seqNo')" prop="seqNo" label="交易流水号" />
         <el-table-column v-if="columns.visible('extractPrice')" prop="extractPrice" label="提现金额" />
         <el-table-column v-if="columns.visible('extractType')" prop="extractType" label="提现方式" />
         <el-table-column prop="createTime" label="添加时间">

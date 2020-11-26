@@ -25,7 +25,6 @@ import co.yixiang.modules.shop.service.dto.YxExamineLogDto;
 import co.yixiang.modules.shop.service.dto.YxExamineLogQueryCriteria;
 import co.yixiang.modules.shop.service.mapper.YxExamineLogMapper;
 import co.yixiang.modules.shop.service.mapper.YxMerchantsDetailMapper;
-import co.yixiang.utils.DateUtils;
 import co.yixiang.utils.FileUtil;
 import co.yixiang.utils.StringUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -216,7 +215,7 @@ public class YxExamineLogServiceImpl extends BaseServiceImpl<YxExamineLogMapper,
             }
             queryWrapper.lambda().in(YxExamineLog::getTypeId, ids);
         }
-        if(StringUtils.isNotBlank(criteria.getSeqNo())) {
+        if (StringUtils.isNotBlank(criteria.getSeqNo())) {
             List<YxUserExtract> extracts = this.yxUserExtractMapper.selectList(new QueryWrapper<YxUserExtract>().lambda().eq(YxUserExtract::getSeqNo, criteria.getSeqNo()));
             if (null == extracts || extracts.size() <= 0) {
                 map.put("content", new ArrayList<>());
@@ -249,7 +248,7 @@ public class YxExamineLogServiceImpl extends BaseServiceImpl<YxExamineLogMapper,
                 }
                 username = yxUser.getNickname();
                 if (StringUtils.isNotBlank(realName)) {
-                    realName = yxUser.getRealName().substring(0, 1) + "**";
+                    realName = yxUser.getRealName();
                 }
             } else {
                 user = this.userService.getById(yxUserExtract.getUid());
@@ -258,7 +257,7 @@ public class YxExamineLogServiceImpl extends BaseServiceImpl<YxExamineLogMapper,
                 }
                 username = user.getNickName();
                 if (StringUtils.isNotBlank(user.getMerchantsContact())) {
-                    realName = user.getMerchantsContact().substring(0, 1) + "**";
+                    realName = user.getMerchantsContact();
                 }
             }
             // 驳回信息
@@ -281,6 +280,7 @@ public class YxExamineLogServiceImpl extends BaseServiceImpl<YxExamineLogMapper,
                     dto.setExtractType("微信");
                     break;
             }
+            dto.setSeqNo(yxUserExtract.getSeqNo());
         }
 
         map.put("content", list);
