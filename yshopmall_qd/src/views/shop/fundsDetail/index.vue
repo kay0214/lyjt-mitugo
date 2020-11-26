@@ -177,7 +177,7 @@ const defaultCrud = CRUD({ title: '平台资金明细', url: 'api/yxUserBillAll'
       download: false
     },
     query: {
-      username:'',category:'',type:'',pm:'',addTimeStart:'',addTimeEnd:'',
+      username:'',category:'',type:'',pm:'',addTimeStart:'',addTimeEnd:'',phone:'',userType:''
     }, crudMethod: { ...crudFundsDetail }})
 const defaultForm = { id: null, type: null, uid: null, username: null, linkId: null, pm: null, number: null, addTime: null }
 export default {
@@ -281,6 +281,10 @@ export default {
   methods: {
     // 获取数据前设置好接口地址
     [CRUD.HOOK.beforeRefresh]() {
+      if(this.crud.query.phone.length>0 && this.crud.query.userType===''){
+        this.crud.notify('请选择用户类型','error')
+        return false
+      }
       return true
     }, // 新增与编辑前做的操作
     [CRUD.HOOK.afterToCU](crud, form) {
