@@ -18,6 +18,7 @@ import co.yixiang.modules.system.domain.User;
 import co.yixiang.modules.system.domain.UserAvatar;
 import co.yixiang.modules.system.domain.UsersRoles;
 import co.yixiang.modules.system.service.*;
+import co.yixiang.modules.system.service.dto.RoleSmallDto;
 import co.yixiang.modules.system.service.dto.UserDto;
 import co.yixiang.modules.system.service.dto.UserQueryCriteria;
 import co.yixiang.modules.system.service.mapper.RoleMapper;
@@ -115,15 +116,30 @@ public class SysUserServiceImpl extends BaseServiceImpl<SysUserMapper, User> imp
         for (UserDto user : all) {
             Map<String, Object> map = new LinkedHashMap<>();
             map.put("邮箱", user.getEmail());
-            map.put("状态：1启用、0禁用", user.getEnabled());
-            map.put("密码", user.getPassword());
+            String strStatus = "";
+            if(user.getEnabled()){
+                strStatus = "启用";
+            }else {
+                strStatus = "禁用";
+            }
+            map.put("状态", strStatus);
+//            map.put("状态：1启用、0禁用", user.getEnabled());
+//            map.put("密码", user.getPassword());
             map.put("用户名", user.getUsername());
-            map.put("部门名称", user.getDeptId());
+//            map.put("部门名称", user.getDeptId());
             map.put("手机号码", user.getPhone());
             map.put("创建日期", user.getCreateTime());
             map.put("最后修改密码的日期", user.getLastPasswordResetTime());
             map.put("昵称", user.getNickName());
             map.put("性别", user.getSex());
+            Set<RoleSmallDto> userRole = user.getRoles();
+            List<RoleSmallDto> listRole =new ArrayList(userRole);
+            String roleName = "";
+            if(!CollectionUtils.isEmpty(listRole)){
+                RoleSmallDto role = listRole.get(0);
+                roleName = role.getName();
+            }
+            map.put("角色", roleName);
             list.add(map);
         }
         FileUtil.downloadExcel(list, response);
