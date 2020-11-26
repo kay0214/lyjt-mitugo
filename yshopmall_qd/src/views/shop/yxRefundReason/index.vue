@@ -13,7 +13,7 @@
             </el-radio-group>
           </el-form-item>
           <el-form-item label="理由" prop="reason">
-            <el-input v-model="form.reason" style="width: 370px;" />
+            <el-input v-model="form.reason" style="width: 370px;" maxlength="10"/>
           </el-form-item>
         </el-form>
         <div slot="footer" class="dialog-footer">
