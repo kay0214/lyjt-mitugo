@@ -123,8 +123,9 @@ export default {
         { value: 1, label: '本地生活' }
       ],
       userTypes: [
-        { value: 0, label: '平台 ' },
+        { value: 4, label: '平台 ' },
         { value: 1, label: '商户' },
+        { value: 2, label: '合伙人' },
         { value: 3, label: '用户' }
       ],
     }
