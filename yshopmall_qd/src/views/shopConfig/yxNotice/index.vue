@@ -17,12 +17,12 @@
                           }'/>
           </el-form-item>
           <el-form-item label="内容">
-            <el-input v-model="form.noticeContent" type="textarea"
-                      :row='5' style="width: 370px;" maxlength="100"/>
+            <el-input v-model.trim="form.noticeContent" type="textarea"
+                      :rows='5' style="width: 370px;" maxlength="100"/>
           </el-form-item>
           <el-form-item label="跳转链接" prop="linkUrl">
-            <el-input v-model="form.linkUrl" type="textarea"
-                      :row='5' style="width: 370px;" maxlength="500"/>
+            <el-input v-model.trim="form.linkUrl" type="textarea"
+                      :rows='5' style="width: 370px;" maxlength="500"/>
           </el-form-item>
           <el-form-item label="状态" prop="status">
             <el-radio-group v-model="form.status">
@@ -111,8 +111,10 @@ export default {
         ],
         linkUrl: [
           { validator:(r,v,c)=>{
-            if(!validURL(v)){
+            if(v && !validURL(v)){
               c(new Error('请检查地址格式'))
+            }else{
+              c()
             }
           }, trigger: 'blur' }
         ]
