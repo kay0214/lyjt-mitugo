@@ -959,6 +959,10 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
             item = setShipDetailInof(item, yxCoupons, shipOrderStatus);
             item.setPassengeList(yxShipPassengerService.getPassengerByOrderId(item.getId()));
         }
+        // 手机号为空的处理为空字符串
+        if (StringUtils.isBlank(item.getUserPhone())) {
+            item.setUserPhone("");
+        }
         return item;
     }
 
