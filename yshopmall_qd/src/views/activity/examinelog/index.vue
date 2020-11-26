@@ -20,7 +20,7 @@
 <!--            :value="index">-->
 <!--          </el-option>-->
 <!--        </el-select>-->
-        <el-select v-model="query.userRole" clearable placeholder="审核状态"
+        <el-select v-model="query.status" clearable placeholder="审核状态"
                    style="width: 200px;" class="filter-item">
           <el-option
             v-for="item in statusList"
@@ -138,9 +138,9 @@ export default {
       },
       userTypeOptions: ['预留','商户','合伙人','前台用户'],
       statusList:[
-        {value:-1,label:'提现未通过'},
-        {value:0,label:'未提现'},
-        {value:1,label:'提现通过'}
+        {value:0,label:'待审核'},
+        {value:1,label:'通过'},
+        {value:2,label:'驳回'}
       ]
     }
   },
