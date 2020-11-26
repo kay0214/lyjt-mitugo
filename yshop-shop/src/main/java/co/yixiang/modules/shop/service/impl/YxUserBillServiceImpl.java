@@ -167,6 +167,8 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<UserBillMapper, YxUse
             Map<String, Object> map = new LinkedHashMap<>();
             map.put("用户uid", yxUserBill.getUid());
             map.put("用户昵称", yxUserBill.getUsername());
+            map.put("手机号", yxUserBill.getPhone());
+            map.put("用户类型", yxUserBill.getUserTypeStr());
             map.put("账单标题", yxUserBill.getTitle());
             map.put("订单号", yxUserBill.getLinkId());
             map.put("明细种类", BillDetailEnum.getDesc(yxUserBill.getCategory()));
@@ -191,6 +193,7 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<UserBillMapper, YxUse
      */
     @Override
     public Map<String, Object> getPointDetail(YxUserBillQueryCriteria criteria, Pageable pageable) {
+        Map<String, Object> map = new LinkedHashMap<>(3);
         BigDecimal totalPoint = BigDecimal.ZERO;
         QueryWrapper<YxUserBill> queryWrapper = new QueryWrapper<>();
         queryWrapper.lambda().eq(YxUserBill::getCategory, BillDetailEnum.CATEGORY_2.getValue()).eq(YxUserBill::getStatus, 1);
@@ -216,11 +219,43 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<UserBillMapper, YxUse
                 totalPoint = yxFundsAccount.getBonusPoint().add(yxFundsAccount.getReferencePoint());
             }
         }
+
+        if (null != criteria.getUserType()) {
+            queryWrapper.lambda().eq(YxUserBill::getUserType, criteria.getUserType());
+            if (StringUtils.isNotBlank(criteria.getPhone())) {
+                List<Integer> ids = new ArrayList<>();
+                if (3 == criteria.getUserType()) {
+                    // 前台用户
+                    List<YxUser> yxUsers = this.userMapper.selectList(new QueryWrapper<YxUser>().lambda().eq(YxUser::getPhone, criteria.getPhone()));
+                    if (null == yxUsers || yxUsers.size() <= 0) {
+                        map.put("content", new ArrayList<>());
+                        map.put("totalElements", 0);
+                        map.put("totalPoint", totalPoint);
+                        return map;
+                    }
+                    for (YxUser item : yxUsers) {
+                        ids.add(item.getUid());
+                    }
+                } else {
+                    // 后台用户
+                    List<User> users = this.userService.list(new QueryWrapper<User>().lambda().eq(User::getPhone, criteria.getPhone()));
+                    if (null == users || users.size() <= 0) {
+                        map.put("content", new ArrayList<>());
+                        map.put("totalElements", 0);
+                        map.put("totalPoint", totalPoint);
+                        return map;
+                    }
+                    for (User item : users) {
+                        ids.add(item.getId().intValue());
+                    }
+                }
+                queryWrapper.lambda().in(YxUserBill::getUid, ids);
+            }
+        }
         queryWrapper.lambda().orderByDesc(YxUserBill::getAddTime);
         IPage<YxUserBill> ipage = this.page(new Page<>(pageable.getPageNumber() + 1, pageable.getPageSize()), queryWrapper);
 
-        Map<String, Object> map = new LinkedHashMap<>(3);
-        map.put("content", ipage.getRecords());
+        map.put("content", convertList(ipage.getRecords()));
         map.put("totalElements", ipage.getTotal());
         map.put("totalPoint", totalPoint);
         return map;
@@ -235,6 +270,7 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<UserBillMapper, YxUse
      */
     @Override
     public Map<String, Object> getShareDividendPoint(YxUserBillQueryCriteria criteria, Pageable pageable) {
+        Map<String, Object> map = new LinkedHashMap<>(3);
         BigDecimal totalPoint = BigDecimal.ZERO;
         YxFundsAccount yxFundsAccount = fundsAccountService.getOne(new QueryWrapper<YxFundsAccount>().lambda().eq(YxFundsAccount::getDelFlag, 0));
         if (null != yxFundsAccount) {
@@ -254,11 +290,42 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<UserBillMapper, YxUse
         if (null != criteria.getBrokerageType()) {
             queryWrapper.lambda().eq(YxUserBill::getBrokerageType, criteria.getBrokerageType());
         }
+        if (null != criteria.getUserType()) {
+            queryWrapper.lambda().eq(YxUserBill::getUserType, criteria.getUserType());
+            if (StringUtils.isNotBlank(criteria.getPhone())) {
+                List<Integer> ids = new ArrayList<>();
+                if (3 == criteria.getUserType()) {
+                    // 前台用户
+                    List<YxUser> yxUsers = this.userMapper.selectList(new QueryWrapper<YxUser>().lambda().eq(YxUser::getPhone, criteria.getPhone()));
+                    if (null == yxUsers || yxUsers.size() <= 0) {
+                        map.put("content", new ArrayList<>());
+                        map.put("totalElements", 0);
+                        map.put("totalPoint", totalPoint);
+                        return map;
+                    }
+                    for (YxUser item : yxUsers) {
+                        ids.add(item.getUid());
+                    }
+                } else {
+                    // 后台用户
+                    List<User> users = this.userService.list(new QueryWrapper<User>().lambda().eq(User::getPhone, criteria.getPhone()));
+                    if (null == users || users.size() <= 0) {
+                        map.put("content", new ArrayList<>());
+                        map.put("totalElements", 0);
+                        map.put("totalPoint", totalPoint);
+                        return map;
+                    }
+                    for (User item : users) {
+                        ids.add(item.getId().intValue());
+                    }
+                }
+                queryWrapper.lambda().in(YxUserBill::getUid, ids);
+            }
+        }
         queryWrapper.lambda().orderByDesc(YxUserBill::getAddTime);
 
         IPage<YxUserBill> ipage = this.page(new Page<>(pageable.getPageNumber() + 1, pageable.getPageSize()), queryWrapper);
-        Map<String, Object> map = new LinkedHashMap<>(3);
-        map.put("content", ipage.getRecords());
+        map.put("content", convertList(ipage.getRecords()));
         map.put("totalElements", ipage.getTotal());
         map.put("totalPoint", totalPoint);
         return map;
@@ -273,7 +340,7 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<UserBillMapper, YxUse
      */
     @Override
     public Map<String, Object> getPullNewPoint(YxUserBillQueryCriteria criteria, Pageable pageable) {
-
+        Map<String, Object> map = new LinkedHashMap<>(3);
         BigDecimal totalPoint = BigDecimal.ZERO;
         YxFundsAccount yxFundsAccount = fundsAccountService.getOne(new QueryWrapper<YxFundsAccount>().lambda().eq(YxFundsAccount::getDelFlag, 0));
         if (null != yxFundsAccount) {
@@ -293,11 +360,42 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<UserBillMapper, YxUse
         if (null != criteria.getBrokerageType()) {
             queryWrapper.lambda().eq(YxUserBill::getBrokerageType, criteria.getBrokerageType());
         }
+        if (null != criteria.getUserType()) {
+            queryWrapper.lambda().eq(YxUserBill::getUserType, criteria.getUserType());
+            if (StringUtils.isNotBlank(criteria.getPhone())) {
+                List<Integer> ids = new ArrayList<>();
+                if (3 == criteria.getUserType()) {
+                    // 前台用户
+                    List<YxUser> yxUsers = this.userMapper.selectList(new QueryWrapper<YxUser>().lambda().eq(YxUser::getPhone, criteria.getPhone()));
+                    if (null == yxUsers || yxUsers.size() <= 0) {
+                        map.put("content", new ArrayList<>());
+                        map.put("totalElements", 0);
+                        map.put("totalPoint", totalPoint);
+                        return map;
+                    }
+                    for (YxUser item : yxUsers) {
+                        ids.add(item.getUid());
+                    }
+                } else {
+                    // 后台用户
+                    List<User> users = this.userService.list(new QueryWrapper<User>().lambda().eq(User::getPhone, criteria.getPhone()));
+                    if (null == users || users.size() <= 0) {
+                        map.put("content", new ArrayList<>());
+                        map.put("totalElements", 0);
+                        map.put("totalPoint", totalPoint);
+                        return map;
+                    }
+                    for (User item : users) {
+                        ids.add(item.getId().intValue());
+                    }
+                }
+                queryWrapper.lambda().in(YxUserBill::getUid, ids);
+            }
+        }
         queryWrapper.lambda().orderByDesc(YxUserBill::getAddTime);
 
         IPage<YxUserBill> ipage = this.page(new Page<>(pageable.getPageNumber() + 1, pageable.getPageSize()), queryWrapper);
-        Map<String, Object> map = new LinkedHashMap<>(3);
-        map.put("content", ipage.getRecords());
+        map.put("content", convertList(ipage.getRecords()));
         map.put("totalElements", ipage.getTotal());
         map.put("totalPoint", totalPoint);
         return map;
@@ -312,6 +410,7 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<UserBillMapper, YxUse
      */
     @Override
     public Map<String, Object> queryAllNew(YxUserBillQueryCriteria criteria, Pageable pageable) {
+        Map<String, Object> map = new LinkedHashMap<>(3);
         BigDecimal totalPrice = BigDecimal.ZERO;
         YxFundsAccount yxFundsAccount = fundsAccountService.getOne(new QueryWrapper<YxFundsAccount>().lambda().eq(YxFundsAccount::getDelFlag, 0));
         if (null != yxFundsAccount) {
@@ -345,18 +444,26 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<UserBillMapper, YxUse
                 if (3 == criteria.getUserType()) {
                     // 前台用户
                     List<YxUser> yxUsers = this.userMapper.selectList(new QueryWrapper<YxUser>().lambda().eq(YxUser::getPhone, criteria.getPhone()));
-                    if (null != yxUsers && yxUsers.size() > 0) {
-                        for (YxUser item : yxUsers) {
-                            ids.add(item.getUid());
-                        }
+                    if (null == yxUsers || yxUsers.size() <= 0) {
+                        map.put("content", new ArrayList<>());
+                        map.put("totalElements", 0);
+                        map.put("totalPrice", totalPrice);
+                        return map;
+                    }
+                    for (YxUser item : yxUsers) {
+                        ids.add(item.getUid());
                     }
                 } else {
                     // 后台用户
                     List<User> users = this.userService.list(new QueryWrapper<User>().lambda().eq(User::getPhone, criteria.getPhone()));
-                    if (null != users && users.size() > 0) {
-                        for (User item : users) {
-                            ids.add(item.getId().intValue());
-                        }
+                    if (null == users || users.size() <= 0) {
+                        map.put("content", new ArrayList<>());
+                        map.put("totalElements", 0);
+                        map.put("totalPrice", totalPrice);
+                        return map;
+                    }
+                    for (User item : users) {
+                        ids.add(item.getId().intValue());
                     }
                 }
                 queryWrapper.lambda().in(YxUserBill::getUid, ids);
@@ -368,11 +475,57 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<UserBillMapper, YxUse
         queryWrapper.lambda().orderByDesc(YxUserBill::getAddTime).orderByDesc(YxUserBill::getId);
 
         IPage<YxUserBill> ipage = this.page(new Page<>(pageable.getPageNumber() + 1, pageable.getPageSize()), queryWrapper);
-        Map<String, Object> map = new LinkedHashMap<>(3);
-        map.put("content", ipage.getRecords());
+        map.put("content", convertList(ipage.getRecords()));
         map.put("totalElements", ipage.getTotal());
         map.put("totalPrice", totalPrice);
         return map;
+    }
+
+    /**
+     * 数据处理
+     *
+     * @param records
+     * @return
+     */
+    private List<YxUserBillDto> convertList(List<YxUserBill> records) {
+        List<YxUserBillDto> list = generator.convert(records, YxUserBillDto.class);
+        for (YxUserBillDto item : list) {
+            if (3 == item.getUserType()) {
+                // 前台用户
+                YxUser yxUser = this.userMapper.selectById(item.getUid());
+                if (null != yxUser) {
+                    item.setPhone(yxUser.getPhone());
+                }
+            } else {
+                // 后台用户
+                User user = this.userService.getById(item.getUid());
+                if (null != user) {
+                    item.setPhone(user.getPhone());
+                }
+            }
+            // 处理用户类型 用户类型 0:预留 1商户;2合伙人;3用户4平台
+            switch (item.getUserType()) {
+                case 0:
+                    item.setUserTypeStr("预留");
+                    break;
+                case 1:
+                    item.setUserTypeStr("商户");
+                    break;
+                case 2:
+                    item.setUserTypeStr("合伙人");
+                    break;
+                case 3:
+                    item.setUserTypeStr("用户");
+                    break;
+                case 4:
+                    item.setUserTypeStr("平台 ");
+                    break;
+                default:
+                    item.setUserTypeStr("");
+                    break;
+            }
+        }
+        return list;
     }
 
     /**
@@ -581,6 +734,6 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<UserBillMapper, YxUse
         if (null == list || list.size() <= 0) {
             throw new BadRequestException("未查询到数据");
         }
-        return generator.convert(list, YxUserBillDto.class);
+        return convertList(list);
     }
 }
