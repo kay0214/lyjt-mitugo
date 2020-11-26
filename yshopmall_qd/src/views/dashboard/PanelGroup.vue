@@ -6,6 +6,7 @@
         <div class="panel-group-title">平台用户</div>
         <div class="division"></div>
       </div>
+      <div class="panel-col-box">
       <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
         <div class="card-panel">
           <div class="card-panel-icon-wrapper icon-people">
@@ -58,6 +59,7 @@
           </div>
         </div>
       </el-col>
+      </div>
     </el-row>
 
     <el-row :gutter="40" class="panel-group">
@@ -66,6 +68,7 @@
         <div class="panel-group-title">本地生活数据</div>
         <div class="division"></div>
       </div>
+      <div class="panel-col-box">
       <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
         <div class="card-panel">
           <div class="card-panel-icon-wrapper icon-people">
@@ -196,6 +199,7 @@
           </div>
         </div>
       </el-col>
+      </div>
     </el-row>
 
     <el-row :gutter="40" class="panel-group">
@@ -204,6 +208,7 @@
         <div class="panel-group-title">商城数据</div>
         <div class="division"></div>
       </div>
+      <div class="panel-col-box">
       <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
         <div class="card-panel">
           <div class="card-panel-icon-wrapper icon-people">
@@ -334,6 +339,7 @@
           </div>
         </div>
       </el-col>
+      </div>
     </el-row>
   </div>
 </template>
@@ -352,7 +358,7 @@ export default {
   },
   data() {
     return {
-      count: { 
+      count: {
         userCount: 0, //  会员数
         shareUserCount: 0, //  分享达人
         merCount: 0,  //  商户数
@@ -506,7 +512,11 @@ export default {
       }
     }
   }
-
+.panel-col-box{
+  border:1px solid #E4E7ED;
+  width:100%;
+  padding-top:20px;
+}
   @media (max-width:550px) {
     .card-panel-description {
       display: none;
