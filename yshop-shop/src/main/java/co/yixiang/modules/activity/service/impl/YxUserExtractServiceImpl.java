@@ -95,12 +95,12 @@ public class YxUserExtractServiceImpl extends BaseServiceImpl<YxUserExtractMappe
             if (3 == extractDto.getUserType()) {
                 YxUser user = yxUserService.getById(extractDto.getUid());
                 if (ObjectUtil.isNotEmpty(user)) {
-                    extractDto.setUserTrueName(StringUtils.isNotBlank(user.getRealName()) ? user.getRealName().substring(0, 1) + "**" : "");
+                    extractDto.setUserTrueName(StringUtils.isNotBlank(user.getRealName()) ? user.getRealName() : "");
                 }
             } else {
                 User user = userService.getById(extractDto.getUid());
                 if (null != user) {
-                    extractDto.setUserTrueName(StringUtils.isNotBlank(user.getMerchantsContact()) ? user.getMerchantsContact().substring(0, 1) + "**" : "");
+                    extractDto.setUserTrueName(StringUtils.isNotBlank(user.getMerchantsContact()) ? user.getMerchantsContact() : "");
                 }
             }
         }
