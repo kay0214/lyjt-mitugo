@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
+import java.util.List;
 
 /**
  * <p>
@@ -56,11 +57,11 @@ public class YxUsedContactsController extends BaseController {
             throw new BadRequestException("请输入正确的身份证号");
         }
         // 查询当前身份证号是否已存入
-        YxUsedContacts find = this.yxUsedContactsService.getOne(new QueryWrapper<YxUsedContacts>().lambda()
+        List<YxUsedContacts> findList = this.yxUsedContactsService.list(new QueryWrapper<YxUsedContacts>().lambda()
                 .eq(YxUsedContacts::getDelFlag, 0)
                 .eq(YxUsedContacts::getUserId, uid)
                 .eq(YxUsedContacts::getCardId, request.getCardId()));
-        if (null != find) {
+        if (null != findList && findList.size() > 0) {
             throw new BadRequestException("身份证号不能重复");
         }
         boolean flag = yxUsedContactsService.saveUsedContacts(request);

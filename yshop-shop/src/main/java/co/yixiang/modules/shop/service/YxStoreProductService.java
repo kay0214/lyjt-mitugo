@@ -15,6 +15,7 @@ import org.springframework.data.domain.Pageable;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -79,4 +80,103 @@ public interface YxStoreProductService  extends BaseService<YxStoreProduct>{
      * @param resources
      */
     void updateRate(YxStoreProductDto resources);
+
+    /**
+     * 卡券相关 数据统计
+     * @param storeId
+     * @return
+     */
+    Map<String, Long> getLocalProductCount(int storeId);
+
+    /**
+     * 卡券订单相关
+     * @param storeId
+     * @return
+     */
+    Map<String, Long> getLocalProductOrderCount(int storeId);
+
+    /**
+     * 今日营业额
+     * @param storeId
+     * @return
+     */
+    BigDecimal getLocalSumPrice(int storeId);
+
+    /**
+     * 商城相关
+     * @param storeId
+     * @return
+     */
+    Map<String, Long> getShopProductCount(int storeId);
+
+    /**
+     * 商城订单数量相关
+     * @param storeId
+     * @return
+     */
+    Map<String, Long> getShopOrderCount(int storeId);
+
+    /**
+     * 本月本地生活成交额
+     * @param nowMonth
+     * @param storeId
+     * @return
+     */
+    Double getMonthLocalPrice(int nowMonth, int storeId);
+
+    /**
+     * 本月本地生活成交量
+     * @param nowMonth
+     * @param storeId
+     * @return
+     */
+    Integer getMonthLocalCount(int nowMonth, int storeId);
+
+    /**
+     * 本月商城成交额
+     * @param nowMonth
+     * @param storeId
+     * @return
+     */
+    Double getMonthShopPrice(int nowMonth, int storeId);
+
+    /**
+     * 本月商城成交量
+     * @param nowMonth
+     * @param storeId
+     * @return
+     */
+    Integer getMonthShopCount(int nowMonth, int storeId);
+
+    /**
+     * 近七天本地生活成交量
+     * @param nowMonth
+     * @param storeId
+     * @return
+     */
+    Integer getLastWeekLocalCount(int nowMonth, int storeId);
+
+    /**
+     * 近七天本地生活成交额
+     * @param nowMonth
+     * @param storeId
+     * @return
+     */
+    Double getLastWeekLocalPrice(int nowMonth, int storeId);
+
+    /**
+     * 近七天商城成交量
+     * @param nowMonth
+     * @param storeId
+     * @return
+     */
+    Integer getLastWeekShopCount(int nowMonth, int storeId);
+
+    /**
+     * 近七天商城成交额
+     * @param nowMonth
+     * @param storeId
+     * @return
+     */
+    Double getLastWeekShopPrice(int nowMonth, int storeId);
 }

@@ -12,6 +12,7 @@ import co.yixiang.exception.BadRequestException;
 import co.yixiang.modules.activity.service.dto.YxUserExtractSetDto;
 import co.yixiang.modules.shop.domain.User;
 import co.yixiang.modules.shop.domain.YxFundsAccount;
+import co.yixiang.modules.shop.domain.YxUser;
 import co.yixiang.modules.shop.domain.YxUserBill;
 import co.yixiang.modules.shop.service.UserService;
 import co.yixiang.modules.shop.service.YxFundsAccountService;
@@ -21,6 +22,7 @@ import co.yixiang.modules.shop.service.dto.WithdrawReviewQueryCriteria;
 import co.yixiang.modules.shop.service.dto.YxUserBillDto;
 import co.yixiang.modules.shop.service.dto.YxUserBillQueryCriteria;
 import co.yixiang.modules.shop.service.mapper.UserBillMapper;
+import co.yixiang.modules.shop.service.mapper.UserMapper;
 import co.yixiang.utils.DateUtils;
 import co.yixiang.utils.FileUtil;
 import co.yixiang.utils.StringUtils;
@@ -62,6 +64,8 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<UserBillMapper, YxUse
     private YxFundsAccountService fundsAccountService;
     @Autowired
     private YxSystemConfigService systemConfigService;
+    @Autowired
+    private UserMapper userMapper;
 
     @Override
     //@Cacheable
@@ -336,6 +340,27 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<UserBillMapper, YxUse
         }
         if (null != criteria.getUserType()) {
             queryWrapper.lambda().eq(YxUserBill::getUserType, criteria.getUserType());
+            if (StringUtils.isNotBlank(criteria.getPhone())) {
+                List<Integer> ids = new ArrayList<>();
+                if (3 == criteria.getUserType()) {
+                    // 前台用户
+                    List<YxUser> yxUsers = this.userMapper.selectList(new QueryWrapper<YxUser>().lambda().eq(YxUser::getPhone, criteria.getPhone()));
+                    if (null != yxUsers && yxUsers.size() > 0) {
+                        for (YxUser item : yxUsers) {
+                            ids.add(item.getUid());
+                        }
+                    }
+                } else {
+                    // 后台用户
+                    List<User> users = this.userService.list(new QueryWrapper<User>().lambda().eq(User::getPhone, criteria.getPhone()));
+                    if (null != users && users.size() > 0) {
+                        for (User item : users) {
+                            ids.add(item.getId().intValue());
+                        }
+                    }
+                }
+                queryWrapper.lambda().in(YxUserBill::getUid, ids);
+            }
         }
         if (StringUtils.isNotBlank(criteria.getLinkId())) {
             queryWrapper.lambda().eq(YxUserBill::getLinkId, criteria.getLinkId());
@@ -526,6 +551,27 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<UserBillMapper, YxUse
         }
         if (null != criteria.getUserType()) {
             queryWrapper.lambda().eq(YxUserBill::getUserType, criteria.getUserType());
+            if (StringUtils.isNotBlank(criteria.getPhone())) {
+                List<Integer> ids = new ArrayList<>();
+                if (3 == criteria.getUserType()) {
+                    // 前台用户
+                    List<YxUser> yxUsers = this.userMapper.selectList(new QueryWrapper<YxUser>().lambda().eq(YxUser::getPhone, criteria.getPhone()));
+                    if (null != yxUsers && yxUsers.size() > 0) {
+                        for (YxUser item : yxUsers) {
+                            ids.add(item.getUid());
+                        }
+                    }
+                } else {
+                    // 后台用户
+                    List<User> users = this.userService.list(new QueryWrapper<User>().lambda().eq(User::getPhone, criteria.getPhone()));
+                    if (null != users && users.size() > 0) {
+                        for (User item : users) {
+                            ids.add(item.getId().intValue());
+                        }
+                    }
+                }
+                queryWrapper.lambda().in(YxUserBill::getUid, ids);
+            }
         }
         if (StringUtils.isNotBlank(criteria.getLinkId())) {
             queryWrapper.lambda().eq(YxUserBill::getLinkId, criteria.getLinkId());

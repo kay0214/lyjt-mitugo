@@ -6,6 +6,7 @@
 package co.yixiang.modules.shop.service;
 
 import co.yixiang.common.service.BaseService;
+import co.yixiang.modules.plat.domain.TodayDataDto;
 import co.yixiang.modules.shop.domain.YxStoreOrder;
 import co.yixiang.modules.shop.service.dto.OrderCountDto;
 import co.yixiang.modules.shop.service.dto.OrderTimeDataDto;
@@ -71,4 +72,11 @@ public interface YxStoreOrderService  extends BaseService<YxStoreOrder>{
     void cancelOrder();
 
     Integer getUserIdListByName(String userName);
+
+    /**
+     * admin查询平台订单信息
+     * @param storeId
+     * @return
+     */
+    TodayDataDto getPlatformData(int storeId);
 }
