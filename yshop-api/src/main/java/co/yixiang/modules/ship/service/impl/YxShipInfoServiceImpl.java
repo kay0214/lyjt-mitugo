@@ -220,6 +220,11 @@ public class YxShipInfoServiceImpl extends BaseServiceImpl<YxShipInfoMapper, YxS
                     queryVo.setUserdUserName(systemUserMapper.getUserById(queryVo.getCreateUserId()).getNickName());
                 }
                 queryVo.setUserdTime(DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD_HH_MM_SS, queryVo.getCreateTime()));
+                // 处理船只图片
+                YxImageInfo yxImageInfo = this.yxImageInfoService.selectOneImg(queryVo.getShipId(), ShopConstants.IMG_TYPE_SHIPINFO, ShopConstants.IMG_CATEGORY_PIC);
+                if (null != yxImageInfo) {
+                    queryVo.setShipImageUrl(yxImageInfo.getImgUrl());
+                }
             }
         }
         map.put("status", "1");
@@ -299,16 +304,23 @@ public class YxShipInfoServiceImpl extends BaseServiceImpl<YxShipInfoMapper, YxS
         if (1 == param.getStatus()) {
             // 出港
             yxShipOperation.setStatus(1);
+            yxShipOperation.setLeaveTime(DateUtils.getNowTime());
             yxShipInfo.setLastLeaveTime(DateUtils.getNowTime());
 
         } else {
             // 回港
+            // 判断1分钟内不允许回港
+            if (DateUtils.getNowTime() <= (yxShipOperation.getLeaveTime() + 60)) {
+                map.put("status", "99");
+                map.put("statusDesc", "出港时间少于1分钟，请稍后再试");
+                return map;
+            }
             yxShipOperation.setStatus(2);
+            yxShipOperation.setReturnTime(DateUtils.getNowTime());
             yxShipInfo.setLastReturnTime(DateUtils.getNowTime());
         }
         yxShipOperation.setUpdateUserId(uid);
         yxShipOperation.setUpdateTime(new Date());
-        yxShipOperation.setLeaveTime(DateUtils.getNowTime());
         //更新出行记录
         yxShipOperationService.updateById(yxShipOperation);
         // 更新船只表

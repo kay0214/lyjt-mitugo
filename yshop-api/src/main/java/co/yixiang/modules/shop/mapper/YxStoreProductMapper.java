@@ -91,7 +91,7 @@ public interface YxStoreProductMapper extends BaseMapper<YxStoreProduct> {
      * @param storeId
      * @return
      */
-    @Select("select  count(0) AS localOrderCount,count(a.status in(4,5) or null) AS localOrderWait, count(a.status = 7 or null) AS localOrderRefund from yx_coupon_order a left JOIN `yx_store_info` b on a.mer_id=b.mer_id and b.`id`=#{storeId} where a.pay_staus=1 and (a.status =2 or a.status >3) and a.del_flag=0 and DATE_FORMAT(a.create_time,'%Y-%m-%d') = DATE_FORMAT(NOW(),'%Y-%m-%d')")
+    @Select("select  count(0) AS localOrderCount,count(a.status in(4,5) or null) AS localOrderWait, count(a.status = 7 or null) AS localOrderRefund from yx_coupon_order a inner JOIN `yx_store_info` b on a.mer_id=b.mer_id and b.`id`=#{storeId} where a.pay_staus=1 and (a.status =2 or a.status >3) and a.del_flag=0 and DATE_FORMAT(a.create_time,'%Y-%m-%d') = DATE_FORMAT(NOW(),'%Y-%m-%d')")
     Map<String, Long> getLocalProductOrderCount(@Param("storeId") Integer storeId);
 
     /**
@@ -99,7 +99,7 @@ public interface YxStoreProductMapper extends BaseMapper<YxStoreProduct> {
      * @param storeId
      * @return
      */
-    @Select("select IFNULL(sum(a.total_price),0) from yx_coupon_order a left JOIN `yx_store_info` b on a.mer_id=b.mer_id and b.`id`=#{storeId} where a.del_flag=0 and a.status in (2,4,5,6) and DATE_FORMAT(a.create_time,'%Y-%m-%d') = DATE_FORMAT(NOW(),'%Y-%m-%d')")
+    @Select("select IFNULL(sum(a.total_price),0) from yx_coupon_order a inner JOIN `yx_store_info` b on a.mer_id=b.mer_id and b.`id`=#{storeId} where a.del_flag=0 and a.status in (2,4,5,6) and DATE_FORMAT(a.create_time,'%Y-%m-%d') = DATE_FORMAT(NOW(),'%Y-%m-%d')")
     BigDecimal getLocalSumPrice(@Param("storeId") Integer storeId);
 
     /**
@@ -131,7 +131,7 @@ public interface YxStoreProductMapper extends BaseMapper<YxStoreProduct> {
      * @param storeId
      * @return
      */
-    @Select("select a.ship_name name,count(0) counts from `yx_ship_operation` a left JOIN `yx_ship_info` b on a.ship_id=b.id and b.`store_id`=#{storeId} WHERE a.del_flag=0 and a.`status` in (1,2)  and DATE_FORMAT(a.`create_time`,'%Y-%m-%d') = DATE_FORMAT(NOW(),'%Y-%m-%d') group by a.ship_id limit 10")
+    @Select("select a.ship_name name,count(0) counts from `yx_ship_operation` a inner JOIN `yx_ship_info` b on a.ship_id=b.id and b.`store_id`=#{storeId} WHERE a.del_flag=0 and a.`status` in (1,2)  and DATE_FORMAT(a.`create_time`,'%Y-%m-%d') = DATE_FORMAT(NOW(),'%Y-%m-%d') group by a.ship_id limit 10")
     List<ShipUserLeaveVO> getTopShipLeaves(@Param("storeId") Integer storeId);
 
     /**
@@ -139,7 +139,7 @@ public interface YxStoreProductMapper extends BaseMapper<YxStoreProduct> {
      * @param storeId
      * @return
      */
-    @Select("select a.captain_name name,count(0) counts from `yx_ship_operation` a left JOIN `yx_ship_info` b on a.ship_id=b.id and b.`store_id`=#{storeId} WHERE a.del_flag=0 and a.`status` in (1,2)  and DATE_FORMAT(a.`create_time`,'%Y-%m-%d') = DATE_FORMAT(NOW(),'%Y-%m-%d') group by a.captain_id limit 10")
+    @Select("select a.captain_name name,count(0) counts from `yx_ship_operation` a inner JOIN `yx_ship_info` b on a.ship_id=b.id and b.`store_id`=#{storeId} WHERE a.del_flag=0 and a.`status` in (1,2)  and DATE_FORMAT(a.`create_time`,'%Y-%m-%d') = DATE_FORMAT(NOW(),'%Y-%m-%d') group by a.captain_id limit 10")
     List<ShipUserLeaveVO> getShipUserLeaveS(@Param("storeId") Integer storeId);
 
     /**
@@ -147,7 +147,7 @@ public interface YxStoreProductMapper extends BaseMapper<YxStoreProduct> {
      * @param storeId
      * @return
      */
-    @Select("select count(0) counts from `yx_ship_operation` a left JOIN `yx_ship_info` b on a.ship_id=b.id and b.`store_id`=#{storeId} WHERE a.del_flag=0 and a.`status` in (1,2)  and DATE_FORMAT(a.`create_time`,'%Y-%m-%d') = DATE_FORMAT(NOW(),'%Y-%m-%d') ")
+    @Select("select count(0) counts from `yx_ship_operation` a inner JOIN `yx_ship_info` b on a.ship_id=b.id and b.`store_id`=#{storeId} WHERE a.del_flag=0 and a.`status` in (1,2)  and DATE_FORMAT(a.`create_time`,'%Y-%m-%d') = DATE_FORMAT(NOW(),'%Y-%m-%d') ")
     Integer getShipLeaveCount(@Param("storeId") Integer storeId);
 
     /**
@@ -155,6 +155,6 @@ public interface YxStoreProductMapper extends BaseMapper<YxStoreProduct> {
      * @param storeId
      * @return
      */
-    @Select("select count(0) counts from (select a.`ship_id` from `yx_ship_operation` a left JOIN `yx_ship_info` b on a.ship_id=b.id and b.`store_id`=#{storeId} WHERE a.del_flag=0 and a.`status` in (0,1,2)  and DATE_FORMAT(a.`create_time`,'%Y-%m-%d') = DATE_FORMAT(NOW(),'%Y-%m-%d') group by `ship_id` ) c")
+    @Select("select count(0) counts from (select a.`ship_id` from `yx_ship_operation` a inner JOIN `yx_ship_info` b on a.ship_id=b.id and b.`store_id`=#{storeId} WHERE a.del_flag=0 and a.`status` in (0,1,2)  and DATE_FORMAT(a.`create_time`,'%Y-%m-%d') = DATE_FORMAT(NOW(),'%Y-%m-%d') group by `ship_id` ) c")
     Integer getShipCount(@Param("storeId") Integer storeId);
 }

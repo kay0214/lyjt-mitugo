@@ -128,7 +128,7 @@ public class PlatformServiceImpl  implements PlatformService {
         result.setShopOrderRefund(shopOrders.get("shopOrderRefund").intValue());
 
         // 今日营业额
-        BigDecimal shopSumPrice = productService.getLocalSumPrice(storeId);
+        BigDecimal shopSumPrice = productService.getShopSumPrice(storeId);
         result.setShopSumPrice(shopSumPrice);
 
         // 船只相关

@@ -114,6 +114,7 @@ public class QiNiuServiceImpl implements QiNiuService {
                 key = QiNiuUtil.getKey(key);
             }
             key = key.replaceAll(" ","");
+            key = key.replaceAll(",","");
             Response response = uploadManager.put(file.getBytes(), key, upToken);
             //解析上传成功的结果
 

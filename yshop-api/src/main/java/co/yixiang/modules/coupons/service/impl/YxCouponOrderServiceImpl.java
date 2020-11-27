@@ -366,7 +366,7 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         //在线发票（0：不支持，1：支持）
         couponOrder.setOnlineInvoice(coupons.getOnlineInvoice());
         // 处理过期时间
-        Integer outTime = DateUtils.dateEndToTimestamp(yxCoupons.getExpireDateEnd());
+        Integer outTime = DateUtils.dateToTimeStamp(yxCoupons.getExpireDateEnd());
         int userStatus = 1;
         if (4 == coupons.getCouponType()) {
             //船票券 默认为0：不可用
