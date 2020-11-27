@@ -367,6 +367,8 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         couponOrder.setOnlineInvoice(coupons.getOnlineInvoice());
         // 处理过期时间
         Integer outTime = DateUtils.dateEndToTimestamp(yxCoupons.getExpireDateEnd());
+        log.info("数据库存放的时间格式：" + yxCoupons.getExpireDateEnd());
+        log.info("outTime:" + outTime);
         int userStatus = 1;
         if (4 == coupons.getCouponType()) {
             //船票券 默认为0：不可用
@@ -374,6 +376,7 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
             // 处理失效时间
             if (1 == yxCoupons.getValidity()) {
                 Integer validity = DateUtils.nowDayEndToTimestamp() + (yxCoupons.getValidityDays() * 24 * 60 * 60);
+                log.info("validity:" + validity);
                 if (validity < outTime) {
                     outTime = validity;
                 }
