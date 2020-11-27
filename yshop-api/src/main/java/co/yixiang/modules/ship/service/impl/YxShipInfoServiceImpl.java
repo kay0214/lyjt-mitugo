@@ -6,7 +6,6 @@ import co.yixiang.common.service.impl.BaseServiceImpl;
 import co.yixiang.common.web.vo.Paging;
 import co.yixiang.constant.ShopConstants;
 import co.yixiang.constant.SystemConfigConstants;
-import co.yixiang.exception.BadRequestException;
 import co.yixiang.modules.couponUse.dto.YxShipOperationDetailVO;
 import co.yixiang.modules.couponUse.dto.YxShipPassengerVO;
 import co.yixiang.modules.couponUse.param.*;
@@ -312,7 +311,9 @@ public class YxShipInfoServiceImpl extends BaseServiceImpl<YxShipInfoMapper, YxS
             // 回港
             // 判断1分钟内不允许回港
             if (DateUtils.getNowTime() <= (yxShipOperation.getLeaveTime() + 60)) {
-                throw new BadRequestException("出港时间少于1分钟，请稍后再试");
+                map.put("status", "99");
+                map.put("statusDesc", "出港时间少于1分钟，请稍后再试");
+                return map;
             }
             yxShipOperation.setStatus(2);
             yxShipOperation.setReturnTime(DateUtils.getNowTime());
