@@ -113,6 +113,7 @@
                             选择
                           </el-checkbox>
                           <p v-if="item.width && item.height" style="font-size:12px;text-align:center;margin:0;color:#94b0e8;">{{ item.width }}*{{ item.height }}</p>
+                          <p v-else style="font-size:12px;text-align:center;margin:0;color:transparent;"> 000*000 </p>
                           <el-row>
                             <el-col :span="24" class="col-do">
                               <el-button type="text" size="medium" @click="materialDel(item)">删除</el-button>
@@ -574,6 +575,9 @@ export default {
       }).then(function() {
         delObj(item.id)
           .then(function() {
+            that.urls = that.urls.filter((u) => {
+              return u !== item.url
+            })
             that.getPage(that.page)
           })
       })
