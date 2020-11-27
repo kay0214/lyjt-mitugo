@@ -527,9 +527,8 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
         String fileDir = path + "qrcode" + File.separator;
         String spreadPicPath = fileDir + spreadPicName;
         // 二维码地址获取
-        String qrCodeUrl;
-        //qrCodeUrl = getQrCode(fileDir, userType, siteUrl, apiUrl, uid, id,pageType);
-        qrCodeUrl = getCode(fileDir, userType, siteUrl, apiUrl, uid, id);
+        String qrCodeUrl = getQrCode(fileDir, userType, siteUrl, apiUrl, uid, id,pageType);
+       // qrCodeUrl = getCode(fileDir, userType, siteUrl, apiUrl, uid, id);
         ProductInfo productInfo = new ProductInfo();
         if (pageType.equals("good")) {
             YxStoreProduct storeProduct = storeProductService.getProductInfo(id);
@@ -761,14 +760,7 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
             String accessToken = WxUtils.getAccessToken(appId,secret);
             if (userType.equals(AppFromEnum.ROUNTINE.getValue())) {
                 //小程序地址
-                siteUrl = siteUrl + "/shop/";
-                String page = "";
-                if(pageType.equals("good")){
-                    page = "shop/pages/GoodsCon/index?id="+id;
-                }else {
-                    page = "live/pages/CardsCon/index"+id;
-                }
-                WxUtils.getQrCode(accessToken,fileDir + name,siteUrl + "?productId=" + id + "&spread=" + uid,page);
+                WxUtils.getQrCode(accessToken,fileDir + name,"id=" + id + "&uid=" + uid+"&type="+pageType);
             } else if (userType.equals(AppFromEnum.APP.getValue())) {
                 //app地址
                 siteUrl = siteUrl + "/shop/";

@@ -9,6 +9,7 @@ import co.yixiang.common.api.ApiResult;
 import co.yixiang.common.constant.CommonConstant;
 import co.yixiang.common.service.impl.BaseServiceImpl;
 import co.yixiang.common.util.DistanceMeterUtil;
+import co.yixiang.common.util.WxUtils;
 import co.yixiang.common.web.vo.Paging;
 import co.yixiang.constant.LocalLiveConstants;
 import co.yixiang.constant.ShopConstants;
@@ -33,7 +34,9 @@ import co.yixiang.modules.shop.entity.YxStoreInfo;
 import co.yixiang.modules.shop.mapper.YxStoreCouponIssueMapper;
 import co.yixiang.modules.shop.mapper.YxStoreInfoMapper;
 import co.yixiang.modules.shop.mapping.YxStoreInfoMap;
-import co.yixiang.modules.shop.service.*;
+import co.yixiang.modules.shop.service.YxStoreAttributeService;
+import co.yixiang.modules.shop.service.YxStoreInfoService;
+import co.yixiang.modules.shop.service.YxSystemConfigService;
 import co.yixiang.modules.shop.web.param.YxStoreInfoQueryParam;
 import co.yixiang.modules.shop.web.vo.YxStoreCouponIssueQueryVo;
 import co.yixiang.modules.shop.web.vo.YxStoreInfoDetailQueryVo;
@@ -484,18 +487,23 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
         YxSystemAttachment attachmentWap = systemAttachmentService.getInfo(name);
         String qrCodeUrl;
         if (attachmentWap == null) {
-            QrConfig config = new QrConfig(150, 150);
+            QrConfig config = new QrConfig(228, 228);
             config.setMargin(0);
-            BufferedImage qrCode;
             //如果类型是小程序
             File file = new File(fileDir + name);
+            // String appId = RedisUtil.get(ShopKeyUtils.getWxAppAppId());
+//            String secret = RedisUtil.get(ShopKeyUtils.getWxAppSecret());
+            String appId = "wx48bfdacd083c15db";
+            String secret = "3d826b283e3104561fb695ca05e7bcb9";
+            String accessToken = WxUtils.getAccessToken(appId,secret);
             if (userType.equals(AppFromEnum.ROUNTINE.getValue())) {
                 //小程序地址
                 siteUrl = siteUrl + "/shop/";
                 //生成二维码
+                WxUtils.getQrCode(accessToken,fileDir + name,"id=" + id + "&uid=" + uid + "&type=shop");
                 QrCodeUtil.generate(siteUrl + "?productId=" + id + "&spread=" + uid + "&codeType=" + AppFromEnum.ROUNTINE.getValue(), config, file);
             } else if (userType.equals(AppFromEnum.APP.getValue())) {
-                //h5地址
+                //app地址
                 siteUrl = siteUrl + "/shop/";
                 //生成二维码
                 QrCodeUtil.generate(siteUrl + "?productId=" + id + "&spread=" + uid + "&codeType=" + AppFromEnum.APP.getValue(), config, file);

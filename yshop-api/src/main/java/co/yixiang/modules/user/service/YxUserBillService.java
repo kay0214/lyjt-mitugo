@@ -1,5 +1,6 @@
 package co.yixiang.modules.user.service;
 
+import co.yixiang.common.api.ApiResult;
 import co.yixiang.common.service.BaseService;
 import co.yixiang.common.web.vo.Paging;
 import co.yixiang.modules.couponUse.dto.UserBillVo;
@@ -10,6 +11,7 @@ import co.yixiang.modules.user.web.dto.BillDTO;
 import co.yixiang.modules.user.web.param.YxUserBillQueryParam;
 import co.yixiang.modules.user.web.vo.YxUserBillQueryVo;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.List;
@@ -96,4 +98,10 @@ public interface YxUserBillService extends BaseService<YxUserBill> {
      * @return
      */
     Map<String, Object> getOnlinePayData();
+
+    /**
+     * 分销海报
+     * @return
+     */
+    ApiResult spreadBanner() throws IOException;
 }

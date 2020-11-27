@@ -118,7 +118,7 @@ public class WxUtils {
         return null;
     }
 
-    public static void getQrCode(String accessToken,String filePath,String scene,String page) {
+    public static void getQrCode(String accessToken,String filePath,String scene) {
         RestTemplate rest = new RestTemplate();
         InputStream inputStream = null;
         OutputStream outputStream = null;
@@ -126,7 +126,6 @@ public class WxUtils {
             String url = "https://api.weixin.qq.com/wxa/getwxacodeunlimit?access_token=" + accessToken;
             Map<String, Object> param = new HashMap<>();
             param.put("scene", scene);
-            param.put("page", page);
             Map<String, Object> line_color = new HashMap<>();
             line_color.put("r", 0);
             line_color.put("g", 0);
