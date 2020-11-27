@@ -3,15 +3,18 @@
     <!--工具栏-->
     <div class="head-container">
       <el-row>
-        <el-input v-model="query.username" clearable placeholder="用户昵称" style="width: 200px;" class="filter-item" @keyup.enter.native="crud.toQuery" />
-        <!--<el-select v-model="query.category" clearable placeholder="明细种类" class="filter-item" style="width: 130px">-->
-        <!--<el-option-->
-          <!--v-for="item in categoryOptions"-->
-          <!--:key="item.value"-->
-          <!--:label="item.label"-->
-          <!--:value="item.value"-->
-        <!--/>-->
-      <!--</el-select>-->
+        <el-input v-model.trim="query.username" clearable placeholder="用户昵称" style="width: 200px;" class="filter-item" @keyup.enter.native="crud.toQuery" />
+        <el-input v-model.trim="query.phone" clearable placeholder="输入用户手机号" style="width: 200px;" class="filter-item" @keyup.enter.native="crud.toQuery" />
+        <el-select v-model="query.userType" clearable placeholder="用户类型" class="filter-item" style="width: 130px">
+          <template>
+            <el-option
+              v-for="item in userTypes"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            />
+          </template>
+        </el-select>
         <el-select v-model="query.type" clearable placeholder="明细类型" class="filter-item" style="width: 130px">
           <template v-for="item in pointTypeOptions">
             <el-option
@@ -91,6 +94,12 @@
       <el-table ref="table" v-loading="crud.loading" :data="crud.data" size="small" style="width: 100%;" @selection-change="crud.selectionChangeHandler">
         <el-table-column type="selection" width="55" />
         <el-table-column v-if="columns.visible('username')" prop="username" label="用户昵称" />
+        <el-table-column v-if="columns.visible('phone')" prop="phone" label="用户手机号" />
+        <el-table-column v-if="columns.visible('userType')" prop="userType" label="用户类型" >
+          <template slot-scope="scope">
+            {{ transferLabel(scope.row.userType,userTypes) }}
+          </template>
+        </el-table-column>
         <el-table-column prop="title" label="账单标题" />
         <!-- <el-table-column label="积分类别" align="center">
           <template slot-scope="scope">
@@ -169,7 +178,7 @@ const defaultCrud = CRUD({ title: '积分获取明细', url: 'api/pointDetail', 
       del: false,
       download: false
     },query: {
-      category: '', type: '',pm:'',addTimeStart:'',addTimeEnd:''
+      category: '', type: '',pm:'',addTimeStart:'',addTimeEnd:'',phone:'',userType:''
     },
     crudMethod: { ...crudYxPointDetail }})
 const defaultForm = { id: null, uid: null, username: null, type: null, orderId: null, orderType: null, orderPrice: null, commission: null, merchantsId: null, merchantsPoint: null, partnerId: null, partnerPoint: null, delFlag: null, createUserId: null, updateUserId: null, createTime: null, updateTime: null }
@@ -219,7 +228,13 @@ export default {
       pmOptions: [
         { value: '0', label: '支出 ' },
         { value: '1', label: '获得' }
-      ]
+      ],
+      userTypes: [
+        { value: 4, label: '平台 ' },
+        { value: 1, label: '商户' },
+        { value: 2, label: '合伙人' },
+        { value: 3, label: '用户' }
+      ],
     }
   },
   watch: {
@@ -253,11 +268,31 @@ export default {
           return ""
         }
       }
+    },
+    transferLabel:function(){
+      return function(value,list){
+        if(list.length){
+          let i= list.filter(function(item){
+            return new RegExp(item.value, 'i').test(value)
+          })
+          if(i.length){
+            return i[0].label
+          }else{
+            return ""
+          }
+        }else{
+          return ""
+        }
+      }
     }
   },
   methods: {
     // 获取数据前设置好接口地址
     [CRUD.HOOK.beforeRefresh]() {
+      if(this.crud.query.phone.length>0 && this.crud.query.userType===''){
+        this.crud.notify('请选择用户类型','error')
+        return false
+      }
       return true
     }, // 新增与编辑前做的操作
     [CRUD.HOOK.afterToCU](crud, form) {
