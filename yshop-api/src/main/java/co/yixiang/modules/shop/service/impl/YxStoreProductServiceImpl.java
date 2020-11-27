@@ -8,6 +8,7 @@ import cn.hutool.extra.qrcode.QrConfig;
 import co.yixiang.common.api.ApiResult;
 import co.yixiang.common.constant.CommonConstant;
 import co.yixiang.common.service.impl.BaseServiceImpl;
+import co.yixiang.common.util.WxUtils;
 import co.yixiang.common.web.vo.Paging;
 import co.yixiang.constant.CacheConstant;
 import co.yixiang.constant.SystemConfigConstants;
@@ -120,7 +121,7 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
     @Autowired
     YxStoreProductService storeProductService;
     @Autowired
-     YxSystemConfigService systemConfigService;
+    YxSystemConfigService systemConfigService;
     @Autowired
     YxSystemAttachmentService systemAttachmentService;
     @Autowired
@@ -128,7 +129,7 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
     @Autowired
     CreatShareProductService creatShareProductService;
     @Autowired
-     YxCouponsService yxCouponsService;
+    YxCouponsService yxCouponsService;
     @Autowired
     YxImageInfoService yxImageInfoService;
 
@@ -140,6 +141,9 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
 
     @Value("${file.localUrl}")
     private String localUrl;
+
+    @Value("${spring.profiles.active}")
+    private String active;
 
 
     /**
@@ -501,247 +505,140 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
         if (StrUtil.isEmpty(apiUrl)) {
             return ApiResult.fail("未配置api地址");
         }
+        String siteUrl = systemConfigService.getData(SystemConfigConstants.SITE_URL);
+        if (StrUtil.isEmpty(siteUrl)) {
+            return ApiResult.fail("未配置h5地址");
+        }
 
         YxUserQueryVo userInfo = yxUserService.getYxUserById(uid);
         String userType = userInfo.getUserType();
         if (!userType.equals(AppFromEnum.ROUNTINE.getValue())) {
             userType = AppFromEnum.H5.getValue();
         }
-        String spreadPicName = uid + "_" + id + "_" + pageType + "_" + userType + "_product_user_spread.jpg";
+        String spreadPicName = uid + "_" + id + "_" + pageType + "_" + userType + "_product_user_spread.png";
         YxSystemAttachment attachment = systemAttachmentService.getInfo(spreadPicName);
 
         String spreadUrl;
-        if(ObjectUtil.isNotNull(attachment)){
-            spreadUrl = attachment.getImageType().equals(2)? attachment.getSattDir() : apiUrl + "/file/" + attachment.getSattDir();
+        if (ObjectUtil.isNotNull(attachment)) {
+            spreadUrl = attachment.getImageType().equals(2) ? attachment.getSattDir() : apiUrl + "/file/" + attachment.getSattDir();
             return ApiResult.ok(spreadUrl);
         }
         // 海报
-        String siteUrl = systemConfigService.getData(SystemConfigConstants.SITE_URL);
-        if (StrUtil.isEmpty(siteUrl)) {
-            return ApiResult.fail("未配置h5地址");
+        String fileDir = path + "qrcode" + File.separator;
+        String spreadPicPath = fileDir + spreadPicName;
+        // 二维码地址获取
+        String qrCodeUrl;
+        //qrCodeUrl = getQrCode(fileDir, userType, siteUrl, apiUrl, uid, id,pageType);
+        qrCodeUrl = getCode(fileDir, userType, siteUrl, apiUrl, uid, id);
+        ProductInfo productInfo = new ProductInfo();
+        if (pageType.equals("good")) {
+            YxStoreProduct storeProduct = storeProductService.getProductInfo(id);
+            BeanUtils.copyProperties(storeProduct, productInfo);
+        } else {
+            YxCoupons yxCoupons = yxCouponsService.getCouponsById(id);
+            YxImageInfo yxImageInfo = yxImageInfoService.selectOneImg(id, CommonConstant.IMG_TYPE_CARD, CommonConstant.IMG_CATEGORY_PIC);
+            if (null == yxImageInfo) {
+                return ApiResult.fail("卡券图片为空");
+            }
+            productInfo.setImage(yxImageInfo.getImgUrl());
+            productInfo.setOtPrice(yxCoupons.getOriginalPrice());
+            productInfo.setStoreName(yxCoupons.getCouponName());
+            productInfo.setPrice(yxCoupons.getSellingPrice());
+            productInfo.setStoreInfo(yxCoupons.getCouponInfo());
         }
 
-            String fileDir = path + "qrcode" + File.separator;
-            String spreadPicPath = fileDir + spreadPicName;
+        //创建图片
+        BufferedImage img = new BufferedImage(688, 1133, BufferedImage.TYPE_INT_ARGB);
+        //开启画图
+        Graphics2D g = img.createGraphics();
+        //背景 -- 读取互联网图片
+        InputStream stream = getClass().getClassLoader().getResourceAsStream("af-background.png");
+        ImageInputStream background = ImageIO.createImageInputStream(stream);
+        BufferedImage back = ImageIO.read(background);
+        g.drawImage(back.getScaledInstance(688, 1133, Image.SCALE_DEFAULT), 0, 0, null); // 绘制缩小后的图
 
-            String name = uid + "_" + id + "_"+pageType+"_" + userType + "_product_detail_wap.jpg";
-            YxSystemAttachment attachmentWap = systemAttachmentService.getInfo(name);
-            String qrCodeUrl;
-            if(attachmentWap == null){
-                QrConfig config = new QrConfig(150, 150);
-                config.setMargin(0);
-                //如果类型是小程序
-                File file = new File(fileDir + name);
-                if (userType.equals(AppFromEnum.ROUNTINE.getValue())) {
-                    //小程序地址
-                    siteUrl = siteUrl + "/" + pageType + "/";
-                    //生成二维码
-                    QrCodeUtil.generate(siteUrl + "?productId=" + id + "&spread=" + uid + "&codeType=" + AppFromEnum.ROUNTINE.getValue(), config,file);
-                } else if (userType.equals(AppFromEnum.APP.getValue())) {
-                    //h5地址
-                    siteUrl = siteUrl + "/" + pageType + "/";
-                    //生成二维码
-                    QrCodeUtil.generate(siteUrl + "?productId=" + id + "&spread=" + uid + "&codeType=" + AppFromEnum.APP.getValue(), config,file);
-                } else {//如果类型是h5
-                    //生成二维码
-                   QrCodeUtil.generate(siteUrl + "/detail/" + id + "?spread=" + uid, config,file);
-                }
+        BufferedImage head = ImageIO.read(getClass().getClassLoader().getResourceAsStream("af-head.png"));
+        g.drawImage(head.getScaledInstance(393, 125, Image.SCALE_DEFAULT), 44, 76, null);
+        //商品  banner图
+        BufferedImage priductUrl = null;
+        try {
+            priductUrl = ImageIO.read(new URL(transformStyle(productInfo.getImage())));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        g.drawImage(priductUrl.getScaledInstance(612, 416, Image.SCALE_DEFAULT), 37, 218, null);
+        InputStream streamT = getClass().getClassLoader()
+                .getResourceAsStream("Alibaba-PuHuiTi-Regular.otf");
+        File newFileT = new File("Alibaba-PuHuiTi-Regular.otf");
+        FileUtils.copyInputStreamToFile(streamT, newFileT);
+        //文案标题
+        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_DEFAULT);
+        g.setFont(new Font("SimHei",Font.BOLD, 40));
+        g.setColor(new Color(29, 29, 29));
+        String storeName = productInfo.getStoreName();
+        storeName = storeName.length()>14?storeName.substring(0,13)+"...":storeName;
+        g.drawString(storeName, 41, 703);
 
-                if (StrUtil.isEmpty(localUrl)) {
-                    QiniuContent qiniuContent = qiNiuService.uploadPic(file,qiNiuService.find());
-                    systemAttachmentService.attachmentAdd(name, String.valueOf(qiniuContent.getSize()),
-                            qiniuContent.getUrl(), qiniuContent.getUrl(),2);
-                    qrCodeUrl = qiniuContent.getUrl();
-                }else {
-                    systemAttachmentService.attachmentAdd(name, String.valueOf(FileUtil.size(file)),
-                            fileDir + name, "qrcode/" + name,1);
-                    qrCodeUrl = apiUrl + "/file/qrcode/" + name;
-                }
-            }else {
-                qrCodeUrl = attachmentWap.getImageType().equals(2)?attachmentWap.getSattDir():apiUrl + "/file/" + attachmentWap.getSattDir();
-            }
+        //价格
+        g.setFont(new Font("ArialMT",Font.PLAIN, 45));
+        g.setColor(new Color(249, 64, 64));
+        g.drawString("¥", 44, 780);
 
-            ProductInfo productInfo = new ProductInfo();
-            if (pageType.equals("good")) {
-                YxStoreProduct storeProduct = storeProductService.getProductInfo(id);
-                BeanUtils.copyProperties(storeProduct, productInfo);
-            } else {
-                YxCoupons yxCoupons = yxCouponsService.getCouponsById(id);
-                YxImageInfo yxImageInfo = yxImageInfoService.selectOneImg(id, CommonConstant.IMG_TYPE_CARD, CommonConstant.IMG_CATEGORY_PIC);
-                if (null == yxImageInfo) {
-                    return ApiResult.fail("卡券图片为空");
-                }
-                productInfo.setImage(yxImageInfo.getImgUrl());
-                productInfo.setOtPrice(yxCoupons.getOriginalPrice());
-                productInfo.setStoreName(yxCoupons.getCouponName());
-                productInfo.setPrice(yxCoupons.getSellingPrice());
-                productInfo.setStoreInfo(yxCoupons.getCouponInfo());
-            }
-            //创建图片
-            BufferedImage img = new BufferedImage(750, 1624, BufferedImage.TYPE_INT_RGB);
-            //开启画图
-            Graphics2D g = img.createGraphics();
-            //背景 -- 读取互联网图片
-            InputStream stream = getClass().getClassLoader().getResourceAsStream("background.png");
-            ImageInputStream background = ImageIO.createImageInputStream(stream);
-            BufferedImage back = ImageIO.read(background);
+        //价格
+        String priceValue = productInfo.getPrice().toString();
+        //String priceInt = priceValue.substring(0, priceValue.indexOf("."));
+        //g.setFont(font.deriveFont(Font.PLAIN, 55));
+        g.setFont(new Font("Adobe Heiti Std R",Font.BOLD,55));
+        g.setColor(new Color(249, 64, 64));
+        g.drawString(priceValue, 80, 780);
 
-            g.drawImage(back.getScaledInstance(750, 1288, Image.SCALE_DEFAULT), 0, 0, null); // 绘制缩小后的图
+        //原价
+        int x = 102 + priceValue.length() * 29;
+        g.setFont(new Font("ArialMT",Font.PLAIN, 40));
+        g.setColor(new Color(171, 171, 171));
+        String price = "¥" + productInfo.getOtPrice();
+        g.drawString(price, x + 22, 779);
+        g.drawLine(x + 22, 765, x + 22 + price.length() * 20, 765);
 
-            BufferedImage head = ImageIO.read(getClass().getClassLoader().getResourceAsStream("head.png"));
-            g.drawImage(head.getScaledInstance(750, 280, Image.SCALE_DEFAULT), 0, 0, null);
-            //商品  banner图
-            //读取互联网图片
-            BufferedImage priductUrl = null;
-            try {
-                priductUrl = ImageIO.read(new URL(transformStyle(productInfo.getImage())));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            g.drawImage(priductUrl.getScaledInstance(670, 604, Image.SCALE_DEFAULT), 40, 280, null);
-            InputStream streamT = getClass().getClassLoader()
-                    .getResourceAsStream("Alibaba-PuHuiTi-Regular.otf");
-            File newFileT = new File("Alibaba-PuHuiTi-Regular.otf");
-            FileUtils.copyInputStreamToFile(streamT, newFileT);
-            Font font = Font.createFont(Font.TRUETYPE_FONT, newFileT);
-            //文案标题
-            g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,RenderingHints.VALUE_ANTIALIAS_ON);
-            g.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL,RenderingHints.VALUE_STROKE_DEFAULT);
-            g.setFont(font.deriveFont(Font.BOLD, 32));
-            g.setColor(new Color(29, 29, 29));
-            //文字叠加,自动换行叠加
-            int tempXb = 40;
-            int tempYb = 925;
-            //单字符长度
-            int tempCharLenb = 0;
-            //单行字符总长度临时计算
-            int tempLineLenb = 0;
-            StringBuffer sbb = new StringBuffer();
-            for (int i = 0; i < productInfo.getStoreName().length(); i++) {
-                char tempChar = productInfo.getStoreName().charAt(i);
-                tempCharLenb = getCharLen(tempChar, g);
-                tempLineLenb += tempCharLenb;
-                if (tempLineLenb >= (back.getWidth() + 220)) {
-                    g.drawString(sbb.toString(), tempXb, tempYb + 38);
-                    //清空内容,重新追加
-                    sbb.delete(0, sbb.length());
-                    //每行文字间距38
-                    tempYb += 38;
-                    tempLineLenb = 0;
-                }
-                //追加字符
-                sbb.append(tempChar);
-            }
-            g.drawString(sbb.toString(), tempXb, tempYb + 38);
+        //读取互联网图片
+        BufferedImage qrCode = null;
+        try {
+            qrCode = ImageIO.read(new URL(qrCodeUrl));
+        } catch (IOException e) {
+            log.error("二维码图片读取失败", e);
+            e.printStackTrace();
+        }
+        // 绘制缩小后的图
+        g.drawImage(qrCode.getScaledInstance(228, 228, Image.SCALE_DEFAULT), 76, 847, null);
 
-            //------------------------------------------------文案-----------------------
+        //二维码字体
+        g.setFont(new Font("SimHei",Font.PLAIN, 30));
+        g.setColor(new Color(29, 29, 29));
+        g.drawString("扫描或长按小程序码", 331, 926);
+        g.setFont(new Font("SimHei",Font.PLAIN, 30));
+        g.setColor(new Color(29, 29, 29));
+        g.drawString("查看商品详情", 331, 968);
 
-            //文案
-            g.setFont(font.deriveFont(Font.PLAIN, 24));
-            g.setColor(new Color(47, 47, 47));
-            //文字叠加,自动换行叠加
-            int tempX = 40;
-            int tempY = 1030;
-            //单字符长度
-            int tempCharLen = 0;
-            //单行字符总长度临时计算
-            int tempLineLen = 0;
-            StringBuffer sb = new StringBuffer();
-            String info = productInfo.getStoreInfo();
-            if(info.length()>100){
-                info = info.substring(0,100);
-                info = info+"...";
-            }
-            for (int i = 0; i < info.length(); i++) {
-                char tempChar = info.charAt(i);
-                tempCharLen = getCharLen(tempChar, g);
-                tempLineLen += tempCharLen;
-                if (tempLineLen >= (back.getWidth() + 180)) {
-                    //长度已经满一行,进行文字叠加
-                    g.drawString(sb.toString(), tempX, tempY + 32);
-                    //清空内容,重新追加
-                    sb.delete(0, sb.length());
-                    //每行文字间距32
-                    tempY += 32;
-                    tempLineLen = 0;
-                }
-                //追加字符
-                sb.append(tempChar);
-            }
-            //最后叠加余下的文字
-            g.drawString(sb.toString(), tempX, tempY + 32);
+        g.dispose();
+        //先将画好的海报写到本地
+        File file = new File(spreadPicPath);
+        try {
+            ImageIO.write(img, "png", file);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
-
-            //价格
-            g.setFont(font.deriveFont(Font.PLAIN, 39.2f));
-            g.setColor(new Color(249, 64, 64));
-            g.drawString("¥", 238, 1214);
-            //价格
-            String priceValue = productInfo.getPrice().toString();
-            String priceInt = priceValue.substring(0,priceValue.indexOf("."));
-            g.setFont(font.deriveFont(Font.PLAIN, 56));
-            g.setColor(new Color(249, 64, 64));
-            g.drawString(priceInt, 258, 1214);
-            //价格
-            g.setFont(font.deriveFont(Font.PLAIN, 39.2f));
-            g.setColor(new Color(249, 64, 64));
-            int x = 258+priceInt.length()*32;
-            g.drawString(priceValue.substring(priceValue.indexOf(".")), x, 1214);
-
-            //原价
-            g.setFont(font.deriveFont(Font.PLAIN, 28));
-            g.setColor(new Color(171, 171, 171));
-            String price = "¥" + productInfo.getOtPrice();
-            g.drawString(price, x+62, 1214);
-            g.drawLine(x+62, 1205, x+62 + price.length()*14, 1205);
-
-            //背景 -- 读取互联网图片
-            InputStream stream2 = getClass().getClassLoader().getResourceAsStream("background2.png");
-            ImageInputStream background2 = ImageIO.createImageInputStream(stream2);
-            BufferedImage back2 = ImageIO.read(background2);
-
-            g.drawImage(back2.getScaledInstance(750, 336, Image.SCALE_DEFAULT), 0, 1288, null); // 绘制缩小后的图
-
-            //读取互联网图片
-            BufferedImage qrCode = null;
-            try {
-                qrCode = ImageIO.read(new URL(qrCodeUrl));
-            } catch (IOException e) {
-                log.error("二维码图片读取失败", e);
-                e.printStackTrace();
-            }
-            // 绘制缩小后的图
-            g.drawImage(qrCode.getScaledInstance(150, 150, Image.SCALE_DEFAULT), 54, 1334, null);
-
-            //二维码字体
-            g.setFont(font.deriveFont(Font.PLAIN, 20));
-            g.setColor(new Color(171, 171, 171));
-            //绘制文字
-            g.drawString("扫描或长按小程序码", 238, 1388);
-
-            g.setFont(font.deriveFont(Font.PLAIN, 20));
-            g.setColor(new Color(171, 171, 171));
-            g.drawString("查看商品详情", 238, 1428);
-
-            g.dispose();
-            //先将画好的海报写到本地
-            File file = new File(spreadPicPath);
-            try {
-                ImageIO.write(img, "jpg", file);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-            if (StrUtil.isEmpty(localUrl)) {
-                QiniuContent qiniuContent = qiNiuService.uploadPic(file,qiNiuService.find());
-                systemAttachmentService.attachmentAdd(spreadPicName,String.valueOf(qiniuContent.getSize()),
-                        qiniuContent.getUrl(), qiniuContent.getUrl(),2);
-                spreadUrl = qiniuContent.getUrl();
-            }else {
-                systemAttachmentService.attachmentAdd(spreadPicName,String.valueOf(FileUtil.size(new File(spreadPicPath))),
-                        spreadPicPath, "qrcode/" + spreadPicName,1);
-                spreadUrl = apiUrl + "/file/qrcode/" + spreadPicName;
-            }
+        if (StrUtil.isEmpty(localUrl)) {
+            QiniuContent qiniuContent = qiNiuService.uploadPic(file, qiNiuService.find());
+            systemAttachmentService.attachmentAdd(spreadPicName, String.valueOf(qiniuContent.getSize()),
+                    qiniuContent.getUrl(), qiniuContent.getUrl(), 2);
+            spreadUrl = qiniuContent.getUrl();
+        } else {
+            systemAttachmentService.attachmentAdd(spreadPicName, String.valueOf(FileUtil.size(new File(spreadPicPath))),
+                    spreadPicPath, "qrcode/" + spreadPicName, 1);
+            spreadUrl = apiUrl + "/file/qrcode/" + spreadPicName;
+        }
         return ApiResult.ok(spreadUrl);
     }
 
@@ -767,5 +664,130 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
 
     public static int getCharLen(char c, Graphics g) {
         return g.getFontMetrics(g.getFont()).charWidth(c);
+    }
+
+
+    /**
+     * 缩放图片+透明
+     *
+     * @param image  需要缩放的图片
+     * @param width  宽
+     * @param height 高
+     * @return BufferedImage
+     */
+    private static BufferedImage resize(BufferedImage image, int width, int height) {
+        java.awt.Image img = image.getScaledInstance(width, height, java.awt.Image.SCALE_FAST);
+        BufferedImage newBufferedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D graphics = newBufferedImage.createGraphics();
+        graphics.drawImage(img, 0, 0, null);
+        graphics.dispose();
+        return newBufferedImage;
+    }
+
+    /**
+     * 获取二维码连接
+     *
+     * @param fileDir
+     * @param userType
+     * @param siteUrl
+     * @param apiUrl
+     * @param uid
+     * @param id
+     * @return
+     */
+    public String getCode(String fileDir, String userType, String siteUrl, String apiUrl, int uid, int id) {
+        String name = uid + "_" + id + "_store_" + userType + "_product_detail_wap.jpg";
+        YxSystemAttachment attachmentWap = systemAttachmentService.getInfo(name);
+        String qrCodeUrl;
+        if (attachmentWap != null) {
+            qrCodeUrl = attachmentWap.getImageType().equals(2) ? attachmentWap.getSattDir() : apiUrl + "/file/" + attachmentWap.getSattDir();
+        } else {
+            QrConfig config = new QrConfig(228, 228);
+            config.setMargin(0);
+            //如果类型是小程序
+            File file = new File(fileDir + name);
+            if (userType.equals(AppFromEnum.ROUNTINE.getValue())) {
+                //小程序地址
+                siteUrl = siteUrl + "/shop/";
+                QrCodeUtil.generate(siteUrl + "?productId=" + id + "&spread=" + uid + "&codeType=" + AppFromEnum.ROUNTINE.getValue(), config, file);
+            } else if (userType.equals(AppFromEnum.APP.getValue())) {
+                //app地址
+                siteUrl = siteUrl + "/shop/";
+                QrCodeUtil.generate(siteUrl + "?productId=" + id + "&spread=" + uid + "&codeType=" + AppFromEnum.APP.getValue(), config, file);
+            } else {//如果类型是h5
+                QrCodeUtil.generate(siteUrl + "/detail/" + id + "?spread=" + uid, config, file);
+            }
+
+            if (StrUtil.isEmpty(localUrl)) {
+                QiniuContent qiniuContent = qiNiuService.uploadPic(file, qiNiuService.find());
+                systemAttachmentService.attachmentAdd(name, String.valueOf(qiniuContent.getSize()),
+                        qiniuContent.getUrl(), qiniuContent.getUrl(), 2);
+                qrCodeUrl = qiniuContent.getUrl();
+            } else {
+                systemAttachmentService.attachmentAdd(name, String.valueOf(FileUtil.size(file)),
+                        fileDir + name, "qrcode/" + name);
+                qrCodeUrl = apiUrl + "/file/qrcode/" + name;
+            }
+        }
+        return qrCodeUrl;
+    }
+
+    /**
+     * 获取小程序码连接
+     *
+     * @param fileDir
+     * @param userType
+     * @param siteUrl
+     * @param apiUrl
+     * @param uid
+     * @param id
+     * @return
+     */
+    public String getQrCode(String fileDir, String userType, String siteUrl, String apiUrl, int uid, int id,String pageType) {
+        String name = uid + "_" + id + "_store_" + userType + "_product_detail_wap.jpg";
+        YxSystemAttachment attachmentWap = systemAttachmentService.getInfo(name);
+        String qrCodeUrl;
+        if (attachmentWap != null) {
+            qrCodeUrl = attachmentWap.getImageType().equals(2) ? attachmentWap.getSattDir() : apiUrl + "/file/" + attachmentWap.getSattDir();
+        } else {
+            QrConfig config = new QrConfig(228, 228);
+            config.setMargin(0);
+            //如果类型是小程序
+            File file = new File(fileDir + name);
+//            String appId = RedisUtil.get(ShopKeyUtils.getWxAppAppId());
+//            String secret = RedisUtil.get(ShopKeyUtils.getWxAppSecret());
+            String appId = "wx48bfdacd083c15db";
+            String secret = "3d826b283e3104561fb695ca05e7bcb9";
+            String accessToken = WxUtils.getAccessToken(appId,secret);
+            if (userType.equals(AppFromEnum.ROUNTINE.getValue())) {
+                //小程序地址
+                siteUrl = siteUrl + "/shop/";
+                String page = "";
+                if(pageType.equals("good")){
+                    page = "shop/pages/GoodsCon/index?id="+id;
+                }else {
+                    page = "live/pages/CardsCon/index"+id;
+                }
+                WxUtils.getQrCode(accessToken,fileDir + name,siteUrl + "?productId=" + id + "&spread=" + uid,page);
+            } else if (userType.equals(AppFromEnum.APP.getValue())) {
+                //app地址
+                siteUrl = siteUrl + "/shop/";
+                QrCodeUtil.generate(siteUrl + "?productId=" + id + "&spread=" + uid + "&codeType=" + AppFromEnum.APP.getValue(), config, file);
+            } else {//如果类型是h5
+                QrCodeUtil.generate(siteUrl + "?productId=" + id + "&spread=" + uid + "&codeType=" + AppFromEnum.H5.getValue(), config, file);
+            }
+
+            if (StrUtil.isEmpty(localUrl)) {
+                QiniuContent qiniuContent = qiNiuService.uploadPic(file, qiNiuService.find());
+                systemAttachmentService.attachmentAdd(name, String.valueOf(qiniuContent.getSize()),
+                        qiniuContent.getUrl(), qiniuContent.getUrl(), 2);
+                qrCodeUrl = qiniuContent.getUrl();
+            } else {
+                systemAttachmentService.attachmentAdd(name, String.valueOf(FileUtil.size(file)),
+                        fileDir + name, "qrcode/" + name);
+                qrCodeUrl = apiUrl + "/file/qrcode/" + name;
+            }
+        }
+        return qrCodeUrl;
     }
 }
