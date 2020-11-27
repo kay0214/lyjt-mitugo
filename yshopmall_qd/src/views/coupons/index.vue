@@ -487,22 +487,16 @@
           </template>
         </el-table-column>
         <!-- <el-table-column v-if="columns.visible('content')" prop="content" label="卡券详情" /> -->
-        <el-table-column fixed="right" label="操作" width="220px" align="center">
+        <el-table-column fixed="right" label="操作" width="120px" align="center">
           <template slot-scope="scope">
-            <el-dropdown split-button trigger="click">
-              <udOperation
-                :data="scope.row"
-                :permission="permission"
-              ></udOperation>
-            <el-dropdown-menu slot="dropdown">
-              <el-dropdown-item v-permission="permission.commission">
-                <el-button  plain type="primary"  @click="commission(scope.row)" style="margin-top:5px">分佣配置</el-button></el-dropdown-item>
-              <el-dropdown-item v-permission="permission.priceConfig">
-                <el-button plain @click="price(scope.row)" style="margin-top:5px;margin-left: 0">价格配置</el-button></el-dropdown-item>
-              <el-dropdown-item v-permission="permission.edit">
-                <el-button type="info" plain @click="h5(scope.row)" style="margin-top:5px">预览</el-button></el-dropdown-item>
-            </el-dropdown-menu>
-          </el-dropdown>
+            <udOperation
+              :data="scope.row"
+              :permission="permission"
+            />
+            <el-button v-permission="permission.commission" plain type="primary"  @click="commission(scope.row)" style="margin-top:5px">分佣配置</el-button>
+            <el-button v-permission="permission.priceConfig" plain @click="price(scope.row)" style="margin-top:5px;margin-left: 0">价格配置</el-button>
+            <el-button v-permission="permission.edit" slot="reference" type="info" plain @click="h5(scope.row)" style="margin-top:5px">预览</el-button>
+<!--            <el-button v-permission="permission.edit" slot="reference" type="danger" size="mini" @click="attr(scope.row)">渠道配置</el-button>-->
           </template>
         </el-table-column>
       </el-table>
