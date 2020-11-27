@@ -1,7 +1,6 @@
 /**
  * Copyright (C) 2018-2020
  * All rights reserved, Designed By www.yixiang.co
-
  */
 package co.yixiang.utils;
 
@@ -18,17 +17,7 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.Reader;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.net.URLEncoder;
 import java.security.MessageDigest;
 import java.text.DecimalFormat;
@@ -66,11 +55,11 @@ public class FileUtil extends cn.hutool.core.io.FileUtil {
     /**
      * MultipartFile转File
      */
-    public static File toFile(MultipartFile multipartFile){
+    public static File toFile(MultipartFile multipartFile) {
         // 获取文件名
         String fileName = multipartFile.getOriginalFilename();
         // 获取文件后缀
-        String prefix="."+getExtensionName(fileName);
+        String prefix = "." + getExtensionName(fileName);
         File file = null;
         try {
             // 用uuid作为文件名，防止生成的临时文件重复
@@ -89,7 +78,7 @@ public class FileUtil extends cn.hutool.core.io.FileUtil {
     public static String getExtensionName(String filename) {
         if ((filename != null) && (filename.length() > 0)) {
             int dot = filename.lastIndexOf('.');
-            if ((dot >-1) && (dot < (filename.length() - 1))) {
+            if ((dot > -1) && (dot < (filename.length() - 1))) {
                 return filename.substring(dot + 1);
             }
         }
@@ -102,7 +91,7 @@ public class FileUtil extends cn.hutool.core.io.FileUtil {
     public static String getFileNameNoEx(String filename) {
         if ((filename != null) && (filename.length() > 0)) {
             int dot = filename.lastIndexOf('.');
-            if ((dot >-1) && (dot < (filename.length()))) {
+            if ((dot > -1) && (dot < (filename.length()))) {
                 return filename.substring(0, dot);
             }
         }
@@ -112,7 +101,7 @@ public class FileUtil extends cn.hutool.core.io.FileUtil {
     /**
      * 文件大小转换
      */
-    public static String getSize(long size){
+    public static String getSize(long size) {
         String resultSize;
         if (size / GB >= 1) {
             //如果当前Byte的值大于等于1GB
@@ -132,7 +121,7 @@ public class FileUtil extends cn.hutool.core.io.FileUtil {
     /**
      * inputStream 转 File
      */
-    public static File inputStreamToFile(InputStream ins, String name) throws Exception{
+    public static File inputStreamToFile(InputStream ins, String name) throws Exception {
         File file = new File(System.getProperty("java.io.tmpdir") + File.separator + name);
         if (file.exists()) {
             return file;
@@ -158,7 +147,7 @@ public class FileUtil extends cn.hutool.core.io.FileUtil {
         StringBuffer nowStr = fileRename();
         try {
             String fileName = nowStr + "." + suffix;
-            String path = filePath + fileName;
+            String path = filePath + fileName.replaceAll(",", "");
             // getCanonicalFile 可解析正确各种路径
             File dest = new File(path).getCanonicalFile();
             // 检测是否存在目录
@@ -177,10 +166,10 @@ public class FileUtil extends cn.hutool.core.io.FileUtil {
     public static String fileToBase64(File file) throws Exception {
         FileInputStream inputFile = new FileInputStream(file);
         String base64;
-        byte[] buffer = new byte[(int)file.length()];
+        byte[] buffer = new byte[(int) file.length()];
         inputFile.read(buffer);
         inputFile.close();
-        base64=Base64.encode(buffer);
+        base64 = Base64.encode(buffer);
         return base64.replaceAll("[\\s*\t\n\r]", "");
     }
 
@@ -188,16 +177,16 @@ public class FileUtil extends cn.hutool.core.io.FileUtil {
      * 导出excel
      */
     public static void downloadExcel(List<Map<String, Object>> list, HttpServletResponse response) throws IOException {
-        String tempPath =System.getProperty("java.io.tmpdir") + IdUtil.fastSimpleUUID() + ".xlsx";
+        String tempPath = System.getProperty("java.io.tmpdir") + IdUtil.fastSimpleUUID() + ".xlsx";
         File file = new File(tempPath);
-        BigExcelWriter writer= ExcelUtil.getBigWriter(file);
+        BigExcelWriter writer = ExcelUtil.getBigWriter(file);
         // 一次性写出内容，使用默认样式，强制输出标题
         writer.write(list, true);
         //response为HttpServletResponse对象
         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8");
         //test.xls是弹出下载对话框的文件名，不能为中文，中文请自行编码
-        response.setHeader("Content-Disposition","attachment;filename=file.xlsx");
-        ServletOutputStream out=response.getOutputStream();
+        response.setHeader("Content-Disposition", "attachment;filename=file.xlsx");
+        ServletOutputStream out = response.getOutputStream();
         // 终止后删除临时文件
         file.deleteOnExit();
         writer.flush(out, true);
@@ -210,13 +199,13 @@ public class FileUtil extends cn.hutool.core.io.FileUtil {
         String music = "mp3 wav wma mpa ram ra aac aif m4a";
         String video = "avi mpg mpe mpeg asf wmv mov qt rm mp4 flv m4v webm ogv ogg";
         String image = "bmp dib pcp dif wmf gif jpg tif eps psd cdr iff tga pcd mpt png jpeg";
-        if(image.contains(type)){
+        if (image.contains(type)) {
             return "pic";
-        } else if(documents.contains(type)){
+        } else if (documents.contains(type)) {
             return "txt";
-        } else if(music.contains(type)){
+        } else if (music.contains(type)) {
             return "music";
-        } else if(video.contains(type)){
+        } else if (video.contains(type)) {
             return "vedio";
         } else {
             return "other";
@@ -227,7 +216,7 @@ public class FileUtil extends cn.hutool.core.io.FileUtil {
     public static void checkSize(long maxSize, long size) {
         // 1M
         int len = 1024 * 1024;
-        if(size > (maxSize * len)){
+        if (size > (maxSize * len)) {
             throw new BadRequestException("文件超出规定大小");
         }
     }
@@ -293,14 +282,14 @@ public class FileUtil extends cn.hutool.core.io.FileUtil {
      * @param response /
      * @param file /
      */
-    public static void downloadFile(HttpServletRequest request, HttpServletResponse response, File file, boolean deleteOnExit){
+    public static void downloadFile(HttpServletRequest request, HttpServletResponse response, File file, boolean deleteOnExit) {
         response.setCharacterEncoding(request.getCharacterEncoding());
         response.setContentType("application/octet-stream");
         FileInputStream fis = null;
         try {
             fis = new FileInputStream(file);
-            response.setHeader("Content-Disposition", "attachment; filename="+file.getName());
-            IOUtils.copy(fis,response.getOutputStream());
+            response.setHeader("Content-Disposition", "attachment; filename=" + file.getName());
+            IOUtils.copy(fis, response.getOutputStream());
             response.flushBuffer();
         } catch (Exception e) {
             e.printStackTrace();
@@ -308,7 +297,7 @@ public class FileUtil extends cn.hutool.core.io.FileUtil {
             if (fis != null) {
                 try {
                     fis.close();
-                    if(deleteOnExit){
+                    if (deleteOnExit) {
                         file.deleteOnExit();
                     }
                 } catch (IOException e) {
@@ -333,7 +322,7 @@ public class FileUtil extends cn.hutool.core.io.FileUtil {
             File jsonFile = new File(fileName);
             FileReader fileReader = new FileReader(jsonFile);
 
-            Reader reader = new InputStreamReader(new FileInputStream(jsonFile),"utf-8");
+            Reader reader = new InputStreamReader(new FileInputStream(jsonFile), "utf-8");
             int ch = 0;
             StringBuffer sb = new StringBuffer();
             while ((ch = reader.read()) != -1) {
@@ -359,6 +348,7 @@ public class FileUtil extends cn.hutool.core.io.FileUtil {
         }
         return srcImage;
     }
+
     /**
      * 自动调节精度(经验数值)
      *
@@ -403,15 +393,12 @@ public class FileUtil extends cn.hutool.core.io.FileUtil {
      * @return
      * @throws UnsupportedEncodingException
      */
-    public static String transformStyle(String source) throws UnsupportedEncodingException
-    {
+    public static String transformStyle(String source) throws UnsupportedEncodingException {
         char[] arr = source.toCharArray();
         StringBuilder sb = new StringBuilder();
-        for(int i = 0; i < arr.length; i++)
-        {
+        for (int i = 0; i < arr.length; i++) {
             char temp = arr[i];
-            if(isChinese(temp))
-            {
+            if (isChinese(temp)) {
                 sb.append(URLEncoder.encode("" + temp, "UTF-8"));
                 continue;
             }
@@ -425,12 +412,11 @@ public class FileUtil extends cn.hutool.core.io.FileUtil {
      * @param c
      * @return
      */
-    public static boolean isChinese(char c)
-    {
+    public static boolean isChinese(char c) {
 
         Character.UnicodeBlock ub = Character.UnicodeBlock.of(c);
 
-        if(ub == Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS
+        if (ub == Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS
 
                 || ub == Character.UnicodeBlock.CJK_COMPATIBILITY_IDEOGRAPHS
 
@@ -440,8 +426,7 @@ public class FileUtil extends cn.hutool.core.io.FileUtil {
 
                 || ub == Character.UnicodeBlock.CJK_SYMBOLS_AND_PUNCTUATION
 
-                || ub == Character.UnicodeBlock.HALFWIDTH_AND_FULLWIDTH_FORMS)
-        {
+                || ub == Character.UnicodeBlock.HALFWIDTH_AND_FULLWIDTH_FORMS) {
 
             return true;
 
@@ -454,10 +439,10 @@ public class FileUtil extends cn.hutool.core.io.FileUtil {
     /**
      * 生成excel到指定路径
      */
-    public static void generatorExcel(List<Map<String, Object>> list, String filePath,String content,int mergeSize) {
+    public static void generatorExcel(List<Map<String, Object>> list, String filePath, String content, int mergeSize) {
 
         File file = new File(filePath);
-        BigExcelWriter writer= ExcelUtil.getBigWriter(file);
+        BigExcelWriter writer = ExcelUtil.getBigWriter(file);
         // 合并单元格后的标题行，使用默认标题样式
 //        writer.merge(2, content);
         writer.merge(mergeSize, content);
@@ -466,7 +451,6 @@ public class FileUtil extends cn.hutool.core.io.FileUtil {
         // 关闭writer，释放内存
         writer.close();
     }
-
 
 
 }
