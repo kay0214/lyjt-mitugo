@@ -185,6 +185,16 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
     }
 
     /**
+     * Date转timestamp
+     *
+     * @param date
+     * @return
+     */
+    public static int dateToTimeStamp(Date date) {
+        return (int) (date.getTime() / 1000);
+    }
+
+    /**
      * Date转LocalDateTime
      *
      * @param date
