@@ -342,9 +342,13 @@ public class YxShipInfoServiceImpl extends BaseServiceImpl<YxShipInfoMapper, YxS
         Map<String, Object> map = new HashMap<>();
         Page page = setPageParam(param, OrderItem.desc("create_time"));
         IPage<YxShipOperationDetailVO> iPage = yxShipOperationDetailMapper.getYxShipOperationDetailPageListByParam(page, param);
-        Paging<YxShipOperationDetailVO> shipOperationDetailQueryVoPaging = new Paging(iPage);
-        if (shipOperationDetailQueryVoPaging.getTotal() > 0) {
+        if (iPage.getTotal() <= 0) {
+            map.put("status", "1");
+            map.put("statusDesc", "成功！");
+            map.put("data", new Paging<>());
+            return map;
         }
+        Paging<YxShipOperationDetailVO> shipOperationDetailQueryVoPaging = new Paging(iPage);
         for (YxShipOperationDetailVO yxShipOperationDetail : shipOperationDetailQueryVoPaging.getRecords()) {
 
             YxCouponOrder yxCouponOrder = yxCouponOrderService.getById(yxShipOperationDetail.getCouponOrderId());
