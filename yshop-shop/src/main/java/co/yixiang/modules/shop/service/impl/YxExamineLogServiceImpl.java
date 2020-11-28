@@ -8,10 +8,10 @@
  */
 package co.yixiang.modules.shop.service.impl;
 
+import cn.hutool.core.util.ObjectUtil;
 import co.yixiang.common.service.impl.BaseServiceImpl;
 import co.yixiang.common.utils.QueryHelpPlus;
 import co.yixiang.dozer.service.IGenerator;
-import co.yixiang.exception.BadRequestException;
 import co.yixiang.modules.activity.domain.YxUserExtract;
 import co.yixiang.modules.activity.service.mapper.YxUserExtractMapper;
 import co.yixiang.modules.shop.domain.User;
@@ -235,36 +235,25 @@ public class YxExamineLogServiceImpl extends BaseServiceImpl<YxExamineLogMapper,
         List<YxExamineLogDto> list = generator.convert(ipage.getRecords(), YxExamineLogDto.class);
         // 查询提现数据
         for (YxExamineLogDto dto : list) {
-            YxUser yxUser = new YxUser();
-            User user = new User();
-            String username = "";
             String realName = "";
             YxUserExtract yxUserExtract = yxUserExtractMapper.selectById(dto.getTypeId());
             //  0:预留 1商户;2合伙人;3用户
             if (3 == yxUserExtract.getUserType()) {
-                yxUser = this.yxUserService.getOne(new QueryWrapper<YxUser>().lambda().eq(YxUser::getUid, yxUserExtract.getUid()));
-                if (null == yxUser) {
-                    throw new BadRequestException("查询用户信息失败");
-                }
-                username = yxUser.getNickname();
-                if (StringUtils.isNotBlank(realName)) {
-                    realName = yxUser.getRealName();
+                YxUser user = yxUserService.getById(yxUserExtract.getUid());
+                if (ObjectUtil.isNotEmpty(user)) {
+                    realName = StringUtils.isNotBlank(user.getRealName()) ? user.getRealName() : "";
                 }
             } else {
-                user = this.userService.getById(yxUserExtract.getUid());
-                if (null == user) {
-                    throw new BadRequestException("查询用户信息失败");
-                }
-                username = user.getNickName();
-                if (StringUtils.isNotBlank(user.getMerchantsContact())) {
-                    realName = user.getMerchantsContact();
+                User user = userService.getById(yxUserExtract.getUid());
+                if (null != user) {
+                    realName = StringUtils.isNotBlank(user.getMerchantsContact()) ? user.getMerchantsContact() : "";
                 }
             }
             // 驳回信息
             dto.setFailMsg(yxUserExtract.getFailMsg());
             dto.setFailTime(yxUserExtract.getFailTime());
             // 放用户名
-            dto.setWechat(username);
+            dto.setWechat(yxUserExtract.getRealName());
             // 放真实姓名
             dto.setUsername(realName);
             dto.setUserType(yxUserExtract.getUserType());
