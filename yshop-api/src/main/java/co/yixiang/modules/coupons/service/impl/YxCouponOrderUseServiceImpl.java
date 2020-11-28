@@ -129,4 +129,22 @@ public class YxCouponOrderUseServiceImpl extends BaseServiceImpl<YxCouponOrderUs
         map.put("statusDesc", "成功");
         return map;
     }
+
+    /**
+     * 根据订单号获取最新一条核销记录
+     *
+     * @param couponOrderId
+     * @return
+     */
+    @Override
+    public YxCouponOrderUse getOneByOrderId(String couponOrderId) {
+        List<YxCouponOrderUse> list = this.list(new QueryWrapper<YxCouponOrderUse>().lambda()
+                .eq(YxCouponOrderUse::getDelFlag, 0)
+                .eq(YxCouponOrderUse::getOrderId, couponOrderId)
+                .orderByDesc(YxCouponOrderUse::getCreateTime));
+        if (null != list && list.size() > 0) {
+            return list.get(0);
+        }
+        return null;
+    }
 }

@@ -10,7 +10,9 @@ import co.yixiang.modules.couponUse.dto.YxShipOperationDetailVO;
 import co.yixiang.modules.couponUse.dto.YxShipPassengerVO;
 import co.yixiang.modules.couponUse.param.*;
 import co.yixiang.modules.coupons.entity.YxCouponOrder;
+import co.yixiang.modules.coupons.entity.YxCouponOrderUse;
 import co.yixiang.modules.coupons.service.YxCouponOrderService;
+import co.yixiang.modules.coupons.service.YxCouponOrderUseService;
 import co.yixiang.modules.image.entity.YxImageInfo;
 import co.yixiang.modules.image.service.YxImageInfoService;
 import co.yixiang.modules.manage.entity.SystemUser;
@@ -85,6 +87,8 @@ public class YxShipInfoServiceImpl extends BaseServiceImpl<YxShipInfoMapper, YxS
     private SystemUserMapper systemUserMapper;
     @Autowired
     private UsersRolesMapper usersRolesMapper;
+    @Autowired
+    private YxCouponOrderUseService yxCouponOrderUseService;
 
 
     @Override
@@ -151,7 +155,7 @@ public class YxShipInfoServiceImpl extends BaseServiceImpl<YxShipInfoMapper, YxS
 
     private String getShipImg(int shipId) {
         QueryWrapper<YxImageInfo> queryWrapper = new QueryWrapper<>();
-        queryWrapper.lambda().eq(YxImageInfo::getTypeId, shipId).eq(YxImageInfo::getImgType, ShopConstants.IMG_TYPE_SHIPINFO).eq(YxImageInfo::getDelFlag, 0);
+        queryWrapper.lambda().eq(YxImageInfo::getTypeId, shipId).eq(YxImageInfo::getImgType, ShopConstants.IMG_TYPE_SHIPINFO).eq(YxImageInfo::getDelFlag, 0).eq(YxImageInfo::getImgCategory, ShopConstants.IMG_CATEGORY_PIC);
         List<YxImageInfo> listImgs = yxImageInfoService.list(queryWrapper);
         if (CollectionUtils.isEmpty(listImgs)) {
             return "";
@@ -375,7 +379,13 @@ public class YxShipInfoServiceImpl extends BaseServiceImpl<YxShipInfoMapper, YxS
             yxShipOperationDetail.setPassengerVOList(passengerVOList);
             //图片
             yxShipOperationDetail.setShipImageUrl(getShipImg(yxShipOperationDetail.getShipId()));
-            //
+            // 身体状况
+            yxShipOperationDetail.setHealthStatus("健康");
+            // 处理核销时间
+            YxCouponOrderUse yxCouponOrderUse = this.yxCouponOrderUseService.getOneByOrderId(yxShipOperationDetail.getCouponOrderId());
+            if (null != yxCouponOrderUse) {
+                yxShipOperationDetail.setUserdTime(DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD_HH_MM_SS, yxCouponOrder.getCreateTime()));
+            }
         }
         map.put("status", "1");
         map.put("statusDesc", "成功！");
