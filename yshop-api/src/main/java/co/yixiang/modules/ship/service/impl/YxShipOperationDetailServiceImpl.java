@@ -79,7 +79,7 @@ public class YxShipOperationDetailServiceImpl extends BaseServiceImpl<YxShipOper
         // 未成年
         int underagePassenger =0;
         // 老年人
-        int oldPassenger =1;
+        int oldPassenger =0;
         for (YxShipPassenger item : list) {
             if(item.getIsAdult().intValue()==0){
                 underagePassenger++;
