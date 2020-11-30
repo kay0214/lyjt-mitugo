@@ -829,9 +829,21 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
      * @return
      */
     @Override
-    public Map<String, Long> getShopOrderCountAll(Integer storeId) {
-        return yxStoreProductMapper.getShopOrderCountAll(storeId);
+    public Long getShopOrderSend(Integer storeId) {
+        return yxStoreProductMapper.getShopOrderSend(storeId);
     }
+
+    /**
+     * 商城订单数量相关(全部)
+     *
+     * @param storeId
+     * @return
+     */
+    @Override
+    public Long getShopOrderRefund(Integer storeId) {
+        return yxStoreProductMapper.getShopOrderRefund(storeId);
+    }
+
     /**
      * 商城今日营业额
      *
@@ -888,14 +900,25 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
     }
 
     /**
-     * 本地生活订单相关数量(非当天数据)
+     * 未核销订单（取总值）
      *
      * @param storeId
      * @return
      */
     @Override
-    public Map<String, Long> getLocalProductOrderCountAll(Integer storeId) {
-        return yxStoreProductMapper.getLocalProductOrderCountAll(storeId);
+    public Long getLocalOrderWait(Integer storeId) {
+        return yxStoreProductMapper.getLocalOrderWait(storeId);
+    }
+
+    /**
+     * 待处理退款（取总值）
+     *
+     * @param storeId
+     * @return
+     */
+    @Override
+    public Long getLocalOrderRefund(Integer storeId) {
+        return yxStoreProductMapper.getLocalOrderRefund(storeId);
     }
 
     /**
