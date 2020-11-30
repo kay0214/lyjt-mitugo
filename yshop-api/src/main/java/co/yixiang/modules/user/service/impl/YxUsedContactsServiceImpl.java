@@ -165,7 +165,7 @@ public class YxUsedContactsServiceImpl extends BaseServiceImpl<YxUsedContactsMap
                 eq(YxShipPassenger::getCouponOrderId, orderId).
                 eq(YxShipPassenger::getContactsId,contastId);
         List<YxShipPassenger> passengerList = yxShipPassengerService.list(queryWrapper);
-        if (!CollectionUtils.isEmpty(passengerList)) {
+        if (CollectionUtils.isEmpty(passengerList)) {
             // 如果有批次号代表已核销，可以选择乘客
             return 0;
         }
