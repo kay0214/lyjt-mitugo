@@ -3,7 +3,7 @@
     <!--工具栏-->
     <div class="head-container">
       <!--如果想在工具栏加入更多按钮，可以使用插槽方式， slot = 'left' or 'right'-->
-      <el-input v-model="query.batchNo" clearable size="small"
+      <el-input v-model.trim="query.batchNo" clearable size="small"
                 placeholder="请输入批次号" style="width: 200px;" class="filter-item"
                 @keyup.enter.native="crud.toQuery" />
       <el-cascader
@@ -20,7 +20,7 @@
             $route.query.id=''
           }
         }"></el-cascader>
-      <el-input v-model="query.captainName" clearable size="small"
+      <el-input v-model.trim="query.captainName" clearable size="small"
                 placeholder="请输入船长姓名" style="width: 200px;" class="filter-item"
                 @keyup.enter.native="crud.toQuery" />
       <el-date-picker
