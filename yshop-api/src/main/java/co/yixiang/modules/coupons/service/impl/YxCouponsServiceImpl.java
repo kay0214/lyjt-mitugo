@@ -265,6 +265,10 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
             yxCouponsDto.setStatusDesc("无效卡券");
             return result;
         }
+        if (4 != yxCouponOrderDetail.getStatus() && 5 != yxCouponOrderDetail.getStatus()) {
+            yxCouponsDto.setStatusDesc("该卡券已被核销");
+            return result;
+        }
         YxCouponOrder yxCouponOrder = this.yxCouponOrderService.getOne(new QueryWrapper<YxCouponOrder>().eq("order_id", yxCouponOrderDetail.getOrderId()));
         result.put("yxCouponOrder", yxCouponOrder);
         if (null == yxCouponOrder) {
