@@ -483,7 +483,9 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
         }
         // 最多乘坐
         yxCouponsDto.setShipMaxUserCount(shipSeries.getRideLimit());
-        List<YxShipPassenger> couponUsers = yxShipPassengerService.list(new QueryWrapper<YxShipPassenger>().eq("coupon_order_id", yxCouponOrder.getId()));
+        List<YxShipPassenger> couponUsers = yxShipPassengerService.list(new QueryWrapper<YxShipPassenger>().lambda()
+                .eq(YxShipPassenger::getCouponOrderId, yxCouponOrder.getId())
+                .and(batchNo -> batchNo.isNull(YxShipPassenger::getBatchNo).or().eq(YxShipPassenger::getBatchNo, "")));
         List<YxShipPassengerVO> users = new ArrayList<>();
         if (couponUsers == null || couponUsers.size() == 0) {
             yxCouponsDto.setStatus(99);
