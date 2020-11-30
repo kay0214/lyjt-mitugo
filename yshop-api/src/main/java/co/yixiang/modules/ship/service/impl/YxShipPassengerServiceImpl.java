@@ -106,6 +106,8 @@ public class YxShipPassengerServiceImpl extends BaseServiceImpl<YxShipPassengerM
             yxShipPassenger.setCouponOrderId(couponComfirmRideParam.getOrderId());
             yxShipPassenger.setShipId(yxCouponsQueryVo.getShipId());
             yxShipPassenger.setBatchNo("");
+            //联系人id
+            yxShipPassenger.setContactsId(usedContactsQueryVo.getId());
             yxShipPassengerList.add(yxShipPassenger);
         }
         //批量保存乘客信息

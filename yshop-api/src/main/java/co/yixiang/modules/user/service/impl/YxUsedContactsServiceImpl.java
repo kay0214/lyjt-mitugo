@@ -6,6 +6,8 @@ import co.yixiang.common.web.vo.Paging;
 import co.yixiang.dozer.service.IGenerator;
 import co.yixiang.exception.BadRequestException;
 import co.yixiang.modules.coupons.web.param.YxCouponOrderPassengParam;
+import co.yixiang.modules.ship.entity.YxShipPassenger;
+import co.yixiang.modules.ship.service.impl.YxShipPassengerServiceImpl;
 import co.yixiang.modules.user.entity.YxUsedContacts;
 import co.yixiang.modules.user.mapper.YxUsedContactsMapper;
 import co.yixiang.modules.user.service.YxUsedContactsService;
@@ -14,6 +16,7 @@ import co.yixiang.modules.user.web.dto.YxUsedContactsUpdateDto;
 import co.yixiang.modules.user.web.param.YxUsedContactsQueryParam;
 import co.yixiang.modules.user.web.vo.YxUsedContactsQueryVo;
 import co.yixiang.utils.*;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.metadata.OrderItem;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -21,6 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import java.io.Serializable;
 import java.util.List;
@@ -44,6 +48,8 @@ public class YxUsedContactsServiceImpl extends BaseServiceImpl<YxUsedContactsMap
 
     @Autowired
     private IGenerator generator;
+    @Autowired
+    private YxShipPassengerServiceImpl yxShipPassengerService;
 
     @Override
     public YxUsedContactsQueryVo getYxUsedContactsById(Serializable id) throws Exception {
@@ -60,13 +66,11 @@ public class YxUsedContactsServiceImpl extends BaseServiceImpl<YxUsedContactsMap
     /**
      * 小程序端选择乘客
      *
-     * @param orderId
-     * @param userCount
+     * @param yxCouponOrderQueryParam
      * @return
      */
     @Override
     public Paging<YxUsedContactsQueryVo> getUsedContactsByUserId(YxCouponOrderPassengParam yxCouponOrderQueryParam) {
-//        YxUsedContactsOrderQueryVo yxUsedContactsOrderQueryVo = new YxUsedContactsOrderQueryVo();
         //联系人信息
         Page page = setPageParam(yxCouponOrderQueryParam, OrderItem.desc("create_time"));
         int uid = SecurityUtils.getUserId().intValue();
@@ -101,6 +105,9 @@ public class YxUsedContactsServiceImpl extends BaseServiceImpl<YxUsedContactsMap
                 usedContacts.setUserPhone(CardNumUtil.mobileEncrypt(usedContacts.getUserPhone()));
                 usedContacts.setUserName(CardNumUtil.mobileEncrypt(usedContacts.getUserName()));
                 usedContacts.setIsAdult(isAdult);
+                //根据订单号以及联系人id，查看用户信息
+                int intUsed = getPassengerOrderByParam(yxCouponOrderQueryParam.getOrderId(),usedContacts.getId());
+                usedContacts.setUsedStatus(intUsed);
             }
         }
 
@@ -141,4 +148,22 @@ public class YxUsedContactsServiceImpl extends BaseServiceImpl<YxUsedContactsMap
         this.updateById(update);
         return true;
     }
-}
+
+    /**
+     * 根据卡券订单id，以及联系人id，查找乘客信息
+     * @param orderId
+     * @param contastId
+     * @return
+     */
+    private int getPassengerOrderByParam(Integer orderId,Integer contastId) {
+        QueryWrapper<YxShipPassenger> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().
+                isNotNull(YxShipPassenger::getBatchNo).
+                eq(YxShipPassenger::getCouponOrderId, orderId).
+                eq(YxShipPassenger::getContactsId,contastId);
+        List<YxShipPassenger> passengerList = yxShipPassengerService.list(queryWrapper);
+        if (CollectionUtils.isEmpty(passengerList)) {
+            return 0;
+        }
+        return 1;
+    }}

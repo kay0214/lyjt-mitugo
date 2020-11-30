@@ -31,6 +31,9 @@ private String batchNo;
 @ApiModelProperty(value = "船只id")
 private Integer shipId;
 
+@ApiModelProperty(value = "联系人id")
+private Integer contactsId;
+
 @ApiModelProperty(value = "乘客姓名")
 private String passengerName;
 

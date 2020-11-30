@@ -1,8 +1,7 @@
 package co.yixiang.modules.ship.entity;
 
-import com.baomidou.mybatisplus.annotation.IdType;
 import co.yixiang.common.entity.BaseEntity;
-import java.util.Date;
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -38,6 +37,9 @@ private String batchNo;
 
 @ApiModelProperty(value = "船只id")
 private Integer shipId;
+
+@ApiModelProperty(value = "联系人id")
+private Integer contactsId;
 
 @ApiModelProperty(value = "乘客姓名")
 private String passengerName;

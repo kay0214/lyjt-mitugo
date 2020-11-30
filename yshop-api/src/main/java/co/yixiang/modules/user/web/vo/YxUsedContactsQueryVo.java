@@ -54,4 +54,7 @@ public class YxUsedContactsQueryVo implements Serializable {
 */
     @ApiModelProperty(value = "状态：0:未成年 1:成年人 2：老年人 -1:无效身份证")
     private Integer isAdult;
+
+    @ApiModelProperty(value = "是否可选（0：可选，1：不可选）")
+    private Integer usedStatus;
 }

@@ -4,7 +4,7 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, coupon_order_id, batch_no, ship_id, passenger_name, id_card, phone, sign_status, is_adult, del_flag, create_user_id, update_user_id, create_time, update_time
+        id, coupon_order_id, batch_no, ship_id, contacts_id, passenger_name, id_card, phone, is_adult, sign_status, del_flag, create_user_id, update_user_id, create_time, update_time
     </sql>
 
     <select id="getYxShipPassengerById" resultType="co.yixiang.modules.ship.web.vo.YxShipPassengerQueryVo">
