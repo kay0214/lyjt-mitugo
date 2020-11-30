@@ -230,6 +230,11 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
         if (yxCouponsDto.getStatus().intValue() == 99) {
             return yxCouponsDto;
         }
+        if (4 == yxCouponsDto.getCouponType()) {
+            yxCouponsDto.setStatus(99);
+            yxCouponsDto.setStatusDesc("卡券类型不支持");
+            return yxCouponsDto;
+        }
 
         YxCouponOrderDetail yxCouponOrderDetail = (YxCouponOrderDetail) checkResult.get("yxCouponOrderDetail");
         YxCouponOrder yxCouponOrder = (YxCouponOrder) checkResult.get("yxCouponOrder");
@@ -372,6 +377,10 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
         YxCoupons yxCoupons = this.getById(yxCouponOrder.getCouponId());
         if (null == yxCoupons) {
             yxCouponsDto.setStatusDesc("卡券已失效");
+            return yxCouponsDto;
+        }
+        if (4 == yxCoupons.getCouponType()) {
+            yxCouponsDto.setStatusDesc("卡券类型不支持");
             return yxCouponsDto;
         }
         // 判断有效期
