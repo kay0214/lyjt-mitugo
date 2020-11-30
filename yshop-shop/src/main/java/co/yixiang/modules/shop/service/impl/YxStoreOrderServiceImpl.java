@@ -221,27 +221,26 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<StoreOrderMapper, Y
             queryWrapper.lambda().eq(YxStoreOrder::getMerId, user.getId());
         }
 
-        if (!CollectionUtils.isEmpty(criteria.getAddTime())) {
-            List<String> listAddTime = criteria.getAddTime();
+        if(StringUtils.isNotEmpty(criteria.getCreateTimeStart())&&StringUtils.isNotEmpty(criteria.getCreateTimeEnd())) {
             Integer addTimeStart = 0;
             Integer addTimeEnd = 0;
             try {
                 Date date = new Date();
                 Date dateEnd = new Date();
                 SimpleDateFormat sf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                date = sf.parse(listAddTime.get(0));// 日期转换为时间戳
-                dateEnd = sf.parse(listAddTime.get(1));// 日期转换为时间戳
-                long longDate = date.getTime()/1000;
-                long longDateEnd = dateEnd.getTime()/1000;
-                addTimeStart =(int)longDate;
-                addTimeEnd =(int)longDateEnd;
-            } catch (ParseException e) {e.printStackTrace();}
-            if(addTimeEnd!=0&&addTimeStart!=0){
+                date = sf.parse(criteria.getCreateTimeStart() + " 00:00:00");// 日期转换为时间戳
+                dateEnd = sf.parse(criteria.getCreateTimeEnd() + " 23:59:59");// 日期转换为时间戳
+                long longDate = date.getTime() / 1000;
+                long longDateEnd = dateEnd.getTime() / 1000;
+                addTimeStart = (int) longDate;
+                addTimeEnd = (int) longDateEnd;
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+            if (addTimeEnd != 0 && addTimeStart != 0) {
                 queryWrapper.lambda().ge(YxStoreOrder::getAddTime, addTimeStart).le(YxStoreOrder::getAddTime, addTimeEnd);
             }
         }
-
-
         IPage<YxStoreOrder> ipage = this.page(new Page<>(pageable.getPageNumber() + 1, pageable.getPageSize()), queryWrapper);
         if (ipage.getTotal() <= 0) {
             Map<String, Object> map = new LinkedHashMap<>(2);
