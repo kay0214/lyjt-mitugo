@@ -81,6 +81,9 @@ public class YxLeaveMessageController {
         if (null == yxLeaveMessage || 1 == yxLeaveMessage.getDelFlag()) {
             throw new BadRequestException("当前数据不存在");
         }
+        if (0 != yxLeaveMessage.getStatus()) {
+            throw new BadRequestException("当前数据已被处理");
+        }
         YxLeaveMessage updateMsg = new YxLeaveMessage();
         updateMsg.setId(resources.getId());
         updateMsg.setStatus(resources.getStatus());
