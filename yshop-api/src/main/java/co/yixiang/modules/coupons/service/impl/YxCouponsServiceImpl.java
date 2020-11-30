@@ -230,15 +230,15 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
         if (yxCouponsDto.getStatus().intValue() == 99) {
             return yxCouponsDto;
         }
-        if (4 == yxCouponsDto.getCouponType()) {
-            yxCouponsDto.setStatus(99);
-            yxCouponsDto.setStatusDesc("卡券类型不支持");
-            return yxCouponsDto;
-        }
 
         YxCouponOrderDetail yxCouponOrderDetail = (YxCouponOrderDetail) checkResult.get("yxCouponOrderDetail");
         YxCouponOrder yxCouponOrder = (YxCouponOrder) checkResult.get("yxCouponOrder");
         YxCoupons yxCoupons = (YxCoupons) checkResult.get("yxCoupons");
+        if (4 == yxCoupons.getCouponType()) {
+            yxCouponsDto.setStatus(99);
+            yxCouponsDto.setStatusDesc("卡券类型不支持");
+            return yxCouponsDto;
+        }
 
         // 组装返回参数
         yxCouponsDto = getYxCouponsDto(yxCouponOrderDetail, yxCouponOrder, yxCoupons);
@@ -302,7 +302,6 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
             yxCouponsDto.setStatusDesc("卡券已过期");
             return result;
         }
-
 
         // 判断是否本商铺发放的卡券
         if (!yxCoupons.getStoreId().equals(user.getStoreId())) {
