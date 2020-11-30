@@ -106,7 +106,7 @@ public interface YxStoreProductMapper extends BaseMapper<YxStoreProduct> {
      * @param storeId
      * @return
      */
-    @Select("select IFNULL(sum(a.total_price),0) from yx_coupon_order a inner JOIN `yx_store_info` b on a.mer_id=b.mer_id and b.`id`=#{storeId} where a.del_flag=0 and a.status in (2,4,5,6) and a.refund_status = 0 and DATE_FORMAT(a.create_time,'%Y-%m-%d') = DATE_FORMAT(NOW(),'%Y-%m-%d')")
+    @Select("select IFNULL(sum(a.total_price),0) from yx_coupon_order a inner JOIN `yx_store_info` b on a.mer_id=b.mer_id and b.`id`=#{storeId} where a.del_flag=0 and a.status in (2,4,5,6) and DATE_FORMAT(a.create_time,'%Y-%m-%d') = DATE_FORMAT(NOW(),'%Y-%m-%d')")
     BigDecimal getLocalSumPrice(@Param("storeId") Integer storeId);
 
     /**
@@ -151,7 +151,7 @@ public interface YxStoreProductMapper extends BaseMapper<YxStoreProduct> {
      * @param storeId
      * @return
      */
-    @Select("select  IFNULL(sum(total_price),0) AS shopSumPrice from yx_store_order where store_id=#{storeId} and status in (0,1,2,3) and refund_status = 0 and is_del=0 and DATE_FORMAT(FROM_UNIXTIME(add_time),'%Y-%m-%d') = DATE_FORMAT(NOW(),'%Y-%m-%d')")
+    @Select("select  IFNULL(sum(total_price),0) AS shopSumPrice from yx_store_order where store_id=#{storeId} and status in (0,1,2,3) and (refund_status = 0 or refund_status = 1) and is_del=0 and DATE_FORMAT(FROM_UNIXTIME(add_time),'%Y-%m-%d') = DATE_FORMAT(NOW(),'%Y-%m-%d')")
     BigDecimal getShopSumPrice(@Param("storeId") Integer storeId);
 
     /**
