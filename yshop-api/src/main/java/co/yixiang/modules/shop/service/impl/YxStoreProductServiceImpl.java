@@ -823,6 +823,16 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
     }
 
     /**
+     * 商城订单数量相关(全部)
+     *
+     * @param storeId
+     * @return
+     */
+    @Override
+    public Map<String, Long> getShopOrderCountAll(Integer storeId) {
+        return yxStoreProductMapper.getShopOrderCountAll(storeId);
+    }
+    /**
      * 商城今日营业额
      *
      * @param storeId
@@ -875,6 +885,17 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
     @Override
     public Integer getShipCount(Integer storeId) {
         return yxStoreProductMapper.getShipCount(storeId);
+    }
+
+    /**
+     * 本地生活订单相关数量(非当天数据)
+     *
+     * @param storeId
+     * @return
+     */
+    @Override
+    public Map<String, Long> getLocalProductOrderCountAll(Integer storeId) {
+        return yxStoreProductMapper.getLocalProductOrderCountAll(storeId);
     }
 
     /**

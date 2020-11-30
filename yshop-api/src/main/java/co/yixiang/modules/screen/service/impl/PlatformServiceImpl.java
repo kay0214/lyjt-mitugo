@@ -21,7 +21,7 @@ import java.util.Map;
 @Slf4j
 @Service
 @Transactional(rollbackFor = Exception.class)
-public class PlatformServiceImpl  implements PlatformService {
+public class PlatformServiceImpl implements PlatformService {
 
     @Autowired
     private YxUserBillService userBillService;
@@ -33,6 +33,7 @@ public class PlatformServiceImpl  implements PlatformService {
 
     /**
      * 查询今天的数据
+     *
      * @return
      */
     @Override
@@ -83,6 +84,7 @@ public class PlatformServiceImpl  implements PlatformService {
 
     /**
      * 核销端今日数据统计
+     *
      * @param storeId
      * @return
      */
@@ -91,20 +93,22 @@ public class PlatformServiceImpl  implements PlatformService {
 
         TodayDataDto result = new TodayDataDto();
         // 本地生活相关-----------------------
-        Map<String,Long> localProductCount = productService.getLocalProductCount(storeId);
+        Map<String, Long> localProductCount = productService.getLocalProductCount(storeId);
         // 卡券数量
         result.setLocalProduct(localProductCount.get("localProduct").intValue());
         // 待上架卡券数量
         result.setLocalProductUnder(localProductCount.get("localProductUnder").intValue());
+        // 卡券订单相关（当天数据、待退款的有点问题）
+        Map<String, Long> localProductOrderCount = productService.getLocalProductOrderCount(storeId);
         // 卡券订单相关
-        Map<String,Long> localProductOrderCount = productService.getLocalProductOrderCount(storeId);
+        Map<String, Long> localProductOrderCountAll = productService.getLocalProductOrderCountAll(storeId);
 
         // 今日订单数
         result.setLocalOrderCount(localProductOrderCount.get("localOrderCount").intValue());
-        // 未核销订单
-        result.setLocalOrderWait(localProductOrderCount.get("localOrderWait").intValue());
-        // 待处理退款
-        result.setLocalOrderRefund(localProductOrderCount.get("localOrderRefund").intValue());
+        // 未核销订单（取总值）
+        result.setLocalOrderWait(localProductOrderCountAll.get("localOrderWait").intValue());
+        // 待处理退款（取总值）
+        result.setLocalOrderRefund(localProductOrderCountAll.get("localOrderRefund").intValue());
 
         BigDecimal localSumPrice = productService.getLocalSumPrice(storeId);
         // 今日营业额
@@ -112,20 +116,22 @@ public class PlatformServiceImpl  implements PlatformService {
         // 本地生活相关----------------------- end
 
         // 商城相关===========================
-        Map<String,Long> shopProductCount = productService.getShopProductCount(storeId);
+        Map<String, Long> shopProductCount = productService.getShopProductCount(storeId);
         // 商品数量
         result.setShopProduct(shopProductCount.get("shopProduct").intValue());
         // 待上架商品
         result.setShopProductUnder(shopProductCount.get("shopProductUnder").intValue());
 
         // 商城订单数量相关
-        Map<String,Long> shopOrders = productService.getShopOrderCount(storeId);
+        Map<String, Long> shopOrders = productService.getShopOrderCount(storeId);
+        // 商城订单数量相关(全部)
+        Map<String, Long> shopOrdersAll = productService.getShopOrderCountAll(storeId);
         // 今日订单数
         result.setShopOrderCount(shopOrders.get("shopOrderCount").intValue());
-        // 待发货订单
-        result.setShopOrderSend(shopOrders.get("shopOrderSend").intValue());
+        // 待发货订单(全部)
+        result.setShopOrderSend(shopOrdersAll.get("shopOrderSend").intValue());
         // 待处理退款
-        result.setShopOrderRefund(shopOrders.get("shopOrderRefund").intValue());
+        result.setShopOrderRefund(shopOrdersAll.get("shopOrderRefund").intValue());
 
         // 今日营业额
         BigDecimal shopSumPrice = productService.getShopSumPrice(storeId);
@@ -150,7 +156,7 @@ public class PlatformServiceImpl  implements PlatformService {
         return result;
     }
 
-    private TodayDataDto getFalseData(){
+    private TodayDataDto getFalseData() {
         TodayDataDto result = new TodayDataDto();
 
         // 本地生活相关-----------------------
@@ -186,44 +192,45 @@ public class PlatformServiceImpl  implements PlatformService {
 
         result.setShipCount(11234);
 
-         List<ShipUserLeaveVO> shipUserLeaveS = new ArrayList<>();
-        ShipUserLeaveVO  s1 = new ShipUserLeaveVO();
+        List<ShipUserLeaveVO> shipUserLeaveS = new ArrayList<>();
+        ShipUserLeaveVO s1 = new ShipUserLeaveVO();
         s1.setCounts(222);
         s1.setName("战士王1");
-        ShipUserLeaveVO  s2 = new ShipUserLeaveVO();
+        ShipUserLeaveVO s2 = new ShipUserLeaveVO();
         s2.setCounts(1);
         s2.setName("战士王2");
-        ShipUserLeaveVO  s3 = new ShipUserLeaveVO();
+        ShipUserLeaveVO s3 = new ShipUserLeaveVO();
         s3.setCounts(44);
         s3.setName("战士王3");
-        ShipUserLeaveVO  s4 = new ShipUserLeaveVO();
+        ShipUserLeaveVO s4 = new ShipUserLeaveVO();
         s4.setCounts(321);
         s4.setName("战士王4");
-        ShipUserLeaveVO  s5 = new ShipUserLeaveVO();
+        ShipUserLeaveVO s5 = new ShipUserLeaveVO();
         s5.setCounts(211);
         s5.setName("战士王5");
         shipUserLeaveS.add(s1);
         shipUserLeaveS.add(s2);
-        shipUserLeaveS.add(s3);shipUserLeaveS.add(s4);shipUserLeaveS.add(s5);
-
+        shipUserLeaveS.add(s3);
+        shipUserLeaveS.add(s4);
+        shipUserLeaveS.add(s5);
 
 
         result.setShipUserLeaveS(shipUserLeaveS);
-        List<ShipUserLeaveVO> shipLeaves= new ArrayList<>() ;
+        List<ShipUserLeaveVO> shipLeaves = new ArrayList<>();
 
-        ShipUserLeaveVO  sa1 = new ShipUserLeaveVO();
+        ShipUserLeaveVO sa1 = new ShipUserLeaveVO();
         sa1.setCounts(222);
         sa1.setName("爱仕达25");
-        ShipUserLeaveVO  sa2 = new ShipUserLeaveVO();
+        ShipUserLeaveVO sa2 = new ShipUserLeaveVO();
         sa2.setCounts(1);
         sa2.setName("爱仕达35");
-        ShipUserLeaveVO  sa3 = new ShipUserLeaveVO();
+        ShipUserLeaveVO sa3 = new ShipUserLeaveVO();
         sa3.setCounts(44);
         sa3.setName("爱仕达王1");
-        ShipUserLeaveVO  sa4 = new ShipUserLeaveVO();
+        ShipUserLeaveVO sa4 = new ShipUserLeaveVO();
         sa4.setCounts(3213);
         sa4.setName("ss王4");
-        ShipUserLeaveVO  sa5 = new ShipUserLeaveVO();
+        ShipUserLeaveVO sa5 = new ShipUserLeaveVO();
         sa5.setCounts(2111);
         sa5.setName("爱仕达王5");
         shipLeaves.add(sa1);

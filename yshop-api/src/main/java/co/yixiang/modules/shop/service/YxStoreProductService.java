@@ -135,6 +135,13 @@ public interface YxStoreProductService extends BaseService<YxStoreProduct> {
     Map<String, Long> getShopOrderCount(Integer storeId);
 
     /**
+     * 商城订单数量相关(全部)
+     * @param storeId
+     * @return
+     */
+    Map<String, Long> getShopOrderCountAll(Integer storeId);
+
+    /**
      * 商城今日营业额
      * @param storeId
      * @return
@@ -168,4 +175,12 @@ public interface YxStoreProductService extends BaseService<YxStoreProduct> {
      * @return
      */
     Integer getShipCount(Integer storeId);
+
+    /**
+     * 本地生活订单相关数量（非当天数据）
+     *
+     * @param storeId
+     * @return
+     */
+    Map<String,Long> getLocalProductOrderCountAll(Integer storeId);
 }

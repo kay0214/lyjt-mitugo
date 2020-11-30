@@ -306,11 +306,21 @@ public class YxShipInfoServiceImpl extends BaseServiceImpl<YxShipInfoMapper, YxS
         YxShipInfo yxShipInfo = this.getById(yxShipOperation.getShipId());
 
         if (1 == param.getStatus()) {
+            // 校验下当前船长是否有离岗的船只
+            List<YxShipOperation> findList = this.yxShipOperationService.list(new QueryWrapper<YxShipOperation>().lambda()
+                    .eq(YxShipOperation::getDelFlag, 0)
+                    .eq(YxShipOperation::getStatus, 1)
+                    .eq(YxShipOperation::getCaptainId, uid)
+            );
+            if (null != findList && findList.size() > 0) {
+                map.put("status", "99");
+                map.put("statusDesc", "请先将离港船只回港");
+                return map;
+            }
             // 出港
             yxShipOperation.setStatus(1);
             yxShipOperation.setLeaveTime(DateUtils.getNowTime());
             yxShipInfo.setLastLeaveTime(DateUtils.getNowTime());
-
         } else {
             // 回港
             // 判断1分钟内不允许回港

@@ -91,8 +91,17 @@ public interface YxStoreProductMapper extends BaseMapper<YxStoreProduct> {
      * @param storeId
      * @return
      */
-    @Select("select  count(0) AS localOrderCount,count(a.status in(4,5) or null) AS localOrderWait, count(a.status = 7 or null) AS localOrderRefund from yx_coupon_order a inner JOIN `yx_store_info` b on a.mer_id=b.mer_id and b.`id`=#{storeId} where a.pay_staus=1 and (a.status =2 or a.status >3) and a.del_flag=0 and DATE_FORMAT(a.create_time,'%Y-%m-%d') = DATE_FORMAT(NOW(),'%Y-%m-%d')")
+    @Select("select  count(0) AS localOrderCount,count(a.status in(4,5) or null) AS localOrderWait, count(a.refund_status = 1 or null) AS localOrderRefund from yx_coupon_order a inner JOIN `yx_store_info` b on a.mer_id=b.mer_id and b.`id`=#{storeId} where a.pay_staus=1 and (a.status =2 or a.status >3) and a.del_flag=0 and DATE_FORMAT(a.create_time,'%Y-%m-%d') = DATE_FORMAT(NOW(),'%Y-%m-%d')")
     Map<String, Long> getLocalProductOrderCount(@Param("storeId") Integer storeId);
+
+    /**
+     * 本地生活订单相关数量(非当天)
+     * @param storeId
+     * @return
+     */
+    @Select("select  count(0) AS localOrderCount,count(a.status in(4,5) or null) AS localOrderWait, count(a.refund_status = 1 or null) AS localOrderRefund from yx_coupon_order a inner JOIN `yx_store_info` b on a.mer_id=b.mer_id and b.`id`=#{storeId} where a.pay_staus=1 and (a.status =2 or a.status >3) and a.del_flag=0")
+    Map<String, Long> getLocalProductOrderCountAll(@Param("storeId") Integer storeId);
+
 
     /**
      * 今日营业额
@@ -117,6 +126,14 @@ public interface YxStoreProductMapper extends BaseMapper<YxStoreProduct> {
      */
     @Select("select  count(0) AS shopOrderCount,count(status =0 or null) AS shopOrderSend, count(status = -1 or null) AS shopOrderRefund from yx_store_order where store_id=#{storeId}   and is_del=0 and DATE_FORMAT(FROM_UNIXTIME(add_time),'%Y-%m-%d') = DATE_FORMAT(NOW(),'%Y-%m-%d')")
     Map<String, Long> getShopOrderCount(@Param("storeId")Integer storeId);
+
+    /**
+     * 商城订单数量相关
+     * @param storeId
+     * @return
+     */
+    @Select("select  count(0) AS shopOrderCount,count(`status` =1 or null) AS shopOrderSend, count(refund_status = 1 or null) AS shopOrderRefund from yx_store_order where store_id=#{storeId}   and is_del=0")
+    Map<String, Long> getShopOrderCountAll(@Param("storeId")Integer storeId);
 
     /**
      * 商城今日营业额
