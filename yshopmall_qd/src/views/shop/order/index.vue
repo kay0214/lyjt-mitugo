@@ -49,7 +49,7 @@
           />
         </el-select>-->
         <el-date-picker
-          v-model="query.createTime"
+          v-model="searchTime"
           :default-time="['00:00:00','23:59:59']"
           type="daterange"
           range-separator=":"
@@ -58,6 +58,15 @@
           value-format="yyyy-MM-dd"
           start-placeholder="开始日期"
           end-placeholder="结束日期"
+          @change="(val)=>{
+            if(val){
+              query.createTimeStart=val[0]
+              query.createTimeEnd=val[1]
+            }else{
+              query.createTimeStart=''
+              query.createTimeEnd=''
+            }
+          }"
         />
         <el-button class="filter-item" size="mini" type="success" icon="el-icon-search" @click="toQuery">搜索</el-button>
         <!-- 新增 -->
@@ -258,7 +267,8 @@
     mixins: [initData],
     data() {
       return {
-        delLoading: false, status: '-9', orderType: '0',createTime: '', checkList: [], printChecked: false, batchHandle: '', batchExport: '', listContent: [],
+        delLoading: false, status: '-9', orderType: '0',searchTime: [], checkList: [], printChecked: false,
+        batchHandle: '', batchExport: '', listContent: [],
         queryTypeOptions: [
           { key: 'orderId', display_name: '订单号' },
           { key: 'realName', display_name: '用户姓名' },
@@ -315,7 +325,7 @@
       beforeInit() {
         this.url = 'api/yxStoreOrder'
         const sort = 'id,desc'
-        this.params = { page: this.page, size: this.size, sort: sort, orderStatus: this.status, orderType: this.orderType, addTime: this.createTime, listContent: this.listContent  }
+        this.params = { page: this.page, size: this.size, sort: sort, orderStatus: this.status, orderType: this.orderType, listContent: this.listContent  }
         const query = this.query
         const type = query.type
         const value = query.value
