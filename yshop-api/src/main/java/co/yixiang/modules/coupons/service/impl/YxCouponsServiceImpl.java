@@ -484,6 +484,11 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
         YxCouponOrder yxCouponOrder = (YxCouponOrder) checkResult.get("yxCouponOrder");
         YxCoupons yxCoupons = (YxCoupons) checkResult.get("yxCoupons");
 
+        if (4 != yxCoupons.getCouponType()) {
+            yxCouponsDto.setStatus(99);
+            yxCouponsDto.setStatusDesc("非船只卡券无法核销");
+            return yxCouponsDto;
+        }
         // 组装返回参数
         yxCouponsDto = getYxCouponsDto(yxCouponOrderDetail, yxCouponOrder, yxCoupons);
 
