@@ -86,4 +86,6 @@ public class YxShipOperationDetailVO extends BaseEntity {
     private Integer createUserId;
     @ApiModelProperty(value = "创建时间")
     private Date createTime;
+    @ApiModelProperty(value = "卡券订单编号")
+    private String orderId;
 }

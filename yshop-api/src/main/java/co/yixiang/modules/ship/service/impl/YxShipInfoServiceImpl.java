@@ -402,6 +402,8 @@ public class YxShipInfoServiceImpl extends BaseServiceImpl<YxShipInfoMapper, YxS
             if (null != yxCouponOrderUse) {
                 yxShipOperationDetail.setUserdTime(DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD_HH_MM_SS, yxCouponOrder.getCreateTime()));
             }
+            // 订单编号
+            yxShipOperationDetail.setOrderId(yxCouponOrder.getOrderId());
         }
         map.put("status", "1");
         map.put("statusDesc", "成功！");
