@@ -80,7 +80,7 @@ public class YxLeaveMessageServiceImpl extends BaseServiceImpl<YxLeaveMessageMap
 //        PageInfo<YxLeaveMessage> page = new PageInfo<>(queryAll(criteria));
         Map<String, Object> map = new LinkedHashMap<>(2);
         QueryWrapper<YxLeaveMessage> queryWrapper = new QueryWrapper<>();
-        queryWrapper.lambda().eq(YxLeaveMessage::getDelFlag, 0);
+        queryWrapper.lambda().eq(YxLeaveMessage::getDelFlag, 0).orderByDesc(YxLeaveMessage::getCreateTime).orderByDesc(YxLeaveMessage::getId);
         // 处理查询角色
         if (0 != criteria.getUserRole()) {
             if (null == criteria.getChildUser() || criteria.getChildUser().size() <= 0) {
