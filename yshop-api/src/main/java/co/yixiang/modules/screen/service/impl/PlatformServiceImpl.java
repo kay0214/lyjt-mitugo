@@ -100,15 +100,17 @@ public class PlatformServiceImpl implements PlatformService {
         result.setLocalProductUnder(localProductCount.get("localProductUnder").intValue());
         // 卡券订单相关（当天数据、待退款的有点问题）
         Map<String, Long> localProductOrderCount = productService.getLocalProductOrderCount(storeId);
-        // 卡券订单相关
-        Map<String, Long> localProductOrderCountAll = productService.getLocalProductOrderCountAll(storeId);
+        // 未核销订单（取总值）
+        Long localOrderWait = productService.getLocalOrderWait(storeId);
+        // 待处理退款（取总值）
+        Long localOrderRefund = productService.getLocalOrderRefund(storeId);
 
         // 今日订单数
         result.setLocalOrderCount(localProductOrderCount.get("localOrderCount").intValue());
         // 未核销订单（取总值）
-        result.setLocalOrderWait(localProductOrderCountAll.get("localOrderWait").intValue());
+        result.setLocalOrderWait(localOrderWait.intValue());
         // 待处理退款（取总值）
-        result.setLocalOrderRefund(localProductOrderCountAll.get("localOrderRefund").intValue());
+        result.setLocalOrderRefund(localOrderRefund.intValue());
 
         BigDecimal localSumPrice = productService.getLocalSumPrice(storeId);
         // 今日营业额
@@ -124,14 +126,14 @@ public class PlatformServiceImpl implements PlatformService {
 
         // 商城订单数量相关
         Map<String, Long> shopOrders = productService.getShopOrderCount(storeId);
-        // 商城订单数量相关(全部)
-        Map<String, Long> shopOrdersAll = productService.getShopOrderCountAll(storeId);
+        Long shopOrderSend = productService.getShopOrderSend(storeId);
+        Long shopOrderRefund = productService.getShopOrderRefund(storeId);
         // 今日订单数
         result.setShopOrderCount(shopOrders.get("shopOrderCount").intValue());
         // 待发货订单(全部)
-        result.setShopOrderSend(shopOrdersAll.get("shopOrderSend").intValue());
+        result.setShopOrderSend(shopOrderSend.intValue());
         // 待处理退款
-        result.setShopOrderRefund(shopOrdersAll.get("shopOrderRefund").intValue());
+        result.setShopOrderRefund(shopOrderRefund.intValue());
 
         // 今日营业额
         BigDecimal shopSumPrice = productService.getShopSumPrice(storeId);
