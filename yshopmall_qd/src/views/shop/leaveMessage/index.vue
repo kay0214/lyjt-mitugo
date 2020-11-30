@@ -44,10 +44,10 @@
             {{form.message}}
           </el-form-item>
           <el-form-item label="状态" prop="status">
-            <el-radio-group v-model="form.status">
+            <el-radio-group v-if="editStatus" v-model="form.status">
               <el-radio v-for="item in statusList" :label="item.value">{{item.label}}</el-radio>
             </el-radio-group>
-            <span  v-show="!editStatus">{{ transferLabel(form.status,statusList) }}</span>
+            <span  v-else>{{ transferLabel(form.status,statusList) }}</span>
           </el-form-item>
           <el-form-item label="备注" prop="remark">
             <el-input v-if="editStatus" type="textarea"
