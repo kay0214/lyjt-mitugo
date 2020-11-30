@@ -26,10 +26,11 @@
       <el-date-picker
         class="filter-item"
         v-model="query.daterange"
-        type="datetimerange"
+        type="daterange"
         range-separator="至"
         start-placeholder="出港时间"
         end-placeholder="出港时间"
+        value-format="yyyy-MM-dd"
         @change="(val)=>{
         if(val) {
           query.startDate =val[0];query.endDate =val[1]
@@ -167,7 +168,11 @@ const defaultCrud = CRUD({ title: '船只运营记录', url: 'api/yxShipOperatio
     del: false,
     download: true
   },
-  crudMethod: { ...crudYxShipOperation }})
+  crudMethod: { ...crudYxShipOperation },
+  query:{
+    shipInfoId:[]
+  }
+})
 const defaultForm = { id: null, batchNo: null, shipId: null, shipName: null, captainId: null,
   captainName: null, totalPassenger: null, oldPassenger: null, underagePassenger: null,
   leaveTime: null, returnTime: null, status: null, delFlag: null, createUserId: null,
@@ -239,7 +244,7 @@ export default {
     [CRUD.HOOK.beforeRefresh]() {
         if(Boolean(this.$route.query.id) && !isNaN(this.$route.query.id)){
           this.query.shipId=parseInt(this.$route.query.id)
-        }else{
+        }else if(!this.query.shipInfoId.length>0){
           this.query.shipId=''
         }
       return true
