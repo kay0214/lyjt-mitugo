@@ -133,7 +133,7 @@ public interface YxStoreProductMapper extends BaseMapper<YxStoreProduct> {
      * @param storeId
      * @return
      */
-    @Select("select count(0) AS shopOrderSend from yx_store_order where store_id=#{storeId} and is_del=0 and `status` = 1 and refund_status = 0")
+    @Select("select count(0) AS shopOrderSend from yx_store_order where store_id=#{storeId} and is_del=0 and `status` = 0 and paid = 1 and refund_status = 0")
     Long getShopOrderSend(@Param("storeId") Integer storeId);
 
     /**
@@ -160,7 +160,7 @@ public interface YxStoreProductMapper extends BaseMapper<YxStoreProduct> {
      * @param storeId
      * @return
      */
-    @Select("select a.ship_name name,count(0) counts from `yx_ship_operation` a inner JOIN `yx_ship_info` b on a.ship_id=b.id and b.`store_id`=#{storeId} WHERE a.del_flag=0 and a.`status` in (1,2)  and DATE_FORMAT(a.`create_time`,'%Y-%m-%d') = DATE_FORMAT(NOW(),'%Y-%m-%d') group by a.ship_id limit 10")
+    @Select("select a.ship_name name,count(0) counts from `yx_ship_operation` a inner JOIN `yx_ship_info` b on a.ship_id=b.id and b.`store_id`=#{storeId} WHERE a.del_flag=0 and a.`status` in (1,2)  and DATE_FORMAT(a.`create_time`,'%Y-%m-%d') = DATE_FORMAT(NOW(),'%Y-%m-%d') group by a.ship_id order by counts desc limit 10")
     List<ShipUserLeaveVO> getTopShipLeaves(@Param("storeId") Integer storeId);
 
     /**
@@ -169,7 +169,7 @@ public interface YxStoreProductMapper extends BaseMapper<YxStoreProduct> {
      * @param storeId
      * @return
      */
-    @Select("select a.captain_name name,count(0) counts from `yx_ship_operation` a inner JOIN `yx_ship_info` b on a.ship_id=b.id and b.`store_id`=#{storeId} WHERE a.del_flag=0 and a.`status` in (1,2)  and DATE_FORMAT(a.`create_time`,'%Y-%m-%d') = DATE_FORMAT(NOW(),'%Y-%m-%d') group by a.captain_id limit 10")
+    @Select("select a.captain_name name,count(0) counts from `yx_ship_operation` a inner JOIN `yx_ship_info` b on a.ship_id=b.id and b.`store_id`=#{storeId} WHERE a.del_flag=0 and a.`status` in (1,2)  and DATE_FORMAT(a.`create_time`,'%Y-%m-%d') = DATE_FORMAT(NOW(),'%Y-%m-%d') group by a.captain_id order by counts desc limit 10")
     List<ShipUserLeaveVO> getShipUserLeaveS(@Param("storeId") Integer storeId);
 
     /**

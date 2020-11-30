@@ -306,12 +306,16 @@ public class YxShipInfoServiceImpl extends BaseServiceImpl<YxShipInfoMapper, YxS
         YxShipInfo yxShipInfo = this.getById(yxShipOperation.getShipId());
 
         if (1 == param.getStatus()) {
+            if (0 != yxShipInfo.getCurrentStatus()) {
+                map.put("status", "99");
+                map.put("statusDesc", "当前船只未回港或在维修中");
+                return map;
+            }
             // 校验下当前船长是否有离岗的船只
             List<YxShipOperation> findList = this.yxShipOperationService.list(new QueryWrapper<YxShipOperation>().lambda()
                     .eq(YxShipOperation::getDelFlag, 0)
                     .eq(YxShipOperation::getStatus, 1)
-                    .eq(YxShipOperation::getCaptainId, uid)
-            );
+                    .eq(YxShipOperation::getCaptainId, uid));
             if (null != findList && findList.size() > 0) {
                 map.put("status", "99");
                 map.put("statusDesc", "请先将离港船只回港");
@@ -320,6 +324,7 @@ public class YxShipInfoServiceImpl extends BaseServiceImpl<YxShipInfoMapper, YxS
             // 出港
             yxShipOperation.setStatus(1);
             yxShipOperation.setLeaveTime(DateUtils.getNowTime());
+            yxShipInfo.setCurrentStatus(1);
             yxShipInfo.setLastLeaveTime(DateUtils.getNowTime());
         } else {
             // 回港
@@ -332,6 +337,7 @@ public class YxShipInfoServiceImpl extends BaseServiceImpl<YxShipInfoMapper, YxS
             yxShipOperation.setStatus(2);
             yxShipOperation.setReturnTime(DateUtils.getNowTime());
             yxShipInfo.setLastReturnTime(DateUtils.getNowTime());
+            yxShipInfo.setCurrentStatus(0);
         }
         yxShipOperation.setUpdateUserId(uid);
         yxShipOperation.setUpdateTime(new Date());

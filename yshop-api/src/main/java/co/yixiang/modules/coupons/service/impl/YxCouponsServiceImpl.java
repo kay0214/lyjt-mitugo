@@ -265,6 +265,10 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
             yxCouponsDto.setStatusDesc("无效卡券");
             return result;
         }
+        if (4 != yxCouponOrderDetail.getStatus() && 5 != yxCouponOrderDetail.getStatus()) {
+            yxCouponsDto.setStatusDesc("该卡券已被核销");
+            return result;
+        }
         YxCouponOrder yxCouponOrder = this.yxCouponOrderService.getOne(new QueryWrapper<YxCouponOrder>().eq("order_id", yxCouponOrderDetail.getOrderId()));
         result.put("yxCouponOrder", yxCouponOrder);
         if (null == yxCouponOrder) {
@@ -483,7 +487,9 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
         }
         // 最多乘坐
         yxCouponsDto.setShipMaxUserCount(shipSeries.getRideLimit());
-        List<YxShipPassenger> couponUsers = yxShipPassengerService.list(new QueryWrapper<YxShipPassenger>().eq("coupon_order_id", yxCouponOrder.getId()));
+        List<YxShipPassenger> couponUsers = yxShipPassengerService.list(new QueryWrapper<YxShipPassenger>().lambda()
+                .eq(YxShipPassenger::getCouponOrderId, yxCouponOrder.getId())
+                .and(batchNo -> batchNo.isNull(YxShipPassenger::getBatchNo).or().eq(YxShipPassenger::getBatchNo, "")));
         List<YxShipPassengerVO> users = new ArrayList<>();
         if (couponUsers == null || couponUsers.size() == 0) {
             yxCouponsDto.setStatus(99);
