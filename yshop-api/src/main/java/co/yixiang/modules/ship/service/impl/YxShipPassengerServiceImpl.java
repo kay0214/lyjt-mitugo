@@ -158,28 +158,4 @@ public class YxShipPassengerServiceImpl extends BaseServiceImpl<YxShipPassengerM
         }
         return passengerQueryVoList;
     }
-
-    /**
-     * 处理乘客信息的orderId
-     *
-     * @param orderId
-     * @param batchNo
-     */
-    @Override
-    public void updateBatchNo(Integer orderId, String batchNo) {
-        // 查询当前orderId所有的乘客信息
-        List<YxShipPassenger> list = this.list(new QueryWrapper<YxShipPassenger>().lambda()
-                .eq(YxShipPassenger::getCouponOrderId, orderId));
-        if (null == list || list.size() <= 0) {
-            return;
-        }
-        // 订单中所有存在的乘客信息都在本批次的船上
-        for (YxShipPassenger item : list) {
-            if (StringUtils.isNotBlank(item.getBatchNo())) {
-                continue;
-            }
-            item.setBatchNo(batchNo);
-            this.updateById(item);
-        }
-    }
 }

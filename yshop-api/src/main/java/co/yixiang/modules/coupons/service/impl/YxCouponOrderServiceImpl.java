@@ -1328,7 +1328,6 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         map.put("shipId", shipId);
         map.put("shipUserId", shipUserId);
         map.put("user", user);
-        map.put("yxCouponOrder", yxCouponOrder);
         this.updateSuccessShipInfo(map);
 
 
@@ -1461,7 +1460,6 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         // 先查询这个船只有没有已经分配了   yx_ship_operation_detail
         Integer shipId = (Integer) map.get("shipId");
         Integer shipUserId = (Integer) map.get("shipUserId");
-        YxCouponOrder yxCouponOrder = (YxCouponOrder) map.get("yxCouponOrder");
         YxShipOperation yxShipOperation = yxShipOperationService.getShipOperationBySidUid(shipId, shipUserId);
         if (yxShipOperation == null) {
             // 没有分配  就新增一个
@@ -1477,8 +1475,6 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         yxShipOperation.setUnderagePassenger(yxShipOperation.getUnderagePassenger() + shipOperationDetail.getUnderagePassenger());
         // 修改乘坐人数量之类的
         yxShipOperationService.updateById(yxShipOperation);
-        // 处理乘客信息表
-        yxShipPassengerService.updateBatchNo(yxCouponOrder.getId(),yxShipOperation.getBatchNo());
     }
 
     // 校验卡券状态

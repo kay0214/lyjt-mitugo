@@ -13,6 +13,7 @@ import co.yixiang.modules.ship.service.YxShipOperationDetailService;
 import co.yixiang.modules.ship.service.YxShipPassengerService;
 import co.yixiang.modules.ship.web.param.YxShipOperationDetailQueryParam;
 import co.yixiang.modules.ship.web.vo.YxShipOperationDetailQueryVo;
+import co.yixiang.utils.StringUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.metadata.OrderItem;
@@ -47,51 +48,60 @@ public class YxShipOperationDetailServiceImpl extends BaseServiceImpl<YxShipOper
 
 
     @Override
-    public YxShipOperationDetailQueryVo getYxShipOperationDetailById(Serializable id) throws Exception{
+    public YxShipOperationDetailQueryVo getYxShipOperationDetailById(Serializable id) throws Exception {
         return yxShipOperationDetailMapper.getYxShipOperationDetailById(id);
     }
 
     @Override
-    public Paging<YxShipOperationDetailQueryVo> getYxShipOperationDetailPageList(YxShipOperationDetailQueryParam yxShipOperationDetailQueryParam) throws Exception{
-        Page page = setPageParam(yxShipOperationDetailQueryParam,OrderItem.desc("create_time"));
-        IPage<YxShipOperationDetailQueryVo> iPage = yxShipOperationDetailMapper.getYxShipOperationDetailPageList(page,yxShipOperationDetailQueryParam);
+    public Paging<YxShipOperationDetailQueryVo> getYxShipOperationDetailPageList(YxShipOperationDetailQueryParam yxShipOperationDetailQueryParam) throws Exception {
+        Page page = setPageParam(yxShipOperationDetailQueryParam, OrderItem.desc("create_time"));
+        IPage<YxShipOperationDetailQueryVo> iPage = yxShipOperationDetailMapper.getYxShipOperationDetailPageList(page, yxShipOperationDetailQueryParam);
         return new Paging(iPage);
     }
 
     /**
      * 保存乘客详情
+     *
      * @param map
      */
     @Override
     public YxShipOperationDetail saveShipOperationDetail(Map<String, Object> map) {
-        YxShipOperation yxShipOperation = (YxShipOperation)map.get("yxShipOperation");
+        YxShipOperation yxShipOperation = (YxShipOperation) map.get("yxShipOperation");
         // 查询所有已经完善乘坐人的订单
-        YxCouponOrder yxCouponOrder = (YxCouponOrder)map.get("yxCouponOrder");
+        YxCouponOrder yxCouponOrder = (YxCouponOrder) map.get("yxCouponOrder");
         QueryWrapper<YxShipPassenger> wrapper = new QueryWrapper<>();
         wrapper.eq("coupon_order_id", yxCouponOrder.getId())
                 .eq("del_flag", 0);
         List<YxShipPassenger> list = yxShipPassengerService.list(wrapper);
+        // 处理乘坐人的batchNo
+        for (YxShipPassenger item : list) {
+            if (StringUtils.isNotBlank(item.getBatchNo())) {
+                continue;
+            }
+            item.setBatchNo(yxShipOperation.getBatchNo());
+            this.yxShipPassengerService.updateById(item);
+        }
 
         YxShipOperationDetail shipOperationDetail = new YxShipOperationDetail();
 
         shipOperationDetail.setBatchNo(yxShipOperation.getBatchNo());
         shipOperationDetail.setTotalPassenger(list.size());
         // 未成年
-        int underagePassenger =0;
+        int underagePassenger = 0;
         // 老年人
-        int oldPassenger =0;
+        int oldPassenger = 0;
         for (YxShipPassenger item : list) {
-            if(item.getIsAdult().intValue()==0){
+            if (item.getIsAdult().intValue() == 0) {
                 underagePassenger++;
-            }else if(item.getIsAdult().intValue()==2){
+            } else if (item.getIsAdult().intValue() == 2) {
                 oldPassenger++;
             }
         }
         shipOperationDetail.setUnderagePassenger(underagePassenger);
         shipOperationDetail.setOldPassenger(oldPassenger);
-        shipOperationDetail.setCouponOrderId(yxCouponOrder.getId()+"");
-        YxShipInfo shipInfo = (YxShipInfo)map.get("shipInfo");
-        SystemUser captainUser = (SystemUser)map.get("captainUser");
+        shipOperationDetail.setCouponOrderId(yxCouponOrder.getId() + "");
+        YxShipInfo shipInfo = (YxShipInfo) map.get("shipInfo");
+        SystemUser captainUser = (SystemUser) map.get("captainUser");
         shipOperationDetail.setShipId(shipInfo.getId());
 
         shipOperationDetail.setShipId(shipInfo.getId());
@@ -99,7 +109,7 @@ public class YxShipOperationDetailServiceImpl extends BaseServiceImpl<YxShipOper
         shipOperationDetail.setCaptainId(captainUser.getId().intValue());
         shipOperationDetail.setCaptainName(captainUser.getNickName());
 
-        SystemUser user = (SystemUser)map.get("user");
+        SystemUser user = (SystemUser) map.get("user");
         // 核销人id
         shipOperationDetail.setUseId(user.getId().intValue());
         shipOperationDetail.setUseName(user.getNickName());
@@ -108,7 +118,7 @@ public class YxShipOperationDetailServiceImpl extends BaseServiceImpl<YxShipOper
         shipOperationDetail.setCreateUserId(user.getId().intValue());
         shipOperationDetail.setUpdateUserId(user.getId().intValue());
         yxShipOperationDetailMapper.insert(shipOperationDetail);
-        map.put("shipOperationDetail",shipOperationDetail);
+        map.put("shipOperationDetail", shipOperationDetail);
         return shipOperationDetail;
     }
 
