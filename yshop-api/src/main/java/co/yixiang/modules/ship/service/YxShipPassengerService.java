@@ -46,4 +46,12 @@ public interface YxShipPassengerService extends BaseService<YxShipPassenger> {
      * @return
      */
     List<YxShipPassengerQueryVo> getPassengerByOrderId(int orderId);
+
+    /**
+     * 更新乘客信息的batchNo
+     *
+     * @param orderId
+     * @param batchNo
+     */
+    void updateBatchNo(Integer orderId, String batchNo);
 }

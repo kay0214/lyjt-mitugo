@@ -19,6 +19,7 @@ import co.yixiang.modules.ship.web.vo.YxShipPassengerQueryVo;
 import co.yixiang.modules.user.mapper.YxUsedContactsMapper;
 import co.yixiang.modules.user.web.vo.YxUsedContactsQueryVo;
 import co.yixiang.utils.CardNumUtil;
+import co.yixiang.utils.StringUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.metadata.OrderItem;
@@ -61,14 +62,14 @@ public class YxShipPassengerServiceImpl extends BaseServiceImpl<YxShipPassengerM
     private YxCouponsMapper yxCouponsMapper;
 
     @Override
-    public YxShipPassengerQueryVo getYxShipPassengerById(Serializable id) throws Exception{
+    public YxShipPassengerQueryVo getYxShipPassengerById(Serializable id) throws Exception {
         return yxShipPassengerMapper.getYxShipPassengerById(id);
     }
 
     @Override
-    public Paging<YxShipPassengerQueryVo> getYxShipPassengerPageList(YxShipPassengerQueryParam yxShipPassengerQueryParam) throws Exception{
-        Page page = setPageParam(yxShipPassengerQueryParam,OrderItem.desc("create_time"));
-        IPage<YxShipPassengerQueryVo> iPage = yxShipPassengerMapper.getYxShipPassengerPageList(page,yxShipPassengerQueryParam);
+    public Paging<YxShipPassengerQueryVo> getYxShipPassengerPageList(YxShipPassengerQueryParam yxShipPassengerQueryParam) throws Exception {
+        Page page = setPageParam(yxShipPassengerQueryParam, OrderItem.desc("create_time"));
+        IPage<YxShipPassengerQueryVo> iPage = yxShipPassengerMapper.getYxShipPassengerPageList(page, yxShipPassengerQueryParam);
         return new Paging(iPage);
     }
 
@@ -76,28 +77,29 @@ public class YxShipPassengerServiceImpl extends BaseServiceImpl<YxShipPassengerM
 
     /**
      * 确认乘坐，保存乘客信息
+     *
      * @param couponComfirmRideParam
      */
     @Transactional
     @Override
-    public boolean saveComfrieRideInfo(YxCouponComfirmRideParam couponComfirmRideParam){
+    public boolean saveComfrieRideInfo(YxCouponComfirmRideParam couponComfirmRideParam) {
         //
         List<YxShipPassenger> yxShipPassengerList = new ArrayList<>();
         List<YxCouponOrderPassDetailParam> passDetailParamList = couponComfirmRideParam.getPassengerList();
-        if(CollectionUtils.isEmpty(passDetailParamList)){
+        if (CollectionUtils.isEmpty(passDetailParamList)) {
             throw new BadRequestException("乘客信息错误！");
         }
         YxCouponOrder couponOrder = yxCouponOrderMapper.selectById(couponComfirmRideParam.getOrderId());
-        if(null == couponOrder){
+        if (null == couponOrder) {
             throw new BadRequestException("获取订单信息失败！");
         }
         YxCouponsQueryVo yxCouponsQueryVo = yxCouponsMapper.getYxCouponsById(couponOrder.getCouponId());
-        if(null == yxCouponsQueryVo){
+        if (null == yxCouponsQueryVo) {
             throw new BadRequestException("获取卡券信息失败！");
         }
-        for(YxCouponOrderPassDetailParam yxCouponOrderPassDetailParam:passDetailParamList){
+        for (YxCouponOrderPassDetailParam yxCouponOrderPassDetailParam : passDetailParamList) {
             YxShipPassenger yxShipPassenger = new YxShipPassenger();
-            YxUsedContactsQueryVo usedContactsQueryVo =  yxUsedContactsMapper.getYxUsedContactsById(yxCouponOrderPassDetailParam.getId());
+            YxUsedContactsQueryVo usedContactsQueryVo = yxUsedContactsMapper.getYxUsedContactsById(yxCouponOrderPassDetailParam.getId());
             yxShipPassenger.setPassengerName(usedContactsQueryVo.getUserName());
             yxShipPassenger.setPhone(usedContactsQueryVo.getUserPhone());
             yxShipPassenger.setIdCard(usedContactsQueryVo.getCardId());
@@ -111,16 +113,16 @@ public class YxShipPassengerServiceImpl extends BaseServiceImpl<YxShipPassengerM
             yxShipPassengerList.add(yxShipPassenger);
         }
         //批量保存乘客信息
-       boolean instFlg = this.saveBatch(yxShipPassengerList);
+        boolean instFlg = this.saveBatch(yxShipPassengerList);
 
         //使用张数
         QueryWrapper<YxCouponOrderDetail> queryWrapper = new QueryWrapper<>();
-        queryWrapper.lambda().eq(YxCouponOrderDetail::getOrderId,couponOrder.getOrderId()).eq(YxCouponOrderDetail::getDelFlag,0).eq(YxCouponOrderDetail::getUserStatus,0);
+        queryWrapper.lambda().eq(YxCouponOrderDetail::getOrderId, couponOrder.getOrderId()).eq(YxCouponOrderDetail::getDelFlag, 0).eq(YxCouponOrderDetail::getUserStatus, 0);
         List<YxCouponOrderDetail> detailList = yxCouponOrderDetailService.list(queryWrapper);
-        if(CollectionUtils.isEmpty(detailList)){
-            throw new BadRequestException("获取卡券订单详情数据错误！订单id："+couponOrder.getOrderId());
+        if (CollectionUtils.isEmpty(detailList)) {
+            throw new BadRequestException("获取卡券订单详情数据错误！订单id：" + couponOrder.getOrderId());
         }
-        for(int i=0;i<couponComfirmRideParam.getUsedNum();i++) {
+        for (int i = 0; i < couponComfirmRideParam.getUsedNum(); i++) {
             YxCouponOrderDetail orderDetail = detailList.get(i);
             //可用
             orderDetail.setUserStatus(1);
@@ -134,6 +136,7 @@ public class YxShipPassengerServiceImpl extends BaseServiceImpl<YxShipPassengerM
 
     /**
      * 根据订单编号获取乘客信息
+     *
      * @param orderId
      * @return
      */
@@ -154,5 +157,29 @@ public class YxShipPassengerServiceImpl extends BaseServiceImpl<YxShipPassengerM
             }
         }
         return passengerQueryVoList;
+    }
+
+    /**
+     * 处理乘客信息的orderId
+     *
+     * @param orderId
+     * @param batchNo
+     */
+    @Override
+    public void updateBatchNo(Integer orderId, String batchNo) {
+        // 查询当前orderId所有的乘客信息
+        List<YxShipPassenger> list = this.list(new QueryWrapper<YxShipPassenger>().lambda()
+                .eq(YxShipPassenger::getCouponOrderId, orderId));
+        if (null == list || list.size() <= 0) {
+            return;
+        }
+        // 订单中所有存在的乘客信息都在本批次的船上
+        for (YxShipPassenger item : list) {
+            if (StringUtils.isNotBlank(item.getBatchNo())) {
+                continue;
+            }
+            item.setBatchNo(batchNo);
+            this.updateById(item);
+        }
     }
 }
