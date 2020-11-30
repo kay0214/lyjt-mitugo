@@ -133,7 +133,7 @@ public interface YxStoreProductMapper extends BaseMapper<YxStoreProduct> {
      * @param storeId
      * @return
      */
-    @Select("select count(0) AS shopOrderSend from yx_store_order where store_id=#{storeId} and is_del=0 and `status` = 1 and refund_status = 0")
+    @Select("select count(0) AS shopOrderSend from yx_store_order where store_id=#{storeId} and is_del=0 and `status` = 0 and paid = 1 and refund_status = 0")
     Long getShopOrderSend(@Param("storeId") Integer storeId);
 
     /**
