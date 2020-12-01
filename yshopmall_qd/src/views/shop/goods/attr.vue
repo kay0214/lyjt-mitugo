@@ -193,6 +193,7 @@ export default {
               }else{
                 if(!this.subForm){
                 this.form2['commission'+index]= sub(value,this.form2['cost'+index])
+                  this.attrs[index].commission=sub(value,this.form2['cost'+index])
                 }
                 callback()
               }
