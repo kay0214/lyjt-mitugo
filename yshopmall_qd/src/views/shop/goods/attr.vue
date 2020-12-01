@@ -358,7 +358,6 @@ export default {
         giveIntegral: '',
         cost: '',
         isSeckill: '',
-        isBargain: '',
         isGood: '',
         ficti: '',
         browse: '',

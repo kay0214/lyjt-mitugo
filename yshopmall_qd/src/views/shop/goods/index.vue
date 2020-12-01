@@ -59,7 +59,6 @@
     <eForm ref="form" :is-add="isAdd" />
     <eAttr ref="form2" :is-attr="isAttr" />
     <comForm ref="form3" :is-add="isAdd" />
-    <bargainForm ref="form5" :is-add="isAdd" />
     <commission ref="form6"/>
     <!--表格渲染-->
     <el-table v-loading="loading" :data="data" size="small" style="width: 100%;">
@@ -130,34 +129,6 @@
                   <el-button slot="reference" type="danger" icon="el-icon-delete" size="mini">删除</el-button>
                 </el-popover>
               </el-dropdown-item>
-              <!--<el-dropdown-item>
-                <el-button
-                  size="mini"
-                  type="success"
-                  @click="editC(scope.row)"
-                >促销单品</el-button>
-              </el-dropdown-item>-->
-              <!--<el-dropdown-item>
-                <el-button
-                  size="mini"
-                  type="success"
-                  @click="editC(scope.row)"
-                >开启拼团</el-button>
-              </el-dropdown-item>
-              <el-dropdown-item>
-                <el-button
-                  size="mini"
-                  type="primary"
-                  @click="editD(scope.row)"
-                >开启秒杀</el-button>
-              </el-dropdown-item>
-              <el-dropdown-item>
-                <el-button
-                  size="mini"
-                  type="warning"
-                  @click="editE(scope.row)"
-                >开启砍价</el-button>
-              </el-dropdown-item>-->
             </el-dropdown-menu>
           </el-dropdown>
           <el-button v-permission="permission.edit" slot="reference" type="info" plain size="mini" @click="h5(scope.row)">预览</el-button>
@@ -186,10 +157,9 @@ import h5Form from './h5'
 import eAttr from './attr'
 import commission from './commission'
 import comForm from '@/views/activity/combination/form'
-import bargainForm from '@/views/activity/bargain/form'
 import yxCustomizeRate from '../../../api/yxCustomizeRate'
 export default {
-  components: { eForm, eAttr, comForm, bargainForm, commission,h5Form },
+  components: { eForm, eAttr, comForm, commission,h5Form },
   mixins: [initData],
   data() {
     return {
@@ -342,7 +312,6 @@ export default {
         giveIntegral: data.giveIntegral,
         cost: data.cost,
         isSeckill: data.isSeckill,
-        isBargain: data.isBargain,
         isGood: data.isGood,
         ficti: data.ficti,
         browse: data.browse,
@@ -385,40 +354,6 @@ export default {
       }
       _this.dialog = true
     },
-    editE(data) {
-      this.isAdd = false
-      const _this = this.$refs.form5
-      _this.form = {
-        productId: data.id,
-        merId: data.merId,
-        image: data.image,
-        images: data.sliderImage,
-        imageArr: data.image.split(','),
-        sliderImageArr: data.sliderImage.split(','),
-        title: data.storeName,
-        info: data.storeInfo,
-        postage: data.postage,
-        unitName: data.unitName,
-        sort: data.sort,
-        sales: data.sales,
-        stock: data.stock,
-        isShow: data.isShow,
-        status: 1,
-        isHot: data.isHot,
-        description: data.description,
-        isPostage: data.isPostage,
-        people: 0,
-        price: 0.01,
-        effectiveTime: 24,
-        otPrice: data.otPrice,
-        cost: data.cost,
-        num: 1,
-        giveIntegral: 0,
-        isDel: 0,
-        browse: 0
-      }
-      _this.dialog = true
-    },
     attr(data) {
       console.log(3333)
       this.isAttr = false
@@ -455,7 +390,6 @@ export default {
         giveIntegral: data.giveIntegral,
         cost: data.cost,
         isSeckill: data.isSeckill,
-        isBargain: data.isBargain,
         isGood: data.isGood,
         ficti: data.ficti,
         browse: data.browse,

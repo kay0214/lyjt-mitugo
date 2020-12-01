@@ -229,7 +229,6 @@ export default {
         giveIntegral: data.giveIntegral,
         cost: data.cost,
         isSeckill: data.isSeckill,
-        isBargain: data.isBargain,
         isGood: data.isGood,
         ficti: data.ficti,
         browse: data.browse,
