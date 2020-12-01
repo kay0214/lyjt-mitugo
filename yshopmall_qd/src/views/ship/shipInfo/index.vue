@@ -40,7 +40,7 @@
             </el-select>
           </el-form-item>
           <el-form-item label="船只名称" prop="shipName">
-            <el-input v-model="form.shipName" style="width: 370px;" maxlength="20"/>
+            <el-input v-model.trim="form.shipName" style="width: 370px;" maxlength="20"/>
           </el-form-item>
           <!--<el-form-item label="商户id" prop="merId">
             <el-input v-model="form.merId" style="width: 370px;" />
@@ -49,13 +49,13 @@
 <!--            <el-input v-model="form.storeId" style="width: 370px;" />-->
 <!--          </el-form-item>-->
           <el-form-item label="船只所属商户名" prop="merName">
-            <el-input v-model="form.merName" style="width: 370px;" maxlength="20" clearable/>
+            <el-input v-model.trim="form.merName" style="width: 370px;" maxlength="20" clearable/>
           </el-form-item>
           <el-form-item label="船只负责人" prop="managerName">
-            <el-input v-model="form.managerName" style="width: 370px;" maxlength="20" clearable/>
+            <el-input v-model.trim="form.managerName" style="width: 370px;" maxlength="20" clearable/>
           </el-form-item>
           <el-form-item label="负责人电话" prop="managerPhone">
-            <el-input v-model="form.managerPhone" style="width: 370px;" maxlength="20" clearable/>
+            <el-input v-model.trim="form.managerPhone" style="width: 370px;" maxlength="20" clearable/>
           </el-form-item>
           <el-form-item label="船只状态" prop="shipStatus">
             <el-radio-group v-model="form.shipStatus">
@@ -67,9 +67,6 @@
             <MaterialList v-model="form.imageArr" style="width: 650px" type="image" :num="1" :width="150" :height="150"
                           @setValue='(val)=>{form.imageArr=val;form.imageUrl = val.join(",");$refs.form.validateField("imageArr")}'/>
           </el-form-item>
-          <!--<el-form-item label="船只当前状态：0：在港，1：离港。2：维修中" prop="currentStatus">
-            <el-input v-model="form.currentStatus" style="width: 370px;" />
-          </el-form-item>-->
         </el-form>
         <div slot="footer" class="dialog-footer">
           <el-button type="text" @click="crud.cancelCU">取消</el-button>
@@ -291,17 +288,4 @@ export default {
 </script>
 
 <style scoped>
-  .table-img {
-    display: inline-block;
-    text-align: center;
-    background: #ccc;
-    color: #fff;
-    white-space: nowrap;
-    position: relative;
-    overflow: hidden;
-    vertical-align: middle;
-    width: 32px;
-    height: 32px;
-    line-height: 32px;
-  }
 </style>
