@@ -90,7 +90,8 @@ public class YxLeaveMessageServiceImpl extends BaseServiceImpl<YxLeaveMessageMap
             List<YxLeaveMessage> findList = this.list(new QueryWrapper<YxLeaveMessage>().lambda()
                     .eq(YxLeaveMessage::getLinkId, request.getLinkId())
                     .eq(YxLeaveMessage::getMessageType, request.getMessageType())
-                    .eq(YxLeaveMessage::getStatus, 0));
+                    .eq(YxLeaveMessage::getStatus, 0)
+                    .eq(YxLeaveMessage::getCreateUserId, request.getCreateUserId()));
             if (null != findList && findList.size() > 0) {
                 throw new BadRequestException("留言已提交，请勿重复操作");
             }
