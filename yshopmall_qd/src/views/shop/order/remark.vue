@@ -72,7 +72,6 @@ export default {
         pinkId: '',
         cost: '',
         seckillId: '',
-        bargainId: '',
         verifyCode: '',
         storeId: '',
         shippingType: '',
@@ -100,7 +99,7 @@ export default {
       if (this.isAdd) {
         this.doAdd()
       } else this.doEdit()
-      })      
+      })
     },
     doAdd() {
       add(this.form).then(res => {
@@ -180,7 +179,6 @@ export default {
         pinkId: '',
         cost: '',
         seckillId: '',
-        bargainId: '',
         verifyCode: '',
         storeId: '',
         shippingType: '',

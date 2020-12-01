@@ -73,7 +73,6 @@ export default {
         pinkId: '',
         cost: '',
         seckillId: '',
-        bargainId: '',
         verifyCode: '',
         storeId: '',
         shippingType: '',
@@ -97,7 +96,7 @@ export default {
       this.$refs['form'].validate(ret=>{
         if(!ret){
           return
-        }        
+        }
       this.loading = true
       if (this.isAdd) {
         this.doAdd()
@@ -182,7 +181,6 @@ export default {
         pinkId: '',
         cost: '',
         seckillId: '',
-        bargainId: '',
         verifyCode: '',
         storeId: '',
         shippingType: '',
