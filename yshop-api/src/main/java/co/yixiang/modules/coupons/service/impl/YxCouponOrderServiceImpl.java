@@ -1154,10 +1154,6 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         updateOrderUse(uid, yxStoreInfo, yxCouponOrder, yxCouponOrderDetail, usedCount);
 
         if (isFirst) {
-            updateMerInfo(yxCouponOrder);
-        }
-
-        if (isFirst) {
             // 更新商户余额
             updateMerInfo(yxCouponOrder);
         }
