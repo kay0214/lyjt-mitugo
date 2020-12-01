@@ -22,7 +22,6 @@ import co.yixiang.modules.ship.web.vo.YxShipAppointQueryVo;
 import co.yixiang.modules.shop.entity.YxStoreInfo;
 import co.yixiang.modules.shop.service.YxStoreInfoService;
 import co.yixiang.modules.user.entity.YxLeaveMessage;
-import co.yixiang.modules.user.entity.YxUser;
 import co.yixiang.modules.user.mapper.YxLeaveMessageMapper;
 import co.yixiang.modules.user.service.YxLeaveMessageService;
 import co.yixiang.modules.user.service.YxUserService;
@@ -249,12 +248,12 @@ public class YxShipAppointServiceImpl extends BaseServiceImpl<YxShipAppointMappe
                 map.put("statusDesc", "根据留言id："+param.getLeaveId()+" 获取信息失败！");
                 return map;
             }
-            YxUser yxUser = yxUserService.getById(yxLeaveMessage.getCreateUserId());
+          /*  YxUser yxUser = yxUserService.getById(yxLeaveMessage.getCreateUserId());
             if(null==yxUser){
                 map.put("status", "99");
                 map.put("statusDesc", "根据留言用户id："+yxLeaveMessage.getCreateUserId()+" 获取信息失败！");
                 return map;
-            }
+            }*/
             param.setName(yxLeaveMessage.getUserName());
             param.setPhone(yxLeaveMessage.getUserPhone());
         }
