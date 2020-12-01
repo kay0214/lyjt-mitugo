@@ -24,9 +24,9 @@
       <div ref="list" v-loading="crud.loading" :data="crud.data" size="small" style="width: 100%;"
                 @selection-change="crud.selectionChangeHandler">
         <div v-if="crud.data.length" ref="listbox" >
-          <el-row :gutter="20" style="font-size: 12px">
-            <el-col :span="8" v-for="(item,idx) in crud.data">
-              <div style="border:1px solid #F2F6FC;border-radius: 5px;margin-bottom: 20px;padding:20px;" >
+          <el-row type='flex' :gutter="20" style="font-size: 12px;flex-wrap:wrap;" justify="space-around">
+            <el-col :span="7" v-for="(item,idx) in crud.data" :key='idx' style="border:1px solid #F2F6FC;border-radius: 5px;margin-bottom: 20px;">
+              <div style="padding:20px;">
                 <el-alert
                   :title="item.shipName+' ('+item.statusValue+') '"
                   type="info"
