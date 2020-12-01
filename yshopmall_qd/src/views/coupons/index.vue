@@ -392,7 +392,7 @@
         <el-table-column v-if="columns.visible('originalPrice')" prop="originalPrice" label="原价" />
         <el-table-column v-if="columns.visible('settlementPrice')" prop="settlementPrice" label="平台结算价" />
         <el-table-column v-if="columns.visible('commission')" prop="commission" label="佣金" />
-        <el-table-column v-if="columns.visible('quantityLimit')" prop="quantityLimit" label="每人限购数量" />
+        <el-table-column v-if="columns.visible('quantityLimit')" width="100px" prop="quantityLimit" label="每人限购数量" />
         <el-table-column v-if="columns.visible('inventory')" prop="inventory" label="库存" />
         <el-table-column v-if="columns.visible('sales')" prop="sales" label="销量" />
         <el-table-column v-if="columns.visible('ficti')" prop="ficti" label="虚拟销量" />
@@ -489,18 +489,21 @@
         <!-- <el-table-column v-if="columns.visible('content')" prop="content" label="卡券详情" /> -->
         <el-table-column fixed="right" label="操作" width="120px" align="center">
           <template slot-scope="scope">
-            <el-dropdown split-button trigger="click">
-              <udOperation
-                :data="scope.row"
-                :permission="permission"
-              ></udOperation>
+            <udOperation
+              :data="scope.row"
+              :permission="permission"
+            ></udOperation>
+            <el-dropdown trigger="click" style="margin-top:10px" placement="bottom">
+              <el-button type="warning" plain size="mini" style="padding-left:10px;padding-right:10px;">
+                更多操作<i class="el-icon-arrow-down el-icon--right"></i>
+              </el-button>
               <el-dropdown-menu slot="dropdown">
                 <el-dropdown-item v-permission="permission.commission">
                   <el-button  plain type="primary"  @click="commission(scope.row)" style="margin-top:5px">分佣配置</el-button></el-dropdown-item>
                 <el-dropdown-item v-permission="permission.priceConfig">
                   <el-button plain @click="price(scope.row)" style="margin-top:5px;margin-left: 0">价格配置</el-button></el-dropdown-item>
                 <el-dropdown-item v-permission="permission.edit">
-                  <el-button type="info" plain @click="h5(scope.row)" style="margin-top:5px">预览</el-button></el-dropdown-item>
+                  <el-button type="success" plain @click="h5(scope.row)" style="margin-top:5px;word-spacing: 1.75em;">预 览</el-button></el-dropdown-item>
               </el-dropdown-menu>
             </el-dropdown>
 <!--            <el-button v-permission="permission.edit" slot="reference" type="danger" size="mini" @click="attr(scope.row)">渠道配置</el-button>-->
