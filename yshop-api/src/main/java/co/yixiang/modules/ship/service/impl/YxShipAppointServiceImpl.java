@@ -255,8 +255,8 @@ public class YxShipAppointServiceImpl extends BaseServiceImpl<YxShipAppointMappe
                 map.put("statusDesc", "根据留言用户id："+yxLeaveMessage.getCreateUserId()+" 获取信息失败！");
                 return map;
             }
-            param.setName(yxUser.getRealName());
-            param.setPhone(yxUser.getPhone());
+            param.setName(yxLeaveMessage.getUserName());
+            param.setPhone(yxLeaveMessage.getUserPhone());
         }
         BeanUtils.copyProperties(param,shipAppoint);
         shipAppoint.setCreateTime(new Date());
