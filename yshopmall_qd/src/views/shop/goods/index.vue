@@ -36,7 +36,7 @@
 <!--      </el-select>-->
       <el-button class="filter-item" size="mini" type="success" icon="el-icon-search" @click="toQuery">搜索</el-button>
       <!-- 新增 -->
-      <div style="display: inline-block;margin: 0px 2px;">
+      <div style="display: inline-block;margin: 0 2px;">
         <el-button
          v-permission="permission.edit"
           class="filter-item"
@@ -78,8 +78,8 @@
       <el-table-column prop="isBest" label="精品推荐" >
           <template slot-scope="scope">
             <div @click="changeHotStatus(scope.row.id,scope.row.isBest,hotType.best)">
-              <el-tag v-if="scope.row.isBest == 1">是</el-tag>
-              <el-tag v-else-if="scope.row.isBest == 0" :type=" 'info' ">否</el-tag>
+              <el-tag v-if="scope.row.isBest === 1">是</el-tag>
+              <el-tag v-else-if="scope.row.isBest === 0" :type=" 'info' ">否</el-tag>
               <el-tag v-else></el-tag>
             </div>
           </template>
@@ -87,8 +87,8 @@
       <el-table-column prop="isHot" label="热销榜单" >
           <template slot-scope="scope">
             <div @click="changeHotStatus(scope.row.id,scope.row.isHot,hotType.hot)">
-              <el-tag v-if="scope.row.isHot == 1">是</el-tag>
-              <el-tag v-else-if="scope.row.isHot == 0" :type=" 'info' ">否</el-tag>
+              <el-tag v-if="scope.row.isHot === 1">是</el-tag>
+              <el-tag v-else-if="scope.row.isHot === 0" :type=" 'info' ">否</el-tag>
               <el-tag v-else></el-tag>
             </div>
           </template>
@@ -131,8 +131,8 @@
               </el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>
-          <el-button v-permission="permission.edit" slot="reference" type="info" plain size="mini" @click="h5(scope.row)">预览</el-button>
-          <el-button v-permission="permission.commission"plain type="primary"  @click="commission(scope.row)" style="margin-top:5px">分佣配置</el-button>
+          <el-button type="success" plain size="mini" @click="h5(scope.row)">预览</el-button>
+          <el-button v-permission="permission.commission" plain type="primary"  @click="commission(scope.row)" style="margin-top:5px">分佣配置</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -157,7 +157,6 @@ import h5Form from './h5'
 import eAttr from './attr'
 import commission from './commission'
 import comForm from '@/views/activity/combination/form'
-import yxCustomizeRate from '../../../api/yxCustomizeRate'
 export default {
   components: { eForm, eAttr, comForm, commission,h5Form },
   mixins: [initData],
@@ -284,7 +283,7 @@ export default {
         sliderImage: data.sliderImage,
         imageArr: data.image.split(','),
         sliderImageArr: data.sliderImage.split(','),
-        sliderVideo:data.video!=''?data.video.split(','):[],
+        sliderVideo:data.video!==''?data.video.split(','):[],
         storeName: data.storeName,
         storeInfo: data.storeInfo,
         keyword: data.keyword,

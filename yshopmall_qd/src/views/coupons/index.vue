@@ -208,7 +208,7 @@
           <el-form-item v-show="false" label="销量">
             <el-input v-model="form.sales" style="width: 650px;" />
           </el-form-item>
-          <el-form-item v-if="$store.getters.user.userRole==0 || $store.getters.user.username=='admin'" label="虚拟销量" prop="ficti">
+          <el-form-item v-if="$store.getters.user.userRole===0 || $store.getters.user.username==='admin'" label="虚拟销量" prop="ficti">
             <el-input v-model="form.ficti" style="width: 650px;" maxlength="12" />
           </el-form-item>
           <el-form-item label="核销次数" prop="writeOff">
@@ -267,7 +267,7 @@
           <el-form-item label="使用条件" prop="useCondition">
             <el-input v-model="form.useCondition" style="width: 650px;" maxlength="88" />
           </el-form-item>
-          <el-form-item v-if="$store.getters.user.userRole==0 || $store.getters.user.username=='admin'" label="排序" prop='sort'>
+          <el-form-item v-if="$store.getters.user.userRole===0 || $store.getters.user.username==='admin'" label="排序" prop='sort'>
             <el-input v-model="form.sort" οnkeyup="if(isNaN(value))execCommand('undo')" onafterpaste="if(isNaN(value))execCommand('undo')" maxlength="6" style="width:650px"/>
           </el-form-item>
           <el-form-item label="图片(750*490)" prop="image">
@@ -502,7 +502,7 @@
                   <el-button  plain type="primary"  @click="commission(scope.row)" style="margin-top:5px">分佣配置</el-button></el-dropdown-item>
                 <el-dropdown-item v-permission="permission.priceConfig">
                   <el-button plain @click="price(scope.row)" style="margin-top:5px;margin-left: 0">价格配置</el-button></el-dropdown-item>
-                <el-dropdown-item v-permission="permission.edit">
+                <el-dropdown-item>
                   <el-button type="success" plain @click="h5(scope.row)" style="margin-top:5px;word-spacing: 1.75em;">预 览</el-button></el-dropdown-item>
               </el-dropdown-menu>
             </el-dropdown>
@@ -528,7 +528,6 @@ import picUploadTwo from '@/components/pic-upload-two'
 import mulpicUpload from '@/components/mul-pic-upload'
 import editor from '@/views/components/Editor'
 import { parseTime } from '@/utils/index'
-import { Message } from 'element-ui'
 import checkPermission from '@/utils/permission'
 import { sub } from "@/utils/math"
 import priceDialog from './operation/price'
@@ -788,7 +787,7 @@ export default {
         this.form.outtimeRefund = v ? 1 : 0
       },
       get: function (){
-        return this.form.outtimeRefund === 1 ? true: false;
+        return this.form.outtimeRefund === 1 ;
       }
     },
     needOrder:{
@@ -796,7 +795,7 @@ export default {
         this.form.needOrder = v ? 1: 0
       },
       get: function (){
-        return this.form.needOrder === 1 ? true: false;
+        return this.form.needOrder === 1 ;
       }
     },
     awaysRefund:{
@@ -804,7 +803,7 @@ export default {
         this.form.awaysRefund = v ? 1: 0
       },
       get: function (){
-        return this.form.awaysRefund === 1 ? true: false;
+        return this.form.awaysRefund === 1 ;
       }
     }
   },
@@ -1023,48 +1022,10 @@ export default {
 </script>
 
 <style scoped>
-  .table-img {
-    display: inline-block;
-    text-align: center;
-    background: #ccc;
-    color: #fff;
-    white-space: nowrap;
-    position: relative;
-    overflow: hidden;
-    vertical-align: middle;
-    width: 32px;
-    height: 32px;
-    line-height: 32px;
-  }
-</style>
-<style scoped>
-
-  .demo-upload{
-    display: block;
-    /*//height: 50px;*/
-    text-align: center;
-    border: 1px solid transparent;
-    border-radius: 4px;
-    overflow: hidden;
-    background: #fff;
-    position: relative;
-    box-shadow: 0 1px 1px rgba(0,0,0,.2);
-    margin-right: 4px;
-  }
   .demo-upload img{
     width: 100%;
     height: 100%;
     display: block;
-  }
-
-  .demo-upload-cover{
-    display: block;
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: rgba(0,0,0,.6);
   }
   .demo-upload:hover .demo-upload-cover{
     display: block;
