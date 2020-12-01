@@ -59,9 +59,6 @@ public class YxCouponCancelOrderTask {
                     resources.setRefundStatus(2);
                     resources.setRefundPrice(item.getTotalPrice());
                     yxCouponOrderService.refund(resources);
-                    // 更新订单信息
-                    item.setRefundStatus(2);
-                    item.setRefundReason("过期自动退款");
                 }
             }
             // 剩下未退款的更新成已过期
