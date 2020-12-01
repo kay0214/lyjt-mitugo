@@ -62,6 +62,8 @@ public class YxCouponCancelOrderTask {
                     // 更新订单信息
                     item.setRefundStatus(2);
                     item.setRefundReason("过期自动退款");
+                    item.setRefundReasonTime(DateUtils.getNowTime());
+                    item.setRefundPrice(item.getTotalPrice());
                 }
             }
             // 剩下未退款的更新成已过期
