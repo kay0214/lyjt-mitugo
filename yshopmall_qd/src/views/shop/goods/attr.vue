@@ -62,7 +62,7 @@
     <div style='border:1px solid #e4e7ec;border-radius:5px;padding:20px;margin-top:20px;'>
         <template v-for="(attr,index) in attrs">
           <div :key='index' style='border-bottom:1px dashed #eee;margin-bottom:10px;'>
-            <el-row :gutter="24">
+            <el-row :gutter="24" style='display: flex;align-items:center;'>
               <el-col :span="3">
               <template v-for="(val,key,idx) in attr.detail">
                 <p :key='idx' style="margin:0 0 8px;font-size:12px;">
