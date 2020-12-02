@@ -116,7 +116,7 @@ public class YxShipSeriesServiceImpl extends BaseServiceImpl<YxShipSeriesMapper,
         yxShipSeries.setStatus(statusSeries);
         yxShipSeries.setUpdateUserId(SecurityUtils.getUserId().intValue());
         yxShipSeries.setUpdateTime(DateTime.now().toTimestamp());
-        this.updateById(yxShipSeries);
+        this.updateByPrimaryKeySelective(yxShipSeries);
     }
 
     /**
