@@ -507,98 +507,108 @@ public class YxShipInfoServiceImpl extends BaseServiceImpl<YxShipInfoMapper, YxS
     @Override
     public Map<String, Object> sendEmail(String batchNo) {
         Map<String, Object> map = new HashMap<>();
-        map.put("status", "1");
-        map.put("statusDesc", "成功！");
-
         String strContent = "批次号：" + batchNo + " 出行记录信息";
         String path = "E://" + batchNo + "出行记录.xlsx";
-        QueryWrapper<YxShipOperation> queryWrapper = new QueryWrapper<>();
-        queryWrapper.lambda().eq(YxShipOperation::getBatchNo, batchNo);
-        YxShipOperation yxShipOperation = yxShipOperationMapper.selectOne(queryWrapper);
+        map.put("status", "1");
+        map.put("statusDesc", "成功！");
+        try {
+            QueryWrapper<YxShipOperation> queryWrapper = new QueryWrapper<>();
+            queryWrapper.lambda().eq(YxShipOperation::getBatchNo, batchNo);
+            YxShipOperation yxShipOperation = yxShipOperationMapper.selectOne(queryWrapper);
 
-        QueryWrapper<YxShipOperationDetail> detailQueryWrapper = new QueryWrapper<>();
-        detailQueryWrapper.lambda().eq(YxShipOperationDetail::getBatchNo, batchNo).eq(YxShipOperationDetail::getDelFlag, 0);
-        List<YxShipOperationDetail> detailList = yxShipOperationDetailMapper.selectList(detailQueryWrapper);
+            QueryWrapper<YxShipOperationDetail> detailQueryWrapper = new QueryWrapper<>();
+            detailQueryWrapper.lambda().eq(YxShipOperationDetail::getBatchNo, batchNo).eq(YxShipOperationDetail::getDelFlag, 0);
+            List<YxShipOperationDetail> detailList = yxShipOperationDetailMapper.selectList(detailQueryWrapper);
 
-        if (CollectionUtils.isEmpty(detailList)) {
-            map.put("status", "99");
-            map.put("statusDesc", "获取运营详情数据错误！");
-            return map;
-        }
-        List<Map<String, Object>> lst = new ArrayList<>();
-
-        for (YxShipOperationDetail detail : detailList) {
-            YxCouponOrder order = yxCouponOrderService.getById(detail.getCouponOrderId());
-            if (null == order) {
+            if (CollectionUtils.isEmpty(detailList)) {
                 map.put("status", "99");
-                map.put("statusDesc", "获取订单数据错误！");
+                map.put("statusDesc", "获取运营详情数据错误！");
                 return map;
             }
-            QueryWrapper<YxShipPassenger> passengerQueryWrapper = new QueryWrapper<>();
-            passengerQueryWrapper.lambda().eq(YxShipPassenger::getBatchNo, batchNo).
-                    eq(YxShipPassenger::getDelFlag, 0).
-                    eq(YxShipPassenger::getCouponOrderId, detail.getCouponOrderId());
-            List<YxShipPassenger> passengerList = yxShipPassengerService.list(passengerQueryWrapper);
-            if (CollectionUtils.isEmpty(passengerList)) {
-                map.put("status", "99");
-                map.put("statusDesc", "获取乘客信息错误！");
-                return map;
-            }
-            for (YxShipPassenger passenger : passengerList) {
-                Map<String, Object> rowParam = new LinkedHashMap<>();
-                rowParam.put("日期", DateUtils.timestampToStr10(yxShipOperation.getLeaveTime()));
-                rowParam.put("船名", yxShipOperation.getShipName());
-                rowParam.put("船长", yxShipOperation.getCaptainName());
-                rowParam.put("人数", 1);
-                rowParam.put("价格（元）", order.getTotalPrice());
-                rowParam.put("姓名", passenger.getPassengerName());
+            List<Map<String, Object>> lst = new ArrayList<>();
+
+            for (YxShipOperationDetail detail : detailList) {
+                YxCouponOrder order = yxCouponOrderService.getById(detail.getCouponOrderId());
+                if (null == order) {
+                    map.put("status", "99");
+                    map.put("statusDesc", "获取订单数据错误！");
+                    return map;
+                }
+                QueryWrapper<YxShipPassenger> passengerQueryWrapper = new QueryWrapper<>();
+                passengerQueryWrapper.lambda().eq(YxShipPassenger::getBatchNo, batchNo).
+                        eq(YxShipPassenger::getDelFlag, 0).
+                        eq(YxShipPassenger::getCouponOrderId, detail.getCouponOrderId());
+                List<YxShipPassenger> passengerList = yxShipPassengerService.list(passengerQueryWrapper);
+                if (CollectionUtils.isEmpty(passengerList)) {
+                    map.put("status", "99");
+                    map.put("statusDesc", "获取乘客信息错误！");
+                    return map;
+                }
+                for (YxShipPassenger passenger : passengerList) {
+                    Map<String, Object> rowParam = new LinkedHashMap<>();
+                    rowParam.put("日期", DateUtils.timestampToStr10(yxShipOperation.getLeaveTime()));
+                    rowParam.put("船名", yxShipOperation.getShipName());
+                    rowParam.put("船长", yxShipOperation.getCaptainName());
+                    rowParam.put("人数", 1);
+                    rowParam.put("价格（元）", order.getTotalPrice());
+                    rowParam.put("姓名", passenger.getPassengerName());
 //            rowParam.put("电话",passenger.getPhone());
-                rowParam.put("身份证号", passenger.getIdCard());
-                lst.add(rowParam);
+                    rowParam.put("身份证号", passenger.getIdCard());
+                    lst.add(rowParam);
+                }
             }
-        }
 
-        FileUtil.generatorExcel(lst, path, strContent, 6);
+            FileUtil.generatorExcel(lst, path, strContent, 6);
 
-        // 以下为测试
-        MailAccount account = new MailAccount();
-        // 企业
-        account.setHost("smtp.qiye.163.com");
-        //个人
+            // 以下为测试
+            MailAccount account = new MailAccount();
+            // 企业
+            account.setHost("smtp.qiye.163.com");
+            //个人
 //        account.setHost("smtp.163.com");
-        account.setPort(25);
-        account.setAuth(true);
-        //以下需配置
-        account.setFrom("nixiaoling@hyjf.com");
-        account.setUser("nixiaoling@hyjf.com");
-        account.setPass("kid0717Q!@#");
+//            account.setPort(25);
+            account.setPort(465);
+            account.setAuth(true);
+            //以下需配置
+            account.setFrom("nixiaoling@hyjf.com");
+            account.setUser("nixiaoling@hyjf.com");
+            account.setPass("kid0717Q!@#");
 
-        //获取邮箱
-        QueryWrapper<UsersRoles> wrapper = new QueryWrapper<>();
-        wrapper.lambda().eq(UsersRoles::getRoleId, SystemConfigConstants.ROLE_POLICE);
-        List<UsersRoles> usersRolesList = usersRolesMapper.selectList(wrapper);
-        if (CollectionUtils.isEmpty(usersRolesList)) {
-            map.put("status", "99");
-            map.put("statusDesc", "获取用户角色为【海岸支队】失败！");
-            return map;
-        }
-        String strReceiveEmail = "";
-        for (UsersRoles usersRoles : usersRolesList) {
-            SystemUserQueryVo systemUser = systemUserMapper.getUserById(usersRoles.getUserId());
-            if (null != systemUser && StringUtils.isNotBlank(systemUser.getEmail())) {
-                strReceiveEmail = systemUser.getEmail();
-                break;
+            //获取邮箱
+            QueryWrapper<UsersRoles> wrapper = new QueryWrapper<>();
+            wrapper.lambda().eq(UsersRoles::getRoleId, SystemConfigConstants.ROLE_POLICE);
+            List<UsersRoles> usersRolesList = usersRolesMapper.selectList(wrapper);
+            if (CollectionUtils.isEmpty(usersRolesList)) {
+                map.put("status", "99");
+                map.put("statusDesc", "获取用户角色为【海岸支队】失败！");
+                return map;
             }
-        }
-        if (StringUtils.isBlank(strReceiveEmail)) {
+            String strReceiveEmail = "";
+            for (UsersRoles usersRoles : usersRolesList) {
+                SystemUserQueryVo systemUser = systemUserMapper.getUserById(usersRoles.getUserId());
+                if (null != systemUser && StringUtils.isNotBlank(systemUser.getEmail())) {
+                    strReceiveEmail = systemUser.getEmail();
+                    break;
+                }
+            }
+            if (StringUtils.isBlank(strReceiveEmail)) {
+                map.put("status", "99");
+                map.put("statusDesc", "获取用户角色为【海岸支队】的邮箱失败！");
+                return map;
+            }
+            MailUtil.send(account, strReceiveEmail, strContent, "<h1>你好 " + strContent + "，请查收</h1>", true, FileUtil.file(path));
+            // 删除文件
+            FileUtil.del(path);
+            return map;
+        } catch (Exception e) {
+            // 删除文件
+            FileUtil.del(path);
             map.put("status", "99");
-            map.put("statusDesc", "获取用户角色为【海岸支队】的邮箱失败！");
+            map.put("statusDesc", "发送异常！");
+            log.error("发送异常！！", e);
             return map;
         }
-        MailUtil.send(account, strReceiveEmail, strContent, "<h1>你好 " + strContent + "，请查收</h1>", true, FileUtil.file(path));
-        // 删除文件
-        FileUtil.del(path);
-        return map;
+
     }
 
 }
