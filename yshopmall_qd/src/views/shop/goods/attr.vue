@@ -188,6 +188,9 @@ export default {
           { validator: validateNum, trigger: 'blur'},
           { validator: (rule, value, callback)=>{
             let index=rule.field.replace('price','')
+            if (value <= 0) {
+              callback(new Error('金额应大于0'));
+            }
             if(value<this.form2['cost'+index]*1 + this.form2['commission'+index]*1){
                 callback(new Error('金额应大于等于(平台结算价格+佣金)'));
               }else{
@@ -218,10 +221,14 @@ export default {
           { validator: validateNum, trigger: 'blur'},
           { validator: (rule, value, callback)=>{
             let index=rule.field.replace('cost','')
+            if (value <= 0) {
+              callback(new Error('金额应大于0'));
+            }
             if(value>this.form2['price'+index]*1){
                 callback(new Error('平台结算价格应小于等于金额'));
               }else{
                 this.form2['commission'+index]= sub(this.form2['price'+index],value)
+                this.attrs[index].commission=sub(this.form2['price'+index],value)
                 callback()
               }
           }, trigger: 'blur'},
