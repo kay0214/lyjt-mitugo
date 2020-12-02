@@ -2095,7 +2095,7 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
                 case 1:
                     break;
                 case 2:
-                    YxCustomizeRate yxCustomizeRate = yxCustomizeRateService.getCustomizeRateByParam(1, productId);
+                    YxCustomizeRate yxCustomizeRate = yxCustomizeRateService.getCustomizeRateByParam(0, productId);
                     BeanUtils.copyProperties(yxCustomizeRate, nowRate);
                     break;
             }

@@ -1600,7 +1600,7 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
             case 1:
                 break;
             case 2:
-                YxCustomizeRate yxCustomizeRate = yxCustomizeRateService.getCustomizeRateByParam(0, yxCoupons.getId());
+                YxCustomizeRate yxCustomizeRate = yxCustomizeRateService.getCustomizeRateByParam(1, yxCoupons.getId());
                 BeanUtils.copyProperties(yxCustomizeRate, nowRate);
                 break;
         }

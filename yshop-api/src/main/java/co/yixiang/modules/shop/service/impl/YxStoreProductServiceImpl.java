@@ -312,7 +312,7 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
                 break;
             case 2:
                 //2：自定义分佣
-                YxCustomizeRate yxCustomizeRate = yxCustomizeRateService.getCustomizeRateByParam(1, storeProductQueryVo.getId());
+                YxCustomizeRate yxCustomizeRate = yxCustomizeRateService.getCustomizeRateByParam(0, storeProductQueryVo.getId());
                 if (ObjectUtil.isNotNull(yxCustomizeRate)) {
                     //佣金= 佣金*分享
                     bigCommission = bigCommission.multiply(yxCustomizeRate.getShareRate());
