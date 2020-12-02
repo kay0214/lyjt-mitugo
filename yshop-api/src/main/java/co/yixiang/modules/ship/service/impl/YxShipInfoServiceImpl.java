@@ -167,7 +167,10 @@ public class YxShipInfoServiceImpl extends BaseServiceImpl<YxShipInfoMapper, YxS
     @Override
     public Map<String, Object> getShipOperationList(YxShipOperationQueryParam yxShipOperationQueryParam, ShipOperationParam shipOperationParam, Integer captionId, Integer storeId) {
         Map<String, Object> map = new HashMap<>();
-
+        //默认今日
+        if (null == shipOperationParam.getDateStatus()) {
+            shipOperationParam.setDateStatus("1");
+        }
         if (null != captionId) {
             //船长id = null
             yxShipOperationQueryParam.setCaptainId(captionId);
@@ -282,7 +285,7 @@ public class YxShipInfoServiceImpl extends BaseServiceImpl<YxShipInfoMapper, YxS
                 //近一个月
                 calendarDate.add(Calendar.MONTH, -1);
                 Date lastMonthDay = calendarDate.getTime();
-                strDate = format.format(lastMonthDay);
+                strDate = format.format(lastMonthDay)+ " 00:00:00";
                 break;
         }
         mapEnd.put("startDate", strDate);

@@ -89,8 +89,8 @@ public class YxOffPayOrderServiceImpl extends BaseServiceImpl<YxOffPayOrderMappe
         // 该笔资金实际到账
         SystemUser updateSystemUser = new SystemUser();
         updateSystemUser.setId(systemUser.getId());
-        updateSystemUser.setTotalAmount(systemUser.getTotalAmount().add(offPayOrder.getTotalPrice()));
-        updateSystemUser.setWithdrawalAmount(systemUser.getWithdrawalAmount().add(offPayOrder.getTotalPrice()));
+        updateSystemUser.setTotalAmount(offPayOrder.getTotalPrice());
+        updateSystemUser.setWithdrawalAmount(offPayOrder.getTotalPrice());
         //
         this.systemUserService.updateUserTotal(updateSystemUser);
 
