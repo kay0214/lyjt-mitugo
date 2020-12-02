@@ -562,7 +562,10 @@ public class YxShipInfoServiceImpl extends BaseServiceImpl<YxShipInfoMapper, YxS
 
         // 以下为测试
         MailAccount account = new MailAccount();
-        account.setHost("smtp.qiye.163.com");
+        // 企业
+//        account.setHost("smtp.qiye.163.com");
+        //个人
+        account.setHost("smtp.163.com");
         account.setPort(25);
         account.setAuth(true);
         account.setFrom("nixiaoling@hyjf.com");
