@@ -113,10 +113,7 @@ public class ShipInfoController extends BaseController {
         SystemUser user = getRedisUser(token);
         YxShipOperationQueryParam yxShipOperationQueryParam = new YxShipOperationQueryParam();
         yxShipOperationQueryParam.setStatus(3);
-        //默认今日出海记录
-        shipOperationParam.setDateStatus("1");
-
-        Map<String,Object> map = yxShipInfoService.getShipOperationList(yxShipOperationQueryParam, shipOperationParam, user.getId().intValue(),null);
+        Map<String,Object> map = yxShipInfoService.getShipOperationList(yxShipOperationQueryParam, shipOperationParam, user.getId().intValue(),user.getStoreId());
         return ResponseEntity.ok(map);
     }
 

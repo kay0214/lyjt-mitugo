@@ -494,7 +494,7 @@
               :permission="permission"
             ></udOperation>
             <el-dropdown trigger="click" style="margin-top:10px" placement="bottom">
-              <el-button type="warning" plain size="mini" style="padding-left:10px;padding-right:10px;">
+              <el-button type="primary" plain size="mini" style="padding-left:10px;padding-right:10px;">
                 更多操作<i class="el-icon-arrow-down el-icon--right"></i>
               </el-button>
               <el-dropdown-menu slot="dropdown">
