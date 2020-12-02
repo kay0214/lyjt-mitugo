@@ -227,8 +227,10 @@ export default {
             if(value>this.form2['price'+index]*1){
                 callback(new Error('平台结算价格应小于等于金额'));
               }else{
-                this.form2['commission'+index]= sub(this.form2['price'+index],value)
-                this.attrs[index].commission=sub(this.form2['price'+index],value)
+                if(!this.subForm){
+                  this.form2['commission'+index]= sub(this.form2['price'+index],value)
+                  this.attrs[index].commission=sub(this.form2['price'+index],value)
+                }
                 callback()
               }
           }, trigger: 'blur'},
