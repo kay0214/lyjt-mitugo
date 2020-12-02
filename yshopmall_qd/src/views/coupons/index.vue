@@ -882,10 +882,13 @@ export default {
             this.shipsTree=[]
           }
         }
+        //  设置默认 可用时段
+        this.availableTime = [form.availableTimeStart,form.availableTimeEnd]
+        this.form.availableTimeEnd = form.availableTimeEnd
+        this.form.availableTimeStart = form.availableTimeStart
       }
-      //  设置默认 可用时段
-      this.form.availableTimeEnd = this.availableTime[1]
-      this.form.availableTimeStart = this.availableTime[0]
+
+      
       // 设置默认图片
       form.imageArr = [form.image]
       const formImage = []
