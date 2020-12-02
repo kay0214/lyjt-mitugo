@@ -4,15 +4,29 @@
 package co.yixiang.common.util;
 
 import cn.hutool.core.codec.Base64;
+import co.yixiang.exception.ErrorRequestException;
+import co.yixiang.mp.config.ShopKeyUtils;
+import co.yixiang.utils.RedisUtil;
+import co.yixiang.utils.StringUtils;
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestTemplate;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
+import java.io.*;
 import java.security.AlgorithmParameters;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 微信工具类
@@ -32,6 +46,42 @@ public class WxUtils {
     public static final String SESSION_KEY = "session_key";
 
     public static final String OPEN_ID = "openid";
+
+
+    /**
+     * 获取用户ACCESS_TOKEN
+     *
+     *
+     */
+    public static String getAccessToken(String appId, String appSecret) {
+        String requestUrl = ACCESS_TOKEN_URL.replace("{appId}", appId).replace("{appSecret}", appSecret);
+        String res = HttpUtils.sendGet(requestUrl.substring(0,requestUrl.indexOf("?")), requestUrl.substring(requestUrl.indexOf("?")+1));
+        log.info(">>>>>>微信api获取accessToken响应:{}<<<<<<", res);
+        JSONObject resObject = JSONObject.parseObject(res);
+        String accessToken=resObject.getString("access_token");
+        return accessToken;
+    }
+
+    /**
+     * 获取用户appId
+     *
+     * @date 2020/8/18 14:34
+     */
+    public static String getAppId() {
+        String appId = RedisUtil.get(ShopKeyUtils.getWxAppAppId());
+        return appId;
+    }
+
+    /**
+     * 获取用户appId
+     *
+     * @date 2020/8/18 14:34
+     */
+    public static String getSecret() {
+        String secret = RedisUtil.get(ShopKeyUtils.getWxAppSecret());
+        return secret;
+    }
+
 
 
     /**
@@ -55,8 +105,8 @@ public class WxUtils {
      *
      * @param encryptedData 前端提供加密串
      * @param iv            前端提供的加密向量
-     * @author zhangyk
-     * @date 2020/8/18 14:41
+     * @param sessionKey
+     * @return
      */
     public static JSONObject decryptPhoneData(String sessionKey, String encryptedData, String iv) {
         // 被加密的数据
@@ -91,4 +141,56 @@ public class WxUtils {
         return null;
     }
 
+    public static void getQrCode(String accessToken,String filePath,String scene) {
+        if(StringUtils.isEmpty(accessToken)){
+            throw new ErrorRequestException("小程序码生成失败，accessToken为空");
+        }
+        RestTemplate rest = new RestTemplate();
+        InputStream inputStream = null;
+        OutputStream outputStream = null;
+        try {
+            String url = "https://api.weixin.qq.com/wxa/getwxacodeunlimit?access_token=" + accessToken;
+            Map<String, Object> param = new HashMap<>();
+            param.put("scene", scene);
+            Map<String, Object> line_color = new HashMap<>();
+            line_color.put("r", 0);
+            line_color.put("g", 0);
+            line_color.put("b", 0);
+            param.put("line_color", line_color);
+            MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
+            HttpEntity requestEntity = new HttpEntity(JSON.toJSONString(param), headers);
+            ResponseEntity<byte[]> entity = rest.exchange(url, HttpMethod.POST, requestEntity, byte[].class, new Object[0]);
+            byte[] result = entity.getBody();
+            inputStream = new ByteArrayInputStream(result);
+
+            File file = new File(filePath);
+            if (!file.exists()) {
+                file.createNewFile();
+            }
+            outputStream = new FileOutputStream(file);
+            int len = 0;
+            byte[] buf = new byte[1024];
+            while ((len = inputStream.read(buf, 0, 1024)) != -1) {
+                outputStream.write(buf, 0, len);
+            }
+            outputStream.flush();
+        } catch (Exception e) {
+            log.error("调用小程序生成微信永久小程序码URL接口异常", e);
+        } finally {
+            if (inputStream != null) {
+                try {
+                    inputStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (outputStream != null) {
+                try {
+                    outputStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
 }
