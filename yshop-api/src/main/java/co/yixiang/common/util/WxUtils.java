@@ -4,6 +4,10 @@
 package co.yixiang.common.util;
 
 import cn.hutool.core.codec.Base64;
+import co.yixiang.exception.ErrorRequestException;
+import co.yixiang.mp.config.ShopKeyUtils;
+import co.yixiang.utils.RedisUtil;
+import co.yixiang.utils.StringUtils;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
@@ -47,8 +51,7 @@ public class WxUtils {
     /**
      * 获取用户ACCESS_TOKEN
      *
-     * @author zhangyk
-     * @date 2020/8/18 14:34
+     *
      */
     public static String getAccessToken(String appId, String appSecret) {
         String requestUrl = ACCESS_TOKEN_URL.replace("{appId}", appId).replace("{appSecret}", appSecret);
@@ -57,6 +60,26 @@ public class WxUtils {
         JSONObject resObject = JSONObject.parseObject(res);
         String accessToken=resObject.getString("access_token");
         return accessToken;
+    }
+
+    /**
+     * 获取用户appId
+     *
+     * @date 2020/8/18 14:34
+     */
+    public static String getAppId() {
+        String appId = RedisUtil.get(ShopKeyUtils.getWxAppAppId());
+        return appId;
+    }
+
+    /**
+     * 获取用户appId
+     *
+     * @date 2020/8/18 14:34
+     */
+    public static String getSecret() {
+        String secret = RedisUtil.get(ShopKeyUtils.getWxAppSecret());
+        return secret;
     }
 
 
@@ -82,8 +105,8 @@ public class WxUtils {
      *
      * @param encryptedData 前端提供加密串
      * @param iv            前端提供的加密向量
-     * @author zhangyk
-     * @date 2020/8/18 14:41
+     * @param sessionKey
+     * @return
      */
     public static JSONObject decryptPhoneData(String sessionKey, String encryptedData, String iv) {
         // 被加密的数据
@@ -119,6 +142,9 @@ public class WxUtils {
     }
 
     public static void getQrCode(String accessToken,String filePath,String scene) {
+        if(StringUtils.isEmpty(accessToken)){
+            throw new ErrorRequestException("小程序码生成失败，accessToken为空");
+        }
         RestTemplate rest = new RestTemplate();
         InputStream inputStream = null;
         OutputStream outputStream = null;

@@ -361,7 +361,7 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
     }
 
     @Override
-    public ApiResult productPoster(Integer id) throws IOException, FontFormatException {
+    public ApiResult productPoster(Integer id) throws IOException {
         int uid = SecurityUtils.getUserId().intValue();
 
         String apiUrl = systemConfigService.getData(SystemConfigConstants.API_URL);
@@ -410,7 +410,6 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
         g.drawImage(head.getScaledInstance(393, 125, Image.SCALE_DEFAULT), 44, 76, null);
 
         //商品  banner图
-        //读取互联网图片
         BufferedImage productUrl = null;
         try {
             productUrl = ImageIO.read(new URL(transformStyle(yxImageInfo.getImgUrl())));
@@ -478,10 +477,6 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
         return ApiResult.ok(spreadUrl);
     }
 
-    public static int getCharLen(char c, Graphics g) {
-        return g.getFontMetrics(g.getFont()).charWidth(c);
-    }
-
     public String getCode(String fileDir, String userType, String siteUrl, String apiUrl, int uid, int id){
         String name = uid + "_" + id + "_store_" + userType + "_product_detail_wap.jpg";
         YxSystemAttachment attachmentWap = systemAttachmentService.getInfo(name);
@@ -491,10 +486,8 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
             config.setMargin(0);
             //如果类型是小程序
             File file = new File(fileDir + name);
-            // String appId = RedisUtil.get(ShopKeyUtils.getWxAppAppId());
-//            String secret = RedisUtil.get(ShopKeyUtils.getWxAppSecret());
-            String appId = "wx48bfdacd083c15db";
-            String secret = "3d826b283e3104561fb695ca05e7bcb9";
+            String appId = WxUtils.getAppId();
+            String secret = WxUtils.getSecret();
             String accessToken = WxUtils.getAccessToken(appId,secret);
             if (userType.equals(AppFromEnum.ROUNTINE.getValue())) {
                 //小程序地址

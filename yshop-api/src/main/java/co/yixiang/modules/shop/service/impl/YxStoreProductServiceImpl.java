@@ -753,10 +753,8 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
             config.setMargin(0);
             //如果类型是小程序
             File file = new File(fileDir + name);
-//            String appId = RedisUtil.get(ShopKeyUtils.getWxAppAppId());
-//            String secret = RedisUtil.get(ShopKeyUtils.getWxAppSecret());
-            String appId = "wx48bfdacd083c15db";
-            String secret = "3d826b283e3104561fb695ca05e7bcb9";
+            String appId = WxUtils.getAppId();
+            String secret = WxUtils.getSecret();
             String accessToken = WxUtils.getAccessToken(appId,secret);
             if (userType.equals(AppFromEnum.ROUNTINE.getValue())) {
                 //小程序地址

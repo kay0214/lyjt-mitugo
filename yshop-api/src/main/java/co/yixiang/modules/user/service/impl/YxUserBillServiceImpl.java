@@ -541,10 +541,8 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<YxUserBillMapper, YxU
         String qrCodeUrl;
         if (ObjectUtil.isNull(attachment)) {
             File file = new File(fileDir + name);
-//            String appId = RedisUtil.get(ShopKeyUtils.getWxAppAppId());
-//            String secret = RedisUtil.get(ShopKeyUtils.getWxAppSecret());
-            String appId = "wx48bfdacd083c15db";
-            String secret = "3d826b283e3104561fb695ca05e7bcb9";
+            String appId = WxUtils.getAppId();
+            String secret = WxUtils.getSecret();
             String accessToken = WxUtils.getAccessToken(appId,secret);
             WxUtils.getQrCode(accessToken,fileDir + name,"uid=" + uid+"&type=spread");
             if (StrUtil.isEmpty(localUrl)) {
