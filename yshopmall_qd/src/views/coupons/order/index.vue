@@ -109,6 +109,7 @@
           </el-table-column>
           <el-table-column label="操作" width="150px" align="center">
             <template slot-scope="scope">
+              <div class="life_flex">
               <el-button
               size="mini"
               type="primary"
@@ -116,6 +117,7 @@
             >
               订单详情</el-button>
               <el-button
+              style="margin-left:3px;"
               v-permission="permission.refund"
               v-if='scope.row.refundStatus===1'
               size="mini"
@@ -123,6 +125,7 @@
               @click="refund(scope.row)"
             >
               退款</el-button><!--0 未退款 1 申请中 2 已退款-->
+              </div>
             </template>
           </el-table-column>
         </el-table>
@@ -274,5 +277,9 @@ export default {
     width: 32px;
     height: 32px;
     line-height: 32px;
+  }
+  .life_flex{
+    display: flex;
+    flex-direction: row;
   }
 </style>

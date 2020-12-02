@@ -111,7 +111,7 @@
 
         <el-table-column v-permission="['admin','yxShipInfo:edit','yxShipInfo:del']" label="操作" width="150px" align="center">
           <template slot-scope="scope">
-            <el-button size="mini" type="text" icon="el-icon-edit"
+            <!-- <el-button size="mini" type="text" icon="el-icon-edit"
                        @click="crud.toEdit(scope.row)" >修改</el-button>
             <el-divider direction="vertical"></el-divider>
             <el-button size="mini" type="text" icon="el-icon-edit"
@@ -119,7 +119,31 @@
             <el-divider direction="vertical"></el-divider>
             <app-link :to="resolvePath('/ship/shipOperation?id='+scope.row.id)">
               <el-button size="mini" type="text" icon="el-icon-edit">出行记录</el-button>
-            </app-link>
+            </app-link> -->
+            <div class="flexs">
+              <app-link :to="resolvePath('/ship/shipOperation?id='+scope.row.id)">
+                <el-button size="small" type="primary"  style='marginTop:10px;padding:9px 18px;marginBottom:5px' plain  >出行记录</el-button>
+              </app-link>
+
+              <el-dropdown trigger="click" style="margin-top:10px padding:9px 15px;" placement="bottom">
+              <el-button type="primary" plain size="small" style="padding-left:10px;padding-right:10px;">
+              更多操作<i class="el-icon-arrow-down el-icon--right"></i>
+              </el-button>
+                  <el-dropdown-menu slot="dropdown">          
+                      <el-dropdown-item >
+                          <el-button  size="mini" type="primary" icon="el-icon-edit"  @click="crud.toEdit(scope.row)" plain>修改</el-button>
+                      </el-dropdown-item >
+                      <el-dropdown-item  >
+                          <el-button  style="marginTop:5px;" size="mini" type="primary" icon="el-icon-edit" @click="editStatus(scope.row)"  plain>{{ scope.row.status?'启用':'禁用' }}</el-button>
+                      </el-dropdown-item>
+                  
+                  </el-dropdown-menu>
+             </el-dropdown>          
+            </div>
+              
+
+
+
           </template>
         </el-table-column>
       </el-table>
@@ -288,4 +312,9 @@ export default {
 </script>
 
 <style scoped>
+ .flexs{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
 </style>
