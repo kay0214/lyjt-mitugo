@@ -69,14 +69,19 @@
         </el-table-column>
         <el-table-column v-permission="['admin','yxMerchantsSettlement:edit','yxMerchantsSettlement:del']" label="操作" width="150px" align="center">
           <template slot-scope="scope">
-            <el-button v-if="!scope.row.status" v-permission="permission.edit" size="mini" type="primary"
-                       icon="el-icon-edit" @click="crud.toEdit(scope.row)" />
-            <el-button v-else v-permission="permission.edit" size="mini" type="primary"
-                       icon="el-icon-view" @click="crud.toEdit(scope.row)" plain/>
-            <udOperation
-              :data="scope.row"
-              :permission="permissionDel"
-            />
+            <div class="ment_scope">
+              
+                 <el-button  v-if="!scope.row.status" v-permission="permission.edit" size="mini" type="primary"
+                        icon="el-icon-edit" @click="crud.toEdit(scope.row)" />
+              <el-button v-else v-permission="permission.edit" size="mini" type="primary"
+                        icon="el-icon-view" @click="crud.toEdit(scope.row)" plain/>
+              <udOperation
+                style="margin-left:3px;"
+                :data="scope.row"
+                :permission="permissionDel"
+              />
+            </div>
+             
           </template>
         </el-table-column>
       </el-table>
@@ -212,5 +217,10 @@ export default {
     width: 32px;
     height: 32px;
     line-height: 32px;
+  }
+  .ment_scope{
+    display: flex;
+    justify-content: center;
+    
   }
 </style>

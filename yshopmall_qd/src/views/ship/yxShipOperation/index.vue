@@ -137,9 +137,12 @@
         </el-table-column>
         <el-table-column v-permission="['admin','yxShipOperation:edit','yxShipOperation:del']" label="操作" width="150px" align="center">
           <template slot-scope="scope">
-            <el-button v-permission="permission.edit" type="text" size="mini" @click="detail(scope.row)">详情</el-button>
-            <el-divider direction="vertical"></el-divider>
-            <el-button size="mini" type="text" icon="el-icon-edit" >合同下载</el-button>
+            <div class="flexs">
+                 <el-button v-permission="permission.edit" type="primary" size="mini" @click="detail(scope.row)">详情</el-button>
+                <el-divider direction="vertical"></el-divider>
+                <el-button size="mini" type="primary" icon="el-icon-edit" style="marginLeft:5px;">合同下载</el-button>
+            </div>
+           
           </template>
         </el-table-column>
       </el-table>
@@ -280,5 +283,10 @@ export default {
     width: 32px;
     height: 32px;
     line-height: 32px;
+  }
+   .flexs{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
   }
 </style>

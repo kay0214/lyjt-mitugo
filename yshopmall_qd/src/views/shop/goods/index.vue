@@ -103,15 +103,70 @@
       </el-table-column>
       <el-table-column label="操作" width="205px" align="center">
         <template slot-scope="scope">
-          <el-button v-permission="permission.edit" slot="reference" type="danger" size="mini" @click="attr(scope.row)">规格属性</el-button>
-          <el-dropdown v-permission="permission.edit" size="mini" split-button type="primary" trigger="click">
+          <el-button v-permission="permission.edit" style="padding:9px 15px" slot="reference" type="danger" size="mini" @click="attr(scope.row)">规格属性</el-button>
+           <el-dropdown trigger="click" style="margin-top:10px " placement="bottom">
+             <el-button type="primary" plain size="small" style="padding-left:10px;padding-right:10px;">
+              操作<i class="el-icon-arrow-down el-icon--right"></i>
+              </el-button>
+                <el-dropdown-menu slot="dropdown">          
+                  <el-dropdown-item >
+                     <!-- <el-button type="success"  size="mini"  @click="h5(scope.row)">预览</el-button>      -->
+                    <el-button
+                      size="mini"
+                      type="success"
+                      style="margin-top:5px;width:100%"
+                      @click="h5(scope.row)"
+                    >预览</el-button>
+                  </el-dropdown-item >
+                  <el-dropdown-item >
+                      <el-button v-permission="permission.commission"  type="primary"  @click="commission(scope.row)" style="margin-top:5px">分佣配置</el-button>
+                  </el-dropdown-item>
+                  <el-dropdown-item >
+                      <el-button
+                        size="mini"
+                        type="primary"
+                        icon="el-icon-edit"
+                        style="margin-top:5px;"
+                        @click="edit(scope.row)"
+                      >编辑</el-button>
+                  </el-dropdown-item>
+                  <el-dropdown-item >
+                      <el-popover
+                        :ref="scope.row.id"
+                        placement="top"
+                        width="180"
+                      >
+                        <p>确定删除本条数据吗？</p>
+                        <div style="text-align: right; margin: 0">
+                          <el-button size="mini" type="text" @click="$refs[scope.row.id].doClose()">取消</el-button>
+                          <el-button :loading="delLoading" type="primary" size="mini" @click="subDelete(scope.row.id)">确定</el-button>
+                        </div>
+                        <el-button slot="reference" type="danger" icon="el-icon-delete" style="margin-top:5px;" size="mini">删除</el-button>
+                      </el-popover>
+                  </el-dropdown-item>
+                </el-dropdown-menu>
+             </el-dropdown>
+          <!-- <el-dropdown v-permission="permission.edit" size="mini" split-button type="primary" trigger="click">
             操作
             <el-dropdown-menu slot="dropdown">
+              <el-dropdown-item>
+                  <el-button type="success"  size="mini"  @click="h5(scope.row)">预览</el-button>     
+                    <el-button
+                  size="mini"
+                  type="success"
+                  style="margin-top:5px;width:100%"
+                  @click="h5(scope.row)"
+                >预览</el-button>
+              </el-dropdown-item>
+              <el-dropdown-item>
+                  <el-button v-permission="permission.commission"  type="primary"  @click="commission(scope.row)" style="margin-top:5px">分佣配置</el-button>
+              </el-dropdown-item>
               <el-dropdown-item>
                 <el-button
                   size="mini"
                   type="primary"
                   icon="el-icon-edit"
+                  style="margin-top:5px;"
                   @click="edit(scope.row)"
                 >编辑</el-button>
               </el-dropdown-item>
@@ -126,13 +181,11 @@
                     <el-button size="mini" type="text" @click="$refs[scope.row.id].doClose()">取消</el-button>
                     <el-button :loading="delLoading" type="primary" size="mini" @click="subDelete(scope.row.id)">确定</el-button>
                   </div>
-                  <el-button slot="reference" type="danger" icon="el-icon-delete" size="mini">删除</el-button>
+                  <el-button slot="reference" type="danger" icon="el-icon-delete" style="margin-top:5px;" size="mini">删除</el-button>
                 </el-popover>
               </el-dropdown-item>
             </el-dropdown-menu>
-          </el-dropdown>
-          <el-button type="success" plain size="mini" @click="h5(scope.row)">预览</el-button>
-          <el-button v-permission="permission.commission" plain type="primary"  @click="commission(scope.row)" style="margin-top:5px">分佣配置</el-button>
+          </el-dropdown> -->
         </template>
       </el-table-column>
     </el-table>

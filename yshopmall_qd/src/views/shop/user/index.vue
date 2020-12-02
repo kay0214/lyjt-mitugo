@@ -113,7 +113,7 @@
             <el-button slot="reference" type="danger" icon="el-icon-delete" size="mini"/>
           </el-popover>
           -->
-          <br/>
+          
           <el-popover
   placement="left"
   width="260"
