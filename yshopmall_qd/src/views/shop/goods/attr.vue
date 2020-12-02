@@ -188,8 +188,8 @@ export default {
           { validator: validateNum, trigger: 'blur'},
           { validator: (rule, value, callback)=>{
             let index=rule.field.replace('price','')
-            if(value<this.form2['cost'+index]*1){
-                callback(new Error('金额应大于等于平台结算价格'));
+            if(value<this.form2['cost'+index]*1 + this.form2['commission'+index]*1){
+                callback(new Error('金额应大于等于(平台结算价格+佣金)'));
               }else{
                 if(!this.subForm){
                 this.form2['commission'+index]= sub(value,this.form2['cost'+index])
