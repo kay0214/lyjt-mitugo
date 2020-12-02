@@ -569,6 +569,8 @@ public class YxShipInfoServiceImpl extends BaseServiceImpl<YxShipInfoMapper, YxS
 //            account.setPort(25);
             account.setPort(465);
             account.setAuth(true);
+            account.setSslEnable(true);
+
             //以下需配置
             account.setFrom("nixiaoling@hyjf.com");
             account.setUser("nixiaoling@hyjf.com");
@@ -602,7 +604,6 @@ public class YxShipInfoServiceImpl extends BaseServiceImpl<YxShipInfoMapper, YxS
             return map;
         } catch (Exception e) {
             // 删除文件
-            FileUtil.del(path);
             map.put("status", "99");
             map.put("statusDesc", "发送异常！");
             log.error("发送异常！！", e);
