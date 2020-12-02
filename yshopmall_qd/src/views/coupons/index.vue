@@ -882,11 +882,11 @@ export default {
             this.shipsTree=[]
           }
         }
+        //  设置默认 可用时段
+        this.availableTime = [form.availableTimeStart,form.availableTimeEnd]
+        this.form.availableTimeEnd = form.availableTimeEnd
+        this.form.availableTimeStart = form.availableTimeStart
       }
-      //  设置默认 可用时段
-      this.availableTime = [form.availableTimeStart,form.availableTimeEnd]
-      this.form.availableTimeEnd = form.availableTimeEnd
-      this.form.availableTimeStart = form.availableTimeStart
 
       
       // 设置默认图片
