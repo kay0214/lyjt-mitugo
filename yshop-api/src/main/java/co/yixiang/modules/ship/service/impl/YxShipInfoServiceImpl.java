@@ -176,9 +176,9 @@ public class YxShipInfoServiceImpl extends BaseServiceImpl<YxShipInfoMapper, YxS
     public Map<String, Object> getShipOperationList(YxShipOperationQueryParam yxShipOperationQueryParam, ShipOperationParam shipOperationParam, Integer captionId, Integer storeId) {
         Map<String, Object> map = new HashMap<>();
         //默认今日
-        if (null == shipOperationParam.getDateStatus()) {
+        /*if (null == shipOperationParam.getDateStatus()) {
             shipOperationParam.setDateStatus("1");
-        }
+        }*/
         if (null != captionId) {
             //船长id = null
             yxShipOperationQueryParam.setCaptainId(captionId);
