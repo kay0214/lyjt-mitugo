@@ -259,9 +259,10 @@ public class QiNiuServiceImpl implements QiNiuService {
         String upToken = auth.uploadToken(qiniuConfig.getBucket());
         try {
             String key = file.getName();
-            if(qiniuContentService.getOne(new QueryWrapper<QiniuContent>().eq("name", FileUtil.getFileNameNoEx(key)).eq("suffix",FileUtil.getExtensionName(key))) != null) {
-                key = QiNiuUtil.getKey(key);
-            }
+            key = QiNiuUtil.getKey(key);
+//            if(qiniuContentService.getOne(new QueryWrapper<QiniuContent>().eq("name", FileUtil.getFileNameNoEx(key)).eq("suffix",FileUtil.getExtensionName(key))) != null) {
+//                key = QiNiuUtil.getKey(key);
+//            }
             Response response = uploadManager.put(file, key, upToken);
             //解析上传成功的结果
 
