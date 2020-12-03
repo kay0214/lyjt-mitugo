@@ -80,5 +80,7 @@ public interface YxShipInfoService extends BaseService<YxShipInfo> {
 
     List<Integer> shipIdList(Integer seriesId, Integer storeId);
 
-    Map<String, Object>  sendEmail(String batchNo);
+    void sendEmail(String batchNo);
+
+    Map<String, Object> sendEmailMq(String batchNo);
 }

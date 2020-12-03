@@ -26,6 +26,10 @@ public interface MQConstant {
      */
     String MITU_WITHDRAW_GROUP = "MITU_WITHDRAW_GROUP";
     String MITU_WITHDRAW_TAG = "MITU_WITHDRAW_TAG";
-
+    /**
+     * 邮件发送
+     */
+    String MITU_SEND_MAIL_TAG = "MITU_SEND_MAIL_TAG";
+    String MITU_SEND_MAIL_GROUP = "MITU_SEND_MAIL_GROUP";
 
 }

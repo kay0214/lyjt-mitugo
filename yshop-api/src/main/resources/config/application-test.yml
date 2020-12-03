@@ -133,6 +133,16 @@ yshop:
     appId: 1607734
     appKey: 81f43a2e-f504-45c4-9b54-2637d59f8190
 
+  #发送邮件配置
+  mailsconfig:
+    port: 465
+    comHost: smtp.qiye.163.com
+#    以下需修改
+    sendUser: nixiaoling@hyjf.com
+    sendFrom: nixiaoling@hyjf.com
+    sendPassword: kid0717Q!@#
+    sslEnable: true
+
 
 mybatis-plus:
   check-config-location: true
