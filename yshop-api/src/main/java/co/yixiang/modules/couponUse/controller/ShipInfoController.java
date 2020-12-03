@@ -121,9 +121,8 @@ public class ShipInfoController extends BaseController {
     @PostMapping("/sendEmail")
     @ApiOperation(value = "发送邮件",notes = "发送邮件")
     public ResponseEntity<Object> sendEmail(@RequestBody Map<String,String> mapParam, @RequestHeader(value = "token") String token) {
-        SystemUser user = getRedisUser(token);
         String batchNo = mapParam.get("batchNo");
-        Map<String, Object> map =yxShipInfoService.sendEmail(batchNo);
+        Map<String, Object> map = yxShipInfoService.sendEmailMq(batchNo);
         return ResponseEntity.ok(map);
     }
 }
