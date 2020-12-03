@@ -7,8 +7,8 @@
       <el-button class="filter-item" size="mini" type="success" icon="el-icon-search" @click="crud.toQuery">搜索</el-button>
       <crudOperation :permission="permission" />
       <!--表单组件-->
-      <el-dialog :close-on-click-modal="false" :before-close="crud.cancelCU" :visible.sync="crud.status.cu > 0" :title="crud.status.title" width="500px">
-        <el-form ref="form" :model="form" :rules="rules" size="small" label-width="80px">
+      <el-dialog :close-on-click-modal="false" :before-close="crud.cancelCU" :visible.sync="crud.status.cu > 0" :title="crud.status.title" width="540px">
+        <el-form ref="form" :model="form" :rules="rules" size="small" label-width="110px">
           <el-form-item label="系列名称" prop="seriesName">
             <el-input v-model="form.seriesName" style="width: 370px;" maxlength="15"/>
           </el-form-item>
@@ -78,17 +78,34 @@
             <span>{{ scope.row.status?'禁用':'启用' }}</span>
           </template>
         </el-table-column>
-        <el-table-column v-permission="permission.edit" label="操作" width="150px" align="center">
+        <el-table-column v-permission="permission.edit" label="操作" width="200px" align="center">
           <template slot-scope="scope">
-            <el-button size="mini" type="text" icon="el-icon-edit"
+            <!-- <el-button size="mini" type="text" icon="el-icon-edit"
                        @click="crud.toEdit(scope.row)" >修改</el-button>
             <el-divider direction="vertical"></el-divider>
             <el-button size="mini" type="text" icon="el-icon-edit"
                        @click="editStatus(scope.row)" >{{ scope.row.status?'启用':'禁用' }}</el-button>
-            <el-divider direction="vertical"></el-divider>
-            <app-link :to="resolvePath('/ship/shipInfo?seriesId='+scope.row.id)">
-              <el-button size="mini" type="text" icon="el-icon-edit">船只管理</el-button>
-            </app-link>
+            <el-divider direction="vertical"></el-divider> -->
+            <div class="flexs">
+              <app-link :to="resolvePath('/ship/shipInfo?seriesId='+scope.row.id)">
+                <el-button size="small" type="primary"  style='margin-right:5px;padding:9px 15px;' plain  >船只管理</el-button>
+              </app-link>
+
+              <el-dropdown trigger="click" style="margin-top:10px padding:9px 15px;" placement="bottom">
+              <el-button type="primary" plain size="small" style="padding-left:10px;padding-right:10px;">
+              更多操作<i class="el-icon-arrow-down el-icon--right"></i>
+              </el-button>
+                  <el-dropdown-menu slot="dropdown">          
+                      <el-dropdown-item >
+                          <el-button  size="mini" type="primary" icon="el-icon-edit"  @click="crud.toEdit(scope.row)" plain>修改</el-button>
+                      </el-dropdown-item >
+                      <el-dropdown-item  >
+                          <el-button  style="marginTop:5px;" size="mini" type="primary" icon="el-icon-edit" @click="editStatus(scope.row)"  plain>{{ scope.row.status?'启用':'禁用' }}</el-button>
+                      </el-dropdown-item>
+                  
+                  </el-dropdown-menu>
+             </el-dropdown>          
+            </div>
           </template>
         </el-table-column>
       </el-table>
@@ -322,5 +339,10 @@ export default {
     width: 32px;
     height: 32px;
     line-height: 32px;
+  }
+  .flexs{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
   }
 </style>

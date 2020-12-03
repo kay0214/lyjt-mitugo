@@ -3,7 +3,7 @@
     <!--工具栏-->
     <div class="head-container">
       <!--如果想在工具栏加入更多按钮，可以使用插槽方式， slot = 'left' or 'right'-->
-      <el-input v-model="query.batchNo" clearable size="small"
+      <el-input v-model.trim="query.batchNo" clearable size="small"
                 placeholder="请输入批次号" style="width: 200px;" class="filter-item"
                 @keyup.enter.native="crud.toQuery" />
       <el-cascader
@@ -20,16 +20,17 @@
             $route.query.id=''
           }
         }"></el-cascader>
-      <el-input v-model="query.captainName" clearable size="small"
+      <el-input v-model.trim="query.captainName" clearable size="small"
                 placeholder="请输入船长姓名" style="width: 200px;" class="filter-item"
                 @keyup.enter.native="crud.toQuery" />
       <el-date-picker
         class="filter-item"
         v-model="query.daterange"
-        type="datetimerange"
+        type="daterange"
         range-separator="至"
         start-placeholder="出港时间"
         end-placeholder="出港时间"
+        value-format="yyyy-MM-dd"
         @change="(val)=>{
         if(val) {
           query.startDate =val[0];query.endDate =val[1]
@@ -134,11 +135,12 @@
             <span>{{ scope.row.returnFormatTime }}</span>
           </template>
         </el-table-column>
-        <el-table-column v-permission="['admin','yxShipOperation:edit','yxShipOperation:del']" label="操作" width="150px" align="center">
+        <el-table-column v-permission="['admin','yxShipOperation:edit','yxShipOperation:del']" label="操作" width="160px" align="center">
           <template slot-scope="scope">
-            <el-button v-permission="permission.edit" type="text" size="mini" @click="detail(scope.row)">详情</el-button>
-            <el-divider direction="vertical"></el-divider>
-            <el-button size="mini" type="text" icon="el-icon-edit" >合同下载</el-button>
+            <div class="flexs">
+                 <el-button v-permission="permission.edit" type="primary" size="mini" plain @click="detail(scope.row)">详情</el-button>
+                  <el-button size="mini" type="primary" plain style="marginLeft:5px;">合同下载</el-button>
+            </div>      
           </template>
         </el-table-column>
       </el-table>
@@ -167,7 +169,11 @@ const defaultCrud = CRUD({ title: '船只运营记录', url: 'api/yxShipOperatio
     del: false,
     download: true
   },
-  crudMethod: { ...crudYxShipOperation }})
+  crudMethod: { ...crudYxShipOperation },
+  query:{
+    shipInfoId:[]
+  }
+})
 const defaultForm = { id: null, batchNo: null, shipId: null, shipName: null, captainId: null,
   captainName: null, totalPassenger: null, oldPassenger: null, underagePassenger: null,
   leaveTime: null, returnTime: null, status: null, delFlag: null, createUserId: null,
@@ -239,7 +245,7 @@ export default {
     [CRUD.HOOK.beforeRefresh]() {
         if(Boolean(this.$route.query.id) && !isNaN(this.$route.query.id)){
           this.query.shipId=parseInt(this.$route.query.id)
-        }else{
+        }else if(!this.query.shipInfoId.length>0){
           this.query.shipId=''
         }
       return true
@@ -275,5 +281,10 @@ export default {
     width: 32px;
     height: 32px;
     line-height: 32px;
+  }
+   .flexs{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
   }
 </style>

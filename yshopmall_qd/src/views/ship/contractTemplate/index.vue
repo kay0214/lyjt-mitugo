@@ -3,14 +3,14 @@
     <!--工具栏-->
     <div class="head-container">
       <!--如果想在工具栏加入更多按钮，可以使用插槽方式， slot = 'left' or 'right'-->
-      <el-input v-model="query.tempName" clearable size="small" placeholder="请输入模板名称（完全匹配）" style="width: 250px;" class="filter-item" @keyup.enter.native="crud.toQuery" />
+      <el-input v-model.trim="query.tempName" clearable size="small" placeholder="请输入模板名称（完全匹配）" style="width: 250px;" class="filter-item" @keyup.enter.native="crud.toQuery" />
       <el-button class="filter-item" size="mini" type="success" icon="el-icon-search" @click="crud.toQuery">搜索</el-button>
       <crudOperation :permission="permission" />
       <!--表单组件-->
       <el-dialog :close-on-click-modal="false" :before-close="crud.cancelCU" :visible.sync="crud.status.cu > 0" :title="crud.status.title" width="500px">
         <el-form ref="form" :model="form" :rules="rules" size="small" label-width="80px">
           <el-form-item label="模板名称" prop="tempName">
-            <el-input v-model="form.tempName" style="width: 370px;" />
+            <el-input v-model.trim="form.tempName" style="width: 370px;" />
           </el-form-item>
           <el-form-item label="模板文件" prop="file">
             <el-upload
@@ -40,10 +40,7 @@
         <el-table-column type="selection" width="55" />
         <el-table-column v-if="columns.visible('id')" prop="id" label="id" />
         <el-table-column v-if="columns.visible('tempName')" prop="tempName" label="模板名称" />
-<!--        <el-table-column v-if="columns.visible('filePath')" prop="filePath" label="模板文件地址" />-->
-<!--        <el-table-column v-if="columns.visible('delFlag')" prop="delFlag" label="是否删除（0：未删除，1：已删除）" />-->
         <el-table-column v-if="columns.visible('createNickname')" prop="createNickname" label="添加人" />
-<!--        <el-table-column v-if="columns.visible('updateUserId')" prop="updateUserId" label="修改人" />-->
         <el-table-column v-if="columns.visible('createTime')" prop="createTime" label="添加时间">
           <template slot-scope="scope">
             <span>{{ parseTime(scope.row.createTime) }}</span>
@@ -175,17 +172,4 @@ export default {
 </script>
 
 <style scoped>
-  .table-img {
-    display: inline-block;
-    text-align: center;
-    background: #ccc;
-    color: #fff;
-    white-space: nowrap;
-    position: relative;
-    overflow: hidden;
-    vertical-align: middle;
-    width: 32px;
-    height: 32px;
-    line-height: 32px;
-  }
 </style>

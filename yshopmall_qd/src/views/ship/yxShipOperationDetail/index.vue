@@ -81,7 +81,7 @@
             </el-col>
             <el-col :span="15" style="padding:16px 0 16px 15px;">
               <el-row :gutter="20">
-                <el-col :span="10"v-for="item in form.listPassenger">
+                <el-col :span="10"v-for="(item,idx) in form.listPassenger" :key="idx">
                   <div style="border:1px solid #F2F6FC;border-radius: 5px;margin-bottom: 20px;padding:20px;" >
                     <p>{{item.passengerName}}</p>
                     <p v-if="item.isAdult"><!-- /** 0:未成年 1:成年人 2：老年人 */-->
@@ -163,7 +163,7 @@ export default {
   methods: {
     // 获取数据前设置好接口地址
     [CRUD.HOOK.beforeRefresh]() {
-      return false
+      return true
     }, // 新增与编辑前做的操作
     [CRUD.HOOK.afterToCU](crud, form) {
     },

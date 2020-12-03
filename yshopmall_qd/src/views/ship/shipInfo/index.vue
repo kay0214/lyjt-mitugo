@@ -40,7 +40,7 @@
             </el-select>
           </el-form-item>
           <el-form-item label="船只名称" prop="shipName">
-            <el-input v-model="form.shipName" style="width: 370px;" maxlength="20"/>
+            <el-input v-model.trim="form.shipName" style="width: 370px;" maxlength="20"/>
           </el-form-item>
           <!--<el-form-item label="商户id" prop="merId">
             <el-input v-model="form.merId" style="width: 370px;" />
@@ -49,13 +49,13 @@
 <!--            <el-input v-model="form.storeId" style="width: 370px;" />-->
 <!--          </el-form-item>-->
           <el-form-item label="船只所属商户名" prop="merName">
-            <el-input v-model="form.merName" style="width: 370px;" maxlength="20" clearable/>
+            <el-input v-model.trim="form.merName" style="width: 370px;" maxlength="20" clearable/>
           </el-form-item>
           <el-form-item label="船只负责人" prop="managerName">
-            <el-input v-model="form.managerName" style="width: 370px;" maxlength="20" clearable/>
+            <el-input v-model.trim="form.managerName" style="width: 370px;" maxlength="20" clearable/>
           </el-form-item>
           <el-form-item label="负责人电话" prop="managerPhone">
-            <el-input v-model="form.managerPhone" style="width: 370px;" maxlength="20" clearable/>
+            <el-input v-model.trim="form.managerPhone" style="width: 370px;" maxlength="20" clearable/>
           </el-form-item>
           <el-form-item label="船只状态" prop="shipStatus">
             <el-radio-group v-model="form.shipStatus">
@@ -67,9 +67,6 @@
             <MaterialList v-model="form.imageArr" style="width: 650px" type="image" :num="1" :width="150" :height="150"
                           @setValue='(val)=>{form.imageArr=val;form.imageUrl = val.join(",");$refs.form.validateField("imageArr")}'/>
           </el-form-item>
-          <!--<el-form-item label="船只当前状态：0：在港，1：离港。2：维修中" prop="currentStatus">
-            <el-input v-model="form.currentStatus" style="width: 370px;" />
-          </el-form-item>-->
         </el-form>
         <div slot="footer" class="dialog-footer">
           <el-button type="text" @click="crud.cancelCU">取消</el-button>
@@ -112,9 +109,9 @@
           </template>
         </el-table-column>
 
-        <el-table-column v-permission="['admin','yxShipInfo:edit','yxShipInfo:del']" label="操作" width="150px" align="center">
+        <el-table-column v-permission="['admin','yxShipInfo:edit','yxShipInfo:del']" label="操作" width="190px" align="center">
           <template slot-scope="scope">
-            <el-button size="mini" type="text" icon="el-icon-edit"
+            <!-- <el-button size="mini" type="text" icon="el-icon-edit"
                        @click="crud.toEdit(scope.row)" >修改</el-button>
             <el-divider direction="vertical"></el-divider>
             <el-button size="mini" type="text" icon="el-icon-edit"
@@ -122,7 +119,31 @@
             <el-divider direction="vertical"></el-divider>
             <app-link :to="resolvePath('/ship/shipOperation?id='+scope.row.id)">
               <el-button size="mini" type="text" icon="el-icon-edit">出行记录</el-button>
-            </app-link>
+            </app-link> -->
+            <div class="flexs">
+              <app-link :to="resolvePath('/ship/shipOperation?id='+scope.row.id)">
+                <el-button size="small" type="primary"  style='padding:9px 15px;' plain  >出行记录</el-button>
+              </app-link>
+
+              <el-dropdown trigger="click" style="marginLeft:10px;" placement="bottom">
+              <el-button type="primary" plain size="small" style="padding-left:10px;padding-right:10px;">
+              更多操作<i class="el-icon-arrow-down el-icon--right"></i>
+              </el-button>
+                  <el-dropdown-menu slot="dropdown">          
+                      <el-dropdown-item >
+                          <el-button  size="mini" type="primary" icon="el-icon-edit"  @click="crud.toEdit(scope.row)" plain>修改</el-button>
+                      </el-dropdown-item >
+                      <el-dropdown-item  >
+                          <el-button  style="marginTop:5px;" size="mini" type="primary" icon="el-icon-edit" @click="editStatus(scope.row)"  plain>{{ scope.row.status?'启用':'禁用' }}</el-button>
+                      </el-dropdown-item>
+                  
+                  </el-dropdown-menu>
+             </el-dropdown>          
+            </div>
+              
+
+
+
           </template>
         </el-table-column>
       </el-table>
@@ -291,17 +312,9 @@ export default {
 </script>
 
 <style scoped>
-  .table-img {
-    display: inline-block;
-    text-align: center;
-    background: #ccc;
-    color: #fff;
-    white-space: nowrap;
-    position: relative;
-    overflow: hidden;
-    vertical-align: middle;
-    width: 32px;
-    height: 32px;
-    line-height: 32px;
+ .flexs{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
   }
 </style>

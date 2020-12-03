@@ -86,8 +86,25 @@
             </div>
             <el-button slot="reference" type="danger" icon="el-icon-delete" size="mini" />
           </el-popover>
-          <el-button v-permission="['admin','YXSTOREPRODUCT_EDIT']" slot="reference" type="info" plain size="mini" @click="h5(scope.row)">预览</el-button>
-          <el-button v-permission="['admin', 'YXSTOREPRODUCT_RATE']" plain type="primary"  @click="commission(scope.row)" style="margin-top:5px">分佣配置</el-button>
+          <!-- <el-button v-permission="['admin','YXSTOREPRODUCT_EDIT']" slot="reference" type="info" plain size="mini" @click="h5(scope.row)">预览</el-button>
+          <el-button v-permission="['admin', 'YXSTOREPRODUCT_RATE']" plain type="primary"  @click="commission(scope.row)" style="margin-top:5px">分佣配置</el-button> -->
+            <el-dropdown trigger="click" style="margin-top:5px;" placement="bottom">
+             <el-button type="primary" plain size="small" style="padding:9px 24px ">
+              操作<i class="el-icon-arrow-down el-icon--right"></i>
+              </el-button>
+                <el-dropdown-menu slot="dropdown">          
+                    <el-dropdown-item >     
+                      <el-button v-permission="['admin','YXSTOREPRODUCT_EDIT']" slot="reference"  size="mini" type="success" style="margin-top:5px;width:100%" @click="h5(scope.row)">预览</el-button>
+                    </el-dropdown-item >
+                    <el-dropdown-item >
+                      <el-button v-permission="['admin', 'YXSTOREPRODUCT_RATE']" type="primary" @click="commission(scope.row)" style="margin-top:5px">分佣配置</el-button>
+                    </el-dropdown-item>
+                  
+                </el-dropdown-menu>
+             </el-dropdown>
+       
+       
+       
         </template>
       </el-table-column>
     </el-table>
@@ -229,7 +246,6 @@ export default {
         giveIntegral: data.giveIntegral,
         cost: data.cost,
         isSeckill: data.isSeckill,
-        isBargain: data.isBargain,
         isGood: data.isGood,
         ficti: data.ficti,
         browse: data.browse,

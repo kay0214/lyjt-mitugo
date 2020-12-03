@@ -633,7 +633,7 @@ export default {
         }
         const isLt5M = file.size / 1024 / 1024 < 5
         if (!isLt5M) {
-          this.$message.error('上传头像图片大小不能超过 5MB!')
+          this.$message.error('上传视频大小不能超过 5M!')
         }
         return isVideo && isLt5M
       }

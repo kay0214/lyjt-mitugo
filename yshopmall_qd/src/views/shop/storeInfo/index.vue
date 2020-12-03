@@ -17,12 +17,15 @@
         <el-button class="filter-item" size="mini" type="success" icon="el-icon-search" @click="crud.toQuery">搜索</el-button>
 
       </el-row>
-      <el-row style="marginBottom:20px;">
-        店铺包邮金额：<el-input style='width:200px;marginRight:20px;margin-right:20px;' v-model='freePostage' :disabled="Boolean(!editFreePostage)"></el-input>
-        <el-button v-if='!editFreePostage' v-permission="['admin','yxStoreInfo:freeShip']" class="" size="mini" type="primary" icon="el-icon-edit" @click="editFreePostage=!editFreePostage">修改</el-button>
-        <el-button v-if='editFreePostage' :loading="editFreePostageStep===1" class="" size="mini" type="primary" icon="el-icon-edit" @click="updateFreePostage">提交修改</el-button>
+      <el-row style="marginBottom:20px;" class="tabflex">
+        <div>
+            店铺包邮金额：<el-input class="shopinput" style='width:200px;marginRight:20px;margin-right:5px;height:30.5px;' v-model='freePostage' :disabled="Boolean(!editFreePostage)"></el-input>
+          <el-button v-if='!editFreePostage' v-permission="['admin','yxStoreInfo:freeShip']" class="" size="mini" type="primary" icon="el-icon-edit" @click="editFreePostage=!editFreePostage">修改</el-button>
+          <el-button v-if='editFreePostage' :loading="editFreePostageStep===1" class="" size="mini" type="primary" icon="el-icon-edit" @click="updateFreePostage">提交修改</el-button>
+        </div>
+        <crudOperation :permission="permission" class="tips" />
       </el-row>
-
+    
       <!--表单组件-->
       <el-dialog v-if="crud.status.cu > 0" :close-on-click-modal="false" :before-close="crud.cancelCU" :visible.sync="crud.status.cu > 0" :title="crud.status.title" width="900px">
         <!--        <el-form ref="form" :model="form" :rules="rules" size="small" label-width="80px">-->
@@ -622,6 +625,18 @@
   }
   .el-table >>> .el-table__empty-block{
     min-height: 0;
+  }
+  .shopinput >>> input{
+    height: 30.5px !important;
+  }
+  .tabflex{
+    display: flex;
+    align-items: center;
+    position: relative;
+  }
+  .tabflex >>> .crud-opts-right{
+    position: absolute;
+    right: 0;
   }
 </style>
 <style>

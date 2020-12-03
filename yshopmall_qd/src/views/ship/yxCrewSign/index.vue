@@ -8,7 +8,7 @@
       <el-input v-model="query.username" clearable size="small" placeholder="请输入用户名" style="width: 200px;"
                 class="filter-item" @keyup.enter.native="crud.toQuery" />
       <el-date-picker
-        class="filter-item"
+        class="filter-item filter-input"
         v-model="query.daterange"
         type="daterange"
         range-separator="至"
@@ -204,5 +204,9 @@ export default {
     width: 32px;
     height: 32px;
     line-height: 32px;
+  }
+  .filter-input >>> input{
+    height: initial !important;
+    line-height: initial !important;
   }
 </style>

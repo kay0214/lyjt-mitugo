@@ -285,16 +285,10 @@
         </el-table-column>
         <el-table-column v-permission="['admin','yxMerchantsDetail:edit','yxMerchantsDetail:examine','yxMerchantsDetail:del']" label="操作" width="250px" align="center">
           <template v-if="!crud.loading" slot-scope="scope">
-            <el-button v-if="scope.row.examineStatus===3" v-permission="permission.examine" size="mini" type="primary" icon="el-icon-s-check" @click="examineOpt(scope.row)" plain></el-button>
-            <el-button v-if='checkPermission(permission.editByManage)' v-permission="permission.editByManage" size="mini" type="danger"
-            icon="el-icon-edit" @click="crud.toEdit(scope.row)" plain></el-button>
-            <el-button v-else-if="scope.row.examineStatus===2 || scope.row.examineStatus===0" v-permission="permission.edit" size="mini"
-            type="primary" icon="el-icon-edit" @click="crud.toEdit(scope.row)" ></el-button>
-
-            <el-button size="mini" type="success" icon="el-icon-reading" @click="toRead(scope.row)" plain ></el-button>
+           
 
             <!-- <el-button v-if="scope.row.examineStatus===3" v-permission="permission.examine" size="mini" type="primary" icon="el-icon-s-check" @click="examineOpt(scope.row)" plain></el-button> -->
-            <br/>
+            <!-- <br/> -->
 <el-popover
   placement="left"
   width="260"
@@ -313,9 +307,27 @@ trigger="click">
     <el-button type="primary" size="mini" @click="withdrawEdit($event,scope.$index,scope.row.uid)">提交</el-button>
   </div>
   </el-form>
-  <el-button v-permission="permission.modify" size="small" type="primary" icon="el-icon-edit" slot="reference" style='marginTop:10px' plain>修改金额</el-button>
+  <el-button v-permission="permission.modify" size="small" type="primary" icon="el-icon-edit" slot="reference" style='marginTop:10px;' plain>修改金额</el-button>
 </el-popover>
-
+ <el-dropdown trigger="click" style="margin-top:10px padding:9px 15px;" placement="bottom">
+    <el-button type="primary" plain size="small" style="padding-left:10px;padding-right:10px;">
+     更多操作<i class="el-icon-arrow-down el-icon--right"></i>
+    </el-button>
+        <el-dropdown-menu slot="dropdown">          
+            <el-dropdown-item v-if="scope.row.examineStatus===3" >
+                <el-button v-permission="permission.examine" size="mini" type="primary" icon="el-icon-s-check" @click="examineOpt(scope.row)" plain></el-button>
+            </el-dropdown-item >
+            <el-dropdown-item v-if='checkPermission(permission.editByManage)' >
+                <el-button  style="marginTop:5px;" v-permission="permission.editByManage" size="mini" type="danger" icon="el-icon-edit" @click="crud.toEdit(scope.row)" plain></el-button>
+            </el-dropdown-item>
+            <el-dropdown-item  v-else-if="scope.row.examineStatus===2 || scope.row.examineStatus===0" >
+                <el-button  style="marginTop:5px;"  v-permission="permission.edit" size="mini"  type="primary" icon="el-icon-edit" @click="crud.toEdit(scope.row)" ></el-button>
+            </el-dropdown-item>
+            <el-dropdown-item >
+                <el-button  style="marginTop:5px;"  size="mini" type="success" icon="el-icon-reading" @click="toRead(scope.row)" plain ></el-button>
+            </el-dropdown-item> 
+        </el-dropdown-menu>
+  </el-dropdown>          
           </template>
         </el-table-column>
       </el-table>

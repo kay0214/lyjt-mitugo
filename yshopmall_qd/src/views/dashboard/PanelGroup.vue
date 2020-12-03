@@ -1,352 +1,359 @@
 <template>
-  <div v-if="user.userRole == 2 || user.userRole == 0">
-    <el-row :gutter="40" class="panel-group" v-if="user.userRole == 0">
-      <div class="panel-group-head">
-        <div class="division"></div>
-        <div class="panel-group-title">平台用户</div>
-        <div class="division"></div>
-      </div>
-      <div class="panel-col-box">
-      <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
-        <div class="card-panel">
-          <div class="card-panel-icon-wrapper icon-people">
-            <svg-icon icon-class="peoples" class-name="card-panel-icon" />
-          </div>
-          <div class="card-panel-description">
-            <div class="card-panel-text">
-              会员数
-            </div>
-            <count-to :start-val="0" :end-val="count.userCount" :duration="2600" class="card-panel-num" />
-          </div>
+  <div>
+    <div v-if="user.userRole == 2 || user.userRole == 0">
+      <el-row :gutter="40" class="panel-group" v-if="user.userRole == 0">
+        <div class="panel-group-head">
+          <div class="division"></div>
+          <div class="panel-group-title">平台用户</div>
+          <div class="division"></div>
         </div>
-      </el-col>
-      <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
-        <div class="card-panel">
-          <div class="card-panel-icon-wrapper icon-message">
-            <svg-icon icon-class="permission" class-name="card-panel-icon" />
-          </div>
-          <div class="card-panel-description">
-            <div class="card-panel-text">
-              分享达人数
+        <div class="panel-col-box">
+        <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
+          <div class="card-panel">
+            <div class="card-panel-icon-wrapper icon-people">
+              <svg-icon icon-class="peoples" class-name="card-panel-icon" />
             </div>
-            <count-to :start-val="0" :end-val="count.shareUserCount" :duration="3000" class="card-panel-num" />
-          </div>
-        </div>
-      </el-col>
-      <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
-        <div class="card-panel">
-          <div class="card-panel-icon-wrapper icon-money">
-            <svg-icon icon-class="pt" class-name="card-panel-icon" />
-          </div>
-          <div class="card-panel-description">
-            <div class="card-panel-text">
-              商户数
+            <div class="card-panel-description">
+              <div class="card-panel-text">
+                会员数
+              </div>
+              <count-to :start-val="0" :end-val="count.userCount" :duration="2600" class="card-panel-num" />
             </div>
-            <count-to :start-val="0" :end-val="count.merCount" :duration="3200" class="card-panel-num" />
           </div>
-        </div>
-      </el-col>
-      <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
-        <div class="card-panel" >
-          <div class="card-panel-icon-wrapper icon-shopping">
-            <svg-icon icon-class="user" class-name="card-panel-icon" />
-          </div>
-          <div class="card-panel-description">
-            <div class="card-panel-text">
-              上架商户数
+        </el-col>
+        <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
+          <div class="card-panel">
+            <div class="card-panel-icon-wrapper icon-message">
+              <svg-icon icon-class="permission" class-name="card-panel-icon" />
             </div>
-            <count-to :start-val="0" :end-val="count.okMerCount" :duration="3600" class="card-panel-num" />
+            <div class="card-panel-description">
+              <div class="card-panel-text">
+                分享达人数
+              </div>
+              <count-to :start-val="0" :end-val="count.shareUserCount" :duration="3000" class="card-panel-num" />
+            </div>
           </div>
+        </el-col>
+        <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
+          <div class="card-panel">
+            <div class="card-panel-icon-wrapper icon-money">
+              <svg-icon icon-class="pt" class-name="card-panel-icon" />
+            </div>
+            <div class="card-panel-description">
+              <div class="card-panel-text">
+                商户数
+              </div>
+              <count-to :start-val="0" :end-val="count.merCount" :duration="3200" class="card-panel-num" />
+            </div>
+          </div>
+        </el-col>
+        <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
+          <div class="card-panel" >
+            <div class="card-panel-icon-wrapper icon-shopping">
+              <svg-icon icon-class="user" class-name="card-panel-icon" />
+            </div>
+            <div class="card-panel-description">
+              <div class="card-panel-text">
+                上架商户数
+              </div>
+              <count-to :start-val="0" :end-val="count.okMerCount" :duration="3600" class="card-panel-num" />
+            </div>
+          </div>
+        </el-col>
         </div>
-      </el-col>
-      </div>
-    </el-row>
+      </el-row>
 
-    <el-row :gutter="40" class="panel-group">
-      <div class="panel-group-head">
-        <div class="division"></div>
-        <div class="panel-group-title">本地生活数据</div>
-        <div class="division"></div>
-      </div>
-      <div class="panel-col-box">
-      <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
-        <div class="card-panel">
-          <div class="card-panel-icon-wrapper icon-people">
-            <svg-icon icon-class="coupon" class-name="card-panel-icon" />
-          </div>
-          <div class="card-panel-description">
-            <div class="card-panel-text">
-              卡券数量
-            </div>
-            <count-to :start-val="0" :end-val="count.localProduct" :duration="2600" class="card-panel-num" />
-          </div>
+      <el-row :gutter="40" class="panel-group">
+        <div class="panel-group-head">
+          <div class="division"></div>
+          <div class="panel-group-title">本地生活数据</div>
+          <div class="division"></div>
         </div>
-      </el-col>
-      <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
-        <div class="card-panel">
-          <div class="card-panel-icon-wrapper icon-message">
-            <svg-icon icon-class="coupon" class-name="card-panel-icon" />
-          </div>
-          <div class="card-panel-description">
-            <div class="card-panel-text">
-              待上架卡券
+        <div class="panel-col-box">
+        <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
+          <div class="card-panel">
+            <div class="card-panel-icon-wrapper icon-people">
+              <svg-icon icon-class="coupon" class-name="card-panel-icon" />
             </div>
-            <count-to :start-val="0" :end-val="count.localProductUnder" :duration="3000" class="card-panel-num" />
-          </div>
-        </div>
-      </el-col>
-      <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
-        <div class="card-panel">
-          <div class="card-panel-icon-wrapper icon-money">
-            <svg-icon icon-class="orderinfo" class-name="card-panel-icon" />
-          </div>
-          <div class="card-panel-description">
-            <div class="card-panel-text">
-              待核销订单
+            <div class="card-panel-description">
+              <div class="card-panel-text">
+                卡券数量
+              </div>
+              <count-to :start-val="0" :end-val="count.localProduct" :duration="2600" class="card-panel-num" />
             </div>
-            <count-to :start-val="0" :end-val="count.localOrderWait" :duration="3200" class="card-panel-num" />
           </div>
-        </div>
-      </el-col>
-      <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
-        <div class="card-panel" >
-          <div class="card-panel-icon-wrapper icon-shopping">
-            <svg-icon icon-class="money" class-name="card-panel-icon" />
-          </div>
-          <div class="card-panel-description">
-            <div class="card-panel-text">
-              今日营业额
+        </el-col>
+        <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
+          <div class="card-panel">
+            <div class="card-panel-icon-wrapper icon-message">
+              <svg-icon icon-class="coupon" class-name="card-panel-icon" />
             </div>
-            <count-to :start-val="0" :end-val="count.localSumPrice" :duration="3600" :decimals="count.localSumPrice > 0 ? 2 : 0" class="card-panel-num" />
-          </div>
-        </div>
-      </el-col>
-      <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
-        <div class="card-panel" >
-          <div class="card-panel-icon-wrapper icon-shopping">
-            <svg-icon icon-class="seven" class-name="card-panel-icon" />
-          </div>
-          <div class="card-panel-description">
-            <div class="card-panel-text">
-              近七日营业额
+            <div class="card-panel-description">
+              <div class="card-panel-text">
+                待上架卡券
+              </div>
+              <count-to :start-val="0" :end-val="count.localProductUnder" :duration="3000" class="card-panel-num" />
             </div>
-            <count-to :start-val="0" :end-val="count.lastWeekLocalPrice" :decimals="count.lastWeekLocalPrice > 0 ? 2 : 0" :duration="3600" class="card-panel-num" />
           </div>
-        </div>
-      </el-col>
-      <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
-        <div class="card-panel" >
-          <div class="card-panel-icon-wrapper icon-shopping">
-            <svg-icon icon-class="monthlyview" class-name="card-panel-icon" />
-          </div>
-          <div class="card-panel-description">
-            <div class="card-panel-text">
-              近一个月营业额
+        </el-col>
+        <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
+          <div class="card-panel">
+            <div class="card-panel-icon-wrapper icon-money">
+              <svg-icon icon-class="orderinfo" class-name="card-panel-icon" />
             </div>
-            <count-to :start-val="0" :end-val="count.monthLocalPrice" :decimals="count.monthLocalPrice > 0 ? 2 : 0" :duration="3600" class="card-panel-num" />
-          </div>
-        </div>
-      </el-col>
-      <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
-        <div class="card-panel" >
-          <div class="card-panel-icon-wrapper icon-shopping">
-            <svg-icon icon-class="today" class-name="card-panel-icon" />
-          </div>
-          <div class="card-panel-description">
-            <div class="card-panel-text">
-              今日成交量
+            <div class="card-panel-description">
+              <div class="card-panel-text">
+                待核销订单
+              </div>
+              <count-to :start-val="0" :end-val="count.localOrderWait" :duration="3200" class="card-panel-num" />
             </div>
-            <count-to :start-val="0" :end-val="count.localOrderCount" :duration="3600" class="card-panel-num" />
           </div>
-        </div>
-      </el-col>
-      <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
-        <div class="card-panel" >
-          <div class="card-panel-icon-wrapper icon-shopping">
-            <svg-icon icon-class="seven" class-name="card-panel-icon" />
-          </div>
-          <div class="card-panel-description">
-            <div class="card-panel-text">
-              近七日成交量
+        </el-col>
+        <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
+          <div class="card-panel" >
+            <div class="card-panel-icon-wrapper icon-shopping">
+              <svg-icon icon-class="money" class-name="card-panel-icon" />
             </div>
-            <count-to :start-val="0" :end-val="count.lastWeekLocalCount" :duration="3600" class="card-panel-num" />
-          </div>
-        </div>
-      </el-col>
-      <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
-        <div class="card-panel" >
-          <div class="card-panel-icon-wrapper icon-shopping">
-            <svg-icon icon-class="monthlyview" class-name="card-panel-icon" />
-          </div>
-          <div class="card-panel-description">
-            <div class="card-panel-text">
-              近一个月成交量
+            <div class="card-panel-description">
+              <div class="card-panel-text">
+                今日营业额
+              </div>
+              <count-to :start-val="0" :end-val="count.localSumPrice" :duration="3600" :decimals="count.localSumPrice > 0 ? 2 : 0" class="card-panel-num" />
             </div>
-            <count-to :start-val="0" :end-val="count.monthLocalCount" :duration="3600" class="card-panel-num" />
           </div>
-        </div>
-      </el-col>
-      <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col" v-if="user.userRole == 0">
-        <div class="card-panel" >
-          <div class="card-panel-icon-wrapper icon-shopping">
-            <svg-icon icon-class="error" class-name="card-panel-icon" />
-          </div>
-          <div class="card-panel-description">
-            <div class="card-panel-text">
-              待处理退款
+        </el-col>
+        <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
+          <div class="card-panel" >
+            <div class="card-panel-icon-wrapper icon-shopping">
+              <svg-icon icon-class="seven" class-name="card-panel-icon" />
             </div>
-            <count-to :start-val="0" :end-val="count.localOrderRefund" :decimals="count.localOrderRefund > 0 ? 2 : 0" :duration="3600" class="card-panel-num" />
+            <div class="card-panel-description">
+              <div class="card-panel-text">
+                近七日营业额
+              </div>
+              <count-to :start-val="0" :end-val="count.lastWeekLocalPrice" :decimals="count.lastWeekLocalPrice > 0 ? 2 : 0" :duration="3600" class="card-panel-num" />
+            </div>
           </div>
+        </el-col>
+        <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
+          <div class="card-panel" >
+            <div class="card-panel-icon-wrapper icon-shopping">
+              <svg-icon icon-class="monthlyview" class-name="card-panel-icon" />
+            </div>
+            <div class="card-panel-description">
+              <div class="card-panel-text">
+                近一个月营业额
+              </div>
+              <count-to :start-val="0" :end-val="count.monthLocalPrice" :decimals="count.monthLocalPrice > 0 ? 2 : 0" :duration="3600" class="card-panel-num" />
+            </div>
+          </div>
+        </el-col>
+        <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
+          <div class="card-panel" >
+            <div class="card-panel-icon-wrapper icon-shopping">
+              <svg-icon icon-class="today" class-name="card-panel-icon" />
+            </div>
+            <div class="card-panel-description">
+              <div class="card-panel-text">
+                今日成交量
+              </div>
+              <count-to :start-val="0" :end-val="count.localOrderCount" :duration="3600" class="card-panel-num" />
+            </div>
+          </div>
+        </el-col>
+        <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
+          <div class="card-panel" >
+            <div class="card-panel-icon-wrapper icon-shopping">
+              <svg-icon icon-class="seven" class-name="card-panel-icon" />
+            </div>
+            <div class="card-panel-description">
+              <div class="card-panel-text">
+                近七日成交量
+              </div>
+              <count-to :start-val="0" :end-val="count.lastWeekLocalCount" :duration="3600" class="card-panel-num" />
+            </div>
+          </div>
+        </el-col>
+        <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
+          <div class="card-panel" >
+            <div class="card-panel-icon-wrapper icon-shopping">
+              <svg-icon icon-class="monthlyview" class-name="card-panel-icon" />
+            </div>
+            <div class="card-panel-description">
+              <div class="card-panel-text">
+                近一个月成交量
+              </div>
+              <count-to :start-val="0" :end-val="count.monthLocalCount" :duration="3600" class="card-panel-num" />
+            </div>
+          </div>
+        </el-col>
+        <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col" v-if="user.userRole == 0">
+          <div class="card-panel" >
+            <div class="card-panel-icon-wrapper icon-shopping">
+              <svg-icon icon-class="error" class-name="card-panel-icon" />
+            </div>
+            <div class="card-panel-description">
+              <div class="card-panel-text">
+                待处理退款
+              </div>
+              <count-to :start-val="0" :end-val="count.localOrderRefund" :decimals="count.localOrderRefund > 0 ? 2 : 0" :duration="3600" class="card-panel-num" />
+            </div>
+          </div>
+        </el-col>
         </div>
-      </el-col>
-      </div>
-    </el-row>
+      </el-row>
 
-    <el-row :gutter="40" class="panel-group">
-      <div class="panel-group-head">
-        <div class="division"></div>
-        <div class="panel-group-title">商城数据</div>
-        <div class="division"></div>
-      </div>
-      <div class="panel-col-box">
-      <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
-        <div class="card-panel">
-          <div class="card-panel-icon-wrapper icon-people">
-            <svg-icon icon-class="shopping" class-name="card-panel-icon" />
-          </div>
-          <div class="card-panel-description">
-            <div class="card-panel-text">
-              商品数量
-            </div>
-            <count-to :start-val="0" :end-val="count.shopProduct" :duration="2600" class="card-panel-num" />
-          </div>
+      <el-row :gutter="40" class="panel-group">
+        <div class="panel-group-head">
+          <div class="division"></div>
+          <div class="panel-group-title">商城数据</div>
+          <div class="division"></div>
         </div>
-      </el-col>
-      <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
-        <div class="card-panel">
-          <div class="card-panel-icon-wrapper icon-message">
-            <svg-icon icon-class="shopping" class-name="card-panel-icon" />
-          </div>
-          <div class="card-panel-description">
-            <div class="card-panel-text">
-              待上架商品
+        <div class="panel-col-box">
+        <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
+          <div class="card-panel">
+            <div class="card-panel-icon-wrapper icon-people">
+              <svg-icon icon-class="shopping" class-name="card-panel-icon" />
             </div>
-            <count-to :start-val="0" :end-val="count.shopProductUnder" :duration="3000" class="card-panel-num" />
-          </div>
-        </div>
-      </el-col>
-      <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
-        <div class="card-panel">
-          <div class="card-panel-icon-wrapper icon-money">
-            <svg-icon icon-class="orderinfo" class-name="card-panel-icon" />
-          </div>
-          <div class="card-panel-description">
-            <div class="card-panel-text">
-              待发货订单
+            <div class="card-panel-description">
+              <div class="card-panel-text">
+                商品数量
+              </div>
+              <count-to :start-val="0" :end-val="count.shopProduct" :duration="2600" class="card-panel-num" />
             </div>
-            <count-to :start-val="0" :end-val="count.shopOrderSend" :duration="3200" class="card-panel-num" />
           </div>
-        </div>
-      </el-col>
-      <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
-        <div class="card-panel" >
-          <div class="card-panel-icon-wrapper icon-shopping">
-            <svg-icon icon-class="money" class-name="card-panel-icon" />
-          </div>
-          <div class="card-panel-description">
-            <div class="card-panel-text">
-              今日营业额
+        </el-col>
+        <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
+          <div class="card-panel">
+            <div class="card-panel-icon-wrapper icon-message">
+              <svg-icon icon-class="shopping" class-name="card-panel-icon" />
             </div>
-            <count-to :start-val="0" :end-val="count.shopSumPrice" :duration="3600" :decimals="count.shopSumPrice > 0 ? 2 : 0" class="card-panel-num" />
-          </div>
-        </div>
-      </el-col>
-      <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
-        <div class="card-panel" >
-          <div class="card-panel-icon-wrapper icon-shopping">
-            <svg-icon icon-class="seven" class-name="card-panel-icon" />
-          </div>
-          <div class="card-panel-description">
-            <div class="card-panel-text">
-              近七日营业额
+            <div class="card-panel-description">
+              <div class="card-panel-text">
+                待上架商品
+              </div>
+              <count-to :start-val="0" :end-val="count.shopProductUnder" :duration="3000" class="card-panel-num" />
             </div>
-            <count-to :start-val="0" :end-val="count.lastWeekShopPrice" :decimals="count.lastWeekShopPrice > 0 ? 2 : 0" :duration="3600" class="card-panel-num" />
           </div>
-        </div>
-      </el-col>
-      <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
-        <div class="card-panel" >
-          <div class="card-panel-icon-wrapper icon-shopping">
-            <svg-icon icon-class="monthlyview" class-name="card-panel-icon" />
-          </div>
-          <div class="card-panel-description">
-            <div class="card-panel-text">
-              近一个月营业额
+        </el-col>
+        <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
+          <div class="card-panel">
+            <div class="card-panel-icon-wrapper icon-money">
+              <svg-icon icon-class="orderinfo" class-name="card-panel-icon" />
             </div>
-            <count-to :start-val="0" :end-val="count.monthShopPrice" :decimals="count.monthShopPrice > 0 ? 2 : 0" :duration="3600" class="card-panel-num" />
-          </div>
-        </div>
-      </el-col>
-      <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
-        <div class="card-panel" >
-          <div class="card-panel-icon-wrapper icon-shopping">
-            <svg-icon icon-class="today" class-name="card-panel-icon" />
-          </div>
-          <div class="card-panel-description">
-            <div class="card-panel-text">
-              今日成交量
+            <div class="card-panel-description">
+              <div class="card-panel-text">
+                待发货订单
+              </div>
+              <count-to :start-val="0" :end-val="count.shopOrderSend" :duration="3200" class="card-panel-num" />
             </div>
-            <count-to :start-val="0" :end-val="count.shopOrderCount" :duration="3600" class="card-panel-num" />
           </div>
-        </div>
-      </el-col>
-      <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
-        <div class="card-panel" >
-          <div class="card-panel-icon-wrapper icon-shopping">
-            <svg-icon icon-class="seven" class-name="card-panel-icon" />
-          </div>
-          <div class="card-panel-description">
-            <div class="card-panel-text">
-              近七日成交量
+        </el-col>
+        <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
+          <div class="card-panel" >
+            <div class="card-panel-icon-wrapper icon-shopping">
+              <svg-icon icon-class="money" class-name="card-panel-icon" />
             </div>
-            <count-to :start-val="0" :end-val="count.lastWeekShopCount" :duration="3600" class="card-panel-num" />
-          </div>
-        </div>
-      </el-col>
-      <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
-        <div class="card-panel" >
-          <div class="card-panel-icon-wrapper icon-shopping">
-            <svg-icon icon-class="monthlyview" class-name="card-panel-icon" />
-          </div>
-          <div class="card-panel-description">
-            <div class="card-panel-text">
-              近一个月成交量
+            <div class="card-panel-description">
+              <div class="card-panel-text">
+                今日营业额
+              </div>
+              <count-to :start-val="0" :end-val="count.shopSumPrice" :duration="3600" :decimals="count.shopSumPrice > 0 ? 2 : 0" class="card-panel-num" />
             </div>
-            <count-to :start-val="0" :end-val="count.monthShopCount" :duration="3600" class="card-panel-num" />
           </div>
-        </div>
-      </el-col>
-      <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col" v-if="user.userRole == 0">
-        <div class="card-panel" >
-          <div class="card-panel-icon-wrapper icon-shopping">
-            <svg-icon icon-class="error" class-name="card-panel-icon" />
-          </div>
-          <div class="card-panel-description">
-            <div class="card-panel-text">
-              待处理退款
+        </el-col>
+        <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
+          <div class="card-panel" >
+            <div class="card-panel-icon-wrapper icon-shopping">
+              <svg-icon icon-class="seven" class-name="card-panel-icon" />
             </div>
-            <count-to :start-val="0" :end-val="count.shopOrderRefund" :decimals="count.shopOrderRefund > 0 ? 2 : 0" :duration="3600" class="card-panel-num" />
+            <div class="card-panel-description">
+              <div class="card-panel-text">
+                近七日营业额
+              </div>
+              <count-to :start-val="0" :end-val="count.lastWeekShopPrice" :decimals="count.lastWeekShopPrice > 0 ? 2 : 0" :duration="3600" class="card-panel-num" />
+            </div>
           </div>
+        </el-col>
+        <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
+          <div class="card-panel" >
+            <div class="card-panel-icon-wrapper icon-shopping">
+              <svg-icon icon-class="monthlyview" class-name="card-panel-icon" />
+            </div>
+            <div class="card-panel-description">
+              <div class="card-panel-text">
+                近一个月营业额
+              </div>
+              <count-to :start-val="0" :end-val="count.monthShopPrice" :decimals="count.monthShopPrice > 0 ? 2 : 0" :duration="3600" class="card-panel-num" />
+            </div>
+          </div>
+        </el-col>
+        <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
+          <div class="card-panel" >
+            <div class="card-panel-icon-wrapper icon-shopping">
+              <svg-icon icon-class="today" class-name="card-panel-icon" />
+            </div>
+            <div class="card-panel-description">
+              <div class="card-panel-text">
+                今日成交量
+              </div>
+              <count-to :start-val="0" :end-val="count.shopOrderCount" :duration="3600" class="card-panel-num" />
+            </div>
+          </div>
+        </el-col>
+        <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
+          <div class="card-panel" >
+            <div class="card-panel-icon-wrapper icon-shopping">
+              <svg-icon icon-class="seven" class-name="card-panel-icon" />
+            </div>
+            <div class="card-panel-description">
+              <div class="card-panel-text">
+                近七日成交量
+              </div>
+              <count-to :start-val="0" :end-val="count.lastWeekShopCount" :duration="3600" class="card-panel-num" />
+            </div>
+          </div>
+        </el-col>
+        <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
+          <div class="card-panel" >
+            <div class="card-panel-icon-wrapper icon-shopping">
+              <svg-icon icon-class="monthlyview" class-name="card-panel-icon" />
+            </div>
+            <div class="card-panel-description">
+              <div class="card-panel-text">
+                近一个月成交量
+              </div>
+              <count-to :start-val="0" :end-val="count.monthShopCount" :duration="3600" class="card-panel-num" />
+            </div>
+          </div>
+        </el-col>
+        <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col" v-if="user.userRole == 0">
+          <div class="card-panel" >
+            <div class="card-panel-icon-wrapper icon-shopping">
+              <svg-icon icon-class="error" class-name="card-panel-icon" />
+            </div>
+            <div class="card-panel-description">
+              <div class="card-panel-text">
+                待处理退款
+              </div>
+              <count-to :start-val="0" :end-val="count.shopOrderRefund" :decimals="count.shopOrderRefund > 0 ? 2 : 0" :duration="3600" class="card-panel-num" />
+            </div>
+          </div>
+        </el-col>
         </div>
-      </el-col>
-      </div>
-    </el-row>
+      </el-row>
+
+    </div>
+    <div v-else>
+      <img width="100%" height="100%" :src="homeImage" alt="">
+    </div>
   </div>
 </template>
 <script>
 import CountTo from 'vue-count-to'
 import { mapGetters } from 'vuex'
 import { gett } from '@/api/visits'
+import homeImage from '@/assets/images/home.png'
 export default {
   components: {
     CountTo
@@ -358,6 +365,7 @@ export default {
   },
   data() {
     return {
+      homeImage: homeImage,
       count: {
         userCount: 0, //  会员数
         shareUserCount: 0, //  分享达人

@@ -7,8 +7,6 @@ package co.yixiang.modules.shop.service.dto;
 import co.yixiang.annotation.Query;
 import lombok.Data;
 
-import java.util.List;
-
 /**
  * @author hupeng
  * @date 2020-05-12
@@ -17,8 +15,8 @@ import java.util.List;
 public class YxStoreOrderQueryCriteria extends BaseCriteria {
 
     // 模糊
-    @Query(type = Query.Type.UNIX_TIMESTAMP)
-    private List<String> addTime;
+/*    @Query(type = Query.Type.UNIX_TIMESTAMP)
+    private List<String> addTime;*/
 
 
     // 模糊
@@ -77,4 +75,8 @@ public class YxStoreOrderQueryCriteria extends BaseCriteria {
     /** 商品名称 */
     private String storeName;
 
+    @Query
+    private String createTimeStart;
+    @Query
+    private String createTimeEnd;
 }

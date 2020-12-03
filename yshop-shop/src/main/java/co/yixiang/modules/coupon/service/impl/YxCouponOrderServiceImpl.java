@@ -106,7 +106,7 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
                 // 已过期
                 queryWrapper.lambda().eq(YxCouponOrder::getStatus, 1);
             } else if (8 == criteria.getOrderStatus()) {
-                queryWrapper.lambda().eq(YxCouponOrder::getStatus, criteria.getOrderStatus());
+                queryWrapper.lambda().and(refund -> refund.eq(YxCouponOrder::getStatus, criteria.getOrderStatus()).or().eq(YxCouponOrder::getRefundStatus, 2));
             } else {
                 queryWrapper.lambda().eq(YxCouponOrder::getStatus, criteria.getOrderStatus()).eq(YxCouponOrder::getRefundStatus, 0);
             }

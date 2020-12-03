@@ -1154,10 +1154,6 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         updateOrderUse(uid, yxStoreInfo, yxCouponOrder, yxCouponOrderDetail, usedCount);
 
         if (isFirst) {
-            updateMerInfo(yxCouponOrder);
-        }
-
-        if (isFirst) {
             // 更新商户余额
             updateMerInfo(yxCouponOrder);
         }
@@ -1604,7 +1600,7 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
             case 1:
                 break;
             case 2:
-                YxCustomizeRate yxCustomizeRate = yxCustomizeRateService.getCustomizeRateByParam(0, yxCoupons.getId());
+                YxCustomizeRate yxCustomizeRate = yxCustomizeRateService.getCustomizeRateByParam(1, yxCoupons.getId());
                 BeanUtils.copyProperties(yxCustomizeRate, nowRate);
                 break;
         }

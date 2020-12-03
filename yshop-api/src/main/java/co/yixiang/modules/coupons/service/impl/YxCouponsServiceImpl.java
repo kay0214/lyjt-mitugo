@@ -234,6 +234,11 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
         YxCouponOrderDetail yxCouponOrderDetail = (YxCouponOrderDetail) checkResult.get("yxCouponOrderDetail");
         YxCouponOrder yxCouponOrder = (YxCouponOrder) checkResult.get("yxCouponOrder");
         YxCoupons yxCoupons = (YxCoupons) checkResult.get("yxCoupons");
+        if (4 == yxCoupons.getCouponType()) {
+            yxCouponsDto.setStatus(99);
+            yxCouponsDto.setStatusDesc("卡券类型不支持");
+            return yxCouponsDto;
+        }
 
         // 组装返回参数
         yxCouponsDto = getYxCouponsDto(yxCouponOrderDetail, yxCouponOrder, yxCoupons);
@@ -265,6 +270,10 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
             yxCouponsDto.setStatusDesc("无效卡券");
             return result;
         }
+        if (4 != yxCouponOrderDetail.getStatus() && 5 != yxCouponOrderDetail.getStatus()) {
+            yxCouponsDto.setStatusDesc("该卡券已被核销");
+            return result;
+        }
         YxCouponOrder yxCouponOrder = this.yxCouponOrderService.getOne(new QueryWrapper<YxCouponOrder>().eq("order_id", yxCouponOrderDetail.getOrderId()));
         result.put("yxCouponOrder", yxCouponOrder);
         if (null == yxCouponOrder) {
@@ -293,7 +302,6 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
             yxCouponsDto.setStatusDesc("卡券已过期");
             return result;
         }
-
 
         // 判断是否本商铺发放的卡券
         if (!yxCoupons.getStoreId().equals(user.getStoreId())) {
@@ -368,6 +376,10 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
         YxCoupons yxCoupons = this.getById(yxCouponOrder.getCouponId());
         if (null == yxCoupons) {
             yxCouponsDto.setStatusDesc("卡券已失效");
+            return yxCouponsDto;
+        }
+        if (4 == yxCoupons.getCouponType()) {
+            yxCouponsDto.setStatusDesc("卡券类型不支持");
             return yxCouponsDto;
         }
         // 判断有效期
@@ -471,6 +483,11 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
         YxCouponOrder yxCouponOrder = (YxCouponOrder) checkResult.get("yxCouponOrder");
         YxCoupons yxCoupons = (YxCoupons) checkResult.get("yxCoupons");
 
+        if (4 != yxCoupons.getCouponType()) {
+            yxCouponsDto.setStatus(99);
+            yxCouponsDto.setStatusDesc("非船只卡券无法核销");
+            return yxCouponsDto;
+        }
         // 组装返回参数
         yxCouponsDto = getYxCouponsDto(yxCouponOrderDetail, yxCouponOrder, yxCoupons);
 
@@ -483,7 +500,9 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
         }
         // 最多乘坐
         yxCouponsDto.setShipMaxUserCount(shipSeries.getRideLimit());
-        List<YxShipPassenger> couponUsers = yxShipPassengerService.list(new QueryWrapper<YxShipPassenger>().eq("coupon_order_id", yxCouponOrder.getId()));
+        List<YxShipPassenger> couponUsers = yxShipPassengerService.list(new QueryWrapper<YxShipPassenger>().lambda()
+                .eq(YxShipPassenger::getCouponOrderId, yxCouponOrder.getId())
+                .and(batchNo -> batchNo.isNull(YxShipPassenger::getBatchNo).or().eq(YxShipPassenger::getBatchNo, "")));
         List<YxShipPassengerVO> users = new ArrayList<>();
         if (couponUsers == null || couponUsers.size() == 0) {
             yxCouponsDto.setStatus(99);

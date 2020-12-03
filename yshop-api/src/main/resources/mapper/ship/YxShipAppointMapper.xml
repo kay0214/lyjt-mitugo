@@ -38,6 +38,7 @@
         <if test="param.startTime !='' and param.startTime != null">
             AND app.appointment_date = #{param.startTime}
         </if>
+        GROUP BY app.id
     </select>
 
     <select id="getAppointmentDateByParam" resultType="String">

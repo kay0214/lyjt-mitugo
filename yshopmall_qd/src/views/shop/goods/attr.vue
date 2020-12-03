@@ -62,7 +62,7 @@
     <div style='border:1px solid #e4e7ec;border-radius:5px;padding:20px;margin-top:20px;'>
         <template v-for="(attr,index) in attrs">
           <div :key='index' style='border-bottom:1px dashed #eee;margin-bottom:10px;'>
-            <el-row :gutter="24">
+            <el-row :gutter="24" style='display: flex;align-items:center;'>
               <el-col :span="3">
               <template v-for="(val,key,idx) in attr.detail">
                 <p :key='idx' style="margin:0 0 8px;font-size:12px;">
@@ -188,11 +188,15 @@ export default {
           { validator: validateNum, trigger: 'blur'},
           { validator: (rule, value, callback)=>{
             let index=rule.field.replace('price','')
-            if(value<this.form2['cost'+index]*1){
-                callback(new Error('金额应大于等于平台结算价格'));
+            if (value <= 0) {
+              callback(new Error('金额应大于0'));
+            }
+            if(value<this.form2['cost'+index]*1 + this.form2['commission'+index]*1){
+                callback(new Error('金额应大于等于(平台结算价格+佣金)'));
               }else{
                 if(!this.subForm){
                 this.form2['commission'+index]= sub(value,this.form2['cost'+index])
+                  this.attrs[index].commission=sub(value,this.form2['cost'+index])
                 }
                 callback()
               }
@@ -217,10 +221,16 @@ export default {
           { validator: validateNum, trigger: 'blur'},
           { validator: (rule, value, callback)=>{
             let index=rule.field.replace('cost','')
+            if (value <= 0) {
+              callback(new Error('金额应大于0'));
+            }
             if(value>this.form2['price'+index]*1){
                 callback(new Error('平台结算价格应小于等于金额'));
               }else{
-                this.form2['commission'+index]= sub(this.form2['price'+index],value)
+                if(!this.subForm){
+                  this.form2['commission'+index]= sub(this.form2['price'+index],value)
+                  this.attrs[index].commission=sub(this.form2['price'+index],value)
+                }
                 callback()
               }
           }, trigger: 'blur'},
@@ -358,7 +368,6 @@ export default {
         giveIntegral: '',
         cost: '',
         isSeckill: '',
-        isBargain: '',
         isGood: '',
         ficti: '',
         browse: '',

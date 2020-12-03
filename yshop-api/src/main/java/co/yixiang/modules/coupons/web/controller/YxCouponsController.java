@@ -185,7 +185,7 @@ public class YxCouponsController extends BaseController {
                 break;
             case 2:
                 //2：自定义分佣
-                YxCustomizeRate yxCustomizeRate = yxCustomizeRateService.getCustomizeRateByParam(0, yxCouponsQueryVo.getId());
+                YxCustomizeRate yxCustomizeRate = yxCustomizeRateService.getCustomizeRateByParam(1, yxCouponsQueryVo.getId());
                 bigCommission = yxCouponsQueryVo.getCommission();
 
                 if (ObjectUtil.isNotNull(yxCustomizeRate)) {

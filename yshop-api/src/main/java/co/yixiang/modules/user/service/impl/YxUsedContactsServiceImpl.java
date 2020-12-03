@@ -161,12 +161,13 @@ public class YxUsedContactsServiceImpl extends BaseServiceImpl<YxUsedContactsMap
     private int getPassengerOrderByParam(Integer orderId,Integer contastId) {
         QueryWrapper<YxShipPassenger> queryWrapper = new QueryWrapper<>();
         queryWrapper.lambda().
-                isNotNull(YxShipPassenger::getBatchNo).
+                eq(YxShipPassenger::getBatchNo,"").
                 eq(YxShipPassenger::getCouponOrderId, orderId).
                 eq(YxShipPassenger::getContactsId,contastId);
         List<YxShipPassenger> passengerList = yxShipPassengerService.list(queryWrapper);
-        if (CollectionUtils.isEmpty(passengerList)) {
-            return 0;
+        if (!CollectionUtils.isEmpty(passengerList)) {
+            // 如果有批次号代表已核销，可以选择乘客
+            return 1;
         }
-        return 1;
+        return 0;
     }}

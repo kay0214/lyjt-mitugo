@@ -1,14 +1,14 @@
 package co.yixiang.modules.shop.service;
 
 import co.yixiang.common.api.ApiResult;
+import co.yixiang.common.service.BaseService;
+import co.yixiang.common.web.vo.Paging;
 import co.yixiang.modules.couponUse.dto.ShipUserLeaveVO;
 import co.yixiang.modules.shop.entity.YxStoreProduct;
-import co.yixiang.common.service.BaseService;
 import co.yixiang.modules.shop.web.dto.ProductDTO;
 import co.yixiang.modules.shop.web.param.YxStoreProductQueryParam;
 import co.yixiang.modules.shop.web.vo.YxStoreProductNoAttrQueryVo;
 import co.yixiang.modules.shop.web.vo.YxStoreProductQueryVo;
-import co.yixiang.common.web.vo.Paging;
 
 import java.awt.*;
 import java.io.IOException;
@@ -30,11 +30,11 @@ public interface YxStoreProductService extends BaseService<YxStoreProduct> {
     YxStoreProduct getProductInfo(int id);
 
 
-    void incProductStock(int num,int productId,String unique);
+    void incProductStock(int num, int productId, String unique);
 
-    void decProductStock(int num,int productId,String unique);
+    void decProductStock(int num, int productId, String unique);
 
-    int getProductStock(int productId,String unique);
+    int getProductStock(int productId, String unique);
 
 
     ProductDTO goodsDetail(int id, int type, int uid, String latitude, String longitude);
@@ -43,6 +43,7 @@ public interface YxStoreProductService extends BaseService<YxStoreProduct> {
 
     /**
      * 商品列表
+     *
      * @param page
      * @param limit
      * @param order
@@ -52,6 +53,7 @@ public interface YxStoreProductService extends BaseService<YxStoreProduct> {
 
     /**
      * 根据ID获取查询对象
+     *
      * @param id
      * @return
      */
@@ -61,12 +63,15 @@ public interface YxStoreProductService extends BaseService<YxStoreProduct> {
 
     /**
      * 获取分页对象
+     *
      * @param yxStoreProductQueryParam
      * @return
      */
     Paging<YxStoreProductQueryVo> getYxStoreProductPageList(YxStoreProductQueryParam yxStoreProductQueryParam) throws Exception;
+
     /**
      * 根据商户id获取商品信息
+     *
      * @param storeId
      * @return
      */
@@ -74,25 +79,29 @@ public interface YxStoreProductService extends BaseService<YxStoreProduct> {
 
     /**
      * 查询所有商品数量
+     *
      * @return
      */
     Integer getAllProduct();
 
     /**
      * 本地生活商品数量
+     *
      * @return
      */
     Integer getLocalProduct();
 
     /**
      * 根据cartId获取规格属性
+     *
      * @param cartId
      * @return
      */
-    public String getProductArrtValueByCartId (String cartId);
+    public String getProductArrtValueByCartId(String cartId);
 
     /**
      * 商品海报
+     *
      * @param pageType
      * @param id
      * @return
@@ -101,6 +110,7 @@ public interface YxStoreProductService extends BaseService<YxStoreProduct> {
 
     /**
      * 本地生活商品数量
+     *
      * @param storeId
      * @return
      */
@@ -108,6 +118,7 @@ public interface YxStoreProductService extends BaseService<YxStoreProduct> {
 
     /**
      * 本地生活订单相关数量
+     *
      * @param storeId
      * @return
      */
@@ -115,6 +126,7 @@ public interface YxStoreProductService extends BaseService<YxStoreProduct> {
 
     /**
      * 今日营业额
+     *
      * @param storeId
      * @return
      */
@@ -122,6 +134,7 @@ public interface YxStoreProductService extends BaseService<YxStoreProduct> {
 
     /**
      * 商城商品相关
+     *
      * @param storeId
      * @return
      */
@@ -129,20 +142,19 @@ public interface YxStoreProductService extends BaseService<YxStoreProduct> {
 
     /**
      * 商城订单数量相关
+     *
      * @param storeId
      * @return
      */
     Map<String, Long> getShopOrderCount(Integer storeId);
 
-    /**
-     * 商城订单数量相关(全部)
-     * @param storeId
-     * @return
-     */
-    Map<String, Long> getShopOrderCountAll(Integer storeId);
+    Long getShopOrderSend(Integer storeId);
+
+    Long getShopOrderRefund(Integer storeId);
 
     /**
      * 商城今日营业额
+     *
      * @param storeId
      * @return
      */
@@ -150,6 +162,7 @@ public interface YxStoreProductService extends BaseService<YxStoreProduct> {
 
     /**
      * 船只出港次数最多的船只
+     *
      * @param storeId
      * @return
      */
@@ -157,6 +170,7 @@ public interface YxStoreProductService extends BaseService<YxStoreProduct> {
 
     /**
      * 出港最多的船长
+     *
      * @param storeId
      * @return
      */
@@ -164,6 +178,7 @@ public interface YxStoreProductService extends BaseService<YxStoreProduct> {
 
     /**
      * 今日出港次数
+     *
      * @param storeId
      * @return
      */
@@ -171,16 +186,25 @@ public interface YxStoreProductService extends BaseService<YxStoreProduct> {
 
     /**
      * 今日运营船只
+     *
      * @param storeId
      * @return
      */
     Integer getShipCount(Integer storeId);
 
     /**
-     * 本地生活订单相关数量（非当天数据）
+     * 未核销订单（取总值）
      *
      * @param storeId
      * @return
      */
-    Map<String,Long> getLocalProductOrderCountAll(Integer storeId);
+    Long getLocalOrderWait(Integer storeId);
+
+    /**
+     * 待处理退款（取总值）
+     *
+     * @param storeId
+     * @return
+     */
+    Long getLocalOrderRefund(Integer storeId);
 }
