@@ -65,7 +65,7 @@ public class ShipInfoController extends BaseController {
     public ResponseEntity<Object> captainOutPortList(@RequestHeader(value = "token") String token,@RequestBody ShipOperationParam shipOperationParam) {
         SystemUser user = getRedisUser(token);
         YxShipOperationQueryParam yxShipOperationQueryParam = new YxShipOperationQueryParam();
-
+        shipOperationParam.setDateStatus(null);
         Map<String,Object> map = yxShipInfoService.getShipOperationList(yxShipOperationQueryParam, shipOperationParam, user.getId().intValue(),null);
         return ResponseEntity.ok(map);
     }
