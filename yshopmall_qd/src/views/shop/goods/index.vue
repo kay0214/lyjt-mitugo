@@ -1,5 +1,5 @@
 <template>
-  <div class="app-container">
+  <div class="app-container goods">
     <!--工具栏-->
     <div class="head-container">
       <!-- 搜索 -->
@@ -515,5 +515,7 @@ export default {
 </script>
 
 <style scoped>
-
+.goods{
+  padding: 0 !important;
+}
 </style>

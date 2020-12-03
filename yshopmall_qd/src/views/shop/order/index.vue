@@ -147,12 +147,15 @@
           <template slot-scope="scope">
             <el-button
               v-permission="['admin','YXSTOREORDER_ALL','YXSTOREORDER_SELECT']"
-              size="mini"
-              type="primary"
+              style="padding:9px 15px"
+               type="primary" 
+               size="mini"
               @click="detail(scope.row)"
             >
               订单详情</el-button>
-            <el-dropdown size="mini" split-button type="primary" trigger="click">
+      
+            
+            <!-- <el-dropdown size="mini" split-button type="primary" trigger="click">
               操作
               <el-dropdown-menu slot="dropdown">
                 <el-dropdown-item>
@@ -184,7 +187,7 @@
                   >
                     立刻退款</el-button>
                 </el-dropdown-item>
-                <!-- <el-dropdown-item v-if="scope.row._status == 1">
+                 <el-dropdown-item v-if="scope.row._status == 1">
                   <el-button
                     v-permission="['admin','YXSTOREORDER_ALL','YXSTOREORDER_EDIT']"
                     size="mini"
@@ -207,9 +210,46 @@
                     </div>
                     <el-button slot="reference" type="danger" icon="el-icon-delete" size="mini">删除</el-button>
                   </el-popover>
-                </el-dropdown-item> -->
+                </el-dropdown-item> 
               </el-dropdown-menu>
-            </el-dropdown>
+            </el-dropdown>-->
+
+              <el-dropdown trigger="click" style="margin-top:10px " placement="bottom">
+             <el-button type="primary" plain size="small" style="padding-left:10px;padding-right:10px;">
+              操作<i class="el-icon-arrow-down el-icon--right"></i>
+              </el-button>
+                <el-dropdown-menu slot="dropdown">          
+                      <el-dropdown-item>
+                  <el-button
+                    v-permission="['admin','YXSTOREORDER_MARK']"
+                    size="mini"
+                    type="success"
+                    @click="remark(scope.row)"
+                  >
+                    订单备注</el-button>
+                </el-dropdown-item>
+                <el-dropdown-item>
+                  <el-button
+                    v-if="scope.row._status == 2"
+                    v-permission="['admin','YXSTOREORDER_SEND']"
+                    size="mini"
+                    type="primary"
+                    @click="edit(scope.row)"
+                  >
+                    去发货</el-button>
+                </el-dropdown-item>
+                <el-dropdown-item>
+                  <el-button
+                    v-if="scope.row._status == 3"
+                    v-permission="['admin','YXSTOREORDER_REFUND']"
+                    size="mini"
+                    type="primary"
+                    @click="refund(scope.row)"
+                  >
+                    立刻退款</el-button>
+                </el-dropdown-item>
+                </el-dropdown-menu>
+             </el-dropdown>
 
           </template>
         </el-table-column>

@@ -1,6 +1,6 @@
 <template>
-  <el-tabs v-model="activeName" style="padding-left: 8px;" @tab-click="tabClick">
-    <el-tab-pane label="出售中产品" name="first">
+  <el-tabs v-model="activeName"  type="card" style="padding: 20px 20px 45px 20px;" @tab-click="tabClick">
+    <!-- <el-tab-pane label="出售中产品" name="first">
       <onSale ref="onSale" />
     </el-tab-pane>
     <el-tab-pane label="待上架产品" name="second">
@@ -8,6 +8,20 @@
     </el-tab-pane>
     <el-tab-pane label="产品回收站" name="thrid">
       <recycle ref="recycle" />
+    </el-tab-pane> -->
+     <el-tab-pane  name="first">
+         <onSale ref="onSale" />
+      <span slot="label">出售中产品</span>
+    </el-tab-pane>
+    <el-tab-pane  name="second">
+      <unonSale ref="unonSale" />
+
+      <span slot="label">待上架产品</span>
+    </el-tab-pane>
+    <el-tab-pane name="thrid">
+      <recycle ref="recycle" />
+
+       <span slot="label">产品回收站</span>
     </el-tab-pane>
   </el-tabs>
 </template>

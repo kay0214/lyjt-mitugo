@@ -2,6 +2,7 @@
   <div class="app-container">
     <!--工具栏-->
     <div class="head-container">
+      <div class="coupons_flex">
       <div v-if="crud.props.searchToggle">
         <!-- 搜索 -->
         <el-input v-model="query.merUsername" clearable placeholder="商户用户名" style="width: 130px;" class="filter-item" maxlength="42" />
@@ -37,7 +38,8 @@
         <rrOperation :crud="crud" />
       </div>
       <!--如果想在工具栏加入更多按钮，可以使用插槽方式， slot = 'left' or 'right'-->
-      <crudOperation :permission="permission" />
+      <crudOperation :permission="permission" class="flexs" />
+      </div>
       <!--表单组件-->
       <priceDialog ref="price"/>
       <commission ref="form6"/>
@@ -542,6 +544,7 @@ const defaultCrud = CRUD({ title: '卡券', url: 'api/yxCoupons', sort: 'id,desc
       edit: false,
       del: true,
       download: false
+      
     }})
 const defaultForm = {
   id: null, couponNum: null, couponName: null, couponType: null, couponCategory: null,
@@ -1039,5 +1042,20 @@ export default {
     cursor: pointer;
     margin: 0 2px;
   }
+.coupons_flex{
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+}
+.flexs{
+  flex: 1;
+}
+.flexs >>> .crud-opts-right{
+  
+  margin-bottom: 10px;
+}
+.flexs >>> .crud-opts-left{
+    margin-left: 5px;
 
+    }
 </style>

@@ -135,14 +135,12 @@
             <span>{{ scope.row.returnFormatTime }}</span>
           </template>
         </el-table-column>
-        <el-table-column v-permission="['admin','yxShipOperation:edit','yxShipOperation:del']" label="操作" width="150px" align="center">
+        <el-table-column v-permission="['admin','yxShipOperation:edit','yxShipOperation:del']" label="操作" width="160px" align="center">
           <template slot-scope="scope">
             <div class="flexs">
-                 <el-button v-permission="permission.edit" type="primary" size="mini" @click="detail(scope.row)">详情</el-button>
-                <el-divider direction="vertical"></el-divider>
-                <el-button size="mini" type="primary" icon="el-icon-edit" style="marginLeft:5px;">合同下载</el-button>
-            </div>
-           
+                 <el-button v-permission="permission.edit" type="primary" size="mini" plain @click="detail(scope.row)">详情</el-button>
+                  <el-button size="mini" type="primary" plain style="marginLeft:5px;">合同下载</el-button>
+            </div>      
           </template>
         </el-table-column>
       </el-table>
@@ -286,7 +284,7 @@ export default {
   }
    .flexs{
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     align-items: center;
   }
 </style>

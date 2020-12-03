@@ -109,7 +109,7 @@
           </template>
         </el-table-column>
 
-        <el-table-column v-permission="['admin','yxShipInfo:edit','yxShipInfo:del']" label="操作" width="150px" align="center">
+        <el-table-column v-permission="['admin','yxShipInfo:edit','yxShipInfo:del']" label="操作" width="190px" align="center">
           <template slot-scope="scope">
             <!-- <el-button size="mini" type="text" icon="el-icon-edit"
                        @click="crud.toEdit(scope.row)" >修改</el-button>
@@ -122,10 +122,10 @@
             </app-link> -->
             <div class="flexs">
               <app-link :to="resolvePath('/ship/shipOperation?id='+scope.row.id)">
-                <el-button size="small" type="primary"  style='marginTop:10px;padding:9px 18px;marginBottom:5px' plain  >出行记录</el-button>
+                <el-button size="small" type="primary"  style='padding:9px 15px;' plain  >出行记录</el-button>
               </app-link>
 
-              <el-dropdown trigger="click" style="margin-top:10px padding:9px 15px;" placement="bottom">
+              <el-dropdown trigger="click" style="marginLeft:10px;" placement="bottom">
               <el-button type="primary" plain size="small" style="padding-left:10px;padding-right:10px;">
               更多操作<i class="el-icon-arrow-down el-icon--right"></i>
               </el-button>
@@ -314,7 +314,7 @@ export default {
 <style scoped>
  .flexs{
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     align-items: center;
   }
 </style>

@@ -78,7 +78,7 @@
             <span>{{ scope.row.status?'禁用':'启用' }}</span>
           </template>
         </el-table-column>
-        <el-table-column v-permission="permission.edit" label="操作" width="150px" align="center">
+        <el-table-column v-permission="permission.edit" label="操作" width="200px" align="center">
           <template slot-scope="scope">
             <!-- <el-button size="mini" type="text" icon="el-icon-edit"
                        @click="crud.toEdit(scope.row)" >修改</el-button>
@@ -88,7 +88,7 @@
             <el-divider direction="vertical"></el-divider> -->
             <div class="flexs">
               <app-link :to="resolvePath('/ship/shipInfo?seriesId='+scope.row.id)">
-                <el-button size="small" type="primary"  style='marginTop:10px;padding:9px 18px;marginBottom:5px' plain  >船只管理</el-button>
+                <el-button size="small" type="primary"  style='margin-right:5px;padding:9px 15px;' plain  >船只管理</el-button>
               </app-link>
 
               <el-dropdown trigger="click" style="margin-top:10px padding:9px 15px;" placement="bottom">
@@ -342,7 +342,7 @@ export default {
   }
   .flexs{
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     align-items: center;
   }
 </style>
