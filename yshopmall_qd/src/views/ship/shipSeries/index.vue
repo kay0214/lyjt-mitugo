@@ -3,14 +3,14 @@
     <!--工具栏-->
     <div class="head-container">
       <!--如果想在工具栏加入更多按钮，可以使用插槽方式， slot = 'left' or 'right'-->
-      <el-input v-model="query.seriesName" clearable size="small" placeholder="请输入系列名称" style="width: 200px;" class="filter-item" @keyup.enter.native="crud.toQuery" />
+      <el-input v-model.trim="query.seriesName" clearable size="small" placeholder="请输入系列名称" style="width: 200px;" class="filter-item" @keyup.enter.native="crud.toQuery" />
       <el-button class="filter-item" size="mini" type="success" icon="el-icon-search" @click="crud.toQuery">搜索</el-button>
       <crudOperation :permission="permission" />
       <!--表单组件-->
       <el-dialog :close-on-click-modal="false" :before-close="crud.cancelCU" :visible.sync="crud.status.cu > 0" :title="crud.status.title" width="540px">
         <el-form ref="form" :model="form" :rules="rules" size="small" label-width="110px">
           <el-form-item label="系列名称" prop="seriesName">
-            <el-input v-model="form.seriesName" style="width: 370px;" maxlength="15"/>
+            <el-input v-model.trim="form.seriesName" style="width: 370px;" maxlength="15"/>
           </el-form-item>
           <el-form-item label="船只类别" prop="shipCategory">
            <el-select v-model="form.shipCategory" placeholder="请选择" style="width: 370px;">
@@ -27,7 +27,7 @@
             @change="()=>{$refs.form.validateField('rideLimit')}"/>
           </el-form-item>
           <el-form-item label="尺寸" prop="shipSize">
-            <el-input v-model="form.shipSize" style="width: 370px;" maxlength="15"/>
+            <el-input v-model.trim="form.shipSize" style="width: 370px;" maxlength="15"/>
           </el-form-item>
           <el-form-item label="乘船省市区" prop="shipProvince">
 <!--            <el-input v-model="form.shipProvince" style="width: 370px;" />-->
@@ -38,7 +38,7 @@
             </el-cascader>
           </el-form-item>
           <el-form-item label="乘船地址" prop="shipAddress">
-            <el-input v-model="form.shipAddress" style="width: 370px;" maxlength="50"
+            <el-input v-model.trim="form.shipAddress" style="width: 370px;" maxlength="50"
                       @change="codeAddress"/>
           </el-form-item>
           <el-form-item label=" ">
@@ -91,20 +91,20 @@
                 <el-button size="small" type="primary"  style='margin-right:5px;padding:9px 15px;' plain  >船只管理</el-button>
               </app-link>
 
-              <el-dropdown trigger="click" style="margin-top:10px padding:9px 15px;" placement="bottom">
+              <el-dropdown trigger="click" style="margin-top:10px; padding:9px 15px;" placement="bottom">
               <el-button type="primary" plain size="small" style="padding-left:10px;padding-right:10px;">
               更多操作<i class="el-icon-arrow-down el-icon--right"></i>
               </el-button>
-                  <el-dropdown-menu slot="dropdown">          
+                  <el-dropdown-menu slot="dropdown">
                       <el-dropdown-item >
                           <el-button  size="mini" type="primary" icon="el-icon-edit"  @click="crud.toEdit(scope.row)" plain>修改</el-button>
                       </el-dropdown-item >
                       <el-dropdown-item  >
                           <el-button  style="marginTop:5px;" size="mini" type="primary" icon="el-icon-edit" @click="editStatus(scope.row)"  plain>{{ scope.row.status?'启用':'禁用' }}</el-button>
                       </el-dropdown-item>
-                  
+
                   </el-dropdown-menu>
-             </el-dropdown>          
+             </el-dropdown>
             </div>
           </template>
         </el-table-column>
