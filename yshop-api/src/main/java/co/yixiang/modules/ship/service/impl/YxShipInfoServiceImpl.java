@@ -428,6 +428,13 @@ public class YxShipInfoServiceImpl extends BaseServiceImpl<YxShipInfoMapper, YxS
             passengerVO.setIdCard(CardNumUtil.idEncrypt(passengerVO.getIdCard()));
             passengerVO.setPhone(CardNumUtil.mobileEncrypt(passengerVO.getPhone()));
             passengerVO.setPassengerName(CardNumUtil.nameEncrypt(passengerVO.getPassengerName()));
+            // 0:未成年 1:成年人 2：老年人
+            passengerVO.setAgeArea("");
+            if (passengerVO.getIsAdult().intValue() == 0) {
+                passengerVO.setAgeArea("未成年");
+            } else if (passengerVO.getIsAdult().intValue() == 2) {
+                passengerVO.setAgeArea("老年人");
+            }
         }
         return passengerVOList;
     }
