@@ -3,9 +3,9 @@
     <!--工具栏-->
     <div class="head-container">
       <!--如果想在工具栏加入更多按钮，可以使用插槽方式， slot = 'left' or 'right'-->
-      <el-input v-model="query.nickName" clearable size="small" placeholder="请输入姓名" style="width: 200px;"
+      <el-input v-model.trim="query.nickName" clearable size="small" placeholder="请输入姓名" style="width: 200px;"
                 class="filter-item" @keyup.enter.native="crud.toQuery" />
-      <el-input v-model="query.username" clearable size="small" placeholder="请输入用户名" style="width: 200px;"
+      <el-input v-model.trim="query.username" clearable size="small" placeholder="请输入用户名" style="width: 200px;"
                 class="filter-item" @keyup.enter.native="crud.toQuery" />
       <el-date-picker
         class="filter-item filter-input"
@@ -31,19 +31,19 @@
       <el-dialog :close-on-click-modal="false" :before-close="crud.cancelCU" :visible.sync="crud.status.cu > 0" :title="crud.status.title" width="500px">
         <el-form ref="form" :model="form" :rules="rules" size="small" label-width="80px">
           <el-form-item label="姓名" prop="nickName">
-            <el-input v-model="form.nickName" style="width: 370px;" />
+            <el-input v-model.trim="form.nickName" style="width: 370px;" />
           </el-form-item>
           <el-form-item label="用户名" prop="username">
-            <el-input v-model="form.username" style="width: 370px;" />
+            <el-input v-model.trim="form.username" style="width: 370px;" />
           </el-form-item>
           <el-form-item label="联系电话" prop="userPhone">
-            <el-input v-model="form.userPhone" style="width: 370px;" />
+            <el-input v-model.trim="form.userPhone" style="width: 370px;" />
           </el-form-item>
           <el-form-item label="体温">
-            <el-input v-model="form.temperature" style="width: 370px;" />
+            <el-input v-model.trim="form.temperature" style="width: 370px;" />
           </el-form-item>
           <el-form-item label="签到时间" prop="createTime">
-            <el-input v-model="form.createTime" style="width: 370px;" />
+            <el-input v-model.trim="form.createTime" style="width: 370px;" />
           </el-form-item>
         </el-form>
         <div slot="footer" class="dialog-footer">
