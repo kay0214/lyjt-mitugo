@@ -617,10 +617,10 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
         g.drawImage(qrCode.getScaledInstance(228, 228, Image.SCALE_DEFAULT), 76, 847, null);
 
         //二维码字体
-        g.setFont(new Font("微软雅黑",Font.PLAIN, 30));
+        g.setFont(new Font("SimHei",Font.PLAIN, 30));
         g.setColor(new Color(29, 29, 29));
         g.drawString("扫描或长按小程序码", 331, 926);
-        g.setFont(new Font("微软雅黑",Font.PLAIN, 30));
+        g.setFont(new Font("SimHei",Font.PLAIN, 30));
         g.setColor(new Color(29, 29, 29));
         g.drawString("查看商品详情", 331, 968);
 
