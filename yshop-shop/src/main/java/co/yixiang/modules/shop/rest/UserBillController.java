@@ -85,7 +85,7 @@ public class UserBillController {
     }
 
     @ApiOperation(value = "平台资金明细")
-    @GetMapping(value = "/yxUserBillAll")
+    @PostMapping(value = "/yxUserBillAll")
     @PreAuthorize("hasAnyRole('admin','YXUSERBILL_ALL','YXUSERBILL_SELECT')")
     public ResponseEntity getYxUserBillAll(YxUserBillQueryCriteria criteria, Pageable pageable) {
         return new ResponseEntity(yxUserBillService.queryAllNew(criteria, pageable), HttpStatus.OK);

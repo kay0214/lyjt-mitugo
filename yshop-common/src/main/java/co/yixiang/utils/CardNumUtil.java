@@ -15,12 +15,30 @@ public class CardNumUtil {
         return mobile.replaceAll("(\\d{4})\\d{3}(\\d{4})", "$1 ** $2");
     }
 
+
+    // 手机号码前三后四脱敏4个星
+    public static String mobileEncrypt4(String mobile) {
+        if (StringUtils.isEmpty(mobile) || (mobile.length() != 11)) {
+            return mobile;
+        }
+        return mobile.replaceAll("(\\d{4})\\d{3}(\\d{4})", "$1****$2");
+    }
+
     //身份证前三后四脱敏
     public static String idEncrypt(String id) {
         if (StringUtils.isEmpty(id) || (id.length() < 8)) {
             return id;
         }// (?<=\w{3})\w(?=\w{4})
         return id.replaceAll("(\\w{3})\\w{11}(\\w{4})", "$1 ** $2");
+    }
+
+
+    //身份证前三后四脱敏4个星
+    public static String idEncrypt4(String id) {
+        if (StringUtils.isEmpty(id) || (id.length() < 8)) {
+            return id;
+        }// (?<=\w{3})\w(?=\w{4})
+        return id.replaceAll("(\\w{3})\\w{11}(\\w{4})", "$1****$2");
     }
 
     public static void main(String[] args) {
