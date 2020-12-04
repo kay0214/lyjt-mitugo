@@ -39,6 +39,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -100,12 +101,14 @@ public class AuthController {
         SecurityContextHolder.getContext().setAuthentication(authentication);
         // 生成令牌
         String token = tokenProvider.createToken(authentication);
+        String token2 = UUID.randomUUID().toString() + System.currentTimeMillis();
+        redisUtils.set(properties.getTokenStartWith() + token2, token, properties.getTokenValidityInSeconds() / 1000);
         final JwtUser jwtUser = (JwtUser) authentication.getPrincipal();
         // 保存在线信息
         onlineUserService.save(jwtUser, token, request);
         // 返回 token 与 用户信息
         Map<String, Object> authInfo = new HashMap<String, Object>(3) {{
-            put("token", properties.getTokenStartWith() + token);
+            put("token", properties.getTokenStartWith() + token2);
             put("user", jwtUser);
         }};
         // 查询商户认证状态
