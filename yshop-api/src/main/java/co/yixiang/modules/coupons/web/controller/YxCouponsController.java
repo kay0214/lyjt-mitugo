@@ -10,6 +10,7 @@ import co.yixiang.constant.CacheConstant;
 import co.yixiang.constant.LocalLiveConstants;
 import co.yixiang.constant.ShopConstants;
 import co.yixiang.dozer.service.IGenerator;
+import co.yixiang.constant.SystemConfigConstants;
 import co.yixiang.exception.BadRequestException;
 import co.yixiang.modules.commission.entity.YxCommissionRate;
 import co.yixiang.modules.commission.entity.YxCustomizeRate;
@@ -31,6 +32,7 @@ import co.yixiang.modules.ship.web.vo.YxShipInfoQueryVo;
 import co.yixiang.modules.shop.entity.YxStoreInfo;
 import co.yixiang.modules.shop.service.YxStoreInfoService;
 import co.yixiang.modules.user.service.YxUserService;
+import co.yixiang.modules.shop.service.YxSystemConfigService;
 import co.yixiang.utils.DateUtils;
 import co.yixiang.utils.StringUtils;
 import com.alicp.jetcache.anno.CacheRefresh;
@@ -89,6 +91,8 @@ public class YxCouponsController extends BaseController {
     private YxStoreInfoService yxStoreInfoService;
     @Autowired
     private IGenerator generator;
+    @Autowired
+    private YxSystemConfigService systemConfigService;
 
     /**
      * 获取本地生活, 卡券详情
@@ -195,6 +199,11 @@ public class YxCouponsController extends BaseController {
                 break;
         }
         yxCouponsQueryVo.setCommission(bigCommission.setScale(2,BigDecimal.ROUND_DOWN));
+        // 获取商品关闭状态
+        String storeClose = systemConfigService.getData(SystemConfigConstants.STORE_CLOSE_SWITCH);
+        if (StringUtils.isNotBlank(storeClose)) {
+            yxCouponsQueryVo.setStoreClose(Integer.valueOf(storeClose));
+        }
 
         if (StringUtils.isNotBlank(yxCouponsQueryVo.getConfirmation())) {
             List<String> stringList = Arrays.asList(yxCouponsQueryVo.getConfirmation().split(","));

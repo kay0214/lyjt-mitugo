@@ -35,6 +35,8 @@ public class SystemConfigConstants {
     public final static String ADMIN_DEFAULT_AVATAR = "admin_default_avatar";
     // 核销端查询账单默认缩略图
     public final static String BILL_DEFAULT_IMAGE = "bill_default_image";
+    // 店铺入口开关 0：开 1：关
+    public final static String STORE_CLOSE_SWITCH="store_close_switch";
 
     //微信相关配置
     public final static String WECHAT_APPID="wechat_appid";

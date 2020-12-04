@@ -544,7 +544,7 @@ const defaultCrud = CRUD({ title: '卡券', url: 'api/yxCoupons', sort: 'id,desc
       edit: false,
       del: true,
       download: false
-      
+
     }})
 const defaultForm = {
   id: null, couponNum: null, couponName: null, couponType: null, couponCategory: null,
@@ -891,7 +891,7 @@ export default {
         this.form.availableTimeStart = form.availableTimeStart
       }
 
-      
+
       // 设置默认图片
       form.imageArr = [form.image]
       const formImage = []
@@ -1051,7 +1051,7 @@ export default {
   flex: 1;
 }
 .flexs >>> .crud-opts-right{
-  
+
   margin-bottom: 10px;
 }
 .flexs >>> .crud-opts-left{
