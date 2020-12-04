@@ -11,40 +11,40 @@
           <el-row :gutter="20">
             <el-col :span="16">
               <el-form-item label="批次号">
-                <el-input v-model="form.batchNo" />
+                <el-input v-model.trim="form.batchNo" />
               </el-form-item>
             </el-col>
           </el-row>
           <el-row :gutter="20">
             <el-col :span="8">
               <el-form-item label="船只名称">
-                <el-input v-model="form.shipName" />
+                <el-input v-model.trim="form.shipName" />
               </el-form-item>
             </el-col>
             <el-col :span="8">
               <el-form-item label="船长姓名">
-                <el-input v-model="form.captainName"  />
+                <el-input v-model.trim="form.captainName"  />
               </el-form-item>
             </el-col>
           </el-row>
           <el-row :gutter="20">
             <el-col :span="8">
               <el-form-item label="承载人数">
-                <el-input v-model="form.totalPassenger" >
+                <el-input v-model.trim="form.totalPassenger" >
                   <template slot="append">人</template>
                 </el-input>
               </el-form-item>
             </el-col>
             <el-col :span="8">
               <el-form-item label="老年人人数">
-                <el-input v-model="form.oldPassenger"  >
+                <el-input v-model.trim="form.oldPassenger"  >
                   <template slot="append">人</template>
                 </el-input>
               </el-form-item>
             </el-col>
             <el-col :span="7">
               <el-form-item label="未成年人数">
-                <el-input v-model="form.underagePassenger"  >
+                <el-input v-model.trim="form.underagePassenger"  >
                   <template slot="append">人</template>
                 </el-input>
               </el-form-item>
@@ -53,13 +53,13 @@
           <el-row :gutter="20">
             <el-col :span="8">
               <el-form-item label="出港时间">
-                <el-input v-model="form.leaveForTime">
+                <el-input v-model.trim="form.leaveForTime">
                 </el-input>
               </el-form-item>
             </el-col>
             <el-col :span="8">
               <el-form-item label="回港时间">
-                <el-input v-model="form.returnForTime" >
+                <el-input v-model.trim="form.returnForTime" >
                 </el-input>
               </el-form-item>
             </el-col>
@@ -71,7 +71,7 @@
             <el-col :span="15" style="padding:16px 0 16px 15px;">
               <template v-for="(item,ind) in form.orderList">
                 <span>{{item}}</span>
-                <el-divider v-if="ind!=(form.orderList.length-1)" direction="vertical"></el-divider>
+                <el-divider v-if="ind!==(form.orderList.length-1)" direction="vertical"></el-divider>
               </template>
             </el-col>
           </el-row>
@@ -81,7 +81,7 @@
             </el-col>
             <el-col :span="15" style="padding:16px 0 16px 15px;">
               <el-row :gutter="20">
-                <el-col :span="10"v-for="(item,idx) in form.listPassenger" :key="idx">
+                <el-col :span="10" v-for="(item,idx) in form.listPassenger" :key="idx">
                   <div style="border:1px solid #F2F6FC;border-radius: 5px;margin-bottom: 20px;padding:20px;" >
                     <p>{{item.passengerName}}</p>
                     <p v-if="item.isAdult"><!-- /** 0:未成年 1:成年人 2：老年人 */-->
@@ -109,9 +109,9 @@
 
 <script>
 import crudYxShipOperationDetail from '@/api/yxShipOperationDetail'
-import CRUD, { presenter, header, form, crud } from '@crud/crud'
+import CRUD, { header, form, crud } from '@crud/crud'
 import MaterialList from "@/components/material";
-import { initData, download } from '@/api/data'
+import { initData } from '@/api/data'
 
 // crud交由presenter持有
 const defaultCrud = CRUD({ title: '运营记录详情', url: 'api/yxShipOperationDetail', sort: 'id,desc',
@@ -185,17 +185,4 @@ export default {
 </script>
 
 <style scoped>
-  .table-img {
-    display: inline-block;
-    text-align: center;
-    background: #ccc;
-    color: #fff;
-    white-space: nowrap;
-    position: relative;
-    overflow: hidden;
-    vertical-align: middle;
-    width: 32px;
-    height: 32px;
-    line-height: 32px;
-  }
 </style>
