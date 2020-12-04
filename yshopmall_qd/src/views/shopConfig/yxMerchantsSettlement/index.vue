@@ -3,13 +3,13 @@
     <!--工具栏-->
     <div class="head-container">
       <!--如果想在工具栏加入更多按钮，可以使用插槽方式， slot = 'left' or 'right'-->
-      <el-input v-model="query.companyName" clearable size="small" placeholder="请输入公司名"
+      <el-input v-model.trim="query.companyName" clearable size="small" placeholder="请输入公司名"
                 style="width: 200px;" class="filter-item" @keyup.enter.native="crud.toQuery" />
-      <el-input v-model="query.contactsName" clearable size="small" placeholder="请输入联系人"
+      <el-input v-model.trim="query.contactsName" clearable size="small" placeholder="请输入联系人"
                 style="width: 200px;" class="filter-item" @keyup.enter.native="crud.toQuery" />
-      <el-input v-model="query.phone" clearable size="small" placeholder="请输入联系电话"
+      <el-input v-model.trim="query.phone" clearable size="small" placeholder="请输入联系电话"
                 style="width: 200px;" class="filter-item" @keyup.enter.native="crud.toQuery" />
-      <el-select v-model="query.status" clearable placeholder="请选择状态"
+      <el-select v-model.trim="query.status" clearable placeholder="请选择状态"
                  style="width: 200px;" class="filter-item">
         <el-option
           v-for="item in statusList"
@@ -70,7 +70,7 @@
         <el-table-column v-permission="['admin','yxMerchantsSettlement:edit','yxMerchantsSettlement:del']" label="操作" width="150px" align="center">
           <template slot-scope="scope">
             <div class="ment_scope">
-              
+
                  <el-button  v-if="!scope.row.status" v-permission="permission.edit" size="mini" type="primary"
                         icon="el-icon-edit" @click="crud.toEdit(scope.row)" />
               <el-button v-else v-permission="permission.edit" size="mini" type="primary"
@@ -81,7 +81,7 @@
                 :permission="permissionDel"
               />
             </div>
-             
+
           </template>
         </el-table-column>
       </el-table>
@@ -221,6 +221,6 @@ export default {
   .ment_scope{
     display: flex;
     justify-content: center;
-    
+
   }
 </style>

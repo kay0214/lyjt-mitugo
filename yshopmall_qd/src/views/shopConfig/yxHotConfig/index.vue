@@ -3,7 +3,7 @@
     <!--工具栏-->
     <div class="head-container">
       <!--如果想在工具栏加入更多按钮，可以使用插槽方式， slot = 'left' or 'right'-->
-      <el-input v-model="query.title" clearable size="small" placeholder="请输入标题"
+      <el-input v-model.trim="query.title" clearable size="small" placeholder="请输入标题"
                 style="width: 250px;" class="filter-item"
                 @keyup.enter.native="crud.toQuery" />
       <el-button class="filter-item" size="mini" type="success" icon="el-icon-search"
@@ -13,7 +13,7 @@
       <el-dialog :close-on-click-modal="false" :before-close="crud.cancelCU" :visible.sync="crud.status.cu > 0" :title="crud.status.title" width="850px">
         <el-form ref="form" v-if="crud.status.cu > 0" :model="form" :rules="rules" size="small" label-width="80px">
           <el-form-item label="标题" prop="title">
-            <el-input v-model="form.title" style="width: 650px;" maxlength="15"/>
+            <el-input v-model.trim="form.title" style="width: 650px;" maxlength="15"/>
           </el-form-item>
           <el-form-item label="封面图" prop="coverImg">
             <MaterialList v-model="form.sliderImage" style="width: 650px" type="image" :num="1" :width="150" :height="150"
@@ -24,7 +24,7 @@
                           }'/>
           </el-form-item>
           <el-form-item label="链接">
-            <el-input v-model="form.linkUrl" style="width: 650px;" maxlength="200"/>
+            <el-input v-model.trim="form.linkUrl" style="width: 650px;" maxlength="200"/>
           </el-form-item>
           <el-form-item label="排序">
             <el-input-number v-model="form.sort" style="width: 650px;" :precision="0"/>
