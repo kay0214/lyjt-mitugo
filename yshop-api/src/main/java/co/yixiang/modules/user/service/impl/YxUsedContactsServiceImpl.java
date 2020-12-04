@@ -101,9 +101,9 @@ public class YxUsedContactsServiceImpl extends BaseServiceImpl<YxUsedContactsMap
                     }
                 }
 
-                usedContacts.setCardId(CardNumUtil.idEncrypt(usedContacts.getCardId()));
-                usedContacts.setUserPhone(CardNumUtil.mobileEncrypt(usedContacts.getUserPhone()));
-                usedContacts.setUserName(CardNumUtil.mobileEncrypt(usedContacts.getUserName()));
+                usedContacts.setCardId(CardNumUtil.idEncrypt4(usedContacts.getCardId()));
+                usedContacts.setUserPhone(CardNumUtil.mobileEncrypt4(usedContacts.getUserPhone()));
+                usedContacts.setUserName(CardNumUtil.nameEncrypt(usedContacts.getUserName()));
                 usedContacts.setIsAdult(isAdult);
                 //根据订单号以及联系人id，查看用户信息
                 if (null != yxCouponOrderQueryParam.getOrderId()) {
