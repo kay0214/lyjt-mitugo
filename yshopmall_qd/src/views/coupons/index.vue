@@ -702,6 +702,9 @@ export default {
       this.form.expireDate=[form.expireDateStart,form.expireDateEnd]
       }
       //  设置默认 可用时段
+      if(form.availableTimeStart){
+        this.availableTime=[form.availableTimeStart,form.availableTimeEnd]
+      }
       this.form.availableTimeEnd = this.availableTime[1]
       this.form.availableTimeStart = this.availableTime[0]
       // 设置默认图片

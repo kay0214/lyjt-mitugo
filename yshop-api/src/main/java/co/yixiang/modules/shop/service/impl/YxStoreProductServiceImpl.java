@@ -303,6 +303,11 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
         }
         storeProductQueryVo.setCommission(bigCommission);
         productDTO.setStoreInfo(storeProductQueryVo);
+        // 获取商品关闭状态
+        String storeClose = systemConfigService.getData(SystemConfigConstants.STORE_CLOSE_SWITCH);
+        if (StringUtils.isNotBlank(storeClose)) {
+            productDTO.setStoreClose(Integer.valueOf(storeClose));
+        }
 
         return productDTO;
     }
@@ -527,8 +532,8 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
         String fileDir = path + "qrcode" + File.separator;
         String spreadPicPath = fileDir + spreadPicName;
         // 二维码地址获取
-        String qrCodeUrl = getQrCode(fileDir, userType, siteUrl, apiUrl, uid, id,pageType);
-       // qrCodeUrl = getCode(fileDir, userType, siteUrl, apiUrl, uid, id);
+        String qrCodeUrl = getQrCode(fileDir, userType, siteUrl, apiUrl, uid, id, pageType);
+        // qrCodeUrl = getCode(fileDir, userType, siteUrl, apiUrl, uid, id);
         ProductInfo productInfo = new ProductInfo();
         if (pageType.equals("good")) {
             YxStoreProduct storeProduct = storeProductService.getProductInfo(id);
@@ -573,14 +578,14 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
         //文案标题
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_DEFAULT);
-        g.setFont(new Font("微软雅黑",Font.BOLD, 40));
+        g.setFont(new Font("SimHei",Font.BOLD, 40));
         g.setColor(new Color(29, 29, 29));
         String storeName = productInfo.getStoreName();
-        storeName = storeName.length()>14?storeName.substring(0,13)+"...":storeName;
+        storeName = storeName.length() > 14 ? storeName.substring(0, 13) + "..." : storeName;
         g.drawString(storeName, 41, 703);
 
         //价格
-        g.setFont(new Font("ArialMT",Font.PLAIN, 45));
+        g.setFont(new Font("ArialMT", Font.PLAIN, 45));
         g.setColor(new Color(249, 64, 64));
         g.drawString("¥", 44, 780);
 
@@ -588,13 +593,13 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
         String priceValue = productInfo.getPrice().toString();
         //String priceInt = priceValue.substring(0, priceValue.indexOf("."));
         //g.setFont(font.deriveFont(Font.PLAIN, 55));
-        g.setFont(new Font("Adobe Heiti Std R",Font.BOLD,55));
+        g.setFont(new Font("Adobe Heiti Std R", Font.BOLD, 55));
         g.setColor(new Color(249, 64, 64));
         g.drawString(priceValue, 80, 780);
 
         //原价
         int x = 102 + priceValue.length() * 29;
-        g.setFont(new Font("ArialMT",Font.PLAIN, 40));
+        g.setFont(new Font("ArialMT", Font.PLAIN, 40));
         g.setColor(new Color(171, 171, 171));
         String price = "¥" + productInfo.getOtPrice();
         g.drawString(price, x + 22, 779);
@@ -742,7 +747,7 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
      * @param id
      * @return
      */
-    public String getQrCode(String fileDir, String userType, String siteUrl, String apiUrl, int uid, int id,String pageType) {
+    public String getQrCode(String fileDir, String userType, String siteUrl, String apiUrl, int uid, int id, String pageType) {
         String name = uid + "_" + id + "_store_" + userType + "_product_detail_wap.jpg";
         YxSystemAttachment attachmentWap = systemAttachmentService.getInfo(name);
         String qrCodeUrl;
@@ -755,10 +760,10 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
             File file = new File(fileDir + name);
             String appId = WxUtils.getAppId();
             String secret = WxUtils.getSecret();
-            String accessToken = WxUtils.getAccessToken(appId,secret);
+            String accessToken = WxUtils.getAccessToken(appId, secret);
             if (userType.equals(AppFromEnum.ROUNTINE.getValue())) {
                 //小程序地址
-                WxUtils.getQrCode(accessToken,fileDir + name,"id=" + id + "&uid=" + uid+"&type="+pageType);
+                WxUtils.getQrCode(accessToken, fileDir + name, "id=" + id + "&uid=" + uid + "&type=" + pageType);
             } else if (userType.equals(AppFromEnum.APP.getValue())) {
                 //app地址
                 siteUrl = siteUrl + "/shop/";

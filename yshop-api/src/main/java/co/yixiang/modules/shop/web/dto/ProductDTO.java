@@ -60,4 +60,6 @@ public class ProductDTO extends QueryParam {
 
     private YxStoreInfoQueryVo systemStore;
 
+    // 关闭店铺进入按钮 0:未关闭 1：关闭
+    private Integer storeClose;
 }
