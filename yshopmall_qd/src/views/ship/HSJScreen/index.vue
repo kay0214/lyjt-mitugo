@@ -118,6 +118,7 @@
                   </el-col>
                   <el-col :span="24" style="padding:0 0 16px 15px;">
                     <el-table
+                      row-class-name="list-passenger-row"
                       border
                       :data="item.listPassenger"
                       style="width: 100%">
@@ -253,18 +254,8 @@ export default {
 
 </script>
 
-<style scoped>
-  .table-img {
-    display: inline-block;
-    text-align: center;
-    background: #ccc;
-    color: #fff;
-    white-space: nowrap;
-    position: relative;
-    overflow: hidden;
-    vertical-align: middle;
-    width: 32px;
-    height: 32px;
-    line-height: 32px;
+<style>
+ .list-passenger-row td{
+    padding:0;
   }
 </style>
