@@ -287,5 +287,4 @@ public class UserBillController {
     public ResponseEntity<Object> getPullNewPoint(YxUserBillQueryCriteria criteria, Pageable pageable) {
         return new ResponseEntity(yxUserBillService.getPullNewPoint(criteria, pageable), HttpStatus.OK);
     }
-
 }
