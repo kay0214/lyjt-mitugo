@@ -130,7 +130,7 @@
                         label="身份证">
                         <template slot-scope="scope">
                           <p v-if="scope.row.isAdult"><!-- /** 0:未成年 1:成年人 2：老年人 */-->
-                            {{item.idCard}}
+                            {{scope.row.idCard}}
                           </p>
                           <p v-else>
                             未成年
