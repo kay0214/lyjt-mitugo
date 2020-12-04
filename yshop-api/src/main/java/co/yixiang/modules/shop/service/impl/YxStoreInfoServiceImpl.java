@@ -426,7 +426,7 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
         g.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_DEFAULT);
         String storeName = yxStoreInfo.getStoreName();
         storeName = storeName.length()>14?storeName.substring(0,13)+"...":storeName;
-        g.setFont(new Font("SimHei",Font.BOLD, 40));
+        g.setFont(new Font(null,Font.BOLD, 40));
         g.setColor(new Color(29, 29, 29));
         Font font=new Font("SimHei",Font.BOLD,40);
         FontMetrics fm = g.getFontMetrics(font);
@@ -494,7 +494,7 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
                 siteUrl = siteUrl + "/shop/";
                 //生成二维码
                 WxUtils.getQrCode(accessToken,fileDir + name,"id=" + id + "&uid=" + uid + "&type=shop");
-                QrCodeUtil.generate(siteUrl + "?productId=" + id + "&spread=" + uid + "&codeType=" + AppFromEnum.ROUNTINE.getValue(), config, file);
+              //  QrCodeUtil.generate(siteUrl + "?productId=" + id + "&spread=" + uid + "&codeType=" + AppFromEnum.ROUNTINE.getValue(), config, file);
             } else if (userType.equals(AppFromEnum.APP.getValue())) {
                 //app地址
                 siteUrl = siteUrl + "/shop/";
