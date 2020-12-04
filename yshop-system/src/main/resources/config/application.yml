@@ -1,6 +1,5 @@
 server:
   port: 8000
-  max-http-header-size: 102400
 
 spring:
   freemarker:
