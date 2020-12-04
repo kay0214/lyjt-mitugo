@@ -2,8 +2,8 @@
   <div class="app-container">
     <!--工具栏-->
     <div class="head-container">
-      <el-input v-model="query.title" clearable placeholder="输入标题" style="width: 200px;" class="filter-item" @keyup.enter.native="toQuery" />
-       <el-input v-model="query.username" clearable placeholder="输入用户昵称" style="width: 200px;" class="filter-item" @keyup.enter.native="toQuery" />
+      <el-input v-model.trim="query.title" clearable placeholder="输入标题" style="width: 200px;" class="filter-item" @keyup.enter.native="toQuery" />
+       <el-input v-model.trim="query.username" clearable placeholder="输入用户昵称" style="width: 200px;" class="filter-item" @keyup.enter.native="toQuery" />
       <!-- <el-select v-model="query.category" clearable placeholder="明细种类" class="filter-item" style="width: 130px">
         <el-option
           v-for="item in categoryOptions"
@@ -12,7 +12,7 @@
           :value="item.value"
         />
       </el-select> -->
-      <el-input v-model="query.phone" clearable placeholder="输入用户手机号" style="width: 200px;" class="filter-item" @keyup.enter.native="pageRefesh" />
+      <el-input v-model.trim="query.phone" clearable placeholder="输入用户手机号" style="width: 200px;" class="filter-item" @keyup.enter.native="pageRefesh" />
       <el-select v-model="query.userType" clearable placeholder="用户类型" class="filter-item" style="width: 130px">
         <template>
           <el-option
@@ -24,7 +24,7 @@
         </template>
       </el-select>
 
-      <el-input v-model="query.linkId" clearable placeholder="输入订单号" style="width: 200px;" class="filter-item" @keyup.enter.native="pageRefesh" />
+      <el-input v-model.trim="query.linkId" clearable placeholder="输入订单号" style="width: 200px;" class="filter-item" @keyup.enter.native="pageRefesh" />
       <el-select v-model="query.type" clearable placeholder="明细类型" class="filter-item" style="width: 130px">
         <template v-for="item in typeOptions">
         <el-option
@@ -158,7 +158,7 @@
 </template>
 
 <script>
-import crudFundsDetail from '@/api/fundsDetail'
+import crudFundsDetail,{post} from '@/api/fundsDetail'
 import CRUD, { presenter, header, form, crud } from '@crud/crud'
 import rrOperation from '@crud/RR.operation'
 import crudOperation from '@crud/CRUD.operation'
@@ -178,7 +178,9 @@ const defaultCrud = CRUD({ title: '平台资金明细', url: 'api/yxUserBillAll'
     },
     query: {
       username:'',category:'',type:'',pm:'',addTimeStart:'',addTimeEnd:'',phone:'',userType:''
-    }, crudMethod: { ...crudFundsDetail }})
+    }, crudMethod: { ...crudFundsDetail },
+    queryOnPresenterCreated:false
+})
 const defaultForm = { id: null, type: null, uid: null, username: null, linkId: null, pm: null, number: null, addTime: null }
 export default {
   name: 'FundsDetail',
@@ -232,6 +234,20 @@ export default {
   },
   created() {
     this.$nextTick(() => {
+      post(this.crud.getQueryParams()).then(data=>{
+        this.crud.page.total = data.totalElements
+        this.crud.data = data.content
+        this.crud.resetDataStatus()
+        // time 毫秒后显示表格
+        setTimeout(() => {
+          this.crud.loading = false
+          // callVmHook(this.crud, CRUD.HOOK.afterRefresh)
+        }, this.crud.time)
+        resolve(data)
+      }).catch(err => {
+        this.crud.loading = false
+        console.log(err)
+      })
       getType().then(res=>{
         if(res){
           this.typeOptions=res
@@ -286,7 +302,21 @@ export default {
         this.crud.notify('请选择用户类型','error')
         return false
       }
-      return true
+      post(this.crud.getQueryParams()).then(data=>{
+        this.crud.page.total = data.totalElements
+        this.crud.data = data.content
+        this.crud.resetDataStatus()
+        // time 毫秒后显示表格
+        setTimeout(() => {
+          this.crud.loading = false
+          // callVmHook(this.crud, CRUD.HOOK.afterRefresh)
+        }, this.crud.time)
+        resolve(data)
+      }).catch(err => {
+        this.crud.loading = false
+        console.log(err)
+      })
+      return false
     }, // 新增与编辑前做的操作
     [CRUD.HOOK.afterToCU](crud, form) {
     },
