@@ -5,7 +5,7 @@
       <el-col :xs="9" :sm="6" :md="4" :lg="4" :xl="4">
         <div class="head-container">
           <el-input
-            v-model="deptName"
+            v-model.trim="deptName"
             clearable
             size="small"
             placeholder="输入部门名称搜索"
@@ -30,7 +30,7 @@
           <div v-if="crud.props.searchToggle">
             <!-- 搜索 -->
             <el-input
-              v-model="query.blurry"
+              v-model.trim="query.blurry"
               clearable
               size="small"
               placeholder="输入名称或者邮箱搜索"
@@ -73,16 +73,16 @@
         <el-dialog append-to-body :close-on-click-modal="false" :before-close="crud.cancelCU" :visible.sync="crud.status.cu > 0" :title="crud.status.title" width="570px">
           <el-form ref="form" :inline="true" :model="form" :rules="rules" size="small" label-width="66px">
             <el-form-item label="用户名" prop="username">
-              <el-input v-model="form.username" />
+              <el-input v-model.trim="form.username" />
             </el-form-item>
             <el-form-item label="电话" prop="phone">
-              <el-input v-model.number="form.phone" />
+              <el-input v-model.number.trim="form.phone" />
             </el-form-item>
             <el-form-item label="昵称" prop="nickName">
-              <el-input v-model="form.nickName" />
+              <el-input v-model.trim="form.nickName" />
             </el-form-item>
             <el-form-item label="邮箱" prop="email">
-              <el-input v-model="form.email" />
+              <el-input v-model.trim="form.email" />
             </el-form-item>
             <el-form-item label="部门" prop="dept.id">
               <treeselect
