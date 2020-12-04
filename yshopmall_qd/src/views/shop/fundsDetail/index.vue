@@ -158,7 +158,7 @@
 </template>
 
 <script>
-import crudFundsDetail,{post} from '@/api/fundsDetail'
+import crudFundsDetail from '@/api/fundsDetail'
 import CRUD, { presenter, header, form, crud } from '@crud/crud'
 import rrOperation from '@crud/RR.operation'
 import crudOperation from '@crud/CRUD.operation'
@@ -179,7 +179,6 @@ const defaultCrud = CRUD({ title: '平台资金明细', url: 'api/yxUserBillAll'
     query: {
       username:'',category:'',type:'',pm:'',addTimeStart:'',addTimeEnd:'',phone:'',userType:''
     }, crudMethod: { ...crudFundsDetail },
-    queryOnPresenterCreated:false
 })
 const defaultForm = { id: null, type: null, uid: null, username: null, linkId: null, pm: null, number: null, addTime: null }
 export default {
@@ -234,20 +233,6 @@ export default {
   },
   created() {
     this.$nextTick(() => {
-      post(this.crud.getQueryParams()).then(data=>{
-        this.crud.page.total = data.totalElements
-        this.crud.data = data.content
-        this.crud.resetDataStatus()
-        // time 毫秒后显示表格
-        setTimeout(() => {
-          this.crud.loading = false
-          // callVmHook(this.crud, CRUD.HOOK.afterRefresh)
-        }, this.crud.time)
-        resolve(data)
-      }).catch(err => {
-        this.crud.loading = false
-        console.log(err)
-      })
       getType().then(res=>{
         if(res){
           this.typeOptions=res
@@ -302,21 +287,7 @@ export default {
         this.crud.notify('请选择用户类型','error')
         return false
       }
-      post(this.crud.getQueryParams()).then(data=>{
-        this.crud.page.total = data.totalElements
-        this.crud.data = data.content
-        this.crud.resetDataStatus()
-        // time 毫秒后显示表格
-        setTimeout(() => {
-          this.crud.loading = false
-          // callVmHook(this.crud, CRUD.HOOK.afterRefresh)
-        }, this.crud.time)
-        resolve(data)
-      }).catch(err => {
-        this.crud.loading = false
-        console.log(err)
-      })
-      return false
+      return true
     }, // 新增与编辑前做的操作
     [CRUD.HOOK.afterToCU](crud, form) {
     },
