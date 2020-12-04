@@ -9,6 +9,7 @@ import co.yixiang.common.web.vo.Paging;
 import co.yixiang.constant.CacheConstant;
 import co.yixiang.constant.LocalLiveConstants;
 import co.yixiang.constant.ShopConstants;
+import co.yixiang.constant.SystemConfigConstants;
 import co.yixiang.exception.BadRequestException;
 import co.yixiang.modules.commission.entity.YxCommissionRate;
 import co.yixiang.modules.commission.service.YxCommissionRateService;
@@ -17,7 +18,9 @@ import co.yixiang.modules.coupons.web.param.YxCouponsQueryParam;
 import co.yixiang.modules.coupons.web.vo.YxCouponsQueryVo;
 import co.yixiang.modules.image.entity.YxImageInfo;
 import co.yixiang.modules.image.service.YxImageInfoService;
+import co.yixiang.modules.shop.service.YxSystemConfigService;
 import co.yixiang.utils.DateUtils;
+import co.yixiang.utils.StringUtils;
 import com.alicp.jetcache.anno.CacheRefresh;
 import com.alicp.jetcache.anno.CacheType;
 import com.alicp.jetcache.anno.Cached;
@@ -57,6 +60,8 @@ public class YxCouponsController extends BaseController {
     private YxImageInfoService yxImageInfoService;
     @Autowired
     private YxCommissionRateService commissionRateService;
+    @Autowired
+    private YxSystemConfigService systemConfigService;
 
     /**
      * 获取本地生活, 卡券详情
@@ -103,6 +108,11 @@ public class YxCouponsController extends BaseController {
             bigCommission = bigCommission.multiply(commissionRate.getShareRate());
         }
         yxCouponsQueryVo.setCommission(bigCommission);
+        // 获取商品关闭状态
+        String storeClose = systemConfigService.getData(SystemConfigConstants.STORE_CLOSE_SWITCH);
+        if (StringUtils.isNotBlank(storeClose)) {
+            yxCouponsQueryVo.setStoreClose(Integer.valueOf(storeClose));
+        }
 
         return ApiResult.ok(yxCouponsQueryVo);
     }

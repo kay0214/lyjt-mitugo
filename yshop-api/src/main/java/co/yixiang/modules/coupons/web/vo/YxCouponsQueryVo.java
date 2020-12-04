@@ -147,4 +147,7 @@ public class YxCouponsQueryVo implements Serializable {
 
     @ApiModelProperty(value = "使用时间段")
     private String availableTime;
+
+    @ApiModelProperty(value = "关闭店铺进入按钮 0:未关闭 1：关闭")
+    private Integer storeClose;
 }

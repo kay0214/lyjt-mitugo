@@ -24,6 +24,8 @@ public class SystemConfigConstants {
     public final static String USER_EXTRACT_MIN_PRICE="user_extract_min_price";
     // 商户是否可以提现 0：可提现 1：不可提现
     public final static String STORE_EXTRACT_SWITCH="store_extract_switch";
+    // 店铺入口开关 0：开 1：关
+    public final static String STORE_CLOSE_SWITCH="store_close_switch";
 
     //微信相关配置
     public final static String WECHAT_APPID="wechat_appid";
