@@ -68,14 +68,14 @@ public class StoreSeckillController extends BaseController {
                                                        YxStoreSeckillQueryParam queryParam) throws Exception {
         if (StrUtil.isBlank(time)) return ApiResult.fail("参数错误");
         /** 此处代码已经废弃
-        YxSystemGroupData systemGroupData = yxSystemGroupDataService
-                .findData(Integer.valueOf(time));
-        if (ObjectUtil.isNull(systemGroupData)) return ApiResult.fail("参数错误");
-        int today = OrderUtil.dateToTimestampT(DateUtil.beginOfDay(new Date()));//今天开始的时间戳
-        JSONObject jsonObject = JSONObject.parseObject(systemGroupData.getValue());
-        int startTime = today + (jsonObject.getInteger("time") * 3600);
-        int endTime = today + ((jsonObject.getInteger("time") + jsonObject.getInteger("continued")) * 3600);
-        **/
+         YxSystemGroupData systemGroupData = yxSystemGroupDataService
+         .findData(Integer.valueOf(time));
+         if (ObjectUtil.isNull(systemGroupData)) return ApiResult.fail("参数错误");
+         int today = OrderUtil.dateToTimestampT(DateUtil.beginOfDay(new Date()));//今天开始的时间戳
+         JSONObject jsonObject = JSONObject.parseObject(systemGroupData.getValue());
+         int startTime = today + (jsonObject.getInteger("time") * 3600);
+         int endTime = today + ((jsonObject.getInteger("time") + jsonObject.getInteger("continued")) * 3600);
+         **/
         return ApiResult.ok(yxStoreSeckillService.getList(queryParam.getPage().intValue(),
                 queryParam.getLimit().intValue(), Integer.valueOf(time)));
     }
@@ -91,7 +91,7 @@ public class StoreSeckillController extends BaseController {
         int uid = SecurityUtils.getUserId().intValue();
         StoreSeckillDTO storeSeckillDTO = yxStoreSeckillService.getDetail(id);
         storeSeckillDTO.setUserCollect(relationService
-                .isProductRelation(storeSeckillDTO.getStoreInfo().getProductId(),"product",uid,"collect"));
+                .isProductRelation(storeSeckillDTO.getStoreInfo().getProductId(), "product", uid, "collect"));
         return ApiResult.ok(storeSeckillDTO);
     }
 

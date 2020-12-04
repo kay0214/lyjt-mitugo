@@ -126,11 +126,7 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
     @Autowired
     private YxSystemConfigService systemConfigService;
     @Autowired
-    YxSystemConfigService systemConfigService;
-    @Autowired
     private YxSystemAttachmentService systemAttachmentService;
-    @Autowired
-    YxSystemAttachmentService systemAttachmentService;
     @Autowired
     YxUserService yxUserService;
     @Autowired
@@ -139,14 +135,6 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
     YxCouponsService yxCouponsService;
     @Autowired
     YxImageInfoService yxImageInfoService;
-    @Autowired
-    private YxUserService yxUserService;
-    @Autowired
-    private CreatShareProductService creatShareProductService;
-    @Autowired
-    private YxCouponsService yxCouponsService;
-    @Autowired
-    private YxImageInfoService yxImageInfoService;
     @Autowired
     private YxCustomizeRateService yxCustomizeRateService;
 
@@ -612,7 +600,7 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
         //文案标题
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_DEFAULT);
-        g.setFont(new Font("SimHei",Font.BOLD, 40));
+        g.setFont(new Font("SimHei", Font.BOLD, 40));
         g.setColor(new Color(29, 29, 29));
         String storeName = productInfo.getStoreName();
         storeName = storeName.length() > 14 ? storeName.substring(0, 13) + "..." : storeName;
@@ -651,10 +639,10 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
         g.drawImage(qrCode.getScaledInstance(228, 228, Image.SCALE_DEFAULT), 76, 847, null);
 
         //二维码字体
-        g.setFont(new Font("SimHei",Font.PLAIN, 30));
+        g.setFont(new Font("SimHei", Font.PLAIN, 30));
         g.setColor(new Color(29, 29, 29));
         g.drawString("扫描或长按小程序码", 331, 926);
-        g.setFont(new Font("SimHei",Font.PLAIN, 30));
+        g.setFont(new Font("SimHei", Font.PLAIN, 30));
         g.setColor(new Color(29, 29, 29));
         g.drawString("查看商品详情", 331, 968);
 

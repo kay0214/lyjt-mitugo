@@ -9,7 +9,6 @@ import co.yixiang.common.util.WxUtils;
 import co.yixiang.common.web.vo.Paging;
 import co.yixiang.constant.ShopConstants;
 import co.yixiang.constant.SystemConfigConstants;
-import co.yixiang.constant.SystemConfigConstants;
 import co.yixiang.enums.AppFromEnum;
 import co.yixiang.enums.BillDetailEnum;
 import co.yixiang.enums.BillEnum;
@@ -27,7 +26,6 @@ import co.yixiang.modules.manage.service.SystemUserService;
 import co.yixiang.modules.manage.web.vo.SystemUserQueryVo;
 import co.yixiang.modules.order.web.vo.YxStoreOrderQueryVo;
 import co.yixiang.modules.shop.service.YxSystemConfigService;
-import co.yixiang.modules.shop.service.YxSystemConfigService;
 import co.yixiang.modules.user.entity.YxSystemAttachment;
 import co.yixiang.modules.user.entity.YxUserBill;
 import co.yixiang.modules.user.mapper.YxUserBillMapper;
@@ -44,10 +42,6 @@ import co.yixiang.modules.user.web.vo.YxUserQueryVo;
 import co.yixiang.tools.domain.QiniuContent;
 import co.yixiang.tools.service.QiNiuService;
 import co.yixiang.utils.*;
-import co.yixiang.utils.CommonsUtils;
-import co.yixiang.utils.DateUtils;
-import co.yixiang.utils.OrderUtil;
-import co.yixiang.utils.StringUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.metadata.OrderItem;
@@ -72,8 +66,8 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.List;
 import java.util.*;
+import java.util.List;
 
 
 /**
@@ -106,9 +100,6 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<YxUserBillMapper, YxU
 
     @Autowired
     YxSystemAttachmentService systemAttachmentService;
-
-    @Autowired
-    YxSystemConfigService systemConfigService;
 
     @Autowired
     YxUserService yxUserService;
@@ -370,7 +361,7 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<YxUserBillMapper, YxU
     }
 
     @Override
-    public ApiResult spreadBanner() throws IOException{
+    public ApiResult spreadBanner() throws IOException {
 
         int uid = SecurityUtils.getUserId().intValue();
         YxUserQueryVo userInfo = yxUserService.getYxUserById(uid);
@@ -442,16 +433,16 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<YxUserBillMapper, YxU
         //二维码字体
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_DEFAULT);
-        g.setFont(new Font("ArialMT",Font.PLAIN, 30));
+        g.setFont(new Font("ArialMT", Font.PLAIN, 30));
         g.setColor(new Color(29, 29, 29));
-        g.drawString(userInfo.getNickname() , 402, 1160);
+        g.drawString(userInfo.getNickname(), 402, 1160);
 
         //二维码字体
-        g.setFont(new Font("ArialMT",Font.PLAIN, 30));
+        g.setFont(new Font("ArialMT", Font.PLAIN, 30));
         g.setColor(new Color(89, 89, 89));
         g.drawString("向您推荐奥帆LIFE", 326, 1235);
 
-        g.setFont(new Font("ArialMT",Font.PLAIN, 30));
+        g.setFont(new Font("ArialMT", Font.PLAIN, 30));
         g.setColor(new Color(89, 89, 89));
         g.drawString("扫描或长按小程序码", 326, 1279);
         g.dispose();
@@ -484,7 +475,7 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<YxUserBillMapper, YxU
      * @param url
      * @return
      */
-    public BufferedImage transferImgForRoundImage(String url){
+    public BufferedImage transferImgForRoundImage(String url) {
         BufferedImage resultImg = null;
         try {
             if (StringUtils.isBlank(url)) {
@@ -514,6 +505,7 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<YxUserBillMapper, YxU
 
     /**
      * 返回结果处理
+     *
      * @param spreadUrl
      * @return
      */
@@ -578,8 +570,8 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<YxUserBillMapper, YxU
             File file = new File(fileDir + name);
             String appId = WxUtils.getAppId();
             String secret = WxUtils.getSecret();
-            String accessToken = WxUtils.getAccessToken(appId,secret);
-            WxUtils.getQrCode(accessToken,fileDir + name,"uid=" + uid+"&type=spread");
+            String accessToken = WxUtils.getAccessToken(appId, secret);
+            WxUtils.getQrCode(accessToken, fileDir + name, "uid=" + uid + "&type=spread");
             if (StrUtil.isEmpty(localUrl)) {
                 QiniuContent qiniuContent = qiNiuService.uploadPic(file, qiNiuService.find());
                 systemAttachmentService.attachmentAdd(name, String.valueOf(qiniuContent.getSize()),
