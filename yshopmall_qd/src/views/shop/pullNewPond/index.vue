@@ -151,6 +151,7 @@ export default {
   },
   mounted(){
     //获取累计金额
+    this.crud.resetQuery(false)
     this.crud.refresh().then(res=>{
       this.totalAmount=res.totalPoint
     })
