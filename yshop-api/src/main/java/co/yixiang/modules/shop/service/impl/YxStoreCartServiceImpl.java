@@ -615,17 +615,19 @@ public class YxStoreCartServiceImpl extends BaseServiceImpl<YxStoreCartMapper, Y
         } else {
             bigCommission = product.getCommission();
         }
-        bigCommission = bigCommission.multiply(new BigDecimal(cartNum));
-        storeCart.setCommission(bigCommission);
         //商户ID
         storeCart.setMerId(product.getMerId());
         if (ObjectUtil.isNotNull(cart)) {
             if (isNew == 0) {
                 storeCart.setCartNum(cartNum + cart.getCartNum());
             }
+            bigCommission = bigCommission.multiply(new BigDecimal(storeCart.getCartNum()));
+            storeCart.setCommission(bigCommission);
             storeCart.setId(cart.getId());
             yxStoreCartMapper.updateById(storeCart);
         } else {
+            bigCommission = bigCommission.multiply(new BigDecimal(cartNum));
+            storeCart.setCommission(bigCommission);
             //判断是否已经添加过
             storeCart.setAddTime(OrderUtil.getSecondTimestampTwo());
             yxStoreCartMapper.insert(storeCart);
