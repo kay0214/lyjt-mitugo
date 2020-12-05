@@ -132,10 +132,21 @@ public class YxStoreCartServiceImpl extends BaseServiceImpl<YxStoreCartMapper, Y
         if (cartNum <= 0) {
             throw new ErrorRequestException("库存错误");
         }
-
-        //todo 普通商品库存
-        int stock = productService.getProductStock(cart.getProductId()
-                , cart.getProductAttrUnique());
+        int stock = 0;
+        BigDecimal commission = BigDecimal.ZERO;
+        // 获取商品信息
+        if (StrUtil.isEmpty(cart.getProductAttrUnique())) {
+            YxStoreProductQueryVo yxStoreProductQueryVo = productService.getYxStoreProductById(cart.getProductId());
+            stock = yxStoreProductQueryVo.getStock();
+            commission = yxStoreProductQueryVo.getCommission();
+        } else {
+            YxStoreProductAttrValue yxStoreProductAttrValue = productAttrService.uniqueByAttrInfo(cart.getProductAttrUnique());
+            stock = yxStoreProductAttrValue.getStock();
+            commission = yxStoreProductAttrValue.getCommission();
+        }
+//        //普通商品库存
+//        int stock = productService.getProductStock(cart.getProductId()
+//                , cart.getProductAttrUnique());
         if (stock < cartNum) {
             throw new ErrorRequestException("该产品库存不足" + cartNum);
         }
@@ -145,6 +156,7 @@ public class YxStoreCartServiceImpl extends BaseServiceImpl<YxStoreCartMapper, Y
         YxStoreCart storeCart = new YxStoreCart();
         storeCart.setCartNum(cartNum);
         storeCart.setId(Long.valueOf(cartId));
+        storeCart.setCommission(commission.multiply(new BigDecimal(cartNum)));
 
         yxStoreCartMapper.updateById(storeCart);
 
