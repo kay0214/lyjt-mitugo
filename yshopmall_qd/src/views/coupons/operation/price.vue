@@ -250,8 +250,19 @@ export default {
       this.$refs.price.validate(ret=>{
         if(!ret){
           Message({ message: '请查看必填项是否填充正确', type: 'error' })
-          return
         }else{
+          let commissionValidate=this.prices.filter((item,index)=>{
+            let c=this.form['commission'+index]
+            if(this.form['commission'+index]>sub(this.form['sellingPrice'+index]*1,this.form.settlementPrice*1)){
+              this.form['commission'+index]=sub(this.form['sellingPrice'+index]*1,this.form.settlementPrice*1)
+              this.prices[index].commission=this.form['commission'+index]
+            }
+            return c>sub(this.form['sellingPrice'+index]*1,this.form.settlementPrice*1)
+          })
+          if(commissionValidate.length){
+            Message({ message: '佣金不能大于 销售价-结算价格;结算价格为：'+this.form.settlementPrice, type: 'error' })
+            return
+          }
           var that = this
           that.submiting = true
           this.loading = false
