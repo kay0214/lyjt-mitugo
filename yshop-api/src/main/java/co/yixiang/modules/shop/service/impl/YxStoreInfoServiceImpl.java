@@ -129,6 +129,7 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
 
     @Value("${file.localUrl}")
     private String localUrl;
+
     @Value("${yshop.isProd}")
     private boolean isProd;
 
@@ -492,7 +493,6 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
         if (attachmentWap == null) {
             QrConfig config = new QrConfig(150, 150);
             config.setMargin(0);
-            BufferedImage qrCode;
             //如果类型是小程序
             File file = new File(fileDir + name);
             if (userType.equals(AppFromEnum.ROUNTINE.getValue())) {
@@ -540,10 +540,8 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
             String accessToken = WxUtils.getAccessToken(appId, secret);
             if (userType.equals(AppFromEnum.ROUNTINE.getValue())) {
                 //小程序地址
-                siteUrl = siteUrl + "/shop/";
                 //生成二维码
                 WxUtils.getQrCode(accessToken, fileDir + name, "id=" + id + "&uid=" + uid + "&type=shop");
-                //  QrCodeUtil.generate(siteUrl + "?productId=" + id + "&spread=" + uid + "&codeType=" + AppFromEnum.ROUNTINE.getValue(), config, file);
             } else if (userType.equals(AppFromEnum.APP.getValue())) {
                 //app地址
                 siteUrl = siteUrl + "/shop/";

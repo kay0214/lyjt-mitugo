@@ -19,4 +19,5 @@ import java.lang.annotation.Target;
 public @interface Log {
 	String value() default "";
 	int type() default 0;
+	String ignore() default "";
 }
