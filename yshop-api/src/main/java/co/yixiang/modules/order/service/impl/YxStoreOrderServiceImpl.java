@@ -188,6 +188,8 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
     private YxCommissionRateService commissionRateService;
     @Autowired
     private YxCustomizeRateService yxCustomizeRateService;
+    @Autowired
+    private YxStoreProductAttrValueService productAttrValueService;
 
     @Value("${yshop.snowflake.datacenterId}")
     private Integer datacenterId;
@@ -2327,6 +2329,7 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
         if (CollectionUtils.isNotEmpty(redisVoList)) {
             for (YxStoreOrderRedisVo redisVo : redisVoList) {
                 YxStoreCart storeCart = yxStoreCartService.getById(redisVo.getCartId());
+                YxStoreProduct product = productService.getById(redisVo.getProductId());
                 // 记录的原价
                 bigPrice = redisVo.getProductPrice().multiply(new BigDecimal(storeCart.getCartNum()));
 
@@ -2342,6 +2345,18 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
                 // 分佣金额
                 if (pricePayProduct.compareTo(storeCart.getCommission()) < 0) {
                     storeCart.setCommission(pricePayProduct);
+                }else {
+                    //佣金
+                    BigDecimal bigCommission = BigDecimal.ZERO;
+                    if (StringUtils.isNotBlank(storeCart.getProductAttrUnique())) {
+                        QueryWrapper<YxStoreProductAttrValue> queryWrapper = new QueryWrapper<>();
+                        queryWrapper.lambda().eq(YxStoreProductAttrValue::getUnique, storeCart.getProductAttrUnique());
+                        YxStoreProductAttrValue attrValue = productAttrValueService.getOne(queryWrapper);
+                        bigCommission = attrValue.getCommission();
+                    } else {
+                        bigCommission = product.getCommission();
+                    }
+                    storeCart.setCommission(bigCommission);
                 }
                 //实际支付金额
                 storeCart.setPayPrice(pricePayProduct);
