@@ -21,11 +21,11 @@
 <!--      <crudOperation :permission="permission" />-->
       <!--表单组件-->
       <!--表格渲染-->
-      <div ref="list" v-loading="crud.loading" :data="crud.data" size="small" style="width: 100%;"
+      <div ref="list" v-loading="crud.loading" :data="crud.data" size="small" style="width: 100%;padding:20px;"
                 @selection-change="crud.selectionChangeHandler">
         <div v-if="crud.data.length" ref="listbox" >
-          <el-row type='flex' :gutter="20" style="font-size: 12px;flex-wrap:wrap;" justify="space-around">
-            <el-col :span="7" v-for="(item,idx) in crud.data" :key='idx' style="border:1px solid #F2F6FC;border-radius: 5px;margin-bottom: 20px;">
+          <el-row type='flex' style="font-size: 12px;flex-wrap:wrap;">
+            <el-col :span="7" v-for="(item,idx) in crud.data" :key='idx' style="border:1px solid #F2F6FC;border-radius: 5px;margin: 20px;">
               <div style="padding:20px;">
                 <el-alert
                   :title="item.shipName+' ('+item.statusValue+') '"
@@ -154,7 +154,9 @@
         </div>
       </div>
       <!--分页组件-->
-      <pagination/>
+      <pagination ref="pagination" :pageSizes="[9,18,27,36,45,90]" :limit.sync="crud.page.size"
+                  :layout="`total, prev, pager, next, sizes`" :background="false"
+      :total="crud.page.total" :page.sync="crud.page.page" @pagination="pagination"/>
     </div>
     <el-table ref="table" v-show="false" v-loading="crud.loading" :data="crud.data" size="small" style="width: 100%;" @selection-change="crud.selectionChangeHandler">
       <el-table-column v-if="columns.visible('shipName')" prop="shipName" label="船只名" />
@@ -169,7 +171,7 @@ import CRUD, { presenter, header, form, crud } from '@crud/crud'
 import rrOperation from '@crud/RR.operation'
 import crudOperation from '@crud/CRUD.operation'
 import udOperation from '@crud/UD.operation'
-import pagination from '@crud/Pagination'
+import pagination from '@/components/Pagination'
 import MaterialList from "@/components/material"
 import { initData } from '@/api/data'
 
@@ -246,6 +248,12 @@ export default {
       return true
     }, // 新增与编辑前做的操作
     [CRUD.HOOK.afterToCU](crud, form) {
+    },
+    pagination(e){
+      if(this.$refs.pagination.pageSize!==e.limit){
+        this.crud.page.page=1
+      }
+      this.crud.refresh()
     }
   }
 }
