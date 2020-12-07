@@ -150,6 +150,8 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
     @Value("${spring.profiles.active}")
     private String active;
 
+    @Value("${yshop.isProd}")
+    private boolean isProd;
 
     /**
      * 增加库存 减少销量
@@ -554,8 +556,15 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
         String fileDir = path + "qrcode" + File.separator;
         String spreadPicPath = fileDir + spreadPicName;
         // 二维码地址获取
-        String qrCodeUrl = getQrCode(fileDir, userType, siteUrl, apiUrl, uid, id, pageType);
-        // qrCodeUrl = getCode(fileDir, userType, siteUrl, apiUrl, uid, id);
+
+        // 测试环境二维码生成走旧逻辑
+        String qrCodeUrl = "";
+        if (isProd) {
+            qrCodeUrl = getQrCode(fileDir, userType, siteUrl, apiUrl, uid, id, pageType);
+        } else {
+            qrCodeUrl = getCode(fileDir, userType, siteUrl, apiUrl, uid, id);
+        }
+
         ProductInfo productInfo = new ProductInfo();
         if (pageType.equals("good")) {
             YxStoreProduct storeProduct = storeProductService.getProductInfo(id);

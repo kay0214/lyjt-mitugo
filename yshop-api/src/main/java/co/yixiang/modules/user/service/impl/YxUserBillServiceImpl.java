@@ -3,6 +3,8 @@ package co.yixiang.modules.user.service.impl;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.extra.qrcode.QrCodeUtil;
+import cn.hutool.extra.qrcode.QrConfig;
 import co.yixiang.common.api.ApiResult;
 import co.yixiang.common.service.impl.BaseServiceImpl;
 import co.yixiang.common.util.WxUtils;
@@ -66,8 +68,8 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.*;
 import java.util.List;
+import java.util.*;
 
 
 /**
@@ -113,6 +115,9 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<YxUserBillMapper, YxU
 
     @Value("${file.localUrl}")
     private String localUrl;
+
+    @Value("${yshop.isProd}")
+    private boolean isProd;
 
     /**
      * 签到了多少次
@@ -390,7 +395,14 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<YxUserBillMapper, YxU
         }
         String fileDir = path + "qrcode" + File.separator;
         //获取小程序码连接
-        String qrCodeUrl = getQrCode(fileDir, userType, siteUrl, apiUrl, uid);
+        String qrCodeUrl = "";
+        // 测试环境二维码生成走旧逻辑
+        if (isProd) {
+            qrCodeUrl =  getQrCode(fileDir, userType, siteUrl, apiUrl, uid);
+        } else {
+            qrCodeUrl = getCode(fileDir, userType, siteUrl, apiUrl, uid);
+        }
+
         String spreadPicPath = fileDir + spreadPicName;
         //读取二维码图片
         BufferedImage qrCode = null;
@@ -572,6 +584,43 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<YxUserBillMapper, YxU
             String secret = WxUtils.getSecret();
             String accessToken = WxUtils.getAccessToken(appId, secret);
             WxUtils.getQrCode(accessToken, fileDir + name, "uid=" + uid + "&type=spread");
+            if (StrUtil.isEmpty(localUrl)) {
+                QiniuContent qiniuContent = qiNiuService.uploadPic(file, qiNiuService.find());
+                systemAttachmentService.attachmentAdd(name, String.valueOf(qiniuContent.getSize()),
+                        qiniuContent.getUrl(), qiniuContent.getUrl(), 2);
+                qrCodeUrl = qiniuContent.getUrl();
+            } else {
+                systemAttachmentService.attachmentAdd(name, String.valueOf(FileUtil.size(file)),
+                        fileDir + name, "qrcode/" + name);
+                qrCodeUrl = apiUrl + "/file/qrcode/" + name;
+            }
+
+        } else {
+            qrCodeUrl = attachment.getImageType().equals(2) ? attachment.getSattDir() : apiUrl + "/file/" + attachment.getSattDir();
+        }
+
+        return qrCodeUrl;
+    }
+
+    /**
+     * 获取二维码连接
+     * @param fileDir
+     * @param userType
+     * @param siteUrl
+     * @param apiUrl
+     * @param uid
+     * @return
+     */
+    public String getCode(String fileDir, String userType, String siteUrl, String apiUrl, int uid) {
+        String name = uid + "_" + userType + "_user_wap.jpg";
+        YxSystemAttachment attachment = systemAttachmentService.getInfo(name);
+
+        String qrCodeUrl;
+        if (ObjectUtil.isNull(attachment)) {
+            File file = new File(fileDir + name);
+            QrConfig config = new QrConfig(150, 150);
+            config.setMargin(0);
+            QrCodeUtil.generate(siteUrl + "?spread=" + uid, config,file);
             if (StrUtil.isEmpty(localUrl)) {
                 QiniuContent qiniuContent = qiNiuService.uploadPic(file, qiNiuService.find());
                 systemAttachmentService.attachmentAdd(name, String.valueOf(qiniuContent.getSize()),
