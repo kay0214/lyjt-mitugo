@@ -91,7 +91,7 @@
                 <el-button size="small" type="primary"  style='margin-right:5px;padding:9px 15px;' plain  >船只管理</el-button>
               </app-link>
 
-              <el-dropdown trigger="click" style="margin-top:10px; padding:9px 15px;" placement="bottom">
+              <el-dropdown trigger="click" style="padding:9px 15px;" placement="bottom">
               <el-button type="primary" plain size="small" style="padding-left:10px;padding-right:10px;">
               更多操作<i class="el-icon-arrow-down el-icon--right"></i>
               </el-button>
