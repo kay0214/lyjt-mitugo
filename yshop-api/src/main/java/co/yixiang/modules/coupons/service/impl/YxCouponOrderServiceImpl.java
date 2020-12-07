@@ -305,11 +305,18 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
             throw new BadRequestException("当前购买卡券数量超限");
         }
 
-        YxCoupons coupons = yxCouponsMapper.selectById(couponId);
-        YxStoreInfo yxStoreInfo = this.storeInfoService.getById(coupons.getStoreId());
+        YxStoreInfo yxStoreInfo = this.storeInfoService.getById(yxCoupons.getStoreId());
         Double totalPrice = cacheDTO.getPriceGroup().getTotalPrice();
 
         if (totalPrice <= 0) totalPrice = 0d;
+
+        YxCouponsPriceConfig yxCouponsPriceConfig = yxCouponsService.getPirceConfig(yxCoupons.getId());
+        if (null != yxCouponsPriceConfig) {
+            //佣金
+            yxCoupons.setCommission(yxCouponsPriceConfig.getCommission());
+            //销售价格
+            yxCoupons.setSellingPrice(yxCouponsPriceConfig.getSellingPrice());
+        }
 
         //生成分布式唯一值
         String orderSn = SnowflakeUtil.getOrderId(datacenterId);
@@ -328,8 +335,8 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
         couponOrder.setMark(param.getMark());
         couponOrder.setCouponId(couponId);
         // 订单表存放核销的总次数
-        couponOrder.setUseCount(NumberUtil.mul(coupons.getWriteOff(), totalNum).intValue());
-        couponOrder.setCouponPrice(coupons.getSellingPrice());
+        couponOrder.setUseCount(NumberUtil.mul(yxCoupons.getWriteOff(), totalNum).intValue());
+        couponOrder.setCouponPrice(yxCoupons.getSellingPrice());
         // 商户ID
         couponOrder.setMerId(yxStoreInfo.getMerId());
         // 推荐人id和类型
@@ -364,11 +371,11 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
 //        }
 
         //在线发票（0：不支持，1：支持）
-        couponOrder.setOnlineInvoice(coupons.getOnlineInvoice());
+        couponOrder.setOnlineInvoice(yxCoupons.getOnlineInvoice());
         // 处理过期时间
         Integer outTime = DateUtils.dateToTimeStamp(yxCoupons.getExpireDateEnd());
         int userStatus = 1;
-        if (4 == coupons.getCouponType()) {
+        if (4 == yxCoupons.getCouponType()) {
             //船票券 默认为0：不可用
             userStatus = 0;
             // 处理失效时间
@@ -391,7 +398,7 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
             couponOrderDetail.setOrderId(orderSn);
             couponOrderDetail.setUid(uid);
             couponOrderDetail.setCouponId(couponId);
-            couponOrderDetail.setUseCount(coupons.getWriteOff());
+            couponOrderDetail.setUseCount(yxCoupons.getWriteOff());
             couponOrderDetail.setUsedCount(0);
             couponOrderDetail.setStatus(0);
             // 先用时间戳、扩展字段长度后再用uuid生成核销码
@@ -428,7 +435,7 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
 //                LocalLiveConstants.ORDER_OUTTIME_UNPAY, TimeUnit.MINUTES);
 
         // add 保存购买时费率
-        YxNowRate nowRate = setNowRateByCouponId(coupons, couponOrder);
+        YxNowRate nowRate = setNowRateByCouponId(yxCoupons, couponOrder);
         yxNowRateService.save(nowRate);
 
         return couponOrder;
