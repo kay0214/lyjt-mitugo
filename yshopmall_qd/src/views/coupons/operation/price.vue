@@ -49,18 +49,18 @@
         <div v-else>
         <template v-for="(price,index) in prices">
           <div :key='index' style='border-bottom:1px dashed #eee;margin-bottom:10px;'>
-            <el-row :gutter="24" align="middle">
-              <el-col :span="3">
+            <el-row :gutter="24" type="flex" align="middle">
+              <el-col :span="4">
                 <p style="font-size:12px;text-align: center">
-                  {{ price.startDateStr }} <br/>
-                  ~<br/>
-                  {{ price.endDateStr }}
+                  {{ price.startDateStr.slice(0,2).concat('-',price.startDateStr.slice(2)) }}
+                  ~
+                  {{ price.endDateStr.slice(0,2).concat('-',price.endDateStr.slice(2)) }}
                 </p>
               </el-col>
               <el-col :span="4">
                 <el-form-item :prop='`sellingPrice${index}`' label="销售价:"
                 :rules="rules.sellingPrice">
-                  <el-input v-model="form['sellingPrice'+index]" style="width: 100%" placeholder="销售价"
+                  <el-input v-model.trim="form['sellingPrice'+index]" style="width: 100%" placeholder="销售价"
                             @input="(val)=>{prices[index].sellingPrice=val}"
                             @change="setCommission($event,index)"
                   ></el-input>
@@ -69,26 +69,26 @@
               <el-col :span="3">
                 <el-form-item :prop='`commission${index}`' label="佣金:"
                               :rules='rules.commission'>
-                  <el-input v-model="form['commission'+index]" placeholder="佣金" style="width: 100%"
-                            @change="(val)=>{prices[index].commission=val}"
+                  <el-input v-model.trim="form['commission'+index]" placeholder="佣金" style="width: 100%"
+                            @change="changeCommission($event,index)"
                   ></el-input>
                 </el-form-item>
               </el-col>
-              <el-col :span="6">
+              <el-col :span="5">
                 <el-form-item :prop='`scenicPrice${index}`'  label="旅行社价格:"
                 :rules='rules.scenicPrice'>
-                  <el-input v-model="form['scenicPrice'+index]" placeholder="旅行社价格" style="width: 100%" @input="(val)=>{prices[index].scenicPrice=val}"
+                  <el-input v-model.trim="form['scenicPrice'+index]" placeholder="旅行社价格" style="width: 100%" @input="(val)=>{prices[index].scenicPrice=val}"
                   ></el-input>
                 </el-form-item>
               </el-col>
-              <el-col :span="6">
+              <el-col :span="5">
                 <el-form-item :prop='`travelPrice${index}`' label="景区推广价格:"
                 :rules='rules.travelPrice'>
-                  <el-input v-model="form['travelPrice'+index]" placeholder="景区推广价格" style="width: 100%" @input="(val)=>{prices[index].travelPrice=val}"
+                  <el-input v-model.trim="form['travelPrice'+index]" placeholder="景区推广价格" style="width: 100%" @input="(val)=>{prices[index].travelPrice=val}"
                   ></el-input>
                 </el-form-item>
               </el-col>
-              <el-col :span="2" style="margin-top:22px;">
+              <el-col :span="2">
                 <el-button type="primary" @click="priceRemove(index)">删除</el-button>
               </el-col>
             </el-row>
@@ -234,6 +234,17 @@ export default {
     setCommission(sellingPrice,index) {
       this.form['commission'+index]= sub(sellingPrice,this.form.settlementPrice*1)
       this.prices[index].commission=sub(sellingPrice,this.form.settlementPrice*1)
+    },
+    changeCommission(val,index){
+      if(!this.form['sellingPrice'+index]){
+        Message({ message: '请先填销售价格', type: 'error' })
+        this.form['commission'+index]=' '
+      }else if(val>sub(this.form['sellingPrice'+index]*1,this.form.settlementPrice*1)){
+        Message({ message: '佣金不能大于 销售价-结算价格='+sub(this.form['sellingPrice'+index]*1,this.form.settlementPrice*1), type: 'error' })
+        this.form['commission'+index]=sub(this.form['sellingPrice'+index]*1,this.form.settlementPrice*1)
+      }else{
+        this.prices[index].commission=val
+      }
     },
     submit() {
       this.$refs.price.validate(ret=>{
