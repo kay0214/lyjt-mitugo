@@ -16,6 +16,7 @@
         <if test ="param.seriesId !='' and param.seriesId != null"> and series_id = #{param.seriesId} </if>
         <if test ="param.shipName !='' and param.shipName != null"> and ship_name LIKE CONCAT('%',#{param.shipName},'%') </if>
         <if test ="param.currentStatus !='' and param.currentStatus != null"> and current_status = #{param.currentStatus} </if>
+        <if test ="param.storeId !='' and param.storeId != null"> and store_id = #{param.storeId} </if>
     </select>
     <!--<select id="getYxShipInfoPageListByParam" resultType="co.yixiang.modules.ship.web.vo.YxShipInfoQueryVo">
         select <include refid="Base_Column_List"/> from yx_ship_info
