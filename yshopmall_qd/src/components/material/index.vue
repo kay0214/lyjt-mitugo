@@ -6,7 +6,7 @@
           <div>
             <img :src="item" alt="" class="el-upload-list__item-thumbnail">
             <span class="el-upload-list__item-actions">
-              <span v-if="index != 0" class="el-upload-list__item-preview" @click="moveMaterial(index,'up')">
+              <span v-if="index !== 0" class="el-upload-list__item-preview" @click="moveMaterial(index,'up')">
                 <i class="el-icon-back" />
               </span>
               <span class="el-upload-list__item-preview" @click="zoomMaterial(index)">
@@ -15,7 +15,7 @@
               <span v-if="!readonly" class="el-upload-list__item-delete" @click="deleteMaterial(index)">
                 <i class="el-icon-delete" />
               </span>
-              <span v-if="index != value.length-1" class="el-upload-list__item-preview" @click="moveMaterial(index,'down')">
+              <span v-if="index !== value.length-1" class="el-upload-list__item-preview" @click="moveMaterial(index,'down')">
                 <i class="el-icon-right" />
               </span>
             </span>
@@ -97,7 +97,7 @@
                   show-icon
                 />
                 <el-row :gutter="5">
-                  <el-checkbox-group v-model="urls" :max="num - value.length">
+                  <el-checkbox-group v-model="urls" :max="num">
                     <el-col v-for="(item,index) in tableData" :key="index" :span="4">
                       <el-card :body-style="{ padding: '5px' }">
                         <el-image
@@ -242,7 +242,7 @@
                   show-icon
                 />
                 <el-row :gutter="5">
-                  <el-checkbox-group v-model="urls" :max="num - value.length">
+                  <el-checkbox-group v-model="urls" :max="num">
                     <el-col v-for="(item,index) in tableData" :key="index" :span="4">
                       <el-card :body-style="{ padding: '5px' }">
                         <video
@@ -488,7 +488,7 @@ export default {
       })
     },
     tabClick(tab, event) {
-      this.urls = []
+      // this.urls = []
       const index = Number(tab.index)
       const materialgroupObj = this.materialgroupList[index]
       materialgroupObj.index = index
