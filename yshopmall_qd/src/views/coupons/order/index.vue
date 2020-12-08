@@ -18,21 +18,22 @@
       <div class="head-container">
         <div>
           <!-- 搜索 -->
+          <el-input v-model="query.storeName" clearable placeholder="输入商品名称" style="width: 200px;" class="filter-item" @keyup.enter.native="toQuery" />
           <el-input v-model="query.value" clearable placeholder="输入搜索内容" style="width: 200px;" class="filter-item" @keyup.enter.native="crud.toQuery" />
           <el-select v-model="query.orderType" clearable placeholder="类型" class="filter-item" style="width: 130px">
             <el-option v-for="item in queryTypeOptions" :key="item.key" :label="item.display_name" :value="item.key" />
           </el-select>
-          <!-- <el-date-picker
-            v-model="createTime"
+           <el-date-picker
+            v-model="query.createTime"
             :default-time="['00:00:00','23:59:59']"
             type="daterange"
             range-separator=":"
             size="small"
             class="date-item"
-            value-format="yyyy-MM-dd HH:mm:ss"
+            value-format="yyyy-MM-dd"
             start-placeholder="开始日期"
             end-placeholder="结束日期"
-          /> -->
+          />
           <el-button class="filter-item" size="mini" type="success" icon="el-icon-search" @click="crud.toQuery">搜索</el-button>
           <!-- 新增 -->
           <el-button
@@ -42,6 +43,7 @@
             icon="el-icon-refresh"
             @click="crud.toQuery"
           >刷新</el-button>
+          <crudOperation :permission="permission" />
         </div>
         <!--表单组件-->
         <!-- <el-dialog :close-on-click-modal="false" :before-close="crud.cancelCU" :visible.sync="crud.status.cu > 0" :title="crud.status.title" width="500px">
@@ -102,11 +104,12 @@
           </el-table-column>
           <el-table-column v-if="columns.visible('createTime')" prop="createTime" label="创建时间">
             <template slot-scope="scope">
-              <span>{{ formatTime(scope.row.createTime) }}</span>
+              <span>{{ parseTime(scope.row.createTime) }}</span>
             </template>
-          </el-table-column>         
+          </el-table-column>
           <el-table-column label="操作" width="150px" align="center">
             <template slot-scope="scope">
+              <div class="life_flex">
               <el-button
               size="mini"
               type="primary"
@@ -114,6 +117,7 @@
             >
               订单详情</el-button>
               <el-button
+              style="margin-left:3px;"
               v-permission="permission.refund"
               v-if='scope.row.refundStatus===1'
               size="mini"
@@ -121,6 +125,7 @@
               @click="refund(scope.row)"
             >
               退款</el-button><!--0 未退款 1 申请中 2 已退款-->
+              </div>
             </template>
           </el-table-column>
         </el-table>
@@ -138,13 +143,19 @@ import rrOperation from '@crud/RR.operation'
 import crudOperation from '@crud/CRUD.operation'
 import udOperation from '@crud/UD.operation'
 import pagination from '@crud/Pagination'
-import { formatTime } from '@/utils/index'
+import { parseTime } from '@/utils/index'
 import eDetail from './detail'
 import eRefund from './refund'
 
 // crud交由presenter持有
 const defaultCrud = CRUD({ title: '卡券订单', url: 'api/yxCouponOrder',
-sort: 'id,desc', crudMethod: { ...crudYxCouponOrder }, query:{orderStatus: '',orderType: '',value:'' }})
+sort: 'id,desc', crudMethod: { ...crudYxCouponOrder },optShow: {
+    add: false,
+    edit: false,
+    del: false,
+    download: true
+  },
+  query:{orderStatus: '',orderType: '',value:'' }})
 const defaultForm = {  orderId: null,  mark: null }
 export default {
   name: 'YxCouponOrder',
@@ -196,7 +207,6 @@ export default {
     }, // 新增与编辑前做的操作
     [CRUD.HOOK.afterToCU](crud, form) {
     },
-    formatTime,
     handleOrder(tab, event) {
       this.crud.query.orderStatus = tab.label
       this.crud.page.page = 1
@@ -226,8 +236,12 @@ export default {
         payTime: data.payTime,
         mark:data.mark,
         createTime:data.createTime,
+        usedTime:'',
         refundStatus:data.refundStatus,
         couponOrderUseList: data.couponOrderUseList,
+      }
+      if(data.usedTime &&data.usedTime.length){
+        _this.form.usedTime=data.usedTime.split(',')
       }
       _this.dialog = true
     },
@@ -263,5 +277,9 @@ export default {
     width: 32px;
     height: 32px;
     line-height: 32px;
+  }
+  .life_flex{
+    display: flex;
+    flex-direction: row;
   }
 </style>

@@ -10,6 +10,7 @@ import com.qiniu.storage.Region;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Random;
 
 /**
  * 七牛云存储工具类
@@ -60,4 +61,23 @@ public class QiNiuUtil {
                 "." +
                 FileUtil.getExtensionName(file);
     }
+
+
+
+    /**
+     * 上传文件重命名
+     * @return 新的文件名
+     */
+    public static String fileRename() {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmssSSS");
+        String time = sdf.format(new Date());
+        StringBuffer buf = new StringBuffer(time);
+        Random r = new Random();
+        //循环取得三个不大于10的随机整数
+        for (int x = 0; x < 3; x++) {
+            buf.append(r.nextInt(10));
+        }
+        return buf.toString();
+    }
+
 }

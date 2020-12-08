@@ -29,13 +29,17 @@
       <el-form-item label="商品图片(750*672)" prop='imageArr'>
         <MaterialList v-model="form.imageArr" style="width: 650px" type="image" :num="1" :width="150" :height="150" @setValue='(val)=>{form.imageArr=val;$refs.form.validateField("imageArr")}'/>
       </el-form-item>
+      <el-form-item label="视频" >
+        <MaterialList v-model="form.sliderVideo" style="width: 650px" type="video" :num="1" :width="150" :height="150"
+                      @setValue='(val)=>{form.sliderVideo=val;form.video=val.join(",")}'/>
+      </el-form-item>
       <el-form-item label="轮播图(750 * 660)" prop='sliderImageArr'>
         <MaterialList v-model="form.sliderImageArr" style="width: 650px" type="image" :num="8" :width="150" :height="150" @setValue='(val)=>{form.sliderImageArr=val;$refs.form.validateField("sliderImageArr")}'/>
       </el-form-item>
       <el-form-item label="产品描述" prop='description'>
         <editor v-model="form.description" @change="descriptionChange" />
       </el-form-item>
-      
+
       <el-row>
         <el-col :span='8'>
           <el-form-item label="销售价" prop='price'>
@@ -44,7 +48,7 @@
           <el-form-item label="原价" prop='otPrice'>
             <el-input v-model="form.otPrice" οnkeyup="if(isNaN(value))execCommand('undo')" onafterpaste="if(isNaN(value))execCommand('undo')" maxlength="12" />
           </el-form-item>
-          <el-form-item label="虚拟销量" prop='ficti'>
+          <el-form-item v-if="$store.getters.user.userRole==0 || $store.getters.user.username=='admin'" label="虚拟销量" prop='ficti'>
             <el-input v-model="form.ficti" maxlength="12" />
           </el-form-item>
         </el-col>
@@ -62,9 +66,9 @@
         </el-col>
         <el-col :span='8'>
           <el-form-item label="佣金" prop='commission'>
-            <el-input v-model="commission" readonly />
+            <el-input v-model="form.commission"/>
           </el-form-item>
-          <el-form-item label="排序" prop='sort'>
+          <el-form-item v-if="$store.getters.user.userRole==0 || $store.getters.user.username=='admin'" label="排序" prop='sort'>
             <el-input v-model="form.sort" />
           </el-form-item>
           <el-form-item v-if='!form.isPostage' prop='postage' :rules="form.isPostage?[{required:false}]:rules.postage" label="邮费">
@@ -106,11 +110,11 @@ export default {
     }
   },
   computed: {
-    commission: function () {
-      if(!isNaN(this.form.price) && !isNaN(this.form.settlement)) {
-        return sub(this.form.price,this.form.settlement)
-      } else return 0
-    }
+    // commission: function () {
+    //   if(!isNaN(this.form.price) && !isNaN(this.form.settlement)) {
+    //     return sub(this.form.price,this.form.settlement)
+    //   } else return this.form.commission
+    // }
   },
   data() {
     //浮点数上限校验
@@ -132,20 +136,21 @@ export default {
         callback()
       }
     };
+
     //佣金校验 销售价price-平台结算价settlement>=0
     let commissionValue=(r,value,callback)=>{
       let val= sub(this.form.price*1,this.form.settlement*1)
       if(val<0){
-        callback(new Error("佣金=销售价-平台结算价 (佣金>=0)"));
+        callback(new Error("销售价>=平台结算价"));
       }else{
-        if(!isNaN(val)){
+        if(!isNaN(val) && !this.subForm){
           this.$set(this.form,'commission',val)
         }
         callback()
       }
     };
     return {
-      loading: false, dialog: false, cates: [],
+      loading: false, dialog: false, cates: [],subForm:false,
       form: {
         id: '',
         merId: 0,
@@ -153,6 +158,8 @@ export default {
         sliderImage: '',
         imageArr: [],
         sliderImageArr: [],
+        sliderVideo:[],
+        video:'',
         storeName: '',
         storeInfo: '',
         keyword: '',
@@ -175,7 +182,6 @@ export default {
         giveIntegral: 0,
         cost: 0,
         isSeckill: 0,
-        isBargain: 0,
         isGood: 0,
         browse: 0,
         codePath: '',
@@ -262,7 +268,8 @@ export default {
           { validator: (rule, value, callback)=>{validateInt(rule, value, callback)}, trigger: 'blur'}
         ],
         commission:[
-          // { required: true,message: '必填项', trigger: 'blur'}
+          { required: true,message: '必填项', trigger: 'blur'},
+          { validator: validateNum, trigger: 'blur'}
         ],
         isPostage:[
           { required: true,message: '必填项', trigger: 'blur'}
@@ -303,7 +310,7 @@ export default {
       // this.$nextTick(()=>{
       //   this.$refs['form'].validateField('sliderImageArr')
       // })
-    }
+    },
   },
   methods: {
     descriptionChange(val){
@@ -314,7 +321,9 @@ export default {
       this.resetForm()
     },
     doSubmit() {
+     this.subForm=true
      this.$refs['form'].validate(valid=>{
+       this.subForm=false
        if(!valid){
          return;
        }else{
@@ -398,7 +407,6 @@ export default {
         giveIntegral: 0,
         cost: 0,
         isSeckill: 0,
-        isBargain: 0,
         isGood: 0,
         browse: 0,
         codePath: '',

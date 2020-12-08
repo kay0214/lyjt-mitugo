@@ -109,11 +109,11 @@ public class QiNiuServiceImpl implements QiNiuService {
         Auth auth = Auth.create(qiniuConfig.getAccessKey(), qiniuConfig.getSecretKey());
         String upToken = auth.uploadToken(qiniuConfig.getBucket());
         try {
-            String key = file.getOriginalFilename();
-            if(qiniuContentService.getOne(new QueryWrapper<QiniuContent>().eq("name", FileUtil.getFileNameNoEx(key)).eq("suffix",FileUtil.getExtensionName(key))) != null) {
-                key = QiNiuUtil.getKey(key);
-            }
-            key = key.replaceAll(" ","");
+            String key = QiNiuUtil.fileRename();
+            //if(qiniuContentService.getOne(new QueryWrapper<QiniuContent>().eq("name", FileUtil.getFileNameNoEx(key)).eq("suffix",FileUtil.getExtensionName(key))) != null) {
+
+            //}
+
             Response response = uploadManager.put(file.getBytes(), key, upToken);
             //解析上传成功的结果
 
@@ -258,8 +258,8 @@ public class QiNiuServiceImpl implements QiNiuService {
         Auth auth = Auth.create(qiniuConfig.getAccessKey(), qiniuConfig.getSecretKey());
         String upToken = auth.uploadToken(qiniuConfig.getBucket());
         try {
-            String key = file.getName();
-            key = QiNiuUtil.getKey(key);
+            String key = QiNiuUtil.fileRename();
+
 //            if(qiniuContentService.getOne(new QueryWrapper<QiniuContent>().eq("name", FileUtil.getFileNameNoEx(key)).eq("suffix",FileUtil.getExtensionName(key))) != null) {
 //                key = QiNiuUtil.getKey(key);
 //            }

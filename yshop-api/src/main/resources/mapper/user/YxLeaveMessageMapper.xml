@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="co.yixiang.modules.user.mapper.YxLeaveMessageMapper">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, link_id, mer_id, user_name, user_phone, message, status, take_time, message_type, remark, del_flag, create_user_id, update_user_id, create_time, update_time
+    </sql>
+
+    <select id="getYxLeaveMessageById" resultType="co.yixiang.modules.user.web.vo.YxLeaveMessageQueryVo">
+        select <include refid="Base_Column_List"/> from yx_leave_message where id = #{id}
+    </select>
+
+    <select id="getYxLeaveMessagePageList" resultType="co.yixiang.modules.user.web.vo.YxLeaveMessageQueryVo">
+        select <include refid="Base_Column_List"/> from yx_leave_message
+    </select>
+
+    <select id="getYxLeaveMessagePageListByParam" resultType="co.yixiang.modules.couponUse.dto.YxLeaveMessageVo">
+        select <include refid="Base_Column_List"/> from yx_leave_message where del_flag = 0
+        <if test="param.merId!= null">  and  mer_id = #{param.merId} </if>
+        <if test="param.status!= null">  and `status` = #{param.status} </if>
+        <if test="param.startTime !='' and param.startTime != null "> and create_time <![CDATA[ >= ]]> #{param.startTime} </if>
+        <if test="param.endTime !='' and param.endTime != null"> and create_time <![CDATA[ <= ]]>#{param.endTime} </if>
+    </select>
+</mapper>

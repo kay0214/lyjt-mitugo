@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="co.yixiang.modules.user.mapper.YxUsedContactsMapper">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, user_id, user_name, user_phone, card_id, user_type, del_flag, create_user_id, update_user_id, create_time, update_time
+    </sql>
+
+    <select id="getYxUsedContactsById" resultType="co.yixiang.modules.user.web.vo.YxUsedContactsQueryVo">
+        select <include refid="Base_Column_List"/> from yx_used_contacts where id = #{id}
+    </select>
+
+    <select id="getYxUsedContactsPageList" resultType="co.yixiang.modules.user.web.vo.YxUsedContactsQueryVo">
+        select <include refid="Base_Column_List"/> from yx_used_contacts
+    </select>
+
+    <select id="getYxUsedContactsPageListByParam" resultType="co.yixiang.modules.user.web.vo.YxUsedContactsQueryVo">
+        select <include refid="Base_Column_List"/> from yx_used_contacts where del_flag = 0 and  user_id = #{param.userId}
+    </select>
+
+</mapper>

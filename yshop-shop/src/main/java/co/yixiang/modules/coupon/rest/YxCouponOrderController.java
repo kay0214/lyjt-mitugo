@@ -26,6 +26,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -44,6 +46,18 @@ public class YxCouponOrderController {
 
     private final YxCouponOrderUseService yxCouponOrderUseService;
 
+    @Log("导出数据")
+    @ApiOperation("导出数据")
+    @GetMapping(value = "/download")
+    @PreAuthorize("@el.check('admin','yxCouponOrder:list')")
+    public void download(HttpServletResponse response, YxCouponOrderQueryCriteria criteria) throws IOException {
+        CurrUser currUser = SecurityUtils.getCurrUser();
+        criteria.setUserRole(currUser.getUserRole());
+        if (null != currUser.getChildUser()) {
+            criteria.setChildUser(currUser.getChildUser());
+        }
+        yxCouponOrderService.download(yxCouponOrderService.queryDownload(criteria), response);
+    }
 
     @GetMapping
     @ApiOperation("查询卡券订单表")

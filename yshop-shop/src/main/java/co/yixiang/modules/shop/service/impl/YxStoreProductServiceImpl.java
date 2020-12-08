@@ -25,6 +25,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -48,6 +49,7 @@ import java.util.stream.Collectors;
  * @author hupeng
  * @date 2020-05-12
  */
+@Slf4j
 @Service
 @AllArgsConstructor
 //@CacheConfig(cacheNames = "yxStoreProduct")
@@ -78,6 +80,8 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<StoreProductMappe
     @Autowired
     private YxSystemAttachmentMapper yxSystemAttachmentMapper;
     @Autowired
+    private YxCustomizeRateService yxCustomizeRateService;
+    @Autowired
     private RedisUtils redisUtils;
 
     @Override
@@ -103,6 +107,12 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<StoreProductMappe
         if (null != criteria.getIsShow()) {
             queryWrapper.lambda().eq(YxStoreProduct::getIsShow, criteria.getIsShow());
         }
+        if (null != criteria.getIsBest()) {
+            queryWrapper.lambda().eq(YxStoreProduct::getIsBest, criteria.getIsBest());
+        }
+        if (null != criteria.getIsHot()) {
+            queryWrapper.lambda().eq(YxStoreProduct::getIsHot, criteria.getIsHot());
+        }
         if (StringUtils.isNotBlank(criteria.getType()) && StringUtils.isNotBlank(criteria.getValue())) {
             if ("storeName".equals(criteria.getType())) {
                 queryWrapper.lambda().like(YxStoreProduct::getStoreName, criteria.getValue());
@@ -119,10 +129,11 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<StoreProductMappe
             }
         }
         IPage<YxStoreProduct> ipage = this.page(new Page<>(pageable.getPageNumber() + 1, pageable.getPageSize()), queryWrapper);
-        List<YxStoreProduct> productList = getStoreName(ipage.getRecords());
+        // 这个地方对列表的数据逐条做了处理
+        List<YxStoreProductDto> productList = getStoreName(generator.convert(ipage.getRecords(), YxStoreProductDto.class));
         Map<String, Object> map = new LinkedHashMap<>(2);
 
-        map.put("content", generator.convert(productList, YxStoreProductDto.class));
+        map.put("content", productList);
         map.put("totalElements", ipage.getTotal());
 //        int sysUserId = SecurityUtils.getUserId().intValue();
 //        User userSys = userService.getById(sysUserId);
@@ -153,7 +164,7 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<StoreProductMappe
         return yxStoreProductList;
     }
 
-    public List<YxStoreProduct> getStoreName(List<YxStoreProduct> storeProductList) {
+    public List<YxStoreProductDto> getStoreName(List<YxStoreProductDto> storeProductList) {
         storeProductList.forEach(yxStoreProduct -> {
             yxStoreProduct.setStoreCategory(yxStoreCategoryService.getById(yxStoreProduct.getCateId()));
             YxStoreInfoDto yxStoreInfoDto = new YxStoreInfoDto();
@@ -165,6 +176,23 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<StoreProductMappe
             yxStoreProduct.setCateFlg(0);
             if (ObjectUtil.isNotEmpty(yxStoreProduct.getStoreCategory())) {
                 yxStoreProduct.setCateFlg(yxStoreProduct.getStoreCategory().getIsShow() == 1 ? 1 : 0);
+            }
+            // 分佣模式（0：按平台，1：不分佣，2：自定义分佣）
+            if (2 == yxStoreProduct.getCustomizeType()) {
+                YxCustomizeRate yxCustomizeRate = this.yxCustomizeRateService.getOne(new QueryWrapper<YxCustomizeRate>().lambda()
+                        .eq(YxCustomizeRate::getRateType, 0)
+                        .eq(YxCustomizeRate::getLinkId, yxStoreProduct.getId())
+                        .eq(YxCustomizeRate::getDelFlag, 0));
+                if (null != yxCustomizeRate) {
+                    yxCustomizeRate.setFundsRate(yxCustomizeRate.getFundsRate().multiply(new BigDecimal("100")));
+                    yxCustomizeRate.setShareRate(yxCustomizeRate.getShareRate().multiply(new BigDecimal("100")));
+                    yxCustomizeRate.setShareParentRate(yxCustomizeRate.getShareParentRate().multiply(new BigDecimal("100")));
+                    yxCustomizeRate.setParentRate(yxCustomizeRate.getParentRate().multiply(new BigDecimal("100")));
+                    yxCustomizeRate.setPartnerRate(yxCustomizeRate.getPartnerRate().multiply(new BigDecimal("100")));
+                    yxCustomizeRate.setReferenceRate(yxCustomizeRate.getReferenceRate().multiply(new BigDecimal("100")));
+                    yxCustomizeRate.setMerRate(yxCustomizeRate.getMerRate().multiply(new BigDecimal("100")));
+                    yxStoreProduct.setYxCustomizeRate(yxCustomizeRate);
+                }
             }
         });
         return storeProductList;
@@ -216,7 +244,7 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<StoreProductMappe
     }
 
     @Override
-    public YxStoreProduct saveProduct(YxStoreProduct storeProduct) {
+    public YxStoreProductDto saveProduct(YxStoreProductDto storeProduct) {
         if (storeProduct.getStoreCategory().getId() == null) {
             throw new BadRequestException("分类名称不能为空");
         }
@@ -224,7 +252,9 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<StoreProductMappe
                 .checkProductCategory(storeProduct.getStoreCategory().getId());
         if (!check) throw new BadRequestException("商品分类必选选择二级");
         storeProduct.setCateId(storeProduct.getStoreCategory().getId().toString());
-        this.save(storeProduct);
+        YxStoreProduct insertProduct = generator.convert(storeProduct, YxStoreProduct.class);
+        this.save(insertProduct);
+
         //存入redis
         String redisKey = ShopConstants.SHOP_PRODUCT_STOCK + storeProduct.getId();
         redisUtils.set(redisKey, storeProduct.getStock());
@@ -343,7 +373,8 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<StoreProductMappe
             yxStoreProductAttrValue.setUnique(IdUtil.simpleUUID());
             yxStoreProductAttrValue.setImage(productFormatDTO.getPic());
             //佣金 = 商品金额-平台结算(cost:为平台结算价)
-            double bigComm = productFormatDTO.getPrice() - productFormatDTO.getCost();
+//            double bigComm = productFormatDTO.getPrice() - productFormatDTO.getCost();
+            double bigComm = productFormatDTO.getCommission();
             DecimalFormat df1 = new DecimalFormat("0.00");
             yxStoreProductAttrValue.setCommission(new BigDecimal(df1.format(bigComm).toString()));
 
@@ -439,7 +470,7 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<StoreProductMappe
     }
 
     @Override
-    public void updateProduct(YxStoreProduct resources) {
+    public void updateProduct(YxStoreProductDto resources) {
         int sumStock = storeProductAttrMapper.getStocketByProductId(resources.getId());
         if (resources.getStock() < sumStock) {
             throw new BadRequestException("库存数不能小于规格库存总数！");
@@ -451,7 +482,8 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<StoreProductMappe
         if (!check) throw new BadRequestException("商品分类必选选择二级");
         resources.setCateId(resources.getStoreCategory().getId().toString());
         //
-        resources.setCommission(resources.getPrice().subtract(resources.getSettlement()));
+//        resources.setCommission(resources.getPrice().subtract(resources.getSettlement()));
+        resources.setCommission(resources.getCommission());
         //删除详情图片
         QueryWrapper<YxSystemAttachment> queryWrapperAtt = new QueryWrapper();
         queryWrapperAtt.like("name", resources.getId() + "_%").like("name", "%good%");
@@ -461,7 +493,8 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<StoreProductMappe
         String redisKey = ShopConstants.SHOP_PRODUCT_STOCK + resources.getId();
         redisUtils.set(redisKey, resources.getStock());
 
-        this.saveOrUpdate(resources);
+        YxStoreProduct updateProduct = generator.convert(resources, YxStoreProduct.class);
+        this.saveOrUpdate(updateProduct);
     }
 
     @Override
@@ -489,6 +522,9 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<StoreProductMappe
      * @return
      */
     public DetailDto attrFormat(String jsonStr) {
+        // 定义两个键盘无法录入的分隔符
+        String break01 = String.valueOf((char) 1);
+        String break02 = String.valueOf((char) 2);
         JSONObject jsonObject = JSON.parseObject(jsonStr);
         List<FromatDetailDto> fromatDetailDTOList = JSON.parseArray(jsonObject.get("items").toString(),
                 FromatDetailDto.class);
@@ -502,18 +538,18 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<StoreProductMappe
                     for (String g : fromatDetailDTOList.get(i + 1).getDetail()) {
                         String rep2 = "";
                         if (i == 0) {
-                            rep2 = fromatDetailDTOList.get(i).getValue() + "_" + v + "-"
-                                    + fromatDetailDTOList.get(i + 1).getValue() + "_" + g;
+                            rep2 = fromatDetailDTOList.get(i).getValue() + break02 + v + break01
+                                    + fromatDetailDTOList.get(i + 1).getValue() + break02 + g;
                         } else {
-                            rep2 = v + "-"
-                                    + fromatDetailDTOList.get(i + 1).getValue() + "_" + g;
+                            rep2 = v + break01
+                                    + fromatDetailDTOList.get(i + 1).getValue() + break02 + g;
                         }
                         tmp.add(rep2);
                         if (i == fromatDetailDTOList.size() - 2) {
                             LinkedHashMap<String, Map<String, String>> rep4 = new LinkedHashMap<>();
                             Map<String, String> reptemp = new LinkedHashMap<>();
-                            for (String h : Arrays.asList(rep2.split("-"))) {
-                                List<String> rep3 = Arrays.asList(h.split("_"));
+                            for (String h : Arrays.asList(rep2.split(break01))) {
+                                List<String> rep3 = Arrays.asList(h.split(break02));
 
                                 if (rep3.size() > 1) {
                                     reptemp.put(rep3.get(0), rep3.get(1));
@@ -539,7 +575,7 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<StoreProductMappe
                 for (String str : fromatDetailDTO.getDetail()) {
                     LinkedHashMap<String, Map<String, String>> map2 = new LinkedHashMap<>();
                     //List<Map<String,String>> list1 = new ArrayList<>();
-                    dataArr.add(fromatDetailDTO.getValue() + "_" + str);
+                    dataArr.add(fromatDetailDTO.getValue() + break02 + str);
                     Map<String, String> map1 = new LinkedHashMap<>();
                     map1.put(fromatDetailDTO.getValue(), str);
                     //list1.add(map1);
@@ -547,7 +583,7 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<StoreProductMappe
                     res.add(map2);
                 }
             }
-            String s = StrUtil.join("-", dataArr);
+            String s = StrUtil.join(break01, dataArr);
             data.add(s);
         }
         DetailDto detailDTO = new DetailDto();
@@ -578,6 +614,177 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<StoreProductMappe
                 break;
         }
         this.updateById(yxStoreProduct);
+    }
+
+    /**
+     * 修改分佣比例
+     *
+     * @param resources
+     */
+    @Override
+    public void updateRate(YxStoreProductDto resources) {
+        YxStoreProduct yxStoreProduct = new YxStoreProduct();
+        yxStoreProduct.setId(resources.getId());
+        yxStoreProduct.setCustomizeType(resources.getCustomizeType());
+        if (2 == resources.getCustomizeType()) {
+            YxCustomizeRate yxCustomizeRate = resources.getYxCustomizeRate();
+            yxCustomizeRate.setLinkId(resources.getId());
+            // 0:商品购买 1:本地生活
+            yxCustomizeRate.setRateType(0);
+            // 存入操作人
+            yxCustomizeRate.setCreateUserId(resources.getMerId());
+            boolean rateResult = yxCustomizeRateService.saveOrUpdateRate(yxCustomizeRate);
+            if (!rateResult) {
+                throw new BadRequestException("请核对分佣比例");
+            }
+        }
+        this.updateById(yxStoreProduct);
+    }
+
+    /**
+     * 卡券相关 数据统计
+     * @param storeId
+     * @return
+     */
+    @Override
+    public Map<String, Long> getLocalProductCount(int storeId) {
+
+        return storeProductMapper.getLocalProductCount(storeId);
+    }
+
+    /**
+     * 卡券订单相关
+     * @param storeId
+     * @return
+     */
+    @Override
+    public Map<String, Long> getLocalProductOrderCount(int storeId) {
+        return storeProductMapper.getLocalProductOrderCount(storeId);
+    }
+
+    /**
+     * 今日营业额
+     * @param storeId
+     * @return
+     */
+    @Override
+    public BigDecimal getLocalSumPrice(int storeId) {
+        return storeProductMapper.getLocalSumPrice(storeId);
+    }
+
+    /**
+     * 商城相关
+     * @param storeId
+     * @return
+     */
+    @Override
+    public Map<String, Long> getShopProductCount(int storeId) {
+        return storeProductMapper.getShopProductCount(storeId);
+    }
+
+    /**
+     * 商城订单数量相关
+     * @param storeId
+     * @return
+     */
+    @Override
+    public Map<String, Long> getShopOrderCount(int storeId) {
+        return storeProductMapper.getShopOrderCount(storeId);
+    }
+
+    /**
+     * 本月本地生活成交额
+     * @param nowMonth
+     * @param storeId
+     * @return
+     */
+    @Override
+    public Double getMonthLocalPrice(int nowMonth, int storeId) {
+        return storeProductMapper.getMonthLocalPrice(nowMonth,storeId);
+    }
+
+    /**
+     * 本月本地生活成交量
+     *
+     * @param nowMonth
+     * @param storeId
+     * @return
+     */
+    @Override
+    public Integer getMonthLocalCount(int nowMonth, int storeId) {
+        return storeProductMapper.getMonthLocalCount(nowMonth,storeId);
+    }
+
+    /**
+     * 本月商城成交额
+     *
+     * @param nowMonth
+     * @param storeId
+     * @return
+     */
+    @Override
+    public Double getMonthShopPrice(int nowMonth, int storeId) {
+        return storeProductMapper.getMonthShopPrice(nowMonth,storeId);
+    }
+
+    /**
+     * 本月商城成交量
+     *
+     * @param nowMonth
+     * @param storeId
+     * @return
+     */
+    @Override
+    public Integer getMonthShopCount(int nowMonth, int storeId) {
+        return storeProductMapper.getMonthShopCount(nowMonth,storeId);
+    }
+
+    /**
+     * 近七天本地生活成交量
+     *
+     * @param nowMonth
+     * @param storeId
+     * @return
+     */
+    @Override
+    public Integer getLastWeekLocalCount(int nowMonth, int storeId) {
+        return storeProductMapper.getMonthLocalCount(nowMonth,storeId);
+    }
+
+    /**
+     * 近七天本地生活成交额
+     *
+     * @param nowMonth
+     * @param storeId
+     * @return
+     */
+    @Override
+    public Double getLastWeekLocalPrice(int nowMonth, int storeId) {
+        return storeProductMapper.getMonthLocalPrice(nowMonth,storeId);
+    }
+
+    /**
+     * 近七天商城成交量
+     *
+     * @param nowMonth
+     * @param storeId
+     * @return
+     */
+    @Override
+    public Integer getLastWeekShopCount(int nowMonth, int storeId) {
+        return storeProductMapper.getMonthShopCount(nowMonth,storeId);
+    }
+
+    /**
+     * 近七天商城成交额
+     *
+     * @param nowMonth
+     * @param storeId
+     * @return
+     */
+    @Override
+    public Double getLastWeekShopPrice(int nowMonth, int storeId) {
+        return storeProductMapper.getMonthShopPrice(nowMonth,storeId);
     }
 
   /*  @Override

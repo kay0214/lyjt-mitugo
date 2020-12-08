@@ -35,6 +35,7 @@
       <div class="head-container">
 
         <!-- 搜索 -->
+<!--        <el-input v-model="query.storeName" clearable placeholder="输入商品名称" style="width: 200px;" class="filter-item" @keyup.enter.native="toQuery" />-->
         <el-input v-model="query.value" clearable placeholder="输入搜索内容" style="width: 200px;" class="filter-item" @keyup.enter.native="toQuery" />
         <el-select v-model="query.type" clearable placeholder="类型" class="filter-item" style="width: 130px">
           <el-option v-for="item in queryTypeOptions" :key="item.key" :label="item.display_name" :value="item.key" />
@@ -48,15 +49,24 @@
           />
         </el-select>-->
         <el-date-picker
-          v-model="createTime"
+          v-model="searchTime"
           :default-time="['00:00:00','23:59:59']"
           type="daterange"
           range-separator=":"
           size="small"
           class="date-item"
-          value-format="yyyy-MM-dd HH:mm:ss"
+          value-format="yyyy-MM-dd"
           start-placeholder="开始日期"
           end-placeholder="结束日期"
+          @change="(val)=>{
+            if(val){
+              query.createTimeStart=val[0]
+              query.createTimeEnd=val[1]
+            }else{
+              query.createTimeStart=''
+              query.createTimeEnd=''
+            }
+          }"
         />
         <el-button class="filter-item" size="mini" type="success" icon="el-icon-search" @click="toQuery">搜索</el-button>
         <!-- 新增 -->
@@ -137,12 +147,15 @@
           <template slot-scope="scope">
             <el-button
               v-permission="['admin','YXSTOREORDER_ALL','YXSTOREORDER_SELECT']"
-              size="mini"
-              type="primary"
+              style="padding:9px 15px"
+               type="primary" 
+               size="mini"
               @click="detail(scope.row)"
             >
               订单详情</el-button>
-            <el-dropdown size="mini" split-button type="primary" trigger="click">
+      
+            
+            <!-- <el-dropdown size="mini" split-button type="primary" trigger="click">
               操作
               <el-dropdown-menu slot="dropdown">
                 <el-dropdown-item>
@@ -174,7 +187,7 @@
                   >
                     立刻退款</el-button>
                 </el-dropdown-item>
-                <!-- <el-dropdown-item v-if="scope.row._status == 1">
+                 <el-dropdown-item v-if="scope.row._status == 1">
                   <el-button
                     v-permission="['admin','YXSTOREORDER_ALL','YXSTOREORDER_EDIT']"
                     size="mini"
@@ -197,9 +210,46 @@
                     </div>
                     <el-button slot="reference" type="danger" icon="el-icon-delete" size="mini">删除</el-button>
                   </el-popover>
-                </el-dropdown-item> -->
+                </el-dropdown-item> 
               </el-dropdown-menu>
-            </el-dropdown>
+            </el-dropdown>-->
+
+              <el-dropdown trigger="click" style="margin-top:10px " placement="bottom">
+             <el-button type="primary" plain size="small" style="padding-left:10px;padding-right:10px;">
+              操作<i class="el-icon-arrow-down el-icon--right"></i>
+              </el-button>
+                <el-dropdown-menu slot="dropdown">          
+                      <el-dropdown-item>
+                  <el-button
+                    v-permission="['admin','YXSTOREORDER_MARK']"
+                    size="mini"
+                    type="success"
+                    @click="remark(scope.row)"
+                  >
+                    订单备注</el-button>
+                </el-dropdown-item>
+                <el-dropdown-item>
+                  <el-button
+                    v-if="scope.row._status == 2"
+                    v-permission="['admin','YXSTOREORDER_SEND']"
+                    size="mini"
+                    type="primary"
+                    @click="edit(scope.row)"
+                  >
+                    去发货</el-button>
+                </el-dropdown-item>
+                <el-dropdown-item>
+                  <el-button
+                    v-if="scope.row._status == 3"
+                    v-permission="['admin','YXSTOREORDER_REFUND']"
+                    size="mini"
+                    type="primary"
+                    @click="refund(scope.row)"
+                  >
+                    立刻退款</el-button>
+                </el-dropdown-item>
+                </el-dropdown-menu>
+             </el-dropdown>
 
           </template>
         </el-table-column>
@@ -257,7 +307,8 @@
     mixins: [initData],
     data() {
       return {
-        delLoading: false, status: '-9', orderType: '0',createTime: '', checkList: [], printChecked: false, batchHandle: '', batchExport: '', listContent: [],
+        delLoading: false, status: '-9', orderType: '0',searchTime: [], checkList: [], printChecked: false,
+        batchHandle: '', batchExport: '', listContent: [],
         queryTypeOptions: [
           { key: 'orderId', display_name: '订单号' },
           { key: 'realName', display_name: '用户姓名' },
@@ -314,7 +365,7 @@
       beforeInit() {
         this.url = 'api/yxStoreOrder'
         const sort = 'id,desc'
-        this.params = { page: this.page, size: this.size, sort: sort, orderStatus: this.status, orderType: this.orderType, addTime: this.createTime, listContent: this.listContent  }
+        this.params = { page: this.page, size: this.size, sort: sort, orderStatus: this.status, orderType: this.orderType, listContent: this.listContent  }
         const query = this.query
         const type = query.type
         const value = query.value
@@ -450,7 +501,6 @@
           pinkId: data.pinkId,
           cost: data.cost,
           seckillId: data.seckillId,
-          bargainId: data.bargainId,
           verifyCode: data.verifyCode,
           storeId: data.storeId,
           shippingType: data.shippingType,
@@ -508,7 +558,6 @@
           pinkId: data.pinkId,
           cost: data.cost,
           seckillId: data.seckillId,
-          bargainId: data.bargainId,
           verifyCode: data.verifyCode,
           storeId: data.storeId,
           shippingType: data.shippingType,
@@ -566,7 +615,6 @@
           pinkId: data.pinkId,
           cost: data.cost,
           seckillId: data.seckillId,
-          bargainId: data.bargainId,
           verifyCode: data.verifyCode,
           storeId: data.storeId,
           shippingType: data.shippingType,
@@ -627,7 +675,6 @@
           pinkId: data.pinkId,
           cost: data.cost,
           seckillId: data.seckillId,
-          bargainId: data.bargainId,
           verifyCode: data.verifyCode,
           storeId: data.storeId,
           shippingType: data.shippingType,

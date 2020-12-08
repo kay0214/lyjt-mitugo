@@ -11,6 +11,7 @@ import co.yixiang.dozer.service.IGenerator;
 import co.yixiang.modules.shop.domain.YxSystemGroupData;
 import co.yixiang.modules.shop.service.YxSystemGroupDataService;
 import co.yixiang.modules.shop.service.dto.YxSystemGroupDataDto;
+import co.yixiang.modules.shop.service.dto.YxSystemGroupDataIndexQueryCriteria;
 import co.yixiang.modules.shop.service.dto.YxSystemGroupDataQueryCriteria;
 import co.yixiang.modules.shop.service.mapper.SystemGroupDataMapper;
 import co.yixiang.utils.FileUtil;
@@ -85,5 +86,32 @@ public class YxSystemGroupDataServiceImpl extends BaseServiceImpl<SystemGroupDat
             list.add(map);
         }
         FileUtil.downloadExcel(list, response);
+    }
+
+    /**
+     * 查询首页配置模块
+     * @param criteria
+     * @param pageable
+     * @return
+     */
+    @Override
+    public Map<String, Object> queryAllByIndex(YxSystemGroupDataIndexQueryCriteria criteria, Pageable pageable) {
+        getPage(pageable);
+        PageInfo<YxSystemGroupData> page = new PageInfo<>(queryAllList(criteria));
+        Map<String, Object> map = new LinkedHashMap<>(2);
+        List<YxSystemGroupDataDto> systemGroupDataDTOS = new ArrayList<>();
+        for (YxSystemGroupData systemGroupData : page.getList()) {
+
+            YxSystemGroupDataDto systemGroupDataDTO = generator.convert(systemGroupData,YxSystemGroupDataDto.class);
+            systemGroupDataDTO.setMap(JSON.parseObject(systemGroupData.getValue()));
+            systemGroupDataDTOS.add(systemGroupDataDTO);
+        }
+        map.put("content",systemGroupDataDTOS);
+        map.put("totalElements",page.getTotal());
+        return map;
+    }
+
+    public List<YxSystemGroupData> queryAllList(YxSystemGroupDataIndexQueryCriteria criteria){
+        return baseMapper.selectList(QueryHelpPlus.getPredicate(YxSystemGroupData.class, criteria));
     }
 }

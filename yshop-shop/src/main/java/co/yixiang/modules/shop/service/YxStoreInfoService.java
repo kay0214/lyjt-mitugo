@@ -15,10 +15,10 @@ import co.yixiang.modules.shop.service.dto.YxStoreInfoDto;
 import co.yixiang.modules.shop.service.dto.YxStoreInfoQueryCriteria;
 import org.springframework.data.domain.Pageable;
 
-import java.util.Map;
-import java.util.List;
-import java.io.IOException;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 
 /**
 * @author nxl
@@ -69,4 +69,11 @@ public interface YxStoreInfoService  extends BaseService<YxStoreInfo>{
      * @return
      */
     List<Long> getStoreIdByMerId(List<Long> childUser);
+
+    /**
+     * 根据商户id获取店铺信息
+     * @param merId
+     * @return
+     */
+    YxStoreInfo getStoreInfoByMerId(int merId);
 }

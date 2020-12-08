@@ -132,7 +132,6 @@ export default {
         pinkId: '',
         cost: '',
         seckillId: '',
-        bargainId: '',
         verifyCode: '',
         storeId: '',
         shippingType: '',

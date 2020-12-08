@@ -65,10 +65,10 @@ public class UserRechargeController extends BaseController {
      * 充值方案
      */
     @GetMapping("/recharge/index")
-    @ApiOperation(value = "充值方案",notes = "充值方案",response = ApiResult.class)
-    public ApiResult<Object> getWays(){
-        Map<String,Object> map = new LinkedHashMap<>();
-        map.put("recharge_price_ways",systemGroupDataService.getDatas(ShopConstants.YSHOP_RECHARGE_PRICE_WAYS));
+    @ApiOperation(value = "充值方案", notes = "充值方案", response = ApiResult.class)
+    public ApiResult<Object> getWays() {
+        Map<String, Object> map = new LinkedHashMap<>();
+        map.put("recharge_price_ways", systemGroupDataService.getDatas(ShopConstants.YSHOP_RECHARGE_PRICE_WAYS));
         return ApiResult.ok(map);
     }
 
@@ -76,80 +76,76 @@ public class UserRechargeController extends BaseController {
      * 公众号充值/H5充值
      */
     @PostMapping("/recharge/wechat")
-    @ApiOperation(value = "公众号充值/H5充值",notes = "公众号充值/H5充值",response = ApiResult.class)
-    public ApiResult<Map<String,Object>> add(@Valid @RequestBody RechargeParam param){
+    @ApiOperation(value = "公众号充值/H5充值", notes = "公众号充值/H5充值", response = ApiResult.class)
+    public ApiResult<Map<String, Object>> add(@Valid @RequestBody RechargeParam param) {
         int uid = SecurityUtils.getUserId().intValue();
         String money = systemConfigService.getData(SystemConfigConstants.STORE_USER_MIN_RECHARGE);
         Double newMoney = 0d;
-        if(StrUtil.isNotEmpty(money)) newMoney = Double.valueOf(money);
-        if(newMoney > param.getPrice())  throw new ErrorRequestException("充值金额不能低于"+newMoney);
+        if (StrUtil.isNotEmpty(money)) newMoney = Double.valueOf(money);
+        if (newMoney > param.getPrice()) throw new ErrorRequestException("充值金额不能低于" + newMoney);
 
-        Map<String,Object> map = new LinkedHashMap<>();
-        map.put("type",param.getFrom());
+        Map<String, Object> map = new LinkedHashMap<>();
+        map.put("type", param.getFrom());
 
         //生成分布式唯一值
-        String orderSn = IdUtil.getSnowflake(0,0).nextIdStr();
+        String orderSn = IdUtil.getSnowflake(0, 0).nextIdStr();
 
         param.setOrderSn(orderSn);
-        userRechargeService.addRecharge(param,uid);
+        userRechargeService.addRecharge(param, uid);
 
         BigDecimal bigDecimal = new BigDecimal(100);
         int price = bigDecimal.multiply(BigDecimal.valueOf(param.getPrice())).intValue();
-        try{
-            if(AppFromEnum.WEIXIN_H5.getValue().equals(param.getFrom())){
-                WxPayMwebOrderResult result = payService.wxH5Pay(orderSn,"H5充值", price,
+        try {
+            if (AppFromEnum.WEIXIN_H5.getValue().equals(param.getFrom())) {
+                WxPayMwebOrderResult result = payService.wxH5Pay(orderSn, "H5充值", price,
                         BillDetailEnum.TYPE_1.getValue());
-                map.put("data",result.getMwebUrl());
-            }else if(AppFromEnum.ROUNTINE.getValue().equals(param.getFrom())){
+                map.put("data", result.getMwebUrl());
+            } else if (AppFromEnum.ROUNTINE.getValue().equals(param.getFrom())) {
                 YxWechatUser wechatUser = wechatUserService.getById(uid);
-                if(ObjectUtil.isNull(wechatUser)) throw new ErrorRequestException("用户错误");
-                WxPayMpOrderResult result = payService.routinePay(orderSn,"小程序充值",wechatUser.getRoutineOpenid(), price,
+                if (ObjectUtil.isNull(wechatUser)) throw new ErrorRequestException("用户错误");
+                WxPayMpOrderResult result = payService.routinePay(orderSn, "小程序充值", wechatUser.getRoutineOpenid(), price,
                         BillDetailEnum.TYPE_1.getValue());
-                Map<String,String> jsConfig = new HashMap<>();
-                jsConfig.put("appId",result.getAppId());
-                jsConfig.put("timeStamp",result.getTimeStamp());
-                jsConfig.put("nonceStr",result.getNonceStr());
-                jsConfig.put("package",result.getPackageValue());
-                jsConfig.put("signType",result.getSignType());
-                jsConfig.put("paySign",result.getPaySign());
-                map.put("data",jsConfig);
-            }else if(AppFromEnum.APP.getValue().equals(param.getFrom())){
-                WxPayAppOrderResult result = payService.appPay(orderSn,"app充值", price,
+                Map<String, String> jsConfig = new HashMap<>();
+                jsConfig.put("appId", result.getAppId());
+                jsConfig.put("timeStamp", result.getTimeStamp());
+                jsConfig.put("nonceStr", result.getNonceStr());
+                jsConfig.put("package", result.getPackageValue());
+                jsConfig.put("signType", result.getSignType());
+                jsConfig.put("paySign", result.getPaySign());
+                map.put("data", jsConfig);
+            } else if (AppFromEnum.APP.getValue().equals(param.getFrom())) {
+                WxPayAppOrderResult result = payService.appPay(orderSn, "app充值", price,
                         BillDetailEnum.TYPE_1.getValue());
-                Map<String,String> jsConfig = new HashMap<>();
-                jsConfig.put("appid",result.getAppId());
-                jsConfig.put("partnerid",result.getPartnerId());
-                jsConfig.put("prepayid",result.getPrepayId());
-                jsConfig.put("package",result.getPackageValue());
-                jsConfig.put("noncestr",result.getNonceStr());
-                jsConfig.put("timestamp",result.getTimeStamp());
-                jsConfig.put("sign",result.getSign());
-                map.put("data",jsConfig);
-            }
-
-            else{
+                Map<String, String> jsConfig = new HashMap<>();
+                jsConfig.put("appid", result.getAppId());
+                jsConfig.put("partnerid", result.getPartnerId());
+                jsConfig.put("prepayid", result.getPrepayId());
+                jsConfig.put("package", result.getPackageValue());
+                jsConfig.put("noncestr", result.getNonceStr());
+                jsConfig.put("timestamp", result.getTimeStamp());
+                jsConfig.put("sign", result.getSign());
+                map.put("data", jsConfig);
+            } else {
                 YxWechatUser wechatUser = wechatUserService.getById(uid);
-                if(ObjectUtil.isNull(wechatUser)) throw new ErrorRequestException("用户错误");
-                WxPayMpOrderResult result = payService.wxPay(orderSn,wechatUser.getOpenid(),
-                        "公众号充值", price,BillDetailEnum.TYPE_1.getValue());
-                Map<String,String> jsConfig = new HashMap<>();
-                jsConfig.put("appId",result.getAppId());
-                jsConfig.put("timestamp",result.getTimeStamp());
-                jsConfig.put("nonceStr",result.getNonceStr());
-                jsConfig.put("package",result.getPackageValue());
-                jsConfig.put("signType",result.getSignType());
-                jsConfig.put("paySign",result.getPaySign());
-                map.put("data",jsConfig);
+                if (ObjectUtil.isNull(wechatUser)) throw new ErrorRequestException("用户错误");
+                WxPayMpOrderResult result = payService.wxPay(orderSn, wechatUser.getOpenid(),
+                        "公众号充值", price, BillDetailEnum.TYPE_1.getValue());
+                Map<String, String> jsConfig = new HashMap<>();
+                jsConfig.put("appId", result.getAppId());
+                jsConfig.put("timestamp", result.getTimeStamp());
+                jsConfig.put("nonceStr", result.getNonceStr());
+                jsConfig.put("package", result.getPackageValue());
+                jsConfig.put("signType", result.getSignType());
+                jsConfig.put("paySign", result.getPaySign());
+                map.put("data", jsConfig);
             }
-        }catch  (WxPayException e){
+        } catch (WxPayException e) {
             return ApiResult.fail(e.getMessage());
         }
 
 
         return ApiResult.ok(map);
     }
-
-
 
 
 }

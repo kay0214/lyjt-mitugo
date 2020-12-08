@@ -7,6 +7,33 @@
       <el-select v-model="query.type" clearable placeholder="类型" class="filter-item" style="width: 130px">
         <el-option v-for="item in queryTypeOptions" :key="item.key" :label="item.display_name" :value="item.key" />
       </el-select>
+      <el-select v-model="query.isBest" clearable placeholder="精品推荐"
+                 style="width: 200px;" class="filter-item">
+        <el-option
+          v-for="item in pstatusList"
+          :key="item.value"
+          :label="item.label"
+          :value="item.value">
+        </el-option>
+      </el-select>
+      <el-select v-model="query.isHot" clearable placeholder="热销榜单"
+                 style="width: 200px;" class="filter-item">
+        <el-option
+          v-for="item in pstatusList"
+          :key="item.value"
+          :label="item.label"
+          :value="item.value">
+        </el-option>
+      </el-select>
+<!--      <el-select v-model="query.isShow" clearable placeholder="状态"-->
+<!--                 style="width: 200px;" class="filter-item">-->
+<!--        <el-option-->
+<!--          v-for="item in statusList"-->
+<!--          :key="item.value"-->
+<!--          :label="item.label"-->
+<!--          :value="item.value">-->
+<!--        </el-option>-->
+<!--      </el-select>-->
       <el-button class="filter-item" size="mini" type="success" icon="el-icon-search" @click="toQuery">搜索</el-button>
       <!-- 新增 -->
       <el-button
@@ -18,7 +45,9 @@
       >刷新</el-button>
     </div>
     <!--表单组件-->
+    <h5Form ref="h5" />
     <eForm ref="form" :is-add="isAdd" />
+    <commission ref="form6"/>
     <!--表格渲染-->
     <el-table v-loading="loading" :data="data" size="small" style="width: 100%;">
       <el-table-column prop="id" label="商品id" />
@@ -57,6 +86,25 @@
             </div>
             <el-button slot="reference" type="danger" icon="el-icon-delete" size="mini" />
           </el-popover>
+          <!-- <el-button v-permission="['admin','YXSTOREPRODUCT_EDIT']" slot="reference" type="info" plain size="mini" @click="h5(scope.row)">预览</el-button>
+          <el-button v-permission="['admin', 'YXSTOREPRODUCT_RATE']" plain type="primary"  @click="commission(scope.row)" style="margin-top:5px">分佣配置</el-button> -->
+            <el-dropdown trigger="click" style="margin-top:5px;" placement="bottom">
+             <el-button type="primary" plain size="small" style="padding:9px 24px ">
+              操作<i class="el-icon-arrow-down el-icon--right"></i>
+              </el-button>
+                <el-dropdown-menu slot="dropdown">          
+                    <el-dropdown-item >     
+                      <el-button v-permission="['admin','YXSTOREPRODUCT_EDIT']" slot="reference"  size="mini" type="success" style="margin-top:5px;width:100%" @click="h5(scope.row)">预览</el-button>
+                    </el-dropdown-item >
+                    <el-dropdown-item >
+                      <el-button v-permission="['admin', 'YXSTOREPRODUCT_RATE']" type="primary" @click="commission(scope.row)" style="margin-top:5px">分佣配置</el-button>
+                    </el-dropdown-item>
+                  
+                </el-dropdown-menu>
+             </el-dropdown>
+       
+       
+       
         </template>
       </el-table-column>
     </el-table>
@@ -77,8 +125,10 @@ import checkPermission from '@/utils/permission'
 import initData from '@/mixins/crud'
 import { del, onsale } from '@/api/yxStoreProduct'
 import eForm from './form'
+import h5Form from './h5'
+import commission from './commission'
 export default {
-  components: { eForm },
+  components: { eForm, commission,h5Form },
   mixins: [initData],
   data() {
     return {
@@ -87,6 +137,14 @@ export default {
       queryTypeOptions: [
         { key: 'storeName', display_name: '商品名称' },
         { key: 'merUsername', display_name: '商户用户名' }
+      ],
+      statusList:[
+        {value:0,label:'已下架'},
+        {value:1,label:'已上架'}
+      ],
+      pstatusList:[
+        {value:1,label:'是'},
+        {value:0,label:'否'}
       ]
     }
   },
@@ -188,7 +246,6 @@ export default {
         giveIntegral: data.giveIntegral,
         cost: data.cost,
         isSeckill: data.isSeckill,
-        isBargain: data.isBargain,
         isGood: data.isGood,
         ficti: data.ficti,
         browse: data.browse,
@@ -197,6 +254,24 @@ export default {
         commission: data.commission,
         settlement: data.settlement
       }
+      _this.dialog = true
+    },
+    h5(data) {
+      this.$refs.h5.dialog = true
+      this.$refs.h5.id=data.id
+    },
+    commission(data) {
+      const _this = this.$refs.form6
+      _this.form = {
+        id: data.id,
+        customizeType:data.customizeType,
+        yxCustomizeRate:data.yxCustomizeRate?data.yxCustomizeRate:{}
+      }
+      if(data.customizeType===2){
+        Object.assign(_this.form2,data.yxCustomizeRate)
+      }
+      console.log('**********')
+      console.log(_this.form)
       _this.dialog = true
     }
   }

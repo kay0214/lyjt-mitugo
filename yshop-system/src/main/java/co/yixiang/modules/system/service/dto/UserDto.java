@@ -12,9 +12,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
-import java.math.BigDecimal;
-import java.sql.Timestamp;
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.Set;
@@ -118,4 +117,15 @@ public class UserDto implements Serializable {
 
     private String userpassword;
 
+    // 所属店铺id
+    private Integer storeId;
+
+    // 是否允许提现（0：允许，1：拒绝）
+    private Integer withdrawalFlg;
+
+    // 启用收款码（0：启用，1：禁用）
+    private Integer useCodeFlg;
+
+    // 是否是船只用户（0：是，1：否）
+    private Integer shipUser;
 }

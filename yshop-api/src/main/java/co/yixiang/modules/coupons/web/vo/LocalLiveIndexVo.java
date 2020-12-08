@@ -20,4 +20,19 @@ public class LocalLiveIndexVo implements Serializable {
 
     /** 幻灯片 */
     List<LocalLifeSliderVo> sliderList;
+
+    /**首页通知公告**/
+    NoticeVO notice ;
+
+    // 首页的文字
+    IndexTitleVO title_1;
+    IndexTitleVO title_2;
+    IndexTitleVO title_3_1;
+    IndexTitleVO title_3_2;
+    IndexTitleVO title_3_3;
+
+    // 模块的内容
+    List<LocalLifeSliderVo> module1;
+    List<LocalLifeSliderVo> module2;
+
 }

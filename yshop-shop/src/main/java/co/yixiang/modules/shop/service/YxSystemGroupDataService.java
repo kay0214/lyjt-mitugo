@@ -8,6 +8,7 @@ package co.yixiang.modules.shop.service;
 import co.yixiang.common.service.BaseService;
 import co.yixiang.modules.shop.domain.YxSystemGroupData;
 import co.yixiang.modules.shop.service.dto.YxSystemGroupDataDto;
+import co.yixiang.modules.shop.service.dto.YxSystemGroupDataIndexQueryCriteria;
 import co.yixiang.modules.shop.service.dto.YxSystemGroupDataQueryCriteria;
 import org.springframework.data.domain.Pageable;
 
@@ -44,4 +45,12 @@ public interface YxSystemGroupDataService  extends BaseService<YxSystemGroupData
     * @throws IOException /
     */
     void download(List<YxSystemGroupDataDto> all, HttpServletResponse response) throws IOException;
+
+    /**
+     * 查询首页配置模块
+     * @param criteria
+     * @param pageable
+     * @return
+     */
+    Map<String,Object> queryAllByIndex(YxSystemGroupDataIndexQueryCriteria criteria, Pageable pageable);
 }

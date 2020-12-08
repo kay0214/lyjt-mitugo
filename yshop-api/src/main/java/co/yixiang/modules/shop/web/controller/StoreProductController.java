@@ -124,14 +124,15 @@ public class StoreProductController extends BaseController {
      * 普通商品详情
      */
     @Log(value = "查看商品详情", type = 1)
+    @AnonymousAccess
     @GetMapping("/product/detail/{id}")
     @ApiOperation(value = "普通商品详情", notes = "普通商品详情")
     public ApiResult<ProductDTO> detail(@PathVariable Integer id,
                                         @RequestParam(value = "", required = false) String latitude,
                                         @RequestParam(value = "", required = false) String longitude,
                                         @RequestParam(value = "", required = false) String from) {
-        int uid = SecurityUtils.getUserId().intValue();
-        ProductDTO productDTO = storeProductService.goodsDetail(id, 0, uid, latitude, longitude);
+//        int uid = SecurityUtils.getUserId().intValue();
+        ProductDTO productDTO = storeProductService.goodsDetail(id, 0, 0, latitude, longitude);
         return ApiResult.ok(productDTO);
     }
 

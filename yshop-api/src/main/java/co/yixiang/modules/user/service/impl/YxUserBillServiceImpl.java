@@ -3,10 +3,13 @@ package co.yixiang.modules.user.service.impl;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.extra.qrcode.QrCodeUtil;
+import cn.hutool.extra.qrcode.QrConfig;
 import co.yixiang.common.api.ApiResult;
 import co.yixiang.common.service.impl.BaseServiceImpl;
 import co.yixiang.common.util.WxUtils;
 import co.yixiang.common.web.vo.Paging;
+import co.yixiang.constant.ShopConstants;
 import co.yixiang.constant.SystemConfigConstants;
 import co.yixiang.enums.AppFromEnum;
 import co.yixiang.enums.BillDetailEnum;
@@ -14,6 +17,12 @@ import co.yixiang.enums.BillEnum;
 import co.yixiang.enums.BillInfoEnum;
 import co.yixiang.modules.couponUse.dto.UserBillVo;
 import co.yixiang.modules.couponUse.param.UserAccountQueryParam;
+import co.yixiang.modules.coupons.entity.YxCouponOrder;
+import co.yixiang.modules.coupons.entity.YxCoupons;
+import co.yixiang.modules.coupons.service.YxCouponOrderService;
+import co.yixiang.modules.coupons.service.YxCouponsService;
+import co.yixiang.modules.image.entity.YxImageInfo;
+import co.yixiang.modules.image.service.YxImageInfoService;
 import co.yixiang.modules.manage.entity.SystemUser;
 import co.yixiang.modules.manage.service.SystemUserService;
 import co.yixiang.modules.manage.web.vo.SystemUserQueryVo;
@@ -82,12 +91,17 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<YxUserBillMapper, YxU
     private BiillMap biillMap;
     @Autowired
     private SystemUserService systemUserService;
+    @Autowired
+    private YxCouponOrderService yxCouponOrderService;
+    @Autowired
+    private YxCouponsService yxCouponsService;
+    @Autowired
+    private YxImageInfoService yxImageInfoService;
+    @Autowired
+    private YxSystemConfigService systemConfigService;
 
     @Autowired
     YxSystemAttachmentService systemAttachmentService;
-
-    @Autowired
-    YxSystemConfigService systemConfigService;
 
     @Autowired
     YxUserService yxUserService;
@@ -101,6 +115,9 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<YxUserBillMapper, YxU
 
     @Value("${file.localUrl}")
     private String localUrl;
+
+    @Value("${yshop.isProd}")
+    private boolean isProd;
 
     /**
      * 签到了多少次
@@ -300,7 +317,7 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<YxUserBillMapper, YxU
     public Paging<UserBillVo> getYxUserAccountPageList(UserAccountQueryParam param, Long userId) {
 
         QueryWrapper<YxUserBill> wrapper = new QueryWrapper<>();
-        wrapper.eq("status", 1).eq("uid", userId)
+        wrapper.eq("status", 1).eq("mer_id", userId)
                 .eq("type", BillDetailEnum.TYPE_10.getValue())
                 .eq("user_type", 1)
                 .eq("category", BillDetailEnum.CATEGORY_1.getValue())
@@ -315,7 +332,7 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<YxUserBillMapper, YxU
     @Override
     public Paging<UserBillVo> getUserProductAccountList(UserAccountQueryParam param, Long id) {
         QueryWrapper<YxUserBill> wrapper = new QueryWrapper<>();
-        wrapper.eq("status", 1).eq("uid", id)
+        wrapper.eq("status", 1).eq("mer_id", id)
                 .in("type", BillDetailEnum.TYPE_3.getValue(), BillDetailEnum.TYPE_8.getValue())
                 .eq("user_type", 1).eq("category", BillDetailEnum.CATEGORY_1.getValue())
                 .orderByDesc("id");
@@ -349,7 +366,7 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<YxUserBillMapper, YxU
     }
 
     @Override
-    public ApiResult spreadBanner() throws IOException{
+    public ApiResult spreadBanner() throws IOException {
 
         int uid = SecurityUtils.getUserId().intValue();
         YxUserQueryVo userInfo = yxUserService.getYxUserById(uid);
@@ -378,7 +395,14 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<YxUserBillMapper, YxU
         }
         String fileDir = path + "qrcode" + File.separator;
         //获取小程序码连接
-        String qrCodeUrl = getQrCode(fileDir, userType, siteUrl, apiUrl, uid);
+        String qrCodeUrl = "";
+        // 测试环境二维码生成走旧逻辑
+        if (isProd) {
+            qrCodeUrl =  getQrCode(fileDir, userType, siteUrl, apiUrl, uid);
+        } else {
+            qrCodeUrl = getCode(fileDir, userType, siteUrl, apiUrl, uid);
+        }
+
         String spreadPicPath = fileDir + spreadPicName;
         //读取二维码图片
         BufferedImage qrCode = null;
@@ -421,16 +445,16 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<YxUserBillMapper, YxU
         //二维码字体
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_DEFAULT);
-        g.setFont(new Font("ArialMT",Font.PLAIN, 30));
+        g.setFont(new Font("ArialMT", Font.PLAIN, 30));
         g.setColor(new Color(29, 29, 29));
-        g.drawString(userInfo.getNickname() , 402, 1160);
+        g.drawString(userInfo.getNickname(), 402, 1160);
 
         //二维码字体
-        g.setFont(new Font("ArialMT",Font.PLAIN, 30));
+        g.setFont(new Font("ArialMT", Font.PLAIN, 30));
         g.setColor(new Color(89, 89, 89));
         g.drawString("向您推荐奥帆LIFE", 326, 1235);
 
-        g.setFont(new Font("ArialMT",Font.PLAIN, 30));
+        g.setFont(new Font("ArialMT", Font.PLAIN, 30));
         g.setColor(new Color(89, 89, 89));
         g.drawString("扫描或长按小程序码", 326, 1279);
         g.dispose();
@@ -463,7 +487,7 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<YxUserBillMapper, YxU
      * @param url
      * @return
      */
-    public BufferedImage transferImgForRoundImage(String url){
+    public BufferedImage transferImgForRoundImage(String url) {
         BufferedImage resultImg = null;
         try {
             if (StringUtils.isBlank(url)) {
@@ -493,6 +517,7 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<YxUserBillMapper, YxU
 
     /**
      * 返回结果处理
+     *
      * @param spreadUrl
      * @return
      */
@@ -516,6 +541,20 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<YxUserBillMapper, YxU
             for (YxUserBill item : result.getRecords()) {
                 UserBillVo userBillVo = CommonsUtils.convertBean(item, UserBillVo.class);
                 userBillVo.setAddTimeStr(DateUtils.timestampToStr10(item.getAddTime(), DateUtils.YYYY_MM_DD_HH_MM_SS));
+                // 放个默认的缩略图
+                String defaultUrl = this.systemConfigService.getData(SystemConfigConstants.BILL_DEFAULT_IMAGE);
+                if (StringUtils.isNotBlank(defaultUrl)) {
+                    userBillVo.setImage(defaultUrl);
+                }
+                // 卡券订单的关联卡券缩略图显示
+                YxCouponOrder yxCouponOrder = this.yxCouponOrderService.getOne(new QueryWrapper<YxCouponOrder>().lambda().eq(YxCouponOrder::getOrderId, item.getLinkId()));
+                if (null != yxCouponOrder) {
+                    YxCoupons yxCoupons = this.yxCouponsService.getById(yxCouponOrder.getCouponId());
+                    if (null != yxCoupons) {
+                        YxImageInfo yxImageInfo = this.yxImageInfoService.selectOneImg(yxCoupons.getId(), ShopConstants.IMG_TYPE_CARD, ShopConstants.IMG_CATEGORY_PIC);
+                        userBillVo.setImage(yxImageInfo.getImgUrl());
+                    }
+                }
                 list.add(userBillVo);
             }
             resultStr.setRecords(list);
@@ -543,8 +582,45 @@ public class YxUserBillServiceImpl extends BaseServiceImpl<YxUserBillMapper, YxU
             File file = new File(fileDir + name);
             String appId = WxUtils.getAppId();
             String secret = WxUtils.getSecret();
-            String accessToken = WxUtils.getAccessToken(appId,secret);
-            WxUtils.getQrCode(accessToken,fileDir + name,"uid=" + uid+"&type=spread");
+            String accessToken = WxUtils.getAccessToken(appId, secret);
+            WxUtils.getQrCode(accessToken, fileDir + name, "uid=" + uid + "&type=spread");
+            if (StrUtil.isEmpty(localUrl)) {
+                QiniuContent qiniuContent = qiNiuService.uploadPic(file, qiNiuService.find());
+                systemAttachmentService.attachmentAdd(name, String.valueOf(qiniuContent.getSize()),
+                        qiniuContent.getUrl(), qiniuContent.getUrl(), 2);
+                qrCodeUrl = qiniuContent.getUrl();
+            } else {
+                systemAttachmentService.attachmentAdd(name, String.valueOf(FileUtil.size(file)),
+                        fileDir + name, "qrcode/" + name);
+                qrCodeUrl = apiUrl + "/file/qrcode/" + name;
+            }
+
+        } else {
+            qrCodeUrl = attachment.getImageType().equals(2) ? attachment.getSattDir() : apiUrl + "/file/" + attachment.getSattDir();
+        }
+
+        return qrCodeUrl;
+    }
+
+    /**
+     * 获取二维码连接
+     * @param fileDir
+     * @param userType
+     * @param siteUrl
+     * @param apiUrl
+     * @param uid
+     * @return
+     */
+    public String getCode(String fileDir, String userType, String siteUrl, String apiUrl, int uid) {
+        String name = uid + "_" + userType + "_user_wap.jpg";
+        YxSystemAttachment attachment = systemAttachmentService.getInfo(name);
+
+        String qrCodeUrl;
+        if (ObjectUtil.isNull(attachment)) {
+            File file = new File(fileDir + name);
+            QrConfig config = new QrConfig(150, 150);
+            config.setMargin(0);
+            QrCodeUtil.generate(siteUrl + "?spread=" + uid, config,file);
             if (StrUtil.isEmpty(localUrl)) {
                 QiniuContent qiniuContent = qiNiuService.uploadPic(file, qiNiuService.find());
                 systemAttachmentService.attachmentAdd(name, String.valueOf(qiniuContent.getSize()),

@@ -2,6 +2,7 @@ package co.yixiang.modules.coupons.web.vo;
 
 import co.yixiang.common.mybatis.GeoPoint;
 import co.yixiang.modules.coupons.entity.YxCoupons;
+import co.yixiang.modules.ship.web.vo.YxShipPassengerQueryVo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -152,7 +153,7 @@ public class YxCouponOrderQueryVo implements Serializable {
     @ApiModelProperty(value = "缩略图")
     private String image;
 
-    @ApiModelProperty(value = "卡券类型;1:代金券, 2:折扣券, 3:满减券")
+    @ApiModelProperty(value = "卡券类型;1:代金券, 2:折扣券, 3:满减券，4:船票券")
     private Integer couponType;
 
     @ApiModelProperty(value = "卡券名称")
@@ -169,4 +170,47 @@ public class YxCouponOrderQueryVo implements Serializable {
 
     @ApiModelProperty(value = "店铺缩略图")
     private String storeImage;
+
+    // 以下为船只信息
+    @ApiModelProperty(value = "船只名称")
+    private String shipName;
+    @ApiModelProperty(value = "系列名称")
+    private String seriesName;
+
+    @ApiModelProperty(value = "乘船地图坐标")
+    private GeoPoint shipCoordinate;
+
+    @ApiModelProperty(value = "乘船地图坐标经度")
+    private String shipCoordinateX;
+
+    @ApiModelProperty(value = "乘船地图坐标纬度")
+    private String shipCoordinateY;
+
+    @ApiModelProperty(value = "乘船地址")
+    private String shipAddress;
+
+    @ApiModelProperty(value = "健康确认(数组) ")
+    private List<String> confirmationList;
+
+    @ApiModelProperty(value = "模板名称")
+    private String tempName;
+
+    @ApiModelProperty(value = "模板文件地址")
+    private String tempFilePath;
+
+    @ApiModelProperty(value = "状态(0：展示立即使用，1：不展示)")
+    private Integer shipOrderStatus;
+
+
+    @ApiModelProperty(value = "评价状态：0未评价 1已评价")
+    private Integer evaluate;
+
+    @ApiModelProperty(value = "乘客列表")
+    private List<YxShipPassengerQueryVo> passengeList;
+
+    @ApiModelProperty(value = "限乘人数")
+    private Integer rideLimit;
+
+    @ApiModelProperty(value = "可选张数")
+    private Integer optionalNum;
 }

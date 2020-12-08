@@ -98,21 +98,21 @@ public class UserExtractController extends BaseController {
         }
 
         RedisUtil.set(ShopConstants.WITHDRAW_USER_SUBMIT + uid, 1, 5);
-        Integer id= 0;
-        try{
-            id= userExtractService.updateUserExtract(uid, param);
-        }catch (Exception e){
-            log.error("提现 出错，id：{}", uid,e);
+        Integer id = 0;
+        try {
+            id = userExtractService.updateUserExtract(uid, param);
+        } catch (Exception e) {
+            log.error("提现 出错，id：{}", uid, e);
             return ApiResult.fail("提现失败，请重试");
-        }finally {
+        } finally {
             RedisUtil.del(ShopConstants.WITHDRAW_USER_SUBMIT + uid);
         }
 
-        if(id!=null && id.intValue()>0){
+        if (id != null && id.intValue() > 0) {
             // 插入一条提现是申请记录后发送mq
             JSONObject jsonObject = new JSONObject();
             jsonObject.put("id", id + "");
-            mqProducer.messageSendDelay(new MessageContent(MQConstant.MITU_TOPIC, MQConstant.MITU_WITHDRAW_TAG, UUID.randomUUID().toString(), jsonObject),2);
+            mqProducer.messageSendDelay(new MessageContent(MQConstant.MITU_TOPIC, MQConstant.MITU_WITHDRAW_TAG, UUID.randomUUID().toString(), jsonObject), 2);
         }
         ApiResult result = ApiResult.ok();
         result.setMsg("申请提现成功，请等待审核");

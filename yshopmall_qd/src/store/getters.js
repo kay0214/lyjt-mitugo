@@ -4,6 +4,7 @@ const getters = {
   size: state => state.app.size,
   sidebar: state => state.app.sidebar,
   device: state => state.app.device,
+  h5Url: state => state.app.h5Url,
   token: state => state.user.token,
   visitedViews: state => state.tagsView.visitedViews,
   cachedViews: state => state.tagsView.cachedViews,

@@ -219,6 +219,12 @@
                 <artifactId>redis-spring-boot-starter</artifactId>
                 <version>${framework.version}</version>
             </dependency>
+
+            <dependency>
+                <groupId>com.hyjf.framework</groupId>
+                <artifactId>common-spring-boot-starter</artifactId>
+                <version>${framework.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 

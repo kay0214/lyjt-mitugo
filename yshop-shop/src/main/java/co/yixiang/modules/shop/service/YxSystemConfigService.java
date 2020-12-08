@@ -48,4 +48,13 @@ public interface YxSystemConfigService  extends BaseService<YxSystemConfig>{
     YxSystemConfig findByKey(String store_brokerage_statu);
 
     String getData(String name);
+
+    /**
+     * 更新或插入数据
+     *
+     * @param key
+     * @param value
+     * @return
+     */
+    boolean saveOrUpdateValue(String key, String value);
 }

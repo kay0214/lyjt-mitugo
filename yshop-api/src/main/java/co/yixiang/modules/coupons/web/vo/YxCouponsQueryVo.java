@@ -1,5 +1,8 @@
 package co.yixiang.modules.coupons.web.vo;
 
+import co.yixiang.modules.contract.web.vo.YxContractTemplateQueryVo;
+import co.yixiang.modules.coupons.web.vo.couponReply.queryReply.YxCouponsReplyVO;
+import co.yixiang.modules.ship.web.vo.YxShipSeriesQueryVo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -34,7 +37,7 @@ public class YxCouponsQueryVo implements Serializable {
     @ApiModelProperty(value = "卡券名称")
     private String couponName;
 
-    @ApiModelProperty(value = "卡券类型;1:代金券, 2:折扣券, 3:满减券")
+    @ApiModelProperty(value = "卡券类型;1:代金券, 2:折扣券, 3:满减券，4：船票券")
     private Integer couponType;
 
     @ApiModelProperty(value = "卡券所属分类")
@@ -133,6 +136,9 @@ public class YxCouponsQueryVo implements Serializable {
     @ApiModelProperty(value = "卡券缩略图")
     private String image;
 
+    @ApiModelProperty(value = "卡券小视频")
+    private String video;
+
     @ApiModelProperty(value = "卡券轮播图")
     private List<String> sliderImage;
 
@@ -147,6 +153,107 @@ public class YxCouponsQueryVo implements Serializable {
 
     @ApiModelProperty(value = "使用时间段")
     private String availableTime;
+
+
+    @ApiModelProperty(value = "船只系列id")
+    private Integer seriesId;
+
+
+    /**
+     * 船只id
+     */
+    @ApiModelProperty(value = "船只id")
+    private Integer shipId;
+
+    @ApiModelProperty(value = "船只名称")
+    private String shipName;
+
+
+    /**
+     * 合同模板id
+     */
+    @ApiModelProperty(value = "合同模板id")
+    private Integer tempId;
+
+
+    /**
+     * 乘客人数
+     */
+    @ApiModelProperty(value = "乘客人数")
+    private Integer passengersNum;
+
+
+    /**
+     * 合同规则（0：无需保险，1：必须购买，2：非必须）
+     */
+    @ApiModelProperty(value = "合同规则（0：无需保险，1：必须购买，2：非必须）")
+    private Integer insuranceRole;
+
+
+    /**
+     * 有效期（0：不限，1：其他）
+     */
+    @ApiModelProperty(value = "有效期（0：不限，1：其他）")
+    private Integer validity;
+
+
+    /**
+     * 有效天数（有效期=1时）
+     */
+    @ApiModelProperty(value = "有效天数（有效期=1时）")
+    private Integer validityDays;
+
+
+    /**
+     * 在线发票（0：不支持，1：支持）
+     */
+    @ApiModelProperty(value = "在线发票（0：不支持，1：支持）")
+    private Integer onlineInvoice;
+
+
+    /**
+     * 景区推广价格
+     */
+    @ApiModelProperty(value = "景区推广价格")
+    private BigDecimal scenicPrice;
+
+
+    /**
+     * 旅行社价格
+     */
+    @ApiModelProperty(value = "旅行社价格")
+    private BigDecimal travelPrice;
+
+
+    /**
+     * 健康确认(逗号分隔)
+     */
+    @ApiModelProperty(value = "健康确认(逗号分隔) ")
+    private String confirmation;
+
+    @ApiModelProperty(value = "健康确认(数组) ")
+    private List<String> confirmationList;
+
+    @ApiModelProperty(value = "分佣模式（0：按平台，1：不分佣，2：自定义分佣）")
+    private Integer customizeType;
+
+    @ApiModelProperty(value = "船只系列信息 ")
+    private YxShipSeriesQueryVo shipSeries;
+
+    @ApiModelProperty(value = "合同信息 ")
+    private YxContractTemplateQueryVo contractTemplateQueryVo;
+
+    @ApiModelProperty(value = "评价总件数")
+    private Integer replyCount;
+
+    @ApiModelProperty(value = "评价详情")
+    private YxCouponsReplyVO reply;
+
+    @ApiModelProperty(value = "好评率")
+    private String goodRate;
+
+    @ApiModelProperty(value = "商户id")
+    private Integer merId;
 
     @ApiModelProperty(value = "关闭店铺进入按钮 0:未关闭 1：关闭")
     private Integer storeClose;

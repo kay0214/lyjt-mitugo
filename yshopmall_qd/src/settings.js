@@ -2,7 +2,7 @@ module.exports = {
   /**
    * @description 网站标题
    */
-  title: '蜜兔GO后台管理系统',
+  title: '奥帆LIFE后台管理系统',
   /**
    * @description 是否显示 tagsView
    */

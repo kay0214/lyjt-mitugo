@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="co.yixiang.modules.ship.mapper.YxShipInfoMapper">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, ship_name, series_id, mer_id, store_id, mer_name, manager_name, manager_phone, ship_status, current_status, last_leave_time, last_return_time, del_flag, create_user_id, update_user_id, create_time, update_time
+    </sql>
+
+    <select id="getYxShipInfoById" resultType="co.yixiang.modules.ship.web.vo.YxShipInfoQueryVo">
+        select <include refid="Base_Column_List"/> from yx_ship_info where id = #{id}
+    </select>
+
+    <select id="getYxShipInfoPageList" resultType="co.yixiang.modules.ship.web.vo.YxShipInfoQueryVo">
+        select <include refid="Base_Column_List"/> from yx_ship_info where 1=1 and del_flag = 0 and ship_status = 0
+        <if test ="param.seriesId !='' and param.seriesId != null"> and series_id = #{param.seriesId} </if>
+        <if test ="param.shipName !='' and param.shipName != null"> and ship_name LIKE CONCAT('%',#{param.shipName},'%') </if>
+        <if test ="param.currentStatus !='' and param.currentStatus != null"> and current_status = #{param.currentStatus} </if>
+        <if test ="param.storeId !='' and param.storeId != null"> and store_id = #{param.storeId} </if>
+    </select>
+    <!--<select id="getYxShipInfoPageListByParam" resultType="co.yixiang.modules.ship.web.vo.YxShipInfoQueryVo">
+        select <include refid="Base_Column_List"/> from yx_ship_info
+        <if test ="param.lnt  != '' and param.lnt != null">
+            ,ST_Distance_Sphere (POINT(#{param.lnt},#{param.lat}),coordinate) distance
+        </if>
+    </select>-->
+
+</mapper>

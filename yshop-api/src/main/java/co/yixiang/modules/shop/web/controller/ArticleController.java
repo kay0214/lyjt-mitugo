@@ -41,12 +41,12 @@ public class ArticleController extends BaseController {
 
 
     /**
-    * 获取文章文章详情
-    */
+     * 获取文章文章详情
+     */
     @AnonymousAccess
     @GetMapping("/details/{id}")
-    @ApiOperation(value = "文章详情",notes = "文章详情",response = YxArticleQueryVo.class)
-    public ApiResult<YxArticleQueryVo> getYxArticle(@PathVariable Integer id) throws Exception{
+    @ApiOperation(value = "文章详情", notes = "文章详情", response = YxArticleQueryVo.class)
+    public ApiResult<YxArticleQueryVo> getYxArticle(@PathVariable Integer id) throws Exception {
         YxArticleQueryVo yxArticleQueryVo = articleService.getYxArticleById(id);
         articleService.incVisitNum(id);
         return ApiResult.ok(yxArticleQueryVo);
@@ -57,8 +57,8 @@ public class ArticleController extends BaseController {
      */
     @AnonymousAccess
     @GetMapping("/list")
-    @ApiOperation(value = "文章列表",notes = "文章列表",response = YxArticleQueryVo.class)
-    public ApiResult<List<YxArticleQueryVo>> getYxArticlePageList(YxArticleQueryParam queryParam){
+    @ApiOperation(value = "文章列表", notes = "文章列表", response = YxArticleQueryVo.class)
+    public ApiResult<List<YxArticleQueryVo>> getYxArticlePageList(YxArticleQueryParam queryParam) {
         Paging<YxArticleQueryVo> paging = articleService.getYxArticlePageList(queryParam);
         return ApiResult.ok(paging.getRecords());
     }

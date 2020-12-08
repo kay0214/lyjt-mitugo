@@ -17,7 +17,10 @@ import co.yixiang.enums.CommonEnum;
 import co.yixiang.enums.ProductEnum;
 import co.yixiang.exception.ErrorRequestException;
 import co.yixiang.modules.commission.entity.YxCommissionRate;
+import co.yixiang.modules.commission.entity.YxCustomizeRate;
 import co.yixiang.modules.commission.service.YxCommissionRateService;
+import co.yixiang.modules.commission.service.YxCustomizeRateService;
+import co.yixiang.modules.couponUse.dto.ShipUserLeaveVO;
 import co.yixiang.modules.coupons.entity.YxCoupons;
 import co.yixiang.modules.coupons.service.YxCouponsService;
 import co.yixiang.modules.image.entity.YxImageInfo;
@@ -119,11 +122,11 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
     private YxStoreCartService yxStoreCartService;
 
     @Autowired
-    YxStoreProductService storeProductService;
+    private YxStoreProductService storeProductService;
     @Autowired
-    YxSystemConfigService systemConfigService;
+    private YxSystemConfigService systemConfigService;
     @Autowired
-    YxSystemAttachmentService systemAttachmentService;
+    private YxSystemAttachmentService systemAttachmentService;
     @Autowired
     YxUserService yxUserService;
     @Autowired
@@ -132,6 +135,8 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
     YxCouponsService yxCouponsService;
     @Autowired
     YxImageInfoService yxImageInfoService;
+    @Autowired
+    private YxCustomizeRateService yxCustomizeRateService;
 
     @Autowired
     QiNiuService qiNiuService;
@@ -145,6 +150,8 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
     @Value("${spring.profiles.active}")
     private String active;
 
+    @Value("${yshop.isProd}")
+    private boolean isProd;
 
     /**
      * 增加库存 减少销量
@@ -258,7 +265,7 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
     @Override
     public ProductDTO goodsDetail(int id, int type, int uid, String latitude, String longitude) {
         QueryWrapper<YxStoreProduct> wrapper = new QueryWrapper<>();
-        wrapper.eq("is_del", 0).eq("is_show", 1).eq("id", id);
+        wrapper.eq("is_del", 0).eq("id", id);
         YxStoreProduct storeProduct = yxStoreProductMapper.selectOne(wrapper);
         if (ObjectUtil.isNull(storeProduct)) {
             throw new ErrorRequestException("商品不存在或已下架");
@@ -272,11 +279,11 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
         if (newStock != null) storeProductQueryVo.setStock(newStock);
 
         //设置VIP价格
-        double vipPrice = userService.setLevelPrice(
-                storeProductQueryVo.getPrice().doubleValue(), uid);
-        storeProductQueryVo.setVipPrice(BigDecimal.valueOf(vipPrice));
-        storeProductQueryVo.setUserCollect(relationService
-                .isProductRelation(id, "product", uid, "collect"));
+//        double vipPrice = userService.setLevelPrice(
+//                storeProductQueryVo.getPrice().doubleValue(), uid);
+//        storeProductQueryVo.setVipPrice(BigDecimal.valueOf(vipPrice));
+//        storeProductQueryVo.setUserCollect(relationService
+//                .isProductRelation(id, "product", uid, "collect"));
         //销量= 销量+虚拟销量
         storeProductQueryVo.setSales(storeProductQueryVo.getSales() + storeProductQueryVo.getFicti());
         productDTO.setProductAttr((List<YxStoreProductAttrQueryVo>) returnMap.get("productAttr"));
@@ -294,14 +301,31 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
         productDTO.setSystemStore(storeInfoMapper.getYxStoreInfoById(storeProductQueryVo.getStoreId()));
         productDTO.setMapKey(RedisUtil.get(ShopKeyUtils.getTengXunMapKey()));
         //佣金
-        YxCommissionRate commissionRate = commissionRateService.getOne(new QueryWrapper<YxCommissionRate>().eq("del_flag", 0));
         BigDecimal bigCommission = storeProductQueryVo.getCommission();
 
-        if (ObjectUtil.isNotNull(commissionRate)) {
-            //佣金= 佣金*分享
-            bigCommission = bigCommission.multiply(commissionRate.getShareRate());
+        switch (storeProductQueryVo.getCustomizeType()) {
+            case 0:
+                //0：按平台
+                YxCommissionRate commissionRate = commissionRateService.getOne(new QueryWrapper<YxCommissionRate>().eq("del_flag", 0));
+                if (ObjectUtil.isNotNull(commissionRate)) {
+                    //佣金= 佣金*分享
+                    bigCommission = bigCommission.multiply(commissionRate.getShareRate());
+                }
+                break;
+            case 1:
+                //1：不分佣
+                bigCommission = new BigDecimal(0);
+                break;
+            case 2:
+                //2：自定义分佣
+                YxCustomizeRate yxCustomizeRate = yxCustomizeRateService.getCustomizeRateByParam(0, storeProductQueryVo.getId());
+                if (ObjectUtil.isNotNull(yxCustomizeRate)) {
+                    //佣金= 佣金*分享
+                    bigCommission = bigCommission.multiply(yxCustomizeRate.getShareRate());
+                }
+                break;
         }
-        storeProductQueryVo.setCommission(bigCommission);
+        storeProductQueryVo.setCommission(bigCommission.setScale(2, BigDecimal.ROUND_DOWN));
         productDTO.setStoreInfo(storeProductQueryVo);
         // 获取商品关闭状态
         String storeClose = systemConfigService.getData(SystemConfigConstants.STORE_CLOSE_SWITCH);
@@ -532,8 +556,15 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
         String fileDir = path + "qrcode" + File.separator;
         String spreadPicPath = fileDir + spreadPicName;
         // 二维码地址获取
-        String qrCodeUrl = getQrCode(fileDir, userType, siteUrl, apiUrl, uid, id, pageType);
-        // qrCodeUrl = getCode(fileDir, userType, siteUrl, apiUrl, uid, id);
+
+        // 测试环境二维码生成走旧逻辑
+        String qrCodeUrl = "";
+        if (isProd) {
+            qrCodeUrl = getQrCode(fileDir, userType, siteUrl, apiUrl, uid, id, pageType);
+        } else {
+            qrCodeUrl = getCode(fileDir, userType, siteUrl, apiUrl, uid, id);
+        }
+
         ProductInfo productInfo = new ProductInfo();
         if (pageType.equals("good")) {
             YxStoreProduct storeProduct = storeProductService.getProductInfo(id);
@@ -578,7 +609,7 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
         //文案标题
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_DEFAULT);
-        g.setFont(new Font("SimHei",Font.BOLD, 40));
+        g.setFont(new Font("SimHei", Font.BOLD, 40));
         g.setColor(new Color(29, 29, 29));
         String storeName = productInfo.getStoreName();
         storeName = storeName.length() > 14 ? storeName.substring(0, 13) + "..." : storeName;
@@ -617,10 +648,10 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
         g.drawImage(qrCode.getScaledInstance(228, 228, Image.SCALE_DEFAULT), 76, 847, null);
 
         //二维码字体
-        g.setFont(new Font("SimHei",Font.PLAIN, 30));
+        g.setFont(new Font("SimHei", Font.PLAIN, 30));
         g.setColor(new Color(29, 29, 29));
         g.drawString("扫描或长按小程序码", 331, 926);
-        g.setFont(new Font("SimHei",Font.PLAIN, 30));
+        g.setFont(new Font("SimHei", Font.PLAIN, 30));
         g.setColor(new Color(29, 29, 29));
         g.drawString("查看商品详情", 331, 968);
 
@@ -644,6 +675,160 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
             spreadUrl = apiUrl + "/file/qrcode/" + spreadPicName;
         }
         return ApiResult.ok(spreadUrl);
+    }
+
+    /**
+     * 商户的本地生活商品数量
+     *
+     * @param storeId
+     * @return
+     */
+    @Override
+    public Map<String, Long> getLocalProductCount(Integer storeId) {
+        return yxStoreProductMapper.getLocalProductCount(storeId);
+    }
+
+    /**
+     * 本地生活订单相关数量
+     *
+     * @param storeId
+     * @return
+     */
+    @Override
+    public Map<String, Long> getLocalProductOrderCount(Integer storeId) {
+        return yxStoreProductMapper.getLocalProductOrderCount(storeId);
+    }
+
+    /**
+     * 今日营业额
+     *
+     * @param storeId
+     * @return
+     */
+    @Override
+    public BigDecimal getLocalSumPrice(Integer storeId) {
+        return yxStoreProductMapper.getLocalSumPrice(storeId);
+    }
+
+    /**
+     * 商城商品相关
+     *
+     * @param storeId
+     * @return
+     */
+    @Override
+    public Map<String, Long> getShopProductCount(Integer storeId) {
+        return yxStoreProductMapper.getShopProductCount(storeId);
+    }
+
+    /**
+     * 商城订单数量相关
+     *
+     * @param storeId
+     * @return
+     */
+    @Override
+    public Map<String, Long> getShopOrderCount(Integer storeId) {
+        return yxStoreProductMapper.getShopOrderCount(storeId);
+    }
+
+    /**
+     * 商城订单数量相关(全部)
+     *
+     * @param storeId
+     * @return
+     */
+    @Override
+    public Long getShopOrderSend(Integer storeId) {
+        return yxStoreProductMapper.getShopOrderSend(storeId);
+    }
+
+    /**
+     * 商城订单数量相关(全部)
+     *
+     * @param storeId
+     * @return
+     */
+    @Override
+    public Long getShopOrderRefund(Integer storeId) {
+        return yxStoreProductMapper.getShopOrderRefund(storeId);
+    }
+
+    /**
+     * 商城今日营业额
+     *
+     * @param storeId
+     * @return
+     */
+    @Override
+    public BigDecimal getShopSumPrice(Integer storeId) {
+        return yxStoreProductMapper.getShopSumPrice(storeId);
+    }
+
+    /**
+     * 船只出港次数最多的船只
+     *
+     * @param storeId
+     * @return
+     */
+    @Override
+    public List<ShipUserLeaveVO> getTopShipLeaves(Integer storeId) {
+        return yxStoreProductMapper.getTopShipLeaves(storeId);
+    }
+
+    /**
+     * 船只出港次数最多的船长
+     *
+     * @param storeId
+     * @return
+     */
+    @Override
+    public List<ShipUserLeaveVO> getShipUserLeaveS(Integer storeId) {
+        return yxStoreProductMapper.getShipUserLeaveS(storeId);
+    }
+
+    /**
+     * 今日出港次数
+     *
+     * @param storeId
+     * @return
+     */
+    @Override
+    public Integer getShipLeaveCount(Integer storeId) {
+        return yxStoreProductMapper.getShipLeaveCount(storeId);
+    }
+
+    /**
+     * 今日运营船只
+     *
+     * @param storeId
+     * @return
+     */
+    @Override
+    public Integer getShipCount(Integer storeId) {
+        return yxStoreProductMapper.getShipCount(storeId);
+    }
+
+    /**
+     * 未核销订单（取总值）
+     *
+     * @param storeId
+     * @return
+     */
+    @Override
+    public Long getLocalOrderWait(Integer storeId) {
+        return yxStoreProductMapper.getLocalOrderWait(storeId);
+    }
+
+    /**
+     * 待处理退款（取总值）
+     *
+     * @param storeId
+     * @return
+     */
+    @Override
+    public Long getLocalOrderRefund(Integer storeId) {
+        return yxStoreProductMapper.getLocalOrderRefund(storeId);
     }
 
     /**

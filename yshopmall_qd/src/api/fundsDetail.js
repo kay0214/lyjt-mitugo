@@ -1,4 +1,5 @@
 import request from '@/utils/request'
+import qs from 'qs'
 
 export function add(data) {
   return request({
@@ -24,4 +25,10 @@ export function edit(data) {
   })
 }
 
+export function post(params) {
+  return request({
+    url: 'api/yxUserBillAll' + '?' + qs.stringify(params, { indices: false }),
+    method: 'post'
+  })
+}
 export default { add, edit, del }

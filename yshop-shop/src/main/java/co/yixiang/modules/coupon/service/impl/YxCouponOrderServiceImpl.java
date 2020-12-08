@@ -24,12 +24,13 @@ import co.yixiang.modules.coupon.service.mapper.YxCouponOrderMapper;
 import co.yixiang.modules.shop.domain.User;
 import co.yixiang.modules.shop.domain.YxImageInfo;
 import co.yixiang.modules.shop.domain.YxStoreInfo;
+import co.yixiang.modules.shop.service.UserService;
 import co.yixiang.modules.shop.service.YxImageInfoService;
 import co.yixiang.modules.shop.service.YxStoreInfoService;
 import co.yixiang.modules.shop.service.mapper.UserSysMapper;
 import co.yixiang.mp.service.YxMiniPayService;
+import co.yixiang.utils.DateUtils;
 import co.yixiang.utils.FileUtil;
-import co.yixiang.utils.OrderUtil;
 import co.yixiang.utils.StringUtils;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -79,6 +80,8 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
     private YxMiniPayService miniPayService;
     @Autowired
     private UserSysMapper userSysMapper;
+    @Autowired
+    private UserService userService;
 
     @Override
     //@Cacheable
@@ -103,7 +106,7 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
                 // 已过期
                 queryWrapper.lambda().eq(YxCouponOrder::getStatus, 1);
             } else if (8 == criteria.getOrderStatus()) {
-                queryWrapper.lambda().eq(YxCouponOrder::getStatus, criteria.getOrderStatus());
+                queryWrapper.lambda().and(refund -> refund.eq(YxCouponOrder::getStatus, criteria.getOrderStatus()).or().eq(YxCouponOrder::getRefundStatus, 2));
             } else {
                 queryWrapper.lambda().eq(YxCouponOrder::getStatus, criteria.getOrderStatus()).eq(YxCouponOrder::getRefundStatus, 0);
             }
@@ -129,6 +132,23 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
                 queryWrapper.lambda().eq(YxCouponOrder::getMerId, user.getId());
             }
         }
+        if (StringUtils.isNotBlank(criteria.getStoreName())) {
+            List<YxCoupons> coupons = this.yxCouponsService.list(new QueryWrapper<YxCoupons>().lambda().like(YxCoupons::getCouponName, criteria.getStoreName()));
+            if (null == coupons || coupons.size() <= 0) {
+                Map<String, Object> map = new LinkedHashMap<>(2);
+                map.put("content", new ArrayList<>());
+                map.put("totalElements", 0);
+                return map;
+            }
+            List<Integer> ids = new ArrayList<>();
+            for (YxCoupons item : coupons) {
+                ids.add(item.getId());
+            }
+            queryWrapper.lambda().in(YxCouponOrder::getCouponId, ids);
+        }
+        if (null != criteria.getCreateTime() && criteria.getCreateTime().size() == 2) {
+            queryWrapper.lambda().ge(YxCouponOrder::getCreateTime, criteria.getCreateTime().get(0).concat(" 00:00:00")).le(YxCouponOrder::getCreateTime, criteria.getCreateTime().get(1).concat(" 23:59:59"));
+        }
 
         IPage<YxCouponOrder> ipage = this.page(new Page<>(pageable.getPageNumber() + 1, pageable.getPageSize()), queryWrapper);
         if (ipage.getTotal() <= 0) {
@@ -137,45 +157,79 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
             map.put("totalElements", 0);
             return map;
         }
-        List<YxCouponOrderDto> list = new ArrayList<>();
-        for (YxCouponOrder item : ipage.getRecords()) {
-            YxCouponOrderDto yxCouponOrderDto = generator.convert(item, YxCouponOrderDto.class);
-            // 购买卡券的id
-            Integer couponId = yxCouponOrderDto.getCouponId();
-            // 购买卡券的信息
-            YxCoupons yxCoupons = this.yxCouponsService.getById(couponId);
-            // 卡券缩略图
-            YxImageInfo thumbnail = yxImageInfoService.getOne(new QueryWrapper<YxImageInfo>().eq("type_id", couponId).eq("img_type", LocalLiveConstants.IMG_TYPE_COUPONS)
-                    .eq("img_category", ShopConstants.IMG_CATEGORY_PIC).eq("del_flag", 0));
-            if (null != thumbnail && StringUtils.isNotBlank(thumbnail.getImgUrl())) {
-                yxCouponOrderDto.setImage(thumbnail.getImgUrl());
-            }
-            yxCouponOrderDto.setYxCouponsDto(generator.convert(yxCoupons, YxCouponsDto.class));
-            String orderStatusStr = "";
-            // 卡券详情
-            List<YxCouponOrderDetail> detailList = this.yxCouponOrderDetailService.list(new QueryWrapper<YxCouponOrderDetail>().lambda().eq(YxCouponOrderDetail::getCouponId, couponId));
-            yxCouponOrderDto.setDetailList(generator.convert(detailList, YxCouponOrderDetailDto.class));
-            if (yxCouponOrderDto.getRefundStatus() == 1) {
-                String refundTime = "";
-                if (null != yxCouponOrderDto.getRefundReasonTime()) {
-                    refundTime = OrderUtil.stampToDate(String.valueOf(yxCouponOrderDto.getRefundReasonTime()));
-                }
-                yxCouponOrderDto.setRefundReasonWap(StringUtils.isNotBlank(yxCouponOrderDto.getRefundReasonWap()) ? yxCouponOrderDto.getRefundReasonWap() : "");
-                yxCouponOrderDto.setRefundReasonWapExplain(StringUtils.isNotBlank(yxCouponOrderDto.getRefundReasonWapExplain()) ? yxCouponOrderDto.getRefundReasonWapExplain() : "");
-                String str = "<b style='color:#f124c7'>申请退款</b><br/>" +
-                        "<span>退款原因：" + yxCouponOrderDto.getRefundReasonWap() + "</span><br/>" +
-                        "<span>备注说明：" + yxCouponOrderDto.getRefundReasonWapExplain() + "</span><br/>" +
-                        "<span>退款时间：" + refundTime + "</span><br/>";
-                orderStatusStr = str;
-            }
-            yxCouponOrderDto.setStatusName(orderStatusStr);
-            list.add(yxCouponOrderDto);
-        }
+        List<YxCouponOrderDto> list = convertList(ipage.getRecords());
+
 
         Map<String, Object> map = new LinkedHashMap<>(2);
         map.put("content", list);
         map.put("totalElements", ipage.getTotal());
         return map;
+    }
+
+    private List<YxCouponOrderDto> convertList(List<YxCouponOrder> records) {
+        List<YxCouponOrderDto> list = generator.convert(records, YxCouponOrderDto.class);
+        for (YxCouponOrderDto item : list) {
+            // 购买卡券的id
+            Integer couponId = item.getCouponId();
+            // 购买卡券的信息
+            YxCoupons yxCoupons = this.yxCouponsService.getById(couponId);
+            // 卡券类型 1:代金券, 2:折扣券, 3:满减券 ，4：船票券
+            switch (yxCoupons.getCouponType()) {
+                case 1:
+                    item.setCouponTypeStr("代金券");
+                    break;
+                case 2:
+                    item.setCouponTypeStr("折扣券");
+                    break;
+                case 3:
+                    item.setCouponTypeStr("满减券");
+                    break;
+                case 4:
+                    item.setCouponTypeStr("船票券");
+                    break;
+                default:
+                    item.setCouponTypeStr("其他");
+                    break;
+            }
+            // 卡券缩略图
+            YxImageInfo thumbnail = yxImageInfoService.getOne(new QueryWrapper<YxImageInfo>().eq("type_id", couponId).eq("img_type", LocalLiveConstants.IMG_TYPE_COUPONS)
+                    .eq("img_category", ShopConstants.IMG_CATEGORY_PIC).eq("del_flag", 0));
+            if (null != thumbnail && StringUtils.isNotBlank(thumbnail.getImgUrl())) {
+                item.setImage(thumbnail.getImgUrl());
+            }
+            item.setYxCouponsDto(generator.convert(yxCoupons, YxCouponsDto.class));
+            String orderStatusStr = "";
+            // 卡券详情
+            List<YxCouponOrderDetail> detailList = this.yxCouponOrderDetailService.list(new QueryWrapper<YxCouponOrderDetail>().lambda().eq(YxCouponOrderDetail::getCouponId, couponId));
+            item.setDetailList(generator.convert(detailList, YxCouponOrderDetailDto.class));
+            if (item.getRefundStatus() == 1) {
+                String refundTime = "";
+                if (null != item.getRefundReasonTime()) {
+                    refundTime = DateUtils.timestampToStr10(item.getRefundReasonTime());
+                }
+                item.setRefundReasonWap(StringUtils.isNotBlank(item.getRefundReasonWap()) ? item.getRefundReasonWap() : "");
+                item.setRefundReasonWapExplain(StringUtils.isNotBlank(item.getRefundReasonWapExplain()) ? item.getRefundReasonWapExplain() : "");
+                orderStatusStr = "<b style='color:#f124c7'>申请退款</b><br/>" +
+                        "<span>退款原因：" + item.getRefundReasonWap() + "</span><br/>" +
+                        "<span>备注说明：" + item.getRefundReasonWapExplain() + "</span><br/>" +
+                        "<span>退款时间：" + refundTime + "</span><br/>";
+            }
+            item.setStatusName(orderStatusStr);
+            User user = this.userService.getById(item.getMerId());
+            if (null != user) {
+                item.setUser(user);
+            }
+            // 处理核销时间
+            List<YxCouponOrderUse> useList = this.yxCouponOrderUseService.list(new QueryWrapper<YxCouponOrderUse>().lambda().eq(YxCouponOrderUse::getOrderId, item.getOrderId()));
+            if (null != useList && useList.size() > 0) {
+                String usedTime = "";
+                for (YxCouponOrderUse useItem : useList) {
+                    usedTime = usedTime.concat(",").concat(DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD_HH_MM_SS, useItem.getCreateTime()));
+                }
+                item.setUsedTime(usedTime.substring(1, usedTime.length()));
+            }
+        }
+        return list;
     }
 
 
@@ -189,38 +243,139 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
     public void download(List<YxCouponOrderDto> all, HttpServletResponse response) throws IOException {
         List<Map<String, Object>> list = new ArrayList<>();
         for (YxCouponOrderDto yxCouponOrder : all) {
+            // 处理订单状态
+            String statusStr = "";
+            switch (yxCouponOrder.getStatus()) {
+                case 0:
+                    statusStr = "待支付";
+                    break;
+                case 1:
+                    statusStr = "已过期";
+                    break;
+                case 2:
+                    statusStr = "待发放";
+                    break;
+                case 3:
+                    statusStr = "支付失败";
+                    break;
+                case 4:
+                    statusStr = "待使用";
+                    break;
+                case 5:
+                    statusStr = "已使用";
+                    break;
+                case 6:
+                    statusStr = "已核销";
+                    break;
+                case 7:
+                    statusStr = "退款中";
+                    break;
+                case 8:
+                    statusStr = "已退款";
+                    break;
+                case 9:
+                    statusStr = "退款驳回";
+                    break;
+                case 10:
+                    statusStr = "已取消";
+                    break;
+                default:
+                    statusStr = "未知状态" + yxCouponOrder.getStatus();
+                    break;
+            }
+
+            // 处理退款状态
+            String refundStatusStr = "";
+            switch (yxCouponOrder.getRefundStatus()) {
+                case 0:
+                    refundStatusStr = "未退款";
+                    break;
+                case 1:
+                    refundStatusStr = "申请中";
+                    break;
+                case 2:
+                    refundStatusStr = "已退款";
+                    break;
+                default:
+                    refundStatusStr = "未知状态" + yxCouponOrder.getRefundStatus();
+                    break;
+            }
+            // 处理推荐人类型
+            String parentTypeStr = "";
+            switch (yxCouponOrder.getParentType()) {
+                case 1:
+                    parentTypeStr = "商户";
+                    break;
+                case 2:
+                    parentTypeStr = "合伙人";
+                    break;
+                case 3:
+                    parentTypeStr = "用户";
+                    break;
+                default:
+                    parentTypeStr = "未知类型";
+                    break;
+            }
+
+            String shareParentTypeStr = "";
+            switch (yxCouponOrder.getShareParentType()) {
+                case 1:
+                    shareParentTypeStr = "商户";
+                    break;
+                case 2:
+                    shareParentTypeStr = "合伙人";
+                    break;
+                case 3:
+                    shareParentTypeStr = "用户";
+                    break;
+                default:
+                    shareParentTypeStr = "未知类型";
+                    break;
+            }
+            // 卡券类型  订单号  用户昵称  uid   商品名称   实际支付   佣金  支付状态   订单状态   创建时间   核销时间  商户id  商户名称  商户登录名  退款时间  退款订单号  退款状态  退款原因  备注
             Map<String, Object> map = new LinkedHashMap<>();
+            map.put("卡券类型", yxCouponOrder.getCouponTypeStr());
             map.put("订单号", yxCouponOrder.getOrderId());
-            map.put("用户id", yxCouponOrder.getUid());
-            map.put("用户姓名", yxCouponOrder.getRealName());
-            map.put("用户电话", yxCouponOrder.getUserPhone());
-            map.put("订单商品总数", yxCouponOrder.getTotalNum());
-            map.put("订单总价", yxCouponOrder.getTotalPrice());
-            map.put("卡券id", yxCouponOrder.getCouponId());
-            map.put("卡券金额", yxCouponOrder.getCouponPrice());
-            map.put("支付状态 0未支付 1已支付", yxCouponOrder.getPayStaus());
-            map.put("支付时间", yxCouponOrder.getPayTime());
-            map.put("可被核销次数", yxCouponOrder.getUseCount());
-            map.put("已核销次数", yxCouponOrder.getUsedCount());
-            map.put("订单状态（0:待支付 1:已过期 2:待发放3:支付失败4:待使用5:已使用6:已核销7:退款中8:已退款9:退款驳回", yxCouponOrder.getStatus());
-            map.put("0 未退款 1 申请中 2 已退款", yxCouponOrder.getRefundStatus());
-            map.put("退款用户说明", yxCouponOrder.getRefundReasonWapExplain());
-            map.put("退款时间", yxCouponOrder.getRefundReasonTime());
-            map.put("不退款的理由", yxCouponOrder.getRefundReason());
-            map.put("退款金额", yxCouponOrder.getRefundPrice());
-            map.put("备注", yxCouponOrder.getMark());
+            map.put("用户昵称", yxCouponOrder.getRealName());
+            map.put("uid", yxCouponOrder.getUid());
+            map.put("商品名称", null != yxCouponOrder.getYxCouponsDto() && StringUtils.isNotBlank(yxCouponOrder.getYxCouponsDto().getCouponName()) ? yxCouponOrder.getYxCouponsDto().getCouponName() : "");
+            map.put("实际支付", yxCouponOrder.getTotalPrice());
+            map.put("佣金", yxCouponOrder.getCommission());
+            map.put("支付状态", yxCouponOrder.getPayStaus() == 0 ? "未支付" : "已支付");
+            map.put("订单状态", statusStr);
+            map.put("创建时间", DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD_HH_MM_SS, yxCouponOrder.getCreateTime()));
+            // 核销时间暂时无法处理
+            map.put("核销时间", yxCouponOrder.getUsedTime());
             map.put("商户ID", yxCouponOrder.getMerId());
-            map.put("推荐人用户ID", yxCouponOrder.getParentId());
-            map.put("推荐人类型:1商户;2合伙人;3用户", yxCouponOrder.getParentType());
-            map.put("分享人Id", yxCouponOrder.getShareId());
-            map.put("分享人的推荐人id", yxCouponOrder.getShareParentId());
-            map.put("分享人的推荐人类型", yxCouponOrder.getShareParentType());
-            map.put("核销码", yxCouponOrder.getVerifyCode());
-            map.put("是否删除（0：未删除，1：已删除）", yxCouponOrder.getDelFlag());
-            map.put("创建人 根据创建人关联店铺", yxCouponOrder.getCreateUserId());
-            map.put("修改人", yxCouponOrder.getUpdateUserId());
-            map.put("创建时间", yxCouponOrder.getCreateTime());
-            map.put("更新时间", yxCouponOrder.getUpdateTime());
+            if (null != yxCouponOrder.getUser()) {
+                map.put("商户名称", yxCouponOrder.getUser().getNickName());
+                map.put("商户登录名", yxCouponOrder.getUser().getUsername());
+            }
+            map.put("退款时间", DateUtils.timestampToStr10(yxCouponOrder.getRefundReasonTime()));
+            // 退款没有订单号
+            map.put("退款状态", refundStatusStr);
+            map.put("退款原因", yxCouponOrder.getRefundReasonWap());
+            map.put("备注", yxCouponOrder.getMark());
+//
+//            map.put("用户电话", yxCouponOrder.getUserPhone());
+//            map.put("订单商品总数", yxCouponOrder.getTotalNum());
+//            map.put("卡券id", yxCouponOrder.getCouponId());
+//            map.put("卡券金额", yxCouponOrder.getCouponPrice());
+//            map.put("支付时间", yxCouponOrder.getPayTime());
+//            map.put("可被核销次数", yxCouponOrder.getUseCount());
+//            map.put("已核销次数", yxCouponOrder.getUsedCount());
+//            map.put("不退款的理由", yxCouponOrder.getRefundReason());
+//            map.put("退款金额", yxCouponOrder.getRefundPrice());
+//            map.put("推荐人用户ID", yxCouponOrder.getParentId());
+//            map.put("推荐人类型", parentTypeStr);
+//            map.put("分享人Id", yxCouponOrder.getShareId());
+//            map.put("分享人的推荐人id", yxCouponOrder.getShareParentId());
+//            map.put("分享人的推荐人类型", shareParentTypeStr);
+//            map.put("核销码", yxCouponOrder.getVerifyCode());
+//            map.put("是否删除", yxCouponOrder.getDelFlag() == 0 ? "未删除" : "已删除");
+//            map.put("创建人id", yxCouponOrder.getCreateUserId());
+//            map.put("修改人id", yxCouponOrder.getUpdateUserId());
+//            map.put("更新时间", yxCouponOrder.getUpdateTime());
             list.add(map);
         }
         FileUtil.downloadExcel(list, response);
@@ -523,5 +678,58 @@ public class YxCouponOrderServiceImpl extends BaseServiceImpl<YxCouponOrderMappe
             this.yxCouponOrderDetailService.update(yxCouponOrderDetail, new QueryWrapper<YxCouponOrderDetail>().lambda().eq(YxCouponOrderDetail::getOrderId, yxCouponOrder.getOrderId()));
         }
         return result;
+    }
+
+    /**
+     * 查询导出数据
+     *
+     * @param criteria
+     * @return
+     */
+    @Override
+    public List<YxCouponOrderDto> queryDownload(YxCouponOrderQueryCriteria criteria) {
+        QueryWrapper<YxCouponOrder> queryWrapper = new QueryWrapper<>();
+        queryWrapper.orderByDesc("create_time");
+        if (0 != criteria.getUserRole()) {
+            if (null == criteria.getChildUser() || criteria.getChildUser().size() <= 0) {
+                throw new BadRequestException("未查询到数据");
+            }
+            queryWrapper.lambda().in(YxCouponOrder::getMerId, criteria.getChildUser()).eq(YxCouponOrder::getDelFlag, 0);
+        }
+        if (null != criteria.getOrderStatus()) {
+            if (7 == criteria.getOrderStatus()) {
+                queryWrapper.lambda().eq(YxCouponOrder::getRefundStatus, 1);
+            } else if (1 == criteria.getOrderStatus()) {
+                // 已过期
+                queryWrapper.lambda().eq(YxCouponOrder::getStatus, 1);
+            } else if (8 == criteria.getOrderStatus()) {
+                queryWrapper.lambda().eq(YxCouponOrder::getStatus, criteria.getOrderStatus());
+            } else {
+                queryWrapper.lambda().eq(YxCouponOrder::getStatus, criteria.getOrderStatus()).eq(YxCouponOrder::getRefundStatus, 0);
+            }
+        }
+        if (StringUtils.isNotBlank(criteria.getOrderType()) && StringUtils.isNotBlank(criteria.getValue())) {
+            if ("orderId".equals(criteria.getOrderType())) {
+                queryWrapper.lambda().eq(YxCouponOrder::getOrderId, criteria.getValue());
+            }
+            if ("realName".equals(criteria.getOrderType())) {
+                queryWrapper.lambda().like(YxCouponOrder::getRealName, criteria.getValue());
+            }
+            if ("userPhone".equals(criteria.getOrderType())) {
+                queryWrapper.lambda().like(YxCouponOrder::getUserPhone, criteria.getValue());
+            }
+            if ("merUsername".equals(criteria.getOrderType())) {
+                User user = this.userSysMapper.selectOne(new QueryWrapper<User>().lambda().eq(User::getUsername, criteria.getValue()));
+                if (null == user) {
+                    throw new BadRequestException("未查询到数据");
+                }
+                queryWrapper.lambda().eq(YxCouponOrder::getMerId, user.getId());
+            }
+        }
+        List<YxCouponOrder> yxCouponOrders = this.list(queryWrapper);
+        if (null == yxCouponOrders || yxCouponOrders.size() <= 0) {
+            throw new BadRequestException("未查询到数据");
+        }
+        return convertList(yxCouponOrders);
     }
 }

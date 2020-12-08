@@ -8,14 +8,18 @@ import co.yixiang.common.constant.CommonConstant;
 import co.yixiang.common.util.IpUtils;
 import co.yixiang.common.web.controller.BaseController;
 import co.yixiang.common.web.param.IdParam;
+import co.yixiang.common.web.vo.Paging;
 import co.yixiang.enums.OrderInfoEnum;
 import co.yixiang.exception.BadRequestException;
 import co.yixiang.exception.ErrorRequestException;
 import co.yixiang.logging.aop.log.Log;
 import co.yixiang.modules.coupons.entity.YxCouponOrder;
 import co.yixiang.modules.coupons.entity.YxCoupons;
+import co.yixiang.modules.coupons.entity.YxCouponsPriceConfig;
 import co.yixiang.modules.coupons.service.YxCouponOrderService;
 import co.yixiang.modules.coupons.service.YxCouponsService;
+import co.yixiang.modules.coupons.web.param.YxCouponComfirmRideParam;
+import co.yixiang.modules.coupons.web.param.YxCouponOrderPassengParam;
 import co.yixiang.modules.coupons.web.param.YxCouponOrderQueryParam;
 import co.yixiang.modules.coupons.web.vo.CouponInfoQueryVo;
 import co.yixiang.modules.coupons.web.vo.CouponOrderQueryVo;
@@ -28,9 +32,13 @@ import co.yixiang.modules.order.web.dto.PriceGroupDTO;
 import co.yixiang.modules.order.web.param.OrderParam;
 import co.yixiang.modules.order.web.param.PayParam;
 import co.yixiang.modules.order.web.param.RefundParam;
+import co.yixiang.modules.ship.service.YxShipPassengerService;
+import co.yixiang.modules.ship.web.vo.YxShipPassengerQueryVo;
 import co.yixiang.modules.shop.service.YxSystemStoreService;
+import co.yixiang.modules.user.service.YxUsedContactsService;
 import co.yixiang.modules.user.service.YxUserAddressService;
 import co.yixiang.modules.user.service.YxUserService;
+import co.yixiang.modules.user.web.vo.YxUsedContactsQueryVo;
 import co.yixiang.utils.CommonsUtils;
 import co.yixiang.utils.RedisUtil;
 import co.yixiang.utils.SecurityUtils;
@@ -77,7 +85,11 @@ public class YxCouponOrderController extends BaseController {
 
     @Autowired
     private YxSystemStoreService systemStoreService;
+    @Autowired
+    private YxUsedContactsService yxUsedContactsService;
 
+    @Autowired
+    private YxShipPassengerService yxShipPassengerService;
     /**
      * 通过卡券ID, 获取卡券和卡券所属商户信息
      *
@@ -146,6 +158,16 @@ public class YxCouponOrderController extends BaseController {
         List<YxCoupons> couponsList = yxCouponsService.list(new QueryWrapper<YxCoupons>().eq("id", Integer.valueOf(couponId)).eq("del_flag", 0));
         if (couponsList.size() <= 0) {
             return ApiResult.fail("未查询到卡券信息,请确认!");
+        }
+        // 获取价格配置
+        for (YxCoupons coupons : couponsList) {
+            YxCouponsPriceConfig yxCouponsPriceConfig = yxCouponsService.getPirceConfig(coupons.getId());
+            if (null != yxCouponsPriceConfig) {
+                //佣金
+                coupons.setCommission(yxCouponsPriceConfig.getCommission());
+                //销售价格
+                coupons.setSellingPrice(yxCouponsPriceConfig.getSellingPrice());
+            }
         }
         CouponOrderQueryVo couponOrderQueryVo = new CouponOrderQueryVo();
         List<YxCouponsQueryVo> queryVoList = CommonsUtils.convertBeanList(couponsList, YxCouponsQueryVo.class);
@@ -429,6 +451,7 @@ public class YxCouponOrderController extends BaseController {
     /**
      * 获取卡券订单表
      */
+    @AnonymousAccess
     @PostMapping("/info")
     @ApiOperation(value = "查看卡券订单详情", notes = "卡券订单详情")
     public ApiResult<YxCouponOrderQueryVo> getMyCouponOrder(@Valid @RequestBody IdParam idParam, @RequestHeader(value = "location", required = false) String location) throws Exception {
@@ -468,5 +491,38 @@ public class YxCouponOrderController extends BaseController {
         }
         return ApiResult.ok(true);
     }
+
+
+    /**
+     * 获取卡券订单表
+     */
+    @AnonymousAccess
+    @PostMapping("/getUsedContactsList")
+    @ApiOperation(value = "选择乘客", notes = "选择乘客")
+    public ApiResult<Paging<YxUsedContactsQueryVo>> getUsedContactsByUserId(@Valid @RequestBody YxCouponOrderPassengParam yxCouponOrderQueryParam){
+        Paging<YxUsedContactsQueryVo> yxUsedContactsOrderQueryVo = yxUsedContactsService.getUsedContactsByUserId(yxCouponOrderQueryParam);
+        return ApiResult.ok(yxUsedContactsOrderQueryVo);
+    }
+
+    /**
+     * 确认乘坐
+     * @param param
+     * @return
+     */
+    @PostMapping("/confirmRide")
+    @ApiOperation(value = "确认乘坐", notes = "确认乘坐")
+    public ApiResult<Boolean> confirmRide(@Valid @RequestBody YxCouponComfirmRideParam param){
+        boolean isFlg =yxShipPassengerService.saveComfrieRideInfo(param);
+        return ApiResult.ok(isFlg);
+    }
+
+    @AnonymousAccess
+    @GetMapping("/getBatchPassenger/{orderId}")
+    @ApiOperation(value = "查看乘船人", notes = "查看乘船人")
+    public ApiResult<List<YxShipPassengerQueryVo>> getBatchPassenger(@PathVariable(value = "orderId") Integer orderId){
+        List<YxShipPassengerQueryVo> passengerQueryVoList =yxShipPassengerService.getPassengerByOrderId(orderId);
+        return ApiResult.ok(passengerQueryVoList);
+    }
+
 }
 

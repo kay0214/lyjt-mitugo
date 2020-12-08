@@ -88,4 +88,6 @@ public class YxCouponOrderDetailDto implements Serializable {
 
     private Timestamp updateTime;
 
+    /** 核销状态 0：不可用 1：可用 */
+    private Integer userStatus;
 }

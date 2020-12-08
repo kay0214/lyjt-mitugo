@@ -95,4 +95,16 @@ public class SystemUser extends BaseEntity {
 
     @ApiModelProperty(value = "前端密码")
     private String userpassword ;
+
+    /** 所属店铺id */
+    private Integer storeId;
+
+    /** 是否允许提现（0：允许，1：拒绝） */
+    private Integer withdrawalFlg;
+
+    /** 启用收款码（0：启用，1：禁用） */
+    private Integer useCodeFlg;
+
+    /** 是否是船只用户（0：是，1：否） */
+    private Integer shipUser;
 }

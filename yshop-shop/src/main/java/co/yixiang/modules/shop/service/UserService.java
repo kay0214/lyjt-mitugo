@@ -88,4 +88,6 @@ public interface UserService extends BaseService<User> {
      * @param withdrawalAmount
      */
     void updateWithdrawalAmountSub(int id, BigDecimal withdrawalAmount);
+
+    Integer getRoleIdByUserId(int userId);
 }

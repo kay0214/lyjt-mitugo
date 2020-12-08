@@ -2,6 +2,7 @@
   <div class="app-container">
     <!--工具栏-->
     <div class="head-container">
+      <div class="coupons_flex">
       <div v-if="crud.props.searchToggle">
         <!-- 搜索 -->
         <el-input v-model="query.merUsername" clearable placeholder="商户用户名" style="width: 130px;" class="filter-item" maxlength="42" />
@@ -37,9 +38,14 @@
         <rrOperation :crud="crud" />
       </div>
       <!--如果想在工具栏加入更多按钮，可以使用插槽方式， slot = 'left' or 'right'-->
-      <crudOperation :permission="permission" />
+      <crudOperation :permission="permission" class="flexs" />
+      </div>
       <!--表单组件-->
+      <priceDialog ref="price"/>
+      <commission ref="form6"/>
+      <h5Form ref="h5" />
       <el-dialog :close-on-click-modal="false" :before-close="crud.cancelCU" :visible.sync="crud.status.cu > 0" :title="crud.status.title" width="900px">
+
         <el-form ref="form" :model="form" :rules="rules" size="small" label-width="140px" v-if="crud.status.cu > 0">
           <el-form-item v-show="crud.status.edit === 1" label="卡券id">
             <!-- <el-input v-model="form.id" style="width: 100%;" /> -->
@@ -85,6 +91,83 @@
               />
             </el-select>
           </el-form-item>
+          <!-- coupon_type为4时使用 -->
+          <template v-if="form.couponType === 4">
+            <el-form-item label="船只系列" prop="seriesId">
+              <el-select v-model="form.seriesId" placeholder="请选择" style="width: 650px;"
+              @change="(val)=>{
+                let i= this.shipSeriesTree.filter(function(series){
+                  return new RegExp(series.value, 'i').test(val)
+                })
+                if(i && i.length){
+                  this.shipsTree=i[0].children
+                  this.form.passengersNumLimit=i[0].rideLimit
+                  if(this.form.passengersNum && this.form.passengersNum>this.form.passengersNumLimit){
+                    this.form.passengersNum=this.form.passengersNumLimit
+                  }
+                }else{
+                  this.shipsTree=[]
+                }
+                this.form.shipId=null
+              }">
+                <el-option
+                  v-for="item in shipSeriesTree"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"
+                />
+              </el-select>
+            </el-form-item>
+            <el-form-item label="船只">
+              <el-select v-model="form.shipId" clearable placeholder="请选择" style="width: 650px;">
+                <el-option
+                  v-for="item in shipsTree"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"
+                />
+              </el-select>
+            </el-form-item>
+            <el-form-item label="乘客人数(人)" prop="passengersNum">
+              <el-input-number v-model="form.passengersNum" style="width: 650px;" maxlength="12" :min="0" :max="form.passengersNumLimit"
+                               @change="()=>{$refs.form.validateField('passengersNum')}"/>
+            </el-form-item>
+            <el-form-item label="合同模版" prop="tempId">
+              <el-select v-model="form.tempId" placeholder="请选择" style="width: 650px;">
+                <el-option
+                  v-for="item in tempList"
+                  :key="item.id"
+                  :label="item.tempName"
+                  :value="item.id"
+                />
+              </el-select>
+            </el-form-item>
+            <el-form-item label="保险规则" prop="insuranceRole">
+              <el-radio-group v-model="form.insuranceRole">
+                <el-radio :label="0">无须保险</el-radio>
+                <el-radio :label="1">必须购买</el-radio>
+                <el-radio :label="2">非必须</el-radio>
+              </el-radio-group>
+            </el-form-item>
+            <el-form-item label="有效期" prop="validity">
+              <el-radio-group v-model="form.validity">
+                <el-radio :label="0">不限</el-radio>
+                <el-radio :label="1">
+                  其它
+                  <el-input-number v-show='form.validity' placeholder="请输入" v-model="form.validityDays" :precision="0" :min="1">
+                    <template slot="append">天</template>
+                  </el-input-number>
+                </el-radio>
+              </el-radio-group>
+            </el-form-item>
+            <el-form-item label="在线发票" prop="onlineInvoice">
+              <el-radio-group v-model="form.onlineInvoice">
+                <el-radio :label="1">支持</el-radio>
+                <el-radio :label="0">不支持</el-radio>
+              </el-radio-group>
+            </el-form-item>
+          </template>
+
           <el-form-item label="原价" prop="originalPrice">
             <el-input v-model="form.originalPrice" style="width: 650px;" maxlength="12" />
           </el-form-item>
@@ -96,8 +179,28 @@
             <el-input v-model="form.settlementPrice" style="width: 650px;" @change="setCommission" maxlength="12" />
           </el-form-item>
           <el-form-item label="佣金" prop="commission">
-            <el-input v-model="form.commission" style="width: 650px;" readonly />
+            <el-input v-model="form.commission" style="width: 650px;" />
           </el-form-item>
+          <!-- coupon_type为4时使用 -->
+          <template v-if="form.couponType === 4">
+            <el-form-item label="景区推广价格" >
+              <el-input v-model="form.scenicPrice" style="width: 650px;" maxlength="12" />
+            </el-form-item>
+            <el-form-item label="旅行社价格" >
+              <el-input v-model="form.travelPrice" style="width: 650px;" maxlength="12" />
+            </el-form-item>
+            <el-form-item label="健康确认">
+              <el-checkbox-group v-model="confirmation" @change="(val)=>{
+                if(val && val.length){
+                  this.form.confirmation=val.join(',')
+                }else{
+                  this.form.confirmation=''
+                }
+              }">
+                <el-checkbox v-for="(item,idx) in healthConditions" :label="item" :key="idx"></el-checkbox>
+              </el-checkbox-group>
+            </el-form-item>
+          </template>
           <el-form-item label="每人限购数量" prop="quantityLimit">
             <el-input v-model="form.quantityLimit" style="width: 650px;" maxlength="12" />
           </el-form-item>
@@ -107,11 +210,14 @@
           <el-form-item v-show="false" label="销量">
             <el-input v-model="form.sales" style="width: 650px;" />
           </el-form-item>
-          <el-form-item label="虚拟销量" prop="ficti">
+          <el-form-item v-if="$store.getters.user.userRole===0 || $store.getters.user.username==='admin'" label="虚拟销量" prop="ficti">
             <el-input v-model="form.ficti" style="width: 650px;" maxlength="12" />
           </el-form-item>
           <el-form-item label="核销次数" prop="writeOff">
-            <el-input v-model="form.writeOff" style="width: 650px;" maxlength="2" />
+            <template v-if="form.couponType === 4">
+              <el-input v-model="form.writeOff=1" style="width: 650px;" readonly />
+            </template>
+            <el-input v-else v-model="form.writeOff" style="width: 650px;" maxlength="2" />
           </el-form-item>
           <el-form-item prop="expireDate" label="有效期">
             <el-date-picker
@@ -163,12 +269,16 @@
           <el-form-item label="使用条件" prop="useCondition">
             <el-input v-model="form.useCondition" style="width: 650px;" maxlength="88" />
           </el-form-item>
-          <el-form-item label="排序" prop='sort'>
+          <el-form-item v-if="$store.getters.user.userRole===0 || $store.getters.user.username==='admin'" label="排序" prop='sort'>
             <el-input v-model="form.sort" οnkeyup="if(isNaN(value))execCommand('undo')" onafterpaste="if(isNaN(value))execCommand('undo')" maxlength="6" style="width:650px"/>
           </el-form-item>
           <el-form-item label="图片(750*490)" prop="image">
             <!-- <pic-upload-two v-model="form.pic" /> -->
             <MaterialList v-model="imageArr" style="width: 650px" type="image" :num="1" :width="150" :height="150" @setValue="(urls)=>{form.image = urls.join(',');imageArr=urls;$refs.form.validateField('image')}"/>
+          </el-form-item>
+          <el-form-item label="视频" >
+            <MaterialList v-model="form.sliderVideo" style="width: 650px" type="video" :num="1" :width="150" :height="150"
+                          @setValue='(val)=>{form.sliderVideo=val;form.video=val.join(",")}'/>
           </el-form-item>
           <el-form-item label="轮播图(750*510)" prop="sliderImage">
             <MaterialList
@@ -284,7 +394,7 @@
         <el-table-column v-if="columns.visible('originalPrice')" prop="originalPrice" label="原价" />
         <el-table-column v-if="columns.visible('settlementPrice')" prop="settlementPrice" label="平台结算价" />
         <el-table-column v-if="columns.visible('commission')" prop="commission" label="佣金" />
-        <el-table-column v-if="columns.visible('quantityLimit')" prop="quantityLimit" label="每人限购数量" />
+        <el-table-column v-if="columns.visible('quantityLimit')" width="100px" prop="quantityLimit" label="每人限购数量" />
         <el-table-column v-if="columns.visible('inventory')" prop="inventory" label="库存" />
         <el-table-column v-if="columns.visible('sales')" prop="sales" label="销量" />
         <el-table-column v-if="columns.visible('ficti')" prop="ficti" label="虚拟销量" />
@@ -379,13 +489,26 @@
           </template>
         </el-table-column>
         <!-- <el-table-column v-if="columns.visible('content')" prop="content" label="卡券详情" /> -->
-        <el-table-column v-permission="['admin','yxCoupons:edit','yxCoupons:del']" fixed="right" label="操作" width="120px" align="center">
+        <el-table-column fixed="right" label="操作" width="120px" align="center">
           <template slot-scope="scope">
             <udOperation
               :data="scope.row"
               :permission="permission"
-            />
-
+            ></udOperation>
+            <el-dropdown trigger="click" style="margin-top:10px" placement="bottom">
+              <el-button type="primary" plain size="mini" style="padding-left:10px;padding-right:10px;">
+                更多操作<i class="el-icon-arrow-down el-icon--right"></i>
+              </el-button>
+              <el-dropdown-menu slot="dropdown">
+                <el-dropdown-item v-permission="permission.commission">
+                  <el-button  plain type="primary"  @click="commission(scope.row)" style="margin-top:5px">分佣配置</el-button></el-dropdown-item>
+                <el-dropdown-item v-permission="permission.priceConfig">
+                  <el-button plain @click="price(scope.row)" style="margin-top:5px;margin-left: 0">价格配置</el-button></el-dropdown-item>
+                <el-dropdown-item>
+                  <el-button type="success" plain @click="h5(scope.row)" style="margin-top:5px;word-spacing: 1.75em;">预 览</el-button></el-dropdown-item>
+              </el-dropdown-menu>
+            </el-dropdown>
+<!--            <el-button v-permission="permission.edit" slot="reference" type="danger" size="mini" @click="attr(scope.row)">渠道配置</el-button>-->
           </template>
         </el-table-column>
       </el-table>
@@ -407,15 +530,21 @@ import picUploadTwo from '@/components/pic-upload-two'
 import mulpicUpload from '@/components/mul-pic-upload'
 import editor from '@/views/components/Editor'
 import { parseTime } from '@/utils/index'
-import { Message } from 'element-ui'
 import checkPermission from '@/utils/permission'
 import { sub } from "@/utils/math"
+import priceDialog from './operation/price'
+import h5Form from './operation/h5'
+import commission from './operation/commission'
+import { initData } from '@/api/data'
+import { getContractTemp } from '@/api/yxContractTemplate'
+
 // crud交由presenter持有
 const defaultCrud = CRUD({ title: '卡券', url: 'api/yxCoupons', sort: 'id,desc', crudMethod: { ...crudYxCoupons },optShow: {
       add: true,
       edit: false,
       del: true,
       download: false
+
     }})
 const defaultForm = {
   id: null, couponNum: null, couponName: null, couponType: null, couponCategory: null,
@@ -425,12 +554,15 @@ const defaultForm = {
   expireDateEnd: null, isHot: 0, isShow: 0, outtimeRefund: null, needOrder: null,
   awaysRefund: null, useCondition: null, availableTimeStart: null, availableTimeEnd: null,
   delFlag: null, createUserId: null, updateUserId: null, createTime: null, updateTime: null,
-  content: null, expireDate: null, image: null, sliderImage: null,sort:null, couponInfo:null,}
+  content: null, expireDate: null, image: null, sliderImage: null,
+  sliderVideo:[], video:null,sort:null, couponInfo:null,seriesId:null,shipId:null,tempId:null,passengersNum:null,passengersNumLimit:999999,
+  insuranceRole:0,validity:0,onlineInvoice:0,scenicPrice:null,travelPrice:null,confirmation:null}
 const imageArr = []
 if (defaultForm.image) { imageArr[0] = defaultForm.image }
 export default {
   name: 'YxCoupons',
-  components: { pagination, crudOperation, rrOperation, udOperation, MaterialList, picUploadTwo, mulpicUpload, editor },
+  components: { pagination, crudOperation, rrOperation, udOperation, MaterialList,
+    picUploadTwo, mulpicUpload, editor, priceDialog, commission,h5Form },
   mixins: [presenter(defaultCrud), header(), form(defaultForm), crud()],
   data() {
     return {
@@ -439,19 +571,21 @@ export default {
       imageArr: imageArr,
       sliderImageArr: defaultForm.sliderImage || [],
       selections: {
-        couponType: [{ label: '代金券', value: 1 }, { label: '折扣券', value: 2 }, { label: '满减券', value: 3 }], // 卡券类型
+        couponType: [
+          { label: '代金券', value: 1 },
+          { label: '折扣券', value: 2 },
+          { label: '满减券', value: 3 },
+          {label: '船票券', value: 4}], // 卡券类型
         couponCategory: [] // 卡券分类
       },
       permission: {
         add: ['admin', 'yxCoupons:add'],
         edit: ['admin', 'yxCoupons:edit'],
-        del: ['admin', 'yxCoupons:del']
+        del: ['admin', 'yxCoupons:del'],
+        commission: ['admin', 'yxCoupons:rate'],
+        priceConfig: ['admin', 'yxCouponsPriceConfig:add']
       },
       rules: {
-        // couponNum: [
-        //   { required: true, message: '卡券编号不能为空', trigger: 'blur' }
-        // ],
-
         couponName: [
           { required: true, message: '卡券名称不能为空', trigger: 'blur' }
         ],
@@ -532,7 +666,11 @@ export default {
           }
         ],
         commission: [
-          { required: true, message: '佣金不能为空', trigger: 'change' }
+          { required: true, message: '佣金不能为空', trigger: 'change' },
+          {
+            pattern: /^[0-9]{0,6}([.]{1}[0-9]{0,2}){0,1}$/,  //正则
+            message: '请输入数字--限定6位整数2位小数'
+          }
         ],
         quantityLimit: [
           { required: true, message: '每人限购数量不能为空', trigger: 'blur' },
@@ -622,11 +760,28 @@ export default {
           }, trigger: 'blur' }
         ],
         image: [{ required: true, message: '卡券图片不能为空' }],
-        sliderImage: [{ required: true, message: '卡券轮播图不能为空' }]
+        sliderImage: [{ required: true, message: '卡券轮播图不能为空' }],
+        seriesId: [
+          { required: true, message: '必填项', trigger: 'change' }
+        ],
+        passengersNum: [
+          { required: true, message: '必填项', trigger: 'blur' }
+        ],
+        tempId: [
+          { required: true, message: '必填项', trigger: 'change' }
+        ]
       },
       queryTypeOptions: [
         { key: 'couponName', display_name: '卡券名称' }
-      ]
+      ],
+      shipSeriesTree:[],
+      shipsTree:[],
+      tempList:[],
+      confirmation:[],
+      shipSeries:'',
+      ships:'',
+      healthConditions:['心脏病','高血压','哮喘病','传染病','肌肉麻痹症',
+        '骨质疏松症','精神类疾病','孕妇','严重晕船者']
     }
   },
   computed: {
@@ -635,7 +790,7 @@ export default {
         this.form.outtimeRefund = v ? 1 : 0
       },
       get: function (){
-        return this.form.outtimeRefund === 1 ? true: false;
+        return this.form.outtimeRefund === 1 ;
       }
     },
     needOrder:{
@@ -643,7 +798,7 @@ export default {
         this.form.needOrder = v ? 1: 0
       },
       get: function (){
-        return this.form.needOrder === 1 ? true: false;
+        return this.form.needOrder === 1 ;
       }
     },
     awaysRefund:{
@@ -651,7 +806,7 @@ export default {
         this.form.awaysRefund = v ? 1: 0
       },
       get: function (){
-        return this.form.awaysRefund === 1 ? true: false;
+        return this.form.awaysRefund === 1 ;
       }
     }
   },
@@ -672,6 +827,23 @@ export default {
       this.form.availableTimeEnd = value ? value[1] : ''
       this.form.availableTimeStart = value ? value[0] : ''
     }
+  },
+  created() {
+    this.$nextTick(()=>{
+      let that=this
+      initData('api/yxShipInfo/getShipSeriseTree').then(res=>{
+        if(res && res.options){
+          that.shipSeriesTree=res.options
+        }else{
+          that.shipSeriesTree=[]
+        }
+      })
+      getContractTemp().then(res=>{
+        if(res && res.length){
+          that.tempList=res
+        }
+      })
+    })
   },
   mounted() {
     // 获取卡券分类数据
@@ -700,13 +872,26 @@ export default {
       // 编辑时有效 设置默认 有效期
       this.expireDate=[form.expireDateStart,form.expireDateEnd]
       this.form.expireDate=[form.expireDateStart,form.expireDateEnd]
+        if(form.video){
+          form.sliderVideo=[form.video]
+        }
+        if(form.seriesId){
+          let i= this.shipSeriesTree.filter(function(series){
+            return new RegExp(series.value, 'i').test(form.seriesId)
+          })
+          if(i && i.length){
+            this.shipsTree=i[0].children
+          }else{
+            this.shipsTree=[]
+          }
+        }
+        //  设置默认 可用时段
+        this.availableTime = [form.availableTimeStart,form.availableTimeEnd]
+        this.form.availableTimeEnd = form.availableTimeEnd
+        this.form.availableTimeStart = form.availableTimeStart
       }
-      //  设置默认 可用时段
-      if(form.availableTimeStart){
-        this.availableTime=[form.availableTimeStart,form.availableTimeEnd]
-      }
-      this.form.availableTimeEnd = this.availableTime[1]
-      this.form.availableTimeStart = this.availableTime[0]
+
+
       // 设置默认图片
       form.imageArr = [form.image]
       const formImage = []
@@ -717,6 +902,11 @@ export default {
       if (form.sliderImage) {
         formSliderImageArr = form.sliderImage
         form.sliderImage=form.sliderImage.join(',')
+      }
+      if (form.confirmation && form.confirmation.length) {
+        this.confirmation=form.confirmation.split(',')
+      }else{
+        this.confirmation=[]
       }
       this.imageArr = formImage
       this.sliderImageArr = formSliderImageArr
@@ -802,6 +992,35 @@ export default {
           })
         })
         .catch(() => { })
+    },
+    price(data) {
+      const _this = this.$refs.price
+      _this.form = {
+        id: data.id,
+        sellingPrice:data.sellingPrice,
+        settlementPrice:data.settlementPrice
+      }
+      _this.dialog = true
+      this.$refs.price.getPrices(data.id)
+    },
+    h5(data) {
+      this.$refs.h5.dialog = true
+      this.$refs.h5.id=data.id
+    },
+    commission(data) {
+      const _this = this.$refs.form6
+      _this.form = {
+        id: data.id,
+        customizeType:data.customizeType,
+        yxCustomizeRate:data.yxCustomizeRate?data.yxCustomizeRate:{}
+      }
+      if(data.customizeType===2){
+        Object.assign(_this.form2,data.yxCustomizeRate)
+      }
+      if(data.customizeType===0){
+        _this.change(0)
+      }
+      _this.dialog = true
     }
   }
 }
@@ -809,48 +1028,10 @@ export default {
 </script>
 
 <style scoped>
-  .table-img {
-    display: inline-block;
-    text-align: center;
-    background: #ccc;
-    color: #fff;
-    white-space: nowrap;
-    position: relative;
-    overflow: hidden;
-    vertical-align: middle;
-    width: 32px;
-    height: 32px;
-    line-height: 32px;
-  }
-</style>
-<style scoped>
-
-  .demo-upload{
-    display: block;
-    /*//height: 50px;*/
-    text-align: center;
-    border: 1px solid transparent;
-    border-radius: 4px;
-    overflow: hidden;
-    background: #fff;
-    position: relative;
-    box-shadow: 0 1px 1px rgba(0,0,0,.2);
-    margin-right: 4px;
-  }
   .demo-upload img{
     width: 100%;
     height: 100%;
     display: block;
-  }
-
-  .demo-upload-cover{
-    display: block;
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: rgba(0,0,0,.6);
   }
   .demo-upload:hover .demo-upload-cover{
     display: block;
@@ -861,5 +1042,20 @@ export default {
     cursor: pointer;
     margin: 0 2px;
   }
+.coupons_flex{
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+}
+.flexs{
+  flex: 1;
+}
+.flexs >>> .crud-opts-right{
 
+  margin-bottom: 10px;
+}
+.flexs >>> .crud-opts-left{
+    margin-left: 5px;
+
+    }
 </style>

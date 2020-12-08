@@ -1,5 +1,5 @@
 <template>
-  <div class="app-container">
+  <div class="app-container goods">
     <!--工具栏-->
     <div class="head-container">
       <!-- 搜索 -->
@@ -7,9 +7,36 @@
       <el-select v-model="query.type" clearable placeholder="类型" class="filter-item" style="width: 130px">
         <el-option v-for="item in queryTypeOptions" :key="item.key" :label="item.display_name" :value="item.key" />
       </el-select>
+      <el-select v-model="query.isBest" clearable placeholder="精品推荐"
+                 style="width: 200px;" class="filter-item">
+        <el-option
+          v-for="item in pstatusList"
+          :key="item.value"
+          :label="item.label"
+          :value="item.value">
+        </el-option>
+      </el-select>
+      <el-select v-model="query.isHot" clearable placeholder="热销榜单"
+                 style="width: 200px;" class="filter-item">
+        <el-option
+          v-for="item in pstatusList"
+          :key="item.value"
+          :label="item.label"
+          :value="item.value">
+        </el-option>
+      </el-select>
+<!--      <el-select v-model="query.isShow" clearable placeholder="状态"-->
+<!--                 style="width: 200px;" class="filter-item">-->
+<!--        <el-option-->
+<!--          v-for="item in statusList"-->
+<!--          :key="item.value"-->
+<!--          :label="item.label"-->
+<!--          :value="item.value">-->
+<!--        </el-option>-->
+<!--      </el-select>-->
       <el-button class="filter-item" size="mini" type="success" icon="el-icon-search" @click="toQuery">搜索</el-button>
       <!-- 新增 -->
-      <div style="display: inline-block;margin: 0px 2px;">
+      <div style="display: inline-block;margin: 0 2px;">
         <el-button
          v-permission="permission.edit"
           class="filter-item"
@@ -28,11 +55,11 @@
       </div>
     </div>
     <!--表单组件-->
+    <h5Form ref="h5" />
     <eForm ref="form" :is-add="isAdd" />
     <eAttr ref="form2" :is-attr="isAttr" />
     <comForm ref="form3" :is-add="isAdd" />
-    <killForm ref="form4" :is-add="isAdd" />
-    <bargainForm ref="form5" :is-add="isAdd" />
+    <commission ref="form6"/>
     <!--表格渲染-->
     <el-table v-loading="loading" :data="data" size="small" style="width: 100%;">
       <el-table-column prop="id" label="商品id" />
@@ -46,13 +73,13 @@
       <el-table-column prop="storeCategory.cateName" label="分类名称" />
       <el-table-column prop="price" label="商品价格" />
       <el-table-column prop="sales" label="销量" />
-      <el-table-column prop="stock" label="库存" />   
-      <el-table-column prop="commission" label="佣金" />    
+      <el-table-column prop="stock" label="库存" />
+      <el-table-column prop="commission" label="佣金" />
       <el-table-column prop="isBest" label="精品推荐" >
           <template slot-scope="scope">
             <div @click="changeHotStatus(scope.row.id,scope.row.isBest,hotType.best)">
-              <el-tag v-if="scope.row.isBest == 1">是</el-tag>
-              <el-tag v-else-if="scope.row.isBest == 0" :type=" 'info' ">否</el-tag>
+              <el-tag v-if="scope.row.isBest === 1">是</el-tag>
+              <el-tag v-else-if="scope.row.isBest === 0" :type=" 'info' ">否</el-tag>
               <el-tag v-else></el-tag>
             </div>
           </template>
@@ -60,8 +87,8 @@
       <el-table-column prop="isHot" label="热销榜单" >
           <template slot-scope="scope">
             <div @click="changeHotStatus(scope.row.id,scope.row.isHot,hotType.hot)">
-              <el-tag v-if="scope.row.isHot == 1">是</el-tag>
-              <el-tag v-else-if="scope.row.isHot == 0" :type=" 'info' ">否</el-tag>
+              <el-tag v-if="scope.row.isHot === 1">是</el-tag>
+              <el-tag v-else-if="scope.row.isHot === 0" :type=" 'info' ">否</el-tag>
               <el-tag v-else></el-tag>
             </div>
           </template>
@@ -75,16 +102,71 @@
         </template>
       </el-table-column>
       <el-table-column label="操作" width="205px" align="center">
-        <template slot-scope="scope">         
-          <el-button v-permission="permission.edit" slot="reference" type="danger" size="mini" @click="attr(scope.row)">规格属性</el-button>
-          <el-dropdown v-permission="permission.edit" size="mini" split-button type="primary" trigger="click">
+        <template slot-scope="scope">
+          <el-button v-permission="permission.edit" style="padding:9px 15px" slot="reference" type="danger" size="mini" @click="attr(scope.row)">规格属性</el-button>
+           <el-dropdown trigger="click" style="margin-top:10px " placement="bottom">
+             <el-button type="primary" plain size="small" style="padding-left:10px;padding-right:10px;">
+              操作<i class="el-icon-arrow-down el-icon--right"></i>
+              </el-button>
+                <el-dropdown-menu slot="dropdown">          
+                  <el-dropdown-item >
+                     <!-- <el-button type="success"  size="mini"  @click="h5(scope.row)">预览</el-button>      -->
+                    <el-button
+                      size="mini"
+                      type="success"
+                      style="margin-top:5px;width:100%"
+                      @click="h5(scope.row)"
+                    >预览</el-button>
+                  </el-dropdown-item >
+                  <el-dropdown-item >
+                      <el-button v-permission="permission.commission"  type="primary"  @click="commission(scope.row)" style="margin-top:5px">分佣配置</el-button>
+                  </el-dropdown-item>
+                  <el-dropdown-item >
+                      <el-button
+                        size="mini"
+                        type="primary"
+                        icon="el-icon-edit"
+                        style="margin-top:5px;"
+                        @click="edit(scope.row)"
+                      >编辑</el-button>
+                  </el-dropdown-item>
+                  <el-dropdown-item >
+                      <el-popover
+                        :ref="scope.row.id"
+                        placement="top"
+                        width="180"
+                      >
+                        <p>确定删除本条数据吗？</p>
+                        <div style="text-align: right; margin: 0">
+                          <el-button size="mini" type="text" @click="$refs[scope.row.id].doClose()">取消</el-button>
+                          <el-button :loading="delLoading" type="primary" size="mini" @click="subDelete(scope.row.id)">确定</el-button>
+                        </div>
+                        <el-button slot="reference" type="danger" icon="el-icon-delete" style="margin-top:5px;" size="mini">删除</el-button>
+                      </el-popover>
+                  </el-dropdown-item>
+                </el-dropdown-menu>
+             </el-dropdown>
+          <!-- <el-dropdown v-permission="permission.edit" size="mini" split-button type="primary" trigger="click">
             操作
             <el-dropdown-menu slot="dropdown">
+              <el-dropdown-item>
+                  <el-button type="success"  size="mini"  @click="h5(scope.row)">预览</el-button>     
+                    <el-button
+                  size="mini"
+                  type="success"
+                  style="margin-top:5px;width:100%"
+                  @click="h5(scope.row)"
+                >预览</el-button>
+              </el-dropdown-item>
+              <el-dropdown-item>
+                  <el-button v-permission="permission.commission"  type="primary"  @click="commission(scope.row)" style="margin-top:5px">分佣配置</el-button>
+              </el-dropdown-item>
               <el-dropdown-item>
                 <el-button
                   size="mini"
                   type="primary"
                   icon="el-icon-edit"
+                  style="margin-top:5px;"
                   @click="edit(scope.row)"
                 >编辑</el-button>
               </el-dropdown-item>
@@ -99,39 +181,11 @@
                     <el-button size="mini" type="text" @click="$refs[scope.row.id].doClose()">取消</el-button>
                     <el-button :loading="delLoading" type="primary" size="mini" @click="subDelete(scope.row.id)">确定</el-button>
                   </div>
-                  <el-button slot="reference" type="danger" icon="el-icon-delete" size="mini">删除</el-button>
+                  <el-button slot="reference" type="danger" icon="el-icon-delete" style="margin-top:5px;" size="mini">删除</el-button>
                 </el-popover>
               </el-dropdown-item>
-              <!--<el-dropdown-item>
-                <el-button
-                  size="mini"
-                  type="success"
-                  @click="editC(scope.row)"
-                >促销单品</el-button>
-              </el-dropdown-item>-->
-              <!--<el-dropdown-item>
-                <el-button
-                  size="mini"
-                  type="success"
-                  @click="editC(scope.row)"
-                >开启拼团</el-button>
-              </el-dropdown-item>
-              <el-dropdown-item>
-                <el-button
-                  size="mini"
-                  type="primary"
-                  @click="editD(scope.row)"
-                >开启秒杀</el-button>
-              </el-dropdown-item>
-              <el-dropdown-item>
-                <el-button
-                  size="mini"
-                  type="warning"
-                  @click="editE(scope.row)"
-                >开启砍价</el-button>
-              </el-dropdown-item>-->
             </el-dropdown-menu>
-          </el-dropdown>
+          </el-dropdown> -->
         </template>
       </el-table-column>
     </el-table>
@@ -152,18 +206,19 @@ import checkPermission from '@/utils/permission'
 import initData from '@/mixins/crud'
 import { del, onsale, changeStatus } from '@/api/yxStoreProduct'
 import eForm from './form'
+import h5Form from './h5'
 import eAttr from './attr'
+import commission from './commission'
 import comForm from '@/views/activity/combination/form'
-import killForm from '@/views/activity/seckill/form'
-import bargainForm from '@/views/activity/bargain/form'
 export default {
-  components: { eForm, eAttr, comForm, killForm, bargainForm },
+  components: { eForm, eAttr, comForm, commission,h5Form },
   mixins: [initData],
   data() {
     return {
       permission: {
         edit: ['admin', 'YXSTOREPRODUCT_EDIT'],
         change: ['admin', 'YXSTOREPRODUCT_CHANGE'],
+        commission: ['admin', 'YXSTOREPRODUCT_RATE'],
       },
       delLoading: false,
       visible: false,
@@ -190,7 +245,15 @@ export default {
         { key: 'storeName', display_name: '商品名称' },
         { key: 'merUsername', display_name: '商户用户名' }
       ],
-      isAttr: false
+      isAttr: false,
+      statusList:[
+        {value:0,label:'已下架'},
+        {value:1,label:'已上架'}
+      ],
+      pstatusList:[
+        {value:1,label:'是'},
+        {value:0,label:'否'}
+      ]
     }
   },
   created() {
@@ -273,6 +336,7 @@ export default {
         sliderImage: data.sliderImage,
         imageArr: data.image.split(','),
         sliderImageArr: data.sliderImage.split(','),
+        sliderVideo:data.video!==''?data.video.split(','):[],
         storeName: data.storeName,
         storeInfo: data.storeInfo,
         keyword: data.keyword,
@@ -300,7 +364,6 @@ export default {
         giveIntegral: data.giveIntegral,
         cost: data.cost,
         isSeckill: data.isSeckill,
-        isBargain: data.isBargain,
         isGood: data.isGood,
         ficti: data.ficti,
         browse: data.browse,
@@ -343,74 +406,6 @@ export default {
       }
       _this.dialog = true
     },
-    editD(data) {
-      this.isAdd = false
-      const _this = this.$refs.form4
-      _this.form = {
-        productId: data.id,
-        merId: data.merId,
-        image: data.image,
-        images: data.sliderImage,
-        imageArr: data.image.split(','),
-        sliderImageArr: data.sliderImage.split(','),
-        title: data.storeName,
-        info: data.storeInfo,
-        postage: data.postage,
-        unitName: data.unitName,
-        sort: data.sort,
-        sales: data.sales,
-        stock: data.stock,
-        isShow: data.isShow,
-        status: 1,
-        isHot: data.isHot,
-        description: data.description,
-        isPostage: data.isPostage,
-        people: 0,
-        price: 0.01,
-        effectiveTime: 24,
-        otPrice: data.otPrice,
-        cost: data.cost,
-        num: 1,
-        giveIntegral: 0,
-        isDel: 0,
-        browse: 0
-      }
-      _this.dialog = true
-    },
-    editE(data) {
-      this.isAdd = false
-      const _this = this.$refs.form5
-      _this.form = {
-        productId: data.id,
-        merId: data.merId,
-        image: data.image,
-        images: data.sliderImage,
-        imageArr: data.image.split(','),
-        sliderImageArr: data.sliderImage.split(','),
-        title: data.storeName,
-        info: data.storeInfo,
-        postage: data.postage,
-        unitName: data.unitName,
-        sort: data.sort,
-        sales: data.sales,
-        stock: data.stock,
-        isShow: data.isShow,
-        status: 1,
-        isHot: data.isHot,
-        description: data.description,
-        isPostage: data.isPostage,
-        people: 0,
-        price: 0.01,
-        effectiveTime: 24,
-        otPrice: data.otPrice,
-        cost: data.cost,
-        num: 1,
-        giveIntegral: 0,
-        isDel: 0,
-        browse: 0
-      }
-      _this.dialog = true
-    },
     attr(data) {
       console.log(3333)
       this.isAttr = false
@@ -447,7 +442,6 @@ export default {
         giveIntegral: data.giveIntegral,
         cost: data.cost,
         isSeckill: data.isSeckill,
-        isBargain: data.isBargain,
         isGood: data.isGood,
         ficti: data.ficti,
         browse: data.browse,
@@ -456,6 +450,10 @@ export default {
       }
       _this.dialog = true
       this.$refs.form2.getAttrs(data.id)
+    },
+    h5(data) {
+      this.$refs.h5.dialog = true
+      this.$refs.h5.id=data.id
     },
     changeHotStatus(id,status,type){//设置精品或热销
       let ret=checkPermission(this.permission.change)
@@ -471,8 +469,8 @@ export default {
           changeStatus({
             id,
             changeStatus:status?0:1,
-            changeType:type.value}).then(res => { 
-              if(res){  
+            changeType:type.value}).then(res => {
+              if(res){
                 this.init()
                 this.$notify({
                   title: '设置成功',
@@ -496,11 +494,28 @@ export default {
           })
         })
         .catch(() => { })
+    },
+    commission(data) {
+      const _this = this.$refs.form6
+      _this.form = {
+        id: data.id,
+        customizeType:data.customizeType,
+        yxCustomizeRate:data.yxCustomizeRate?data.yxCustomizeRate:{}
+      }
+      if(data.customizeType===2){
+        Object.assign(_this.form2,data.yxCustomizeRate)
+      }
+      if(data.customizeType===0){
+        _this.change(0)
+      }
+      _this.dialog = true
     }
   }
 }
 </script>
 
 <style scoped>
-
+.goods{
+  padding: 0 !important;
+}
 </style>

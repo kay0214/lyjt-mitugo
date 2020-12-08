@@ -1,25 +1,22 @@
 /**
  * Copyright (C) 2018-2020
  * All rights reserved, Designed By www.yixiang.co
-
  */
 package co.yixiang.modules.shop.service.dto;
 
 import co.yixiang.annotation.Query;
 import lombok.Data;
 
-import java.util.List;
-
 /**
-* @author hupeng
-* @date 2020-05-12
-*/
+ * @author hupeng
+ * @date 2020-05-12
+ */
 @Data
-public class YxStoreOrderQueryCriteria extends BaseCriteria{
+public class YxStoreOrderQueryCriteria extends BaseCriteria {
 
     // 模糊
-    @Query(type = Query.Type.UNIX_TIMESTAMP)
-    private List<String> addTime;
+/*    @Query(type = Query.Type.UNIX_TIMESTAMP)
+    private List<String> addTime;*/
 
 
     // 模糊
@@ -55,13 +52,13 @@ public class YxStoreOrderQueryCriteria extends BaseCriteria{
     @Query
     private Integer bargainId;
 
-    @Query(propName="combinationId",type = Query.Type.NOT_EQUAL)
+    @Query(propName = "combinationId", type = Query.Type.NOT_EQUAL)
     private Integer newCombinationId;
 
-    @Query(propName="seckillId",type = Query.Type.NOT_EQUAL)
+    @Query(propName = "seckillId", type = Query.Type.NOT_EQUAL)
     private Integer newSeckillId;
 
-    @Query(propName="bargainId",type = Query.Type.NOT_EQUAL)
+    @Query(propName = "bargainId", type = Query.Type.NOT_EQUAL)
     private Integer newBargainId;
 
     @Query
@@ -75,4 +72,11 @@ public class YxStoreOrderQueryCriteria extends BaseCriteria{
 
     private Integer merUserId;
 
+    /** 商品名称 */
+    private String storeName;
+
+    @Query
+    private String createTimeStart;
+    @Query
+    private String createTimeEnd;
 }

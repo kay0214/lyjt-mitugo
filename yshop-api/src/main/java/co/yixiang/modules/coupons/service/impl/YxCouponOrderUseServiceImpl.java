@@ -2,6 +2,7 @@ package co.yixiang.modules.coupons.service.impl;
 
 import co.yixiang.common.service.impl.BaseServiceImpl;
 import co.yixiang.common.web.vo.Paging;
+import co.yixiang.constant.ShopConstants;
 import co.yixiang.dozer.service.IGenerator;
 import co.yixiang.modules.couponUse.criteria.YxCouponOrderUseQueryCriteria;
 import co.yixiang.modules.couponUse.dto.YxCouponOrderUseDto;
@@ -14,6 +15,8 @@ import co.yixiang.modules.coupons.mapper.YxCouponsMapper;
 import co.yixiang.modules.coupons.service.YxCouponOrderUseService;
 import co.yixiang.modules.coupons.web.param.YxCouponOrderUseQueryParam;
 import co.yixiang.modules.coupons.web.vo.YxCouponOrderUseQueryVo;
+import co.yixiang.modules.image.entity.YxImageInfo;
+import co.yixiang.modules.image.service.YxImageInfoService;
 import co.yixiang.modules.user.entity.YxUser;
 import co.yixiang.modules.user.service.YxUserService;
 import co.yixiang.utils.DateUtils;
@@ -54,6 +57,8 @@ public class YxCouponOrderUseServiceImpl extends BaseServiceImpl<YxCouponOrderUs
     private YxCouponOrderMapper yxCouponOrderMapper;
     @Autowired
     private YxUserService yxUserService;
+    @Autowired
+    private YxImageInfoService yxImageInfoService;
 
     private final IGenerator generator;
 
@@ -80,7 +85,7 @@ public class YxCouponOrderUseServiceImpl extends BaseServiceImpl<YxCouponOrderUs
 //        PageInfo<YxCouponOrderUse> page = new PageInfo<>(baseMapper.selectList(QueryHelpPlus.getPredicate(YxCouponOrderUse.class, criteria)));
         Page page = setPageParam(criteria, OrderItem.desc("id"));
 
-        IPage<YxCouponOrderUse> ipage = this.page(page, new QueryWrapper<YxCouponOrderUse>().lambda().eq(YxCouponOrderUse::getCreateUserId, criteria.getCreateUserId()));
+        IPage<YxCouponOrderUse> ipage = this.page(page, new QueryWrapper<YxCouponOrderUse>().lambda().eq(YxCouponOrderUse::getStoreId, criteria.getStoreId()));
         if (ipage.getTotal() == 0) {
             Map<String, Object> map = new LinkedHashMap<>(2);
             map.put("content", new ArrayList<>());
@@ -108,6 +113,11 @@ public class YxCouponOrderUseServiceImpl extends BaseServiceImpl<YxCouponOrderUs
                 dto.setThreshold(yxCoupons.getThreshold());
                 dto.setDiscountAmount(yxCoupons.getDiscountAmount());
                 dto.setCouponName(yxCoupons.getCouponName());
+                // 获取卡券缩略图
+                YxImageInfo imageInfo = this.yxImageInfoService.selectOneImg(yxCoupons.getId(), ShopConstants.IMG_TYPE_CARD, ShopConstants.IMG_CATEGORY_PIC);
+                if (null != imageInfo) {
+                    dto.setCouponImage(imageInfo.getImgUrl());
+                }
             }
             dto.setUseTime(DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD_HH_MM, item.getCreateTime()));
             list.add(dto);
@@ -118,5 +128,23 @@ public class YxCouponOrderUseServiceImpl extends BaseServiceImpl<YxCouponOrderUs
         map.put("status", "1");
         map.put("statusDesc", "成功");
         return map;
+    }
+
+    /**
+     * 根据订单号获取最新一条核销记录
+     *
+     * @param couponOrderId
+     * @return
+     */
+    @Override
+    public YxCouponOrderUse getOneByOrderId(String couponOrderId) {
+        List<YxCouponOrderUse> list = this.list(new QueryWrapper<YxCouponOrderUse>().lambda()
+                .eq(YxCouponOrderUse::getDelFlag, 0)
+                .eq(YxCouponOrderUse::getOrderId, couponOrderId)
+                .orderByDesc(YxCouponOrderUse::getCreateTime));
+        if (null != list && list.size() > 0) {
+            return list.get(0);
+        }
+        return null;
     }
 }

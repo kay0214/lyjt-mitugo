@@ -39,7 +39,7 @@ public class YxCoupons implements Serializable {
     private String couponName;
 
 
-    /** 卡券类型;1:代金券, 2:折扣券, 3:满减券 */
+    /** 卡券类型;1:代金券, 2:折扣券, 3:满减券 ，4：船票券*/
     @NotNull
     private Integer couponType;
 
@@ -154,9 +154,6 @@ public class YxCoupons implements Serializable {
 
 
     /** 是否删除（0：未删除，1：已删除） */
-    @NotNull
-    @TableLogic
-    @TableField(fill=FieldFill.INSERT_UPDATE)
     private Integer delFlag;
 
 
@@ -192,6 +189,62 @@ public class YxCoupons implements Serializable {
 
     /** 排序 */
     private Integer sort;
+
+    /** 船只系列id */
+    @NotNull
+    private Integer seriesId;
+
+
+    /** 船只id */
+    @NotNull
+    private Integer shipId;
+
+
+    /** 合同模板id */
+    @NotNull
+    private Integer tempId;
+
+
+    /** 乘客人数 */
+    @NotNull
+    private Integer passengersNum;
+
+
+    /** 合同规则（0：无需保险，1：必须购买，2：非必须） */
+    @NotNull
+    private Integer insuranceRole;
+
+
+    /** 有效期（0：不限，1：其他） */
+    @NotNull
+    private Integer validity;
+
+
+    /** 有效天数（有效期=1时） */
+    @NotNull
+    private Integer validityDays;
+
+
+    /** 在线发票（0：不支持，1：支持） */
+    @NotNull
+    private Integer onlineInvoice;
+
+
+    /** 景区推广价格 */
+    private BigDecimal scenicPrice;
+
+
+    /** 旅行社价格 */
+    private BigDecimal travelPrice;
+
+
+    /** 健康确认(逗号分隔) */
+    private String confirmation;
+
+
+    /** 分佣模式（0：按平台，1：不分佣，2：自定义分佣） */
+//    @NotNull
+    private Integer customizeType;
 
     public void copy(YxCoupons source){
         BeanUtil.copyProperties(source,this, CopyOptions.create().setIgnoreNullValue(true));

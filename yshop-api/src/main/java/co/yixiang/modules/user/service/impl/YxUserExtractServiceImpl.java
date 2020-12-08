@@ -6,8 +6,10 @@ package co.yixiang.modules.user.service.impl;
 import cn.hutool.core.util.StrUtil;
 import co.yixiang.common.service.impl.BaseServiceImpl;
 import co.yixiang.common.web.vo.Paging;
+import co.yixiang.constant.SystemConfigConstants;
 import co.yixiang.exception.ErrorRequestException;
 import co.yixiang.modules.pay.param.PaySeachParam;
+import co.yixiang.modules.shop.service.YxSystemConfigService;
 import co.yixiang.modules.user.entity.YxUser;
 import co.yixiang.modules.user.entity.YxUserExtract;
 import co.yixiang.modules.user.mapper.YxUserExtractMapper;
@@ -50,6 +52,8 @@ public class YxUserExtractServiceImpl extends BaseServiceImpl<YxUserExtractMappe
     YxUserExtractMapper yxUserExtractMapper;
     @Autowired
     YxUserService userService;
+    @Autowired
+    private YxSystemConfigService systemConfigService;
 
     @Value("${yshop.snowflake.datacenterId}")
     private Integer datacenterId;
@@ -74,6 +78,22 @@ public class YxUserExtractServiceImpl extends BaseServiceImpl<YxUserExtractMappe
         if (money.compareTo(BigDecimal.ZERO) <= 0) {
             throw new ErrorRequestException("提现佣金大于0");
         }
+        // 最低提现金额
+        String userMinPrice = this.systemConfigService.getData(SystemConfigConstants.USER_EXTRACT_MIN_PRICE);
+        if (StringUtils.isNotBlank(userMinPrice)) {
+            if (money.compareTo(new BigDecimal(userMinPrice)) < 0) {
+                throw new ErrorRequestException("提现不得少于" + userMinPrice);
+            }
+        }
+        // 实际到账金额
+        BigDecimal truePrice = new BigDecimal(param.getMoney());
+        String userRate = this.systemConfigService.getData(SystemConfigConstants.USER_EXTRACT_RATE);
+        if (StringUtils.isNotBlank(userRate)) {
+            BigDecimal userRateBig = new BigDecimal(userRate);
+            if (userRateBig.compareTo(BigDecimal.ZERO) > 0 && userRateBig.compareTo(new BigDecimal(100)) <= 0) {
+                truePrice = truePrice.subtract(truePrice.multiply(userRateBig.divide(new BigDecimal(100), 2, BigDecimal.ROUND_HALF_UP)));
+            }
+        }
 
         BigDecimal balance = extractPrice.subtract(money);
 
@@ -81,7 +101,7 @@ public class YxUserExtractServiceImpl extends BaseServiceImpl<YxUserExtractMappe
         userExtract.setUid(uid);
         userExtract.setExtractType(StringUtils.isNotBlank(param.getExtractType()) ? param.getExtractType() : "bank");
         userExtract.setExtractPrice(new BigDecimal(param.getMoney()));
-        userExtract.setTruePrice(new BigDecimal(param.getMoney()));
+        userExtract.setTruePrice(truePrice);
         userExtract.setAddTime(OrderUtil.getSecondTimestampTwo());
         userExtract.setBalance(balance);
         userExtract.setStatus(0);
@@ -136,7 +156,7 @@ public class YxUserExtractServiceImpl extends BaseServiceImpl<YxUserExtractMappe
         yxUser.setCnapsCode(param.getCnapsCode());
         this.userService.updateById(yxUser);
 
-       return userExtract.getId();
+        return userExtract.getId();
     }
 
     @Override
@@ -168,7 +188,7 @@ public class YxUserExtractServiceImpl extends BaseServiceImpl<YxUserExtractMappe
      */
     @Override
     public YxUserExtract getConfirmOrder(PaySeachParam param) {
-       log.info("提现信息查询：{}",getById(param.getId()));
+        log.info("提现信息查询：{}", getById(param.getId()));
         QueryWrapper<YxUserExtract> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("id", param.getId())
                 .eq("seq_no", param.getSeqNo())

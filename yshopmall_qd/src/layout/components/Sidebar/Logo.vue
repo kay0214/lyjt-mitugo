@@ -25,7 +25,7 @@ export default {
   },
   data() {
     return {
-      title: '蜜兔GO后台管理',
+      title: '奥帆LIFE后台管理',
       logo: Logo
     }
   }

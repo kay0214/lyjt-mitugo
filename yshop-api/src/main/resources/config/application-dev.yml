@@ -5,7 +5,7 @@ spring:
       type: com.alibaba.druid.pool.DruidDataSource
       #driverClassName: net.sf.log4jdbc.sql.jdbcapi.DriverSpy
       driver-class-name: com.p6spy.engine.spy.P6SpyDriver
-      url: jdbc:p6spy:mysql://39.98.146.255:33306/mitu_test?serverTimezone=Asia/Shanghai&characterEncoding=utf8&useSSL=false
+      url: jdbc:p6spy:mysql://39.98.139.163:33306/mitu?serverTimezone=Asia/Shanghai&characterEncoding=utf8&useSSL=false
       #url: jdbc:log4jdbc:mysql://localhost:3306/yxshop?serverTimezone=Asia/Shanghai&characterEncoding=utf8&useSSL=false
       username: dbwrite
       password: aAR!Q23AUP!ogk$J
@@ -44,15 +44,15 @@ spring:
       ddl-auto: update
   redis:
     #数据库索引
-    database: 0
-    host: 39.98.139.163
+    database: 1
+    host: 10.10.2.221
     port: 6379
-    password: RH06863b3e6
+    password: hyjf@2020
     #连接超时时间
     timeout: 5000
 #配置rocketmq
 rocketmq:
-  nameServer: 39.98.140.134:9876
+  nameServer: 39.100.232.229:9876
   producer:
     group: mitu-dev
     sendMessageTimeout: 300000
@@ -150,6 +150,15 @@ yshop:
     appId: 1607734
     appKey: 81f43a2e-f504-45c4-9b54-2637d59f8190
 
+  #发送邮件配置
+  mailsconfig:
+    port: 465
+    comHost: smtp.qiye.163.com
+    #    以下需修改
+    sendUser: nixiaoling@hyjf.com
+    sendFrom: nixiaoling@hyjf.com
+    sendPassword: kid0717Q!@#
+    sslEnable: true
 
 mybatis-plus:
   check-config-location: true
@@ -193,3 +202,19 @@ jetcache:
       host: ${spring.redis.host}
       port: ${spring.redis.port}
       password: ${spring.redis.password}
+
+#悟空开放平台地址 模拟：http://smlitsm.tsign.cn:8080    正式http://openapi.tsign.cn:8080：
+wukong:
+  url: http://smlitsm.tsign.cn:8080/tgmonitor/rest/app!getAPIInfo2
+  project:
+    id: 4438785109
+    secret: 0c0bd9c66d760866bafe89cce9109ac7
+  cunzheng:
+    url: http://smlcunzheng.tsign.cn:8083/
+  # 生成合同的存放路径
+  path: /esgin/pdf/
+  # 填充模板用个人用户数据
+  template:
+    user:
+     name: 锺强
+     idcard: 140000200011043143

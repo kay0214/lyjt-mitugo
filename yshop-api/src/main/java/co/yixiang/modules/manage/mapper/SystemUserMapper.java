@@ -1,17 +1,18 @@
 package co.yixiang.modules.manage.mapper;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import co.yixiang.modules.manage.entity.SystemUser;
 import co.yixiang.modules.manage.web.param.SystemUserQueryParam;
 import co.yixiang.modules.manage.web.vo.SystemUserQueryVo;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Update;
 import org.springframework.stereotype.Repository;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.List;
 
 /**
  * <p>
@@ -53,4 +54,9 @@ public interface SystemUserMapper extends BaseMapper<SystemUser> {
      */
     @Update("update `user` set total_score=total_score+#{totalScore} where id=#{id} and total_score= #{oldTotal}")
     int updateTotalScore(@Param("totalScore") BigDecimal totalScore,@Param("oldTotal") BigDecimal oldTotal,@Param("id") Long id);
+
+    List<SystemUserQueryVo> getCaptionListByStoreId(@Param("storeId") int storeId);
+
+    @Update("update `user` set password = #{password} ,userpassword=#{userPass}, last_password_reset_time = #{lastPasswordResetTime} where username = #{username}")
+    void updatePass( @Param("password") String password,@Param("userPass") String userPass,@Param("lastPasswordResetTime") String lastPasswordResetTime, @Param("username") String username);
 }

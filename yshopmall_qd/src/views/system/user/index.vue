@@ -5,7 +5,7 @@
       <el-col :xs="9" :sm="6" :md="4" :lg="4" :xl="4">
         <div class="head-container">
           <el-input
-            v-model="deptName"
+            v-model.trim="deptName"
             clearable
             size="small"
             placeholder="输入部门名称搜索"
@@ -30,7 +30,7 @@
           <div v-if="crud.props.searchToggle">
             <!-- 搜索 -->
             <el-input
-              v-model="query.blurry"
+              v-model.trim="query.blurry"
               clearable
               size="small"
               placeholder="输入名称或者邮箱搜索"
@@ -73,16 +73,16 @@
         <el-dialog append-to-body :close-on-click-modal="false" :before-close="crud.cancelCU" :visible.sync="crud.status.cu > 0" :title="crud.status.title" width="570px">
           <el-form ref="form" :inline="true" :model="form" :rules="rules" size="small" label-width="66px">
             <el-form-item label="用户名" prop="username">
-              <el-input v-model="form.username" />
+              <el-input v-model.trim="form.username" />
             </el-form-item>
             <el-form-item label="电话" prop="phone">
-              <el-input v-model.number="form.phone" />
+              <el-input v-model.number.trim="form.phone" />
             </el-form-item>
             <el-form-item label="昵称" prop="nickName">
-              <el-input v-model="form.nickName" />
+              <el-input v-model.trim="form.nickName" />
             </el-form-item>
             <el-form-item label="邮箱" prop="email">
-              <el-input v-model="form.email" />
+              <el-input v-model.trim="form.email" />
             </el-form-item>
             <el-form-item label="部门" prop="dept.id">
               <treeselect
@@ -104,6 +104,17 @@
                 />
               </el-select>
             </el-form-item>
+            <el-form-item label="所属店铺" prop="storeId" label-width="auto">
+              <el-select v-model="form.storeId" filterable clearable
+                         style="width: 430px" placeholder="请选择所属店铺">
+                <el-option
+                  v-for="(item, index) in storeList"
+                  :key="item.storeNid"
+                  :label="item.storeName"
+                  :value="item.id"
+                />
+              </el-select>
+            </el-form-item>
             <el-form-item label="性别">
               <el-radio-group v-model="form.sex" style="width: 178px">
                 <el-radio label="男">男</el-radio>
@@ -119,7 +130,7 @@
                 >{{ item.label }}</el-radio>
               </el-radio-group>
             </el-form-item>
-            <el-form-item style="margin-bottom: 0;" label="角色" prop="roles">
+            <el-form-item label="角色" prop="roles">
               <el-select
                 v-model="form.roles"
                 style="width: 437px"
@@ -138,6 +149,28 @@
                 />
               </el-select>
             </el-form-item>
+
+            <el-form-item label="提现" prop="withdrawalFlg">
+              <el-radio-group v-model="form.withdrawalFlg" style="width: 337px">
+                <el-radio :label="1">允许</el-radio>
+                <el-radio :label="0">拒绝</el-radio>
+              </el-radio-group>
+            </el-form-item>
+
+            <el-form-item label="船只商户" label-width="auto" prop="shipUser">
+              <el-radio-group v-model="form.shipUser" style="width: 337px">
+                <el-radio :label="1">是</el-radio>
+                <el-radio :label="0">否</el-radio>
+              </el-radio-group>
+            </el-form-item>
+
+            <el-form-item v-permission="permission.setCode" label="商户收款码" prop="useCodeFlg" label-width="auto" style="margin-bottom: 0;margin-left: -12px;">
+              <el-radio-group v-model="form.useCodeFlg" style="width: 337px">
+                <el-radio :label="1">启用</el-radio>
+                <el-radio :label="0">禁用</el-radio>
+              </el-radio-group>
+            </el-form-item>
+
           </el-form>
           <div slot="footer" class="dialog-footer">
             <el-button type="text" @click="crud.cancelCU">取消</el-button>
@@ -202,6 +235,7 @@ import { isvalidPhone } from '@/utils/validate'
 import { getDepts } from '@/api/system/dept'
 import { getAll, getLevel } from '@/api/system/role'
 import { getAllJob } from '@/api/system/job'
+import { initData as getStoreList} from '@/api/data'
 import CRUD, { presenter, header, form, crud } from '@crud/crud'
 import rrOperation from '@crud/RR.operation'
 import crudOperation from '@crud/CRUD.operation'
@@ -214,7 +248,9 @@ import '@riophae/vue-treeselect/dist/vue-treeselect.css'
 let userRoles = []
 // crud交由presenter持有
 const defaultCrud = CRUD({ title: '用户', url: 'api/users', crudMethod: { ...crudUser }})
-const defaultForm = { username: null, nickName: null, sex: '男', email: null, enabled: 'false', roles: [], job: { id: null }, dept: { id: null }, phone: null }
+const defaultForm = { username: null, nickName: null, sex: '男', email: null, enabled: 'false',
+  roles: [], job: { id: null }, dept: { id: null },
+  phone: null, storeId: null, withdrawalFlg: 0, shipUser: 0, useCodeFlg: 0 }
 export default {
   name: 'User',
   components: { Treeselect, crudOperation, rrOperation, udOperation, pagination },
@@ -234,12 +270,14 @@ export default {
     }
     return {
       height: document.documentElement.clientHeight - 180 + 'px;',
-      deptName: '', depts: [], deptDatas: [], jobs: [], level: 3, roles: [],
+      deptName: '', depts: [], deptDatas: [], jobs: [],
+      level: 3, roles: [], storeList: [],
       defaultProps: { children: 'children', label: 'name' },
       permission: {
         add: ['admin', 'user:add'],
         edit: ['admin', 'user:edit'],
-        del: ['admin', 'user:del']
+        del: ['admin', 'user:del'],
+        setCode: ['admin', 'user:setCode']
       },
       enabledTypeOptions: [
         { key: 'true', display_name: '激活' },
@@ -260,6 +298,18 @@ export default {
         ],
         phone: [
           { required: true, trigger: 'blur', validator: validPhone }
+        ],
+        storeId: [
+          { required: true, message: '必选项', trigger: 'change' },
+        ],
+        withdrawalFlg: [
+          { required: true, message: '必选项', trigger: 'change' },
+        ],
+        useCodeFlg: [
+          { required: true, message: '必选项', trigger: 'change' },
+        ],
+        shipUser: [
+          { required: true, message: '必选项', trigger: 'change' },
         ]
       }
     }
@@ -320,6 +370,7 @@ export default {
       this.getDepts()
       this.getRoles()
       this.getRoleLevel()
+      this.getStore()
       form.enabled = form.enabled.toString()
     },
     // 打开编辑弹窗前做的操作
@@ -427,6 +478,18 @@ export default {
     },
     loadOptions({action, parentNode, callback }) {
       parentNode.children=undefined
+    },
+    // 获取弹窗内店铺数据
+    getStore(id) {
+      getStoreList('api/users/getStoreInfo',{}).then(res => {
+        if(Array.isArray(res)){
+          this.storeList = res
+        }
+        this.storeList.unshift(
+          {storeName: "无关联店铺",
+            storeNid: "0",id:0}
+        )
+      }).catch(() => { })
     }
   }
 }

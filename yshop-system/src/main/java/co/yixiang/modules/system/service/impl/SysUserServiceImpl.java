@@ -18,6 +18,7 @@ import co.yixiang.modules.system.domain.User;
 import co.yixiang.modules.system.domain.UserAvatar;
 import co.yixiang.modules.system.domain.UsersRoles;
 import co.yixiang.modules.system.service.*;
+import co.yixiang.modules.system.service.dto.RoleSmallDto;
 import co.yixiang.modules.system.service.dto.UserDto;
 import co.yixiang.modules.system.service.dto.UserQueryCriteria;
 import co.yixiang.modules.system.service.mapper.RoleMapper;
@@ -115,15 +116,30 @@ public class SysUserServiceImpl extends BaseServiceImpl<SysUserMapper, User> imp
         for (UserDto user : all) {
             Map<String, Object> map = new LinkedHashMap<>();
             map.put("邮箱", user.getEmail());
-            map.put("状态：1启用、0禁用", user.getEnabled());
-            map.put("密码", user.getPassword());
+            String strStatus = "";
+            if(user.getEnabled()){
+                strStatus = "启用";
+            }else {
+                strStatus = "禁用";
+            }
+            map.put("状态", strStatus);
+//            map.put("状态：1启用、0禁用", user.getEnabled());
+//            map.put("密码", user.getPassword());
             map.put("用户名", user.getUsername());
-            map.put("部门名称", user.getDeptId());
+//            map.put("部门名称", user.getDeptId());
             map.put("手机号码", user.getPhone());
             map.put("创建日期", user.getCreateTime());
             map.put("最后修改密码的日期", user.getLastPasswordResetTime());
             map.put("昵称", user.getNickName());
             map.put("性别", user.getSex());
+            Set<RoleSmallDto> userRole = user.getRoles();
+            List<RoleSmallDto> listRole =new ArrayList(userRole);
+            String roleName = "";
+            if(!CollectionUtils.isEmpty(listRole)){
+                RoleSmallDto role = listRole.get(0);
+                roleName = role.getName();
+            }
+            map.put("角色", roleName);
             list.add(map);
         }
         FileUtil.downloadExcel(list, response);
@@ -157,6 +173,12 @@ public class SysUserServiceImpl extends BaseServiceImpl<SysUserMapper, User> imp
                 user.setChildUser(!CollectionUtils.isEmpty(childUserList) ? childUserList.stream().map(User::getId).collect(Collectors.toList()) : null);
             } else if (roleIdSet.contains(5L)) {
                 user.setUserRole(2);
+                user.setChildUser(Arrays.asList(user.getId()));
+            } else if (roleIdSet.contains(11L)) {
+                user.setUserRole(3);
+                user.setChildUser(Arrays.asList(user.getId()));
+            } else {
+                user.setUserRole(-1);
                 user.setChildUser(Arrays.asList(user.getId()));
             }
         }
@@ -243,6 +265,7 @@ public class SysUserServiceImpl extends BaseServiceImpl<SysUserMapper, User> imp
         Set<Role> set = resources.getRoles();
         boolean isPartner = false;
         boolean isMer = false;
+        boolean isOther = false;
         for (Role roleIds : set) {
             usersRoles.setRoleId(roleIds.getId());
             Role role = this.roleService.getById(roleIds.getId());
@@ -252,6 +275,9 @@ public class SysUserServiceImpl extends BaseServiceImpl<SysUserMapper, User> imp
             if (3 == role.getLevel()) {
                 isMer = true;
             }
+            if (4 == role.getLevel()) {
+                isOther = true;
+            }
         }
         // 根据用户的角色设定用户user表里用户的角色
         resources.setUserRole(0);
@@ -260,6 +286,9 @@ public class SysUserServiceImpl extends BaseServiceImpl<SysUserMapper, User> imp
         }
         if (isPartner) {
             resources.setUserRole(1);
+        }
+        if (isOther) {
+            resources.setUserRole(3);
         }
         resources.setUserpassword(PassWordUtil.getUserPassWord("123456", resources.getUserRole(), resources.getUsername()));
         boolean result = this.save(resources);
@@ -298,6 +327,11 @@ public class SysUserServiceImpl extends BaseServiceImpl<SysUserMapper, User> imp
         resources.setDeptId(1L);
         resources.setJobId(13L);
         resources.setUserpassword(PassWordUtil.getUserPassWord("123456", resources.getUserRole(), resources.getUsername()));
+        // 新增商户无船员角色、默认拒绝提现和生成商户二维码
+        resources.setStoreId(0);
+        resources.setWithdrawalFlg(1);
+        resources.setUseCodeFlg(1);
+        resources.setShipUser(1);
         boolean result = this.save(resources);
 
         usersRoles.setUserId(resources.getId());
@@ -314,7 +348,7 @@ public class SysUserServiceImpl extends BaseServiceImpl<SysUserMapper, User> imp
             yxMerchantsDetail.setAddress("");
             yxMerchantsDetail.setContacts(resources.getMerchantsContact());
             yxMerchantsDetail.setContactMobile(resources.getPhone());
-            yxMerchantsDetail.setMailbox("");
+            yxMerchantsDetail.setMailbox(resources.getEmail());
             // 默认给个0
             yxMerchantsDetail.setMerchantsType(0);
             yxMerchantsDetail.setBankNo("");
@@ -370,6 +404,10 @@ public class SysUserServiceImpl extends BaseServiceImpl<SysUserMapper, User> imp
         user.setPhone(resources.getPhone());
         user.setNickName(resources.getNickName());
         user.setSex(resources.getSex());
+        user.setStoreId(resources.getStoreId());
+        user.setWithdrawalFlg(resources.getWithdrawalFlg());
+        user.setUseCodeFlg(resources.getUseCodeFlg());
+        user.setShipUser(resources.getShipUser());
         boolean result = this.saveOrUpdate(user);
         usersRolesService.lambdaUpdate().eq(UsersRoles::getUserId, resources.getId()).remove();
         UsersRoles usersRoles = new UsersRoles();

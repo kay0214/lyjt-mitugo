@@ -8,6 +8,7 @@ import co.yixiang.enums.BillDetailEnum;
 import co.yixiang.exception.BadRequestException;
 import co.yixiang.logging.aop.log.Log;
 import co.yixiang.modules.activity.domain.YxUserExtract;
+import co.yixiang.modules.activity.service.dto.YxUserExtractSetDto;
 import co.yixiang.modules.shop.domain.YxSystemConfig;
 import co.yixiang.modules.shop.service.UserService;
 import co.yixiang.modules.shop.service.YxSystemConfigService;
@@ -32,6 +33,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.*;
 
 /**
@@ -67,11 +70,32 @@ public class UserBillController {
         return new ResponseEntity(yxUserBillService.queryAll(criteria, pageable), HttpStatus.OK);
     }
 
+    @ApiOperation("资金明细导出数据")
+    @GetMapping(value = "/downloadUserBill")
+    @PreAuthorize("@el.check('yxUserRecharge:download')")
+    public void downloadUserBill(HttpServletResponse response, YxUserBillQueryCriteria criteria) throws IOException {
+        int uid = SecurityUtils.getUserId().intValue();
+        CurrUser currUser = SecurityUtils.getCurrUser();
+        criteria.setUserRole(currUser.getUserRole());
+        criteria.setUid(uid);
+        if (null != currUser.getChildUser()) {
+            criteria.setChildUser(currUser.getChildUser());
+        }
+        yxUserBillService.download(yxUserBillService.queryDownloadUserBill(criteria), response);
+    }
+
     @ApiOperation(value = "平台资金明细")
     @GetMapping(value = "/yxUserBillAll")
     @PreAuthorize("hasAnyRole('admin','YXUSERBILL_ALL','YXUSERBILL_SELECT')")
     public ResponseEntity getYxUserBillAll(YxUserBillQueryCriteria criteria, Pageable pageable) {
         return new ResponseEntity(yxUserBillService.queryAllNew(criteria, pageable), HttpStatus.OK);
+    }
+
+    @ApiOperation("平台资金明细导出数据")
+    @GetMapping(value = "/downloadUserBillAll")
+    @PreAuthorize("@el.check('yxUserRecharge:downloadAll')")
+    public void download(HttpServletResponse response, YxUserBillQueryCriteria criteria) throws IOException {
+        yxUserBillService.download(yxUserBillService.queryUserBillAll(criteria), response);
     }
 
     @ApiOperation(value = "积分明细 废弃")
@@ -180,6 +204,30 @@ public class UserBillController {
         return new ResponseEntity<>(true, HttpStatus.OK);
     }
 
+    /**
+     * 用户提现费率和最低提现金额设置
+     */
+    @Log("修改提现配置")
+    @ApiOperation(value = "修改提现配置")
+    @PostMapping(value = "/updateExtractSet")
+    @PreAuthorize("hasAnyRole('admin','YXUSERBILL_ALL','YXUSERBILL_EXTRACTSET')")
+    public ResponseEntity<Object> updateExtractSet(@RequestBody YxUserExtractSetDto request) throws MQException {
+        this.yxUserBillService.updateExtractSet(request);
+        return new ResponseEntity<>(true, HttpStatus.OK);
+    }
+
+    /**
+     * 用户提现费率和最低提现金额设置
+     */
+    @Log("查询提现配置")
+    @ApiOperation(value = "查询提现配置")
+    @PostMapping(value = "/getExtractSet")
+    @PreAuthorize("hasAnyRole('admin','YXUSERBILL_ALL','YXUSERBILL_EXTRACTGET')")
+    public ResponseEntity<YxUserExtractSetDto> getExtractSet() throws MQException {
+        YxUserExtractSetDto result = this.yxUserBillService.getExtractSet();
+        return new ResponseEntity<>(result, HttpStatus.OK);
+    }
+
 
     /**
      * 查询提现记录的审批记录
@@ -239,5 +287,4 @@ public class UserBillController {
     public ResponseEntity<Object> getPullNewPoint(YxUserBillQueryCriteria criteria, Pageable pageable) {
         return new ResponseEntity(yxUserBillService.getPullNewPoint(criteria, pageable), HttpStatus.OK);
     }
-
 }

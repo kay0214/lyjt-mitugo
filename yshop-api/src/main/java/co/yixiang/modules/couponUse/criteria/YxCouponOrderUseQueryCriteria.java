@@ -20,4 +20,6 @@ public class YxCouponOrderUseQueryCriteria extends QueryParam {
 
     /** 创建人 根据创建人关联店铺 */
     private Integer createUserId;
+
+    private Integer storeId;
 }

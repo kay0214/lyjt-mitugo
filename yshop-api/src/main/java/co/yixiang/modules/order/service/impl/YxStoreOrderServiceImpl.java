@@ -16,6 +16,12 @@ import co.yixiang.constant.SystemConfigConstants;
 import co.yixiang.enums.*;
 import co.yixiang.exception.ErrorRequestException;
 import co.yixiang.modules.activity.service.*;
+import co.yixiang.modules.commission.entity.YxCommissionRate;
+import co.yixiang.modules.commission.entity.YxCustomizeRate;
+import co.yixiang.modules.commission.entity.YxNowRate;
+import co.yixiang.modules.commission.service.YxCommissionRateService;
+import co.yixiang.modules.commission.service.YxCustomizeRateService;
+import co.yixiang.modules.commission.service.YxNowRateService;
 import co.yixiang.modules.manage.service.SystemUserService;
 import co.yixiang.modules.manage.service.YxExpressService;
 import co.yixiang.modules.manage.web.dto.ChartDataDTO;
@@ -176,6 +182,14 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
     private YxStoreProductAttrService productAttrService;
     @Autowired
     private YxUserBillService userBillService;
+    @Autowired
+    private YxNowRateService yxNowRateService;
+    @Autowired
+    private YxCommissionRateService commissionRateService;
+    @Autowired
+    private YxCustomizeRateService yxCustomizeRateService;
+    @Autowired
+    private YxStoreProductAttrValueService productAttrValueService;
 
     @Value("${yshop.snowflake.datacenterId}")
     private Integer datacenterId;
@@ -2025,6 +2039,10 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
             //保存购物车商品信息
             orderCartInfoService.saveCartInfo(storeOrder.getId(), storeStoreCartQueryVo.getCartList());
 
+            // 保存购买时费率
+            List<YxNowRate> nowRates = setNowRate(storeOrder.getOrderId(), redisVoList);
+            yxNowRateService.saveBatch(nowRates);
+
             //购物车状态修改
             QueryWrapper<YxStoreCart> wrapper = new QueryWrapper<>();
             wrapper.in("id", cartIds);
@@ -2050,8 +2068,50 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
         //mqProducer.sendMsg("yshop-topic",storeOrder.getId().toString());
         //log.info("投递延时订单id： [{}]：", storeOrder.getId());
 
-
         return orderList;
+    }
+
+    /**
+     * 下单时保存当前分佣比例
+     *
+     * @param orderId
+     * @param redisVoList
+     * @return
+     */
+    private List<YxNowRate> setNowRate(String orderId, List<YxStoreOrderRedisVo> redisVoList) {
+        List<YxNowRate> list = new ArrayList<>();
+        for (YxStoreOrderRedisVo item : redisVoList) {
+            YxNowRate nowRate = new YxNowRate();
+            Integer cartId = item.getCartId();
+            Integer productId = item.getProductId();
+            // 查询当前产品相关分佣
+            YxStoreProduct yxStoreProduct = this.productService.getById(productId);
+            if (null == yxStoreProduct || 1 == yxStoreProduct.getCustomizeType()) {
+                continue;
+            }
+            switch (yxStoreProduct.getCustomizeType()) {
+                case 0:
+                    YxCommissionRate commissionRate = commissionRateService.getOne(new QueryWrapper<YxCommissionRate>().lambda().eq(YxCommissionRate::getDelFlag, 0));
+                    BeanUtils.copyProperties(commissionRate, nowRate);
+                    break;
+                case 1:
+                    break;
+                case 2:
+                    YxCustomizeRate yxCustomizeRate = yxCustomizeRateService.getCustomizeRateByParam(0, productId);
+                    BeanUtils.copyProperties(yxCustomizeRate, nowRate);
+                    break;
+            }
+            // 类型：0:商品购买 1:本地生活
+            nowRate.setRateType(0);
+            // 关联订单id
+            nowRate.setOrderId(orderId);
+            // 购物车id
+            nowRate.setCartId(cartId);
+            // 商品id
+            nowRate.setProductId(productId);
+            list.add(nowRate);
+        }
+        return list;
     }
 
     /**
@@ -2145,8 +2205,8 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
     @Override
     public WxPayMpOrderResult wxAppPayList(List<String> orderIdList, String payNo, String ip) throws WxPayException {
         List<YxStoreOrderQueryVo> orderInfo = getOrderList(orderIdList, 0);
-        if(CollectionUtils.isEmpty(orderInfo)){
-            log.info("小程序支付时查找订单信息失败！订单号为："+JSONObject.toJSONString(orderIdList));
+        if (CollectionUtils.isEmpty(orderInfo)) {
+            log.info("小程序支付时查找订单信息失败！订单号为：" + JSONObject.toJSONString(orderIdList));
             throw new ErrorRequestException("查找订单信息失败！");
         }
         BigDecimal bigPayPrice = new BigDecimal(0);
@@ -2269,6 +2329,7 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
         if (CollectionUtils.isNotEmpty(redisVoList)) {
             for (YxStoreOrderRedisVo redisVo : redisVoList) {
                 YxStoreCart storeCart = yxStoreCartService.getById(redisVo.getCartId());
+                YxStoreProduct product = productService.getById(redisVo.getProductId());
                 // 记录的原价
                 bigPrice = redisVo.getProductPrice().multiply(new BigDecimal(storeCart.getCartNum()));
 
@@ -2284,6 +2345,18 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
                 // 分佣金额
                 if (pricePayProduct.compareTo(storeCart.getCommission()) < 0) {
                     storeCart.setCommission(pricePayProduct);
+                }else {
+                    //佣金
+                    BigDecimal bigCommission = BigDecimal.ZERO;
+                    if (StringUtils.isNotBlank(storeCart.getProductAttrUnique())) {
+                        QueryWrapper<YxStoreProductAttrValue> queryWrapper = new QueryWrapper<>();
+                        queryWrapper.lambda().eq(YxStoreProductAttrValue::getUnique, storeCart.getProductAttrUnique());
+                        YxStoreProductAttrValue attrValue = productAttrValueService.getOne(queryWrapper);
+                        bigCommission = attrValue.getCommission();
+                    } else {
+                        bigCommission = product.getCommission();
+                    }
+                    storeCart.setCommission(bigCommission);
                 }
                 //实际支付金额
                 storeCart.setPayPrice(pricePayProduct);
@@ -2429,7 +2502,7 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
         List<String> listCartIds = Arrays.asList(storeOrderQueryVo.getCartId().split(","));
         QueryWrapper<YxStoreOrderCartInfo> wrapper = new QueryWrapper<YxStoreOrderCartInfo>();
         wrapper.in("cart_id", listCartIds);
-        wrapper.eq("oid",storeOrderQueryVo.getId());
+        wrapper.eq("oid", storeOrderQueryVo.getId());
         List<YxStoreOrderCartInfo> cartList = orderCartInfoService.list(wrapper);
         if (CollectionUtils.isEmpty(cartList)) {
             return null;
@@ -2478,7 +2551,7 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
         List<String> listCartIds = Arrays.asList(storeOrderQueryVo.getCartId().split(","));
         QueryWrapper<YxStoreOrderCartInfo> wrapper = new QueryWrapper<YxStoreOrderCartInfo>();
         wrapper.in("cart_id", listCartIds);
-        wrapper.eq("oid",storeOrderQueryVo.getId());
+        wrapper.eq("oid", storeOrderQueryVo.getId());
         List<YxStoreOrderCartInfo> cartList = orderCartInfoService.list(wrapper);
         if (CollectionUtils.isEmpty(cartList)) {
             return ApiResult.fail("评价产品信息不存在");

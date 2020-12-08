@@ -2,7 +2,9 @@ package co.yixiang.modules.user.service;
 
 import co.yixiang.common.service.BaseService;
 import co.yixiang.common.web.vo.Paging;
+import co.yixiang.modules.couponUse.dto.ShipUserVO;
 import co.yixiang.modules.manage.entity.SystemUser;
+import co.yixiang.modules.manage.entity.UsersRoles;
 import co.yixiang.modules.order.web.vo.YxStoreOrderQueryVo;
 import co.yixiang.modules.security.rest.param.LoginParam;
 import co.yixiang.modules.user.entity.YxUser;
@@ -128,4 +130,30 @@ public interface YxUserService extends BaseService<YxUser> {
      * @return
      */
     Integer getAllFxUser();
+
+    /**
+     * 获取本商户所有船长
+     * @param storeId
+     * @return
+     */
+    List<ShipUserVO> getAllShipUserByStoreId(int storeId);
+
+    /**
+     * 根据用户id获取角色
+     * @param uid
+     * @return
+     */
+    UsersRoles getUserRolesByUserId(Integer uid);
+
+    SystemUser getSystemUserByParam(Integer uid);
+
+    SystemUser getSystemUserByUserNameNew(String username);
+
+    /**
+     * 修改密码
+     * @param username
+     * @param newPass
+     * @param userPass
+     */
+    void updatePass(String username, String newPass, String userPass);
 }

@@ -5,6 +5,8 @@
  */
 package co.yixiang.modules.shop.service.dto;
 
+import co.yixiang.modules.shop.domain.YxCustomizeRate;
+import co.yixiang.modules.shop.domain.YxStoreCategory;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -129,11 +131,22 @@ public class YxStoreProductDto implements Serializable {
 
     private BigDecimal settlement;
 
-    private YxStoreCategorySmallDto storeCategory;
+    private YxStoreCategory storeCategory;
 
     private YxStoreInfoDto store;
 
     private BigDecimal commission;
 
     private Integer cateFlg;
+
+    /** 分佣模式（0：按平台，1：不分佣，2：自定义分佣） */
+    private Integer customizeType;
+
+    /**
+     * 自定义分佣比例 分佣模式为2时有值
+     */
+    private YxCustomizeRate yxCustomizeRate;
+
+    // 商品短视频url
+    private String video;
 }

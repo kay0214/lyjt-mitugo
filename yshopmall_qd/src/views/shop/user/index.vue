@@ -15,6 +15,15 @@
           :value="item.value"
         />
       </el-select>
+      <el-select v-model="query.userRole" clearable placeholder="用户角色"
+                 style="width: 200px;" class="filter-item">
+        <el-option
+          v-for="item in statusList"
+          :key="item.value"
+          :label="item.label"
+          :value="item.value">
+        </el-option>
+      </el-select>
       <el-button class="filter-item" size="mini" type="success" icon="el-icon-search" @click="toQuery">搜索</el-button>
       <!-- 新增 -->
       <el-button
@@ -44,7 +53,7 @@
       <el-table-column label="用户角色" align="center">
         <template slot-scope="scope">
           <div>
-            <el-tag v-if="scope.row.userRole == 1">分享达人</el-tag>
+            <el-tag v-if="scope.row.userRole == 1" type="success">分享达人</el-tag>
             <el-tag v-else-if="scope.row.userRole == 0">普通会员</el-tag>
             <el-tag v-else></el-tag>
           </div>
@@ -104,7 +113,7 @@
             <el-button slot="reference" type="danger" icon="el-icon-delete" size="mini"/>
           </el-popover>
           -->
-          <br/>
+          
           <el-popover
   placement="left"
   width="260"
@@ -174,7 +183,11 @@ export default {
         ptype: [
           { required: true, message: '必填项', trigger: 'blur' },
         ],
-      }
+      },
+      statusList:[
+        {value:0,label:'普通会员'},
+        {value:1,label:'分享达人'}
+      ]
     }
   },
   created() {
@@ -292,7 +305,7 @@ export default {
       }
       _this.dialog = true
     },
-    modiyfUserCommission(btn,index,uid){      
+    modiyfUserCommission(btn,index,uid){
       let that=this
       this.$refs['formWithdraw'+index].validate(function(ret,obj){
         if(ret){
@@ -300,9 +313,9 @@ export default {
             if(res){
               Notification.success({
               title: '提交成功'
-              })          
-              that.init()   
-              that.$refs['popover'+index].doClose() 
+              })
+              that.init()
+              that.$refs['popover'+index].doClose()
               that.$refs['formWithdraw'+index].resetFields()
             }else{
               Notification.error({

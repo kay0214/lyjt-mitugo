@@ -47,7 +47,7 @@ public interface YxFundsAccountMapper extends BaseMapper<YxFundsAccount> {
      * @param referencePoint
      * @return
      */
-    @Update("update yx_funds_account set price=price+#{fundsBonus},bonus_point= #{bonusPoint},reference_point=#{referencePoint} where id=#{id} ")
+    @Update("update yx_funds_account set price=price+#{fundsBonus},bonus_point= bonus_point+#{bonusPoint},reference_point=reference_point+#{referencePoint} where id=#{id} ")
     int updateFundsAccount(@Param("fundsBonus") BigDecimal fundsBonus, @Param("id") int id, @Param("bonusPoint") BigDecimal bonusPoint, @Param("referencePoint") BigDecimal referencePoint);
 
 }

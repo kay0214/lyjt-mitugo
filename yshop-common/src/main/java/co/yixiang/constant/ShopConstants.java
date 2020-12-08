@@ -148,6 +148,10 @@ public interface ShopConstants {
 	 * 图片类型-商户
 	 */
 	int IMG_TYPE_MERCHANTS=4;
+	/**
+	 * 图片类型-船只
+	 */
+	int IMG_TYPE_SHIPINFO=5;
 
 
 	/*********************图片类别**********************/
@@ -160,6 +164,17 @@ public interface ShopConstants {
 	 * 图片类别-轮播图
 	 */
 	int IMG_CATEGORY_ROTATION1 = 2;
+
+	/**
+	 * 小视频
+	 */
+	int IMG_CATEGORY_VIDEO = 3;
+
+	/**
+	 * 小视频
+	 */
+	int IMG_CATEGORY_REPLY = 4;
+
 	/**
 	 * 图片类别-手持证件照
 	 */
@@ -226,4 +241,12 @@ public interface ShopConstants {
 	 * 产品库存_key+：+id+：+unique
 	 */
 	public static final String SHOP_PRODUCT_STOCK = "shop_product_stock:";
+
+	/**首页文字  */
+	public static final String PAGE_INDEX_TITLE="PAGE_INDEX_TITLE:";
+	public static final String PAGE_INDEX_TITLE_1=PAGE_INDEX_TITLE+"1";
+	public static final String PAGE_INDEX_TITLE_2=PAGE_INDEX_TITLE+"2";
+	public static final String PAGE_INDEX_TITLE_3_1=PAGE_INDEX_TITLE+"3_1";
+	public static final String PAGE_INDEX_TITLE_3_2=PAGE_INDEX_TITLE+"3_2";
+	public static final String PAGE_INDEX_TITLE_3_3=PAGE_INDEX_TITLE+"3_3";
 }

@@ -28,13 +28,14 @@ import co.yixiang.modules.order.service.YxStoreOrderStatusService;
 import co.yixiang.modules.order.web.dto.*;
 import co.yixiang.modules.order.web.param.*;
 import co.yixiang.modules.order.web.vo.YxStoreOrderQueryVo;
-import co.yixiang.modules.shop.entity.YxStoreCart;
 import co.yixiang.modules.shop.entity.YxStoreProduct;
 import co.yixiang.modules.shop.entity.YxStoreProductReply;
 import co.yixiang.modules.shop.service.*;
 import co.yixiang.modules.shop.web.vo.YxStoreCartQueryVo;
 import co.yixiang.modules.shop.web.vo.YxStoreStoreCartQueryVo;
 import co.yixiang.modules.shop.web.vo.YxStoreStoreCartVo;
+import co.yixiang.modules.system.entity.YxRefundReason;
+import co.yixiang.modules.system.service.YxRefundReasonService;
 import co.yixiang.modules.user.entity.YxSystemAttachment;
 import co.yixiang.modules.user.service.YxSystemAttachmentService;
 import co.yixiang.modules.user.service.YxUserAddressService;
@@ -47,6 +48,7 @@ import co.yixiang.utils.SecurityUtils;
 import co.yixiang.utils.StringUtils;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.github.binarywang.wxpay.bean.order.WxPayAppOrderResult;
@@ -99,6 +101,8 @@ public class StoreOrderController extends BaseController {
     private final YxSystemStoreStaffService systemStoreStaffService;
     @Autowired
     private YxStoreProductService yxStoreProductService;
+    @Autowired
+    private YxRefundReasonService yxRefundReasonService;
 
     @Value("${file.path}")
     private String path;
@@ -711,17 +715,28 @@ public class StoreOrderController extends BaseController {
     /**
      * 订单退款理由
      */
-    @GetMapping("/order/refund/reason")
+    @GetMapping("/order/refund/reason/{type}")
     @ApiOperation(value = "订单退款理由", notes = "订单退款理由")
-    public ApiResult<Object> refundReason() {
+    public ApiResult<Object> refundReason(@PathVariable Integer type) {
         ArrayList<String> list = new ArrayList<>();
-        list.add("收货地址填错了");
-        list.add("与描述不符");
-        list.add("信息填错了，重新拍");
-        list.add("收到商品损坏了");
-        list.add("未按预定时间发货");
-        list.add("其它原因");
 
+        List<YxRefundReason> refundList = this.yxRefundReasonService.list(new QueryWrapper<YxRefundReason>().lambda()
+                .eq(YxRefundReason::getDelFlag, 0)
+                .eq(YxRefundReason::getReasonType, type)
+                .orderByAsc(YxRefundReason::getCreateTime));
+        if (null == refundList || refundList.size() <= 0) {
+//            list.add("收货地址填错了");
+//            list.add("与描述不符");
+//            list.add("信息填错了，重新拍");
+//            list.add("收到商品损坏了");
+//            list.add("未按预定时间发货");
+            list.add("其它原因");
+            return ApiResult.ok(list);
+        }
+        // 退货理由
+        for (YxRefundReason item : refundList) {
+            list.add(item.getReason());
+        }
         return ApiResult.ok(list);
     }
 

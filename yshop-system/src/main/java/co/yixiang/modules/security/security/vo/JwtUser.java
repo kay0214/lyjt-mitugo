@@ -60,6 +60,9 @@ public class JwtUser implements UserDetails {
     @JsonIgnore
     private final Date lastPasswordResetDate;
 
+    // 是否是船只用户（0：是，1：否）
+    private final Integer shipUser;
+
     @JsonIgnore
     @Override
     public boolean isAccountNonExpired() {

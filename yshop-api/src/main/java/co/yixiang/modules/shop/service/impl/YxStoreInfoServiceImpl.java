@@ -130,6 +130,9 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
     @Value("${file.localUrl}")
     private String localUrl;
 
+    @Value("${yshop.isProd}")
+    private boolean isProd;
+
 
     @Override
     public YxStoreInfoQueryVo getYxStoreInfoById(Serializable id) {
@@ -390,7 +393,13 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
             return ApiResult.ok(spreadUrl);
         }
 
-        String qrCodeUrl = getCode(fileDir, userType, siteUrl, apiUrl, uid, id);
+        String qrCodeUrl = "";//getCode(fileDir, userType, siteUrl, apiUrl, uid, id);
+        // 测试环境二维码生成走旧逻辑
+        if (isProd) {
+            qrCodeUrl = getCode(fileDir, userType, siteUrl, apiUrl, uid, id);
+        } else {
+            qrCodeUrl = getOldCode(fileDir, userType, siteUrl, apiUrl, uid, id);
+        }
 
         YxStoreInfo yxStoreInfo = yxStoreInfoMapper.selectById(id);
         YxImageInfo yxImageInfo = yxImageInfoService.selectOneImg(id, CommonConstant.IMG_TYPE_STORE, CommonConstant.IMG_CATEGORY_PIC);
@@ -425,10 +434,10 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_DEFAULT);
         String storeName = yxStoreInfo.getStoreName();
-        storeName = storeName.length()>14?storeName.substring(0,13)+"...":storeName;
-        g.setFont(new Font(null,Font.BOLD, 40));
+        storeName = storeName.length() > 14 ? storeName.substring(0, 13) + "..." : storeName;
+        g.setFont(new Font(null, Font.BOLD, 40));
         g.setColor(new Color(29, 29, 29));
-        Font font=new Font("SimHei",Font.BOLD,40);
+        Font font = new Font("SimHei", Font.BOLD, 40);
         FontMetrics fm = g.getFontMetrics(font);
         int textWidth = fm.stringWidth(storeName);
         int widthX = (688 - textWidth) / 2;
@@ -448,10 +457,10 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
         g.drawImage(qrCode.getScaledInstance(228, 228, Image.SCALE_DEFAULT), 76, 847, null);
 
         //二维码字体
-        g.setFont(new Font("SimHei",Font.PLAIN, 30));
+        g.setFont(new Font("SimHei", Font.PLAIN, 30));
         g.setColor(new Color(29, 29, 29));
         g.drawString("扫描或长按小程序码", 331, 926);
-        g.setFont(new Font("SimHei",Font.PLAIN, 30));
+        g.setFont(new Font("SimHei", Font.PLAIN, 30));
         g.setColor(new Color(29, 29, 29));
         g.drawString("查看商品详情", 331, 968);
 
@@ -477,7 +486,47 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
         return ApiResult.ok(spreadUrl);
     }
 
-    public String getCode(String fileDir, String userType, String siteUrl, String apiUrl, int uid, int id){
+    private String getOldCode(String fileDir, String userType, String siteUrl, String apiUrl, int uid, Integer id) {
+        String name = uid + "_" + id + "_store_" + userType + "_product_detail_wap.jpg";
+        String qrCodeUrl;
+        YxSystemAttachment attachmentWap = systemAttachmentService.getInfo(name);
+        if (attachmentWap == null) {
+            QrConfig config = new QrConfig(150, 150);
+            config.setMargin(0);
+            //如果类型是小程序
+            File file = new File(fileDir + name);
+            if (userType.equals(AppFromEnum.ROUNTINE.getValue())) {
+                //小程序地址
+                siteUrl = siteUrl + "/shop/";
+                //生成二维码
+                QrCodeUtil.generate(siteUrl + "?productId=" + id + "&spread=" + uid + "&codeType=" + AppFromEnum.ROUNTINE.getValue(), config, file);
+            } else if (userType.equals(AppFromEnum.APP.getValue())) {
+                //h5地址
+                siteUrl = siteUrl + "/shop/";
+                //生成二维码
+                QrCodeUtil.generate(siteUrl + "?productId=" + id + "&spread=" + uid + "&codeType=" + AppFromEnum.APP.getValue(), config, file);
+            } else {//如果类型是h5
+                //生成二维码
+                QrCodeUtil.generate(siteUrl + "/detail/" + id + "?spread=" + uid, config, file);
+            }
+
+            if (StrUtil.isEmpty(localUrl)) {
+                QiniuContent qiniuContent = qiNiuService.uploadPic(file, qiNiuService.find());
+                systemAttachmentService.attachmentAdd(name, String.valueOf(qiniuContent.getSize()),
+                        qiniuContent.getUrl(), qiniuContent.getUrl(), 2);
+                qrCodeUrl = qiniuContent.getUrl();
+            } else {
+                systemAttachmentService.attachmentAdd(name, String.valueOf(FileUtil.size(file)),
+                        fileDir + name, "qrcode/" + name);
+                qrCodeUrl = apiUrl + "/file/qrcode/" + name;
+            }
+        } else {
+            qrCodeUrl = attachmentWap.getImageType().equals(2) ? attachmentWap.getSattDir() : apiUrl + "/file/" + attachmentWap.getSattDir();
+        }
+        return qrCodeUrl;
+    }
+
+    public String getCode(String fileDir, String userType, String siteUrl, String apiUrl, int uid, int id) {
         String name = uid + "_" + id + "_store_" + userType + "_product_detail_wap.jpg";
         YxSystemAttachment attachmentWap = systemAttachmentService.getInfo(name);
         String qrCodeUrl;
@@ -488,13 +537,11 @@ public class YxStoreInfoServiceImpl extends BaseServiceImpl<YxStoreInfoMapper, Y
             File file = new File(fileDir + name);
             String appId = WxUtils.getAppId();
             String secret = WxUtils.getSecret();
-            String accessToken = WxUtils.getAccessToken(appId,secret);
+            String accessToken = WxUtils.getAccessToken(appId, secret);
             if (userType.equals(AppFromEnum.ROUNTINE.getValue())) {
                 //小程序地址
-                siteUrl = siteUrl + "/shop/";
                 //生成二维码
-                WxUtils.getQrCode(accessToken,fileDir + name,"id=" + id + "&uid=" + uid + "&type=shop");
-              //  QrCodeUtil.generate(siteUrl + "?productId=" + id + "&spread=" + uid + "&codeType=" + AppFromEnum.ROUNTINE.getValue(), config, file);
+                WxUtils.getQrCode(accessToken, fileDir + name, "id=" + id + "&uid=" + uid + "&type=shop");
             } else if (userType.equals(AppFromEnum.APP.getValue())) {
                 //app地址
                 siteUrl = siteUrl + "/shop/";

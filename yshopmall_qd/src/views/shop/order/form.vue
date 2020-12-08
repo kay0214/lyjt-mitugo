@@ -49,7 +49,7 @@ export default {
         deliveryId: [
           { required: true, message: '必填项', trigger: 'blur' },
           {
-            pattern: /^[a-zA-Z0-9]+$/,  
+            pattern: /^[a-zA-Z0-9]+$/,
             message: '请输入数字和英文',
             trigger: 'blur'
           },
@@ -69,7 +69,7 @@ export default {
       this.$refs['form'].validate(ret=>{
         if(!ret){
           return
-        }        
+        }
       this.loading = true
       if (this.isAdd) {
         this.doAdd()
@@ -154,7 +154,6 @@ export default {
         pinkId: '',
         cost: '',
         seckillId: '',
-        bargainId: '',
         verifyCode: '',
         storeId: '',
         shippingType: '',

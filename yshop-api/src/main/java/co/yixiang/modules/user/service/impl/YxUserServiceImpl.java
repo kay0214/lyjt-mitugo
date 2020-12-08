@@ -14,8 +14,11 @@ import co.yixiang.constant.SystemConfigConstants;
 import co.yixiang.enums.AppFromEnum;
 import co.yixiang.exception.BadRequestException;
 import co.yixiang.exception.ErrorRequestException;
+import co.yixiang.modules.couponUse.dto.ShipUserVO;
 import co.yixiang.modules.manage.entity.SystemUser;
+import co.yixiang.modules.manage.entity.UsersRoles;
 import co.yixiang.modules.manage.mapper.SystemUserMapper;
+import co.yixiang.modules.manage.mapper.UsersRolesMapper;
 import co.yixiang.modules.order.service.YxStoreOrderService;
 import co.yixiang.modules.order.web.vo.YxStoreOrderQueryVo;
 import co.yixiang.modules.security.rest.param.LoginParam;
@@ -34,6 +37,7 @@ import co.yixiang.modules.user.web.param.YxUserQueryParam;
 import co.yixiang.modules.user.web.vo.YxUserQueryVo;
 import co.yixiang.mp.config.ShopKeyUtils;
 import co.yixiang.mp.config.WxMpConfiguration;
+import co.yixiang.utils.CommonsUtils;
 import co.yixiang.utils.OrderUtil;
 import co.yixiang.utils.RedisUtil;
 import co.yixiang.utils.StringUtils;
@@ -57,6 +61,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.Serializable;
@@ -110,6 +115,10 @@ public class YxUserServiceImpl extends BaseServiceImpl<YxUserMapper, YxUser> imp
     private WxMaService wxMaService;
     @Autowired
     private YxWechatUserService wechatUserService;
+    @Autowired
+    private UsersRolesMapper usersRolesMapper;
+
+
     @Value("${single.login}")
     private Boolean singleLogin;
     @Value("${yshop.notify.sms.enable}")
@@ -832,6 +841,26 @@ public class YxUserServiceImpl extends BaseServiceImpl<YxUserMapper, YxUser> imp
         return systemUserMapper.selectOne(wrapper);
     }
 
+    @Override
+    public SystemUser getSystemUserByUserNameNew(String username) {
+        QueryWrapper<SystemUser> wrapper = new QueryWrapper<>();
+        wrapper.eq("username", username)
+                .eq("enabled", 1);
+        return systemUserMapper.selectOne(wrapper);
+    }
+
+    /**
+     * 修改密码
+     *
+     * @param username
+     * @param newPass
+     * @param userPass
+     */
+    @Override
+    public void updatePass(String username, String newPass, String userPass) {
+        systemUserMapper.updatePass(passwordEncoder.encode(newPass), userPass, DateUtil.format(new Date(), "yyyy-MM-dd HH:mm:ss"), username);
+    }
+
     /**
      * 提现扣减用户可提现金额
      *
@@ -852,10 +881,41 @@ public class YxUserServiceImpl extends BaseServiceImpl<YxUserMapper, YxUser> imp
     @Override
     public SystemUser getSystemUserById(Integer uid) {
         QueryWrapper<SystemUser> wrapper = new QueryWrapper<>();
-        wrapper.eq("id", uid).eq("merchants_status", 0)
+        /*wrapper.eq("id", uid).eq("merchants_status", 0)
                 .eq("user_role", 2)
+                .eq("enabled", 1);*/
+        wrapper.eq("id", uid)
                 .eq("enabled", 1);
         return systemUserMapper.selectOne(wrapper);
+    }
+
+    @Override
+    public SystemUser getSystemUserByParam(Integer uid) {
+        QueryWrapper<SystemUser> wrapper = new QueryWrapper<>();
+        /*wrapper.eq("id", uid).eq("merchants_status", 0)
+                .eq("user_role", 2)
+                .eq("enabled", 1);*/
+        wrapper.eq("id", uid)
+                .eq("enabled", 1);
+        List<SystemUser> listUser = systemUserMapper.selectList(wrapper);
+        return systemUserMapper.selectOne(wrapper);
+    }
+
+    /**
+     * 根据用户id获取角色
+     *
+     * @param uid
+     * @return
+     */
+    @Override
+    public UsersRoles getUserRolesByUserId(Integer uid) {
+        QueryWrapper<UsersRoles> wrapper = new QueryWrapper<>();
+        wrapper.lambda().eq(UsersRoles::getUserId, uid);
+        List<UsersRoles> usersRolesList = usersRolesMapper.selectList(wrapper);
+        if (!CollectionUtils.isEmpty(usersRolesList)) {
+            return usersRolesList.get(0);
+        }
+        return null;
     }
 
     /**
@@ -917,4 +977,28 @@ public class YxUserServiceImpl extends BaseServiceImpl<YxUserMapper, YxUser> imp
     public Integer getAllFxUser() {
         return yxUserMapper.getAllFxUser();
     }
+
+    /**
+     * 获取本商户所有船长
+     *
+     * @return
+     */
+    @Override
+    public List<ShipUserVO> getAllShipUserByStoreId(int storeId) {
+        List<UsersRoles> usersRoles = this.usersRolesMapper.selectList(new QueryWrapper<UsersRoles>().lambda().eq(UsersRoles::getRoleId, SystemConfigConstants.ROLE_CAPTAIN));
+        if (null == usersRoles || usersRoles.size() <= 0) {
+            return new ArrayList<>();
+        }
+        List<Integer> ids = new ArrayList<>();
+        for (UsersRoles item : usersRoles) {
+            ids.add(item.getUserId().intValue());
+        }
+        List<SystemUser> list = systemUserMapper.selectList(new QueryWrapper<SystemUser>().lambda()
+                .eq(SystemUser::getEnabled, 1)
+                .eq(SystemUser::getStoreId, storeId)
+                .in(SystemUser::getId, ids));
+        return CommonsUtils.convertBeanList(list, ShipUserVO.class);
+    }
+
+
 }

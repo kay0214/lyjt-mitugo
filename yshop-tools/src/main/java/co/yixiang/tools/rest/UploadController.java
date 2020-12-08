@@ -1,7 +1,6 @@
 /**
  * Copyright (C) 2018-2020
  * All rights reserved, Designed By www.yixiang.co
-
  */
 package co.yixiang.tools.rest;
 
@@ -60,10 +59,10 @@ public class UploadController {
                 LocalStorageDto localStorageDTO = localStorageService.create(name, file);
                 if ("".equals(url.toString())) {
                     url = url.append(localUrl + "/file/" + localStorageDTO.getType() + "/" + localStorageDTO.getRealName());
-                    log.info("localUrl:{}",localUrl);
-                    log.info("url:{}",url);
+                    log.info("localUrl:{}", localUrl);
+                    log.info("url:{}", url);
                 } else {
-                    url = url.append(","+localUrl + "/file/" + localStorageDTO.getType() + "/" + localStorageDTO.getRealName());
+                    url = url.append("," + localUrl + "/file/" + localStorageDTO.getType() + "/" + localStorageDTO.getRealName());
                 }
             }
         } else {//走七牛云
@@ -71,8 +70,8 @@ public class UploadController {
                 QiniuContent qiniuContent = qiNiuService.upload(file, qiNiuService.find());
                 if ("".equals(url.toString())) {
                     url = url.append(qiniuContent.getUrl());
-                }else{
-                    url = url.append(","+qiniuContent.getUrl());
+                } else {
+                    url = url.append("," + qiniuContent.getUrl());
                 }
             }
         }
@@ -83,5 +82,15 @@ public class UploadController {
         return new ResponseEntity(map, HttpStatus.CREATED);
     }
 
+    @ApiOperation("上传本地文件")
+    @PostMapping(value = "/createLocalFile")
+    @AnonymousAccess
+    public ResponseEntity<Object> createLocalFile(@RequestParam(defaultValue = "") String name, @RequestParam("file") MultipartFile file) {
+        LocalStorageDto localStorageDTO = localStorageService.create(name, file);
+        Map<String, Object> map = new HashMap<>(2);
+        map.put("errno", 0);
+        map.put("link", localStorageDTO.getPath());
+        return new ResponseEntity(map, HttpStatus.CREATED);
+    }
 
 }

@@ -8,6 +8,7 @@ package co.yixiang.modules.security.security;
 import co.yixiang.modules.security.config.SecurityProperties;
 import co.yixiang.modules.security.security.vo.OnlineUser;
 import co.yixiang.modules.security.service.OnlineUserService;
+import co.yixiang.utils.RedisUtil;
 import co.yixiang.utils.SpringContextHolder;
 import io.jsonwebtoken.ExpiredJwtException;
 import lombok.extern.slf4j.Slf4j;
@@ -39,6 +40,7 @@ public class TokenFilter extends GenericFilterBean {
    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
       throws IOException, ServletException {
       HttpServletRequest httpServletRequest = (HttpServletRequest) servletRequest;
+      log.info("定位打印日志：" + httpServletRequest.getRequestURI());
       String token = resolveToken(httpServletRequest);
       String requestRri = httpServletRequest.getRequestURI();
       // 验证 token 是否存在
@@ -46,6 +48,7 @@ public class TokenFilter extends GenericFilterBean {
       try {
          SecurityProperties properties = SpringContextHolder.getBean(SecurityProperties.class);
          OnlineUserService onlineUserService = SpringContextHolder.getBean(OnlineUserService.class);
+         token = RedisUtil.get(properties.getTokenStartWith() + token);
          onlineUser = onlineUserService.getOne(properties.getOnlineKey() + token);
       } catch (ExpiredJwtException e) {
          log.error(e.getMessage());

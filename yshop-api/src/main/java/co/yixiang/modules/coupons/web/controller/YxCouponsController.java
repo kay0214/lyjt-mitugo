@@ -9,15 +9,29 @@ import co.yixiang.common.web.vo.Paging;
 import co.yixiang.constant.CacheConstant;
 import co.yixiang.constant.LocalLiveConstants;
 import co.yixiang.constant.ShopConstants;
+import co.yixiang.dozer.service.IGenerator;
 import co.yixiang.constant.SystemConfigConstants;
 import co.yixiang.exception.BadRequestException;
 import co.yixiang.modules.commission.entity.YxCommissionRate;
+import co.yixiang.modules.commission.entity.YxCustomizeRate;
 import co.yixiang.modules.commission.service.YxCommissionRateService;
+import co.yixiang.modules.commission.service.YxCustomizeRateService;
+import co.yixiang.modules.contract.service.YxContractTemplateService;
+import co.yixiang.modules.contract.web.vo.YxContractTemplateQueryVo;
+import co.yixiang.modules.coupons.entity.YxCouponsPriceConfig;
+import co.yixiang.modules.coupons.entity.YxCouponsReply;
+import co.yixiang.modules.coupons.service.YxCouponsReplyService;
 import co.yixiang.modules.coupons.service.YxCouponsService;
 import co.yixiang.modules.coupons.web.param.YxCouponsQueryParam;
 import co.yixiang.modules.coupons.web.vo.YxCouponsQueryVo;
 import co.yixiang.modules.image.entity.YxImageInfo;
 import co.yixiang.modules.image.service.YxImageInfoService;
+import co.yixiang.modules.ship.service.YxShipInfoService;
+import co.yixiang.modules.ship.service.YxShipSeriesService;
+import co.yixiang.modules.ship.web.vo.YxShipInfoQueryVo;
+import co.yixiang.modules.shop.entity.YxStoreInfo;
+import co.yixiang.modules.shop.service.YxStoreInfoService;
+import co.yixiang.modules.user.service.YxUserService;
 import co.yixiang.modules.shop.service.YxSystemConfigService;
 import co.yixiang.utils.DateUtils;
 import co.yixiang.utils.StringUtils;
@@ -37,6 +51,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.validation.Valid;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -50,7 +65,7 @@ import java.util.List;
 @Slf4j
 @RestController
 @RequestMapping("/yxCoupons")
-@Api(value = "本地生活, 卡券表 API")
+@Api(value = "本地生活, 卡券表 API", tags = "本地生活:卡券")
 public class YxCouponsController extends BaseController {
 
     @Autowired
@@ -60,6 +75,22 @@ public class YxCouponsController extends BaseController {
     private YxImageInfoService yxImageInfoService;
     @Autowired
     private YxCommissionRateService commissionRateService;
+    @Autowired
+    private YxShipInfoService yxShipInfoService;
+    @Autowired
+    private YxShipSeriesService yxShipSeriesService;
+    @Autowired
+    private YxCustomizeRateService yxCustomizeRateService;
+    @Autowired
+    private YxContractTemplateService yxContractTemplateService;
+    @Autowired
+    private YxCouponsReplyService yxCouponsReplyService;
+    @Autowired
+    private YxUserService yxUserService;
+    @Autowired
+    private YxStoreInfoService yxStoreInfoService;
+    @Autowired
+    private IGenerator generator;
     @Autowired
     private YxSystemConfigService systemConfigService;
 
@@ -71,9 +102,13 @@ public class YxCouponsController extends BaseController {
     @ApiOperation(value = "获取YxCoupons对象详情", notes = "查看本地生活, 卡券表", response = YxCouponsQueryVo.class)
     public ApiResult<YxCouponsQueryVo> getYxCoupons(@Valid @RequestBody IdParam idParam) throws Exception {
         YxCouponsQueryVo yxCouponsQueryVo = yxCouponsService.getYxCouponsById(idParam.getId());
-
         if (null == yxCouponsQueryVo) {
             throw new BadRequestException("未查询到卡券详情");
+        }
+        // 查询店铺所属人id
+        YxStoreInfo yxStoreInfo = this.yxStoreInfoService.getById(yxCouponsQueryVo.getStoreId());
+        if (null != yxStoreInfo) {
+            yxCouponsQueryVo.setMerId(yxStoreInfo.getMerId());
         }
         // 总销量
         yxCouponsQueryVo.setTotalSales(yxCouponsQueryVo.getSales() + yxCouponsQueryVo.getFicti());
@@ -94,26 +129,101 @@ public class YxCouponsController extends BaseController {
             }
             yxCouponsQueryVo.setSliderImage(sliderImages);
         }
+        // 卡券小视频
+        YxImageInfo video = yxImageInfoService.getOne(new QueryWrapper<YxImageInfo>().lambda()
+                .eq(YxImageInfo::getTypeId, idParam.getId())
+                .eq(YxImageInfo::getImgType, ShopConstants.IMG_TYPE_CARD)
+                .eq(YxImageInfo::getImgCategory, ShopConstants.IMG_CATEGORY_VIDEO)
+                .eq(YxImageInfo::getDelFlag, 0));
+        if (null != video) {
+            yxCouponsQueryVo.setVideo(video.getImgUrl());
+        }
+        // 处理评价
+        List<YxCouponsReply> replyList = this.yxCouponsReplyService.list(new QueryWrapper<YxCouponsReply>().lambda()
+                .eq(YxCouponsReply::getCouponId, idParam.getId())
+                .eq(YxCouponsReply::getDelFlag, 0)
+                .orderByDesc(YxCouponsReply::getAddTime));
+        if (null != replyList && replyList.size() > 0) {
+            // 处理订单评价并赋值
+            yxCouponsQueryVo.setReply(this.yxCouponsReplyService.convertCouponsReply(replyList.get(0)));
+            // 评价总数
+            yxCouponsQueryVo.setReplyCount(replyList.size());
+            // 处理好评率
+            Integer goodCount = this.yxCouponsReplyService.count(new QueryWrapper<YxCouponsReply>().lambda()
+                    .eq(YxCouponsReply::getCouponId, idParam.getId())
+                    .eq(YxCouponsReply::getDelFlag, 0)
+                    .gt(YxCouponsReply::getGeneralScore, 3));
+            yxCouponsQueryVo.setGoodRate(new BigDecimal(goodCount).multiply(new BigDecimal(100)).divide(new BigDecimal(replyList.size()), 2, BigDecimal.ROUND_HALF_UP) + "%");
+        }
 
         // 拼接有效期
         String expireDate = DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD, yxCouponsQueryVo.getExpireDateStart()) + " ~ " + DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD, yxCouponsQueryVo.getExpireDateEnd());
         yxCouponsQueryVo.setExpireDate(expireDate);
         yxCouponsQueryVo.setAvailableTime(yxCouponsQueryVo.getAvailableTimeStart() + " ~ " + yxCouponsQueryVo.getAvailableTimeEnd());
-        // 佣金按比例计算
-        YxCommissionRate commissionRate = commissionRateService.getOne(new QueryWrapper<YxCommissionRate>().eq("del_flag", 0));
-        BigDecimal bigCommission = yxCouponsQueryVo.getCommission();
-
-        if (ObjectUtil.isNotNull(commissionRate)) {
-            //佣金= 佣金*分享
-            bigCommission = bigCommission.multiply(commissionRate.getShareRate());
+        // 获取价格配置
+        YxCouponsPriceConfig yxCouponsPriceConfig = yxCouponsService.getPirceConfig(yxCouponsQueryVo.getId());
+        if (null != yxCouponsPriceConfig) {
+            //佣金
+            yxCouponsQueryVo.setCommission(yxCouponsPriceConfig.getCommission());
+            //销售价格
+            yxCouponsQueryVo.setSellingPrice(yxCouponsPriceConfig.getSellingPrice());
         }
-        yxCouponsQueryVo.setCommission(bigCommission);
+        // 佣金按比例计算
+        // 分佣类型 0：按平台，1：不分佣，2：自定义分佣
+        int customType = yxCouponsQueryVo.getCustomizeType();
+        BigDecimal bigCommission = new BigDecimal(0);
+        switch (customType) {
+            case 0:
+                //0：按平台
+                YxCommissionRate commissionRate = commissionRateService.getOne(new QueryWrapper<YxCommissionRate>().eq("del_flag", 0));
+                bigCommission = yxCouponsQueryVo.getCommission();
+
+                if (ObjectUtil.isNotNull(commissionRate)) {
+                    //佣金= 佣金*分享
+                    bigCommission = bigCommission.multiply(commissionRate.getShareRate());
+                }
+                break;
+            case 1:
+                //1：不分佣
+                bigCommission = new BigDecimal(0);
+                break;
+            case 2:
+                //2：自定义分佣
+                YxCustomizeRate yxCustomizeRate = yxCustomizeRateService.getCustomizeRateByParam(1, yxCouponsQueryVo.getId());
+                bigCommission = yxCouponsQueryVo.getCommission();
+
+                if (ObjectUtil.isNotNull(yxCustomizeRate)) {
+                    //佣金= 佣金*分享
+                    bigCommission = bigCommission.multiply(yxCustomizeRate.getShareRate());
+                }
+                break;
+        }
+        yxCouponsQueryVo.setCommission(bigCommission.setScale(2,BigDecimal.ROUND_DOWN));
         // 获取商品关闭状态
         String storeClose = systemConfigService.getData(SystemConfigConstants.STORE_CLOSE_SWITCH);
         if (StringUtils.isNotBlank(storeClose)) {
             yxCouponsQueryVo.setStoreClose(Integer.valueOf(storeClose));
         }
 
+        if (StringUtils.isNotBlank(yxCouponsQueryVo.getConfirmation())) {
+            List<String> stringList = Arrays.asList(yxCouponsQueryVo.getConfirmation().split(","));
+            yxCouponsQueryVo.setConfirmationList(stringList);
+        }
+
+        //船只信息
+        if (4 == yxCouponsQueryVo.getCouponType()) {
+            //船票券
+            YxShipInfoQueryVo shipInfoQueryVo = yxShipInfoService.getYxShipInfoById(yxCouponsQueryVo.getShipId());
+            yxCouponsQueryVo.setShipName(shipInfoQueryVo.getShipName());
+            //船只系列信息
+            yxCouponsQueryVo.setShipSeries(yxShipSeriesService.getYxShipSeriesById(yxCouponsQueryVo.getSeriesId()));
+            //合同信息
+            YxContractTemplateQueryVo templateQueryVo = null;
+            if (0 != yxCouponsQueryVo.getTempId()) {
+                templateQueryVo = yxContractTemplateService.getYxContractTemplateById(yxCouponsQueryVo.getTempId());
+            }
+            yxCouponsQueryVo.setContractTemplateQueryVo(templateQueryVo);
+        }
         return ApiResult.ok(yxCouponsQueryVo);
     }
 

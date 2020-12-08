@@ -239,4 +239,24 @@ public class YxCouponsDto implements Serializable {
 
     /** 核销码 */
     private String verifyCode;
+
+
+    // 船只相关信息------------------------
+    // 最多乘坐
+    private Integer shipMaxUserCount;
+    // 订单人数
+    private Integer shipUserCount;
+    // 未成年人数
+    private Integer shipUnderageCount;
+    // 老年人人数
+    private Integer oldCount;
+    // 健康状况
+    private String shipHealthStatus;
+    // 乘客
+    private List<YxShipPassengerVO> shipPassenger;
+    // 船只系列ID
+    private Integer seriesId;
+    // 船只ID
+    private Integer shipId;
+
 }

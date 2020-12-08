@@ -44,4 +44,12 @@ public interface YxCouponOrderUseService extends BaseService<YxCouponOrderUse> {
      * @return Map<String   ,   Object>
      */
     Map<String, Object> queryAll(YxCouponOrderUseQueryCriteria criteria);
+
+    /**
+     * 根据订单号获取最新一条核销记录
+     *
+     * @param couponOrderId
+     * @return
+     */
+    YxCouponOrderUse getOneByOrderId(String couponOrderId);
 }

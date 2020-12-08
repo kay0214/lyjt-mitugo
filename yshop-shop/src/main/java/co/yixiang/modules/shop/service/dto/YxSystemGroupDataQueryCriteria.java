@@ -18,4 +18,7 @@ public class YxSystemGroupDataQueryCriteria{
     // 精确
     @Query
     private String groupName;
+
+    @Query
+    private Integer status;
 }

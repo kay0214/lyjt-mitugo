@@ -29,25 +29,25 @@ public class RedisKeyInitialization {
     private final RedisTemplate<Object, Object> redisTemplate;
 
     @PostConstruct
-    public void redisKeyInitialization(){
+    public void redisKeyInitialization() {
         try {
-            List<RedisKeyEnum> redisKeyEnums =  Stream.of(RedisKeyEnum.values()).collect(Collectors.toList());
+            List<RedisKeyEnum> redisKeyEnums = Stream.of(RedisKeyEnum.values()).collect(Collectors.toList());
             List<YxSystemConfig> systemConfigs = systemConfigService.list();
             for (RedisKeyEnum redisKeyEnum : redisKeyEnums) {
-                Object redisKey  = redisTemplate.opsForValue().get(redisKeyEnum.getValue());
-                if(redisKey == null){
+                Object redisKey = redisTemplate.opsForValue().get(redisKeyEnum.getValue());
+                if (redisKey == null) {
                     String dbKey = "";
                     for (YxSystemConfig systemConfig : systemConfigs) {
-                        if(systemConfig.getMenuName().equals(redisKeyEnum.getValue())){
+                        if (systemConfig.getMenuName().equals(redisKeyEnum.getValue())) {
                             dbKey = systemConfig.getValue();
                         }
                     }
-                    redisTemplate.opsForValue().set(redisKeyEnum.getValue(),dbKey);
+                    redisTemplate.opsForValue().set(redisKeyEnum.getValue(), dbKey);
                 }
             }
             log.info("---------------redisKey初始化成功---------------");
-        }catch (Exception e){
-            log.error("redisKey初始化失败: {}",e);
+        } catch (Exception e) {
+            log.error("redisKey初始化失败: {}", e);
         }
 
     }

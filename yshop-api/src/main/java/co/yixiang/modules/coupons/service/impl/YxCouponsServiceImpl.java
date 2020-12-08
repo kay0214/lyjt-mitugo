@@ -10,20 +10,29 @@ import co.yixiang.dozer.service.IGenerator;
 import co.yixiang.enums.CommonEnum;
 import co.yixiang.exception.ErrorRequestException;
 import co.yixiang.modules.couponUse.dto.YxCouponsDto;
+import co.yixiang.modules.couponUse.dto.YxShipPassengerVO;
 import co.yixiang.modules.coupons.entity.YxCouponOrder;
 import co.yixiang.modules.coupons.entity.YxCouponOrderDetail;
 import co.yixiang.modules.coupons.entity.YxCoupons;
+import co.yixiang.modules.coupons.entity.YxCouponsPriceConfig;
 import co.yixiang.modules.coupons.mapper.YxCouponsMapper;
 import co.yixiang.modules.coupons.service.YxCouponOrderDetailService;
 import co.yixiang.modules.coupons.service.YxCouponOrderService;
+import co.yixiang.modules.coupons.service.YxCouponsPriceConfigService;
 import co.yixiang.modules.coupons.service.YxCouponsService;
 import co.yixiang.modules.coupons.web.param.YxCouponsQueryParam;
 import co.yixiang.modules.coupons.web.vo.LocalLiveCouponsVo;
 import co.yixiang.modules.coupons.web.vo.YxCouponsQueryVo;
 import co.yixiang.modules.image.entity.YxImageInfo;
 import co.yixiang.modules.image.mapper.YxImageInfoMapper;
+import co.yixiang.modules.manage.entity.SystemUser;
+import co.yixiang.modules.ship.entity.YxShipPassenger;
+import co.yixiang.modules.ship.entity.YxShipSeries;
+import co.yixiang.modules.ship.service.YxShipPassengerService;
+import co.yixiang.modules.ship.service.YxShipSeriesService;
 import co.yixiang.modules.shop.mapping.YxCouponsMap;
 import co.yixiang.utils.Base64Utils;
+import co.yixiang.utils.CommonsUtils;
 import co.yixiang.utils.DateUtils;
 import co.yixiang.utils.StringUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -34,11 +43,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -65,7 +77,17 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
     private YxCouponOrderDetailService yxCouponOrderDetailService;
     @Autowired
     private YxCouponOrderService yxCouponOrderService;
+    @Autowired
+    private YxShipSeriesService yxShipSeriesService;
+    @Autowired
+    private YxShipPassengerService yxShipPassengerService;
+    @Autowired
+    private YxCouponsService yxCouponsService;
+
+
     private final IGenerator generator;
+    @Autowired
+    private YxCouponsPriceConfigService yxCouponsPriceConfigService;
 
     public YxCouponsServiceImpl(IGenerator generator) {
         this.generator = generator;
@@ -179,6 +201,12 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
             if (yxImageInfo != null) {
                 localLiveCouponsVo.setImg(yxImageInfo.getImgUrl());
             }
+            // 获取价格配置
+            YxCouponsPriceConfig yxCouponsPriceConfig = yxCouponsService.getPirceConfig(coupons.getId());
+            if (null != yxCouponsPriceConfig) {
+                //销售价格
+                localLiveCouponsVo.setSellingPrice(yxCouponsPriceConfig.getSellingPrice());
+            }
             localLiveCouponsVoList.add(localLiveCouponsVo);
         }
         return localLiveCouponsVoList;
@@ -188,73 +216,97 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
      * 根据核销码查询卡券信息
      *
      * @param decodeVerifyCode
-     * @param uid
      * @return
      */
     @Override
-    public YxCouponsDto getCouponByVerifyCode(String decodeVerifyCode, int uid) {
+    public YxCouponsDto getCouponByVerifyCode(String decodeVerifyCode, SystemUser user) {
+
+        // 检查优惠券信息
         YxCouponsDto yxCouponsDto = new YxCouponsDto();
+
+        Map<String, Object> checkResult = checkCouponInfo(decodeVerifyCode, user);
+        yxCouponsDto = (YxCouponsDto) checkResult.get("yxCouponsDto");
+
+        if (yxCouponsDto.getStatus().intValue() == 99) {
+            return yxCouponsDto;
+        }
+
+        YxCouponOrderDetail yxCouponOrderDetail = (YxCouponOrderDetail) checkResult.get("yxCouponOrderDetail");
+        YxCouponOrder yxCouponOrder = (YxCouponOrder) checkResult.get("yxCouponOrder");
+        YxCoupons yxCoupons = (YxCoupons) checkResult.get("yxCoupons");
+        if (4 == yxCoupons.getCouponType()) {
+            yxCouponsDto.setStatus(99);
+            yxCouponsDto.setStatusDesc("卡券类型不支持");
+            return yxCouponsDto;
+        }
+
+        // 组装返回参数
+        yxCouponsDto = getYxCouponsDto(yxCouponOrderDetail, yxCouponOrder, yxCoupons);
+
+
+        return yxCouponsDto;
+    }
+
+    // 检查票务信息
+    private Map<String, Object> checkCouponInfo(String decodeVerifyCode, SystemUser user) {
+        Map<String, Object> result = new HashMap<>();
+
+        YxCouponsDto yxCouponsDto = new YxCouponsDto();
+        result.put("yxCouponsDto", yxCouponsDto);
+        yxCouponsDto.setStatus(99);
         String[] decode = decodeVerifyCode.split(",");
         if (decode.length != 2) {
-            yxCouponsDto.setStatus(99);
             yxCouponsDto.setStatusDesc("无效核销码");
-            return yxCouponsDto;
+            return result;
         }
         // 获取核销码
         String verifyCode = decode[0];
         // 获取核销用户的id
         String useUid = decode[1];
         YxCouponOrderDetail yxCouponOrderDetail = this.yxCouponOrderDetailService.getOne(new QueryWrapper<YxCouponOrderDetail>().eq("verify_code", verifyCode));
+        result.put("yxCouponOrderDetail", yxCouponOrderDetail);
+
         if (null == yxCouponOrderDetail) {
-            yxCouponsDto.setStatus(99);
             yxCouponsDto.setStatusDesc("无效卡券");
-            return yxCouponsDto;
+            return result;
+        }
+        if (4 != yxCouponOrderDetail.getStatus() && 5 != yxCouponOrderDetail.getStatus()) {
+            yxCouponsDto.setStatusDesc("该卡券已被核销");
+            return result;
         }
         YxCouponOrder yxCouponOrder = this.yxCouponOrderService.getOne(new QueryWrapper<YxCouponOrder>().eq("order_id", yxCouponOrderDetail.getOrderId()));
+        result.put("yxCouponOrder", yxCouponOrder);
         if (null == yxCouponOrder) {
-            yxCouponsDto.setStatus(99);
             yxCouponsDto.setStatusDesc("无卡券订单信息");
-            return yxCouponsDto;
+            return result;
         }
         if (!useUid.equals(yxCouponOrder.getUid() + "")) {
-            yxCouponsDto.setStatus(99);
             yxCouponsDto.setStatusDesc("卡券所属验证失败");
-            return yxCouponsDto;
+            return result;
         }
         // 查询优惠券信息
         YxCoupons yxCoupons = this.getById(yxCouponOrderDetail.getCouponId());
+        result.put("yxCoupons", yxCoupons);
         if (null == yxCoupons) {
-            yxCouponsDto.setStatus(99);
             yxCouponsDto.setStatusDesc("卡券已失效");
-            return yxCouponsDto;
+            return result;
         }
         // 判断有效期
         LocalDateTime expireDateStart = DateUtils.dateToLocalDate(yxCoupons.getExpireDateStart());
         if (expireDateStart.isAfter(LocalDateTime.now())) {
-            yxCouponsDto.setStatus(99);
             yxCouponsDto.setStatusDesc("未到使用日期");
-            return yxCouponsDto;
+            return result;
         }
         LocalDateTime expireDateEnd = DateUtils.dateToLocalDate(yxCoupons.getExpireDateEnd());
         if (expireDateEnd.isBefore(LocalDateTime.now())) {
-            yxCouponsDto.setStatus(99);
             yxCouponsDto.setStatusDesc("卡券已过期");
-            return yxCouponsDto;
+            return result;
         }
-        // 组装返回参数
-        yxCouponsDto = generator.convert(yxCoupons, YxCouponsDto.class);
-        yxCouponsDto.setOrderId(yxCouponOrder.getOrderId());
-        yxCouponsDto.setUsedCount(yxCouponOrderDetail.getUsedCount());
-        yxCouponsDto.setUseCount(yxCouponOrderDetail.getUseCount());
-        yxCouponsDto.setBuyTime(DateUtils.timestampToStr10(yxCouponOrder.getPayTime(), DateUtils.YYYY_MM_DD_HH_MM_SS));
-        yxCouponsDto.setAvailableTimeStr(yxCoupons.getAvailableTimeStart() + " ~ " + yxCoupons.getAvailableTimeEnd());
-        yxCouponsDto.setExpireDateStr(DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD, yxCoupons.getExpireDateStart()) + " ~ " + DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD, yxCoupons.getExpireDateEnd()));
 
         // 判断是否本商铺发放的卡券
-        if (!yxCoupons.getCreateUserId().equals(uid)) {
-            yxCouponsDto.setStatus(99);
+        if (!yxCoupons.getStoreId().equals(user.getStoreId())) {
             yxCouponsDto.setStatusDesc("非本商户卡券");
-            return yxCouponsDto;
+            return result;
         }
         // 可核销次数已核销次数
         if (yxCouponOrderDetail.getUsedCount() >= yxCouponOrderDetail.getUseCount()) {
@@ -264,19 +316,15 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
         // 判断卡券状态
         switch (yxCouponOrderDetail.getStatus()) {
             case 0:
-                yxCouponsDto.setStatus(99);
                 yxCouponsDto.setStatusDesc("卡券未支付");
                 break;
             case 1:
-                yxCouponsDto.setStatus(99);
                 yxCouponsDto.setStatusDesc("卡券已过期");
                 break;
             case 2:
-                yxCouponsDto.setStatus(99);
                 yxCouponsDto.setStatusDesc("卡券待发放");
                 break;
             case 3:
-                yxCouponsDto.setStatus(99);
                 yxCouponsDto.setStatusDesc("卡券支付失败");
                 break;
             case 4:
@@ -288,42 +336,38 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
                 yxCouponsDto.setStatusDesc("已使用");
                 break;
             case 6:
-                yxCouponsDto.setStatus(99);
                 yxCouponsDto.setStatusDesc("卡券已核销");
                 break;
             case 7:
-                yxCouponsDto.setStatus(99);
                 yxCouponsDto.setStatusDesc("卡券退款中");
                 break;
             case 8:
-                yxCouponsDto.setStatus(99);
                 yxCouponsDto.setStatusDesc("卡券已退款");
                 break;
             case 9:
-                yxCouponsDto.setStatus(99);
                 yxCouponsDto.setStatusDesc("卡券退款驳回");
                 break;
             default:
-                yxCouponsDto.setStatus(99);
                 yxCouponsDto.setStatusDesc("未知状态");
                 break;
         }
-        return yxCouponsDto;
+
+        yxCouponsDto.setStatus(1);
+        return result;
     }
 
     /**
      * 根据订单编号查询卡券信息
      *
      * @param orderId
-     * @param uid
      * @return
      */
     @Override
-    public YxCouponsDto getCouponByOrderId(String orderId, int uid) {
+    public YxCouponsDto getCouponByOrderId(String orderId, SystemUser user) {
         YxCouponsDto yxCouponsDto = new YxCouponsDto();
         YxCouponOrder yxCouponOrder = this.yxCouponOrderService.getOne(new QueryWrapper<YxCouponOrder>().lambda().eq(YxCouponOrder::getOrderId, orderId));
+        yxCouponsDto.setStatus(99);
         if (null == yxCouponOrder) {
-            yxCouponsDto.setStatus(99);
             yxCouponsDto.setStatusDesc("无卡券订单信息");
             return yxCouponsDto;
         }
@@ -331,32 +375,31 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
         // 查询优惠券信息
         YxCoupons yxCoupons = this.getById(yxCouponOrder.getCouponId());
         if (null == yxCoupons) {
-            yxCouponsDto.setStatus(99);
             yxCouponsDto.setStatusDesc("卡券已失效");
+            return yxCouponsDto;
+        }
+        if (4 == yxCoupons.getCouponType()) {
+            yxCouponsDto.setStatusDesc("卡券类型不支持");
             return yxCouponsDto;
         }
         // 判断有效期
         LocalDateTime expireDateStart = DateUtils.dateToLocalDate(yxCoupons.getExpireDateStart());
         if (expireDateStart.isAfter(LocalDateTime.now())) {
-            yxCouponsDto.setStatus(99);
             yxCouponsDto.setStatusDesc("未到使用日期");
             return yxCouponsDto;
         }
         LocalDateTime expireDateEnd = DateUtils.dateToLocalDate(yxCoupons.getExpireDateEnd());
         if (expireDateEnd.isBefore(LocalDateTime.now())) {
-            yxCouponsDto.setStatus(99);
             yxCouponsDto.setStatusDesc("卡券已过期");
             return yxCouponsDto;
         }
         // 判断是否本商铺发放的卡券
-        if (!yxCoupons.getCreateUserId().equals(uid)) {
-            yxCouponsDto.setStatus(99);
+        if (!yxCoupons.getStoreId().equals(user.getStoreId())) {
             yxCouponsDto.setStatusDesc("非本商户卡券");
             return yxCouponsDto;
         }
         // 可核销次数已核销次数
         if (yxCouponOrder.getUsedCount() >= yxCouponOrder.getUseCount()) {
-            yxCouponsDto.setStatus(99);
             yxCouponsDto.setStatusDesc("当前订单已达核销上限");
         }
 
@@ -379,11 +422,9 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
             break;
         }
         if (null == yxCouponOrderDetail) {
-            yxCouponsDto.setStatus(99);
             yxCouponsDto.setStatusDesc("无效订单号");
             return yxCouponsDto;
         }
-
         // 组装返回参数
         yxCouponsDto = generator.convert(yxCoupons, YxCouponsDto.class);
         yxCouponsDto.setVerifyCode(Base64Utils.encode(yxCouponOrderDetail.getVerifyCode() + "," + yxCouponOrderDetail.getUid()));
@@ -406,7 +447,7 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
      */
     @Override
     public void updateAddSales(Integer couponId, Integer sales) {
-        yxCouponsMapper.updateAddSales(couponId,sales);
+        yxCouponsMapper.updateAddSales(couponId, sales);
     }
 
     /**
@@ -417,6 +458,141 @@ public class YxCouponsServiceImpl extends BaseServiceImpl<YxCouponsMapper, YxCou
      */
     @Override
     public void updateMulSales(Integer couponId, Integer sales) {
-        yxCouponsMapper.updateMulSales(couponId,sales);
+        yxCouponsMapper.updateMulSales(couponId, sales);
+    }
+
+    /**
+     * 扫码获取船票订单信息
+     *
+     * @param decodeVerifyCode
+     * @return
+     */
+    @Override
+    public YxCouponsDto getShipCouponInfo(String decodeVerifyCode, SystemUser user) {
+        // 检查优惠券信息
+        YxCouponsDto yxCouponsDto = new YxCouponsDto();
+
+        Map<String, Object> checkResult = checkCouponInfo(decodeVerifyCode, user);
+        yxCouponsDto = (YxCouponsDto) checkResult.get("yxCouponsDto");
+
+        if (yxCouponsDto.getStatus().intValue() == 99) {
+            return yxCouponsDto;
+        }
+
+        YxCouponOrderDetail yxCouponOrderDetail = (YxCouponOrderDetail) checkResult.get("yxCouponOrderDetail");
+        YxCouponOrder yxCouponOrder = (YxCouponOrder) checkResult.get("yxCouponOrder");
+        YxCoupons yxCoupons = (YxCoupons) checkResult.get("yxCoupons");
+
+        if (4 != yxCoupons.getCouponType()) {
+            yxCouponsDto.setStatus(99);
+            yxCouponsDto.setStatusDesc("非船只卡券无法核销");
+            return yxCouponsDto;
+        }
+        // 组装返回参数
+        yxCouponsDto = getYxCouponsDto(yxCouponOrderDetail, yxCouponOrder, yxCoupons);
+
+        // 查询船只系列
+        YxShipSeries shipSeries = yxShipSeriesService.getById(yxCoupons.getSeriesId());
+        if (shipSeries == null) {
+            yxCouponsDto.setStatus(99);
+            yxCouponsDto.setStatusDesc("查询船只系列错误");
+            return yxCouponsDto;
+        }
+        // 最多乘坐
+        yxCouponsDto.setShipMaxUserCount(shipSeries.getRideLimit());
+        List<YxShipPassenger> couponUsers = yxShipPassengerService.list(new QueryWrapper<YxShipPassenger>().lambda()
+                .eq(YxShipPassenger::getCouponOrderId, yxCouponOrder.getId())
+                .and(batchNo -> batchNo.isNull(YxShipPassenger::getBatchNo).or().eq(YxShipPassenger::getBatchNo, "")));
+        List<YxShipPassengerVO> users = new ArrayList<>();
+        if (couponUsers == null || couponUsers.size() == 0) {
+            yxCouponsDto.setStatus(99);
+            yxCouponsDto.setStatusDesc("未选择乘坐人");
+            return yxCouponsDto;
+        }
+        int underageCount = 0;
+        int oldCount = 0;
+        for (YxShipPassenger item : couponUsers) {
+            if (item.getIsAdult().intValue() == 0) {
+                underageCount++;
+            } else if (item.getIsAdult().intValue() == 2) {
+                oldCount++;
+            }
+            YxShipPassengerVO resultVo = CommonsUtils.convertBean(item, YxShipPassengerVO.class);
+//            resultVo.setIdCard(CardNumUtil.idEncrypt(item.getIdCard()));
+//            resultVo.setPhone(CardNumUtil.mobileEncrypt(item.getPhone()));
+//            resultVo.setPassengerName(CardNumUtil.nameEncrypt(item.getPassengerName()));
+            // 扫码核销的时候数据不做脱敏处理
+            resultVo.setIdCard(item.getIdCard());
+            resultVo.setPhone(item.getPhone());
+            resultVo.setPassengerName(item.getPassengerName());
+            // 0:未成年 1:成年人 2：老年人
+            resultVo.setAgeArea("");
+            if (resultVo.getIsAdult().intValue() == 0) {
+                resultVo.setAgeArea("未成年");
+            } else if (resultVo.getIsAdult().intValue() == 2) {
+                resultVo.setAgeArea("老年人");
+            }
+            users.add(resultVo);
+        }
+        // 查询卡券缩略图
+        YxImageInfo yxImageInfo = this.yxImageInfoMapper.selectOne(new QueryWrapper<YxImageInfo>().lambda()
+                .eq(YxImageInfo::getDelFlag, 0)
+                .eq(YxImageInfo::getImgType, ShopConstants.IMG_TYPE_CARD)
+                .eq(YxImageInfo::getImgCategory, ShopConstants.IMG_CATEGORY_PIC)
+                .eq(YxImageInfo::getTypeId, yxCoupons.getId()));
+        if (null != yxImageInfo) {
+            yxCouponsDto.setImage(yxImageInfo.getImgUrl());
+        }
+        // 订单人数
+        yxCouponsDto.setShipUserCount(couponUsers.size());
+        // 未成年人数
+        yxCouponsDto.setShipUnderageCount(underageCount);
+        // 老年人人数
+        yxCouponsDto.setOldCount(oldCount);
+        // 健康状况
+        yxCouponsDto.setShipHealthStatus("健康");
+        // 乘客
+        yxCouponsDto.setShipPassenger(users);
+        // 系列ID
+        yxCouponsDto.setSeriesId(yxCoupons.getSeriesId());
+        // 船只ID
+        yxCouponsDto.setShipId(yxCoupons.getShipId());
+        yxCouponsDto.setStatus(1);
+        return yxCouponsDto;
+    }
+
+    private YxCouponsDto getYxCouponsDto(YxCouponOrderDetail yxCouponOrderDetail, YxCouponOrder yxCouponOrder, YxCoupons yxCoupons) {
+        YxCouponsDto yxCouponsDto = new YxCouponsDto();
+        yxCouponsDto = generator.convert(yxCoupons, YxCouponsDto.class);
+        yxCouponsDto.setOrderId(yxCouponOrder.getOrderId());
+        yxCouponsDto.setUsedCount(yxCouponOrderDetail.getUsedCount());
+        yxCouponsDto.setUseCount(yxCouponOrderDetail.getUseCount());
+        yxCouponsDto.setBuyTime(DateUtils.timestampToStr10(yxCouponOrder.getPayTime(), DateUtils.YYYY_MM_DD_HH_MM_SS));
+        yxCouponsDto.setAvailableTimeStr(yxCoupons.getAvailableTimeStart() + " ~ " + yxCoupons.getAvailableTimeEnd());
+        yxCouponsDto.setExpireDateStr(DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD, yxCoupons.getExpireDateStart()) + " ~ " + DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD, yxCoupons.getExpireDateEnd()));
+        yxCouponsDto.setStatus(1);
+        return yxCouponsDto;
+    }
+
+    /**
+     * 获取卡券的价格配置（当前日期符合）
+     *
+     * @param couponId
+     * @return
+     */
+    @Override
+    public YxCouponsPriceConfig getPirceConfig(int couponId) {
+        QueryWrapper<YxCouponsPriceConfig> queryWrapper = new QueryWrapper<>();
+        int nowDate = Integer.parseInt(DateUtils.getDateMMDD());
+        queryWrapper.lambda()
+                .eq(YxCouponsPriceConfig::getCouponId, couponId)
+                .eq(YxCouponsPriceConfig::getDelFlag, 0)
+                .le(YxCouponsPriceConfig::getStartDate, nowDate)
+                .ge(YxCouponsPriceConfig::getEndDate, nowDate).orderByDesc(YxCouponsPriceConfig::getId);
+        List<YxCouponsPriceConfig> couponsPriceConfigList = yxCouponsPriceConfigService.list(queryWrapper);
+        if (!CollectionUtils.isEmpty(couponsPriceConfigList)) {
+            return couponsPriceConfigList.get(0);
+        }
+        return null;
     }
 }

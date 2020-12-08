@@ -5,7 +5,6 @@ package co.yixiang.modules.user.web.controller;
 
 import co.yixiang.common.api.ApiResult;
 import co.yixiang.common.web.controller.BaseController;
-import co.yixiang.logging.aop.log.Log;
 import co.yixiang.modules.user.service.YxSystemUserLevelService;
 import co.yixiang.modules.user.service.YxSystemUserTaskService;
 import co.yixiang.modules.user.service.YxUserLevelService;
@@ -38,41 +37,40 @@ public class UserLevelController extends BaseController {
     private final YxSystemUserTaskService systemUserTaskService;
 
     /**
-    * 会员等级列表
-    */
+     * 会员等级列表
+     */
     @GetMapping("/user/level/grade")
-    @ApiOperation(value = "会员等级列表",notes = "会员等级列表")
-    public ApiResult<Object> getLevelInfo(){
+    @ApiOperation(value = "会员等级列表", notes = "会员等级列表")
+    public ApiResult<Object> getLevelInfo() {
         int uid = SecurityUtils.getUserId().intValue();
-        return ApiResult.ok(systemUserLevelService.getLevelInfo(uid,true));
+        return ApiResult.ok(systemUserLevelService.getLevelInfo(uid, true));
     }
 
     /**
      * 获取等级任务
      */
     @GetMapping("/user/level/task/{id}")
-    @ApiOperation(value = "获取等级任务",notes = "获取等级任务")
-    public ApiResult<Object> getTask(@PathVariable Integer id){
+    @ApiOperation(value = "获取等级任务", notes = "获取等级任务")
+    public ApiResult<Object> getTask(@PathVariable Integer id) {
         int uid = SecurityUtils.getUserId().intValue();
-        return ApiResult.ok(systemUserTaskService.getTaskList(id,uid,null));
+        return ApiResult.ok(systemUserTaskService.getTaskList(id, uid, null));
     }
 
     /**
      * 检测用户是否可以成为会员
      */
     @GetMapping("/user/level/detection")
-    @ApiOperation(value = "检测用户是否可以成为会员",notes = "检测用户是否可以成为会员")
-    public ApiResult<Object> detection(){
+    @ApiOperation(value = "检测用户是否可以成为会员", notes = "检测用户是否可以成为会员")
+    public ApiResult<Object> detection() {
         int uid = SecurityUtils.getUserId().intValue();
         boolean res = userLevelService.setLevelComplete(uid);
-        if(res){
+        if (res) {
             return ApiResult.ok("升级成功!");
-        }else{
+        } else {
             return ApiResult.fail("还不符合升级条件哦!");
         }
 
     }
-
 
 
 }

@@ -30,7 +30,7 @@ public class CodeGenerator {
     private static final String PASSWORD = "aAR!Q23AUP!ogk$J";
     private static final String DRIVER_NAME = "com.mysql.cj.jdbc.Driver";
 
-    private static final String DRIVER_URL = "jdbc:mysql://39.98.146.255:33306/mitu_test?autoReconnect=true&useUnicode=true&characterEncoding=utf8&serverTimezone=GMT%2B8";
+    private static final String DRIVER_URL = "jdbc:mysql://39.98.139.163:33306/mitu?autoReconnect=true&useUnicode=true&characterEncoding=utf8&serverTimezone=GMT%2B8";
 
     private static final String PARENT_PACKAGE = "co.yixiang";
     private static final String SUPER_ENTITY = PARENT_PACKAGE + ".common.entity.BaseEntity";
@@ -46,11 +46,11 @@ public class CodeGenerator {
 
     // ############################ 配置部分 start ############################
     // 模块名称
-    private static final String MODULE_NAME = "offpay";
+    private static final String MODULE_NAME = "manage";
     // 作者
-    private static final String AUTHOR = "sss";
+    private static final String AUTHOR = "lsy";
     // 生成的表名称
-    private static final String TABLE_NAME = "yx_off_pay_order";    // 主键数据库列名称
+    private static final String TABLE_NAME = "user_avatar";    // 主键数据库列名称
     private static final String PK_ID_COLUMN_NAME = "id";
     // 代码生成策略 true：All/false:SIMPLE
     private static final boolean GENERATOR_STRATEGY = true;

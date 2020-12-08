@@ -5,6 +5,7 @@
 package co.yixiang.utils;
 
 import cn.hutool.core.date.DateTime;
+import co.yixiang.exception.ErrorRequestException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
 
@@ -12,7 +13,11 @@ import java.lang.management.ManagementFactory;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.*;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Calendar;
 import java.util.Date;
 
 /**
@@ -24,6 +29,8 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
     public static String YYYY_MM = "yyyy-MM";
 
     public static String YYYY_MM_DD = "yyyy-MM-dd";
+
+    public static String MMDD = "MMdd";
 
     public static String YYYYMMDDHHMMSS = "yyyyMMddHHmmss";
 
@@ -53,6 +60,15 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
      */
     public static String getDate() {
         return dateTimeNow(YYYY_MM_DD);
+    }
+
+    /**
+     * 获取当前日期, 默认格式为yyyy-MM-dd
+     *
+     * @return String
+     */
+    public static String getDateMMDD() {
+        return dateTimeNow(MMDD);
     }
 
     public static final String getTime() {
@@ -144,6 +160,7 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
 
     /**
      * String(yyyy-MM-dd HH:mm:ss)转10位时间戳
+     *
      * @param dateStr
      * @return
      */
@@ -168,7 +185,18 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
     }
 
     /**
+     * Date转timestamp
+     *
+     * @param date
+     * @return
+     */
+    public static int dateToTimeStamp(Date date) {
+        return (int) (date.getTime() / 1000);
+    }
+
+    /**
      * Date转LocalDateTime
+     *
      * @param date
      * @return
      */
@@ -206,13 +234,14 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
         if (timestamp == null || timestamp == 0) {
             return "";
         }
-        Long time = Long.valueOf(timestamp);
+        Long time = Long.valueOf(timestamp) * 1000;
         DateTime now = new DateTime(time);
         return now.toString(YYYY_MM_DD_HH_MM_SS);
     }
 
     /**
      * 日期增加Minutes分钟
+     *
      * @author liusy
      * @date 2019/9/23 18:36
      */
@@ -222,6 +251,7 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
 
     /**
      * 日期减少Minutes分钟
+     *
      * @author liusy
      * @date 2019/9/23 18:36
      */
@@ -231,6 +261,7 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
 
     /**
      * 日期增加Seconds秒
+     *
      * @author liusy
      * @date 2019/9/23 18:36
      */
@@ -240,6 +271,7 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
 
     /**
      * 日期增加Seconds秒
+     *
      * @author liusy
      * @date 2019/9/23 18:36
      */
@@ -249,6 +281,7 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
 
     /**
      * 日期增加days天
+     *
      * @author zhangyk
      * @date 2019/9/23 18:36
      */
@@ -258,6 +291,7 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
 
     /**
      * 日期减少days天
+     *
      * @author zhangyk
      * @date 2019/9/23 18:36
      */
@@ -267,6 +301,7 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
 
     /**
      * 日期增加mouths月
+     *
      * @author liusy
      * @date 2020/5/27 11:20
      */
@@ -276,6 +311,7 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
 
     /**
      * 日期增加mouths月
+     *
      * @author liusy
      * @date 2020/5/27 11:20
      */
@@ -301,5 +337,80 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
      */
     public static Timestamp getDayEnd(Timestamp timestamp) {
         return Timestamp.valueOf(timestamp.toLocalDateTime().toLocalDate().toString() + " 23:59:59");
+    }
+
+    /**
+     * 根据身份证号计算年龄
+     *
+     * @param idCardNo
+     * @return
+     */
+    public static Integer IdCardNoToAge(String idCardNo) {
+        Integer age = 0;
+        if (co.yixiang.utils.StringUtils.isBlank(idCardNo)) {
+            throw new ErrorRequestException("身份证号为空！");
+        }
+
+        if (idCardNo.length() != 15 && idCardNo.length() != 18) {
+            throw new ErrorRequestException("身份证号长度错误！");
+        }
+        Calendar cal = Calendar.getInstance();
+        int yearNow = cal.get(Calendar.YEAR);
+        int monthNow = cal.get(Calendar.MONTH) + 1;
+        int dayNow = cal.get(Calendar.DATE);
+
+        int year = Integer.valueOf(idCardNo.substring(6, 10));
+        int month = Integer.valueOf(idCardNo.substring(10, 12));
+        int day = Integer.valueOf(idCardNo.substring(12, 14));
+
+        if ((month < monthNow) || (month == monthNow && day <= dayNow)) {
+            age = yearNow - year;
+        } else {
+            age = yearNow - year - 1;
+        }
+        return age;
+    }
+
+    /**
+     * 获取某个日期的时间戳（yyyy-MM-dd）
+     *
+     * @param strDate
+     * @return
+     */
+    public static Integer stringToTimestampDate(String strDate) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        Long dateTimeLong = 0L;
+        try {
+            dateTimeLong = sdf.parse(strDate).getTime() / 1000;
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return dateTimeLong.intValue();
+    }
+
+    /**
+     * 获取当前时间结束的时间戳
+     *
+     * @param date
+     * @return
+     */
+    public static int dateEndToTimestamp(Date date) {
+        SimpleDateFormat ymd = new SimpleDateFormat(YYYY_MM_DD);
+        String endDate = "";
+        try {
+            endDate = ymd.parse(date.toString()).toString() + " 23:59:59";
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return stringToTimestamp(endDate);
+    }
+
+    /**
+     * 获取当前时间结束的时间戳
+     *
+     * @return
+     */
+    public static int nowDayEndToTimestamp() {
+        return stringToTimestampDate(plusDays(LocalDate.now(), 1).toString()) - 1;
     }
 }

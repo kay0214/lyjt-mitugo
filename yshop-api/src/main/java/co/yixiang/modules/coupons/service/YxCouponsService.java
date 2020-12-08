@@ -1,12 +1,14 @@
 package co.yixiang.modules.coupons.service;
 
+import co.yixiang.common.service.BaseService;
+import co.yixiang.common.web.vo.Paging;
 import co.yixiang.modules.couponUse.dto.YxCouponsDto;
 import co.yixiang.modules.coupons.entity.YxCoupons;
-import co.yixiang.common.service.BaseService;
+import co.yixiang.modules.coupons.entity.YxCouponsPriceConfig;
 import co.yixiang.modules.coupons.web.param.YxCouponsQueryParam;
 import co.yixiang.modules.coupons.web.vo.LocalLiveCouponsVo;
 import co.yixiang.modules.coupons.web.vo.YxCouponsQueryVo;
-import co.yixiang.common.web.vo.Paging;
+import co.yixiang.modules.manage.entity.SystemUser;
 
 import java.io.Serializable;
 import java.util.List;
@@ -79,19 +81,17 @@ public interface YxCouponsService extends BaseService<YxCoupons> {
      * 根据核销码查询卡券信息
      *
      * @param decodeVerifyCode
-     * @param uid
      * @return
      */
-    YxCouponsDto getCouponByVerifyCode(String decodeVerifyCode, int uid);
+    YxCouponsDto getCouponByVerifyCode(String decodeVerifyCode, SystemUser user);
 
     /**
      *
      *
      * @param orderId
-     * @param uid
      * @return
      */
-    YxCouponsDto getCouponByOrderId(String orderId, int uid);
+    YxCouponsDto getCouponByOrderId(String orderId, SystemUser user);
 
     /**
      * 增加销量
@@ -108,4 +108,18 @@ public interface YxCouponsService extends BaseService<YxCoupons> {
      * @param sales
      */
     void updateMulSales(Integer couponId,Integer sales);
+
+    /**
+     * 扫码获取船票订单信息
+     * @param decodeVerifyCode
+     * @return
+     */
+    YxCouponsDto getShipCouponInfo(String decodeVerifyCode, SystemUser user);
+
+    /**
+     * 获取卡券的价格配置（当前日期符合）
+     * @param couponId
+     * @return
+     */
+    YxCouponsPriceConfig getPirceConfig(int couponId);
 }

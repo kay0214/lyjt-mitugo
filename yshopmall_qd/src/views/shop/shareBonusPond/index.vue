@@ -5,7 +5,27 @@
     <div class="head-container">
       <!--如果想在工具栏加入更多按钮，可以使用插槽方式， slot = 'left' or 'right'-->
       <el-row>
-        <el-input v-model="query.username" clearable placeholder="用户昵称" style="width: 200px;marginRight:20px;" class="filter-item" @keyup.enter.native="crud.toQuery" />
+        <el-input v-model.trim="query.username" clearable placeholder="用户昵称" style="width: 200px;marginRight:20px;" class="filter-item" @keyup.enter.native="crud.toQuery" />
+        <el-input v-model.trim="query.phone" clearable placeholder="输入用户手机号" style="width: 200px;" class="filter-item" @keyup.enter.native="crud.toQuery" />
+        <el-select v-model="query.userType" clearable placeholder="用户类型" class="filter-item" style="width: 130px">
+          <template>
+            <el-option
+              v-for="item in userTypes"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            />
+          </template>
+        </el-select>
+        <el-input v-model.trim="query.linkId" clearable placeholder="输入订单号" style="width: 200px;" class="filter-item" @keyup.enter.native="pageRefesh" />
+        <el-select v-model="query.brokerageType" clearable placeholder="订单类型" class="filter-item" style="width: 130px">
+          <el-option
+            v-for="item in statusList"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value"
+          />
+        </el-select>
         <el-date-picker
           type="daterange"
           v-model="query.searchTime"
@@ -23,6 +43,12 @@
       <el-table ref="table" v-loading="crud.loading" :data="crud.data" size="small" style="width: 100%;" @selection-change="crud.selectionChangeHandler">
         <el-table-column type="index" width="55" />
         <el-table-column v-if="columns.visible('username')" prop="username" label="用户昵称" />
+        <el-table-column v-if="columns.visible('phone')" prop="phone" label="用户手机号" />
+        <el-table-column v-if="columns.visible('userType')" prop="userType" label="用户类型" >
+          <template slot-scope="scope">
+            {{ transferLabel(scope.row.userType,userTypes) }}
+          </template>
+        </el-table-column>
         <el-table-column v-if="columns.visible('linkId')" prop="linkId" label="订单编号" />
         <el-table-column label="订单类型" align="center">
           <template slot-scope="scope">
@@ -72,7 +98,11 @@ import pagination from '@crud/Pagination'
 import MaterialList from "@/components/material";
 
 // crud交由presenter持有
-const defaultCrud = CRUD({ title: '分红池', url: 'api/getShareDividendPoint', sort: 'id,desc', crudMethod: { ...crudYxPointDetail }})
+const defaultCrud = CRUD({ title: '分红池', url: 'api/getShareDividendPoint', sort: 'id,desc', crudMethod: { ...crudYxPointDetail },
+  query: {
+    username:'',brokerageType:'',linkId:'',addTimeStart:'',addTimeEnd:'',phone:'',userType:''
+  }
+})
 const defaultForm = { id: null, uid: null, username: null, type: null, linkId: null, orderType: null, number: null, commission: null, merchantsId: null, merchantsPoint: null, partnerId: null, partnerPoint: null, delFlag: null, createUserId: null, updateUserId: null, addTime: null, updateTime: null }
 export default {
   name: 'YxPointDetail',
@@ -87,10 +117,39 @@ export default {
         del: ['admin', 'yxPointDetail:del']
       },
       rules: {
+      },
+      statusList: [
+        { value: 0, label: '商品购买 ' },
+        { value: 1, label: '本地生活' }
+      ],
+      userTypes: [
+        { value: 4, label: '平台 ' },
+        { value: 1, label: '商户' },
+        { value: 2, label: '合伙人' },
+        { value: 3, label: '用户' }
+      ],
+    }
+  },
+  computed:{
+    transferLabel:function(){
+      return function(value,list){
+        if(list.length){
+          let i= list.filter(function(item){
+            return new RegExp(item.value, 'i').test(value)
+          })
+          if(i.length){
+            return i[0].label
+          }else{
+            return ""
+          }
+        }else{
+          return ""
+        }
       }
     }
   },
   mounted(){
+    this.crud.resetQuery(false)
     //获取累计金额
     this.crud.refresh().then(res=>{
       this.totalAmount=res.totalPoint
@@ -105,6 +164,10 @@ export default {
   methods: {
     // 获取数据前设置好接口地址
     [CRUD.HOOK.beforeRefresh]() {
+      if(this.crud.query.phone.length>0 && this.crud.query.userType===''){
+        this.crud.notify('请选择用户类型','error')
+        return false
+      }
       return true
     }, // 新增与编辑前做的操作
     [CRUD.HOOK.afterToCU](crud, form) {

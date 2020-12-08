@@ -3,10 +3,43 @@
     <!--工具栏-->
     <div class="head-container">
       <!-- 搜索 -->
-      <el-input v-model="query.value" clearable placeholder="输入搜索内容" style="width: 200px;" class="filter-item" @keyup.enter.native="toQuery" />
+      <el-input v-model.trim="query.value" clearable placeholder="输入搜索内容" style="width: 200px;" class="filter-item" @keyup.enter.native="toQuery" />
       <el-select v-model="query.type" clearable placeholder="类型" class="filter-item" style="width: 130px">
         <el-option v-for="item in queryTypeOptions" :key="item.key" :label="item.display_name" :value="item.key" />
       </el-select>
+<!--      <el-input v-model="query.phone" clearable placeholder="用户手机号" style="width: 200px;" class="filter-item" @keyup.enter.native="toQuery" />-->
+<!--      <el-input v-model="query.userTrueName" clearable placeholder="真实姓名" style="width: 200px;" class="filter-item" @keyup.enter.native="toQuery" />-->
+<!--      <el-input v-model="query.bankCode" clearable placeholder="银行卡号" style="width: 200px;" class="filter-item" @keyup.enter.native="toQuery" />-->
+<!--      <el-input v-model="query.seqNo" clearable placeholder="订单号" style="width: 200px;" class="filter-item" @keyup.enter.native="toQuery" />-->
+      <el-select v-model="query.userType" clearable placeholder="用户类型"
+                 style="width: 200px;" class="filter-item">
+        <el-option
+          v-for="(item,index) in userTypeOptions"
+          :key="index"
+          :label="item.label"
+          :value="item.value">
+        </el-option>
+      </el-select>
+      <el-select v-model="query.status" clearable placeholder="审核状态"
+                 style="width: 200px;" class="filter-item">
+        <el-option
+          v-for="item in statusList"
+          :key="item.value"
+          :label="item.label"
+          :value="item.value">
+        </el-option>
+      </el-select>
+      <el-date-picker
+        v-model="query.addTime"
+        :default-time="['00:00:00','23:59:59']"
+        type="daterange"
+        range-separator=":"
+        size="small"
+        class="date-item"
+        value-format="yyyy-MM-dd"
+        start-placeholder="开始日期"
+        end-placeholder="结束日期"
+      />
       <el-button class="filter-item" size="mini" type="success" icon="el-icon-search" @click="toQuery">搜索</el-button>
       <!-- 新增 -->
       <el-button
@@ -16,6 +49,16 @@
         icon="el-icon-refresh"
         @click="toQuery"
       >刷新</el-button>
+      <div>
+        <el-button
+          :loading="downloadLoading"
+          class="filter-item"
+          size="mini"
+          type="warning"
+          icon="el-icon-download"
+          @click="downloadMethod()"
+        >导出</el-button>
+      </div>
     </div>
     <!--表单组件-->
     <eForm ref="form" :is-add="isAdd" />
@@ -24,12 +67,13 @@
       <el-table-column prop="id" label="申请ID" />
       <el-table-column prop="realName" label="用户名" />
       <el-table-column prop="userTrueName" label="真实姓名" />
+      <el-table-column prop="bankMobile" label="用户手机号" />
       <el-table-column prop="bankCode" label="银行卡号" />
       <el-table-column prop="extractPrice" label="提现金额" />
-      <el-table-column prop="seqNo" label="订单号" />
+      <el-table-column prop="seqNo" label="流水号" />
       <el-table-column prop="userType" label="用户类型" >
         <template slot-scope="scope">
-          <div>{{userTypeOptions[scope.row.userType]}}</div>
+          <div>{{ transferLabel(scope.row.userType,userTypeOptions) }}</div>
         </template>
       </el-table-column>
       <el-table-column prop="extractType" label="提现方式">
@@ -48,16 +92,16 @@
       <el-table-column prop="status" label="审核状态">
         <template slot-scope="scope">
           <div v-if="scope.row.status==1">
-            提现通过
+            {{ transferLabel(scope.row.status,statusList) }}
           </div>
           <div v-else-if="scope.row.status==-1">
-            提现未通过<br>
+            {{ transferLabel(scope.row.status,statusList) }}<br>
             未通过原因：{{ scope.row.failMsg }}
             <br>
             未通过时间：{{ formatTimeTwo(scope.row.failTime) }}
           </div>
           <div v-else>
-            未提现
+            {{ transferLabel(scope.row.status,statusList) }}
           </div>
         </template>
       </el-table-column>
@@ -110,15 +154,49 @@ export default {
     return {
       delLoading: false,
       queryTypeOptions: [
-        { key: 'realName', display_name: '名称' }
+        { key: 'realName', display_name: '用户名' },
+        { key: 'phone', display_name: '用户手机号' },
+        { key: 'userTrueName', display_name: '真实姓名' },
+        { key: 'bankCode', display_name: '银行卡号' },
+        { key: 'seqNo', display_name: '流水号' }
       ],
-      userTypeOptions: ['预留','商户','合伙人','前台用户']
+      userTypeOptions: [
+        {value:1,label:'商户'},
+        {value:2,label:'合伙人'},
+        {value:3,label:'用户'},
+        {value:0,label:'预留'}
+      ],
+      statusList:[
+        {value:-1,label:'提现未通过'},
+        {value:0,label:'未提现'},
+        {value:1,label:'提现通过'},
+        {value:2,label:'提现处理中'},
+        {value:3,label:'提现失败'}
+      ]
     }
   },
   created() {
     this.$nextTick(() => {
       this.init()
     })
+  },
+  computed:{
+    transferLabel:function(){
+      return function(value,list){
+        if(list.length){
+          let i= list.filter(function(item){
+            return new RegExp(item.value, 'i').test(value)
+          })
+          if(i.length){
+            return i[0].label
+          }else{
+            return ""
+          }
+        }else{
+          return ""
+        }
+      }
+    }
   },
   methods: {
     formatTimeTwo,

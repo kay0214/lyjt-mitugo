@@ -12,6 +12,8 @@ import co.yixiang.constant.SystemConfigConstants;
 import co.yixiang.enums.BillDetailEnum;
 import co.yixiang.enums.OrderInfoEnum;
 import co.yixiang.modules.coupons.entity.YxCouponOrder;
+import co.yixiang.modules.coupons.entity.YxCouponOrderDetail;
+import co.yixiang.modules.coupons.service.YxCouponOrderDetailService;
 import co.yixiang.modules.coupons.service.YxCouponOrderService;
 import co.yixiang.modules.manage.service.SystemUserService;
 import co.yixiang.modules.offpay.entity.YxOffPayOrder;
@@ -60,6 +62,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.math.BigDecimal;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -93,6 +96,8 @@ public class WechatController extends BaseController {
     private MqProducer mqProducer;
     @Autowired
     private YxUserService yxUserService;
+    @Autowired
+    private YxCouponOrderDetailService yxCouponOrderDetailService;
 
 
     /**
@@ -240,8 +245,19 @@ public class WechatController extends BaseController {
             couponOrder.setId(yxCouponOrder.getId());
             couponOrder.setRefundStatus(2);
             couponOrder.setRefundPrice(refundFee);
-            couponOrder.setStatus(8);
+            // 手动退款的更新状态为已退款
+            if (1 == couponOrder.getRefundStatus()) {
+                couponOrder.setStatus(8);
+            }
             yxCouponOrderService.updateById(couponOrder);
+            // 更新订单详情表的数据状态
+            List<YxCouponOrderDetail> detailList = this.yxCouponOrderDetailService.list(new QueryWrapper<YxCouponOrderDetail>().lambda().eq(YxCouponOrderDetail::getOrderId, yxCouponOrder.getOrderId()));
+            if (null != detailList && detailList.size() > 0) {
+                for (YxCouponOrderDetail item : detailList) {
+                    item.setStatus(couponOrder.getStatus());
+                }
+                yxCouponOrderDetailService.updateBatchById(detailList);
+            }
 
             // 插入bill表
             YxUserBill userBill = new YxUserBill();
@@ -258,7 +274,7 @@ public class WechatController extends BaseController {
             userBill.setStatus(1);
             userBill.setUsername(yxUser.getNickname());
             yxUserBillService.save(userBill);
-//
+//          卡券第一次核销的时候给商户发放收入、退款的时候就不需要扣减商户的资金
 //            // 更新商户余额
 //            SystemUser systemUser = this.systemUserService.getById(yxCouponOrder.getMerId());
 //            if (null == systemUser) {
@@ -467,8 +483,8 @@ public class WechatController extends BaseController {
 
 //            YxStoreOrder storeOrder = new YxStoreOrder();
             //修改状态
-            YxStoreOrder storeOrder =orderService.getOrderInfoByParam(orderId);
-            if(ObjectUtils.isEmpty(storeOrder)){
+            YxStoreOrder storeOrder = orderService.getOrderInfoByParam(orderId);
+            if (ObjectUtils.isEmpty(storeOrder)) {
                 log.info("订单号：" + orderId + "不存在");
                 return WxPayNotifyResponse.success("处理失败!");
             }

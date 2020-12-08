@@ -1,6 +1,7 @@
 package co.yixiang.modules.coupon.service.dto;
 
 import co.yixiang.modules.coupon.domain.YxCouponOrderUse;
+import co.yixiang.modules.shop.domain.User;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -283,6 +284,17 @@ public class YxCouponOrderDto implements Serializable {
     private Integer rebateStatus;
 
     /**
+     * 评价状态：0未评价 1已评价
+     */
+    private Integer evaluate;
+
+    // 卡券类型
+    private String couponTypeStr;
+
+    // 核销时间
+    private String usedTime;
+
+    /**
      * 卡券核销记录
      */
     List<YxCouponOrderUse> couponOrderUseList;
@@ -292,4 +304,13 @@ public class YxCouponOrderDto implements Serializable {
     private String image;
 
     List<YxCouponOrderDetailDto> detailList;
+
+    /**
+     * 在线发票（0：不支持，1：支持）
+     */
+    private Integer onlineInvoice;
+
+    // 商户信息
+    private User user;
+
 }

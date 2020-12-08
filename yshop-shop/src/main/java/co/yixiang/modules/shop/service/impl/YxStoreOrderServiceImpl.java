@@ -20,6 +20,7 @@ import co.yixiang.modules.activity.domain.YxStoreCouponUser;
 import co.yixiang.modules.activity.domain.YxStorePink;
 import co.yixiang.modules.activity.service.YxStorePinkService;
 import co.yixiang.modules.activity.service.mapper.YxStoreCouponUserMapper;
+import co.yixiang.modules.plat.domain.TodayDataDto;
 import co.yixiang.modules.shop.domain.*;
 import co.yixiang.modules.shop.service.*;
 import co.yixiang.modules.shop.service.dto.*;
@@ -89,6 +90,8 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<StoreOrderMapper, Y
     private UserService sysUserService;
     @Autowired
     private UserSysMapper userSysMapper;
+    @Autowired
+    private YxStoreProductService productService;
 
     @Override
     public OrderCountDto getOrderCount() {
@@ -218,27 +221,26 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<StoreOrderMapper, Y
             queryWrapper.lambda().eq(YxStoreOrder::getMerId, user.getId());
         }
 
-        if (!CollectionUtils.isEmpty(criteria.getAddTime())) {
-            List<String> listAddTime = criteria.getAddTime();
+        if(StringUtils.isNotEmpty(criteria.getCreateTimeStart())&&StringUtils.isNotEmpty(criteria.getCreateTimeEnd())) {
             Integer addTimeStart = 0;
             Integer addTimeEnd = 0;
             try {
                 Date date = new Date();
                 Date dateEnd = new Date();
                 SimpleDateFormat sf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                date = sf.parse(listAddTime.get(0));// 日期转换为时间戳
-                dateEnd = sf.parse(listAddTime.get(1));// 日期转换为时间戳
-                long longDate = date.getTime()/1000;
-                long longDateEnd = dateEnd.getTime()/1000;
-                addTimeStart =(int)longDate;
-                addTimeEnd =(int)longDateEnd;
-            } catch (ParseException e) {e.printStackTrace();}
-            if(addTimeEnd!=0&&addTimeStart!=0){
+                date = sf.parse(criteria.getCreateTimeStart() + " 00:00:00");// 日期转换为时间戳
+                dateEnd = sf.parse(criteria.getCreateTimeEnd() + " 23:59:59");// 日期转换为时间戳
+                long longDate = date.getTime() / 1000;
+                long longDateEnd = dateEnd.getTime() / 1000;
+                addTimeStart = (int) longDate;
+                addTimeEnd = (int) longDateEnd;
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+            if (addTimeEnd != 0 && addTimeStart != 0) {
                 queryWrapper.lambda().ge(YxStoreOrder::getAddTime, addTimeStart).le(YxStoreOrder::getAddTime, addTimeEnd);
             }
         }
-
-
         IPage<YxStoreOrder> ipage = this.page(new Page<>(pageable.getPageNumber() + 1, pageable.getPageSize()), queryWrapper);
         if (ipage.getTotal() <= 0) {
             Map<String, Object> map = new LinkedHashMap<>(2);
@@ -769,5 +771,91 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<StoreOrderMapper, Y
 
         return userList.getId().intValue();
 
+    }
+
+    /**
+     * admin查询平台订单信息
+     * @param storeId
+     * @return
+     */
+    @Override
+    public TodayDataDto getPlatformData(int storeId) {
+        int lastWeek = OrderUtil.dateToTimestampT(DateUtil.beginOfDay(DateUtil.lastWeek()));
+        int nowMonth = OrderUtil.dateToTimestampT(DateUtil
+                .beginOfMonth(new Date()));
+
+        TodayDataDto result = new TodayDataDto();
+        // 本地生活相关-----------------------
+        Map<String,Long> localProductCount = productService.getLocalProductCount(storeId);
+        // 卡券数量
+        result.setLocalProduct(localProductCount.get("localProduct").intValue());
+        // 待上架卡券数量
+        result.setLocalProductUnder(localProductCount.get("localProductUnder").intValue());
+        // 卡券订单相关
+        Map<String,Long> localProductOrderCount = productService.getLocalProductOrderCount(storeId);
+
+        // 今日订单数
+        result.setLocalOrderCount(localProductOrderCount.get("localOrderCount").intValue());
+        // 未核销订单
+        result.setLocalOrderWait(localProductOrderCount.get("localOrderWait").intValue());
+        // 待处理退款
+        result.setLocalOrderRefund(localProductOrderCount.get("localOrderRefund").intValue());
+
+        BigDecimal localSumPrice = productService.getLocalSumPrice(storeId);
+        // 今日营业额
+        result.setLocalSumPrice(localSumPrice);
+        // 本地生活相关----------------------- end
+
+        // 商城相关===========================
+        Map<String,Long> shopProductCount = productService.getShopProductCount(storeId);
+        // 商品数量
+        result.setShopProduct(shopProductCount.get("shopProduct").intValue());
+        // 待上架商品
+        result.setShopProductUnder(shopProductCount.get("shopProductUnder").intValue());
+
+        // 商城订单数量相关
+        Map<String,Long> shopOrders = productService.getShopOrderCount(storeId);
+        // 今日订单数
+        result.setShopOrderCount(shopOrders.get("shopOrderCount").intValue());
+        // 待发货订单
+        result.setShopOrderSend(shopOrders.get("shopOrderSend").intValue());
+        // 待处理退款
+        result.setShopOrderRefund(shopOrders.get("shopOrderRefund").intValue());
+
+        // 今日营业额
+        BigDecimal shopSumPrice = productService.getLocalSumPrice(storeId);
+        result.setShopSumPrice(shopSumPrice);
+
+        // 用户相关
+        if(storeId==0){
+            // 平台运营和admin可查看
+            result.setUserCount(userMapper.selectCount(new QueryWrapper<YxUser>().lambda().eq(YxUser::getStatus, 1)));
+            result.setShareUserCount(userMapper.selectCount(new QueryWrapper<YxUser>().lambda().eq(YxUser::getUserRole, 1).eq(YxUser::getStatus, 1)));
+            result.setMerCount(yxStoreInfoMapper.selectCount(new QueryWrapper<YxStoreInfo>().lambda().eq(YxStoreInfo::getDelFlag, 0)));
+            result.setOkMerCount(yxStoreInfoMapper.selectCount(new QueryWrapper<YxStoreInfo>().lambda().eq(YxStoreInfo::getDelFlag, 0).eq(YxStoreInfo::getStatus, 0)));
+        }
+
+        // 以下为近七天相关 本月相关
+
+        // 本月本地生活成交额
+        result.setMonthLocalPrice(productService.getMonthLocalPrice(nowMonth,storeId));
+        // 本月本地生活成交量
+        result.setMonthLocalCount(productService.getMonthLocalCount(nowMonth,storeId));
+
+        // 本月商城成交额
+        result.setMonthShopPrice(productService.getMonthShopPrice(nowMonth,storeId));
+        // 本月商城成交量
+        result.setMonthShopCount(productService.getMonthShopCount(nowMonth,storeId));
+
+        // 近七天本地生活成交量
+        result.setLastWeekLocalCount(productService.getLastWeekLocalCount(nowMonth,storeId));
+        // 近七天本地生活成交额
+        result.setLastWeekLocalPrice(productService.getLastWeekLocalPrice(nowMonth,storeId));
+
+        // 近七天商城成交量
+        result.setLastWeekShopCount(productService.getLastWeekShopCount(nowMonth,storeId));
+        // 近七天商城成交额
+        result.setLastWeekShopPrice(productService.getLastWeekShopPrice(nowMonth,storeId));
+        return result;
     }
 }

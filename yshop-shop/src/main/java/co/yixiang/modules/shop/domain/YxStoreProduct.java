@@ -220,6 +220,13 @@ public class YxStoreProduct implements Serializable {
     @TableField(exist = false)
     private Integer cateFlg;
 
+    /** 分佣模式（0：按平台，1：不分佣，2：自定义分佣） */
+    @NotNull
+    private Integer customizeType;
+
+    // 商品短视频url
+    private String video;
+
     public void copy(YxStoreProduct source){
         BeanUtil.copyProperties(source,this, CopyOptions.create().setIgnoreNullValue(true));
     }

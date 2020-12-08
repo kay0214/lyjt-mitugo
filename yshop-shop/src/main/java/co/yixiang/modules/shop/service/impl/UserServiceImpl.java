@@ -10,29 +10,34 @@ package co.yixiang.modules.shop.service.impl;
 
 import co.yixiang.common.service.impl.BaseServiceImpl;
 import co.yixiang.common.utils.QueryHelpPlus;
+import co.yixiang.constant.SystemConfigConstants;
 import co.yixiang.dozer.service.IGenerator;
 import co.yixiang.exception.BadRequestException;
 import co.yixiang.modules.activity.domain.YxUserExtract;
 import co.yixiang.modules.activity.service.mapper.YxUserExtractMapper;
 import co.yixiang.modules.shop.domain.User;
+import co.yixiang.modules.shop.domain.UsersRoles;
 import co.yixiang.modules.shop.domain.YxMerchantsDetail;
 import co.yixiang.modules.shop.service.UserService;
+import co.yixiang.modules.shop.service.YxSystemConfigService;
 import co.yixiang.modules.shop.service.dto.UserDto;
 import co.yixiang.modules.shop.service.dto.UserQueryCriteria;
+import co.yixiang.modules.shop.service.mapper.SysUsersRolesMapper;
 import co.yixiang.modules.shop.service.mapper.UserSysMapper;
 import co.yixiang.modules.shop.service.mapper.YxMerchantsDetailMapper;
 import co.yixiang.utils.FileUtil;
 import co.yixiang.utils.OrderUtil;
 import co.yixiang.utils.SnowflakeUtil;
+import co.yixiang.utils.StringUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.github.pagehelper.PageInfo;
-import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -66,13 +71,13 @@ public class UserServiceImpl extends BaseServiceImpl<UserSysMapper, User> implem
     private YxUserExtractMapper yxUserExtractMapper;
     @Autowired
     private UserSysMapper userSysMapper;
+    @Autowired
+    private YxSystemConfigService systemConfigService;
 
     @Value("${yshop.snowflake.datacenterId}")
     private Integer datacenterId;
-
-
-    // 提现手续费
-    private final BigDecimal EXTRACT_RATE = new BigDecimal(0.01);
+    @Autowired
+    private SysUsersRolesMapper sysUsersRolesMapper;
 
     @Override
     //@Cacheable
@@ -131,8 +136,20 @@ public class UserServiceImpl extends BaseServiceImpl<UserSysMapper, User> implem
      */
     @Override
     public Integer updateUserWithdraw(Integer uid, Integer userType, BigDecimal extractPrice) {
-        if (extractPrice.compareTo(new BigDecimal(50)) <= 0) {
-            throw new BadRequestException("提现金额必须大于50");
+        // 最低提现金额判断
+        if (extractPrice.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new BadRequestException("提现金额必须大于0");
+        }
+        String storeMinPrice = systemConfigService.getData(SystemConfigConstants.STORE_EXTRACT_MIN_PRICE);
+        if (StringUtils.isNotBlank(storeMinPrice)) {
+            if (extractPrice.compareTo(new BigDecimal(storeMinPrice)) < 0) {
+                throw new BadRequestException("提现金额必须大于" + storeMinPrice);
+            }
+        }
+        // 获取提现费率 默认10
+        String storeRate = systemConfigService.getData(SystemConfigConstants.STORE_EXTRACT_RATE);
+        if (StringUtils.isBlank(storeRate)) {
+            storeRate = "10";
         }
         User user = this.getById(uid);
         if (extractPrice.compareTo(user.getWithdrawalAmount()) > 0) {
@@ -161,7 +178,7 @@ public class UserServiceImpl extends BaseServiceImpl<UserSysMapper, User> implem
         yxUserExtract.setUserType(userType);
         yxUserExtract.setBankMobile(user.getPhone());
         yxUserExtract.setCnapsCode(yxMerchantsDetail.getBankCode());
-        yxUserExtract.setTruePrice(extractPrice.subtract(extractPrice.multiply(EXTRACT_RATE)));
+        yxUserExtract.setTruePrice(extractPrice.subtract(extractPrice.multiply(new BigDecimal(storeRate).divide(new BigDecimal(100), 2, BigDecimal.ROUND_HALF_UP))));
         // 生成订单号
         String uuid = SnowflakeUtil.getOrderId(datacenterId);
         yxUserExtract.setSeqNo(uuid);
@@ -217,5 +234,16 @@ public class UserServiceImpl extends BaseServiceImpl<UserSysMapper, User> implem
     @Override
     public void updateWithdrawalAmountSub(int id, BigDecimal withdrawalAmount) {
         userSysMapper.updateWithdrawalAmountSub(id, withdrawalAmount);
+    }
+
+    @Override
+    public Integer getRoleIdByUserId(int userId) {
+        QueryWrapper<UsersRoles> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().eq(UsersRoles::getUserId,userId);
+        List<UsersRoles> usersRolesList = sysUsersRolesMapper.selectList(queryWrapper);
+        if(CollectionUtils.isEmpty(usersRolesList)){
+            return null;
+        };
+        return usersRolesList.get(0).getRoleId().intValue();
     }
 }

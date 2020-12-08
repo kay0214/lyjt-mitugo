@@ -1,8 +1,7 @@
 package co.yixiang.modules.coupons.entity;
 
-import com.baomidou.mybatisplus.annotation.IdType;
 import co.yixiang.common.entity.BaseEntity;
-import java.util.Date;
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -68,5 +67,8 @@ private Date createTime;
 
 @ApiModelProperty(value = "更新时间")
 private Date updateTime;
+
+@ApiModelProperty(value = "核销状态 0：不可用 1：可用")
+private Integer userStatus;
 
 }

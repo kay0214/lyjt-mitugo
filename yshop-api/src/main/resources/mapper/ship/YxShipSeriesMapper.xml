@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="co.yixiang.modules.ship.mapper.YxShipSeriesMapper">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, series_name, store_id, ship_category, ride_limit, ship_size, status, ship_province, ship_address, coordinate, coordinate_x, coordinate_y, del_flag, create_user_id, update_user_id, create_time, update_time, mer_id
+    </sql>
+
+    <select id="getYxShipSeriesById" resultType="co.yixiang.modules.ship.web.vo.YxShipSeriesQueryVo">
+        select <include refid="Base_Column_List"/> from yx_ship_series where id = #{id}
+    </select>
+
+    <select id="getYxShipSeriesPageList" resultType="co.yixiang.modules.ship.web.vo.YxShipSeriesQueryVo">
+        select <include refid="Base_Column_List"/> from yx_ship_series
+    </select>
+
+</mapper>

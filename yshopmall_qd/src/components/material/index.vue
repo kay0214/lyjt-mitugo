@@ -1,152 +1,298 @@
 <template>
-  <div v-if="type == 'image'">
-    <ul v-for="(item,index) in value" :key="index" class="el-upload-list el-upload-list--picture-card">
-      <li tabindex="0" class="el-upload-list__item is-ready" :style="'width: '+width+'px;height: '+height+'px'">
-        <div>
-          <img :src="item" alt="" class="el-upload-list__item-thumbnail">
-          <span class="el-upload-list__item-actions">
-            <span v-if="index != 0" class="el-upload-list__item-preview" @click="moveMaterial(index,'up')">
-              <i class="el-icon-back" />
+  <div>
+    <div v-if="type == 'image'">
+      <ul v-for="(item,index) in value" :key="index" class="el-upload-list el-upload-list--picture-card">
+        <li tabindex="0" class="el-upload-list__item is-ready" :style="'width: '+width+'px;height: '+height+'px'">
+          <div>
+            <img :src="item" alt="" class="el-upload-list__item-thumbnail">
+            <span class="el-upload-list__item-actions">
+              <span v-if="index != 0" class="el-upload-list__item-preview" @click="moveMaterial(index,'up')">
+                <i class="el-icon-back" />
+              </span>
+              <span class="el-upload-list__item-preview" @click="zoomMaterial(index)">
+                <i class="el-icon-view" />
+              </span>
+              <span v-if="!readonly" class="el-upload-list__item-delete" @click="deleteMaterial(index)">
+                <i class="el-icon-delete" />
+              </span>
+              <span v-if="index != value.length-1" class="el-upload-list__item-preview" @click="moveMaterial(index,'down')">
+                <i class="el-icon-right" />
+              </span>
             </span>
-            <span class="el-upload-list__item-preview" @click="zoomMaterial(index)">
-              <i class="el-icon-view" />
-            </span>
-            <span v-if="!readonly" class="el-upload-list__item-delete" @click="deleteMaterial(index)">
-              <i class="el-icon-delete" />
-            </span>
-            <span v-if="index != value.length-1" class="el-upload-list__item-preview" @click="moveMaterial(index,'down')">
-              <i class="el-icon-right" />
-            </span>
-          </span>
-        </div>
-      </li>
-    </ul>
-    <div v-if="num > value.length" tabindex="0" class="el-upload el-upload--picture-card" :style="'width: '+width+'px;height: '+height+'px;'+'line-height:'+height+'px;'" @click="toSeleteMaterial">
-      <i class="el-icon-plus" />
-    </div>
-
-    <el-dialog
-      append-to-body
-      :visible.sync="dialogVisible"
-      width="35%"
-    >
-      <img :src="url" alt="" style="width: 100%">
-    </el-dialog>
-
-    <el-dialog
-      title="图片素材库"
-      append-to-body
-      :visible.sync="listDialogVisible"
-      width="70%"
-    >
-      <el-container>
-        <el-aside width="unset">
-          <div style="margin-bottom: 10px">
-            <el-button
-              class="el-icon-plus"
-              size="small"
-              @click="materialgroupAdd()"
-            >
-              添加分组
-            </el-button>
           </div>
-          <el-tabs v-model="materialgroupObjId" v-loading="materialgroupLoading" tab-position="left" @tab-click="tabClick">
-            <el-tab-pane
-              v-for="(item) in materialgroupList"
-              :key="item.id"
-              :name="item.id"
-            >
-              <span slot="label"> {{ item.name }}</span>
-            </el-tab-pane>
-          </el-tabs>
-        </el-aside>
-        <el-main>
-          <el-card>
-            <div slot="header">
-              <el-row>
-                <el-col :span="12">
-                  <span>{{ materialgroupObj.name }}</span>
-                  <span v-if="materialgroupObj.id != '-1'">
-                    <el-button size="small" type="text" class="el-icon-edit" style="margin-left: 10px;" @click="materialgroupEdit(materialgroupObj)">重命名</el-button>
-                    <el-button size="small" type="text" class="el-icon-delete" style="margin-left: 10px;color: red" @click="materialgroupDelete(materialgroupObj)">删除</el-button>
-                  </span>
-                </el-col>
-                <el-col :span="12" style="text-align: right;">
-                  <el-upload
-                    :action="uploadApi"
-                    :headers="headers"
-                    :file-list="[]"
-                    :on-progress="handleProgress"
-                    :before-upload="beforeUpload"
-                    :on-success="handleSuccess"
-                    multiple
-                  >
-                    <el-button size="small" type="primary">批量上传</el-button>
-                  </el-upload>
-                </el-col>
-              </el-row>
-            </div>
-            <div v-loading="tableLoading">
-              <el-alert
-                v-if="tableData.length <= 0"
-                title="暂无数据"
-                type="info"
-                :closable="false"
-                center
-                show-icon
-              />
-              <el-row :gutter="5">
-                <el-checkbox-group v-model="urls" :max="num - value.length">
-                  <el-col v-for="(item,index) in tableData" :key="index" :span="4">
-                    <el-card :body-style="{ padding: '5px' }">
-                      <el-image
-                        style="width: 100%;height: 100px"
-                        :src="item.url"
-                        fit="contain"
-                        :preview-src-list="[item.url]"
-                        :z-index="999"
-                      />
-                      <div>
-                        <el-checkbox class="material-name" :label="item.url">
-                          选择
-                          <p>{{ item.witdh }}</p>
-                        </el-checkbox>
-                        <el-row>
-                          <el-col :span="24" class="col-do">
-                            <el-button type="text" size="medium" @click="materialDel(item)">删除</el-button>
-                          </el-col>
-                        </el-row>
+        </li>
+      </ul>
+      <div v-if="num > value.length" tabindex="0" class="el-upload el-upload--picture-card" :style="'width: '+width+'px;height: '+height+'px;'+'line-height:'+height+'px;'" @click="toSeleteMaterial">
+        <i class="el-icon-plus" />
+      </div>
 
-                      </div>
-                    </el-card>
+      <el-dialog
+        append-to-body
+        :visible.sync="dialogVisible"
+        width="35%"
+      >
+        <img :src="url" alt="" style="width: 100%">
+      </el-dialog>
+
+      <el-dialog
+        title="图片素材库"
+        append-to-body
+        :visible.sync="listDialogVisible"
+        width="70%"
+      >
+        <el-container>
+          <el-aside width="unset">
+            <div style="margin-bottom: 10px">
+              <el-button
+                class="el-icon-plus"
+                size="small"
+                @click="materialgroupAdd()"
+              >
+                添加分组
+              </el-button>
+            </div>
+            <el-tabs v-model="materialgroupObjId" v-loading="materialgroupLoading" tab-position="left" @tab-click="tabClick">
+              <el-tab-pane
+                v-for="(item) in materialgroupList"
+                :key="item.id"
+                :name="item.id"
+              >
+                <span slot="label"> {{ item.name }}</span>
+              </el-tab-pane>
+            </el-tabs>
+          </el-aside>
+          <el-main>
+            <el-card>
+              <div slot="header">
+                <el-row>
+                  <el-col :span="12">
+                    <span>{{ materialgroupObj.name }}</span>
+                    <span v-if="materialgroupObj.id != '-1'">
+                      <el-button size="small" type="text" class="el-icon-edit" style="margin-left: 10px;" @click="materialgroupEdit(materialgroupObj)">重命名</el-button>
+                      <el-button size="small" type="text" class="el-icon-delete" style="margin-left: 10px;color: red" @click="materialgroupDelete(materialgroupObj)">删除</el-button>
+                    </span>
                   </el-col>
-                </el-checkbox-group>
-              </el-row>
-              <el-pagination
-                :current-page.sync="page.currentPage"
-                :page-sizes="[12, 24]"
-                :page-size="page.pageSize"
-                layout="total, sizes, prev, pager, next, jumper"
-                :total="page.total"
-                class="pagination"
-                @size-change="sizeChange"
-                @current-change="pageChange"
-              />
-            </div>
-          </el-card>
-        </el-main>
-      </el-container>
-      <span slot="footer" class="dialog-footer">
-        <el-button @click="listDialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="sureUrls">确 定</el-button>
-      </span>
-    </el-dialog>
-  </div>
+                  <el-col :span="12" style="text-align: right;">
+                    <el-upload
+                      :action="uploadApi"
+                      :headers="headers"
+                      :file-list="[]"
+                      :on-progress="handleProgress"
+                      :before-upload="beforeUpload"
+                      :on-success="handleSuccess"
+                      multiple
+                    >
+                      <el-button size="small" type="primary">批量上传</el-button>
+                    </el-upload>
+                  </el-col>
+                </el-row>
+              </div>
+              <div v-loading="tableLoading">
+                <el-alert
+                  v-if="tableData.length <= 0"
+                  title="暂无数据"
+                  type="info"
+                  :closable="false"
+                  center
+                  show-icon
+                />
+                <el-row :gutter="5">
+                  <el-checkbox-group v-model="urls" :max="num - value.length">
+                    <el-col v-for="(item,index) in tableData" :key="index" :span="4">
+                      <el-card :body-style="{ padding: '5px' }">
+                        <el-image
+                          style="width: 100%;height: 100px"
+                          :src="item.url"
+                          fit="contain"
+                          :preview-src-list="[item.url]"
+                          :z-index="999"
+                          @load="loadImage($event,item,index)"
+                        />
+                        <div>
+                          <el-checkbox class="material-name" :label="item.url">
+                            选择
+                          </el-checkbox>
+                          <p v-if="item.width && item.height" style="font-size:12px;text-align:center;margin:0;color:#94b0e8;">{{ item.width }}*{{ item.height }}</p>
+                          <p v-else style="font-size:12px;text-align:center;margin:0;color:transparent;"> 000*000 </p>
+                          <el-row>
+                            <el-col :span="24" class="col-do">
+                              <el-button type="text" size="medium" @click="materialDel(item)">删除</el-button>
+                            </el-col>
+                          </el-row>
 
+                        </div>
+                      </el-card>
+                    </el-col>
+                  </el-checkbox-group>
+                </el-row>
+                <el-pagination
+                  :current-page.sync="page.currentPage"
+                  :page-sizes="[12, 24]"
+                  :page-size="page.pageSize"
+                  layout="total, sizes, prev, pager, next, jumper"
+                  :total="page.total"
+                  class="pagination"
+                  @size-change="sizeChange"
+                  @current-change="pageChange"
+                />
+              </div>
+            </el-card>
+          </el-main>
+        </el-container>
+        <span slot="footer" class="dialog-footer">
+          <el-button @click="listDialogVisible = false">取 消</el-button>
+          <el-button type="primary" @click="sureUrls">确 定</el-button>
+        </span>
+      </el-dialog>
+    </div>
+    <div v-if="type == 'video'">
+      <ul v-for="(item,index) in value" :key="index" class="el-upload-list el-upload-list--picture-card">
+        <li tabindex="0" class="el-upload-list__item is-ready" :style="'width: '+width+'px;height: '+height+'px'">
+          <div>
+            <video :src="item" alt="" class="el-upload-list__item-thumbnail" />
+            <span class="el-upload-list__item-actions">
+              <span v-if="index != 0" class="el-upload-list__item-preview" @click="moveMaterial(index,'up')">
+                <i class="el-icon-back" />
+              </span>
+              <span class="el-upload-list__item-preview" @click="zoomMaterial(index)">
+                <i class="el-icon-view" />
+              </span>
+              <span v-if="!readonly" class="el-upload-list__item-delete" @click="deleteMaterial(index)">
+                <i class="el-icon-delete" />
+              </span>
+              <span v-if="index != value.length-1" class="el-upload-list__item-preview" @click="moveMaterial(index,'down')">
+                <i class="el-icon-right" />
+              </span>
+            </span>
+          </div>
+        </li>
+      </ul>
+      <div v-if="num > value.length" tabindex="0" class="el-upload el-upload--picture-card" :style="'width: '+width+'px;height: '+height+'px;'+'line-height:'+height+'px;'" @click="toSeleteMaterial">
+        <i class="el-icon-plus" />
+      </div>
+
+      <el-dialog
+        append-to-body
+        :visible.sync="dialogVisible"
+        width="35%"
+      >
+        <video controls="controls" :src="url" alt="" style="width: 100%" />
+      </el-dialog>
+
+      <el-dialog
+        title="视频素材库"
+        append-to-body
+        :visible.sync="listDialogVisible"
+        width="70%"
+      >
+        <el-container>
+          <el-aside width="unset">
+            <div style="margin-bottom: 10px">
+              <el-button
+                class="el-icon-plus"
+                size="small"
+                @click="materialgroupAdd()"
+              >
+                添加分组
+              </el-button>
+            </div>
+            <el-tabs v-model="materialgroupObjId" v-loading="materialgroupLoading" tab-position="left" @tab-click="tabClick">
+              <el-tab-pane
+                v-for="(item) in materialgroupList"
+                :key="item.id"
+                :name="item.id"
+              >
+                <span slot="label"> {{ item.name }}</span>
+              </el-tab-pane>
+            </el-tabs>
+          </el-aside>
+          <el-main>
+            <el-card>
+              <div slot="header">
+                <el-row>
+                  <el-col :span="12">
+                    <span>{{ materialgroupObj.name }}</span>
+                    <span v-if="materialgroupObj.id != '-1'">
+                      <el-button size="small" type="text" class="el-icon-edit" style="margin-left: 10px;" @click="materialgroupEdit(materialgroupObj)">重命名</el-button>
+                      <el-button size="small" type="text" class="el-icon-delete" style="margin-left: 10px;color: red" @click="materialgroupDelete(materialgroupObj)">删除</el-button>
+                    </span>
+                  </el-col>
+                  <el-col :span="12" style="text-align: right;">
+                    <el-upload
+                      :action="uploadApi"
+                      :headers="headers"
+                      :file-list="[]"
+                      :on-progress="handleProgress"
+                      :before-upload="beforeUpload"
+                      :on-success="handleSuccess"
+                      multiple
+                    >
+                      <el-button size="small" type="primary">批量上传</el-button>
+                    </el-upload>
+                  </el-col>
+                </el-row>
+              </div>
+              <div v-loading="tableLoading">
+                <el-alert
+                  v-if="tableData.length <= 0"
+                  title="暂无数据"
+                  type="info"
+                  :closable="false"
+                  center
+                  show-icon
+                />
+                <el-row :gutter="5">
+                  <el-checkbox-group v-model="urls" :max="num - value.length">
+                    <el-col v-for="(item,index) in tableData" :key="index" :span="4">
+                      <el-card :body-style="{ padding: '5px' }">
+                        <video
+                          style="width: 100%;height: 100px"
+                          :src="item.url"
+                          fit="contain"
+                          :z-index="999"
+                          @click="previewVideoList(item.url)"
+                        />
+                        <div>
+                          <el-checkbox class="material-name" :label="item.url">
+                            选择
+                          </el-checkbox>
+                          <el-row>
+                            <el-col :span="24" class="col-do">
+                              <el-button type="text" size="medium" @click="materialDel(item)">删除</el-button>
+                            </el-col>
+                          </el-row>
+
+                        </div>
+                      </el-card>
+                    </el-col>
+                  </el-checkbox-group>
+                </el-row>
+                <el-pagination
+                  :current-page.sync="page.currentPage"
+                  :page-sizes="[12, 24]"
+                  :page-size="page.pageSize"
+                  layout="total, sizes, prev, pager, next, jumper"
+                  :total="page.total"
+                  class="pagination"
+                  @size-change="sizeChange"
+                  @current-change="pageChange"
+                />
+              </div>
+            </el-card>
+          </el-main>
+        </el-container>
+        <span slot="footer" class="dialog-footer">
+          <el-button @click="listDialogVisible = false">取 消</el-button>
+          <el-button type="primary" @click="sureUrls">确 定</el-button>
+        </span>
+      </el-dialog>
+    </div>
+  </div>
 </template>
 
 <script>
-import { getPage as materialgroupPage, addObj as materialgroupAdd, delObj as materialgroupDel, putObj as materialgroupEdit } from '@/api/tools/materialgroup'
+import { getPage as materialgroupPage, addObj as materialgroupAdd, delObj as materialgroupDel,
+  putObj as materialgroupEdit } from '@/api/tools/materialgroup'
 import { getPage, addObj, delObj, putObj } from '@/api/tools/material'
 import { getToken } from '@/utils/auth'
 import { mapGetters } from 'vuex'
@@ -229,17 +375,6 @@ export default {
     ])
   },
   methods: {
-    load(event, item) {
-      console.log(event)
-      if (event && event.path && event.path[0]) {
-      //   item.width=event.path[0].naturalWidth
-        const width = event.path[0].naturalWidth
-        const height = event.path[0].naturalHeight
-        if (event.path.length > 3) {
-          event.path[2].innerHTML = '<div style="text-align:center;font-size:12px;margin:0">' + width + '*' + height + '</div>' + event.path[2].innerHTML
-        }
-      }
-    },
     moveMaterial(index, type) {
       if (type === 'up') {
         const tempOption = this.value[index - 1]
@@ -377,6 +512,7 @@ export default {
         ascs: this.page.ascs,
         sort: 'create_time,desc'
       }, {
+        type: this.type === 'video' ? '2' : '1',
         groupId: this.groupId
       })).then(response => {
         const tableData = response.content
@@ -439,6 +575,9 @@ export default {
       }).then(function() {
         delObj(item.id)
           .then(function() {
+            that.urls = that.urls.filter((u) => {
+              return u !== item.url
+            })
             that.getPage(that.page)
           })
       })
@@ -462,7 +601,7 @@ export default {
       const that = this
       this.uploadProgress = 0
       addObj({
-        type: '1',
+        type: /video\/\w+/.test(file.raw.type) ? '2' : '1',
         groupId: this.groupId !== '-1' ? this.groupId : null,
         name: file.name,
         url: response.link
@@ -475,6 +614,30 @@ export default {
       })
     },
     beforeUpload(file) {
+      console.log(file)
+      if (this.type === 'video') {
+        const isVideo =
+          file.type === 'video/mp4' ||
+          file.type === 'video/ogg' ||
+          file.type === 'video/webm' ||
+          file.type === 'video/x-ms-wmv' ||
+          file.type === 'application/x-mpegURL' ||
+          file.type === 'video/MP2T' ||
+          file.type === 'video/3gpp' ||
+          file.type === 'video/quicktime' ||
+          file.type === 'video/x-msvideo' ||
+          file.type === 'video/x-flv'
+        if (!isVideo) {
+          this.$message.error('上传视频只能是 mp4、ogg、webm、.wmv、m3u8、ts、3gp、mov、avi、.flv 格式!')
+          return false
+        }
+        const isLt5M = file.size / 1024 / 1024 < 5
+        if (!isLt5M) {
+          this.$message.error('上传视频大小不能超过 5M!')
+        }
+        return isVideo && isLt5M
+      }
+
       const isPic =
         file.type === 'image/jpeg' ||
         file.type === 'image/png' ||
@@ -500,6 +663,14 @@ export default {
         })
       }
       this.listDialogVisible = false
+    },
+    loadImage(e, item, index) {
+      this.$set(item, 'width', e.path[0].naturalWidth)
+      this.$set(item, 'height', e.path[0].naturalHeight)
+    },
+    previewVideoList(url) {
+      this.dialogVisible = true
+      this.url = url
     }
   }
 }
