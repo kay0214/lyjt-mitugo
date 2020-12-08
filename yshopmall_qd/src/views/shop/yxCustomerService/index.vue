@@ -40,14 +40,26 @@
       <!--表格渲染-->
       <el-table ref="table" v-loading="crud.loading" :data="crud.data" size="small" style="width: 100%;"
                 @selection-change="crud.selectionChangeHandler">
-        <el-table-column type="selection" width="55" />
+<!--        <el-table-column type="selection" width="55" />-->
         <el-table-column v-if="columns.visible('id')" prop="id" label="id" />
         <el-table-column v-if="columns.visible('question')" prop="question" label="问题" />
 <!--        <el-table-column v-if="columns.visible('sort')" prop="sort" label="排序" />        -->
-        <el-table-column v-if="columns.visible('answer')" prop="answer" label="回答" />
+        <el-table-column v-if="columns.visible('answer')" prop="answer" label="回答" >
+          <template slot-scope="scope">
+            <span v-if="scope.row.answer.length>50">
+              {{scope.row.answer.substring(0,50)}}...
+            </span>
+            <span v-else>
+              {{scope.row.answer}}
+            </span>
+          </template>
+        </el-table-column>
         <el-table-column v-if="columns.visible('status')" prop="status" label="状态" >
           <template slot-scope="scope">
-            <span @click="update(scope.row)">{{ transferLabel(scope.row.status,statusList) }}</span>
+            <span @click="update(scope.row)">
+              <el-tag v-if="scope.row.status === 0" :type="''">{{ transferLabel(scope.row.status,statusList) }}</el-tag>
+            <el-tag v-else :type=" 'info' ">{{ transferLabel(scope.row.status,statusList) }}</el-tag>
+            </span>
           </template>
         </el-table-column>
         <el-table-column v-permission="['admin','yxCustomerService:edit','yxCustomerService:del']"
