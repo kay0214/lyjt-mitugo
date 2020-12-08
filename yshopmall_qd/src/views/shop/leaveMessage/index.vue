@@ -167,7 +167,8 @@ export default {
         {value:1,label:'商城订单'},
         {value:2,label:'本地生活订单'},
         {value:3,label:'商户'},
-        {value:4,label:'平台'}
+        {value:4,label:'平台'},
+        {value:5,label:'平台留言'}
       ],
       statusList:[
         {value:0,label:'待处理'},
