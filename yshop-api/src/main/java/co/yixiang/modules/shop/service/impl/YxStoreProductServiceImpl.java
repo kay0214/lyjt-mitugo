@@ -490,7 +490,7 @@ public class YxStoreProductServiceImpl extends BaseServiceImpl<YxStoreProductMap
      */
     @Override
     public String getProductArrtValueByCartId(String cartId) {
-        //
+
         String[] cartIds = cartId.split(",");
         List<String> listCarts = java.util.Arrays.asList(cartIds);
         QueryWrapper<YxStoreCart> wrapper = new QueryWrapper<YxStoreCart>();
