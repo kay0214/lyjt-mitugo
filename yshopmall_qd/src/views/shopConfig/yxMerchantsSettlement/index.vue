@@ -57,14 +57,17 @@
       </el-dialog>
       <!--表格渲染-->
       <el-table ref="table" v-loading="crud.loading" :data="crud.data" size="small" style="width: 100%;" @selection-change="crud.selectionChangeHandler">
-        <el-table-column type="selection" width="55" />
+<!--        <el-table-column type="selection" width="55" />-->
         <el-table-column v-if="columns.visible('companyName')" prop="companyName" label="公司名" />
         <el-table-column v-if="columns.visible('contactsName')" prop="contactsName" label="联系人" />
         <el-table-column v-if="columns.visible('phone')" prop="phone" label="联系电话" />
         <el-table-column v-if="columns.visible('status')" prop="status" label="状态" >
           <template slot-scope="scope">
-            <span @click="update(scope.row)">
-              {{ transferLabel(scope.row.status,statusList) }}</span>
+            <span>
+              <el-tag v-if="scope.row.status === 1" :type="'success'">{{ transferLabel(scope.row.status,statusList) }}</el-tag>
+              <el-tag v-else-if="scope.row.status === 0" :type=" '' ">{{ transferLabel(scope.row.status,statusList) }}</el-tag>
+              <el-tag v-else :type=" 'info' ">{{ transferLabel(scope.row.status,statusList) }}</el-tag>
+              </span>
           </template>
         </el-table-column>
         <el-table-column v-permission="['admin','yxMerchantsSettlement:edit','yxMerchantsSettlement:del']" label="操作" width="150px" align="center">
