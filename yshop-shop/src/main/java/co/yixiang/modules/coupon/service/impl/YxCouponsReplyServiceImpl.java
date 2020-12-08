@@ -136,7 +136,7 @@ public class YxCouponsReplyServiceImpl extends BaseServiceImpl<YxCouponsReplyMap
         if (null != criteria.getIsReply()) {
             queryWrapper.lambda().eq(YxCouponsReply::getIsReply, criteria.getIsReply());
         }
-
+        queryWrapper.lambda().orderByDesc(YxCouponsReply::getCreateTime);
         IPage<YxCouponsReply> ipage = this.page(new Page<>(pageable.getPageNumber() + 1, pageable.getPageSize()), queryWrapper);
 
         map.put("content", dualDto(ipage.getRecords()));
