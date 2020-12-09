@@ -293,7 +293,7 @@ public class YxShipInfoServiceImpl extends BaseServiceImpl<YxShipInfoMapper, YxS
                 //近一个月
                 calendarDate.add(Calendar.MONTH, -1);
                 Date lastMonthDay = calendarDate.getTime();
-                strDate = format.format(lastMonthDay)+ " 00:00:00";
+                strDate = format.format(lastMonthDay) + " 00:00:00";
                 break;
         }
         mapEnd.put("startDate", strDate);
@@ -357,6 +357,7 @@ public class YxShipInfoServiceImpl extends BaseServiceImpl<YxShipInfoMapper, YxS
         // 更新船只表
         this.updateById(yxShipInfo);
 
+        map.put("data", yxShipOperation);
         map.put("status", "1");
         map.put("statusDesc", "成功！");
         return map;
@@ -532,7 +533,7 @@ public class YxShipInfoServiceImpl extends BaseServiceImpl<YxShipInfoMapper, YxS
             detailQueryWrapper.lambda().eq(YxShipOperationDetail::getBatchNo, batchNo).eq(YxShipOperationDetail::getDelFlag, 0);
             List<YxShipOperationDetail> detailList = yxShipOperationDetailMapper.selectList(detailQueryWrapper);
 
-            if (CollectionUtils.isEmpty(detailList)||null == yxShipOperation) {
+            if (CollectionUtils.isEmpty(detailList) || null == yxShipOperation) {
                 log.info("获取运营详情数据错误，批次号:{}", batchNo);
                 return;
             }
@@ -611,7 +612,7 @@ public class YxShipInfoServiceImpl extends BaseServiceImpl<YxShipInfoMapper, YxS
     }
 
     @Override
-    public Map<String, Object> sendEmailMq(String batchNo){
+    public Map<String, Object> sendEmailMq(String batchNo) {
         // 发送邮件mq
         Map<String, Object> map = new HashMap<>();
         map.put("status", "1");
