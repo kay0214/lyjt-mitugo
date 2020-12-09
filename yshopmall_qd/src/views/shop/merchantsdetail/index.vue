@@ -367,7 +367,7 @@ merchantsType: null, bankNo: null, openAccountProvince: null, bankType: null, op
 openAccountBank: null, openAccountSubbranch: null,province: null, companyProvince: null,
 companyAddress: null, companyName: null, companyLegalPerson: null, companyPhone: null, businessCategory: null,
 qualificationsType: null, delFlag: null, createUserId: null, updateUserId: null, createTime: null,
-updateTime: null, merchantsName: null,bankCode: null,withdrawalAmount: null }
+updateTime: null, merchantsName: null,bankCode: null,withdrawalAmount: null,email: null }
 export default {
   name: 'YxMerchantsDetail',
   components: { pagination, crudOperation, rrOperation, udOperation ,MaterialList},
