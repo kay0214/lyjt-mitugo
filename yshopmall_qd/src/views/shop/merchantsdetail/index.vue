@@ -69,7 +69,7 @@
                 <el-input v-model="form.contactMobile" style="width: 370px;" />
               </el-form-item>
               <el-form-item label="邮箱" prop="mailbox">
-                <el-input v-model="form.mailbox" style="width: 370px;" />
+                <el-input v-model="form.mailbox" style="width: 370px;" :maxlength='50' />
               </el-form-item>
             </div>
             <!--
