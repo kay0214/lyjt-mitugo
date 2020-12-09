@@ -37,41 +37,6 @@ public class YxCouponCancelOrderTask {
     private YxCouponOrderDetailService yxCouponOrderDetailService;
 
     public void run() {
-        // 获取待使用和未使用的、当前时间已过期的订单
-        List<YxCouponOrder> list = this.yxCouponOrderService.list(new QueryWrapper<YxCouponOrder>().lambda()
-                .in(YxCouponOrder::getStatus, 0, 2, 4, 5, 7)
-                .gt(YxCouponOrder::getOutTime, 0)
-                .lt(YxCouponOrder::getOutTime, DateUtils.getNowTime()));
-        for (YxCouponOrder item : list) {
-            YxCoupons yxCoupons = this.yxCouponsService.getById(item.getCouponId());
-            if (null == yxCoupons) {
-                // 卡券查询不到的默认按不支持过期退处理
-                yxCoupons = new YxCoupons();
-                yxCoupons.setAwaysRefund(0);
-                yxCoupons.setOuttimeRefund(0);
-            }
-            // 先判断下卡券是否支持过期退和随时退、支持的话把所有未使用的订单退款
-            if (1 == yxCoupons.getAwaysRefund() || 1 == yxCoupons.getOuttimeRefund()) {
-                if (4 == item.getStatus()) {
-                    // 支持过期退和随时退的、未使用的订单全额退款
-                    YxCouponOrderDto resources = new YxCouponOrderDto();
-                    resources.setId(item.getId());
-                    resources.setRefundStatus(2);
-                    resources.setRefundPrice(item.getTotalPrice());
-                    try {
-                        yxCouponOrderService.refund(resources);
-                    } catch (Exception e) {
-                        log.error("订单：" + item.getOrderId() + "退款失败！", e.getMessage());
-                    }
-                }
-            }
-            // 剩下未退款的更新成已过期
-            item.setStatus(1);
-            yxCouponOrderService.updateById(item);
-            LambdaQueryWrapper<YxCouponOrderDetail> orderDetailWrapper = new QueryWrapper<YxCouponOrderDetail>().lambda().eq(YxCouponOrderDetail::getOrderId, item.getOrderId());
-            YxCouponOrderDetail yxCouponOrderDetail = new YxCouponOrderDetail();
-            yxCouponOrderDetail.setStatus(1);
-            yxCouponOrderDetailService.update(yxCouponOrderDetail, orderDetailWrapper);
-        }
+        yxCouponOrderService.updateOrderAutoCancel();
     }
 }
