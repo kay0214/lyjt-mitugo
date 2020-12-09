@@ -9,6 +9,7 @@ import co.yixiang.config.SendEmailProperties;
 import co.yixiang.constant.MQConstant;
 import co.yixiang.constant.ShopConstants;
 import co.yixiang.constant.SystemConfigConstants;
+import co.yixiang.dozer.service.IGenerator;
 import co.yixiang.modules.couponUse.dto.YxShipOperationDetailVO;
 import co.yixiang.modules.couponUse.dto.YxShipPassengerVO;
 import co.yixiang.modules.couponUse.param.*;
@@ -98,6 +99,8 @@ public class YxShipInfoServiceImpl extends BaseServiceImpl<YxShipInfoMapper, YxS
     private MqProducer mqProducer;
     @Autowired
     SendEmailProperties sendEmailProperties;
+    @Autowired
+    private IGenerator generator;
 
     @Override
     public YxShipInfoQueryVo getYxShipInfoById(Serializable id) throws Exception {
@@ -314,6 +317,7 @@ public class YxShipInfoServiceImpl extends BaseServiceImpl<YxShipInfoMapper, YxS
         QueryWrapper<YxShipOperation> queryWrapper = new QueryWrapper<>();
         queryWrapper.lambda().eq(YxShipOperation::getBatchNo, param.getBatchNo());
         YxShipOperation yxShipOperation = yxShipOperationMapper.selectOne(queryWrapper);
+        YxShipOpeartionVo returnData = generator.convert(yxShipOperation, YxShipOpeartionVo.class);
         YxShipInfo yxShipInfo = this.getById(yxShipOperation.getShipId());
 
         if (1 == param.getStatus()) {
@@ -357,7 +361,33 @@ public class YxShipInfoServiceImpl extends BaseServiceImpl<YxShipInfoMapper, YxS
         // 更新船只表
         this.updateById(yxShipInfo);
 
-        map.put("data", yxShipOperation);
+        // 前端分页问题、需要将当前操作数据的信息再返回去
+        String leaveTimeStr = "";
+        String returnTimeStr = "";
+        if (null != returnData.getLeaveTime() && 0 != returnData.getLeaveTime()) {
+            leaveTimeStr = DateUtils.timestampToStr10(returnData.getLeaveTime());
+        }
+        if (null != returnData.getReturnTime() && 0 != returnData.getReturnTime()) {
+            returnTimeStr = DateUtils.timestampToStr10(returnData.getReturnTime());
+        }
+        returnData.setLeaveTimeFormat(leaveTimeStr);
+        returnData.setReturnTimeFormat(returnTimeStr);
+        String strStatus = "";
+        switch (returnData.getStatus()) {
+            //船只状态 0:待出港 1：出港 2：回港
+            case 0:
+                strStatus = "待出港";
+                break;
+            case 1:
+                strStatus = "离港";
+                break;
+            case 2:
+                strStatus = "在港";
+                break;
+        }
+        returnData.setStatusFormat(strStatus);
+
+        map.put("data", returnData);
         map.put("status", "1");
         map.put("statusDesc", "成功！");
         return map;
