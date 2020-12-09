@@ -43,7 +43,7 @@
                 <el-input v-model="form.username" :maxlength='20' style="width: 350px;"/>
               </el-form-item>
               <el-form-item label="邮箱" prop="email">
-                <el-input v-model="form.email" :maxlength='20' style="width: 350px;"/>
+                <el-input v-model="form.email" :maxlength='50' style="width: 350px;"/>
               </el-form-item>
             </div>
 
