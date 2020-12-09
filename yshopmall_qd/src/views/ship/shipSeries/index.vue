@@ -75,7 +75,10 @@
         <el-table-column v-if="columns.visible('seriesName')" prop="seriesName" label="系列名称" />
         <el-table-column v-if="columns.visible('status')" prop="status" label="状态" >
           <template slot-scope="scope">
-            <span>{{ scope.row.status?'禁用':'启用' }}</span>
+            <span @click="editStatus(scope.row)">
+              <el-tag v-if="scope.row.status" type="info">禁用</el-tag>
+              <el-tag v-else>启用</el-tag>
+            </span>
           </template>
         </el-table-column>
         <el-table-column v-permission="permission.edit" label="操作" width="200px" align="center">
@@ -99,10 +102,6 @@
                       <el-dropdown-item >
                           <el-button  size="mini" type="primary" icon="el-icon-edit"  @click="crud.toEdit(scope.row)" plain>修改</el-button>
                       </el-dropdown-item >
-                      <el-dropdown-item  >
-                          <el-button  style="marginTop:5px;" size="mini" type="primary" icon="el-icon-edit" @click="editStatus(scope.row)"  plain>{{ scope.row.status?'启用':'禁用' }}</el-button>
-                      </el-dropdown-item>
-
                   </el-dropdown-menu>
              </el-dropdown>
             </div>

@@ -1,10 +1,4 @@
 <template>
-  <div class="app-container">
-    <!--工具栏-->
-    <div class="head-container">
-      <!--如果想在工具栏加入更多按钮，可以使用插槽方式， slot = 'left' or 'right'-->
-      <!--      <crudOperation :permission="permission" />-->
-      <!--表单组件-->
       <el-dialog
                 v-loading="loading" :visible.sync="dialog" :title="crud.status.title" width="1000px">
         <el-form ref="form" :model="form" :rules="rules" disabled size="small" label-width="120px">
@@ -101,10 +95,6 @@
           <el-button type="primary" @click="dialog=false">关闭</el-button>
         </div>
       </el-dialog>
-      <!--分页组件-->
-<!--      <pagination />-->
-    </div>
-  </div>
 </template>
 
 <script>

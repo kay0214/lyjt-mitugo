@@ -27,7 +27,7 @@
         class="filter-item"
         v-model="query.daterange"
         type="daterange"
-        range-separator="至"
+        range-separator="~"
         start-placeholder="出港时间"
         end-placeholder="出港时间"
         value-format="yyyy-MM-dd"
@@ -140,7 +140,7 @@
             <div class="flexs">
                  <el-button v-permission="permission.edit" type="primary" size="mini" plain @click="detail(scope.row)">详情</el-button>
                   <el-button size="mini" type="primary" plain style="marginLeft:5px;">合同下载</el-button>
-            </div>      
+            </div>
           </template>
         </el-table-column>
       </el-table>
