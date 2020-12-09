@@ -83,4 +83,10 @@ public interface YxCouponOrderService extends BaseService<YxCouponOrder> {
      * @return
      */
     List<YxCouponOrderDto> queryDownload(YxCouponOrderQueryCriteria criteria);
+
+    /**
+     * 过期订单自动取消
+     *
+     */
+    void updateOrderAutoCancel();
 }
