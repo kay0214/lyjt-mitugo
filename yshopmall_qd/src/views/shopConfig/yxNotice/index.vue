@@ -51,7 +51,9 @@
         <el-table-column v-if="columns.visible('status')" prop="status" label="状态" >
           <template slot-scope="scope">
             <span @click="update(scope.row)">
-              {{ transferLabel(scope.row.status,statusList) }}</span>
+              <el-tag v-if="scope.row.status" type="info">{{ transferLabel(scope.row.status,statusList) }}</el-tag>
+              <el-tag v-else>{{ transferLabel(scope.row.status,statusList) }}</el-tag>
+            </span>
           </template>
         </el-table-column>
         <el-table-column v-permission="['admin','yxNotice:edit','yxNotice:del']" label="操作" width="150px" align="center">
