@@ -567,7 +567,8 @@ export default {
   data() {
     return {
       expireDate: defaultForm.expireDateStart && defaultForm.expireDateEnd ? [defaultForm.expireDateStart, defaultForm.expireDateEnd] : null, // 有效期
-      availableTime: [form.availableTimeStart ? form.availableTimeStart : parseTime((new Date(2020, 9, 10, 9, 0)),'{h}:{i}'), form.availableTimeEnd ? form.availableTimeEnd : parseTime((new Date(2020, 9, 10, 22, 0)),'{h}:{i}')], // 可用时段
+      availableTime: [parseTime((new Date(2020, 9, 10, 9, 0)),'{h}:{i}'),
+        parseTime((new Date(2020, 9, 10, 22, 0)),'{h}:{i}')], // 可用时段
       imageArr: imageArr,
       sliderImageArr: defaultForm.sliderImage || [],
       selections: {
@@ -868,6 +869,10 @@ export default {
       return true
     }, // 新增与编辑前做的操作
     [CRUD.HOOK.afterToCU](crud, form) {
+      this.availableTime=[
+        parseTime((new Date(2020, 9, 10, 9, 0)),'{h}:{i}'),
+        parseTime((new Date(2020, 9, 10, 22, 0)),'{h}:{i}')]
+
       if(crud.status.edit>CRUD.STATUS.NORMAL){
       // 编辑时有效 设置默认 有效期
       this.expireDate=[form.expireDateStart,form.expireDateEnd]
@@ -886,9 +891,11 @@ export default {
           }
         }
         //  设置默认 可用时段
-        this.availableTime = [form.availableTimeStart,form.availableTimeEnd]
-        this.form.availableTimeEnd = form.availableTimeEnd
-        this.form.availableTimeStart = form.availableTimeStart
+        if(form.availableTimeStart){
+          this.availableTime=[form.availableTimeStart,form.availableTimeEnd]
+        }
+        this.form.availableTimeEnd = this.availableTime[1]
+        this.form.availableTimeStart = this.availableTime[0]
       }
 
 
