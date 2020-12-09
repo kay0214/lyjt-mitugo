@@ -20,6 +20,7 @@ import co.yixiang.logging.service.mapper.LogMapper;
 import co.yixiang.utils.FileUtil;
 import co.yixiang.utils.StringUtils;
 import co.yixiang.utils.ValidationUtil;
+import com.alibaba.fastjson.JSON;
 import com.github.pagehelper.PageInfo;
 import org.apache.commons.logging.LogFactory;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -128,15 +129,19 @@ public class LogServiceImpl extends BaseServiceImpl<LogMapper, co.yixiang.loggin
         Object[] argValues = joinPoint.getArgs();
         //参数名称
         String[] argNames = ((MethodSignature) joinPoint.getSignature()).getParameterNames();
+        String[] ignoreArgs = aopLog.ignore().split(";");
+        Map<String,String> ignoreMap = new HashMap<>();
+        for (String ignore : ignoreArgs) {
+            String[] key = ignore.split(":");
+            ignoreMap.put(key[0],key[1]);
+        }
         if (argValues != null && argValues.length > 0) {
-            List<String> list = new ArrayList<>();
-            if (!StringUtils.isEmpty(aopLog.ignore())) {
-                list = Arrays.asList(aopLog.ignore().split(","));
-            }
             for (int i = 0; i < argValues.length; i++) {
-                if (!list.contains(argNames[i])) {
-                    params.append(" ").append(argNames[i]).append(": ").append(argValues[i]);
+                if(ignoreMap.containsKey(argNames[i])){
+                    String value = getValue( String.valueOf(argValues[i]),ignoreMap.get(argNames[i]));
+                    params.append(" ").append(argNames[i]).append(": ").append(value);
                 }
+
             }
         }
         // 描述
@@ -219,5 +224,14 @@ public class LogServiceImpl extends BaseServiceImpl<LogMapper, co.yixiang.loggin
             }
         }
         return Integer.parseInt(value);
+    }
+
+    public String getValue(String param,String key){
+        com.alibaba.fastjson.JSONObject jsonObject = JSON.parseObject(param);
+        List<String> keyList = Arrays.asList(key.split(","));
+        for (String name : keyList) {
+            jsonObject.remove(name);
+        }
+        return String.valueOf(jsonObject);
     }
 }
