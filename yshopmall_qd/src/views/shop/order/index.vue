@@ -132,10 +132,23 @@
           </template>
         </el-table-column>
         <el-table-column prop="payPrice" label="实际支付" />
-        <el-table-column prop="payTypeName" label="支付状态" />
+        <el-table-column prop="payTypeName" label="支付状态" >
+          <template slot-scope="scope">
+            <span v-if="scope.row.paid===1">
+              <el-tag v-if="scope.row.payType==='yue'" type="warning">{{scope.row.payTypeName}}</el-tag>
+              <el-tag v-else-if="scope.row.payType==='weixin'" type="success">{{scope.row.payTypeName}}</el-tag>
+              <el-tag v-else-if="scope.row.payType==='offline'">{{scope.row.payTypeName}}</el-tag>
+              <el-tag v-else type="danger">{{scope.row.payTypeName}}</el-tag>
+            </span>
+            <span v-else>
+              <el-tag v-if="scope.row.payType==='offline'">{{scope.row.payTypeName}}</el-tag>
+              <el-tag v-else type="info">{{scope.row.payTypeName}}</el-tag>
+            </span>
+          </template>
+        </el-table-column>
         <el-table-column prop="statusName" label="订单状态">
           <template slot-scope="scope">
-            <span v-html="scope.row.statusName"></span>
+            <span>{{scope.row.statusName}}</span>
           </template>
         </el-table-column>
         <el-table-column prop="addTime" width="160" label="创建时间">
@@ -148,13 +161,13 @@
             <el-button
               v-permission="['admin','YXSTOREORDER_ALL','YXSTOREORDER_SELECT']"
               style="padding:9px 15px"
-               type="primary" 
+               type="primary"
                size="mini"
               @click="detail(scope.row)"
             >
               订单详情</el-button>
-      
-            
+
+
             <!-- <el-dropdown size="mini" split-button type="primary" trigger="click">
               操作
               <el-dropdown-menu slot="dropdown">
@@ -210,7 +223,7 @@
                     </div>
                     <el-button slot="reference" type="danger" icon="el-icon-delete" size="mini">删除</el-button>
                   </el-popover>
-                </el-dropdown-item> 
+                </el-dropdown-item>
               </el-dropdown-menu>
             </el-dropdown>-->
 
@@ -218,7 +231,7 @@
              <el-button type="primary" plain size="small" style="padding-left:10px;padding-right:10px;">
               操作<i class="el-icon-arrow-down el-icon--right"></i>
               </el-button>
-                <el-dropdown-menu slot="dropdown">          
+                <el-dropdown-menu slot="dropdown">
                       <el-dropdown-item>
                   <el-button
                     v-permission="['admin','YXSTOREORDER_MARK']"
