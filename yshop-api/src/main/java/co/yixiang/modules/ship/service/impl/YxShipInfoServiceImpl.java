@@ -386,6 +386,7 @@ public class YxShipInfoServiceImpl extends BaseServiceImpl<YxShipInfoMapper, YxS
                 break;
         }
         returnData.setStatusFormat(strStatus);
+        returnData.setUserdTime(DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD_HH_MM_SS, returnData.getCreateTime()));
 
         map.put("data", returnData);
         map.put("status", "1");
