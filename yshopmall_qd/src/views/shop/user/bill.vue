@@ -383,6 +383,7 @@ export default {
       })
     },
     pageRefesh(){
+      this.page = 0
       this.init().then(res=>{
         res.remainPrice?this.remainPrice=res.remainPrice:{}
         res.totalPrice?this.totalPrice=res.totalPrice:{}
