@@ -210,7 +210,7 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<StoreOrderMapper, Y
             queryWrapper.lambda().like(YxStoreOrder::getRealName, criteria.getRealName());
         }
         //商户id
-        if(StringUtils.isNotBlank(criteria.getMerUsername())){
+        if (StringUtils.isNotBlank(criteria.getMerUsername())) {
             User user = this.userSysMapper.selectOne(new QueryWrapper<User>().lambda().eq(User::getUsername, criteria.getMerUsername()));
             if (null == user) {
                 Map<String, Object> map = new LinkedHashMap<>(2);
@@ -221,7 +221,7 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<StoreOrderMapper, Y
             queryWrapper.lambda().eq(YxStoreOrder::getMerId, user.getId());
         }
 
-        if(StringUtils.isNotEmpty(criteria.getCreateTimeStart())&&StringUtils.isNotEmpty(criteria.getCreateTimeEnd())) {
+        if (StringUtils.isNotEmpty(criteria.getCreateTimeStart()) && StringUtils.isNotEmpty(criteria.getCreateTimeEnd())) {
             Integer addTimeStart = 0;
             Integer addTimeEnd = 0;
             try {
@@ -270,8 +270,10 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<StoreOrderMapper, Y
                 yxStoreOrder.getRefundStatus());
 
         if (yxStoreOrder.getStoreId() > 0) {
-            String storeName = yxStoreInfoMapper.selectById(yxStoreOrder.getStoreId()).getStoreName();
-            yxStoreOrderDto.setStoreName(storeName);
+            YxStoreInfo yxStoreInfo = yxStoreInfoMapper.selectById(yxStoreOrder.getStoreId());
+            if (null != yxStoreInfo && StringUtils.isNotBlank(yxStoreInfo.getStoreName())) {
+                yxStoreOrderDto.setStoreName(yxStoreInfo.getStoreName());
+            }
         }
 
         //订单状态
@@ -375,25 +377,39 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<StoreOrderMapper, Y
             map.put("支付方式", yxStoreOrder.getPayType());
 //            map.put("创建时间", yxStoreOrder.getAddTime());
             map.put("创建时间", DateUtils.timestampToStr10(yxStoreOrder.getAddTime(), DateUtils.YYYY_MM_DD_HH_MM_SS));
-            String strStatus ="";
-            switch (yxStoreOrder.getStatus()){
+            String strStatus = "";
+            switch (yxStoreOrder.getStatus()) {
                 /*case 0:strStatus="待发货";break;
                 case 1:strStatus="待收货";break;
                 case 2:strStatus="已收";break;
                 case 3:strStatus="待评价";break;*/
 
-                case 0:strStatus = yxStoreOrder.getPaid().equals(0)?"未支付":"未发货";break;
-                case 1:strStatus="待收货";break;
-                case 2:strStatus="待评价";break;
-                case 3:strStatus="交易完成";break;
+                case 0:
+                    strStatus = yxStoreOrder.getPaid().equals(0) ? "未支付" : "未发货";
+                    break;
+                case 1:
+                    strStatus = "待收货";
+                    break;
+                case 2:
+                    strStatus = "待评价";
+                    break;
+                case 3:
+                    strStatus = "交易完成";
+                    break;
 
             }
-            map.put("订单状态",strStatus);
-            String strFund="";
-            switch (yxStoreOrder.getRefundStatus()){
-                case 0:strFund="未退款";break;
-                case 1:strFund="申请中";break;
-                case 2:strFund="已退款";break;
+            map.put("订单状态", strStatus);
+            String strFund = "";
+            switch (yxStoreOrder.getRefundStatus()) {
+                case 0:
+                    strFund = "未退款";
+                    break;
+                case 1:
+                    strFund = "申请中";
+                    break;
+                case 2:
+                    strFund = "已退款";
+                    break;
 
             }//0 未退款 1 申请中 2 已退款)
             map.put("退款状态", strFund);
@@ -412,7 +428,7 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<StoreOrderMapper, Y
             map.put("使用积分", yxStoreOrder.getUseIntegral());
             map.put("给用户退了多少积分", yxStoreOrder.getBackIntegral());
             map.put("备注", yxStoreOrder.getMark());
-            map.put("是否删除", yxStoreOrder.getIsDel()==1?"已删除":"未删除");
+            map.put("是否删除", yxStoreOrder.getIsDel() == 1 ? "已删除" : "未删除");
 //            map.put("唯一id(md5加密)类似id", yxStoreOrder.getUnique());
             map.put("管理员备注", yxStoreOrder.getRemark());
             map.put("商户ID", yxStoreOrder.getMerId());
@@ -424,8 +440,8 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<StoreOrderMapper, Y
 //            map.put("砍价id", yxStoreOrder.getBargainId());
             map.put("核销码", yxStoreOrder.getVerifyCode());
             map.put("店铺id", yxStoreOrder.getStoreId());
-            map.put("配送方式", yxStoreOrder.getShippingType().equals(1)?"快递":"门店自提");
-            map.put("支付渠道", yxStoreOrder.getIsChannel().equals(1)?"小程序":"公众号");
+            map.put("配送方式", yxStoreOrder.getShippingType().equals(1) ? "快递" : "门店自提");
+            map.put("支付渠道", yxStoreOrder.getIsChannel().equals(1) ? "小程序" : "公众号");
             /*map.put(" isRemind", yxStoreOrder.getIsRemind());
             map.put(" isSystemDel", yxStoreOrder.getIsSystemDel());*/
             list.add(map);
@@ -540,7 +556,7 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<StoreOrderMapper, Y
         }
 
         YxStoreOrder order = yxStoreOrderMapper.selectById(resources.getId());
-        if(ObjectUtil.isNull(order)){
+        if (ObjectUtil.isNull(order)) {
             return;
         }
 
@@ -759,11 +775,11 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<StoreOrderMapper, Y
     }
 
     @Override
-    public Integer getUserIdListByName(String userName){
+    public Integer getUserIdListByName(String userName) {
         List<Integer> listIds = new ArrayList<>();
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
 //        queryWrapper.likeRight("username",userName);
-        queryWrapper.likeRight("username",userName);
+        queryWrapper.likeRight("username", userName);
         //商户
 //        queryWrapper.eq("user_role",2);
 //        List<User> userList = sysUserService.list(queryWrapper);
@@ -775,6 +791,7 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<StoreOrderMapper, Y
 
     /**
      * admin查询平台订单信息
+     *
      * @param storeId
      * @return
      */
@@ -786,13 +803,13 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<StoreOrderMapper, Y
 
         TodayDataDto result = new TodayDataDto();
         // 本地生活相关-----------------------
-        Map<String,Long> localProductCount = productService.getLocalProductCount(storeId);
+        Map<String, Long> localProductCount = productService.getLocalProductCount(storeId);
         // 卡券数量
         result.setLocalProduct(localProductCount.get("localProduct").intValue());
         // 待上架卡券数量
         result.setLocalProductUnder(localProductCount.get("localProductUnder").intValue());
         // 卡券订单相关
-        Map<String,Long> localProductOrderCount = productService.getLocalProductOrderCount(storeId);
+        Map<String, Long> localProductOrderCount = productService.getLocalProductOrderCount(storeId);
 
         // 今日订单数
         result.setLocalOrderCount(localProductOrderCount.get("localOrderCount").intValue());
@@ -807,14 +824,14 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<StoreOrderMapper, Y
         // 本地生活相关----------------------- end
 
         // 商城相关===========================
-        Map<String,Long> shopProductCount = productService.getShopProductCount(storeId);
+        Map<String, Long> shopProductCount = productService.getShopProductCount(storeId);
         // 商品数量
         result.setShopProduct(shopProductCount.get("shopProduct").intValue());
         // 待上架商品
         result.setShopProductUnder(shopProductCount.get("shopProductUnder").intValue());
 
         // 商城订单数量相关
-        Map<String,Long> shopOrders = productService.getShopOrderCount(storeId);
+        Map<String, Long> shopOrders = productService.getShopOrderCount(storeId);
         // 今日订单数
         result.setShopOrderCount(shopOrders.get("shopOrderCount").intValue());
         // 待发货订单
@@ -827,7 +844,7 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<StoreOrderMapper, Y
         result.setShopSumPrice(shopSumPrice);
 
         // 用户相关
-        if(storeId==0){
+        if (storeId == 0) {
             // 平台运营和admin可查看
             result.setUserCount(userMapper.selectCount(new QueryWrapper<YxUser>().lambda().eq(YxUser::getStatus, 1)));
             result.setShareUserCount(userMapper.selectCount(new QueryWrapper<YxUser>().lambda().eq(YxUser::getUserRole, 1).eq(YxUser::getStatus, 1)));
@@ -838,24 +855,24 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<StoreOrderMapper, Y
         // 以下为近七天相关 本月相关
 
         // 本月本地生活成交额
-        result.setMonthLocalPrice(productService.getMonthLocalPrice(nowMonth,storeId));
+        result.setMonthLocalPrice(productService.getMonthLocalPrice(nowMonth, storeId));
         // 本月本地生活成交量
-        result.setMonthLocalCount(productService.getMonthLocalCount(nowMonth,storeId));
+        result.setMonthLocalCount(productService.getMonthLocalCount(nowMonth, storeId));
 
         // 本月商城成交额
-        result.setMonthShopPrice(productService.getMonthShopPrice(nowMonth,storeId));
+        result.setMonthShopPrice(productService.getMonthShopPrice(nowMonth, storeId));
         // 本月商城成交量
-        result.setMonthShopCount(productService.getMonthShopCount(nowMonth,storeId));
+        result.setMonthShopCount(productService.getMonthShopCount(nowMonth, storeId));
 
         // 近七天本地生活成交量
-        result.setLastWeekLocalCount(productService.getLastWeekLocalCount(nowMonth,storeId));
+        result.setLastWeekLocalCount(productService.getLastWeekLocalCount(nowMonth, storeId));
         // 近七天本地生活成交额
-        result.setLastWeekLocalPrice(productService.getLastWeekLocalPrice(nowMonth,storeId));
+        result.setLastWeekLocalPrice(productService.getLastWeekLocalPrice(nowMonth, storeId));
 
         // 近七天商城成交量
-        result.setLastWeekShopCount(productService.getLastWeekShopCount(nowMonth,storeId));
+        result.setLastWeekShopCount(productService.getLastWeekShopCount(nowMonth, storeId));
         // 近七天商城成交额
-        result.setLastWeekShopPrice(productService.getLastWeekShopPrice(nowMonth,storeId));
+        result.setLastWeekShopPrice(productService.getLastWeekShopPrice(nowMonth, storeId));
         return result;
     }
 }
