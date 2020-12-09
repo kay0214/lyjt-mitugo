@@ -317,7 +317,6 @@ public class YxShipInfoServiceImpl extends BaseServiceImpl<YxShipInfoMapper, YxS
         QueryWrapper<YxShipOperation> queryWrapper = new QueryWrapper<>();
         queryWrapper.lambda().eq(YxShipOperation::getBatchNo, param.getBatchNo());
         YxShipOperation yxShipOperation = yxShipOperationMapper.selectOne(queryWrapper);
-        YxShipOpeartionVo returnData = generator.convert(yxShipOperation, YxShipOpeartionVo.class);
         YxShipInfo yxShipInfo = this.getById(yxShipOperation.getShipId());
 
         if (1 == param.getStatus()) {
@@ -362,6 +361,7 @@ public class YxShipInfoServiceImpl extends BaseServiceImpl<YxShipInfoMapper, YxS
         this.updateById(yxShipInfo);
 
         // 前端分页问题、需要将当前操作数据的信息再返回去
+        YxShipOpeartionVo returnData = generator.convert(yxShipOperation, YxShipOpeartionVo.class);
         String leaveTimeStr = "";
         String returnTimeStr = "";
         if (null != returnData.getLeaveTime() && 0 != returnData.getLeaveTime()) {
@@ -386,6 +386,7 @@ public class YxShipInfoServiceImpl extends BaseServiceImpl<YxShipInfoMapper, YxS
                 break;
         }
         returnData.setStatusFormat(strStatus);
+        returnData.setUserdTime(DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD_HH_MM_SS, returnData.getCreateTime()));
 
         map.put("data", returnData);
         map.put("status", "1");

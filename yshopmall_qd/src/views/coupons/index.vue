@@ -58,7 +58,7 @@
             <el-input v-model="form.couponName" style="width: 650px;" maxlength="42" />
           </el-form-item>
           <el-form-item label="卡券类型" prop="couponType">
-            <el-select v-model="form.couponType" placeholder="请选择" style="width: 650px;">
+            <el-select v-model="form.couponType" placeholder="请选择" style="width: 650px;" @change="()=>{$refs.form.clearValidate()}">
               <el-option
                 v-for="item in selections.couponType"
                 :key="item.value"
@@ -606,7 +606,7 @@ export default {
             //   } else { callback() }
             // },
             required: true,
-            message: '销售价格不能为空',
+            message: '代金券面额不能为空',
             trigger: 'blur'
           },
           {

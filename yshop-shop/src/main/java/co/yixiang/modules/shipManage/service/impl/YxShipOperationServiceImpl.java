@@ -125,6 +125,9 @@ public class YxShipOperationServiceImpl extends BaseServiceImpl<YxShipOperationM
         if(null!=criteria.getCaptainName()){
             queryWrapper.lambda().likeRight(YxShipOperation::getCaptainName ,criteria.getCaptainName());
         }
+        if(StringUtils.isNotBlank(criteria.getBatchNo())){
+            queryWrapper.lambda().eq(YxShipOperation::getBatchNo ,criteria.getBatchNo());
+        }
         if(null!=criteria.getStartDate()&&null!=criteria.getEndDate()){
             String startDate = criteria.getStartDate()+" 00:00:00";
             String endDate  = criteria.getEndDate()+" 23:59:59";
