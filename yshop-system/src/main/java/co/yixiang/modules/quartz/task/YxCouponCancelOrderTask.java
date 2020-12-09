@@ -58,7 +58,11 @@ public class YxCouponCancelOrderTask {
                     resources.setId(item.getId());
                     resources.setRefundStatus(2);
                     resources.setRefundPrice(item.getTotalPrice());
-                    yxCouponOrderService.refund(resources);
+                    try {
+                        yxCouponOrderService.refund(resources);
+                    } catch (Exception e) {
+                        log.error("订单：" + item.getOrderId() + "退款失败！", e.getMessage());
+                    }
                 }
             }
             // 剩下未退款的更新成已过期
