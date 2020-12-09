@@ -8,7 +8,7 @@
         <rrOperation :crud="crud" />
         <crudOperation :permission="permission" class="tips" />
       </div>
-     
+
       <!--表单组件-->
       <el-dialog :close-on-click-modal="false" :before-close="crud.cancelCU" :visible.sync="crud.status.cu > 0" :title="crud.status.title" width="500px">
         <el-form ref="form" :model="form" :rules="rules" size="small" label-width="140px">
@@ -40,7 +40,8 @@
         <el-table-column v-if="columns.visible('cateName')" prop="cateName" label="分类名称" />
         <el-table-column v-if="columns.visible('isShow')" prop="isShow" label="显示状态">
           <template slot-scope="scope">
-            {{scope.row.isShow === 1 ? "显示": "隐藏"}}
+            <el-tag v-if="scope.row.isShow === 1">显示</el-tag>
+            <el-tag v-else type="info">隐藏</el-tag>
           </template>
         </el-table-column>
         <el-table-column v-if="columns.visible('sort')" prop="sort" label="排序" sortable/>

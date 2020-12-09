@@ -80,7 +80,10 @@
           <el-table-column v-if="columns.visible('commission')" prop="commission" label="佣金" />
           <el-table-column v-if="columns.visible('payStaus')" prop="payStaus" label="支付状态" ><!-- 0未支付 1已支付-->
             <template slot-scope="scope">
-              <span>{{Boolean(scope.row.payStaus)?"已支付":"未支付"}}</span>
+              <span>
+                <el-tag v-if="Boolean(scope.row.payStaus)">已支付</el-tag>
+                <el-tag v-else type="info">未支付</el-tag>
+              </span>
             </template>
           </el-table-column>
           <el-table-column v-if="columns.visible('status')" prop="status" label="订单状态">

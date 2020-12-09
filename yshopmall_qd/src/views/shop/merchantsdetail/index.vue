@@ -272,7 +272,7 @@
         <el-table-column label="商户状态" align="center">
           <template slot-scope="scope">
             <div @click="updateStatus(scope.row.uid,scope.row.status)">
-              <el-tag v-if="scope.row.status == 1">已禁用</el-tag>
+              <el-tag v-if="scope.row.status == 1" type="info">已禁用</el-tag>
               <el-tag v-else-if="scope.row.status == 0">启用中</el-tag>
               <el-tag v-else></el-tag>
             </div>
@@ -280,12 +280,15 @@
         </el-table-column>
         <el-table-column v-if="columns.visible('examineStatus')" prop="examineStatus" label="审批状态">
           <template slot-scope="scope">
-            {{ dict.label.merchants_status[scope.row.examineStatus] }}
+            <el-tag v-if="scope.row.examineStatus===1" type="success">{{ dict.label.merchants_status[scope.row.examineStatus] }}</el-tag>
+            <el-tag v-else-if="scope.row.examineStatus===2" type="info">{{ dict.label.merchants_status[scope.row.examineStatus] }}</el-tag>
+            <el-tag v-else-if="scope.row.examineStatus===3" type="warning">{{ dict.label.merchants_status[scope.row.examineStatus] }}</el-tag>
+            <el-tag v-else>{{ dict.label.merchants_status[scope.row.examineStatus] }}</el-tag>
           </template>
         </el-table-column>
         <el-table-column v-permission="['admin','yxMerchantsDetail:edit','yxMerchantsDetail:examine','yxMerchantsDetail:del']" label="操作" width="250px" align="center">
           <template v-if="!crud.loading" slot-scope="scope">
-           
+
 
             <!-- <el-button v-if="scope.row.examineStatus===3" v-permission="permission.examine" size="mini" type="primary" icon="el-icon-s-check" @click="examineOpt(scope.row)" plain></el-button> -->
             <!-- <br/> -->
@@ -313,7 +316,7 @@ trigger="click">
     <el-button type="primary" plain size="small" style="padding-left:10px;padding-right:10px;">
      更多操作<i class="el-icon-arrow-down el-icon--right"></i>
     </el-button>
-        <el-dropdown-menu slot="dropdown">          
+        <el-dropdown-menu slot="dropdown">
             <el-dropdown-item v-if="scope.row.examineStatus===3" >
                 <el-button v-permission="permission.examine" size="mini" type="primary" icon="el-icon-s-check" @click="examineOpt(scope.row)" plain></el-button>
             </el-dropdown-item >
@@ -325,9 +328,9 @@ trigger="click">
             </el-dropdown-item>
             <el-dropdown-item >
                 <el-button  style="marginTop:5px;"  size="mini" type="success" icon="el-icon-reading" @click="toRead(scope.row)" plain ></el-button>
-            </el-dropdown-item> 
+            </el-dropdown-item>
         </el-dropdown-menu>
-  </el-dropdown>          
+  </el-dropdown>
           </template>
         </el-table-column>
       </el-table>
