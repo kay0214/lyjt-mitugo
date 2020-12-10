@@ -143,7 +143,7 @@ public class LogServiceImpl extends BaseServiceImpl<LogMapper, co.yixiang.loggin
         }
         if (argValues != null && argValues.length > 0) {
             for (int i = 0; i < argValues.length; i++) {
-                String value = "";
+                String value = String.valueOf(argValues[i]);
                 if(ignoreMap.containsKey(argNames[i])){
                     value = getValue( String.valueOf(argValues[i]),ignoreMap.get(argNames[i]));
                 }
