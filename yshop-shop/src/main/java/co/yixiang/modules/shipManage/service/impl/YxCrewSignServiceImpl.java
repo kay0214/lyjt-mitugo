@@ -81,6 +81,7 @@ public class YxCrewSignServiceImpl extends BaseServiceImpl<YxCrewSignMapper, YxC
             Map<String, Object> map = new LinkedHashMap<>();
 //            map.put("用户ID", yxCrewSign.getUid());
             map.put("用户名", yxCrewSign.getUsername());
+            map.put("姓名", yxCrewSign.getNickName());
             map.put("联系电话", yxCrewSign.getUserPhone());
             map.put("体温", yxCrewSign.getTemperature());
             /*map.put("是否删除（0：未删除，1：已删除）", yxCrewSign.getDelFlag());
