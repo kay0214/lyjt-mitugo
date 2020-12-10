@@ -87,7 +87,20 @@
         </template>
       </el-table-column>
       <el-table-column prop="payPrice" label="实际支付" />
-      <el-table-column prop="payTypeName" label="支付状态" />
+      <el-table-column prop="payTypeName" label="支付状态" >
+        <template slot-scope="scope">
+            <span v-if="scope.row.paid===1">
+              <el-tag v-if="scope.row.payType==='yue'" type="warning">{{scope.row.payTypeName}}</el-tag>
+              <el-tag v-else-if="scope.row.payType==='weixin'" type="success">{{scope.row.payTypeName}}</el-tag>
+              <el-tag v-else-if="scope.row.payType==='offline'">{{scope.row.payTypeName}}</el-tag>
+              <el-tag v-else type="danger">{{scope.row.payTypeName}}</el-tag>
+            </span>
+          <span v-else>
+              <el-tag v-if="scope.row.payType==='offline'">{{scope.row.payTypeName}}</el-tag>
+              <el-tag v-else type="info">{{scope.row.payTypeName}}</el-tag>
+            </span>
+        </template>
+      </el-table-column>
       <el-table-column prop="statusName" label="订单状态">
         <template slot-scope="scope">
           <span v-html="scope.row.statusName">{{ scope.row.addTime }}</span>

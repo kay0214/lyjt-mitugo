@@ -148,7 +148,7 @@
         </el-table-column>
         <el-table-column prop="statusName" label="订单状态">
           <template slot-scope="scope">
-            <span>{{scope.row.statusName}}</span>
+            <span v-html="scope.row.statusName"></span>
           </template>
         </el-table-column>
         <el-table-column prop="addTime" width="160" label="创建时间">
