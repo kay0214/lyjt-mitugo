@@ -391,9 +391,8 @@ export default {
       })
     },
     downloadList(){
-      this.beforeInit()
       this.downloadLoading = true
-      download('api/downloadUserBill', this.params).then(result => {
+      download('api/downloadUserBill', this.getQueryParame()).then(result => {
         this.downloadFile(result, this.title + '数据', 'xlsx')
         this.downloadLoading = false
       }).catch(() => {
