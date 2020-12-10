@@ -2333,6 +2333,18 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
                 // 记录的原价
                 bigPrice = redisVo.getProductPrice().multiply(new BigDecimal(storeCart.getCartNum()));
 
+                // 获取商品单个佣金
+                BigDecimal bigCommission = BigDecimal.ZERO;
+                if (StringUtils.isNotBlank(storeCart.getProductAttrUnique())) {
+                    QueryWrapper<YxStoreProductAttrValue> queryWrapper = new QueryWrapper<>();
+                    queryWrapper.lambda().eq(YxStoreProductAttrValue::getUnique, storeCart.getProductAttrUnique());
+                    YxStoreProductAttrValue attrValue = productAttrValueService.getOne(queryWrapper);
+                    bigCommission = attrValue.getCommission();
+                } else {
+                    bigCommission = product.getCommission();
+                }
+                // 设置总佣金
+                storeCart.setCommission(bigCommission.multiply(new BigDecimal(storeCart.getCartNum())));
                 //支付比例：记录优惠券扣减后的价格
                 BigDecimal pricePayProduct = bigPrice;
                 if (orderInfo.getDeductionPrice().compareTo(BigDecimal.ZERO) > 0 || orderInfo.getCouponPrice().compareTo(BigDecimal.ZERO) > 0) {
@@ -2342,21 +2354,9 @@ public class YxStoreOrderServiceImpl extends BaseServiceImpl<YxStoreOrderMapper,
                     //订单金额*支付比例= 产品的支付金额
                     pricePayProduct = orderInfo.getPayPrice().multiply(bigProportion).setScale(2, BigDecimal.ROUND_DOWN);
                 }
-                // 分佣金额
+                // 分佣金额大于支付金额的话、支付金额全部算为佣金
                 if (pricePayProduct.compareTo(storeCart.getCommission()) < 0) {
                     storeCart.setCommission(pricePayProduct);
-                }else {
-                    //佣金
-                    BigDecimal bigCommission = BigDecimal.ZERO;
-                    if (StringUtils.isNotBlank(storeCart.getProductAttrUnique())) {
-                        QueryWrapper<YxStoreProductAttrValue> queryWrapper = new QueryWrapper<>();
-                        queryWrapper.lambda().eq(YxStoreProductAttrValue::getUnique, storeCart.getProductAttrUnique());
-                        YxStoreProductAttrValue attrValue = productAttrValueService.getOne(queryWrapper);
-                        bigCommission = attrValue.getCommission();
-                    } else {
-                        bigCommission = product.getCommission();
-                    }
-                    storeCart.setCommission(bigCommission);
                 }
                 //实际支付金额
                 storeCart.setPayPrice(pricePayProduct);
