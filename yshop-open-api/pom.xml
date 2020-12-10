@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>lyjt-mitugo</artifactId>
+        <groupId>co.yixiang</groupId>
+        <version>2.2</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>co.yixiang</groupId>
+    <artifactId>yshop-open-api</artifactId>
+    <packaging>jar</packaging>
+    <name>第三方开放接口</name>
+
+    <properties>
+        <java.version>1.8</java.version>
+        <mybatis-plus-boot-starter.version>3.2.0</mybatis-plus-boot-starter.version>
+        <framework.version>1.1.0</framework.version>
+        <jetcache.version>2.5.11</jetcache.version>
+    </properties>
+
+    <dependencies>
+        <!-- 同时需要common模块和logging模块只需要引入logging模块即可 -->
+        <dependency>
+            <groupId>co.yixiang</groupId>
+            <artifactId>yshop-mproot</artifactId>
+            <version>2.2</version>
+        </dependency>
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-boot-starter</artifactId>
+            <version>${mybatis-plus-boot-starter.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-generator</artifactId>
+            <version>${mybatis-plus-boot-starter.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.velocity</groupId>
+            <artifactId>velocity-engine-core</artifactId>
+            <version>2.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>p6spy</groupId>
+            <artifactId>p6spy</artifactId>
+            <version>3.8.1</version>
+        </dependency>
+        <dependency>
+            <groupId>com.hyjf.framework</groupId>
+            <artifactId>rocketmq-spring-boot-starter</artifactId>
+            <version>${framework.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.hyjf.framework</groupId>
+            <artifactId>log-dingding-spring-boot-starter</artifactId>
+            <version>${framework.version}</version>
+        </dependency>
+        <!-- 共同模块引用 -->
+        <dependency>
+            <groupId>com.hyjf.framework</groupId>
+            <artifactId>common-spring-boot-starter</artifactId>
+        </dependency>
+    </dependencies>
+
+
+    <build>
+        <finalName>${project.name}</finalName>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+                <includes>
+                    <include>**/**.*</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>src/main/java</directory>
+                <includes>
+                    <include>**/*.xml</include>
+                </includes>
+            </resource>
+        </resources>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-maven-plugin</artifactId>
+                    <version>${spring.boot.version}</version>
+                    <configuration>
+                        <finalName>${project.build.finalName}</finalName>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>repackage</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
+                    <encoding>UTF-8</encoding>
+                    <compilerArgs>
+                        <arg>-parameters</arg>
+                    </compilerArgs>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

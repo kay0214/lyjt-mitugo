@@ -1,0 +1,27 @@
+server:
+  port: 8010
+  servlet:
+    context-path: /open
+  tomcat:
+    uri-encoding: UTF-8
+
+
+spring:
+  http:
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
+  freemarker:
+    check-template-location: false
+  profiles:
+    active: dev
+  jackson:
+    time-zone: GMT+8
+  data:
+    redis:
+      repositories:
+        enabled: false
+  application:
+    name: open-api
+  datacenterId: 1

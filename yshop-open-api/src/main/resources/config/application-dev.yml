@@ -1,0 +1,77 @@
+server:
+  tomcat:
+    # tomcat的URI编码
+    uri-encoding: UTF-8
+    # tomcat最大线程数，默认为200
+    max-threads: 300
+    # Tomcat启动初始化的线程数，默认值25
+    min-spare-threads: 1
+
+# 日志配置
+logging:
+  config: classpath:logback-spring.xml
+  file: /hyjfdata/log/mitu/${spring.profiles.active}/open-api.log
+  file.max-size: 50MB
+  #当参数定义int简单类型并使用@apiModelPerperty标签时,如果不指名example属性,会导致swagger类型转换错误,信息如下
+  #java.lang.NumberFormatException: For input string: ""
+  level.io.swagger.models.parameters.AbstractSerializableParameter: error
+
+#配置数据源
+spring:
+  datasource:
+    druid:
+      type: com.alibaba.druid.pool.DruidDataSource
+      driver-class-name: com.p6spy.engine.spy.P6SpyDriver
+      url: jdbc:p6spy:mysql://39.98.139.163:33306/mitu?serverTimezone=Asia/Shanghai&characterEncoding=utf8&useSSL=false
+      #url: jdbc:log4jdbc:mysql://localhost:3306/yxshop?serverTimezone=Asia/Shanghai&characterEncoding=utf8&useSSL=false
+      username: dbwrite
+      password: aAR!Q23AUP!ogk$J
+
+      # 初始化配置
+      initial-size: 3
+      # 最小连接数
+      min-idle: 3
+      # 最大连接数
+      max-active: 15
+      # 获取连接超时时间
+      max-wait: 5000
+      # 连接有效性检测时间
+      time-between-eviction-runs-millis: 90000
+      # 最大空闲时间
+      min-evictable-idle-time-millis: 1800000
+      test-while-idle: true
+      test-on-borrow: false
+      test-on-return: false
+
+      validation-query: select 1
+      # 配置监控统计拦截的filters
+      filters: stat
+      stat-view-servlet:
+        url-pattern: /druid/*
+        reset-enable: false
+
+      web-stat-filter:
+        url-pattern: /*
+        exclusions: "*.js,*.gif,*.jpg,*.bmp,*.png,*.css,*.ico,/druid/*"
+  redis:
+    #数据库索引
+    database: 0
+    host: 39.98.139.163
+    port: 6379
+    password: RH06863b3e6
+    #连接超时时间
+    timeout: 5000
+#配置rocketmq
+rocketmq:
+  nameServer: 39.100.232.229:9876
+  producer:
+    group: mitu-dev
+    sendMessageTimeout: 300000
+
+# 叮叮配置
+dingding:
+  log:
+    enabled: true
+    accessToken: 736
+    secret: SEC5d
+
