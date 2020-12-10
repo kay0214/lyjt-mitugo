@@ -129,11 +129,17 @@ public class LogServiceImpl extends BaseServiceImpl<LogMapper, co.yixiang.loggin
         Object[] argValues = joinPoint.getArgs();
         //参数名称
         String[] argNames = ((MethodSignature) joinPoint.getSignature()).getParameterNames();
-        String[] ignoreArgs = aopLog.ignore().split(";");
+        String ignores = StringUtils.isEmpty(aopLog.ignore())?"":aopLog.ignore();
+        String[] ignoreArgs = ignores.split(";");
         Map<String,String> ignoreMap = new HashMap<>();
         for (String ignore : ignoreArgs) {
-            String[] key = ignore.split(":");
-            ignoreMap.put(key[0],key[1]);
+            if(StringUtils.isNotBlank(ignore)){
+                String[] key = ignore.split(":");
+                if(key.length>=2){
+                    ignoreMap.put(key[0],key[1]);
+                }
+            }
+
         }
         if (argValues != null && argValues.length > 0) {
             for (int i = 0; i < argValues.length; i++) {
