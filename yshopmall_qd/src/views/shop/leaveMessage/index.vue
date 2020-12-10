@@ -51,7 +51,7 @@
           </el-form-item>
           <el-form-item label="备注" prop="remark">
             <el-input v-if="editStatus" type="textarea"
-                      :rows="4" v-model="form.remark" style="width: 370px;" maxlength="200"/>
+                      :rows="4" v-model.trim="form.remark" style="width: 370px;" maxlength="200"/>
             <span v-else>{{form.remark}}</span>
           </el-form-item>
           <el-form-item label="处理人">

@@ -109,7 +109,7 @@ export default {
           { required: true, message: '模板名称不能为空', trigger: 'blur' }
         ],
         file: [
-          { required: true, message: '比选项', trigger: 'change' }
+          { required: true, message: '至少传一个文件', trigger: 'change' }
         ]
       },
       fileList:[],
