@@ -18,23 +18,23 @@ import javax.validation.constraints.NotNull;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@ApiModel(value="YxCouponsQueryParam对象", description="本地生活, 卡券表查询参数")
+@ApiModel(value = "YxCouponsQueryParam对象", description = "本地生活, 卡券表查询参数")
 public class YxCouponsQueryParam extends QueryParam {
     private static final long serialVersionUID = 1L;
 
-    @NotNull(message = "默认字符串")
+    @NotNull(message = "默认字符串不可为空")
     @ApiModelProperty(value = "默认字符串V1.0")
     private String version;
 
-    @NotNull(message = "时间戳")
+    @NotNull(message = "时间戳不可为空")
     @ApiModelProperty(value = "时间戳")
     private String timestamp;
 
-    @NotNull(message = "签名")
+    @NotNull(message = "签名不可为空")
     @ApiModelProperty(value = "签名")
     private String signature;
 
-    @NotNull(message = "合作方用户编码")
+    @NotNull(message = "合作方用户编码不可为空")
     @ApiModelProperty(value = "合作方用户编码")
     private String channelId;
 }

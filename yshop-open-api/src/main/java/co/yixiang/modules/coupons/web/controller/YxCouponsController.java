@@ -38,9 +38,9 @@ public class YxCouponsController extends BaseController {
      * 本地生活, 卡券表分页列表
      */
     @PostMapping("/getPageList")
-    @ApiOperation(value = "获取YxCoupons分页列表",notes = "本地生活, 卡券表分页列表",response = YxCouponsQueryVo.class)
-    public ApiResult<Paging<YxCouponsQueryVo>> getYxCouponsPageList(@RequestBody @Valid YxCouponsQueryParam yxCouponsQueryParam) throws Exception{
-        log.info("获取商品信息接口",yxCouponsQueryParam);
+    @ApiOperation(value = "获取YxCoupons分页列表", notes = "本地生活, 卡券表分页列表", response = YxCouponsQueryVo.class)
+    public ApiResult<Paging<YxCouponsQueryVo>> getYxCouponsPageList(@RequestBody @Valid YxCouponsQueryParam yxCouponsQueryParam) throws Exception {
+        log.info("获取商品信息接口:{}", yxCouponsQueryParam);
         ApiResult apiResult = yxCouponsService.selectYxCouponsPageList(yxCouponsQueryParam);
 
         return apiResult;

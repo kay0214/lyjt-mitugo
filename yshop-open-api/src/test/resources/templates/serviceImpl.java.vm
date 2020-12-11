@@ -34,7 +34,7 @@ open class ${table.serviceImplName} : ${superServiceImplClass}<${table.mapperNam
 
 }
 #else
-public class ${table.serviceImplName} extends BaseServiceImpl<${table.mapperName}, ${entity}> implements ${table.serviceName} {
+public class ${table.serviceImplName} extends BaseOpenServiceImpl<${table.mapperName}, ${entity}> implements ${table.serviceName} {
 
     @Autowired
     private ${table.mapperName} ${cfg.mapperObjectName};

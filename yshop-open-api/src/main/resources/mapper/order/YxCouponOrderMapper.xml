@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="co.yixiang.modules.order.mapper.YxCouponOrderMapper">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, unique, order_id, uid, real_name, user_phone, total_num, total_price, coupon_id, coupon_price, pay_staus, pay_type, is_channel, pay_time, use_count, used_count, status, refund_status, refund_reason_wap_explain, refund_reason_time, refund_reason, refund_price, mark, mer_id, parent_id, parent_type, share_id, share_parent_id, share_parent_type, verify_code, commission, rebate_status, out_time, del_flag, create_user_id, update_user_id, create_time, update_time, refund_reason_wap, evaluate, online_invoice
+    </sql>
+
+    <select id="getYxCouponOrderById" resultType="co.yixiang.modules.order.web.vo.YxCouponOrderQueryVo">
+        select <include refid="Base_Column_List"/> from yx_coupon_order where id = #{id}
+    </select>
+
+    <select id="getYxCouponOrderPageList" resultType="co.yixiang.modules.order.web.vo.YxCouponOrderQueryVo">
+        select <include refid="Base_Column_List"/> from yx_coupon_order
+    </select>
+
+</mapper>

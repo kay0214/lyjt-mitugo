@@ -70,7 +70,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(value = BusinessException.class)
     public ApiResult errorBusinessException(BusinessException e) {
         // 打印堆栈信息
-        log.debug(e.getMessage(), e);
+        log.debug(e.getMessage());
         ApiResult apiCode = new ApiResult(e.getStatus(), e.getMessage());
         return ApiResult.fail(apiCode);
     }
