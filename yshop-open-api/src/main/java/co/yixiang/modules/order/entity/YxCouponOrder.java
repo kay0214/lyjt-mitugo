@@ -3,6 +3,7 @@ package co.yixiang.modules.order.entity;
 import co.yixiang.common.entity.BaseEntity;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.fasterxml.jackson.annotation.JsonEnumDefaultValue;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -123,6 +124,15 @@ public class YxCouponOrder extends BaseEntity {
     @ApiModelProperty(value = "分佣状态 0:未分佣 1:已分佣")
     private Integer rebateStatus;
 
+    @ApiModelProperty(value = "订单类型 0：平台 1：三方")
+    private Integer orderType;
+
+    @ApiModelProperty(value = "订单关联三方id")
+    private Integer linkPlatId;
+
+    @ApiModelProperty(value = "异步回调地址(核销用)")
+    private String notify_url;
+
     @ApiModelProperty(value = "过期时间")
     private Integer outTime;
 
@@ -141,6 +151,7 @@ public class YxCouponOrder extends BaseEntity {
     @ApiModelProperty(value = "更新时间")
     private Date updateTime;
 
+    @JsonEnumDefaultValue
     @ApiModelProperty(value = "前台退款原因")
     private String refundReasonWap;
 
