@@ -75,3 +75,6 @@ dingding:
     accessToken: 736
     secret: SEC5d
 
+online:
+  appKey: 'C8DA1455EFB63A2A'
+  version: 'V1.0'

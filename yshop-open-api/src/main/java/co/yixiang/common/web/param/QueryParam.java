@@ -15,10 +15,9 @@ public abstract class QueryParam implements Serializable{
 
     @ApiModelProperty(value = "页码,默认为1")
 	private Integer page = CommonConstant.DEFAULT_PAGE_INDEX;
+
 	@ApiModelProperty(value = "页大小,默认为10")
 	private Integer limit = CommonConstant.DEFAULT_PAGE_SIZE;
-    @ApiModelProperty(value = "搜索字符串")
-    private String keyword;
 
     public void setCurrent(Integer current) {
 	    if (current == null || current <= 0){

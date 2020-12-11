@@ -39,6 +39,11 @@ public class ApiResult<T> implements Serializable {
 
     }
 
+    public ApiResult(Integer status,String msg) {
+        this.status = status;
+        this.msg = msg;
+    }
+
     public static  <T> ApiResult<T>  result(boolean flag){
         if (flag){
             return ok();
@@ -67,6 +72,24 @@ public class ApiResult<T> implements Serializable {
                 .build();
     }
 
+
+
+    public static <T> ApiResult<T> result(ApiResult apiResult){
+        return result(apiResult,null);
+    }
+
+    public static <T> ApiResult<T> result(ApiResult apiCode,String msg){
+        String message = apiCode.getMsg();
+        if (StringUtils.isNotBlank(msg)){
+            message = msg;
+        }
+        return (ApiResult<T>) ApiResult.builder()
+                .status(apiCode.getStatus())
+                .msg(message)
+                .time(new Date())
+                .build();
+    }
+
     public static <T> ApiResult<T> ok(){
         return ok(null);
     }
@@ -85,8 +108,8 @@ public class ApiResult<T> implements Serializable {
 //        return ok(map);
 //    }
 
-    public static <T> ApiResult<T> fail(ApiCode apiCode){
-        return result(apiCode,null);
+    public static <T> ApiResult<T> fail(ApiResult apiCode){
+        return result(apiCode);
     }
 
     public static <T> ApiResult<T> fail(String msg){
