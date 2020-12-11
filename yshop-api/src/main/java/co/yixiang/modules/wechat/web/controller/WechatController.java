@@ -246,7 +246,7 @@ public class WechatController extends BaseController {
             couponOrder.setRefundStatus(2);
             couponOrder.setRefundPrice(refundFee);
             // 手动退款的更新状态为已退款
-            if (1 == couponOrder.getRefundStatus()) {
+            if (1 == yxCouponOrder.getRefundStatus()) {
                 couponOrder.setStatus(8);
             }
             yxCouponOrderService.updateById(couponOrder);
